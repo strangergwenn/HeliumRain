@@ -27,6 +27,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatReticleIconobj   (TEXT("/Game/Gameplay/HUD/TX_CombatReticle.TX_CombatReticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBackReticleIconObj     (TEXT("/Game/Gameplay/HUD/TX_BackReticle.TX_BackReticle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimIconObj             (TEXT("/Game/Gameplay/HUD/TX_Aim.TX_Aim"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHitIconObj          (TEXT("/Game/Gameplay/HUD/TX_AimHit.TX_AimHit"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBombAimIconObj         (TEXT("/Game/Gameplay/HUD/TX_BombAim.TX_BombAim"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDBombMarkerObj          (TEXT("/Game/Gameplay/HUD/TX_BombMarker.TX_BombMarker"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDAimHelperIconObj       (TEXT("/Game/Gameplay/HUD/TX_AimHelper.TX_AimHelper"));
@@ -37,6 +38,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 
 	// Load content (designator icons)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj     (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDSearchArrowIconObj     (TEXT("/Game/Gameplay/HUD/TX_SearchArrow.TX_SearchArrow"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj    (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHighlightSearchArrowObj(TEXT("/Game/Gameplay/HUD/TX_HighlightSearchArrow.TX_HighlightSearchArrow"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorMilCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorMilitaryCorner.TX_DesignatorMilitaryCorner"));
@@ -63,6 +65,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDCombatReticleIcon = HUDCombatReticleIconobj.Object;
 	HUDBackReticleIcon = HUDBackReticleIconObj.Object;
 	HUDAimIcon = HUDAimIconObj.Object;
+	HUDAimHitIcon = HUDAimHitIconObj.Object;
 	HUDBombAimIcon = HUDBombAimIconObj.Object;
 	HUDBombMarker = HUDBombMarkerObj.Object;
 	HUDAimHelperIcon = HUDAimHelperIconObj.Object;
@@ -73,6 +76,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 
 	// Load content (designator icons)
 	HUDCombatMouseIcon = HUDCombatMouseIconObj.Object;
+	HUDSearchArrowIcon = HUDSearchArrowIconObj.Object;
 	HUDHighlightSearchArrowTexture = HUDHighlightSearchArrowObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
 	HUDDesignatorMilCornerTexture = HUDDesignatorMilCornerObj.Object;
@@ -95,14 +99,15 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDFontLarge = HUDFontLargeObj.Object;
 
 	// Settings
-	FocusDistance = 10000000;
 	IconSize = 24;
+	FocusDistance = 10000000;
+	PlayerHitDisplayTime = 0.08f;
 	ShadowColor = FLinearColor(0.02f, 0.02f, 0.02f, 1.0f);
 
 	// Cockpit instruments
 	TopInstrument =   FVector2D(20, 10);
 	LeftInstrument =  FVector2D(20, 165);
-	RightInstrument = FVector2D(24, 320);
+	RightInstrument = FVector2D(30, 320);
 	InstrumentSize =  FVector2D(380, 115);
 	InstrumentLine =  FVector2D(0, 20);
 
@@ -230,6 +235,13 @@ void AFlareHUD::RemoveAllTargets()
 	ScreenTargets.Empty();
 }
 
+void AFlareHUD::SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType)
+{
+	PlayerHitSpacecraft = HitSpacecraft;
+	PlayerDamageType = DamageType;
+	PlayerHitTime = 0;
+}
+
 void AFlareHUD::DrawHUD()
 {
 	Super::DrawHUD();
@@ -245,7 +257,6 @@ void AFlareHUD::DrawHUD()
 		CurrentCanvas = Canvas;
 		IsDrawingCockpit = false;
 		IsDrawingHUD = true;
-		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
 		// Initial data and checks
 		if (!ShouldDrawHUD())
@@ -254,6 +265,7 @@ void AFlareHUD::DrawHUD()
 		}
 
 		// Look for a spacecraft to draw the context menu on
+		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 		UpdateContextMenu(PlayerShip);
 
 		// Draw the general-purpose HUD (no-cockpit version)
@@ -269,12 +281,21 @@ void AFlareHUD::DrawHUD()
 			DrawDebugGrid(HudColorEnemy);
 		}
 	}
+
+	// Player hit management
+	if (PlayerHitTime >= PlayerHitDisplayTime)
+	{
+		PlayerHitSpacecraft = NULL;
+	}
 }
 
 void AFlareHUD::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	// Update data
 	ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
+	PlayerHitTime += DeltaSeconds;
 
 	// Mouse control
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
@@ -383,7 +404,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	}
 	else
 	{
-		TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Hull Temperature: {0}K"), FText::AsNumber(Temperature));
+		TemperatureText = FText::Format(LOCTEXT("TemperatureFormat", "Temperature: {0}K"), FText::AsNumber(Temperature));
 		TemperatureColor = GetTemperatureColor(Temperature, PlayerShip->GetParent()->GetDamageSystem()->GetOverheatTemperature());
 	}
 
@@ -558,15 +579,14 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 
 void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 {
-	FVector2D CurrentPos = TopInstrument + FVector2D(0, InstrumentSize.Y) - InstrumentLine;
+	FVector2D CurrentPos = TopInstrument + FVector2D(0, InstrumentSize.Y) - 5 * InstrumentLine;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
-	// Sector info
-	UFlareSector* CurrentSector = PlayerShip->GetGame()->GetActiveSector();
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	UFlareSimulatedSector* CurrentSector = PlayerShip->GetGame()->GetActiveSector()->GetSimulatedSector();
 
 	if (CurrentSector)
 	{
-		// Get text
+		// Get sector name
 		FText SectorText;
 		if (PlayerShip->GetParent()->GetCurrentFleet()->IsTraveling())
 		{
@@ -575,25 +595,64 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		else
 		{
 			SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "Current sector : {0} ({1})"),
-				CurrentSector->GetSimulatedSector()->GetSectorName(),
-				CurrentSector->GetSimulatedSector()->GetSectorFriendlynessText(PlayerShip->GetParent()->GetCompany()));
+				CurrentSector->GetSectorName(),
+				CurrentSector->GetSectorFriendlynessText(PC->GetCompany()));
 		}
-
-		// Draw
 		FlareDrawText(SectorText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 		CurrentPos += InstrumentLine;
+
+		// Sector forces
+		FlareDrawText(CurrentSector->GetSectorBalanceText().ToString(), CurrentPos, Theme.FriendlyColor, false);
+		CurrentPos += InstrumentLine;
+
+		// Battle status
+		FText BattleStatusText = CurrentSector->GetSectorBattleStateText(PC->GetCompany());
+		FlareDrawText(BattleStatusText.ToString(), CurrentPos, Theme.FriendlyColor, false);
+		CurrentPos += 2 * InstrumentLine;
 
 		// Target info
 		AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
 		if (TargetShip && TargetShip->IsValidLowLevel())
 		{
-			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Target : {0} ({1})"),
+			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Targeting {0} ({1})"),
 				FText::FromString(TargetShip->GetParent()->GetImmatriculation().ToString()),
-				TargetShip->GetParent()->GetCompany()->GetPlayerHostilityText());
+				FText::FromString(TargetShip->GetCompany()->GetShortName().ToString()));
 			FlareDrawText(ShipText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 
-			CurrentPos += FVector2D(InstrumentSize.X, 0) * 0.7;
+			CurrentPos += FVector2D(InstrumentSize.X, 0) * 0.8;
 			DrawHUDDesignatorStatus(CurrentPos, IconSize, TargetShip);
+			CurrentPos -= FVector2D(InstrumentSize.X, 0) * 0.8;
+		}
+		CurrentPos += InstrumentLine;
+
+		// Get player threats
+		bool Targeted, FiredUpon;
+		UFlareSimulatedSpacecraft* Threat;
+		PC->GetPlayerShipThreatStatus(Targeted, FiredUpon, Threat);
+
+		// Fired on ?
+		if (FiredUpon)
+		{
+			FText WarningText = FText::Format(LOCTEXT("ThreatFiredUponFormat", "UNDER FIRE FROM {0} ({1})"),
+				FText::FromString(Threat->GetImmatriculation().ToString()),
+				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
+			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+		}
+
+		// Targeted ?
+		else if (Targeted)
+		{
+			FText WarningText = FText::Format(LOCTEXT("ThreatTargetFormat", "TARGETED BY {0} ({1})"),
+				FText::FromString(Threat->GetImmatriculation().ToString()),
+				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
+			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+		}
+
+		// Okay
+		else
+		{
+			FText WarningText = LOCTEXT("ThreatNone", "No active threat");
+			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 		}
 	}
 }
@@ -786,18 +845,26 @@ bool AFlareHUD::ShouldDrawHUD() const
 
 void AFlareHUD::DrawHUDInternal()
 {
-	// Initial data and checks
+	// Initial data
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
+	bool IsExternalCamera = PlayerShip->GetStateManager()->IsExternalCamera();
+	EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
 
 	// Draw nose
-	if (HUDVisible && !PlayerShip->GetStateManager()->IsExternalCamera())
+	if (HUDVisible && !IsExternalCamera)
 	{
+		UTexture2D* NoseIcon = HUDNoseIcon;
+		if (WeaponType == EFlareWeaponGroupType::WG_GUN)
+		{
+			NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
+		}
+
 		DrawHUDIcon(
 			CurrentViewportSize / 2,
 			IconSize,
-			PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN ? HUDAimIcon : HUDNoseIcon,
+			NoseIcon,
 			HudColorNeutral,
 			true);
 
@@ -805,13 +872,12 @@ void AFlareHUD::DrawHUDInternal()
 		FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
 		int32 SpeedMS = (ShipSmoothedVelocity.Size() + 10.) / 100.0f;
 		FString VelocityText = FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s");
-		FlareDrawText(VelocityText, FVector2D(0, 40), HudColorNeutral);
+		FlareDrawText(VelocityText, FVector2D(0, 70), HudColorNeutral);
 	}
 
 	// Draw combat mouse pointer
-	if (HUDVisible && !PlayerShip->GetNavigationSystem()->IsAutoPilot() && (
-		PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_NONE
-	 || PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN))
+	if (HUDVisible && !PlayerShip->GetNavigationSystem()->IsAutoPilot()
+	 && (WeaponType == EFlareWeaponGroupType::WG_NONE || WeaponType == EFlareWeaponGroupType::WG_GUN))
 	{
 		// Compute clamped mouse position
 		FVector2D MousePosDelta = CombatMouseRadius * PlayerShip->GetStateManager()->GetPlayerAim();
@@ -822,7 +888,7 @@ void AFlareHUD::DrawHUDInternal()
 		// Keep an offset
 		FVector2D MinimalOffset = MousePosDelta;
 		MinimalOffset.Normalize();
-		MousePosDelta += 12 * MinimalOffset;
+		MousePosDelta += 5 * MinimalOffset;
 
 		// Draw
 		FLinearColor PointerColor = HudColorNeutral;
@@ -836,21 +902,14 @@ void AFlareHUD::DrawHUDInternal()
 	for (int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex ++)
 	{
 		AFlareSpacecraft* Spacecraft = ActiveSector->GetSpacecrafts()[SpacecraftIndex];
-		if (Spacecraft->IsValidLowLevel() && Spacecraft != PlayerShip)
+		if (Spacecraft != PlayerShip)
 		{
 			// Draw designators
-			bool ShouldDrawSearchMarker;
-			if (PC->LineOfSightTo(Spacecraft))
-			{
-				ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
-			}
-			else
-			{
-				ShouldDrawSearchMarker = Spacecraft->GetParent()->GetDamageSystem()->IsAlive();
-			}
+			bool ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
+			DrawDockingHelper(Spacecraft);
 
 			// Draw search markers
-			if (!PlayerShip->GetStateManager()->IsExternalCamera() && ShouldDrawSearchMarker)
+			if (!IsExternalCamera && ShouldDrawSearchMarker)
 			{
 				bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
 				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), Highlighted, FocusDistance);
@@ -892,14 +951,14 @@ void AFlareHUD::DrawHUDInternal()
 				}
 
 				// Tell the HUD to draw the search marker only if we are outside this
-				ShouldDrawMarker = (FVector2D::Distance(ScreenPosition, CurrentViewportSize / 2) >= (CurrentViewportSize.GetMin() / 3));
+				ShouldDrawMarker = !IsInScreen(ScreenPosition);
 			}
 			else
 			{
 				ShouldDrawMarker = true;
 			}
 
-			if (ShouldDrawMarker && !PlayerShip->GetStateManager()->IsExternalCamera() && Target->Active)
+			if (ShouldDrawMarker && !IsExternalCamera && Target->Active)
 			{
 				DrawSearchArrow(ObjectiveLocation, HudColorObjective, true);
 			}
@@ -907,7 +966,7 @@ void AFlareHUD::DrawHUDInternal()
 	}
 
 	// Draw bomb marker
-	if (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB)
+	if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
 	{
 		float AmmoVelocity = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons[0]->GetAmmoVelocity();
 		FRotator ShipAttitude = PlayerShip->GetActorRotation();
@@ -1009,9 +1068,16 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		ScreenPosition.X = FMath::Clamp(ScreenPosition.X, ScreenBorderDistanceX, CurrentViewportSize.X - ScreenBorderDistanceX);
 		ScreenPosition.Y = FMath::Clamp(ScreenPosition.Y, ScreenBorderDistanceY, CurrentViewportSize.Y - ScreenBorderDistanceY);
 
+		// Fade the cursor when near the center
+		float FadePower = PC->UseCockpit ? 3.0f : 2.0f;
+		float FadeDistance = PC->UseCockpit ? 10.0f : 50.0f;
+		float CenterDistance = FMath::Clamp(FadeDistance * (ScreenPosition - ViewportSize / 2).Size() / ViewportSize.Y, 0.0f, 1.0f);
+		FLinearColor DrawColor = HudColorNeutral;
+		DrawColor.A = FMath::Pow(CenterDistance, FadePower);
+
 		// Icon
 		FVector2D IndicatorPosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(0, 30);
-		DrawHUDIcon(ScreenPosition, IconSize, Icon, HudColorNeutral, true);
+		DrawHUDIcon(ScreenPosition, IconSize, Icon, DrawColor, true);
 	}
 }
 
@@ -1030,15 +1096,15 @@ void AFlareHUD::DrawSearchArrow(FVector TargetLocation, FLinearColor Color, bool
 		ScreenspacePosition.Normalize();
 		ScreenspacePosition *= 1.2 * CombatMouseRadius;
 
-		// Make highlights more visible
-		if (Highlighted)
+		// Make highlights more visible by centering them more
+		if (!Highlighted)
 		{
-			ScreenspacePosition *= 1.1;
+			ScreenspacePosition *= 1.2;
 		}
 
 		// Draw
 		FVector Position3D = FVector(ScreenspacePosition.X, ScreenspacePosition.Y, 0);
-		UTexture2D* Texture = Highlighted ? HUDHighlightSearchArrowTexture : HUDCombatMouseIcon;
+		UTexture2D* Texture = Highlighted ? HUDHighlightSearchArrowTexture : HUDSearchArrowIcon;
 		DrawHUDIconRotated(CurrentViewportSize / 2 + ScreenspacePosition, IconSize, Texture, Color, Position3D.Rotation().Yaw);
 	}
 }
@@ -1086,7 +1152,9 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			if (Spacecraft == PlayerShip->GetCurrentTarget())
 			{
 				FString DistanceText = FormatDistance(Distance / 100);
-				FVector2D DistanceTextPosition = ScreenPosition - (CurrentViewportSize / 2) + FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2) + 2 * CornerSize * FVector2D::UnitVector;
+				FVector2D DistanceTextPosition = ScreenPosition - (CurrentViewportSize / 2)
+					+ FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2)
+					+ FVector2D(2 * CornerSize, 3 * CornerSize);
 				FlareDrawText(DistanceText, DistanceTextPosition, Color);
 			}
 
@@ -1101,7 +1169,9 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			}
 			
 			// Combat helper
-			if (Spacecraft->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
+			if (Spacecraft == PlayerShip->GetCurrentTarget()
+			 && Spacecraft->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile
+			 && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 			{
 				FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
 				if (WeaponGroup)
@@ -1141,7 +1211,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			}
 
 			// Tell the HUD to draw the search marker only if we are outside this
-			return (FVector2D::Distance(ScreenPosition, CurrentViewportSize / 2) >= (CurrentViewportSize.GetMin() / 3));
+			return !IsInScreen(ScreenPosition);
 		}
 	}
 
@@ -1212,6 +1282,112 @@ FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float Desig
 	DrawHUDIcon(Position, DesignatorIconSize, Texture, Color);
 
 	return Position + DesignatorIconSize * FVector2D(1, 0);
+}
+
+void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
+{
+	int32 DockingIconSize = 128;
+	int32 DockingRoolIconSize = 32;
+
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+
+	// Reasons we might not draw
+	if (!HUDVisible
+	 || PC->GetShipPawn()->GetStateManager()->IsExternalCamera()
+	 || !Spacecraft->IsStation()
+	 || !Spacecraft->GetParent()->GetDamageSystem()->IsAlive()
+	 ||  Spacecraft->GetCompany()->GetPlayerWarState() == EFlareHostility::Hostile
+	 || !PC->GetShipPawn()->GetNavigationSystem()->IsManualPilot()
+	 ||  PC->GetShipPawn()->GetWeaponsSystem()->GetActiveWeaponGroupIndex() >= 0)
+	{
+		return;
+	}
+
+	// Calculation data
+	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
+	FVector TargetLocation = Spacecraft->GetActorLocation();
+
+	// Too far
+	float Distance = (TargetLocation - PlayerLocation).Size();
+	if (Distance > 40000)
+	{
+		return;
+	}
+
+	for (int32 DockingPortIndex = 0; DockingPortIndex < Spacecraft->GetDockingSystem()->GetDockCount(); DockingPortIndex++)
+	{
+		FFlareDockingInfo DockingPort = Spacecraft->GetDockingSystem()->GetDockInfo(DockingPortIndex);
+		
+		// Not compatible
+		if (DockingPort.DockSize != PC->GetShipPawn()->GetSize())
+		{
+			continue;
+		}
+
+		FVector CameraLocation = PC->GetShipPawn()->Airframe->GetSocketLocation(FName("Camera"));
+		FFlareDockingParameters DockingParameters = PC->GetShipPawn()->GetNavigationSystem()->GetDockingParameters(DockingPort, CameraLocation);
+		struct FVector DockingPortLocation = DockingParameters.StationDockLocation;
+
+		// Docked
+		if (DockingParameters.DockingPhase == EFlareDockingPhase::Docked)
+		{
+			continue;
+		}
+
+		// Locked or rendez-vous
+		else if (DockingParameters.DockingPhase == EFlareDockingPhase::Locked || DockingParameters.DockingPhase == EFlareDockingPhase::Distant)
+		{
+			continue;
+		}
+
+		FVector2D CameraTargetScreenPosition;
+		if (ProjectWorldLocationToCockpit(DockingParameters.ShipCameraTargetLocation, CameraTargetScreenPosition))
+		{
+			FLinearColor HelperColor = HudColorEnemy;
+			DrawHUDIcon(CameraTargetScreenPosition, DockingIconSize, HUDDockingCircleTexture, HelperColor, true);
+			
+			// Distance display
+			float DockDistance = DockingParameters.DockToDockDistance / 100;
+			FString TimeText = FString::FromInt(DockDistance) + FString(".") + FString::FromInt( (DockDistance - (int) DockDistance ) *10) + FString(" m");
+			FVector2D TimePosition = CameraTargetScreenPosition - CurrentViewportSize / 2 + FVector2D(0,85);
+			FlareDrawText(TimeText, TimePosition, HelperColor);
+			
+			FVector2D CameraTargetDockDirectionScreenPosition;
+			FVector CameraTargetDockDirectionLocation = DockingParameters.ShipCameraTargetLocation + (DockingPortLocation - DockingParameters.ShipCameraTargetLocation) * 0.01;
+
+			// Top icon
+			if (ProjectWorldLocationToCockpit(CameraTargetDockDirectionLocation, CameraTargetDockDirectionScreenPosition))
+			{
+				FVector2D DockAxis = (CameraTargetScreenPosition - CameraTargetDockDirectionScreenPosition).GetSafeNormal();
+
+				FVector2D TopPosition = CameraTargetScreenPosition + DockAxis * 52;
+				float Rotation = -FMath::RadiansToDegrees(FMath::Atan2(DockAxis.X, DockAxis.Y)) - 90;
+
+				DrawHUDIconRotated(TopPosition, DockingRoolIconSize, HUDCombatMouseIcon, HelperColor, Rotation);
+			}
+
+			FVector2D AlignementScreenPosition;
+			FVector AlignementLocation = DockingParameters.ShipCameraTargetLocation + DockingParameters.StationDockAxis * 5.0f;
+
+			// Axis icon
+			if (ProjectWorldLocationToCockpit(AlignementLocation, AlignementScreenPosition))
+			{
+				FVector2D Alignement = CameraTargetScreenPosition + (AlignementScreenPosition - CameraTargetScreenPosition) * 100;
+
+				DrawHUDIcon(Alignement, DockingIconSize, HUDDockingAxisTexture, HelperColor, true);
+			}
+
+			// Auto-dock when ready
+			if (!PC->GetShipPawn()->GetNavigationSystem()->IsAutoPilot()
+					&& (DockingParameters.DockingPhase == EFlareDockingPhase::Dockable ||
+					DockingParameters.DockingPhase == EFlareDockingPhase::FinalApproach ||
+					DockingParameters.DockingPhase == EFlareDockingPhase::Approach)
+					&& DockingParameters.DockToDockDistance < (PC->GetShipPawn()->GetSize() == EFlarePartSize::S ? 500: 1500))
+			{
+				PC->GetShipPawn()->GetNavigationSystem()->DockAt(Spacecraft);
+			}
+		}
+	}
 }
 
 void AFlareHUD::DrawHUDIcon(FVector2D Position, float DesignatorIconSize, UTexture2D* Texture, FLinearColor Color, bool Center)
@@ -1386,30 +1562,30 @@ bool AFlareHUD::ProjectWorldLocationToCockpit(FVector World, FVector2D& Cockpit)
 #define GRID_V_SIZE 11
 
 static float FighterHorizontalDistortionMap[] = {
-	1.000f, 0.960f, 0.910f, 0.940f, 1.000f, 1.000f, 1.000f, 1.030f, 1.020f, 1.005f, 1.000f,
-	1.000f, 0.910f, 0.900f, 0.930f, 1.000f, 1.000f, 1.030f, 1.030f, 1.025f, 1.007f, 1.000f,
-	1.000f, 0.870f, 0.880f, 0.920f, 0.960f, 1.000f, 1.025f, 1.035f, 1.030f, 1.013f, 1.000f,
-	1.000f, 0.820f, 0.860f, 0.910f, 0.960f, 1.000f, 1.025f, 1.035f, 1.035f, 1.018f, 1.000f,
-	1.000f, 0.800f, 0.850f, 0.905f, 0.955f, 1.000f, 1.026f, 1.040f, 1.037f, 1.022f, 1.000f,
-	1.000f, 0.795f, 0.850f, 0.905f, 0.960f,   1.f , 1.030f, 1.040f, 1.037f, 1.022f, 1.000f,
-	1.000f, 0.800f, 0.850f, 0.905f, 0.955f, 1.000f, 1.026f, 1.040f, 1.037f, 1.022f, 1.000f,
-	1.000f, 0.820f, 0.860f, 0.910f, 0.960f, 1.000f, 1.025f, 1.035f, 1.035f, 1.018f, 1.000f,
-	1.000f, 0.870f, 0.880f, 0.920f, 0.960f, 1.000f, 1.025f, 1.035f, 1.030f, 1.013f, 1.000f,
-	1.000f, 0.910f, 0.900f, 0.930f, 1.000f, 1.000f, 1.030f, 1.030f, 1.025f, 1.008f, 1.000f,
-	1.000f, 0.960f, 0.910f, 0.940f, 1.000f, 1.000f, 1.000f, 1.030f, 1.020f, 1.005f, 1.000f };
+	1.000f, 0.820f, 0.850f, 0.915f, 1.000f, 1.000f, 1.000f, 1.040f, 1.038f, 1.023f, 1.000f,
+	1.000f, 0.790f, 0.840f, 0.905f, 1.000f, 1.000f, 1.000f, 1.042f, 1.040f, 1.024f, 1.000f,
+	1.000f, 0.760f, 0.830f, 0.895f, 0.955f, 1.000f, 1.030f, 1.044f, 1.042f, 1.026f, 1.000f,
+	1.000f, 0.740f, 0.820f, 0.890f, 0.950f, 1.000f, 1.032f, 1.047f, 1.044f, 1.030f, 1.000f,
+	1.000f, 0.720f, 0.810f, 0.886f, 0.947f, 1.000f, 1.035f, 1.049f, 1.047f, 1.032f, 1.000f,
+	1.000f, 0.710f, 0.810f, 0.885f, 0.947f,   1.f , 1.035f, 1.049f, 1.047f, 1.032f, 1.000f,
+	1.000f, 0.720f, 0.810f, 0.886f, 0.947f, 1.000f, 1.035f, 1.049f, 1.046f, 1.031f, 1.000f,
+	1.000f, 0.740f, 0.820f, 0.890f, 0.950f, 1.000f, 1.032f, 1.047f, 1.044f, 1.030f, 1.000f,
+	1.000f, 0.760f, 0.830f, 0.895f, 0.955f, 1.000f, 1.030f, 1.044f, 1.042f, 1.026f, 1.000f,
+	1.000f, 0.790f, 0.845f, 0.905f, 1.000f, 1.000f, 1.000f, 1.042f, 1.038f, 1.024f, 1.000f,
+	1.000f, 0.820f, 0.850f, 0.915f, 1.000f, 1.000f, 1.000f, 1.040f, 1.038f, 1.023f, 1.000f, };
 
 static float FighterVerticalDistortionMap[] = {
-	1.000f, 0.500f, 0.100f, 0.000f, 1.000f, 1.000f, 1.000f, 0.000f, 0.100f, 0.100f, 1.000f,
-	1.000f, 0.680f, 0.500f, 0.350f, 0.350f, 0.350f, 0.350f, 0.350f, 0.500f, 0.680f, 1.000f,
-	1.000f, 0.850f, 0.770f, 0.720f, 0.680f, 0.680f, 0.680f, 0.720f, 0.770f, 0.850f, 1.000f,
-	1.000f, 0.920f, 0.890f, 0.860f, 0.840f, 0.840f, 0.840f, 0.860f, 0.890f, 0.920f, 1.000f,
-	1.000f, 0.970f, 0.955f, 0.950f, 0.940f, 0.940f, 0.940f, 0.950f, 0.955f, 0.970f, 1.000f,
-	1.000f, 1.000f, 1.000f, 1.000f, 1.000f,   1.f , 1.000f, 1.000f, 1.000f, 1.000f, 1.000f,
-	1.000f, 1.020f, 1.030f, 1.035f, 1.040f, 1.040f, 1.040f, 1.035f, 1.030f, 1.020f, 1.000f,
-	1.000f, 1.030f, 1.045f, 1.060f, 1.070f, 1.070f, 1.070f, 1.060f, 1.045f, 1.030f, 1.000f,
-	1.000f, 1.040f, 1.055f, 1.070f, 1.070f, 1.070f, 1.070f, 1.070f, 1.055f, 1.040f, 1.000f,
-	1.000f, 1.040f, 1.065f, 1.080f, 1.080f, 1.080f, 1.080f, 1.080f, 1.065f, 1.040f, 1.000f,
-	1.000f, 1.040f, 1.075f, 1.090f, 1.090f, 1.090f, 1.090f, 1.090f, 1.075f, 1.040f, 1.000f };
+	0.000f, 0.100f, 0.200f, 0.200f, 0.200f, 1.000f, 0.200f, 0.200f, 0.200f, 0.100f, 0.000f,
+	0.750f, 0.570f, 0.380f, 0.200f, 0.350f, 0.350f, 0.350f, 0.200f, 0.380f, 0.570f, 0.750f,
+	0.880f, 0.800f, 0.730f, 0.660f, 0.600f, 0.650f, 0.600f, 0.660f, 0.730f, 0.800f, 0.880f,
+	0.920f, 0.905f, 0.870f, 0.830f, 0.820f, 0.810f, 0.820f, 0.830f, 0.870f, 0.905f, 0.920f,
+	0.940f, 0.965f, 0.950f, 0.935f, 0.930f, 0.930f, 0.930f, 0.935f, 0.950f, 0.965f, 0.940f,
+	0.960f, 1.000f, 1.000f, 1.000f, 1.000f,   1.f , 1.000f, 1.000f, 1.000f, 1.000f, 0.960f,
+	1.010f, 1.025f, 1.033f, 1.039f, 1.048f, 1.050f, 1.048f, 1.039f, 1.033f, 1.025f, 1.010f,
+	1.020f, 1.042f, 1.058f, 1.069f, 1.080f, 1.082f, 1.080f, 1.069f, 1.058f, 1.042f, 1.020f,
+	1.025f, 1.049f, 1.070f, 1.088f, 1.100f, 1.085f, 1.100f, 1.088f, 1.070f, 1.049f, 1.025f,
+	1.030f, 1.051f, 1.075f, 1.095f, 1.100f, 1.090f, 1.100f, 1.095f, 1.075f, 1.051f, 1.030f,
+	1.030f, 1.052f, 1.080f, 1.100f, 1.100f, 1.100f, 1.100f, 1.100f, 1.080f, 1.052f, 1.030f, };
 
 static float FreighterHorizontalDistortionMap[] = {
 	1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f, 1.000f,

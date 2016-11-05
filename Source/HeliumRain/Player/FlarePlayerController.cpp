@@ -3,12 +3,18 @@
 #include "FlarePlayerController.h"
 #include "../Game/FlareGameTools.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
+#include "../Spacecrafts/FlareShipPilot.h"
+#include "../Spacecrafts/FlareTurret.h"
+#include "../Spacecrafts/FlareTurretPilot.h"
 #include "../Game/Planetarium/FlareSimulatedPlanetarium.h"
 #include "../Game/FlareGameUserSettings.h"
 #include "../Game/AI/FlareCompanyAI.h"
 #include "FlareMenuManager.h"
 #include "EngineUtils.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick ControlGroups"), STAT_FlarePlayerTick_ControlGroups, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Battle"), STAT_FlarePlayerTick_Battle, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Sound"), STAT_FlarePlayerTick_Sound, STATGROUP_Flare);
 
 #define LOCTEXT_NAMESPACE "AFlarePlayerController"
 
@@ -25,18 +31,30 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, TimeSinceWeaponSwitch(0)
 {
 	CheatClass = UFlareGameTools::StaticClass();
-
-	// Sounds
-	static ConstructorHelpers::FObjectFinder<USoundCue> OnSoundObj(TEXT("/Game/Master/Sound/A_Beep_On"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> OffSoundObj(TEXT("/Game/Master/Sound/A_Beep_Off"));
-	OnSound = OnSoundObj.Object;
-	OffSound = OffSoundObj.Object;
-	
+		
 	// Mouse
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
 	DustEffectTemplate = DustEffectTemplateObj.Object;
 	DefaultMouseCursor = EMouseCursor::Default;
-	
+
+	// Camera shakes
+	static ConstructorHelpers::FObjectFinder<UFlareCameraShakeCatalog> CameraShakeCatalogObj(TEXT("/Game/Gameplay/Catalog/CameraShakeCatalog"));
+	CameraShakeCatalog = CameraShakeCatalogObj.Object;
+
+	// Sound data
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationInfoSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationInfo"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationCombatSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationCombat"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationQuestSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationQuest"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationTradingSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationEconomy"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> CrashSoundObj(TEXT("/Game/Master/Sound/Sounds/A_Collision"));
+
+	// Sound
+	NotificationInfoSound = NotificationInfoSoundObj.Object;
+	NotificationCombatSound = NotificationCombatSoundObj.Object;
+	NotificationQuestSound = NotificationQuestSoundObj.Object;
+	NotificationTradingSound = NotificationTradingSoundObj.Object;
+	CrashSound = CrashSoundObj.Object;
+
 	// Gameplay
 	QuickSwitchNextOffset = 0;
 	CurrentObjective.Set = false;
@@ -69,6 +87,8 @@ void AFlarePlayerController::BeginPlay()
 	MyGameSettings->ApplySettings(false);
 	UseCockpit = MyGameSettings->UseCockpit;
 	PauseGameInMenus = MyGameSettings->PauseGameInMenus;
+	SetUseMotionBlur(MyGameSettings->UseMotionBlur);
+	SetUseTemporalAA(MyGameSettings->UseTemporalAA);
 
 	// Cockpit
 	SetupCockpit();
@@ -105,14 +125,18 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	// We are flying
 	if (ShipPawn)
 	{
+		// Ship groups
 		HUD->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
-		
-		UFlareSimulatedSector* Sector = ShipPawn->GetParent()->GetCurrentSector();
-		GetTacticManager()->ResetControlGroups(Sector);
+		{
+			SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_ControlGroups);
+			UFlareSimulatedSector* Sector = ShipPawn->GetParent()->GetCurrentSector();
+			GetTacticManager()->ResetControlGroups(Sector);
+		}
 		
 		// Battle state
 		if (GetGame()->GetActiveSector())
 		{
+			SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_Battle);
 			EFlareSectorBattleState::Type BattleState = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(GetCompany());
 			if (BattleState != LastBattleState)
 			{
@@ -120,23 +144,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 				OnBattleStateChanged(BattleState);
 			}
 		}
-
-		// FLIR Debug Code. Keep it for future ship setup
-		/*TArray<FName> SocketNames  = ShipPawn->Airframe->GetAllSocketNames();
-		for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
-		{
-			FLOGV("Check socket = %s", *SocketNames[SocketIndex].ToString());
-			if (SocketNames[SocketIndex] == "Dock" || SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
-			{
-				FTransform CameraWorldTransform = ShipPawn->Airframe->GetSocketTransform(SocketNames[SocketIndex]);
-
-				FVector CameraLocation = CameraWorldTransform.GetTranslation();
-				FVector CandidateCameraMainDirection = CameraWorldTransform.GetRotation().RotateVector(FVector(1,0,0));
-
-				DrawDebugLine(GetWorld(), CameraLocation, CameraLocation + 500 * CandidateCameraMainDirection, FColor::Red, false);
-				DrawDebugSphere(GetWorld(), CameraLocation, 50, 32, FColor::Green, false);
-			}
-		}*/
 	}
 
 	// Mouse cursor
@@ -220,6 +227,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	// Sound
 	if (SoundManager)
 	{
+		SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_Sound);
 		SoundManager->Update(DeltaSeconds);
 	}
 }
@@ -279,13 +287,14 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	ShipPawn = Ship;
 	SetExternalCamera(false);
 	ShipPawn->GetStateManager()->EnablePilot(false);
+	ShipPawn->GetNavigationSystem()->AbortAllCommands();
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	CockpitManager->OnFlyShip(ShipPawn);
 
 	// Setup FOV
 	if (ShipPawn->GetParent()->IsMilitary())
 	{
-		PlayerCameraManager->SetFOV(92);
+		PlayerCameraManager->SetFOV(94);
 	}
 	else
 	{
@@ -443,6 +452,39 @@ void AFlarePlayerController::SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerS
 	PlayerShip = NewPlayerShip;
 }
 
+void AFlarePlayerController::SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType)
+{
+	GetNavHUD()->SignalHit(HitSpacecraft, DamageType);
+}
+
+void AFlarePlayerController::SpacecraftHit(EFlarePartSize::Type WeaponSize)
+{
+	EFlarePartSize::Type ShipSize = PlayerShip->GetDescription()->Size;
+
+	if (ShipSize == EFlarePartSize::S && WeaponSize == EFlarePartSize::L)
+	{
+		ClientPlayCameraShake(CameraShakeCatalog->HitHeavy);
+	}
+	else if (ShipSize == WeaponSize)
+	{
+		ClientPlayCameraShake(CameraShakeCatalog->HitNormal);
+	}
+}
+
+void AFlarePlayerController::SpacecraftCrashed()
+{
+	ClientPlaySound(CrashSound);
+
+	if (PlayerShip->GetDescription()->Size == EFlarePartSize::S)
+	{
+		ClientPlayCameraShake(CameraShakeCatalog->ImpactS);
+	}
+	else
+	{
+		ClientPlayCameraShake(CameraShakeCatalog->ImpactL);
+	}
+}
+
 void AFlarePlayerController::Clean()
 {
 	PlayerData.UUID = NAME_None;
@@ -474,7 +516,20 @@ void AFlarePlayerController::Clean()
 void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNotification::Type Type, bool Pinned, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo)
 {
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
+
+	// Notify
 	MenuManager->Notify(Title, Info, Tag, Type, Pinned, TargetMenu, TargetInfo);
+
+	// Play sound
+	USoundCue* NotifSound = NULL;
+	switch (Type)
+	{
+		case EFlareNotification::NT_Info:      NotifSound = NotificationInfoSound;      break;
+		case EFlareNotification::NT_Military:  NotifSound = NotificationCombatSound;    break;
+		case EFlareNotification::NT_Quest:	   NotifSound = NotificationQuestSound;     break;
+		case EFlareNotification::NT_Economy:   NotifSound = NotificationTradingSound;   break;
+	}
+	MenuManager->GetPC()->ClientPlaySound(NotifSound);
 }
 
 void AFlarePlayerController::SetupCockpit()
@@ -522,7 +577,6 @@ void AFlarePlayerController::OnEnterMenu()
 {
 	if (!IsInMenu())
 	{
-		ClientPlaySound(OnSound);
 		Possess(MenuPawn);
 
 		// Pause all gameplay actors
@@ -540,7 +594,6 @@ void AFlarePlayerController::OnExitMenu()
 	{
 		// Quit menu
 		MenuPawn->SetActorHiddenInGame(true);
-		ClientPlaySound(OffSound);
 
 		// Unpause all gameplay actors
 		SetWorldPause(false);
@@ -596,7 +649,7 @@ bool AFlarePlayerController::SwitchToNextShip(bool Instant)
 				OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
 				AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
 
-				if (Candidate && Candidate->GetParent()->CanBeFlown(CantFlyReasons) && Candidate->GetParent()->CanFight())
+				if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->CanBeFlown(CantFlyReasons) && Candidate->GetParent()->CanFight())
 				{
 					SeletedCandidate = Candidate;
 					break;
@@ -610,7 +663,7 @@ bool AFlarePlayerController::SwitchToNextShip(bool Instant)
 				{
 					OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
 					AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
-					if (Candidate && Candidate->GetParent()->CanBeFlown(CantFlyReasons))
+					if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->CanBeFlown(CantFlyReasons))
 					{
 						SeletedCandidate = Candidate;
 						break;
@@ -655,6 +708,76 @@ bool AFlarePlayerController::SwitchToNextShip(bool Instant)
 	}
 
 	return false;
+}
+
+void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& IsFiredUpon, UFlareSimulatedSpacecraft*& Threat) const
+{
+	IsTargeted = false;
+	IsFiredUpon = false;
+	Threat = NULL;
+
+	float MaxSDangerDistance = 250000;
+	float MaxLDangerDistance = 500000;
+
+	if (GetShipPawn())
+	{
+		TArray<UFlareSimulatedSpacecraft*> Ships = GetShipPawn()->GetParent()->GetCurrentSector()->GetSectorShips();
+		for (UFlareSimulatedSpacecraft* Ship : Ships)
+		{
+			FCHECK(Ship->GetActive());
+			bool IsDangerous = false, IsFiring = false;
+			float ShipDistance = (Ship->GetActive()->GetActorLocation() - GetShipPawn()->GetActorLocation()).Size();
+			
+			// Small ship
+			if (ShipDistance < MaxSDangerDistance && Ship->GetDescription()->Size == EFlarePartSize::S)
+			{
+				IsDangerous = (Ship->GetActive()->GetPilot()->GetTargetShip() == GetShipPawn());
+				IsFiring = IsDangerous && Ship->GetActive()->GetPilot()->IsWantFire();
+			}
+
+			// Large ship
+			else if (ShipDistance < MaxLDangerDistance && Ship->GetDescription()->Size == EFlarePartSize::L)
+			{
+				for (auto Weapon : Ship->GetActive()->GetWeaponsSystem()->GetWeaponList())
+				{
+					UFlareTurret* Turret = Cast<UFlareTurret>(Weapon);
+					FCHECK(Turret);
+
+					if (Turret->GetTurretPilot()->GetTargetShip() == GetShipPawn())
+					{
+						IsDangerous = true;
+						if (Turret->GetTurretPilot()->IsWantFire())
+						{
+							IsFiring = true;
+						}
+					}
+				}
+			}
+
+			// Confirm this ship is working, then flag it
+			if (IsDangerous && !Ship->GetDamageSystem()->IsDisarmed() && !Ship->GetDamageSystem()->IsUncontrollable())
+			{
+				// Is threat
+				IsTargeted = true;
+				if (!Threat)
+				{
+					Threat = Ship;
+				}
+
+				// Is active threat
+				if (IsFiring)
+				{
+					IsFiredUpon = true;
+					Threat = Ship;
+				}
+			}
+		}
+	}
+}
+
+void AFlarePlayerController::ActivateRecovery()
+{
+	RecoveryActive = true;
 }
 
 bool AFlarePlayerController::IsInMenu()
@@ -1446,6 +1569,20 @@ void AFlarePlayerController::SetUseCockpit(bool New)
 	UseCockpit = New;
 	CockpitManager->SetupCockpit(this);
 	SetExternalCamera(false);
+}
+
+void AFlarePlayerController::SetUseMotionBlur(bool New)
+{
+	UseMotionBlur = New;
+	GetGame()->GetPostProcessVolume()->Settings.bOverride_MotionBlurAmount = true;
+	GetGame()->GetPostProcessVolume()->Settings.MotionBlurAmount = UseMotionBlur ? 0.25 : 0;
+}
+
+void AFlarePlayerController::SetUseTemporalAA(bool New)
+{
+	UseTemporalAA = New;
+	GetGame()->GetPostProcessVolume()->Settings.bOverride_AntiAliasingMethod = true;
+	GetGame()->GetPostProcessVolume()->Settings.AntiAliasingMethod = (New ? AAM_TemporalAA : AAM_FXAA);
 }
 
 void AFlarePlayerController::SetPauseGameInMenus(bool New)

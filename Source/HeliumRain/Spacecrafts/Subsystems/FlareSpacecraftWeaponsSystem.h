@@ -115,8 +115,8 @@ public:
 	void GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollableCivil, float* IsUncontrollableMilitary, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned, FFlareWeaponGroup* RestrictGroup = NULL);
 
 	int32 FindBestWeaponGroup(AFlareSpacecraft* Target);
-protected:
 
+protected:
 
 	/*----------------------------------------------------
 		Protected data
@@ -133,12 +133,12 @@ protected:
 	FFlareWeaponGroup*                               ActiveWeaponGroup;
 	bool                                             WantFire;
 	bool                                             Armed;
-
-
-
+	
 	UPROPERTY()
 	AFlareSpacecraft*                                Spacecraft;
+
 	FFlareSpacecraftSave*                            Data;
 	FFlareSpacecraftDescription*                     Description;
 	TArray<UActorComponent*>                         Components;
+
 };

@@ -51,14 +51,14 @@ protected:
 	/** Exit the cockpit */
 	void ExitCockpit();
 
+	/** Update the overheat info */
+	void UpdateHealth(float DeltaSeconds);
+
 	/** Update the target info */
 	void UpdateTarget(float DeltaSeconds);
 
 	/** Update the info screen */
 	void UpdateInfo(float DeltaSeconds);
-
-	/** Update the overheat info */
-	void UpdateTemperature(float DeltaSeconds);
 
 	/** Update the power level */
 	void UpdatePower(float DeltaSeconds);
@@ -90,15 +90,18 @@ protected:
 	UPROPERTY(Category = Cockpit, EditAnywhere)
 	UPointLightComponent*                    CockpitLight2;
 
+	// Settings
+	int32                                    CockpitInstrumentsTargetSize;
+	float                                    CockpitLightingIntensity;
+
 	// Gameplay data
 	bool                                     IsInCockpit;
-	int32                                    CockpitInstrumentsTargetSize;
-	int32                                    CockpitFLIRTargetSize;
-	float                                    CockpitHealthLightTime;
+	float                                    CockpitHealthLightTimer;
 	float                                    CockpitHealthLightPeriod;
-	float                                    CockpitPowerTime;
+	float                                    CockpitTargetLightTimer;
+	float                                    CockpitTargetLightPeriod;
+	float                                    CockpitPowerTimer;
 	float                                    CockpitPowerPeriod;
-	float                                    CockpitLightingIntensity;
 
 
 	/*----------------------------------------------------
@@ -146,15 +149,7 @@ protected:
 	// Cockpit texture (instruments)
 	UPROPERTY(Category = Cockpit, EditAnywhere)
 	UCanvasRenderTarget2D*                   CockpitInstrumentsTarget;
-
-	// Scene capture (target camera)
-	UPROPERTY(Category = Cockpit, EditAnywhere)
-	USceneCaptureComponent2D*                CockpitFLIRCapture;
-
-	// Cockpit texture (target camera)
-	UPROPERTY(Category = Cockpit, EditAnywhere)
-	UCanvasRenderTarget2D*                   CockpitFLIRCameraTarget;
-
+	
 
 public:
 
@@ -162,11 +157,10 @@ public:
 		Getters
 	----------------------------------------------------*/
 	
-	inline UStaticMeshComponent* GetCockpitMesh()
-	{
-		return CockpitMesh;
-	}
+	inline UStaticMeshComponent* GetCockpitMesh() const;
 	
+	bool PlayerShipIsPowered() const;
+
 	UMaterialInstanceDynamic* GetCurrentScreenMaterial();
 
 	UMaterialInstanceDynamic* GetCurrentFrameMaterial();

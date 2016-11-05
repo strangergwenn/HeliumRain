@@ -18,3 +18,9 @@ UFlareRCS::UFlareRCS(const class FObjectInitializer& PCIP)
 /*----------------------------------------------------
 	Gameplay
 ----------------------------------------------------*/
+
+bool UFlareRCS::IsDestroyedEffectRelevant()
+{
+	// Smoke has a 40% chance
+	return (FMath::FRand() > 0.4f);
+}

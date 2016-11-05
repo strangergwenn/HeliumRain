@@ -112,7 +112,6 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 void AFlareGame::StartPlay()
 {
 	FLOG("AFlareGame::StartPlay");
-	Super::StartPlay();
 	
 	// Setup the post process 
 	TArray<AActor*> PostProcessCandidates;
@@ -141,8 +140,20 @@ void AFlareGame::StartPlay()
 		FLOG("AFlareGame::StartPlay : no post process found");
 	}
 
-	// Spawn planetarium
-	Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	// Start the game
+	Super::StartPlay();
+
+	// Spawn planetarium if it's not in the level
+	TArray<AActor*> PlanetariumCandidates;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), PlanetariumClass, PlanetariumCandidates);
+	if (PlanetariumCandidates.Num())
+	{
+		Planetarium = Cast<AFlarePlanetarium>(PlanetariumCandidates.Last());
+	}
+	else
+	{
+		Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);
+	}
 
 	// Spawn debris field system
 	DebrisFieldSystem = NewObject<UFlareDebrisField>(this, UFlareDebrisField::StaticClass());

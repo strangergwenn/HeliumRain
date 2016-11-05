@@ -132,6 +132,7 @@ private:
 	float    CameraOffsetYaw;
 	float    CameraOffsetDistance;
 
+	float MeshScaleCache;
 
 	public:
 

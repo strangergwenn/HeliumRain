@@ -29,6 +29,7 @@ public:
 	virtual void Initialize(const FFlareTurretPilotSave* Data, UFlareCompany* Company, UFlareTurret* OwnerTurret);
 
 protected:
+	void ProcessTurretTargetSelection();
 
 	AFlareSpacecraft* GetNearestHostileShip(bool ReachableOnly, EFlareCombatTactic::Type Tactic) const;
 
@@ -68,9 +69,24 @@ protected:
 
 
 	// Pilot brain TODO save in save
-	float                                ReactionTime;
-	float                                TimeUntilNextReaction;
+	float                                TargetSelectionReactionTime;
+	float                                FireReactionTime;
+	float                                TimeUntilNextTargetSelectionReaction;
+	float                                TimeUntilFireReaction;
 	float                                TimeUntilNextComponentSwitch;
 	AFlareSpacecraft*                    PilotTargetShip;
 	UFlareSpacecraftComponent*			 PilotTargetComponent;
+
+
+	/*----------------------------------------------------
+		Helper
+	----------------------------------------------------*/
+
+public:
+
+	inline AFlareSpacecraft* GetTargetShip()
+	{
+		return PilotTargetShip;
+	}
+
 };

@@ -21,7 +21,7 @@ namespace InputConstants
 struct TextOrStringConverter
 {
 	FText text;
-	TextOrStringConverter(const FText& text) : text(text) {}
+        TextOrStringConverter(const FText& Text) : text(Text) {}
 	operator FText() { return text; }
 	operator FString() { return text.ToString(); }
 };

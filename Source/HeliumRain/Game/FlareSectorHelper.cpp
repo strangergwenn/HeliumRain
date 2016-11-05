@@ -498,6 +498,7 @@ void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 ConsumedFS)
 {
 	// First check for owned FS
+	Sector->GetGame()->GetGameWorld()->OnFleetSupplyConsumed(ConsumedFS);
 
 	FFlareResourceDescription* FleetSupply = Sector->GetGame()->GetScenarioTools()->FleetSupply;
 

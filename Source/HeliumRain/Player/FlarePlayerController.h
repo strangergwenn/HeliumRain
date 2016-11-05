@@ -1,13 +1,17 @@
 #pragma once
 
 #include "../Flare.h"
+
 #include "FlareHUD.h"
 #include "FlareMenuPawn.h"
 #include "FlareSoundManager.h"
 #include "FlareCockpitManager.h"
+
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSaveGame.h"
+#include "../Data/FlareCameraShakeCatalog.h"
 #include "../UI/Components/FlareMainOverlay.h"
+
 #include "FlarePlayerController.generated.h"
 
 
@@ -31,62 +35,76 @@ public:
 	virtual void PlayerTick(float DeltaTime) override;
 	
 	/** Activate or deactivate the exterbal camera */
-	virtual void SetExternalCamera(bool NewState);
+	void SetExternalCamera(bool NewState);
 
 	/** Fly this ship */
-	virtual void FlyShip(AFlareSpacecraft* Ship, bool PossessNow = true);
+	void FlyShip(AFlareSpacecraft* Ship, bool PossessNow = true);
 
 	/** Stop flying a ship */
-	virtual void ExitShip();
+	void ExitShip();
 
 	/** The world is ending. Literally. */
-	virtual void PrepareForExit();
+	void PrepareForExit();
 
 	/** Set the pause state */
-	virtual void SetWorldPause(bool Pause);
+	void SetWorldPause(bool Pause);
 	
 	/** Get the currently selected fleet */
-	virtual UFlareFleet* GetPlayerFleet();
+	UFlareFleet* GetPlayerFleet();
 
 	/** Quick switch to another ship */
-	virtual bool SwitchToNextShip(bool Instant = false);
+	bool SwitchToNextShip(bool Instant = false);
 
-	void ActivateRecovery() {
-		RecoveryActive = true;
-	}
+	/** Is the player ship being targeted ? Get one of the attackers too. */
+	void GetPlayerShipThreatStatus(bool& IsTargeted, bool& IsFiredUpon, UFlareSimulatedSpacecraft*& Threat) const;
+
+	/** Get a recovery ship */
+	void ActivateRecovery();
+
 
 	/*----------------------------------------------------
 		Data management
 	----------------------------------------------------*/
 
 	/** Load the company info */
-	virtual void SetCompanyDescription(const FFlareCompanyDescription& SaveCompanyData);
+	void SetCompanyDescription(const FFlareCompanyDescription& SaveCompanyData);
 
 	/** Load the player from a save file */
-	virtual void Load(const FFlarePlayerSave& SavePlayerData);
+	void Load(const FFlarePlayerSave& SavePlayerData);
 
 	/** Get the ship pawn from the game */
-	virtual void OnLoadComplete();
+	void OnLoadComplete();
 
 	/** Save the player to a save file */
-	virtual void Save(FFlarePlayerSave& SavePlayerData, FFlareCompanyDescription& SaveCompanyData);
+	void Save(FFlarePlayerSave& SavePlayerData, FFlareCompanyDescription& SaveCompanyData);
 
 	/** Set the player's company */
-	virtual void SetCompany(UFlareCompany* NewCompany);
+	void SetCompany(UFlareCompany* NewCompany);
 	
 	/** Call a sector is activated */
-	virtual void OnSectorActivated(UFlareSector* ActiveSector);
+	void OnSectorActivated(UFlareSector* ActiveSector);
 
 	/** Call a sector is deactivated */
-	virtual void OnSectorDeactivated();
+	void OnSectorDeactivated();
 
 	/** The battle state has changed, update music, notify, etc */
-	virtual void OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState);
+	void OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState);
 
 	/** Set the currently flown player ship */
 	void SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerShip);
 
-	virtual void Clean();
+	/** We just hit this spacecraft with a weapon */
+	void SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType);
+
+	/** We've been hit */
+	void SpacecraftHit(EFlarePartSize::Type WeaponSize);
+
+	/** We've impacted into something */
+	void SpacecraftCrashed();
+
+	/** Cleanup the PC owned stuff */
+	void Clean();
+
 
 	/*----------------------------------------------------
 		Menus
@@ -96,19 +114,19 @@ public:
 	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_Info, bool Pinned = false, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, FFlareMenuParameterData TargetInfo = FFlareMenuParameterData());
 
 	/** Setup the cockpit */
-	virtual void SetupCockpit();
+	void SetupCockpit();
 
 	/** Spawn the menu pawn and prepare the UI */
-	virtual void SetupMenu();
+	void SetupMenu();
 	
 	/** Entering the main menu */
-	virtual void OnEnterMenu();
+	void OnEnterMenu();
 
 	/** Exiting the main menu */
-	virtual void OnExitMenu();
+	void OnExitMenu();
 
 	/** Check wether we are in the menu system */
-	virtual bool IsInMenu();
+	bool IsInMenu();
 
 	/** Get the position of the mouse on the screen */
 	FVector2D GetMousePosition();
@@ -173,66 +191,66 @@ public:
 	virtual void SetupInputComponent() override;
 
 	/** Secondary input that is used whil in external camera */
-	virtual void MousePositionInput(FVector2D Val);
+	void MousePositionInput(FVector2D Val);
 
 	/** Toggle the external view */
-	virtual void ToggleCamera();
+	void ToggleCamera();
 
 	/** Toggle the menus */
-	virtual void ToggleMenu();
+	void ToggleMenu();
 
 	/** Toggle the overlay */
-	virtual void ToggleOverlay();
+	void ToggleOverlay();
 
 	/** Send back to menu */
-	virtual void BackMenu();
+	void BackMenu();
 
 	/** Simulate a turn */
-	virtual void Simulate();
+	void Simulate();
 
 	/** Simulate a turn */
-	virtual void SimulateConfirmed();
+	void SimulateConfirmed();
 
 	// Menus
-	virtual void ShipMenu();
-	virtual void SectorMenu();
-	virtual void OrbitMenu();
-	virtual void LeaderboardMenu();
-	virtual void CompanyMenu();
-	virtual void FleetMenu();
-	virtual void QuestMenu();
-	virtual void MainMenu();
-	virtual void SettingsMenu();
+	void ShipMenu();
+	void SectorMenu();
+	void OrbitMenu();
+	void LeaderboardMenu();
+	void CompanyMenu();
+	void FleetMenu();
+	void QuestMenu();
+	void MainMenu();
+	void SettingsMenu();
 
 	/** Toggle the combat mode */
-	virtual void ToggleCombat();
+	void ToggleCombat();
 
 	/** Toggle the pilot mode */
-	virtual void TogglePilot();
+	void TogglePilot();
 
 	/** Toggle the HUD's presence */
-	virtual void ToggleHUD();
+	void ToggleHUD();
 
 	/** Quick switch */
-	virtual void QuickSwitch();
+	void QuickSwitch();
 
 	/** Move hidden cursor */
-	virtual void MouseInputX(float Val);
+	void MouseInputX(float Val);
 
 	/** Move hidden cursor */
-	virtual void MouseInputY(float Val);
+	void MouseInputY(float Val);
 
 	/** Joystick lateral movement X */
-	virtual void JoystickMoveHorizontalInput(float Val);
+	void JoystickMoveHorizontalInput(float Val);
 
 	/** Joystick lateral movement Y */
-	virtual void JoystickMoveVerticalInput(float Val);
+	void JoystickMoveVerticalInput(float Val);
 	
 	/** Test method 1 */
-	virtual void Test1();
+	void Test1();
 
 	/** Test method 2 */
-	virtual void Test2();
+	void Test2();
 
 
 	/*----------------------------------------------------
@@ -240,10 +258,10 @@ public:
 	----------------------------------------------------*/
 
 	/** Open the wheel menu */
-	virtual void WheelPressed();
+	void WheelPressed();
 
 	/** Close the wheel menu */
-	virtual void WheelReleased();
+	void WheelReleased();
 
 	/** Align to the ship's speed */
 	void AlignToSpeed();
@@ -291,27 +309,25 @@ public:
 
 
 protected:
-
+	
 	/*----------------------------------------------------
-		Sound
+		Gameplay data
 	----------------------------------------------------*/
+
+	/** Camera shakes */
+	UPROPERTY()
+	UFlareCameraShakeCatalog*                CameraShakeCatalog;
+
+	// Sounds
+	UPROPERTY() USoundCue*                   NotificationInfoSound;
+	UPROPERTY() USoundCue*                   NotificationCombatSound;
+	UPROPERTY() USoundCue*                   NotificationQuestSound;
+	UPROPERTY() USoundCue*                   NotificationTradingSound;
+	UPROPERTY() USoundCue*                   CrashSound;
 
 	// Sound manager
 	UPROPERTY()
 	UFlareSoundManager*                      SoundManager;
-
-	/** Sound for menu openings */
-	UPROPERTY()
-	USoundCue*                               OnSound;
-
-	/** Sound for menu closings */
-	UPROPERTY()
-	USoundCue*                               OffSound;
-
-
-	/*----------------------------------------------------
-		Gameplay data
-	----------------------------------------------------*/
 
 	/** Dust effect template */
 	UPROPERTY()
@@ -376,10 +392,20 @@ public:
 	/** Whether to use the 3D cockpit */
 	bool                                     UseCockpit;
 
+	/** Whether to use motion blur */
+	bool                                     UseMotionBlur;
+
+	/** Whether to use temporal AA */
+	bool                                     UseTemporalAA;
+
 	/** Whether to pause the game in menus */
 	bool                                     PauseGameInMenus;
 	
 	void SetUseCockpit(bool New);
+
+	void SetUseMotionBlur(bool New);
+
+	void SetUseTemporalAA(bool New);
 
 	void SetPauseGameInMenus(bool New);
 

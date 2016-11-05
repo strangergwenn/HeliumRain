@@ -175,6 +175,9 @@ struct FFlareSpacecraftComponentSave
 	/** Pilot */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FFlareTurretPilotSave Pilot;
+
+	int64 IsPoweredCacheIndex;
+	bool IsPoweredCache;
 };
 
 /** Ship pilot save data */

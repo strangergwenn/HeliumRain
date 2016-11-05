@@ -17,6 +17,10 @@
 
 #include "../UI/Menus/FlareShipMenu.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Systems"), STAT_FlareSpacecraft_Systems, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Player"), STAT_FlareSpacecraft_PlayerShip, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Hit"), STAT_FlareSpacecraft_Hit, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Aim"), STAT_FlareSpacecraft_Aim, STATGROUP_Flare);
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraft"
 
@@ -31,6 +35,12 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	// Ship name font
 	static ConstructorHelpers::FObjectFinder<UFont> ShipNameFontObj(TEXT("/Game/Slate/Fonts/ShipNameFont.ShipNameFont"));
 	ShipNameFont = ShipNameFontObj.Object;
+
+	// Sound
+	static ConstructorHelpers::FObjectFinder<USoundCue> WeaponLoadedSoundObj(TEXT("/Game/Master/Sound/Sounds/A_WeaponLoaded"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> WeaponUnloadedSoundObj(TEXT("/Game/Master/Sound/Sounds/A_WeaponUnloaded"));
+	WeaponLoadedSound = WeaponLoadedSoundObj.Object;
+	WeaponUnloadedSound = WeaponUnloadedSoundObj.Object;
 
 	// Create static mesh component
 	Airframe = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("Airframe"));
@@ -120,11 +130,14 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 	if (!IsPresentationMode() && StateManager && !Paused)
 	{
 		// Tick systems
-		StateManager->Tick(DeltaSeconds);
-		DockingSystem->TickSystem(DeltaSeconds);
-		NavigationSystem->TickSystem(DeltaSeconds);
-		WeaponsSystem->TickSystem(DeltaSeconds);
-		DamageSystem->TickSystem(DeltaSeconds);
+		{
+			SCOPE_CYCLE_COUNTER(STAT_FlareSpacecraft_Systems);
+			StateManager->Tick(DeltaSeconds);
+			DockingSystem->TickSystem(DeltaSeconds);
+			NavigationSystem->TickSystem(DeltaSeconds);
+			WeaponsSystem->TickSystem(DeltaSeconds);
+			DamageSystem->TickSystem(DeltaSeconds);
+		}
 
 		// Lights
 		TArray<UActorComponent*> LightComponents = GetComponentsByClass(USpotLightComponent::StaticClass());
@@ -141,6 +154,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 		if (PC)
 		{
+			SCOPE_CYCLE_COUNTER(STAT_FlareSpacecraft_PlayerShip);
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 			
 			if (this == PlayerShip)
@@ -301,6 +315,8 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 
 void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSpacecraft_Hit);
+
 	// Strictly disallow self-collision : this should never happen
 	if (Other == this)
 	{
@@ -520,6 +536,8 @@ float AFlareSpacecraft::GetAimPosition(AFlareSpacecraft* TargettingShip, float B
 
 float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSpacecraft_Aim);
+
 	// TODO : use helper
 
 	// Target Speed
@@ -1166,8 +1184,6 @@ void AFlareSpacecraft::OnDocked(AFlareSpacecraft* DockStation, bool TellUser)
 				EFlareNotification::NT_Info);
 		}
 	}
-
-	DamageSystem->UpdatePower();
 }
 
 void AFlareSpacecraft::OnUndocked(AFlareSpacecraft* DockStation)
@@ -1276,6 +1292,11 @@ void AFlareSpacecraft::DeactivateWeapon()
 	{
 		FLOG("AFlareSpacecraft::DeactivateWeapon");
 		GetPC()->SetSelectingWeapon();
+
+		if (GetWeaponsSystem()->GetActiveWeaponGroup())
+		{
+			GetPC()->ClientPlaySound(WeaponUnloadedSound);
+		}
 		GetWeaponsSystem()->DeactivateWeapons();
 	}
 }
@@ -1308,6 +1329,11 @@ void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 	// Fighter
 	else if(!StateManager->IsPilotMode())
 	{
+		if (Index != GetWeaponsSystem()->GetActiveWeaponGroupIndex())
+		{
+			GetPC()->ClientPlaySound(WeaponLoadedSound);
+		}
+
 		GetWeaponsSystem()->ActivateWeaponGroup(Index);
 		if (GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
 		{
@@ -1628,8 +1654,8 @@ void AFlareSpacecraft::FindTarget()
 	else
 	{
 		// Notify PC
-		GetPC()->Notify(LOCTEXT("NoBestTarget", "No best target"),
-				LOCTEXT("NoBestTargetFormat", "No target is adapted for your current weapon."),
+		GetPC()->Notify(LOCTEXT("NoBestTarget", "No target"),
+				LOCTEXT("NoBestTargetFormat", "No appropriate target was found."),
 				FName("no-best-target"),
 				EFlareNotification::NT_Military);
 	}

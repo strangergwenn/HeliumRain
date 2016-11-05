@@ -68,19 +68,6 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	// Visibility
-	if (LDMaxDrawDistance)
-	{
-		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-		if (PC)
-		{
-			FVector ViewLocation;
-			FRotator ViewRotation;
-			PC->GetPlayerViewPoint(ViewLocation, ViewRotation);
-			SetVisibility((ViewLocation - GetComponentLocation()).Size() < LDMaxDrawDistance);
-		}
-	}
-
 	// Graphical updates
 	if (ComponentMaterial)
 	{
@@ -153,7 +140,6 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 		}
 		else
 		{
-
 			LocalTemperature = Spacecraft->GetParent()->GetDamageSystem()->GetTemperature();
 		}
 
@@ -204,6 +190,7 @@ void UFlareSpacecraftComponent::Initialize(FFlareSpacecraftComponentSave* Data, 
 	// Mesh and material setup
 	SetupComponentMesh();
 	UpdateCustomization();
+	UpdateLight();
 }
 
 FFlareSpacecraftComponentSave* UFlareSpacecraftComponent::Save()
@@ -236,17 +223,19 @@ void UFlareSpacecraftComponent::SetVisibleInUpgrade(bool Visible)
 
 void UFlareSpacecraftComponent::SetTemperature(int32 TemperatureKelvin)
 {
-	if (ComponentMaterial)
+	if (TemperatureKelvin != PreviousTemperatureKelvin && ComponentMaterial)
 	{
 		ComponentMaterial->SetScalarParameterValue("Temperature", TemperatureKelvin);
+		PreviousTemperatureKelvin = TemperatureKelvin;
 	}
 }
 
 void UFlareSpacecraftComponent::SetHealth(float HealthRatio)
 {
-	if (ComponentMaterial)
+	if (HealthRatio != PreviousHealthRatio && ComponentMaterial)
 	{
 		ComponentMaterial->SetScalarParameterValue("Health", HealthRatio);
+		PreviousHealthRatio = HealthRatio;
 	}
 }
 
@@ -415,7 +404,7 @@ float UFlareSpacecraftComponent::ApplyDamage(float Energy, EFlareDamage::Type Da
 
 float UFlareSpacecraftComponent::GetDamageRatio() const
 {
-	if (ComponentDescription)
+	if (ComponentDescription && Spacecraft && Spacecraft->GetParent())
 	{
 		float MaxHitPoints = Spacecraft->GetParent()->GetDamageSystem()->GetMaxHitPoints(ComponentDescription);
 		float RemainingHitPoints = MaxHitPoints - ShipComponentData->Damage;
@@ -434,7 +423,14 @@ bool UFlareSpacecraftComponent::IsDestroyed() const
 
 bool UFlareSpacecraftComponent::IsPowered() const
 {
-	return (GetAvailablePower()> 0);
+	if (!ComponentDescription || !Spacecraft || !Spacecraft->GetParent())
+	{
+		return true;
+	}
+	else
+	{
+		return Spacecraft->GetParent()->GetDamageSystem()->IsPowered(ShipComponentData);
+	}
 }
 
 float UFlareSpacecraftComponent::GetGeneratedPower() const
@@ -447,114 +443,25 @@ float UFlareSpacecraftComponent::GetMaxGeneratedPower() const
 	return GeneratedPower;
 }
 
-float UFlareSpacecraftComponent::GetAvailablePower() const
-{
-	if (!ComponentDescription && Spacecraft)
-	{
-		UFlareSpacecraftComponent* Cockpit = Spacecraft->GetCockpit();
-
-		if (Cockpit)
-		{
-			return 1.f;
-		}
-	}
-	else if (ComponentDescription->GeneralCharacteristics.ElectricSystem)
-	{
-		return 1.f;
-	}
-
-	if(Spacecraft && Spacecraft->IsStation())
-	{
-		return 1.f;
-	}
-
-	return Power;
-}
-
 bool UFlareSpacecraftComponent::IsGenerator() const
 {
 	return GeneratedPower > 0;
 }
 
-void UFlareSpacecraftComponent::UpdatePower()
-{
-	Power = 0;
-
-	for (int32 i = 0; i < PowerSources.Num(); i++)
-	{
-		Power += PowerSources[i]->GetGeneratedPower();
-	}
-
-	if (PowerSources .Num() == 0)
-	{
-		Power = 1;
-	}
-
-	UpdateLight();
-}
-
 void UFlareSpacecraftComponent::UpdateLight()
 {
-	float AvailablePower = GetAvailablePower();
+	float AvailablePower = GetUsableRatio();
 	if (AvailablePower <= 0)
 	{
 		SetLightStatus(EFlareLightStatus::Dark);
 	}
-	else if (AvailablePower < 0.5 || (Spacecraft && Spacecraft->GetParent()->GetDamageSystem()->HasPowerOutage()))
+	else if (AvailablePower < 0.75 || (Spacecraft && Spacecraft->GetParent()->GetDamageSystem()->HasPowerOutage()))
 	{
 		SetLightStatus(EFlareLightStatus::Flickering);
 	}
 	else
 	{
 		SetLightStatus(EFlareLightStatus::Lit);
-	}
-}
-
-void UFlareSpacecraftComponent::UpdatePowerSources(TArray<UFlareSpacecraftComponent*>* AvailablePowerSources)
-{
-	if(Spacecraft->IsStation())
-	{
-		return;
-	}
-
-	PowerSources.Empty();
-
-	for (int32 i = 0; i < AvailablePowerSources->Num(); i++)
-	{
-		UFlareSpacecraftComponent* PowerSource = (*AvailablePowerSources)[i];
-		FFlareSpacecraftSlotDescription* SlotDescription = NULL;
-
-		if (PowerSource == this)
-		{
-			PowerSources.Add(PowerSource);
-			break;
-		}
-
-		// Find InternalComponentSlot
-		for (int32 SlotIndex = 0; SlotIndex < Spacecraft->GetDescription()->InternalComponentSlots.Num(); SlotIndex ++)
-		{
-			if (Spacecraft->GetDescription()->InternalComponentSlots[SlotIndex].SlotIdentifier == PowerSource->Save()->ShipSlotIdentifier)
-			{
-				SlotDescription = &Spacecraft->GetDescription()->InternalComponentSlots[SlotIndex];
-				break;
-			}
-		}
-
-		if (!SlotDescription)
-		{
-			continue;
-		}
-
-		if (ShipComponentData && SlotDescription->PoweredComponents.Contains(ShipComponentData->ShipSlotIdentifier))
-		{
-			PowerSources.Add(PowerSource);
-		}
-	}
-
-	if (PowerSources.Num() == 0 && ShipComponentData && ShipComponentData->ShipSlotIdentifier != NAME_None)
-	{
-		FLOGV("Warning: %s : %s has no power source", *Spacecraft->GetImmatriculation().ToString(),
-			  *ShipComponentData->ShipSlotIdentifier.ToString());
 	}
 }
 
@@ -609,7 +516,7 @@ void UFlareSpacecraftComponent::OnRepaired()
 
 void UFlareSpacecraftComponent::StartDestroyedEffects()
 {
-	if (!DestroyedEffects && DestroyedEffectTemplate)
+	if (!DestroyedEffects && DestroyedEffectTemplate && IsDestroyedEffectRelevant())
 	{
 		// Calculate smoke origin
 		FVector Position = GetComponentLocation();
@@ -619,7 +526,6 @@ void UFlareSpacecraftComponent::StartDestroyedEffects()
 		}
 
 		// Start smoke
-
 		DestroyedEffects = UGameplayStatics::SpawnEmitterAttached(
 			DestroyedEffectTemplate,
 			this,
@@ -674,4 +580,10 @@ void UFlareSpacecraftComponent::StartDamagedEffect(FVector Location, FRotator Ro
 		ImpactCount++;
 		PSC->SetWorldScale3D(FVector(1, 1, 1));
 	}
+}
+
+bool UFlareSpacecraftComponent::IsDestroyedEffectRelevant()
+{
+	// No smoke
+	return false;
 }

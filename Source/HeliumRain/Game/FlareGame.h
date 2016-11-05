@@ -18,8 +18,8 @@
 #include "../Data/FlareCustomizationCatalog.h"
 #include "../Data/FlareAsteroidCatalog.h"
 #include "../Data/FlareCompanyCatalog.h"
-#include "../Data/FlareOrbitalMap.h"
 #include "../Data/FlareResourceCatalog.h"
+#include "../Data/FlareOrbitalMap.h"
 
 #include "FlareGame.generated.h"
 
@@ -227,7 +227,7 @@ protected:
 	/*----------------------------------------------------
 		Catalogs
 	----------------------------------------------------*/
-
+	
 	/** Reference to all available ship models */
 	UPROPERTY()
 	UFlareSpacecraftCatalog*                   SpacecraftCatalog;

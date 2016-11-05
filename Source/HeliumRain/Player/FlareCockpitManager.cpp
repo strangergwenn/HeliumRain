@@ -5,6 +5,7 @@
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareSpacecraftComponent.h"
+#include "../Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 
 #define LOCTEXT_NAMESPACE "FlareCockpitManager"
 
@@ -16,11 +17,13 @@
 AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, PlayerShip(NULL)
-	, CockpitHealthLightTime(0)
-	, CockpitHealthLightPeriod(1.2)
-	, CockpitPowerTime(0)
+	, CockpitLightingIntensity(5)
+	, CockpitHealthLightTimer(0)
+	, CockpitHealthLightPeriod(1.58)
+	, CockpitTargetLightTimer(0)
+	, CockpitTargetLightPeriod(0.8)
+	, CockpitPowerTimer(0)
 	, CockpitPowerPeriod(0.7)
-	, CockpitLightingIntensity(10)
 	, FreighterCockpitMaterialInstance(NULL)
 	, FreighterCockpitFrameMaterialInstance(NULL)
 	, FighterCockpitMaterialInstance(NULL)
@@ -41,21 +44,6 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitMesh->LightingChannels.bChannel1 = true;
 	RootComponent = CockpitMesh;
 	
-	// FLIR camera
-	CockpitFLIRCapture = PCIP.CreateDefaultSubobject<USceneCaptureComponent2D>(this, TEXT("CockpitFLIRCapture"));
-	CockpitFLIRCapture->bCaptureEveryFrame = true;
-	CockpitFLIRCapture->FOVAngle = 10;
-	CockpitFLIRCapture->ShowFlags.Bloom = false;
-	CockpitFLIRCapture->ShowFlags.Decals = false;
-	CockpitFLIRCapture->ShowFlags.ScreenSpaceAO = false;
-	CockpitFLIRCapture->ShowFlags.ReflectionEnvironment = false;
-	CockpitFLIRCapture->ShowFlags.ScreenSpaceReflections = false;
-	CockpitFLIRCapture->ShowFlags.Translucency = false;
-	CockpitFLIRCapture->ShowFlags.LightShafts = false;
-	CockpitFLIRCapture->ShowFlags.PostProcessing = false;
-	CockpitFLIRCameraTarget = NULL;
-	CockpitFLIRCapture->Deactivate();
-
 	// Light
 	CockpitLight = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight"));
 	CockpitLight->SetLightColor(FLinearColor(1.0f, 0.871f, 0.731));
@@ -80,7 +68,6 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 	CockpitInstrumentsTargetSize = 512;
-	CockpitFLIRTargetSize = 512;
 	IsInCockpit = false;
 }
 
@@ -112,17 +99,7 @@ void AFlareCockpitManager::SetupCockpit(AFlarePlayerController* NewPC)
 		CockpitInstrumentsTarget->OnCanvasRenderTargetUpdate.AddDynamic(PC->GetNavHUD(), &AFlareHUD::DrawCockpitInstruments);
 		CockpitInstrumentsTarget->ClearColor = FLinearColor::Black;
 		CockpitInstrumentsTarget->UpdateResource();
-
-		// FLIR camera target
-		CockpitFLIRCameraTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), CockpitFLIRTargetSize, CockpitFLIRTargetSize);
-		FCHECK(CockpitFLIRCameraTarget);
-		CockpitFLIRCameraTarget->ClearColor = FLinearColor::Black;
-		CockpitFLIRCameraTarget->UpdateResource();
-
-		// Setup FLIR camera
-		FCHECK(CockpitFLIRCapture);
-		CockpitFLIRCapture->TextureTarget = CockpitFLIRCameraTarget;
-
+		
 		// Freighter materials
 		FreighterCockpitMaterialInstance = UMaterialInstanceDynamic::Create(FreighterCockpitMeshTemplate->GetMaterial(0), GetWorld());
 		FreighterCockpitFrameMaterialInstance = UMaterialInstanceDynamic::Create(FreighterCockpitMeshTemplate->GetMaterial(1), GetWorld());
@@ -166,7 +143,7 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewPlayerShip)
 	// Reset data
 	if (PlayerShip != NewPlayerShip)
 	{
-		CockpitPowerTime = CockpitPowerPeriod;
+		CockpitPowerTimer = 0;
 	}
 	PlayerShip = NewPlayerShip;
 
@@ -238,9 +215,17 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 			// Update instruments
 			if (FreighterCockpitFrameMaterialInstance && FighterCockpitFrameMaterialInstance)
 			{
+				FCHECK(PlayerShip);
+
+				// TemporalAA needs some tweaking
+				float TemporalAAValue = PC->UseTemporalAA ? 1.0f : 0.0f;
+				FreighterCockpitFrameMaterialInstance->SetScalarParameterValue("UseTemporalAA", TemporalAAValue);
+				FighterCockpitFrameMaterialInstance->SetScalarParameterValue("UseTemporalAA", TemporalAAValue);
+
+				// Update instruments
 				UpdateTarget(DeltaSeconds);
 				UpdateInfo(DeltaSeconds);
-				UpdateTemperature(DeltaSeconds);
+				UpdateHealth(DeltaSeconds);
 				UpdatePower(DeltaSeconds);
 			}
 		}
@@ -252,15 +237,14 @@ void AFlareCockpitManager::SetupCockpitInstances(UMaterialInstanceDynamic* Scree
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	FCHECK(ScreenInstance);
-	FCHECK(FrameInstance);
-
 	ScreenInstance->SetVectorParameterValue( "IndicatorColorBorders", Theme.FriendlyColor);
-	ScreenInstance->SetTextureParameterValue("HUDTarget", CockpitHUDTarget);
-	ScreenInstance->SetScalarParameterValue("ScreenLuminosity", CockpitLightingIntensity);
-	
+	ScreenInstance->SetTextureParameterValue("HUDTarget",             CockpitHUDTarget);
+	ScreenInstance->SetScalarParameterValue( "ScreenLuminosity",      CockpitLightingIntensity);
+
+	FCHECK(FrameInstance);
 	FrameInstance->SetVectorParameterValue( "IndicatorColorBorders",  Theme.FriendlyColor);
-	FrameInstance->SetTextureParameterValue("FLIRTarget",             CockpitFLIRCameraTarget);
 	FrameInstance->SetTextureParameterValue("InstrumentsTarget",      CockpitInstrumentsTarget);
+	FrameInstance->SetScalarParameterValue( "ScreenLuminosity",       CockpitLightingIntensity);
 }
 
 void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
@@ -290,152 +274,103 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 	// Offset the cockpit
 	CockpitMesh->AttachToComponent(TargetPlayerShip->GetCamera(), AttachRules, NAME_None);
 
-	// FLIR camera
-	CockpitFLIRCapture->AttachToComponent(TargetPlayerShip->GetRootComponent(), AttachRules, "Dock");
-
 	// General data
 	IsInCockpit = true;
-	CockpitFLIRCapture->Activate();
 	CockpitMesh->SetVisibility(true, true);
 }
 
 void AFlareCockpitManager::ExitCockpit()
 {
 	IsInCockpit = false;
-	CockpitFLIRCapture->Deactivate();
 	CockpitMesh->SetVisibility(false, true);
+}
+
+void AFlareCockpitManager::UpdateHealth(float DeltaSeconds)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor IndicatorColor = Theme.FriendlyColor;
+	float IndicatorIntensity = 0;
+
+	// Update light timer
+	CockpitHealthLightTimer += DeltaSeconds;
+	if (CockpitHealthLightTimer > CockpitHealthLightPeriod)
+	{
+		CockpitHealthLightTimer = 0;
+	}
+
+	// Lights are enabled on powered ships
+	if (PlayerShipIsPowered())
+	{
+		UFlareSimulatedSpacecraftDamageSystem* DamageSystem = PlayerShip->GetParent()->GetDamageSystem();
+		
+		if (!DamageSystem->IsAlive())
+		{
+			IndicatorColor = Theme.DamageColor;
+			IndicatorIntensity = 1.0f;
+		}
+		else if (DamageSystem->IsCrewEndangered() || DamageSystem->IsUncontrollable())
+		{
+			IndicatorColor = Theme.DamageColor;
+			IndicatorIntensity = (CockpitHealthLightTimer > CockpitHealthLightPeriod / 2) ? 1.0f : 0.0f;
+		}
+		else
+		{
+			IndicatorColor = Theme.FriendlyColor;
+			IndicatorIntensity = 1.0f;
+		}
+	}
+
+	GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", IndicatorColor);
+	GetCurrentFrameMaterial()->SetScalarParameterValue("IndicatorIntensityLeft", IndicatorIntensity);
 }
 
 void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 {
-	FCHECK(PlayerShip);
-	float Intensity = 0;
-	AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
-	// Power out
-	bool HasPower = !PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive();
-	if (!HasPower)
+	FLinearColor IndicatorColor = Theme.FriendlyColor;
+	float IndicatorIntensity = 0;
+	
+	// Update light timer
+	CockpitTargetLightTimer += DeltaSeconds;
+	if (CockpitTargetLightTimer > CockpitTargetLightPeriod)
 	{
-		Intensity = 0;
+		CockpitTargetLightTimer = 0;
 	}
 
-	// Target exists
-	else if (TargetShip)
+	// Lights are enabled on powered ships
+	if (PlayerShipIsPowered())
 	{
-		Intensity = 1;
-		FLinearColor Color = TargetShip->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile ? Theme.EnemyColor : Theme.FriendlyColor;
-		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorTop", Color);
+		bool Targeted, FiredUpon;
+		UFlareSimulatedSpacecraft* Threat;
+		PC->GetPlayerShipThreatStatus(Targeted, FiredUpon, Threat);
 
-		UFlareSpacecraftNavigationSystem* Nav = PlayerShip->GetNavigationSystem();
-		if (Nav->IsDocked())
+		// Player ship is fired upon
+		if (FiredUpon)
 		{
-			CockpitFLIRCapture->Deactivate();
+			IndicatorColor = Theme.DamageColor;
+			IndicatorIntensity = 1.0f;
 		}
-		else
+
+		// Player ship is being targeted
+		else if (Targeted)
 		{
-			float MaxFlirCameraAngle = 60.0f;
-			FVector TargetLocation = TargetShip->GetActorLocation();
-			FFlareShipCommandData Command = Nav->GetCurrentCommand();
-
-			// Get docking data
-			if (Command.Type == EFlareCommandDataType::CDT_Dock)
-			{
-				AFlareSpacecraft* DockStation = Command.ActionTarget;
-				int32 DockId = Command.ActionTargetParam;
-
-				FFlareDockingInfo StationDockInfo = DockStation->GetDockingSystem()->GetDockInfo(DockId);
-				FVector StationDockLocation =  DockStation->Airframe->GetComponentTransform().TransformPosition(StationDockInfo.LocalLocation);
-				TargetLocation = StationDockLocation;
-			}
-
-			// Find best FLIR camera
-			TArray<FName> SocketNames  = PlayerShip->Airframe->GetAllSocketNames();
-			float BestAngle = 0;
-			FVector TargetDirection;
-			FVector CameraMainDirection;
-			FVector TargetLocationDelta;
-			bool FlirCameraFound = false;
-			FName BestCameraName;
-
-			// Find the best FLIR camera on the ship if any
-			for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
-			{
-				if (SocketNames[SocketIndex] == "Dock" || SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
-				{
-					FTransform CameraWorldTransform = PlayerShip->Airframe->GetSocketTransform(SocketNames[SocketIndex]);
-
-					FVector CameraLocation = CameraWorldTransform.GetTranslation();
-					FVector CandidateCameraMainDirection = CameraWorldTransform.GetRotation().RotateVector(FVector(1,0,0));
-
-					FVector CandidateTargetLocationDelta = TargetLocation - CameraLocation;
-					FVector CandidateTargetDirection = CandidateTargetLocationDelta.GetUnsafeNormal();
-
-					float Angle = FMath::RadiansToDegrees((FMath::Acos(FVector::DotProduct(CandidateTargetDirection, CandidateCameraMainDirection))));
-
-					if (!FlirCameraFound || Angle < BestAngle)
-					{
-						// Select camera
-						BestAngle  = Angle;
-						TargetDirection = CandidateTargetDirection;
-						CameraMainDirection = CandidateCameraMainDirection;
-						TargetLocationDelta = CandidateTargetLocationDelta;
-						FlirCameraFound = true;
-						BestCameraName = SocketNames[SocketIndex];
-					}
-				}
-			}
-
-			// Update the FLIR camera
-			if (FlirCameraFound)
-			{
-				FAttachmentTransformRules AttachRules(EAttachmentRule::KeepWorld, true);
-				CockpitFLIRCapture->AttachToComponent(PlayerShip->GetRootComponent(), AttachRules, BestCameraName);
-
-				FRotator CameraRotation = TargetDirection.Rotation();
-
-				if(BestAngle > MaxFlirCameraAngle)
-				{
-					// Clamp max rotation
-					FVector RotationAxis = FVector::CrossProduct(CameraMainDirection, TargetDirection).GetUnsafeNormal();
-					FVector MaxTurnDirection = CameraMainDirection.RotateAngleAxis(MaxFlirCameraAngle, RotationAxis);
-
-					CameraRotation = MaxTurnDirection.Rotation();
-				}
-
-				CameraRotation.Roll = PlayerShip->GetActorRotation().Roll;
-
-				CockpitFLIRCapture->SetWorldRotation(CameraRotation);
-
-				FBox CandidateBox = TargetShip->GetComponentsBoundingBox();
-				float TargetSize = FMath::Max(CandidateBox.GetExtent().Size(), 1.0f);
-
-				CockpitFLIRCapture->FOVAngle = 3 * FMath::RadiansToDegrees(FMath::Atan2(TargetSize, TargetLocationDelta.Size()));
-				CockpitFLIRCapture->FOVAngle = FMath::Min(CockpitFLIRCapture->FOVAngle, 30.0f);
-
-				CockpitFLIRCapture->Activate();
-			}
-			else
-			{
-				CockpitFLIRCapture->Deactivate();
-			}
+			IndicatorColor = Theme.DamageColor;
+			IndicatorIntensity = (CockpitTargetLightTimer > CockpitTargetLightPeriod / 2) ? 1.0f : 0.0f;
 		}
 	}
-	else
-	{
-		CockpitFLIRCapture->Deactivate();
-	}
 
-	GetCurrentFrameMaterial()->SetScalarParameterValue("IndicatorIntensityTop", Intensity);
-	GetCurrentFrameMaterial()->SetScalarParameterValue("ScreenLuminosity", CockpitLightingIntensity);
+	GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorTop", IndicatorColor);
+	GetCurrentFrameMaterial()->SetScalarParameterValue("IndicatorIntensityTop", IndicatorIntensity);
 }
 
 void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 {
-	FCHECK(PlayerShip);
-	float Intensity = 0;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor IndicatorColor = Theme.FriendlyColor;
+	float IndicatorIntensity = 0.0f;
 
-	if (PlayerShip->GetParent()->IsMilitary())
+	// Lights are enabled on powered military ships
+	if (PlayerShipIsPowered() && PlayerShip->GetParent()->IsMilitary())
 	{
 		// Fighter
 		if (PlayerShip->GetParent()->GetDescription()->Size == EFlarePartSize::S)
@@ -443,73 +378,33 @@ void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 			FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
 			if (WeaponGroup)
 			{
-				Intensity = 1;
-				float ComponentHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex());
-				GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorRight", PC->GetNavHUD()->GetHealthColor(ComponentHealth));
+				IndicatorIntensity = 1.0f;
+				IndicatorColor = PlayerShip->GetParent()->GetDamageSystem()->IsDisarmed() ? Theme.DamageColor : Theme.FriendlyColor;
 			}
 		}
 
 		// Capital
 		else
 		{
-			Intensity = 1;
-			GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorRight", PC->GetNavHUD()->GetHealthColor(1));
+			IndicatorIntensity = 1.0f;
 		}
 	}
 
-	GetCurrentFrameMaterial()->SetScalarParameterValue("IndicatorIntensityRight", Intensity);
-}
-
-void AFlareCockpitManager::UpdateTemperature(float DeltaSeconds)
-{
-	FCHECK(PlayerShip);
-
-	// Update timer
-	CockpitHealthLightTime += DeltaSeconds;
-	if (CockpitHealthLightTime > CockpitHealthLightPeriod)
-	{
-		CockpitHealthLightTime -= CockpitHealthLightPeriod;
-	}
-
-	// Power out
-	if (PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage())
-	{
-		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", Theme.EnemyColor);
-	}
-
-	// Temperature
-	else if (CockpitHealthLightTime > CockpitHealthLightPeriod / 2)
-	{
-		float Temperature = PlayerShip->GetParent()->GetDamageSystem()->GetTemperature();
-		float OverheatTemperature = PlayerShip->GetParent()->GetDamageSystem()->GetOverheatTemperature();
-		FLinearColor TemperatureColor = PC->GetNavHUD()->GetTemperatureColor(Temperature, OverheatTemperature);
-		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", TemperatureColor);
-	}
-
-	// Cockpit health
-	else
-	{
-		float ComponentHealth = PlayerShip->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport);
-		FLinearColor HealthColor = PC->GetNavHUD()->GetHealthColor(ComponentHealth);
-		GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorLeft", HealthColor);
-	}
+	GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorRight", IndicatorColor);
+	GetCurrentFrameMaterial()->SetScalarParameterValue("IndicatorIntensityRight", IndicatorIntensity);
 }
 
 void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 {
-	FCHECK(PlayerShip);
-
 	// Update timer
-	bool HasPower = !PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive();
-	CockpitPowerTime += (HasPower ? 1.0f : -1.0f) * DeltaSeconds;
-	CockpitPowerTime = FMath::Clamp(CockpitPowerTime, 0.0f, CockpitPowerPeriod);
-	float PowerAlpha = CockpitPowerTime / CockpitPowerPeriod;
+	CockpitPowerTimer += (PlayerShipIsPowered() ? 1.0f : -1.0f) * DeltaSeconds;
+	CockpitPowerTimer = FMath::Clamp(CockpitPowerTimer, 0.0f, CockpitPowerPeriod);
+	float PowerAlpha = CockpitPowerTimer / CockpitPowerPeriod;
 
 	// Update lights
-	float Intensity = 20 + PowerAlpha * 200;
-	CockpitLight->SetIntensity(Intensity);
-	CockpitLight2->SetIntensity(Intensity);
+	float LightIntensity = PowerAlpha * 50;
+	CockpitLight->SetIntensity(LightIntensity);
+	CockpitLight2->SetIntensity(LightIntensity);
 
 	// Update materials
 	FLinearColor HealthColor = PC->GetNavHUD()->GetHealthColor(PowerAlpha);
@@ -523,6 +418,16 @@ void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
+
+inline UStaticMeshComponent* AFlareCockpitManager::GetCockpitMesh() const
+{
+	return CockpitMesh;
+}
+
+bool AFlareCockpitManager::PlayerShipIsPowered() const
+{
+	return PlayerShip->GetParent()->GetDamageSystem()->IsAlive() && !PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage();
+}
 
 UMaterialInstanceDynamic* AFlareCockpitManager::GetCurrentScreenMaterial()
 {

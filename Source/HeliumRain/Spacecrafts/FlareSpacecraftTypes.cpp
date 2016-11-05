@@ -1,6 +1,8 @@
 #include "../Flare.h"
 #include "FlareSpacecraftTypes.h"
 
+DECLARE_CYCLE_STAT(TEXT("SpacecraftHelper GetIntersectionPosition"), STAT_SpacecraftHelper_GetIntersectionPosition, STATGROUP_Flare);
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -12,6 +14,10 @@ UFlareSpacecraftTypes::UFlareSpacecraftTypes(const FObjectInitializer& ObjectIni
 
 float SpacecraftHelper::GetIntersectionPosition(FVector TargetLocation, FVector TargetVelocity, FVector SourceLocation, FVector SourceVelocity, float ProjectileSpeed, float PredictionDelay, FVector* ResultPosition)
 {
+
+	SCOPE_CYCLE_COUNTER(STAT_SpacecraftHelper_GetIntersectionPosition);
+
+
 	/*FLOGV("GetIntersectionPosition at %f s",PredictionDelay);
 	FLOGV("  TargetLocation=%s",*TargetLocation.ToString());
 	FLOGV("  TargetVelocity=%s",*TargetVelocity.ToString());

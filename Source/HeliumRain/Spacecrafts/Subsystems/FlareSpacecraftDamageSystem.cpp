@@ -9,7 +9,10 @@
 #include "../FlareOrbitalEngine.h"
 #include "../FlareShell.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareDamageSystem Tick"), STAT_FlareDamageSystem_Tick, STATGROUP_Flare);
+
 #define LOCTEXT_NAMESPACE "FlareSpacecraftDamageSystem"
+
 
 /*----------------------------------------------------
 	Constructor
@@ -29,6 +32,10 @@ UFlareSpacecraftDamageSystem::UFlareSpacecraftDamageSystem(const class FObjectIn
 
 void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareDamageSystem_Tick);
+
+	Parent->TickSystem();
+
 	// Apply heat variation : add producted heat then substract radiated heat.
 
 	// Get the to heat production and heat sink surface
@@ -43,8 +50,8 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 	}
 
 	// Add a part of sun radiation to ship heat production
-	// Sun flow is 3.094KW/m^2 and keep only half and modulate 90% by sun occlusion
-	HeatProduction += HeatSinkSurface * 3.094 * 0.5 * (1 - 0.9 * Spacecraft->GetGame()->GetPlanetarium()->GetSunOcclusion());
+	// Sun flow is 3.094KW/m^2 and keep only 10 % and modulate 90% by sun occlusion
+	HeatProduction += HeatSinkSurface * 3.094 * 0.1 * (1 - 0.9 * Spacecraft->GetGame()->GetPlanetarium()->GetSunOcclusion());
 
 	// Heat up
 	Data->Heat += HeatProduction * DeltaSeconds;
@@ -80,7 +87,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		{
 			if(Parent->IsAlive())
 			{
-				PC->Notify(LOCTEXT("TargetShipUncontrollable", "Enemy ship uncontrollable"),
+				PC->Notify(LOCTEXT("TargetShipUncontrollable", "Enemy disabled"),
 					FText::Format(LOCTEXT("TargetShipUncontrollableFormat", "You rendered a ship uncontrollable ({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
 					FName("ship-uncontrollable"),
 					EFlareNotification::NT_Info);
@@ -92,7 +99,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		{
 			if(Parent->IsAlive())
 			{
-				PC->Notify(LOCTEXT("TargetShipUncontrollableCompany", "Enemy ship uncontrollable"),
+				PC->Notify(LOCTEXT("TargetShipUncontrollableCompany", "Enemy disabled"),
 					FText::Format(LOCTEXT("TargetShipUncontrollableCompanyFormat", "Your {0}-class ship rendered a ship uncontrollable ({1}-class)"),
 						LastDamageCauser->GetParent()->GetDescription()->Name,
 						Spacecraft->GetParent()->GetDescription()->Name),
@@ -114,7 +121,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		// Player kill
 		if (PC && LastDamageCauser == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn())
 		{
-			PC->Notify(LOCTEXT("TargetShipKilled", "Target destroyed"),
+			PC->Notify(LOCTEXT("TargetShipKilled", "Enemy destroyed"),
 				FText::Format(LOCTEXT("TargetShipKilledFormat", "You destroyed a ship ({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
 				FName("ship-killed"),
 				EFlareNotification::NT_Info);
@@ -164,24 +171,7 @@ void UFlareSpacecraftDamageSystem::Start()
 	// Reload components
 	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
 
-	TArray<UFlareSpacecraftComponent*> PowerSources;
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		// Fill power sources
-		if (Component->IsGenerator())
-		{
-			PowerSources.Add(Component);
-		}
-	}
-
-	// Second pass, update component power sources and update power
-	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-	{
-		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		Component->UpdatePowerSources(&PowerSources);
-	}
-	UpdatePower();
+	Parent->TickSystem();
 
 	// Init alive status
 	WasControllable = !Parent->IsUncontrollable();
@@ -199,7 +189,7 @@ void UFlareSpacecraftDamageSystem::UpdatePower()
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-		Component->UpdatePower();
+		Component->UpdateLight();
 	}
 }
 
@@ -285,8 +275,6 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 					EFlareMenu::MENU_Company);
 			}
 		}
-
-		PC->GetMenuManager()->OpenMainOverlay();
 
 		CheckRecovery();
 		// Check if it the last ship
@@ -498,10 +486,10 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 
 	}
 
-	UFlareCompany* DamageSource = NULL;
+	UFlareSimulatedSpacecraft* DamageSource = NULL;
 	if (OtherSpacecraft)
 	{
-		DamageSource = OtherSpacecraft->GetParent()->GetCompany();
+		DamageSource = OtherSpacecraft->GetParent();
 		LastDamageCauser = OtherSpacecraft;
 	}
 	else
@@ -511,7 +499,7 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 	ApplyDamage(ImpactEnergy, Radius, BestHitResult.Location, EFlareDamage::DAM_Collision, DamageSource);
 }
 
-void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
+void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource)
 {
 	// The damages are applied to all component touching the sphere defined by the radius and the
 	// location in parameter.
@@ -522,8 +510,36 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *(Spacecraft->GetImmatriculation().ToString()), Radius, *Location.ToString());
 	//DrawDebugSphere(Spacecraft->GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
 
+	// Signal the player he's hit something
+	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
+	if (DamageSource == PC->GetShipPawn()->GetParent())
+	{
+		PC->SignalHit(Spacecraft, DamageType);
+	}
+
+	// Signal the player he's been damaged
+	if (Spacecraft == PC->GetShipPawn())
+	{
+		switch (DamageType)
+		{
+			case EFlareDamage::DAM_ArmorPiercing:
+			case EFlareDamage::DAM_HighExplosive:
+			case EFlareDamage::DAM_HEAT:
+				PC->SpacecraftHit(DamageSource->GetDescription()->Size);
+				break;
+			case EFlareDamage::DAM_Collision:
+				PC->SpacecraftCrashed();
+				break;
+			case EFlareDamage::DAM_Overheat:
+			default:
+				break;
+		}
+	}
+
+	UFlareCompany* CompanyDamageSource = (DamageSource ? DamageSource->GetCompany() : NULL);
+
 	FVector LocalLocation = Spacecraft->GetRootComponent()->GetComponentTransform().InverseTransformPosition(Location) / 100.f;
-	CombatLog::SpacecraftDamaged(Spacecraft->GetParent(), Energy, Radius, LocalLocation, DamageType, DamageSource);
+	CombatLog::SpacecraftDamaged(Spacecraft->GetParent(), Energy, Radius, LocalLocation, DamageType, CompanyDamageSource);
 
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
@@ -548,7 +564,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 			{
 				Efficiency = 1;
 			}
-			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency, DamageType, DamageSource);
+			float InflictedDamageRatio = Component->ApplyDamage(Energy * Efficiency, DamageType, CompanyDamageSource);
 		}
 	}
 
@@ -558,18 +574,19 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	// Heat the ship
 	Data->Heat += Energy;
 
-	switch (DamageType) {
-	case EFlareDamage::DAM_ArmorPiercing:
-	case EFlareDamage::DAM_HighExplosive:
-	case EFlareDamage::DAM_HEAT:
-		//FLOGV("%s Reset TimeSinceLastExternalDamage", *Spacecraft->GetImmatriculation().ToString());
-		TimeSinceLastExternalDamage = 0;
-		break;
-	case EFlareDamage::DAM_Collision:
-	case EFlareDamage::DAM_Overheat:
-	default:
-		// Don't reset timer
-		break;
+	switch (DamageType)
+	{
+		case EFlareDamage::DAM_ArmorPiercing:
+		case EFlareDamage::DAM_HighExplosive:
+		case EFlareDamage::DAM_HEAT:
+			//FLOGV("%s Reset TimeSinceLastExternalDamage", *Spacecraft->GetImmatriculation().ToString());
+			TimeSinceLastExternalDamage = 0;
+			break;
+		case EFlareDamage::DAM_Collision:
+		case EFlareDamage::DAM_Overheat:
+		default:
+			// Don't reset timer
+			break;
 	}
 }
 

@@ -128,6 +128,40 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
 						]
+					]
+					
+
+					// Buttons 2
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Left)
+					[
+						SNew(SHorizontalBox)
+
+						// Motion blur
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(MotionBlurButton, SFlareButton)
+							.Text(LOCTEXT("MotionBlur", "Use motion blur"))
+							.HelpText(LOCTEXT("MotionBlurInfo", "Motion blur makes the game feel much more responsive and fluid."))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnMotionBlurToggle)
+						]
+
+						// Temporal AA
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(TemporalAAButton, SFlareButton)
+							.Text(LOCTEXT("TemporalAA", "Use Temporal AA"))
+							.HelpText(LOCTEXT("TemporalAAInfo", "Temporal Anti-Aliasing is a cleaner AA method, but might create ghosting artifacts on some computers."))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnTemporalAAToggle)
+						]
 
 						// Supersampling
 						+ SHorizontalBox::Slot()
@@ -135,7 +169,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.SmallContentPadding)
 						[
 							SAssignNew(SupersamplingButton, SFlareButton)
-							.Text(LOCTEXT("Supersampling", "Supersampling (!)"))
+							.Text(LOCTEXT("Supersampling", "2x Supersampling (!)"))
 							.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the scenes at double the resolution. This is a very demanding feature."))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
@@ -363,7 +397,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(CockpitButton, SFlareButton)
 							.Text(LOCTEXT("Cockpit", "Use cockpit"))
-							.HelpText(LOCTEXT("CockpitInfo", "Use the 3D cockpit instead of a flat interface"))
+							.HelpText(LOCTEXT("CockpitInfo", "Use the immersive 3D cockpit instead of a flat interface."))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnCockpitToggle)
 						]
@@ -375,7 +409,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(PauseInMenusButton, SFlareButton)
 							.Text(LOCTEXT("PauseInMenus", "Pause in menus"))
-							.HelpText(LOCTEXT("PauseInMenusInfo", "Pause the game when entering a full-screen menu"))
+							.HelpText(LOCTEXT("PauseInMenusInfo", "Pause the game when entering a full-screen menu."))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnPauseInMenusToggle)
 						]
@@ -519,6 +553,8 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 
 	// Default settings
 	VSyncButton->SetActive(MyGameSettings->IsVSyncEnabled());
+	MotionBlurButton->SetActive(MyGameSettings->UseMotionBlur);
+	TemporalAAButton->SetActive(MyGameSettings->UseTemporalAA);
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
 	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
@@ -1051,8 +1087,44 @@ void SFlareSettingsMenu::OnVSyncToggle()
 		FLOG("SFlareSettingsMenu::OnVSyncToggle : Disable vsync")
 	}
 
-	UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	MyGameSettings->SetVSyncEnabled(VSyncButton->IsActive());
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnMotionBlurToggle()
+{
+	if (MotionBlurButton->IsActive())
+	{
+		FLOG("SFlareSettingsMenu::OnMotionBlurToggle : Enable motion blur")
+	}
+	else
+	{
+		FLOG("SFlareSettingsMenu::OnMotionBlurToggle : Disable motion blur")
+	}
+
+	MenuManager->GetPC()->SetUseMotionBlur(MotionBlurButton->IsActive());
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->UseMotionBlur = MotionBlurButton->IsActive();
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnTemporalAAToggle()
+{
+	if (TemporalAAButton->IsActive())
+	{
+		FLOG("SFlareSettingsMenu::OnTemporalAAToggle : Enable TAA")
+	}
+	else
+	{
+		FLOG("SFlareSettingsMenu::OnTemporalAAToggle : Enable FXAA")
+	}
+
+	MenuManager->GetPC()->SetUseTemporalAA(TemporalAAButton->IsActive());
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->UseTemporalAA = TemporalAAButton->IsActive();
 	MyGameSettings->ApplySettings(false);
 }
 
@@ -1060,11 +1132,11 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 {
 	if (SupersamplingButton->IsActive())
 	{
-		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Enable supersampling (2K)")
+		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Enable supersampling")
 	}
 	else
 	{
-		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Disable supersampling (2K)")
+		FLOG("SFlareSettingsMenu::OnSupersamplingToggle : Disable supersampling")
 	}
 
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());

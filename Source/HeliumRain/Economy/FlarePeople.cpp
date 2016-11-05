@@ -42,7 +42,7 @@ FFlarePeopleSave* UFlarePeople::Save()
    Gameplay
 ----------------------------------------------------*/
 
-static uint32 BIRTH_POINT_TRESHOLD = 7120;
+static uint32 BIRTH_POINT_TRESHOLD = 3000;
 static uint32 DEATH_POINT_TRESHOLD = 29200;
 static uint32 MONETARY_CREATION = 10000;
 
@@ -171,7 +171,7 @@ void UFlarePeople::SimulateResourcePurchase()
 	FFlareResourceDescription* Tool = Game->GetResourceCatalog()->Get("tools");
 	FFlareResourceDescription* Tech = Game->GetResourceCatalog()->Get("tech");
 
-	uint32 FoodConsumption = GetRessourceConsumption(Food);
+	uint32 FoodConsumption = GetRessourceConsumption(Food, true);
 	uint32 BoughtFood = BuyResourcesInSector(Food, FoodConsumption); // In Tons
 	//if(BoughtFood)
 	//	FLOGV("People in %s bought %u food", *Parent->GetSectorName().ToString(), BoughtFood);
@@ -191,7 +191,7 @@ void UFlarePeople::SimulateResourcePurchase()
 		//TODO reputation
 	}
 
-	uint32 FuelConsumption = GetRessourceConsumption(Fuel);
+	uint32 FuelConsumption = GetRessourceConsumption(Fuel, true);
 	uint32 BoughtFuel = BuyResourcesInSector(Fuel, FuelConsumption); // In Tons
 	//if(BoughtFuel)
 	//	FLOGV("People in %s bought %u fuel", *Parent->GetSectorName().ToString(), BoughtFuel);
@@ -211,7 +211,7 @@ void UFlarePeople::SimulateResourcePurchase()
 		//TODO reputation
 	}
 
-	uint32 ToolConsumption = GetRessourceConsumption(Tool);
+	uint32 ToolConsumption = GetRessourceConsumption(Tool, true);
 	uint32 BoughtTool = BuyResourcesInSector(Tool, ToolConsumption); // In Tons
 	//if(BoughtTool)
 	//	FLOGV("People in %s bought %u tool", *Parent->GetSectorName().ToString(), BoughtTool);
@@ -231,7 +231,7 @@ void UFlarePeople::SimulateResourcePurchase()
 		//TODO reputation
 	}
 
-	uint32 TechConsumption = GetRessourceConsumption(Tech);
+	uint32 TechConsumption = GetRessourceConsumption(Tech, true);
 	uint32 BoughtTech = BuyResourcesInSector(Tech, TechConsumption); // In Tons
 	//if(BoughtTech)
 	//	FLOGV("People in %s bought %u tech", *Parent->GetSectorName().ToString(), BoughtTech);
@@ -309,7 +309,8 @@ uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, u
 		{
 			FFlareCompanyReputationSave* Reputation = GetCompanyReputation(SellingCompanies[CompanyIndex]);
 
-			uint32 PartToBuy = (InitialResourceToBuy * Reputation->Reputation) / ReputationSum;
+			uint32 PartToBuy = FMath::CeilToInt((InitialResourceToBuy * Reputation->Reputation) / (float) ReputationSum);
+			PartToBuy = FMath::Min(ResourceToBuy, PartToBuy);
 
 			uint32 BoughtQuantity = BuyInStationForCompany(Resource, PartToBuy, SellingCompanies[CompanyIndex], SellingStations);
 			ResourceToBuy -= BoughtQuantity;
@@ -349,7 +350,7 @@ uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource,
 	return Quantity - RemainingQuantity;
 }
 
-float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
+float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource, bool WithStock)
 {
 	FFlareResourceDescription* Food = Game->GetResourceCatalog()->Get("food");
 	FFlareResourceDescription* Fuel = Game->GetResourceCatalog()->Get("fuel");
@@ -368,6 +369,11 @@ float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
 			PeopleData.FoodConsumption = FOOD_MIN_CONSUMPTION;
 		}
 
+		if(!WithStock)
+		{
+			return PeopleData.Population * PeopleData.FoodConsumption / 1000.f;
+		}
+
 		uint32 FoodToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.FoodConsumption * FOOD_NEED_STOCK; // In kg
 		if(FoodToHave > PeopleData.FoodStock)
 		{
@@ -380,6 +386,11 @@ float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
 		if (PeopleData.FuelConsumption < FUEL_MIN_CONSUMPTION)
 		{
 			PeopleData.FuelConsumption = FUEL_MIN_CONSUMPTION;
+		}
+
+		if(!WithStock)
+		{
+			return PeopleData.Population * PeopleData.FuelConsumption / 1000.f;
 		}
 
 		int32 FuelToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.FuelConsumption * FUEL_NEED_STOCK; // In kg
@@ -396,6 +407,11 @@ float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
 			PeopleData.ToolConsumption = TOOL_MIN_CONSUMPTION;
 		}
 
+		if(!WithStock)
+		{
+			return PeopleData.Population * PeopleData.ToolConsumption / 1000.f;
+		}
+
 		int32 ToolToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.ToolConsumption * TOOL_NEED_STOCK; // In kg
 		if (ToolToHave > PeopleData.ToolStock)
 		{
@@ -408,6 +424,11 @@ float UFlarePeople::GetRessourceConsumption(FFlareResourceDescription* Resource)
 		if (PeopleData.TechConsumption < TECH_MIN_CONSUMPTION)
 		{
 			PeopleData.TechConsumption = TECH_MIN_CONSUMPTION;
+		}
+
+		if(!WithStock)
+		{
+			return PeopleData.Population * PeopleData.TechConsumption / 1000.f;
 		}
 
 		int32 TechToHave =  MIN_GENERAL_STOCK + PeopleData.Population * PeopleData.TechConsumption * TECH_NEED_STOCK; // In kg
@@ -442,11 +463,33 @@ void UFlarePeople::GiveBirth(uint32 BirthCount)
 	PeopleData.HappinessPoint += BirthCount * 100 * 2; // Birth happiness bonus
 }
 
+int32 UFlarePeople::GetBasePopulation()
+{
+	int32 BasePopulation = 0;
+
+	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Parent->GetSectorStations().Num(); SpacecraftIndex++)
+	{
+		UFlareSimulatedSpacecraft* Station = Parent->GetSectorStations()[SpacecraftIndex];
+
+		if(Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+		{
+			BasePopulation += 1000 * Station->GetLevel();
+		}
+		else
+		{
+			BasePopulation += 100 * Station->GetLevel();
+		}
+	}
+	return BasePopulation;
+}
+
 void UFlarePeople::KillPeople(uint32 KillCount)
 {
+	// Never kill people below the base population
 
-	uint32 PeopleToKill = FMath::Min(KillCount, PeopleData.Population);
-	if(PeopleToKill == 0)
+	int32 PeopleToKill = FMath::Min((int32) KillCount, (int32)PeopleData.Population - GetBasePopulation());
+
+	if (PeopleToKill <= 0)
 	{
 		return;
 	}
@@ -474,7 +517,36 @@ void UFlarePeople::KillPeople(uint32 KillCount)
 	}
 }
 
-void UFlarePeople::IncreaseHappiness(uint32 HappinessPoints)
+void UFlarePeople::Migrate(UFlareSimulatedSector* DestinationSector, int32 ShipCount)
+{
+	UFlarePeople* DestinationPeople = DestinationSector->GetPeople();
+
+	if (DestinationPeople->GetBasePopulation() == 0)
+	{
+		// Empty destination sector: no migration
+		return;
+	}
+
+	if (DestinationPeople->GetPopulation() == 0
+	 || (DestinationPeople->GetWealth() > GetWealth() &&
+			DestinationPeople->GetHappiness() > GetHappiness()))
+	{
+		// Migrate
+		int32 MigratingPopulation = FMath::Min(ShipCount * 10, (int32) PeopleData.Population / 2);
+
+		int32 MigratingHappiness = MigratingPopulation * GetHappiness();
+
+		PeopleData.HappinessPoint -= MigratingHappiness;
+		PeopleData.Population -= MigratingPopulation;
+
+		DestinationPeople->GetData()->Population += MigratingPopulation;
+		DestinationPeople->GetData()->HappinessPoint += MigratingHappiness;
+
+		FLOGV("Migration from %s to %s : %d people", *Parent->GetSectorName().ToString(), DestinationSector);
+	}
+}
+
+void UFlarePeople::IncreaseHappiness(float HappinessPoints)
 {
 	// Max happiness is 2 so Happiness max is 200 x population
 	// Gain happiness is boost when sad and difficult when happy
@@ -482,6 +554,12 @@ void UFlarePeople::IncreaseHappiness(uint32 HappinessPoints)
 	//  - 4 times gain for 0 as happiness
 	//  - No gain for 2 as happiness
 	// Formula: gain = (happiness - 2) ^ 2
+
+	if(HappinessPoints > 0 && HappinessPoints < 1)
+	{
+		HappinessPoints = 1;
+	}
+
 	float Happiness = GetHappiness();
 	float Gain = FMath::Square(Happiness - 2);
 	PeopleData.HappinessPoint += HappinessPoints * Gain;
@@ -547,6 +625,7 @@ void UFlarePeople::PrintInfo()
 
 	FLOGV("People for sector %s. ", *Parent->GetSectorName().ToString())
 	FLOGV(" - population: %u", PeopleData.Population);
+	FLOGV(" - base population: %d", GetBasePopulation());
 	FLOGV(" - happiness: %f", GetHappiness());
 	//FLOGV(" - Sickness: %f", Sickness);
 	//FLOGV(" - Fertility: %f", Fertility);
@@ -556,10 +635,10 @@ void UFlarePeople::PrintInfo()
 	FLOGV("   - Tool: %u", PeopleData.ToolStock);
 	FLOGV("   - Tech: %u", PeopleData.TechStock);
 	FLOG(" - Consumptions (sector)");
-	FLOGV("   - Food: %f", GetRessourceConsumption(Food));
-	FLOGV("   - Fuel: %f", GetRessourceConsumption(Fuel));
-	FLOGV("   - Tool: %f", GetRessourceConsumption(Tools));
-	FLOGV("   - Tech: %f", GetRessourceConsumption(Tech));
+	FLOGV("   - Food: %f", GetRessourceConsumption(Food, false));
+	FLOGV("   - Fuel: %f", GetRessourceConsumption(Fuel, false));
+	FLOGV("   - Tool: %f", GetRessourceConsumption(Tools, false));
+	FLOGV("   - Tech: %f", GetRessourceConsumption(Tech, false));
 	FLOG(" - Consumptions (per inhabitant)");
 	FLOGV("   - Food: %f", PeopleData.FoodConsumption);
 	FLOGV("   - Fuel: %f", PeopleData.FuelConsumption);

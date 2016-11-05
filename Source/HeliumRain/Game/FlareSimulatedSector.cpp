@@ -8,6 +8,10 @@
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../Player/FlarePlayerController.h"
 
+DECLARE_CYCLE_STAT(TEXT("FlareSector SimulatePriceVariation"), STAT_FlareSector_SimulatePriceVariation, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorFriendlyness"), STAT_FlareSector_GetSectorFriendlyness, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorBattleState"), STAT_FlareSector_GetSectorBattleState, STATGROUP_Flare);
+
 #define LOCTEXT_NAMESPACE "FlareSimulatedSector"
 
 
@@ -869,6 +873,8 @@ void UFlareSimulatedSector::SimulatePriceVariation()
 
 void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Resource)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSector_SimulatePriceVariation);
+
 	float OldPrice = GetPreciseResourcePrice(Resource);
 	// Prices can increase because :
 
@@ -927,7 +933,7 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 
 		if(Station->HasCapability(EFlareSpacecraftCapability::Consumer) && Resource->IsConsumerResource)
 		{
-			float Weight = GetPeople()->GetRessourceConsumption(Resource);
+			float Weight = GetPeople()->GetRessourceConsumption(Resource, false);
 			WantedPriceSum += Weight * (1.f - StockRatio);
 			WantedWeightSum += Weight;
 		}
@@ -1021,11 +1027,55 @@ void UFlareSimulatedSector::ClearBombs()
 	SectorData.BombData.Empty();
 }
 
+void UFlareSimulatedSector::GetSectorBalance(int32& PlayerShips, int32& EnemyShips, int32& NeutralShips)
+{
+	PlayerShips = 0;
+	EnemyShips = 0;
+	NeutralShips = 0;
+
+	for (int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
+	{
+		if (SectorShips[ShipIndex]->GetCompany()->GetPlayerHostility() == EFlareHostility::Hostile
+		 && SectorShips[ShipIndex]->IsMilitary() && !SectorShips[ShipIndex]->GetDamageSystem()->IsDisarmed())
+		{
+			EnemyShips++;
+		}
+		else if (SectorShips[ShipIndex]->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned
+		 && SectorShips[ShipIndex]->IsMilitary() && !SectorShips[ShipIndex]->GetDamageSystem()->IsDisarmed())
+		{
+			PlayerShips++;
+		}
+		else
+		{
+			NeutralShips++;
+		}
+	}
+}
+
+FText UFlareSimulatedSector::GetSectorBalanceText()
+{
+	int32 PlayerShips, EnemyShips, NeutralShips;
+	GetSectorBalance(PlayerShips, EnemyShips, NeutralShips);
+
+	FText PlayerShipsText = FText::Format(LOCTEXT("PlayerShipsFormat", "{0} friendly {1}, "),
+		FText::AsNumber(PlayerShips),
+		PlayerShips > 1 ? LOCTEXT("PlayerShips", "ships") : LOCTEXT("PlayerShip", "ship"));
+
+	FText HostileShipsText = FText::Format(LOCTEXT("HostileShipsFormat", "{0} {1}, "),
+		FText::AsNumber(EnemyShips),
+		EnemyShips > 1 ? LOCTEXT("HostileShips", "hostiles") : LOCTEXT("HostileShip", "hostile"));
+
+	FText NeutralShipsText = FText::Format(LOCTEXT("NeutralShipsFormat", "{0} {1}"),
+		FText::AsNumber(NeutralShips),
+		NeutralShips > 1 ? LOCTEXT("NeutralShips", "neutrals") : LOCTEXT("NeutralShip", "neutral"));
+
+	return FText::FromString(PlayerShipsText.ToString() + HostileShipsText.ToString() + NeutralShipsText.ToString());
+}
+
 int64 UFlareSimulatedSector::GetStationConstructionFee(int64 BasePrice)
 {
 	return BasePrice + 1000000 * SectorStations.Num();
 }
-
 
 uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource, bool IncludeShips, bool AllowTrade)
 {
@@ -1115,6 +1165,8 @@ FString UFlareSimulatedSector::GetSectorCode()
 
 EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFlareCompany* Company)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSector_GetSectorFriendlyness);
+
 	if (!Company->HasVisitedSector(this))
 	{
 		return EFlareSectorFriendlyness::NotVisited;
@@ -1125,27 +1177,8 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 		return EFlareSectorFriendlyness::Neutral;
 	}
 
-	int HostileSpacecraftCount = 0;
-	int NeutralSpacecraftCount = 0;
-	int FriendlySpacecraftCount = 0;
-
-	for (int SpacecraftIndex = 0 ; SpacecraftIndex < GetSectorSpacecrafts().Num(); SpacecraftIndex++)
-	{
-		UFlareCompany* OtherCompany = GetSectorSpacecrafts()[SpacecraftIndex]->GetCompany();
-
-		if (OtherCompany == Company)
-		{
-			FriendlySpacecraftCount++;
-		}
-		else if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
-		{
-			HostileSpacecraftCount++;
-		}
-		else
-		{
-			NeutralSpacecraftCount++;
-		}
-	}
+	int FriendlySpacecraftCount, HostileSpacecraftCount, NeutralSpacecraftCount;
+	GetSectorBalance(FriendlySpacecraftCount, HostileSpacecraftCount, NeutralSpacecraftCount);
 
 	if (FriendlySpacecraftCount > 0 && HostileSpacecraftCount > 0)
 	{
@@ -1168,6 +1201,7 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 
 EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlareCompany* Company)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSector_GetSectorBattleState);
 
 	if (GetSectorShips().Num() == 0)
 	{
@@ -1277,6 +1311,37 @@ EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlare
 	{
 		return EFlareSectorBattleState::Battle;
 	}
+}
+
+
+FText UFlareSimulatedSector::GetSectorBattleStateText(UFlareCompany* Company)
+{
+	FText BattleStatusText;
+
+	switch (GetSectorBattleState(Company))
+	{
+		case EFlareSectorBattleState::NoBattle:
+			break;
+		case EFlareSectorBattleState::BattleWon:
+			BattleStatusText = LOCTEXT("SectorBattleWon", "Battle won");
+			break;
+		case EFlareSectorBattleState::BattleLost:
+			BattleStatusText = LOCTEXT("SectorBattleLost", "Battle lost, retreat possible");
+			break;
+		case EFlareSectorBattleState::BattleLostNoRetreat:
+			BattleStatusText = LOCTEXT("SectorBattleLostNoRetreat", "Battle lost");
+			break;
+		case EFlareSectorBattleState::Battle:
+			BattleStatusText = LOCTEXT("SectorBattleBattle", "Battle in progress, retreat possible");
+			break;
+		case EFlareSectorBattleState::BattleNoRetreat:
+			BattleStatusText = LOCTEXT("SectorBattleBattleNoRetreat", "Battle in progress");
+			break;
+		default:
+			break;
+	}
+
+	return BattleStatusText;
 }
 
 bool UFlareSimulatedSector::IsInDangerousBattle(UFlareCompany* Company)

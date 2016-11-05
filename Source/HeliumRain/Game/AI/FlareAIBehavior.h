@@ -91,7 +91,10 @@ public:
 	float Agressivity;
 	float Bold;
 	float Peaceful;
+
+	// TODO save
 	bool PirateLowProfile;
+	float PirateAttackThresold;
 
 	/*----------------------------------------------------
 		Getters

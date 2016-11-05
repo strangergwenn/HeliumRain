@@ -6,6 +6,8 @@
 class AFlareSpacecraft;
 
 
+
+
 /** Status of the ship */
 UENUM()
 namespace EFlareShipStatus
@@ -68,6 +70,48 @@ struct FFlareShipCommandData
 
 };
 
+/** Docking phase */
+UENUM()
+namespace EFlareDockingPhase
+{
+	enum Type
+	{
+		Docked,
+		Dockable,
+		FinalApproach,
+		Approach,
+		RendezVous,
+		Distant,
+		Locked,
+	};
+}
+
+/* Current docking parameter */
+struct FFlareDockingParameters
+{
+	EFlareDockingPhase::Type DockingPhase;
+
+	// Ship
+	FVector ShipDockLocation;
+	FVector ShipDockAxis;
+	FVector ShipDockOffset;
+
+	// Camera
+	float ShipCameraOffset;
+	FVector ShipCameraTargetLocation;
+
+	// Station
+	FVector StationDockLocation;
+	FVector StationDockAxis;
+	FVector StationAngularVelocity;
+
+	// Approach
+	float DockToDockDistance;
+	FVector DockToDockDeltaLocation;
+	FVector LinearVelocityAtShipDistance;
+	FVector ShipDockSelfRotationInductedLinearVelocity;
+};
+
 /** Spacecraft navigation system class */
 UCLASS()
 class HELIUMRAIN_API UFlareSpacecraftNavigationSystem : public UObject
@@ -113,6 +157,8 @@ public:
 
 	virtual bool DockAt(AFlareSpacecraft* TargetStation);
 
+	FFlareDockingParameters GetDockingParameters(FFlareDockingInfo StationDockInfo, FVector CameraLocation);
+
 	/** Continue docking sequence has completed until effectif docking */
 	virtual void DockingAutopilot(AFlareSpacecraft* DockStation, int32 DockId, float DeltaSeconds);
 
@@ -125,7 +171,6 @@ public:
 	virtual bool Undock();
 
 	virtual void BreakDock();
-
 
 	virtual AFlareSpacecraft* GetDockStation();
 

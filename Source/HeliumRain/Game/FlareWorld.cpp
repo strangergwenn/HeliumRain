@@ -13,6 +13,8 @@
 
 #define LOCTEXT_NAMESPACE "FlareWorld"
 
+#define FLEET_SUPPLY_CONSUMPTION_STATS 365
+
 /*----------------------------------------------------
     Constructor
 ----------------------------------------------------*/
@@ -101,6 +103,12 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 	}
 
 	WorldMoneyReferenceInit = false;
+
+
+	if (WorldData.FleetSupplyConsumptionStats.MaxSize != FLEET_SUPPLY_CONSUMPTION_STATS)
+	{
+		WorldData.FleetSupplyConsumptionStats.Resize(FLEET_SUPPLY_CONSUMPTION_STATS);
+	}
 }
 
 void UFlareWorld::PostLoad()
@@ -482,6 +490,10 @@ void UFlareWorld::Simulate()
 
 	WorldData.Date++;
 
+	// Write FS consumption stats
+	WorldData.FleetSupplyConsumptionStats.Append(WorldData.DailyFleetSupplyConsumption);
+	WorldData.DailyFleetSupplyConsumption = 0;
+
 	// End trade, repair and refill, operations
 	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
 	{
@@ -773,14 +785,14 @@ void UFlareWorld::SimulatePeopleMoneyMigration()
 			else if (PopulationA  == 0)
 			{
 				// Origin sector has no population so it leak it's money
-				uint32 TransfertA = SectorA->GetPeople()->GetMoney() / 10;
+				uint32 TransfertA = SectorA->GetPeople()->GetMoney() / 1000;
 				SectorA->GetPeople()->TakeMoney(TransfertA);
 				SectorB->GetPeople()->Pay(TransfertA);
 			}
 			else if (PopulationB  == 0)
 			{
 				// Destination sector has no population so it leak it's money
-				uint32 TransfertB = SectorB->GetPeople()->GetMoney() / 10;
+				uint32 TransfertB = SectorB->GetPeople()->GetMoney() / 1000;
 				SectorB->GetPeople()->TakeMoney(TransfertB);
 				SectorA->GetPeople()->Pay(TransfertB);
 			}
@@ -788,21 +800,24 @@ void UFlareWorld::SimulatePeopleMoneyMigration()
 			{
 				// Both have population. The wealthier leak.
 				float WealthA = SectorA->GetPeople()->GetWealth();
-				float WealthB = SectorA->GetPeople()->GetWealth();
+				float WealthB = SectorB->GetPeople()->GetWealth();
 				float TotalWealth = WealthA + WealthB;
+
+				float PercentRatio = 0.05f; // 5% at max
+				float TravelDuration = FMath::Max(1.f, (float) UFlareTravel::ComputeTravelDuration(this, SectorA, SectorB));
 
 				if(TotalWealth > 0)
 				{
 					if(WealthA > WealthB)
 					{
-						float LeakRatio = 0.02f * ((WealthA / TotalWealth) - 0.5f); // 1% at max
+						float LeakRatio = PercentRatio * 2 * ((WealthA / TotalWealth) - 0.5f) / TravelDuration;
 						uint32 TransfertA = LeakRatio * SectorA->GetPeople()->GetMoney();
 						SectorA->GetPeople()->TakeMoney(TransfertA);
 						SectorB->GetPeople()->Pay(TransfertA);
 					}
 					else
 					{
-						float LeakRatio = 0.02f * ((WealthB / TotalWealth) - 0.5f); // 1% at max
+						float LeakRatio = 0.05f * 2 * ((WealthB / TotalWealth) - 0.5f) / TravelDuration; // 5% at max
 						uint32 TransfertB = LeakRatio * SectorB->GetPeople()->GetMoney();
 						SectorB->GetPeople()->TakeMoney(TransfertB);
 						SectorA->GetPeople()->Pay(TransfertB);
@@ -913,6 +928,11 @@ void UFlareWorld::ClearFactories(UFlareSimulatedSpacecraft *ParentSpacecraft)
 void UFlareWorld::AddFactory(UFlareFactory* Factory)
 {
 	Factories.Add(Factory);
+}
+
+void UFlareWorld::OnFleetSupplyConsumed(int32 Quantity)
+{
+	WorldData.DailyFleetSupplyConsumption += Quantity;
 }
 
 UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector)

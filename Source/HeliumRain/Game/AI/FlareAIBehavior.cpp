@@ -30,6 +30,7 @@ void UFlareAIBehavior::Load(UFlareCompany* ParentCompany)
 
 		// TODO save
 		PirateLowProfile = true;
+		PirateAttackThresold = 1;
 	}
 }
 
@@ -51,15 +52,16 @@ void UFlareAIBehavior::Simulate()
 			 }
 		}
 
-		FLOGV("Pirate army size: %d", ShipsReady);
-		if(PirateLowProfile && ShipsReady > 15)
+		FLOGV("Pirate army size: %d, PirateAttackThresold: %f", ShipsReady, PirateAttackThresold);
+		if(PirateLowProfile && ShipsReady > PirateAttackThresold)
 		{
 			PirateLowProfile = false;
 		}
 
-		if(!PirateLowProfile && ShipsReady == 5)
+		if(!PirateLowProfile && ShipsReady < (PirateAttackThresold / 2.f))
 		{
-			PirateLowProfile = false;
+			PirateLowProfile = true;
+			PirateAttackThresold += 0.2;
 		}
 
 		SimulatePirateBehavior();
@@ -168,8 +170,8 @@ void UFlareAIBehavior::GenerateAffilities()
 	TradingBoth = 0.5f;
 
 	ShipyardAffility = 1.0;
-	ConsumerAffility = 1.0;
-	MaintenanceAffility = 0.5;
+	ConsumerAffility = 0.5;
+	MaintenanceAffility = 0.1;
 
 	// Budjet
 	BudgetTechnology = 1.0;
@@ -344,7 +346,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		SetResourceAffility(ST->Food, 2.f);
 
 		ShipyardAffility = 0.0;
-		ConsumerAffility = 5.0;
+		ConsumerAffility = 1.0;
 		MaintenanceAffility = 10.0;
 
 		// Budjet

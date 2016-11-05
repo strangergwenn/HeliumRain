@@ -339,6 +339,13 @@ public:
 
 	void ClearBombs();
 
+	/** Get the balance of forces in the sector */
+	void GetSectorBalance(int32& PlayerShips, int32& EnemyShips, int32& NeutralShips);
+
+	/** Get the balance of forces as a text */
+	FText GetSectorBalanceText();
+
+
 protected:
 
     /*----------------------------------------------------
@@ -474,6 +481,9 @@ public:
 
 	/** Get the current battle status of a company */
 	EFlareSectorBattleState::Type GetSectorBattleState(UFlareCompany* Company);
+
+	/** Get the current battle status text */
+	FText GetSectorBattleStateText(UFlareCompany* Company);
 
 	/** Return true if the company is in a battle where it can 	be hurt */
 	bool IsInDangerousBattle(UFlareCompany* Company);

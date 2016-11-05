@@ -396,20 +396,11 @@ public:
 	/** Return true if the ship component is powered. A destroyed component is not powered */
 	virtual bool IsPowered() const;
 
-	/** Compute the current available power from power sources */
-	virtual void UpdatePower();
-
 	/** Return the current amount of generated power */
 	virtual float GetGeneratedPower() const;
 
 	/** Return the maximum amount of generated power */
 	virtual float GetMaxGeneratedPower() const;
-
-	/** Return the current amount of available power */
-	virtual float GetAvailablePower() const;
-
-	/** Find the closest power sources form all ship power sources */
-	virtual void UpdatePowerSources(TArray<UFlareSpacecraftComponent*>* AvailablePowerSources);
 
 	/** Return true if is a generator (broken or not) */
 	virtual bool IsGenerator() const;
@@ -438,6 +429,9 @@ public:
 	/** Spawn damage effects */
 	virtual void StartDamagedEffect(FVector Location, FRotator Rotation, EFlarePartSize::Type WeaponSize);
 
+	/** Should we start destruction effects ? */
+	virtual bool IsDestroyedEffectRelevant();
+
 
 protected:
 
@@ -446,9 +440,9 @@ protected:
 	----------------------------------------------------*/
 
 	UPROPERTY()
-	AFlareSpacecraftPawn*                         SpacecraftPawn;
+	AFlareSpacecraftPawn*                   SpacecraftPawn;
 
-	AFlareSpacecraft*	                          Spacecraft;
+	AFlareSpacecraft*	                    Spacecraft;
 
 	UPROPERTY()
 	UFlareCompany*                          PlayerCompany;
@@ -465,13 +459,15 @@ protected:
 	bool                                    LifeSupport;
 	float                                   Power; // Current available power
 	float                                   GeneratedPower; // Maximum generated power
-	TArray<UFlareSpacecraftComponent*>            PowerSources;
+	TArray<UFlareSpacecraftComponent*>      PowerSources;
+	float                                   PreviousHealthRatio;
 
 	// Heat state
 	float                                   HeatSinkSurface; // Maximum heat surface in m^2
 	float                                   HeatProduction; // Maxiumum heat production, in KW
 	bool                                    LocalHeatEffect; // Is component temperature vary localy
 	float                                   LocalTemperature;
+	int32                                   PreviousTemperatureKelvin;
 
 	// Light flickering state
 	bool                                    HasFlickeringLights;

@@ -239,17 +239,17 @@ void UFlareScenarioTools::SetupWorld()
 		// BH Hub
 		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(-30, UpVector);
 		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -30));
-		CreateStations("station-bh-hub",        NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
+		CreateStations("station-bh-hub",        IonLane, BlueHeart, 1, 1, StationParams);
 
 		// BH Habitation 1
 		StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, 7168);
 		StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, 0));
-		CreateStations("station-bh-habitation", Sunwatch,       BlueHeart, 1, 1, StationParams);
+		CreateStations("station-bh-habitation", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
 
 		// BH Habitation 2
 		StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, -7168);
 		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 0));
-		CreateStations("station-bh-habitation", Sunwatch,       BlueHeart, 1, 1, StationParams);
+		CreateStations("station-bh-habitation", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
 	}
 	
 	// Anka HFR factory

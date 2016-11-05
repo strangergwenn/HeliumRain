@@ -17,6 +17,7 @@ namespace EFlareSubsystem
 		SYS_LifeSupport,
 		SYS_Power,
 		SYS_Weapon,
+		SYS_WeaponAndAmmo
 	};
 }
 
@@ -44,6 +45,9 @@ public:
 		System Interface
 	----------------------------------------------------*/
 
+	/** Update this system */
+	void TickSystem();
+
 	/** Is this ship alive and well ? */
 	virtual bool IsAlive() const;
 
@@ -69,11 +73,14 @@ public:
 	/** Is this ship unable to fight ? */
 	virtual bool IsDisarmed() const;
 
+	/** Is the crew close to death ? */
+	virtual bool IsCrewEndangered() const;
+
 	/** Get the health */
 	virtual float GetGlobalHealth();
 
 	/** Get the detailed health for this subsystem */
-	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type, bool WithAmmo = false) const;
+	virtual float GetSubsystemHealth(EFlareSubsystem::Type Type) const;
 
 	float GetWeaponGroupHealth(int32 GroupIndex, bool WithAmmo) const;
 
@@ -91,27 +98,50 @@ public:
 	virtual float ApplyDamage(FFlareSpacecraftComponentDescription* ComponentDescription,
 							  FFlareSpacecraftComponentSave* ComponentData,
 							  float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource);
+	
+	bool IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const;
 
+	void SetPowerDirty();
+	void SetDamageDirty(FFlareSpacecraftComponentDescription* ComponentDescription);
+	void SetAmmoDirty();
 
 protected:
 
-
+	/*----------------------------------------------------
+		Internals
+	----------------------------------------------------*/
 
 	float GetClampedUsableRatio(FFlareSpacecraftComponentDescription* ComponentDescription,
 																FFlareSpacecraftComponentSave* ComponentData) const;
 
-	bool IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const;
 
+	// Update health values
+	void UpdateSubsystemsHealth();
+
+	void UpdatePower(FFlareSpacecraftComponentSave* ComponentToPowerData);
+
+
+	// Update health values
+	float GetSubsystemHealthInternal(EFlareSubsystem::Type Type) const;
 
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
 
-	UFlareSimulatedSpacecraft*                               Spacecraft;
+	UFlareSimulatedSpacecraft*                      Spacecraft;
 	FFlareSpacecraftSave*                           Data;
 	FFlareSpacecraftDescription*                    Description;
 
+	TArray<float>                                   SubsystemHealth;
+	int64                                           IsPoweredCacheIndex;
+
+	bool                                            DamageDirty;
+	bool                                            AmmoDirty;
+
 public:
+
+
+
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/

@@ -81,6 +81,8 @@ public:
 		WeaponGroup = Group;
 	}
 
+	virtual bool IsDestroyedEffectRelevant() override;
+
 protected:
 
 	/*----------------------------------------------------
@@ -90,6 +92,14 @@ protected:
 	/** Firing sound */
 	UPROPERTY()
 	USoundCue*                  FiringSound;
+
+	/** Empty sound */
+	UPROPERTY()
+	USoundCue*                  EmptySound;
+
+	/** Bomb sound */
+	UPROPERTY()
+	USoundCue*                  BombDroppedSound;
 
 	/** Special effects on firing (template) */
 	UPROPERTY()
@@ -115,6 +125,7 @@ protected:
 	float                       TimeSinceLastShell;
 	int                         LastFiredGun;
 	FFlareWeaponGroup*          WeaponGroup;
+
 public:
 
 	/*----------------------------------------------------

@@ -30,8 +30,16 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<USoundCue> CombatMusicObj(TEXT("/Game/Master/Music/A_Combat_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> WarMusicObj(TEXT("/Game/Master/Music/A_Combat_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> MenuMusicObj(TEXT("/Game/Master/Music/A_Menu_Cue"));
+
+	// Mix references
 	static ConstructorHelpers::FObjectFinder<USoundClass> MasterClassObj(TEXT("/Engine/EngineSounds/Master"));
 	static ConstructorHelpers::FObjectFinder<USoundMix> MasterSoundMixObj(TEXT("/Game/Master/Sound/Mix_Master"));
+	
+	// Sound references
+	static ConstructorHelpers::FObjectFinder<USoundCue> TargetWarningSoundObj(TEXT("/Game/Master/Sound/Sounds/A_TargetWarning"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> AttackWarningSoundObj(TEXT("/Game/Master/Sound/Sounds/A_AttackWarning"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> HealthWarningSoundObj(TEXT("/Game/Master/Sound/Sounds/A_HealthWarning"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> HealthWarningHeavySoundObj(TEXT("/Game/Master/Sound/Sounds/A_HealthWarningHeavy"));
 
 	// Sound class
 	MasterSoundClass = MasterClassObj.Object;
@@ -46,6 +54,12 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	MusicTracks.Add(WarMusicObj.Object);
 	MusicTracks.Add(MenuMusicObj.Object);
 
+	// Sound references
+	TargetWarningSound = TargetWarningSoundObj.Object;
+	AttackWarningSound = AttackWarningSoundObj.Object;
+	HealthWarningSound = HealthWarningSoundObj.Object;
+	HealthWarningHeavySound = HealthWarningHeavySoundObj.Object;
+	
 	// Music sound
 	MusicPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("MusicSound"));
 	MusicPlayer.Sound->bAutoActivate = false;
@@ -77,6 +91,30 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	RCSPlayer.PitchedFade = true;
 	RCSPlayer.FadeSpeed = 5.0;
 	RCSPlayer.Volume = 0;
+
+	// Warning sound on targeting
+	TargetWarningPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("TargetWarningSound"));
+	TargetWarningPlayer.Sound->bAutoActivate = false;
+	TargetWarningPlayer.Sound->bAutoDestroy = false;
+	TargetWarningPlayer.PitchedFade = false;
+	TargetWarningPlayer.FadeSpeed = 10.0f;
+	TargetWarningPlayer.Volume = 0;
+
+	// Warning sound on attack
+	AttackWarningPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("AttackWarningSound"));
+	AttackWarningPlayer.Sound->bAutoActivate = false;
+	AttackWarningPlayer.Sound->bAutoDestroy = false;
+	AttackWarningPlayer.PitchedFade = false;
+	AttackWarningPlayer.FadeSpeed = 10.0f;
+	AttackWarningPlayer.Volume = 0;
+
+	// Warning sound on low health
+	HealthWarningPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("HealthWarningSound"));
+	HealthWarningPlayer.Sound->bAutoActivate = false;
+	HealthWarningPlayer.Sound->bAutoDestroy = false;
+	HealthWarningPlayer.PitchedFade = false;
+	HealthWarningPlayer.FadeSpeed = 1.0f;
+	HealthWarningPlayer.Volume = 0;
 }
 
 
@@ -93,22 +131,30 @@ void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 	if (Player)
 	{
 		USceneComponent* RootComponent = Player->GetRootComponent();
-
 		FAttachmentTransformRules AttachRules(EAttachmentRule::KeepWorld, true);
 
+		// Music
 		MusicPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 		MusicPlayer.Sound->SetSound(NULL);
 
+		// Engine sounds
 		PowerPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 		EnginePlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 		RCSPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 
+		// Warning sounds
+		TargetWarningPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
+		AttackWarningPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
+		HealthWarningPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
+		TargetWarningPlayer.Sound->SetSound(TargetWarningSound);
+		AttackWarningPlayer.Sound->SetSound(AttackWarningSound);
+		HealthWarningPlayer.Sound->SetSound(HealthWarningSound);
+		
+		// Device
 		FAudioDevice* AudioDevice = Player->GetWorld()->GetAudioDevice();
-
 		FCHECK(AudioDevice);
 		FCHECK(MasterSoundClass);
 		FCHECK(MasterSoundMix);
-
 		AudioDevice->SetBaseSoundMix(MasterSoundMix);
 	}
 }
@@ -124,12 +170,12 @@ void UFlareSoundManager::SetMasterVolume(int32 Volume)
 {
 	FLOGV("UFlareSoundManager::SetMasterVolume %d", Volume);
 
-	// Volume is doubled, because it sounds quite low
-	float MasterVolume = 2.0f * FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
-
+	// Get device
 	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
 	FCHECK(AudioDevice);
-	
+
+	// Apply volume
+	float MasterVolume = 5.0f * FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
 	AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MasterSoundClass, MasterVolume, 1.0f, 0.5f, true);
 }
 
@@ -189,18 +235,34 @@ void UFlareSoundManager::Update(float DeltaSeconds)
 			}
 		}
 
-		// Update sounds
-		UpdatePlayer(PowerPlayer,  (!ShipPawn->GetParent()->GetDamageSystem()->IsUncontrollable() && !ShipPawn->GetParent()->GetDamageSystem()->HasPowerOutage() ? 1 : -1) * DeltaSeconds);
-		UpdatePlayer(EnginePlayer, (EngineAlpha > 0 ? EngineAlpha / EngineCount : -1)              * DeltaSeconds);
-		UpdatePlayer(RCSPlayer,    (RCSAlpha > 0 ? RCSAlpha / RCSCount : -1)                       * DeltaSeconds);
+		// Get player threats
+		bool Targeted, FiredUpon;
+		UFlareSimulatedSpacecraft* Threat;
+		PC->GetPlayerShipThreatStatus(Targeted, FiredUpon, Threat);
+		UFlareSimulatedSpacecraftDamageSystem* DamageSystem = PlayerShip->GetParent()->GetDamageSystem();
+		bool PlayerShipEndangered = (DamageSystem->IsCrewEndangered() || DamageSystem->IsUncontrollable()) && DamageSystem->IsAlive();
+		
+		// Update engine sounds
+		UpdatePlayer(PowerPlayer,  (!DamageSystem->IsUncontrollable() && !DamageSystem->HasPowerOutage() ? 1 : -1) * DeltaSeconds);
+		UpdatePlayer(EnginePlayer, (EngineAlpha > 0 ? EngineAlpha / EngineCount : -1) * DeltaSeconds);
+		UpdatePlayer(RCSPlayer,    (RCSAlpha > 0 ? RCSAlpha / RCSCount : -1)          * DeltaSeconds);
+
+		// Update alarms
+		bool IsHeavy = (ShipPawn->GetParent()->GetDescription()->Size == EFlarePartSize::L);
+		UpdatePlayer(TargetWarningPlayer, (!IsHeavy && !FiredUpon & Targeted ?  1.0f : -1.0f) * DeltaSeconds);
+		UpdatePlayer(AttackWarningPlayer, (!IsHeavy &&  FiredUpon ?             1.0f : -1.0f) * DeltaSeconds);
+		UpdatePlayer(HealthWarningPlayer, (PlayerShipEndangered && !FiredUpon ? 1.0f : -1.0f) * DeltaSeconds);
 	}
 
 	// No ship : stop all ship sounds
 	else
 	{
-		UpdatePlayer(PowerPlayer,  -DeltaSeconds);
-		UpdatePlayer(EnginePlayer, -DeltaSeconds);
-		UpdatePlayer(RCSPlayer,    -DeltaSeconds);
+		UpdatePlayer(PowerPlayer,         -DeltaSeconds);
+		UpdatePlayer(EnginePlayer,        -DeltaSeconds);
+		UpdatePlayer(RCSPlayer,           -DeltaSeconds);
+		UpdatePlayer(TargetWarningPlayer, -DeltaSeconds);
+		UpdatePlayer(AttackWarningPlayer, -DeltaSeconds);
+		UpdatePlayer(HealthWarningPlayer, -DeltaSeconds);
 	}
 }
 
@@ -237,6 +299,9 @@ void UFlareSoundManager::SetCurrentSpacecraft(AFlareSpacecraft* Ship)
 		// Setup RCS sound
 		FFlareSpacecraftComponentDescription* RCSDescription = Ship->GetRCSDescription();
 		RCSPlayer.Sound->SetSound(RCSDescription ? RCSDescription->EngineCharacteristics.EngineSound : NULL);
+
+		// Setup warning sound
+		HealthWarningPlayer.Sound->Sound = ShipDescription->Size == EFlarePartSize::L ? HealthWarningHeavySound : HealthWarningSound;
 	}
 }
 

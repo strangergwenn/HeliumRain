@@ -533,6 +533,7 @@ bool UFlareBattle::SimulateShipWeaponAttack(UFlareSimulatedSpacecraft* Ship, FFl
 		}
 
 		Weapon->Weapon.FiredAmmo += AmmoToFire;
+		Target->GetDamageSystem()->SetAmmoDirty();
 	}
 	else if(WeaponDescription->WeaponCharacteristics.BombCharacteristics.IsBomb && CurrentAmmo > 0)
 	{
@@ -545,6 +546,7 @@ bool UFlareBattle::SimulateShipWeaponAttack(UFlareSimulatedSpacecraft* Ship, FFl
 		}
 
 		Weapon->Weapon.FiredAmmo++;
+		Target->GetDamageSystem()->SetAmmoDirty();
 	}
 	else
 	{

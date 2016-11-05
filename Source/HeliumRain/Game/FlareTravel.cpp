@@ -97,7 +97,7 @@ void UFlareTravel::EndTravel()
 
 	// Place correctly new ships to avoid collision
 
-	// TODO People migration
+	OriginSector->GetPeople()->Migrate(DestinationSector, Fleet->GetShipCount());
 
 	// Price migration
 	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
@@ -147,7 +147,7 @@ void UFlareTravel::EndTravel()
 				Fleet->GetFleetName(),
 				DestinationSector->GetSectorName()),
 			FName("travel-end"),
-			EFlareNotification::NT_Economy,
+			EFlareNotification::NT_Info,
 			false,
 			EFlareMenu::MENU_Sector,
 			Data);

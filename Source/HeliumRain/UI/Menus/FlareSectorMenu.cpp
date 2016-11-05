@@ -537,7 +537,7 @@ FText SFlareSectorMenu::GetRefillText() const
 		else if (TotalNeededFS > 0)
 		{
 			// Refill in progress
-			return LOCTEXT("RefillInProgress", "Refill in progress. Continue later");
+			return LOCTEXT("RefillInProgress", "Refill in progress...");
 		}
 		else
 		{
@@ -617,7 +617,7 @@ FText SFlareSectorMenu::GetRepairText() const
 		else if (TotalNeededFS > 0)
 		{
 			// Repair in progress
-			return LOCTEXT("RepairInProgress", "Repair in progress. Continue later");
+			return LOCTEXT("RepairInProgress", "Repair in progress...");
 		}
 		else
 		{

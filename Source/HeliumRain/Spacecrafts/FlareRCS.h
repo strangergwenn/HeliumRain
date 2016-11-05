@@ -14,6 +14,7 @@ public:
 	/*----------------------------------------------------
 		Public methods
 	----------------------------------------------------*/
-	
+
+	virtual bool IsDestroyedEffectRelevant() override;
 
 };

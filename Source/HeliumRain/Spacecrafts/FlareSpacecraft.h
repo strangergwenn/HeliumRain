@@ -86,10 +86,7 @@ public:
 	virtual void Save();
 
 	virtual void SetOwnerCompany(UFlareCompany* Company);
-
-
-
-
+	
 	virtual UFlareInternalComponent* GetInternalComponentAtLocation(FVector Location) const;
 
 
@@ -236,8 +233,15 @@ protected:
 	UFlareSimulatedSpacecraft*	                   Parent;
 	FFlareSpacecraftComponentDescription*          OrbitalEngineDescription;
 	FFlareSpacecraftComponentDescription*          RCSDescription;
-
 	FVector                                        SmoothedVelocity;
+
+	// Weapon loaded
+	UPROPERTY()
+	USoundCue*                                     WeaponLoadedSound;
+
+	// Weapon loaded
+	UPROPERTY()
+	USoundCue*                                     WeaponUnloadedSound;
 
 	// Lifesupport status
 	UPROPERTY()
