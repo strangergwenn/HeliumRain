@@ -838,17 +838,20 @@ void AFlareHUD::DrawHUDInternal()
 	if (HUDVisible && !IsExternalCamera)
 	{
 		UTexture2D* NoseIcon = HUDNoseIcon;
-		if (WeaponType == EFlareWeaponGroupType::WG_GUN || WeaponType == EFlareWeaponGroupType::WG_TURRET)
+		if (WeaponType == EFlareWeaponGroupType::WG_GUN)
 		{
 			NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
 		}
 
-		DrawHUDIcon(
-			CurrentViewportSize / 2,
-			IconSize,
-			NoseIcon,
-			HudColorNeutral,
-			true);
+		if (WeaponType != EFlareWeaponGroupType::WG_TURRET)
+		{
+			DrawHUDIcon(
+				CurrentViewportSize / 2,
+				IconSize,
+				NoseIcon,
+				HudColorNeutral,
+				true);
+		}
 
 		// Speed indication
 		FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
@@ -950,6 +953,9 @@ void AFlareHUD::DrawHUDInternal()
 	// Draw turrets in fire director
 	if (WeaponType == EFlareWeaponGroupType::WG_TURRET)
 	{
+		bool HasOneTurretInPosition = false;
+		int TurretReadyCount = 0;
+
 		for (auto Weapon : PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons)
 		{
 			UFlareTurret* Turret = Cast<UFlareTurret>(Weapon);
@@ -958,18 +964,49 @@ void AFlareHUD::DrawHUDInternal()
 
 			if (ProjectWorldLocationToCockpit(EndPoint, ScreenPosition))
 			{
-				FLinearColor TurretColor = HudColorEnemy;
-				if (!Turret->IsReadyToFire())
+				// Update turret data
+				if (Turret->IsCloseToAim())
 				{
-					TurretColor = HudColorObjective;
+					HasOneTurretInPosition = true;
+					if (Turret->IsReadyToFire())
+					{
+						TurretReadyCount++;
+					}
 				}
-				else if (Turret->IsCloseToAim())
-				{
-					TurretColor = HudColorNeutral;
-				}
-				DrawHUDIcon(ScreenPosition, IconSize, HUDNoseIcon, TurretColor, true);
+
+				// Draw turret reticle
+				FLinearColor TurretColor = HudColorNeutral;
+				TurretColor.A = GetFadeAlpha(ScreenPosition, ViewportSize / 2, PC->UseCockpit);
+				DrawHUDIcon(ScreenPosition, IconSize, HUDAimIcon, TurretColor, true);
 			}
 		}
+
+		// Get color
+		FLinearColor TurretColor = HudColorEnemy;
+		if (TurretReadyCount)
+		{
+			TurretColor = HudColorFriendly;
+		}
+		else if (HasOneTurretInPosition)
+		{
+			TurretColor = HudColorNeutral;
+		}
+
+		// Get info text
+		FText TurretText;
+		if (TurretReadyCount > 1)
+		{
+			TurretText = FText::Format(LOCTEXT("ReadyTurretFormatPlural", "{0} turrets ready"), FText::AsNumber(TurretReadyCount));
+		}
+		else
+		{
+			TurretText = FText::Format(LOCTEXT("ReadyTurretFormatSingular", "{0} turret ready"), FText::AsNumber(TurretReadyCount));
+		}
+
+		// Draw main reticle
+		UTexture2D* NoseIcon = NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
+		DrawHUDIcon(CurrentViewportSize / 2, IconSize, NoseIcon, TurretColor, true);
+		FlareDrawText(TurretText.ToString(), FVector2D(0, -70), HudColorNeutral);
 	}
 
 	// Draw bomb marker
@@ -1073,15 +1110,10 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		float ScreenBorderDistanceY = 20;
 		ScreenPosition.X = FMath::Clamp(ScreenPosition.X, ScreenBorderDistanceX, CurrentViewportSize.X - ScreenBorderDistanceX);
 		ScreenPosition.Y = FMath::Clamp(ScreenPosition.Y, ScreenBorderDistanceY, CurrentViewportSize.Y - ScreenBorderDistanceY);
-
-		// Fade the cursor when near the center
-		float FadePower = PC->UseCockpit ? 3.0f : 2.0f;
-		float FadeDistance = PC->UseCockpit ? 10.0f : 50.0f;
-		float CenterDistance = FMath::Clamp(FadeDistance * (ScreenPosition - ViewportSize / 2).Size() / ViewportSize.Y, 0.0f, 1.0f);
-		FLinearColor DrawColor = HudColorNeutral;
-		DrawColor.A = FMath::Pow(CenterDistance, FadePower);
-
+		
 		// Icon
+		FLinearColor DrawColor = HudColorNeutral;
+		DrawColor.A = GetFadeAlpha(ScreenPosition, ViewportSize / 2, PC->UseCockpit);
 		FVector2D IndicatorPosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(0, 30);
 		DrawHUDIcon(ScreenPosition, IconSize, Icon, DrawColor, true);
 	}
@@ -1501,6 +1533,14 @@ void AFlareHUD::FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY
 		TileItem.SetColor(Color);
 		CurrentCanvas->DrawItem(TileItem);
 	}
+}
+
+float AFlareHUD::GetFadeAlpha(FVector2D A, FVector2D B, bool UseCockpit)
+{
+	float FadePower = UseCockpit ? 3.0f : 2.0f;
+	float FadeDistance = UseCockpit ? 10.0f : 50.0f;
+	float CenterDistance = FMath::Clamp(FadeDistance * (A - B).Size() / ViewportSize.Y, 0.0f, 1.0f);
+	return FMath::Pow(CenterDistance, FadePower);
 }
 
 bool AFlareHUD::IsInScreen(FVector2D ScreenPosition) const

@@ -219,7 +219,7 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		ExternalCameraYaw += FireDirectorAngularVelocity.Z * DeltaSeconds;
 
 		ExternalCameraPitch -= FireDirectorAngularVelocity.Y * DeltaSeconds;
-		ExternalCameraPitch = FMath::Clamp(ExternalCameraPitch, 0.0f, 80.0f);
+		ExternalCameraPitch = FMath::Clamp(ExternalCameraPitch, -20.0f, 80.0f);
 
 		Spacecraft->SetCameraPitch(ExternalCameraPitch);
 		Spacecraft->SetCameraYaw(ExternalCameraYaw);

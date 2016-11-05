@@ -182,6 +182,9 @@ protected:
 
 	/** Draw a texture */
 	void FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY, float ScreenW, float ScreenH, float TextureU, float TextureV, float TextureUWidth, float TextureVHeight, FLinearColor TintColor = FLinearColor::White, EBlendMode BlendMode = BLEND_Translucent, float Scale = 1.f, bool bScalePosition = false, float Rotation = 0.f, FVector2D RotPivot = FVector2D::ZeroVector);
+	
+	/** Get an alpha fade to avoid overdrawing two objects */
+	float GetFadeAlpha(FVector2D A, FVector2D B, bool UseCockpit);
 
 	/** Is this position inside the viewport + border */
 	bool IsInScreen(FVector2D ScreenPosition) const;

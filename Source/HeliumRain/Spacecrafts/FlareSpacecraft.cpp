@@ -1392,65 +1392,59 @@ void AFlareSpacecraft::PreviousWeapon()
 
 void AFlareSpacecraft::NextTarget()
 {
-	if (!StateManager->IsPilotMode())
+	// Data
+	TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
+	auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
 	{
-		// Data
-		TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
-		auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
-		{
-			return Candidate.Spacecraft == CurrentTarget;
-		};
+		return Candidate.Spacecraft == CurrentTarget;
+	};
 
-		// Is visible on screen
-		if (TimeSinceSelection < MaxTimeBeforeSelectionReset && ScreenTargets.FindByPredicate(FindCurrentTarget))
-		{
-			TargetIndex++;
-			TargetIndex = FMath::Min(TargetIndex, ScreenTargets.Num() - 1);
-			CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
-			FLOGV("AFlareSpacecraft::NextTarget : %d", TargetIndex);
-		}
-
-		// Else reset
-		else
-		{
-			TargetIndex = 0;
-			CurrentTarget = NULL;
-			FLOG("AFlareSpacecraft::NextTarget : reset to center");
-		}
-
-		TimeSinceSelection = 0;
+	// Is visible on screen
+	if (TimeSinceSelection < MaxTimeBeforeSelectionReset && ScreenTargets.FindByPredicate(FindCurrentTarget))
+	{
+		TargetIndex++;
+		TargetIndex = FMath::Min(TargetIndex, ScreenTargets.Num() - 1);
+		CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
+		FLOGV("AFlareSpacecraft::NextTarget : %d", TargetIndex);
 	}
+
+	// Else reset
+	else
+	{
+		TargetIndex = 0;
+		CurrentTarget = NULL;
+		FLOG("AFlareSpacecraft::NextTarget : reset to center");
+	}
+
+	TimeSinceSelection = 0;
 }
 
 void AFlareSpacecraft::PreviousTarget()
 {
-	if (!StateManager->IsPilotMode())
+	// Data
+	TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
+	auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
 	{
-		// Data
-		TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
-		auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
-		{
-			return Candidate.Spacecraft == CurrentTarget;
-		};
+		return Candidate.Spacecraft == CurrentTarget;
+	};
 
-		// Is visible on screen
-		if (TimeSinceSelection < MaxTimeBeforeSelectionReset && ScreenTargets.FindByPredicate(FindCurrentTarget))
-		{
-			TargetIndex--;
-			TargetIndex = FMath::Max(TargetIndex, 0);
-			CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
-			FLOGV("AFlareSpacecraft::PreviousTarget : %d", TargetIndex);
-		}
-
-		// Else reset
-		else
-		{
-			TargetIndex = 0;
-			FLOG("AFlareSpacecraft::PreviousTarget : reset to center");
-		}
-
-		TimeSinceSelection = 0;
+	// Is visible on screen
+	if (TimeSinceSelection < MaxTimeBeforeSelectionReset && ScreenTargets.FindByPredicate(FindCurrentTarget))
+	{
+		TargetIndex--;
+		TargetIndex = FMath::Max(TargetIndex, 0);
+		CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
+		FLOGV("AFlareSpacecraft::PreviousTarget : %d", TargetIndex);
 	}
+
+	// Else reset
+	else
+	{
+		TargetIndex = 0;
+		FLOG("AFlareSpacecraft::PreviousTarget : reset to center");
+	}
+
+	TimeSinceSelection = 0;
 }
 
 
