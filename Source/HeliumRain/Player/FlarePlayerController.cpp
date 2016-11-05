@@ -281,6 +281,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	ShipPawn = Ship;
 	SetExternalCamera(false);
 	ShipPawn->GetStateManager()->EnablePilot(false);
+	ShipPawn->GetNavigationSystem()->AbortAllCommands();
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	CockpitManager->OnFlyShip(ShipPawn);
 
@@ -614,7 +615,7 @@ bool AFlarePlayerController::SwitchToNextShip(bool Instant)
 				OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
 				AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
 
-				if (Candidate && Candidate->GetParent()->CanBeFlown(CantFlyReasons) && Candidate->GetParent()->CanFight())
+				if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->CanBeFlown(CantFlyReasons) && Candidate->GetParent()->CanFight())
 				{
 					SeletedCandidate = Candidate;
 					break;
@@ -628,7 +629,7 @@ bool AFlarePlayerController::SwitchToNextShip(bool Instant)
 				{
 					OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
 					AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
-					if (Candidate && Candidate->GetParent()->CanBeFlown(CantFlyReasons))
+					if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->CanBeFlown(CantFlyReasons))
 					{
 						SeletedCandidate = Candidate;
 						break;

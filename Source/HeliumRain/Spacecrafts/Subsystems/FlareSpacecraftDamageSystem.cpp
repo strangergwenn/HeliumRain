@@ -276,8 +276,6 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 			}
 		}
 
-		PC->GetMenuManager()->OpenMainOverlay();
-
 		CheckRecovery();
 		// Check if it the last ship
 		bool EmptyFleet = true;

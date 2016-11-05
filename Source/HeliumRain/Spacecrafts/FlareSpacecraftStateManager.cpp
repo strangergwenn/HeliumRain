@@ -100,7 +100,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	}
 
 	// Keep current command if no new command has been received
-	else if (FMath::IsNearlyZero(PlayerManualLinearVelocity.X))
+	else if (FMath::IsNearlyZero(PlayerManualLinearVelocity.Size()))
 	{
 		if (PlayerManualVelocityCommandActive)
 		{
