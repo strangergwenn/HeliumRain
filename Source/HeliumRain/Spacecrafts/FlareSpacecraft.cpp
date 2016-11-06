@@ -224,6 +224,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 
 					// Notify if we're just resetting the ship
 					//else
+					if (GetData().SpawnMode != EFlareSpawnMode::Exit)
 					{
 						PC->Notify(
 							LOCTEXT("ExitSector", "Exited sector"),
