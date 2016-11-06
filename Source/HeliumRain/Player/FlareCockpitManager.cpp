@@ -274,6 +274,9 @@ void AFlareCockpitManager::EnterCockpit(AFlareSpacecraft* TargetPlayerShip)
 	// Offset the cockpit
 	CockpitMesh->AttachToComponent(TargetPlayerShip->GetCamera(), AttachRules, NAME_None);
 
+	float Zoom = 4;
+	CockpitMesh->SetRelativeScale3D(FVector(1.0, 1.0/Zoom, 1.0/Zoom));
+
 	// General data
 	IsInCockpit = true;
 	CockpitMesh->SetVisibility(true, true);
