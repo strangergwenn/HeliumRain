@@ -460,8 +460,26 @@ void UFlareWorld::Simulate()
 			Battle->Load(Sector);
 			Battle->Simulate();
 		}
+
+		// Remove destroyed spacecraft
+		TArray<UFlareSimulatedSpacecraft*> SpacecraftToRemove;
+
+		for (int32 SpacecraftIndex = 0 ; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+		{
+			UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+
+			if(!Spacecraft->GetDamageSystem()->IsAlive() && !Spacecraft->GetDescription()->IsSubstation)
+			{
+				SpacecraftToRemove.Add(Spacecraft);
+			}
+		}
+
+		for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftToRemove.Num(); SpacecraftIndex++)
+		{
+			UFlareSimulatedSpacecraft* Spacecraft = SpacecraftToRemove[SpacecraftIndex];
+			Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
+		}
 	}
-	// TODO battles between 2 AI company
 
 	FLOG("* Simulate > AI");
 	// AI. Play them in random order

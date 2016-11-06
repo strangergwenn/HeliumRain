@@ -222,18 +222,6 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				{
 					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits);
 
-					// TODO #496 : destroy ship if stranded, ensure state is fine
-					/*if (PlayerShip->GetParent()->GetDamageSystem()->IsUncontrollable())
-					{
-						PC->Notify(
-							LOCTEXT("ExitSectorLost", "Ship lost"),
-							LOCTEXT("ExitSectorLostDescription", "Your ship was lost in space"),
-							"exit-sector-lost",
-							EFlareNotification::NT_Info);
-
-						GetGame()->GetActiveSector()->DestroySpacecraft(this);
-					}*/
-
 					// Notify if we're just resetting the ship
 					//else
 					{
@@ -255,40 +243,12 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				}
 			}
 
-			// Destroy dead ships when they are 5km away
-			if (PlayerShip && !Parent->GetDamageSystem()->IsAlive())
-			{
-				float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
-				if (Company && Distance > 500000 && !IsStation())
-				{
-					GetGame()->GetActiveSector()->DestroySpacecraft(this);
-					return;
-				}
-			}
-
-			// Destroy lost ships if they are outside 3 * limit
+			// Make ship bounce lost ships if they are outside 1.5 * limit
 			float Distance = GetActorLocation().Size();
 			float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
-			if (Distance > Limits * 3)
+			if (Distance > Limits * 1.5f)
 			{
-				// Ship is lost, destroy it
-				if(GetCompany() ==	PC->GetCompany())
-				{
-					PC->Notify(LOCTEXT("MyShipLost", "Ship lost"),
-						FText::Format(LOCTEXT("MyShipLostFormat", "One of your ships was lost in space ({0})"),
-							 FText::FromString(GetImmatriculation().ToString())),
-						FName("my-ship-lost"),
-						EFlareNotification::NT_Info);
-				}
-				else
-				{
-					PC->Notify(LOCTEXT("ShipLostCompany", "Ship lost"),
-						FText::Format(LOCTEXT("ShipLostCompanyFormat", "{0} lost a ship in space"),
-							GetCompany()->GetCompanyName()),
-						FName("company-ship-lost"),
-						EFlareNotification::NT_Info);
-				}
-				GetGame()->GetActiveSector()->DestroySpacecraft(this);
+				Airframe->SetPhysicsLinearVelocity(- Airframe->GetPhysicsLinearVelocity() / 2.f);
 			}
 
 			// Set a default target if there is current target

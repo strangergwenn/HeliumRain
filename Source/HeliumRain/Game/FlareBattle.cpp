@@ -71,26 +71,6 @@ void UFlareBattle::Simulate()
         }
     }
 
-	// Remove destroyed spacecraft
-	TArray<UFlareSimulatedSpacecraft*> SpacecraftToRemove;
-
-	for (int32 SpacecraftIndex = 0 ; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
-	{
-		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
-
-		if(!Spacecraft->GetDamageSystem()->IsAlive())
-		{
-			SpacecraftToRemove.Add(Spacecraft);
-		}
-	}
-
-	for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftToRemove.Num(); SpacecraftIndex++)
-	{
-		UFlareSimulatedSpacecraft* Spacecraft = SpacecraftToRemove[SpacecraftIndex];
-		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
-	}
-
-
 	CombatLog::AutomaticBattleEnded(Sector);
     FLOGV("Battle in %s finish after %d turns", *Sector->GetSectorName().ToString(), BattleTurn);
 }
