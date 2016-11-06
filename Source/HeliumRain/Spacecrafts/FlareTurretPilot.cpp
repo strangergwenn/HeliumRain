@@ -104,8 +104,8 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		// Aim the turret toward the target or a distant point
 		if (HitTarget)
 		{
-			FVector Location = PilotTargetShip->GetActorLocation();
-			FVector Velocity = Cast<UPrimitiveComponent>(PilotTargetShip->GetRootComponent())->GetPhysicsLinearVelocity() / 100;
+			FVector Location = HitTarget->GetActorLocation();
+			FVector Velocity = Cast<UPrimitiveComponent>(HitTarget->GetRootComponent())->GetPhysicsLinearVelocity() / 100;
 			Turret->SetTarget(Location, Velocity);
 		}
 		else
