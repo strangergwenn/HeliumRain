@@ -1015,6 +1015,44 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 			}*/
 		}
 	}
+	else
+	{
+
+		// Find nearest sectors
+
+		int64 MinTravelDuration = -1;
+		int32 NumSector = 0;
+		float PriceSum = 0;
+
+		for (int SectorIndex = 0; SectorIndex < GetGame()->GetGameWorld()->GetSectors().Num(); SectorIndex++)
+		{
+			UFlareSimulatedSector* SectorCandidate = GetGame()->GetGameWorld()->GetSectors()[SectorIndex];
+
+			if(SectorCandidate == this)
+			{
+				continue;
+			}
+
+			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), this, SectorCandidate);
+
+
+			if (MinTravelDuration == -1 || MinTravelDuration > TravelDuration)
+			{
+				MinTravelDuration = TravelDuration;
+				NumSector = 0;
+				PriceSum = 0;
+			}
+
+			if (MinTravelDuration == TravelDuration)
+			{
+				PriceSum += GetPreciseResourcePrice(Resource);
+				NumSector++;
+			}
+		}
+
+		float MeanNearPrice = PriceSum / NumSector;
+		SetPreciseResourcePrice(Resource, MeanNearPrice);
+	}
 }
 
 void UFlareSimulatedSector::ClearBombs()
