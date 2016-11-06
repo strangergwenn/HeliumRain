@@ -15,12 +15,13 @@ namespace EFlareMusicTrack
 	enum Type
 	{
 		None,
+		Menu,
 		Exploration,
-		Danger,
+		Travel,
 		Pacific,
+		Danger,
 		Combat,
-		War,
-		Menu
+		War
 	};
 }
 

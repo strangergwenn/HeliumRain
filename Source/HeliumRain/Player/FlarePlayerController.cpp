@@ -369,17 +369,6 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 		FLOG("AFlarePlayerController::OnSectorActivated no candidate");
 		SwitchToNextShip(true);
 	}
-
-	// Level music
-	EFlareMusicTrack::Type LevelMusic = ActiveSector->GetSimulatedSector()->GetDescription()->LevelTrack;
-	if (LevelMusic != EFlareMusicTrack::None)
-	{
-		SoundManager->RequestMusicTrack(LevelMusic);
-	}
-	else
-	{
-		SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
-	}
 }
 
 void AFlarePlayerController::OnSectorDeactivated()
@@ -413,22 +402,24 @@ void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type 
 		// Peace
 		case EFlareSectorBattleState::NoBattle:
 		case EFlareSectorBattleState::BattleWon:
-			FLOG("AFlarePlayerController::OnBattleStateChanged : peace");
 			if (GetGame()->GetActiveSector())
 			{
 				EFlareMusicTrack::Type LevelMusic = GetGame()->GetActiveSector()->GetSimulatedSector()->GetDescription()->LevelTrack;
 				if (LevelMusic != EFlareMusicTrack::None)
 				{
+					FLOG("AFlarePlayerController::OnBattleStateChanged : using level music");
 					SoundManager->RequestMusicTrack(LevelMusic);
 				}
 				else
 				{
+					FLOG("AFlarePlayerController::OnBattleStateChanged : exploration");
 					SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
 				}
 			}
 			else
 			{
-				SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+				FLOG("AFlarePlayerController::OnBattleStateChanged : travel");
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::Travel);
 			}
 			break;
 
@@ -443,8 +434,19 @@ void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type 
 		case EFlareSectorBattleState::Battle:
 		case EFlareSectorBattleState::BattleNoRetreat:
 		default:
-			FLOG("AFlarePlayerController::OnBattleStateChanged : battle");
-			SoundManager->RequestMusicTrack(EFlareMusicTrack::Combat);
+			{
+				UFlareSimulatedSector* Sector = GetGame()->GetActiveSector()->GetSimulatedSector();
+				if (Sector->GetSectorShips().Num() > 15)
+				{
+					FLOG("AFlarePlayerController::OnBattleStateChanged : war");
+					SoundManager->RequestMusicTrack(EFlareMusicTrack::War);
+				}
+				else
+				{
+					FLOG("AFlarePlayerController::OnBattleStateChanged : combat");
+					SoundManager->RequestMusicTrack(EFlareMusicTrack::Combat);
+				}
+			}
 			break;
 	}
 }

@@ -24,12 +24,13 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	MusicDesiredTrack = EFlareMusicTrack::None;
 
 	// Music track references
+	static ConstructorHelpers::FObjectFinder<USoundCue> MenuMusicObj(TEXT("/Game/Master/Music/A_Menu_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> ExplorationMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> TravelMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> DangerMusicObk(TEXT("/Game/Master/Music/A_Danger_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> PacificMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> CombatMusicObj(TEXT("/Game/Master/Music/A_Combat_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> WarMusicObj(TEXT("/Game/Master/Music/A_Combat_Cue"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> MenuMusicObj(TEXT("/Game/Master/Music/A_Menu_Cue"));
 
 	// Mix references
 	static ConstructorHelpers::FObjectFinder<USoundClass> MasterClassObj(TEXT("/Engine/EngineSounds/Master"));
@@ -47,12 +48,13 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 
 	// Music track store
 	MusicTracks.Add(NULL);
+	MusicTracks.Add(MenuMusicObj.Object);
 	MusicTracks.Add(ExplorationMusicObj.Object);
-	MusicTracks.Add(DangerMusicObk.Object);
+	MusicTracks.Add(TravelMusicObj.Object);
 	MusicTracks.Add(PacificMusicObj.Object);
+	MusicTracks.Add(DangerMusicObk.Object);
 	MusicTracks.Add(CombatMusicObj.Object);
 	MusicTracks.Add(WarMusicObj.Object);
-	MusicTracks.Add(MenuMusicObj.Object);
 
 	// Sound references
 	TargetWarningSound = TargetWarningSoundObj.Object;
