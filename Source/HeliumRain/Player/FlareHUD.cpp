@@ -967,8 +967,9 @@ void AFlareHUD::DrawHUDInternal()
 				// Update turret data
 				if (Turret->IsCloseToAim())
 				{
+					AActor* Unused;
 					HasOneTurretInPosition = true;
-					if (Turret->IsReadyToFire())
+					if (Turret->IsReadyToFire() && Turret->IsSafeToFire(0, Unused))
 					{
 						TurretReadyCount++;
 					}
