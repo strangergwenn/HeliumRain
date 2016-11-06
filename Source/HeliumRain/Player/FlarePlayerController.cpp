@@ -408,30 +408,44 @@ void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type 
 {
 	FLOG("AFlarePlayerController::OnBattleStateChanged");
 
-	if (NewBattleState == EFlareSectorBattleState::NoBattle)
+	switch (NewBattleState)
 	{
-		FLOG("AFlarePlayerController::OnBattleStateChanged : peace");
-		if (GetGame()->GetActiveSector())
-		{
-			EFlareMusicTrack::Type LevelMusic = GetGame()->GetActiveSector()->GetSimulatedSector()->GetDescription()->LevelTrack;
-			if (LevelMusic != EFlareMusicTrack::None)
+		// Peace
+		case EFlareSectorBattleState::NoBattle:
+		case EFlareSectorBattleState::BattleWon:
+			FLOG("AFlarePlayerController::OnBattleStateChanged : peace");
+			if (GetGame()->GetActiveSector())
 			{
-				SoundManager->RequestMusicTrack(LevelMusic);
+				EFlareMusicTrack::Type LevelMusic = GetGame()->GetActiveSector()->GetSimulatedSector()->GetDescription()->LevelTrack;
+				if (LevelMusic != EFlareMusicTrack::None)
+				{
+					SoundManager->RequestMusicTrack(LevelMusic);
+				}
+				else
+				{
+					SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+				}
 			}
 			else
 			{
 				SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
 			}
-		}
-		else
-		{
-			SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
-		}
-	}
-	else
-	{
-		FLOG("AFlarePlayerController::OnBattleStateChanged : battle");
-		SoundManager->RequestMusicTrack(EFlareMusicTrack::Combat);
+			break;
+
+		// Battle lost
+		case EFlareSectorBattleState::BattleLost:
+		case EFlareSectorBattleState::BattleLostNoRetreat:
+			FLOG("AFlarePlayerController::OnBattleStateChanged : battle lost");
+			SoundManager->RequestMusicTrack(EFlareMusicTrack::Danger);
+			break;
+
+		// Battle in progress
+		case EFlareSectorBattleState::Battle:
+		case EFlareSectorBattleState::BattleNoRetreat:
+		default:
+			FLOG("AFlarePlayerController::OnBattleStateChanged : battle");
+			SoundManager->RequestMusicTrack(EFlareMusicTrack::Combat);
+			break;
 	}
 }
 
