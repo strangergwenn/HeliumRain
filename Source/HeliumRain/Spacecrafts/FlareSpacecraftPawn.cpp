@@ -165,4 +165,9 @@ float AFlareSpacecraftPawn::GetMeshScale() const
 	return MeshScaleCache;
 }
 
+bool AFlareSpacecraftPawn::IsPlayerShip()
+{
+	return (this == GetPC()->GetShipPawn());
+}
+
 #undef LOCTEXT_NAMESPACE

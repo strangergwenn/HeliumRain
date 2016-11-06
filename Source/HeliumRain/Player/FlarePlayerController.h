@@ -102,6 +102,9 @@ public:
 	/** We've impacted into something */
 	void SpacecraftCrashed();
 
+	/** Play a sound */
+	void PlayLocalizedSound(USoundCue* Sound, FVector WorldLocation);
+
 	/** Cleanup the PC owned stuff */
 	void Clean();
 

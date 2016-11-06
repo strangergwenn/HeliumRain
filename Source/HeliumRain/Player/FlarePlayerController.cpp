@@ -485,6 +485,18 @@ void AFlarePlayerController::SpacecraftCrashed()
 	}
 }
 
+void AFlarePlayerController::PlayLocalizedSound(USoundCue* Sound, FVector WorldLocation)
+{
+	if (MenuManager->IsMenuOpen())
+	{
+		ClientPlaySound(Sound);
+	}
+	else
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, WorldLocation);
+	}
+}
+
 void AFlarePlayerController::Clean()
 {
 	PlayerData.UUID = NAME_None;

@@ -146,6 +146,8 @@ private:
 		return PresentationMode;
 	}
 
+	bool IsPlayerShip();
+
 	inline EFlareHostility::Type GetPlayerHostility() const
 	{
 		if (Company)

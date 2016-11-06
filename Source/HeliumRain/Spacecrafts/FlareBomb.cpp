@@ -248,9 +248,9 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 		ParentWeapon->GetSpacecraft()->GetParent());
 
 	// Play sound
-	if (HitSpacecraft->IsLocallyControlled())
+	if (HitSpacecraft->IsPlayerShip())
 	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamageSound, HitLocation, 1, 1);
+		HitSpacecraft->GetPC()->PlayLocalizedSound(DamageSound, HitLocation);
 	}
 
 	// Ship salvage

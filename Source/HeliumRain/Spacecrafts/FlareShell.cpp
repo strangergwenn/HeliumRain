@@ -449,10 +449,10 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 									, EFlareDamage::DAM_HighExplosive);
 
 						// Play sound
-						AFlareSpacecraftPawn* ShipBase = Cast<AFlareSpacecraftPawn>(Spacecraft);
-						if (ShipBase && ShipBase->IsLocallyControlled())
+						AFlareSpacecraftPawn* SpacecraftPawn = Cast<AFlareSpacecraftPawn>(Spacecraft);
+						if (SpacecraftPawn->IsPlayerShip())
 						{
-							UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, BestHitResult.Location, 1, 1);
+							SpacecraftPawn->GetPC()->PlayLocalizedSound(ImpactSound, BestHitResult.Location);
 						}
 					}
 				}
@@ -504,13 +504,12 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 
 		// Physics impulse
 		Spacecraft->Airframe->AddImpulseAtLocation( 5000	 * ImpactRadius * AbsorbedEnergy * (PenetrateArmor ? ImpactAxis : -ImpactNormal), ImpactLocation);
-
-
+		
 		// Play sound
-		AFlareSpacecraftPawn* ShipBase = Cast<AFlareSpacecraftPawn>(Spacecraft);
-		if (ShipBase && ShipBase->IsLocallyControlled())
+		AFlareSpacecraftPawn* SpacecraftPawn = Cast<AFlareSpacecraftPawn>(Spacecraft);
+		if (SpacecraftPawn->IsPlayerShip())
 		{
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), PenetrateArmor ? DamageSound : ImpactSound, ImpactLocation, 1, 1);
+			SpacecraftPawn->GetPC()->PlayLocalizedSound(PenetrateArmor ? DamageSound : ImpactSound, ImpactLocation);
 		}
 	}
 	else if (Asteroid)
