@@ -402,6 +402,18 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.OnClicked(this, &SFlareSettingsMenu::OnCockpitToggle)
 						]
 					
+						// Anticollision
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(AnticollisionButton, SFlareButton)
+							.Text(LOCTEXT("Anticollision", "Use anticollision"))
+							.HelpText(LOCTEXT("AnticollisionInfo", "Anti-collision will prevent your ship from crahsing into objects and forbid close fly-bys."))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnAnticollisionToggle)
+						]
+					
 						// Pause in menus
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
@@ -558,6 +570,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
 	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
+	AnticollisionButton->SetActive(MyGameSettings->UseAnticollision);
 	PauseInMenusButton->SetActive(MyGameSettings->PauseGameInMenus);
 
 	// Music volume
@@ -954,6 +967,15 @@ void SFlareSettingsMenu::OnCockpitToggle()
 
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	MyGameSettings->UseCockpit = New;
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnAnticollisionToggle()
+{
+	bool New = AnticollisionButton->IsActive();
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->UseAnticollision = New;
 	MyGameSettings->ApplySettings(false);
 }
 

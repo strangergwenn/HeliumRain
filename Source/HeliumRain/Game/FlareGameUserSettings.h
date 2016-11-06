@@ -43,6 +43,10 @@ public:
 	/** Whether to use the 3D cockpit */
 	UPROPERTY(Config)
 	bool                                     UseCockpit;
+		
+	/** Whether to use anti collision */
+	UPROPERTY(Config)
+	bool                                     UseAnticollision;
 
 	/** Whether to pause the game in menus */
 	UPROPERTY(Config)

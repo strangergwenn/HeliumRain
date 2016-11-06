@@ -2,12 +2,14 @@
 #include "../Flare.h"
 
 #include "FlareSpacecraftStateManager.h"
+#include "../Game/FlareGameUserSettings.h"
 #include "../Player/FlareCockpitManager.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Player/FlareMenuManager.h"
 #include "../Player/FlareHUD.h"
 #include "FlareShipPilot.h"
 #include "FlareSpacecraft.h"
+#include "FlareShipPilot.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareStateManager Tick"), STAT_FlareStateManager_Tick, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareStateManager Camera"), STAT_FlareStateManager_Camera, STATGROUP_Flare);
@@ -495,7 +497,19 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 		}
 
 		FVector LocalPlayerLateralLinearVelocity = FVector(0, PlayerManualLinearVelocity.Y, PlayerManualLinearVelocity.Z);
-		return PlayerForwardVelocity + Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerLateralLinearVelocity);
+		FVector FinalLinearVelocity = PlayerForwardVelocity + Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerLateralLinearVelocity);
+
+		// Check if we should apply anticollision to the player ship ?
+		if (Spacecraft->IsPlayerShip())
+		{
+			UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+			if (MyGameSettings->UseAnticollision || Spacecraft->GetPC()->GetMenuManager()->IsUIOpen())
+			{
+				FinalLinearVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, FinalLinearVelocity);
+			}
+		}
+
+		return FinalLinearVelocity;
 	}
 }
 

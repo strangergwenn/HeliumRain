@@ -130,7 +130,9 @@ protected:
 	void OnTemporalAAToggle();
 
 	void OnSupersamplingToggle();
-		
+	
+	void OnAnticollisionToggle();
+
 	void OnCockpitToggle();
 
 	void OnPauseInMenusToggle();
@@ -188,6 +190,7 @@ protected:
 
 	// Gameplay
 	TSharedPtr<SFlareButton>                    CockpitButton;
+	TSharedPtr<SFlareButton>                    AnticollisionButton;
 	TSharedPtr<SFlareButton>                    PauseInMenusButton;
 
 	// Sound
