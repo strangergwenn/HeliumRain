@@ -253,6 +253,12 @@ public:
 	/** Get the spacecraft menu */
 	TSharedPtr<SFlareShipMenu> GetShipMenu() const;
 
+	/** Get the fading duration */
+	inline float GetFadeDuration() const
+	{
+		return FadeDuration;
+	}
+
 	/** Get the height of the main overlay */
 	static int32 GetMainOverlayHeight();
 

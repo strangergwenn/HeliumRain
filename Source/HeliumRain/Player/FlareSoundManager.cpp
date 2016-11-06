@@ -19,7 +19,9 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 {
 	// Gameplay data
 	ShipPawn = NULL;
+	MasterVolume = 1.0f;
 	MusicVolume = 1.0f;
+	EffectsVolume = 1.0f;
 	MusicChanging = false;
 	MusicDesiredTrack = EFlareMusicTrack::None;
 
@@ -34,6 +36,8 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 
 	// Mix references
 	static ConstructorHelpers::FObjectFinder<USoundClass> MasterClassObj(TEXT("/Engine/EngineSounds/Master"));
+	static ConstructorHelpers::FObjectFinder<USoundClass> MusicClassObj(TEXT("/Engine/EngineSounds/Music"));
+	static ConstructorHelpers::FObjectFinder<USoundClass> EffectsClassObj(TEXT("/Engine/EngineSounds/SFX"));
 	static ConstructorHelpers::FObjectFinder<USoundMix> MasterSoundMixObj(TEXT("/Game/Master/Sound/Mix_Master"));
 	
 	// Sound references
@@ -44,6 +48,8 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 
 	// Sound class
 	MasterSoundClass = MasterClassObj.Object;
+	MusicSoundClass = MusicClassObj.Object;
+	EffectsSoundClass = EffectsClassObj.Object;
 	MasterSoundMix = MasterSoundMixObj.Object;
 
 	// Music track store
@@ -164,20 +170,24 @@ void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 void UFlareSoundManager::SetMusicVolume(int32 Volume)
 {
 	FLOGV("UFlareSoundManager::SetMusicVolume %d", Volume);
+
 	MusicVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
-	UpdatePlayer(MusicPlayer, 0, true);
+
+	// Update
+	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
+	FCHECK(AudioDevice);
+	AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MusicSoundClass, MusicVolume, 1.0f, 0.5f, true);
 }
 
 void UFlareSoundManager::SetMasterVolume(int32 Volume)
 {
 	FLOGV("UFlareSoundManager::SetMasterVolume %d", Volume);
 
-	// Get device
+	MasterVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
+
+	// Update
 	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
 	FCHECK(AudioDevice);
-
-	// Apply volume
-	float MasterVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
 	AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MasterSoundClass, MasterVolume, 1.0f, 0.5f, true);
 }
 
@@ -266,6 +276,8 @@ void UFlareSoundManager::Update(float DeltaSeconds)
 		UpdatePlayer(AttackWarningPlayer, -DeltaSeconds);
 		UpdatePlayer(HealthWarningPlayer, -DeltaSeconds);
 	}
+
+	UpdateEffectsVolume(DeltaSeconds);
 }
 
 void UFlareSoundManager::RequestMusicTrack(EFlareMusicTrack::Type NewTrack)
@@ -317,10 +329,33 @@ void UFlareSoundManager::SetDesiredMusicTrack()
 	MusicChanging = false;
 }
 
-void UFlareSoundManager::UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDelta, bool Force)
+void UFlareSoundManager::UpdateEffectsVolume(float DeltaSeconds)
+{
+	// Fade in menu transitions
+	if (PC)
+	{
+		if (PC->GetMenuManager()->IsFading())
+		{
+			EffectsVolume -= DeltaSeconds / PC->GetMenuManager()->GetFadeDuration();
+		}
+		else
+		{
+			EffectsVolume += DeltaSeconds / PC->GetMenuManager()->GetFadeDuration();
+		}
+		EffectsVolume = FMath::Clamp(EffectsVolume, 0.01f, 1.0f);
+	}
+
+	// Get device and update
+	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
+	FCHECK(AudioDevice);
+	AudioDevice->SetSoundMixClassOverride(MasterSoundMix, EffectsSoundClass, EffectsVolume, 1.0f, 0.0f, true);
+}
+
+void UFlareSoundManager::UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDelta)
 {
 	float NewVolume = FMath::Clamp(Player.Volume + VolumeDelta * Player.FadeSpeed, 0.0f, 1.0f);
-	if (NewVolume != Player.Volume || Force)
+
+	if (NewVolume != Player.Volume)
 	{
 		if (NewVolume == 0)
 		{
@@ -332,14 +367,10 @@ void UFlareSoundManager::UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDel
 		}
 		else
 		{
-			Player.Sound->SetVolumeMultiplier((Player.Sound == MusicPlayer.Sound) ? MusicVolume * NewVolume : NewVolume);
+			Player.Sound->SetVolumeMultiplier(NewVolume);
 			Player.Sound->SetPitchMultiplier(Player.PitchedFade ? 0.5f + 0.5f * NewVolume : 1.0f);
 		}
 		Player.Volume = NewVolume;
-	}
-	else if (Player.Sound == MusicPlayer.Sound && Player.Sound->VolumeMultiplier != MusicVolume * NewVolume)
-	{
-		Player.Sound->SetVolumeMultiplier(MusicVolume * NewVolume);
 	}
 }
 
