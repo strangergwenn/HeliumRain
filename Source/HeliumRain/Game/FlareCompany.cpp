@@ -424,7 +424,7 @@ UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftS
 	}
 	else
 	{
-		FLOG("UFlareCompany::LoadSpacecraft failed (no description available)");
+		FLOG("UFlareCompany::LoadSpacecraft : Failed (no description available)");
 	}
 
 	return Spacecraft;
@@ -432,7 +432,7 @@ UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftS
 
 void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 {
-	FLOGV("UFlareCompany::DestroySpacecraft remove %s from company %s", *Spacecraft->GetImmatriculation().ToString(), *GetCompanyName().ToString());
+	FLOGV("UFlareCompany::DestroySpacecraft : Remove %s from company %s", *Spacecraft->GetImmatriculation().ToString(), *GetCompanyName().ToString());
 
 	CompanySpacecrafts.Remove(Spacecraft);
 	CompanyStations.Remove(Spacecraft);
@@ -469,7 +469,8 @@ bool UFlareCompany::TakeMoney(int64 Amount, bool AllowDepts)
 {
 	if (Amount < 0 || (Amount > CompanyData.Money && !AllowDepts))
 	{
-		FLOGV("Fail to take %f money from %s (balance: %f)", Amount/100., *GetCompanyName().ToString(), CompanyData.Money/100.);
+		FLOGV("UFlareCompany::TakeMoney : Failed to take %f money from %s (balance: %f)",
+			Amount/100., *GetCompanyName().ToString(), CompanyData.Money/100.);
 		return false;
 	}
 	else
@@ -488,7 +489,8 @@ void UFlareCompany::GiveMoney(int64 Amount)
 {
 	if (Amount < 0)
 	{
-		FLOGV("Fail to give %f money from %s (balance: %f)", Amount/100., *GetCompanyName().ToString(), CompanyData.Money/100.);
+		FLOGV("UFlareCompany::GiveMoney : Failed to give %f money from %s (balance: %f)",
+			Amount/100., *GetCompanyName().ToString(), CompanyData.Money/100.);
 		return;
 	}
 
@@ -506,7 +508,7 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 
 	if (Company == this)
 	{
-		FLOG("ERROR: A company don't have reputation for itself!");
+		FLOG("UFlareCompany::GiveReputation : A company doesn't have reputation for itself");
 		return;
 	}
 
@@ -592,14 +594,13 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 
 }
 
-
 void UFlareCompany::ForceReputation(UFlareCompany* Company, float Amount)
 {
 	FFlareCompanyReputationSave* CompanyReputation = NULL;
 
 	if (Company == this)
 	{
-		FLOG("ERROR: A company don't have reputation for itself!");
+		FLOG("UFlareCompany::ForceReputation : A company don't have reputation for itself!");
 		return;
 	}
 
@@ -623,6 +624,38 @@ void UFlareCompany::ForceReputation(UFlareCompany* Company, float Amount)
 
 	CompanyReputation->Reputation = Amount;
 }
+
+int64 UFlareCompany::GetTributeCost(UFlareCompany* Company)
+{
+	return 0.01 * GetCompanyValue().TotalValue;
+}
+
+void UFlareCompany::PayTribute(UFlareCompany* Company)
+{
+	int64 Cost = GetTributeCost(Company);
+
+	if (Cost <= GetMoney())
+	{
+		FLOGV("UFlareCompany::PayTribute: paying %ld", Cost);
+
+		// Exchange money
+		TakeMoney(Cost);
+		Company->GiveMoney(Cost);
+
+		// Reset target reputation
+		ForceReputation(Company, 0);
+		Company->ForceReputation(this, 0);
+
+		// Reset hostilities
+		SetHostilityTo(Company, false);
+		Company->SetHostilityTo(this, false);
+	}
+	else
+	{
+		FLOG("UFlareCompany::PayTribute: not enough money to pay tribute");
+	}
+}
+
 
 /*----------------------------------------------------
 	Customization

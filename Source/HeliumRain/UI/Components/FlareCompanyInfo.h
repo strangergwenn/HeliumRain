@@ -77,14 +77,26 @@ protected:
 	/** Get the company emblem */
 	const FSlateBrush* GetCompanyEmblem() const;
 
+	/** Get the tribute cost */
+	FText GetTributeText() const;
+
+	/** Get the tribute help */
+	FText GetTributeHelpText() const;
+
 	/** Hide the war button on ourselves */
 	EVisibility GetToggleHostilityVisibility() const;
+
+	/** Disable the tribute button on friendlies */
+	bool IsTributeDisabled() const;
 
 	/** Get the war/peace button text */
 	FText GetToggleHostilityText() const;
 
 	/** Get the war/peace button help text */
 	FText GetToggleHostilityHelpText() const;
+
+	/** Pay a tribute */
+	void OnPayTribute();
 
 	/** Toggle player hostility toward this company */
 	void OnToggleHostility();

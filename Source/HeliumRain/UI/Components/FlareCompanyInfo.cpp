@@ -121,40 +121,44 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 				+ SHorizontalBox::Slot()
 				.Padding(Theme.SmallContentPadding)
 				[
-					SNew(SVerticalBox)
-
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+					SNew(SBox)
+					.WidthOverride(8 * Theme.ButtonWidth)
 					[
-						SNew(SHorizontalBox)
+						SNew(SVerticalBox)
 
-						// Reputation text
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
+						+ SVerticalBox::Slot()
+						.AutoHeight()
 						[
-							SNew(STextBlock)
-							.Text(this, &SFlareCompanyInfo::GetReputationText)
-							.TextStyle(&Theme.TextFont)
+							SNew(SHorizontalBox)
+
+							// Reputation text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareCompanyInfo::GetReputationText)
+								.TextStyle(&Theme.TextFont)
+							]
+
+							// Reputation value
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareCompanyInfo::GetReputationTextValue)
+								.ColorAndOpacity(this, &SFlareCompanyInfo::GetReputationColor)
+								.TextStyle(&Theme.TextFont)
+							]
 						]
 
-						// Reputation value
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
+						// Hostility
+						+ SVerticalBox::Slot()
+						.AutoHeight()
 						[
 							SNew(STextBlock)
-							.Text(this, &SFlareCompanyInfo::GetReputationTextValue)
-							.ColorAndOpacity(this, &SFlareCompanyInfo::GetReputationColor)
+							.Text(this, &SFlareCompanyInfo::GetCompanyHostility)
 							.TextStyle(&Theme.TextFont)
 						]
-					]
-
-					// Hostility
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SNew(STextBlock)
-						.Text(this, &SFlareCompanyInfo::GetCompanyHostility)
-						.TextStyle(&Theme.TextFont)
 					]
 				]
 
@@ -167,6 +171,20 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 					.Text(this, &SFlareCompanyInfo::GetToggleHostilityText)
 					.HelpText(this, &SFlareCompanyInfo::GetToggleHostilityHelpText)
 					.OnClicked(this, &SFlareCompanyInfo::OnToggleHostility)
+					.Visibility(this, &SFlareCompanyInfo::GetToggleHostilityVisibility)
+					.Width(4)
+				]
+
+				// Tribute
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(SFlareButton)
+					.Text(this, &SFlareCompanyInfo::GetTributeText)
+					.HelpText(this, &SFlareCompanyInfo::GetTributeHelpText)
+					.OnClicked(this, &SFlareCompanyInfo::OnPayTribute)
+					.IsDisabled(this, &SFlareCompanyInfo::IsTributeDisabled)
 					.Visibility(this, &SFlareCompanyInfo::GetToggleHostilityVisibility)
 					.Width(4)
 				]
@@ -365,6 +383,45 @@ const FSlateBrush* SFlareCompanyInfo::GetCompanyEmblem() const
 	return (Company ? Company->GetEmblem() : NULL);
 }
 
+FText SFlareCompanyInfo::GetTributeText() const
+{
+	if (!Player || !Company)
+	{
+		return FText();
+	}
+
+	// They don't like us
+	else if (Company->GetPlayerHostility() == EFlareHostility::Hostile)
+	{
+		return FText::Format(LOCTEXT("TributeWarFormat", "Pay tribute ({0} credits)"),
+			FText::AsNumber(UFlareGameTools::DisplayMoney(Player->GetCompany()->GetTributeCost(Company))));
+	}
+
+	else
+	{
+		return LOCTEXT("TributePeace", "Pay tribute");
+	}
+}
+
+FText SFlareCompanyInfo::GetTributeHelpText() const
+{
+	if (!Player || !Company)
+	{
+		return FText();
+	}
+
+	// They don't like us
+	else if (Company->GetPlayerHostility() == EFlareHostility::Hostile)
+	{
+		return LOCTEXT("TributeWarInfo", "Pay tribute to make this company neutral towards you");
+	}
+
+	else
+	{
+		return LOCTEXT("TributePeaceInfo", "You are at peace with this faction !");
+	}
+}
+
 EVisibility SFlareCompanyInfo::GetToggleHostilityVisibility() const
 {
 	if (Player && Player->GetCompany() == Company)
@@ -374,6 +431,24 @@ EVisibility SFlareCompanyInfo::GetToggleHostilityVisibility() const
 	else
 	{
 		return EVisibility::Visible;
+	}
+}
+
+bool SFlareCompanyInfo::IsTributeDisabled() const
+{
+	if (!Player || !Company)
+	{
+		return true;
+	}
+
+	UFlareCompany* PlayerCompany = Player->GetCompany();
+	if (Company->GetPlayerHostility() == EFlareHostility::Hostile)
+	{
+		return (PlayerCompany->GetTributeCost(Company) > PlayerCompany->GetMoney());
+	}
+	else
+	{
+		return true;
 	}
 }
 
@@ -414,6 +489,18 @@ FText SFlareCompanyInfo::GetToggleHostilityHelpText() const
 	else
 	{
 		return LOCTEXT("DeclareWarHelp", "Declare war to this company (you are currently on good terms with this company)");
+	}
+}
+
+void SFlareCompanyInfo::OnPayTribute()
+{
+	if (Player && Company)
+	{
+		Player->GetCompany()->PayTribute(Company);
+
+		FText Text = LOCTEXT("TributePaid", "Tribute paid");
+		FText InfoText = FText::Format(LOCTEXT("TributePaidFormat", "You have paid tribute to {0}."), Company->GetCompanyName());
+		Player->Notify(Text, InfoText, NAME_None, EFlareNotification::NT_Military);
 	}
 }
 

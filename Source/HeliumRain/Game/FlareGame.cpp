@@ -1046,9 +1046,9 @@ void AFlareGame::InitCapitalShipNameDatabase()
 	BaseImmatriculationNameList.Empty();
 	BaseImmatriculationNameList.Add(FText::FromString("Arrow"));
 	BaseImmatriculationNameList.Add(FText::FromString("Atom"));
-	BaseImmatriculationNameList.Add(FText::FromString("Binary-Star"));
+	BaseImmatriculationNameList.Add(FText::FromString("BinaryStar"));
 	BaseImmatriculationNameList.Add(FText::FromString("Blackout"));
-	BaseImmatriculationNameList.Add(FText::FromString("Crescent-Moon"));
+	BaseImmatriculationNameList.Add(FText::FromString("Crescent"));
 	BaseImmatriculationNameList.Add(FText::FromString("Comet"));
 	BaseImmatriculationNameList.Add(FText::FromString("Coronation"));
 	BaseImmatriculationNameList.Add(FText::FromString("Destiny"));
@@ -1060,9 +1060,12 @@ void AFlareGame::InitCapitalShipNameDatabase()
 	BaseImmatriculationNameList.Add(FText::FromString("Honor"));
 	BaseImmatriculationNameList.Add(FText::FromString("Intruder"));
 	BaseImmatriculationNameList.Add(FText::FromString("Explorer"));
+	BaseImmatriculationNameList.Add(FText::FromString("Kerman"));
+	BaseImmatriculationNameList.Add(FText::FromString("Lance"));
 	BaseImmatriculationNameList.Add(FText::FromString("Meteor"));
 	BaseImmatriculationNameList.Add(FText::FromString("Mammoth"));
 	BaseImmatriculationNameList.Add(FText::FromString("Photon"));
+	BaseImmatriculationNameList.Add(FText::FromString("Repulse"));
 	BaseImmatriculationNameList.Add(FText::FromString("Resolve"));
 	BaseImmatriculationNameList.Add(FText::FromString("Revenge"));
 	BaseImmatriculationNameList.Add(FText::FromString("Sahara"));

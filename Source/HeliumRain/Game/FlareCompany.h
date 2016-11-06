@@ -117,6 +117,7 @@ public:
 
 	virtual void TickAI();
 
+
 	/** Check if we are friend or for toward the player */
 	virtual EFlareHostility::Type GetPlayerHostility() const;
 
@@ -131,6 +132,7 @@ public:
 
 	/** Set whether this company is hostile to an other company */
 	virtual void SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile);
+
 
 	/** Get an info string for this company */
 	virtual FText GetShortInfoText();
@@ -159,6 +161,7 @@ public:
 	/** Set a sector visited */
 	virtual void VisitSector(UFlareSimulatedSector* Sector);
 
+
 	/** Take a money amount from the company */
 	virtual bool TakeMoney(int64 Amount, bool AllowDepts = false);
 
@@ -168,6 +171,13 @@ public:
 	virtual void GiveReputation(UFlareCompany* Company, float Amount, bool Propagate);
 
 	virtual void ForceReputation(UFlareCompany* Company, float Amount);
+
+	/** Compute how much will be necessary to reset reputation with Company */
+	int64 GetTributeCost(UFlareCompany* Company);
+
+	/** Make peace with Company in echange for money */
+	void PayTribute(UFlareCompany* Company);
+
 
 	/*----------------------------------------------------
 		Customization
