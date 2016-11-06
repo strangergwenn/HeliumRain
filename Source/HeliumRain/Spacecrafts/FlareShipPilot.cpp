@@ -604,7 +604,10 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	}
 
 	// Exit avoidance
-	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.8);
+	if (!PilotTargetShip || !PilotTargetShip->GetParent()->GetDamageSystem()->IsUncontrollable())
+	{
+		LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.8);
+	}
 
 	// Anticollision
 	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
