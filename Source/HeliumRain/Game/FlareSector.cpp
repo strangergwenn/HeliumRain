@@ -409,35 +409,6 @@ void UFlareSector::UnregisterShell(AFlareShell* Shell)
 	}
 }
 
-void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroying)
-{
-	FLOGV("UFlareSector::DestroySpacecraft %s", *Spacecraft->GetImmatriculation().ToString());
-
-	if (!Destroying)
-	{
-		SectorSpacecrafts.Remove(Spacecraft);
-		SectorShips.Remove(Spacecraft);
-		SectorStations.Remove(Spacecraft);
-	}
-
-	UFlareSimulatedSpacecraft* SimulatedSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(Spacecraft->GetImmatriculation());
-	SimulatedSpacecraft->GetCompany()->DestroySpacecraft(SimulatedSpacecraft);
-
-	Spacecraft->Destroy();
-
-	if(!Destroying)
-	{
-		// Reload the menu as they can show the destroyed ship
-		// TODO #524: This will crash if a ship inspect menu is open on the destroyed ship,
-		// as the menu will be reload with a invalid spacecraft
-		AFlareMenuManager* MenuManager = GetGame()->GetPC()->GetMenuManager();
-		if (MenuManager->IsMenuOpen())
-		{
-			MenuManager->Reload();
-		}
-	}
-}
-
 void UFlareSector::SetPause(bool Pause)
 {
 	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
