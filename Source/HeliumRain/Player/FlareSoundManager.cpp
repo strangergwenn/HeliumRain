@@ -175,7 +175,7 @@ void UFlareSoundManager::SetMasterVolume(int32 Volume)
 	FCHECK(AudioDevice);
 
 	// Apply volume
-	float MasterVolume = 5.0f * FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
+	float MasterVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
 	AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MasterSoundClass, MasterVolume, 1.0f, 0.5f, true);
 }
 
