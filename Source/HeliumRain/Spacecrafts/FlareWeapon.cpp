@@ -5,7 +5,6 @@
 #include "FlareSpacecraft.h"
 #include "FlareShell.h"
 #include "FlareBomb.h"
-#include "../Player/FlarePlayerController.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareWeapon Firing"), STAT_Weapon_Firing, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareWeapon FireGun"), STAT_Weapon_FireGun, STATGROUP_Flare);
@@ -143,7 +142,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		// Empty
 		else if (!IsTurret() && SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
 		{
-			Spacecraft->GetPC()->ClientPlaySound(EmptySound);
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), EmptySound, GetComponentLocation());
 			TimeSinceLastShell = 0;
 		}
 	}
@@ -193,7 +192,7 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	// Play sound
 	if (SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
 	{
-		Spacecraft->GetPC()->ClientPlaySound(FiringSound);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FiringSound, GetComponentLocation());
 	}
 
 	// Update data
@@ -212,13 +211,8 @@ void UFlareWeapon::ShowFiringEffects(int GunIndex)
 
 bool UFlareWeapon::FireBomb()
 {
-	// Play sound
-	if (SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
-	{
-		Spacecraft->GetPC()->ClientPlaySound(BombDroppedSound);
-	}
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BombDroppedSound, GetComponentLocation());
 
-	// Drop bomb
 	AFlareBomb* Bomb = Bombs.Pop();
 	if (Bomb)
 	{
