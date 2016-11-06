@@ -88,7 +88,7 @@ public:
 	void OnSectorDeactivated();
 
 	/** The battle state has changed, update music, notify, etc */
-	void OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState);
+	void UpdateMusicTrack(EFlareSectorBattleState::Type NewBattleState);
 
 	/** Set the currently flown player ship */
 	void SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerShip);

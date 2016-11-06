@@ -112,9 +112,10 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	Super::PlayerTick(DeltaSeconds);
 	AFlareHUD* HUD = GetNavHUD();
 	TimeSinceWeaponSwitch += DeltaSeconds;
+	static bool PlayerWasTraveling = false;
 
 	// Check recovery
-	if(RecoveryActive)
+	if (RecoveryActive)
 	{
 		RecoveryActive = false;
 		GetGame()->DeactivateSector();
@@ -134,15 +135,27 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		}
 		
 		// Battle state
-		if (GetGame()->GetActiveSector())
+		if (GetPlayerFleet()->IsTraveling())
+		{
+			if (!PlayerWasTraveling)
+			{
+				UpdateMusicTrack(EFlareSectorBattleState::NoBattle);
+			}
+
+			PlayerWasTraveling = true;
+		}
+		else if (GetGame()->GetActiveSector())
 		{
 			SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_Battle);
+
 			EFlareSectorBattleState::Type BattleState = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(GetCompany());
-			if (BattleState != LastBattleState)
+			if (BattleState != LastBattleState || PlayerWasTraveling)
 			{
 				LastBattleState = BattleState;
-				OnBattleStateChanged(BattleState);
+				UpdateMusicTrack(BattleState);
 			}
+
+			PlayerWasTraveling = false;
 		}
 	}
 
@@ -393,40 +406,40 @@ void AFlarePlayerController::OnSectorDeactivated()
 	LastBattleState = EFlareSectorBattleState::NoBattle;
 }
 
-void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState)
+void AFlarePlayerController::UpdateMusicTrack(EFlareSectorBattleState::Type NewBattleState)
 {
-	FLOG("AFlarePlayerController::OnBattleStateChanged");
+	FLOG("AFlarePlayerController::UpdateMusicTrack");
 
 	switch (NewBattleState)
 	{
 		// Peace
 		case EFlareSectorBattleState::NoBattle:
 		case EFlareSectorBattleState::BattleWon:
-			if (GetGame()->GetActiveSector())
+			if (GetPlayerFleet()->IsTraveling() || !GetGame()->GetActiveSector())
+			{
+				FLOG("AFlarePlayerController::UpdateMusicTrack : travel");
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::Travel);
+			}
+			else
 			{
 				EFlareMusicTrack::Type LevelMusic = GetGame()->GetActiveSector()->GetSimulatedSector()->GetDescription()->LevelTrack;
 				if (LevelMusic != EFlareMusicTrack::None)
 				{
-					FLOG("AFlarePlayerController::OnBattleStateChanged : using level music");
+					FLOG("AFlarePlayerController::UpdateMusicTrack : using level music");
 					SoundManager->RequestMusicTrack(LevelMusic);
 				}
 				else
 				{
-					FLOG("AFlarePlayerController::OnBattleStateChanged : exploration");
+					FLOG("AFlarePlayerController::UpdateMusicTrack : exploration");
 					SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
 				}
-			}
-			else
-			{
-				FLOG("AFlarePlayerController::OnBattleStateChanged : travel");
-				SoundManager->RequestMusicTrack(EFlareMusicTrack::Travel);
 			}
 			break;
 
 		// Battle lost
 		case EFlareSectorBattleState::BattleLost:
 		case EFlareSectorBattleState::BattleLostNoRetreat:
-			FLOG("AFlarePlayerController::OnBattleStateChanged : battle lost");
+			FLOG("AFlarePlayerController::UpdateMusicTrack : battle lost");
 			SoundManager->RequestMusicTrack(EFlareMusicTrack::Danger);
 			break;
 
@@ -438,12 +451,12 @@ void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type 
 				UFlareSimulatedSector* Sector = GetGame()->GetActiveSector()->GetSimulatedSector();
 				if (Sector->GetSectorShips().Num() > 15)
 				{
-					FLOG("AFlarePlayerController::OnBattleStateChanged : war");
+					FLOG("AFlarePlayerController::UpdateMusicTrack : war");
 					SoundManager->RequestMusicTrack(EFlareMusicTrack::War);
 				}
 				else
 				{
-					FLOG("AFlarePlayerController::OnBattleStateChanged : combat");
+					FLOG("AFlarePlayerController::UpdateMusicTrack : combat");
 					SoundManager->RequestMusicTrack(EFlareMusicTrack::Combat);
 				}
 			}
