@@ -1876,6 +1876,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 		ResourceVariation.OwnedCapacity = 0;
 		ResourceVariation.FactoryCapacity = 0;
 		ResourceVariation.StorageCapacity = 0;
+		ResourceVariation.MaintenanceCapacity = 0;
 		ResourceVariation.IncomingResources = 0;
 		ResourceVariation.MinCapacity = 0;
 		ResourceVariation.ConsumerMaxStock = 0;
@@ -2097,6 +2098,18 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * AI_NERF_RATIO));
 				}
 
+				// The owned resell its own FS
+
+				uint32 Stock = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
+				if (Company == Station->GetCompany())
+				{
+					Variation->OwnedStock += Stock;
+				}
+
+				// The AI don't let anything for the player : it's too hard
+				// Make the AI ignore the sector with not enought stock or to little capacity
+				Variation->OwnedStock -= SlotCapacity * AI_NERF_RATIO;
+
 			}
 		}
 
@@ -2170,42 +2183,32 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			}
 		}
 	}
-	// TODO Check if needed
 
-	// Consider resource over 10 days of consumption as IncomingResources
-	/*for (int32 StationIndex = 0 ; StationIndex < Sector->GetSectorStations().Num(); StationIndex++)
+	// Add damage fleet and repair to maintenance capacity
+	for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
 	{
-		UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations()[StationIndex];
+		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
+		struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
-
-		if (!Station->HasCapability(EFlareSpacecraftCapability::Storage) || Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
+		for (int CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
 		{
-			continue;
-		}
+			UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
 
-
-		for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
-		{
-			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
-			struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
-
-			int32 TotalFlow =  Variation->FactoryFlow + Variation->OwnedFlow;
-
-			if (TotalFlow >= 0)
+			if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
 			{
-				int32 LongTermConsumption = TotalFlow * 10;
-				int32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
-
-				if (ResourceQuantity > LongTermConsumption)
-				{
-					Variation->IncomingResources += ResourceQuantity - LongTermConsumption;
-				}
+				continue;
 			}
+
+			int32 NeededFS;
+			int32 TotalNeededFS;
+
+			SectorHelper::GetRefillFleetSupplyNeeds(Sector, OtherCompany, NeededFS, TotalNeededFS);
+			Variation->MaintenanceCapacity += TotalNeededFS;
+
+			SectorHelper::GetRepairFleetSupplyNeeds(Sector, OtherCompany, NeededFS, TotalNeededFS);
+			Variation->MaintenanceCapacity += TotalNeededFS;
 		}
-
-
-	}*/
-	// TODO Check if needed
+	}
 
 	return SectorVariation;
 }
@@ -2224,7 +2227,8 @@ void UFlareCompanyAI::DumpSectorResourceVariation(UFlareSimulatedSector* Sector,
 				Variation->StorageStock ||
 				Variation->OwnedCapacity ||
 				Variation->FactoryCapacity ||
-				Variation->StorageCapacity
+				Variation->StorageCapacity ||
+				Variation->MaintenanceCapacity
 				)
 		{
 			FLOGV(" - Resource %s", *Resource->Name.ToString());
@@ -2244,6 +2248,8 @@ void UFlareCompanyAI::DumpSectorResourceVariation(UFlareSimulatedSector* Sector,
 				FLOGV("   factory capacity %d", Variation->FactoryCapacity);
 			if (Variation->StorageCapacity)
 				FLOGV("   storage capacity %d", Variation->StorageCapacity);
+			if (Variation->MaintenanceCapacity)
+				FLOGV("   maintenance capacity %d", Variation->MaintenanceCapacity);
 		}
 
 	}
@@ -2308,6 +2314,7 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 				!VariationA->OwnedCapacity &&
 				!VariationA->FactoryCapacity &&
 				!VariationA->StorageCapacity &&
+				!VariationA->MaintenanceCapacity &&
 				!VariationB->OwnedFlow &&
 				!VariationB->FactoryFlow &&
 				!VariationB->OwnedStock &&
@@ -2315,7 +2322,8 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 				!VariationB->StorageStock &&
 				!VariationB->OwnedCapacity &&
 				!VariationB->FactoryCapacity &&
-				!VariationB->StorageCapacity)
+				!VariationB->StorageCapacity &&
+				!VariationB->MaintenanceCapacity)
 			{
 				continue;
 			}
@@ -2346,7 +2354,8 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 
 			int32 LocalCapacity = VariationB->OwnedCapacity
 					+ VariationB->FactoryCapacity
-					+ VariationB->StorageCapacity;
+					+ VariationB->StorageCapacity
+					+ VariationB->MaintenanceCapacity;
 
 			if (VariationB->MinCapacity > 0)
 			{
@@ -2374,12 +2383,17 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 			int32 QuantityToSell = SellQuantity;
 
 			int32 OwnedCapacity = FMath::Max(0, (int32)(VariationB->OwnedCapacity + VariationB->OwnedFlow * TravelTime));
+			int32 MaintenanceCapacity = VariationB->MaintenanceCapacity;
 			int32 FactoryCapacity = FMath::Max(0, (int32)(VariationB->FactoryCapacity + VariationB->FactoryFlow * TravelTime));
 			int32 StorageCapacity = VariationB->StorageCapacity;
 
 			int32 OwnedSellQuantity = FMath::Min(OwnedCapacity, QuantityToSell);
 			MoneyGain += OwnedSellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
 			QuantityToSell -= OwnedSellQuantity;
+
+			int32 MaintenanceSellQuantity = FMath::Min(MaintenanceCapacity, QuantityToSell);
+			MoneyGain += MaintenanceSellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::MaintenanceConsumption);
+			QuantityToSell -= MaintenanceSellQuantity;
 
 			int32 FactorySellQuantity = FMath::Min(FactoryCapacity, QuantityToSell);
 			MoneyGain += FactorySellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);

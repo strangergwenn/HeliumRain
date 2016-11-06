@@ -33,6 +33,7 @@ struct ResourceVariation
 	int32 OwnedCapacity;
 	int32 FactoryCapacity;
 	int32 StorageCapacity;
+	int32 MaintenanceCapacity;
 
 	int32 MinCapacity;
 	int32 ConsumerMaxStock;
