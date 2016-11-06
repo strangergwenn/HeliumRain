@@ -360,6 +360,11 @@ void SFlareSpacecraftInfo::Show()
 				CanUpgrade = false;
 				CanScrap = false;
 			}
+			if (TargetSpacecraft->GetDamageSystem()->IsUncontrollable())
+			{
+				CanTrade = false;
+				CanUpgrade = false;
+			}
 		}
 		FLOGV("SFlareSpacecraftInfo::Show : CanDock = %d CanUpgrade = %d CanTrade = %d CanScrap = %d", CanDock, CanUpgrade, CanTrade, CanScrap);
 
@@ -408,12 +413,12 @@ void SFlareSpacecraftInfo::Show()
 		}
 
 		// Disable trade while flying unless docked
-		if (IsOutsidePlayerFleet || (IsDocked && !TargetSpacecraft->IsTrading()))
+		if (CanTrade && !TargetSpacecraft->IsTrading())
 		{
 			TradeButton->SetHelpText(LOCTEXT("TradeInfo", "Trade with this spacecraft"));
 			TradeButton->SetDisabled(false);
 		}
-		else if (IsDocked && TargetSpacecraft->IsTrading())
+		else if (CanTrade && TargetSpacecraft->IsTrading())
 		{
 			TradeButton->SetHelpText(LOCTEXT("CantTradeInfo", "Trading in progress"));
 			TradeButton->SetDisabled(true);
