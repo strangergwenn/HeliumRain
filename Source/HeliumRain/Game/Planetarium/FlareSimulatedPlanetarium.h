@@ -192,6 +192,9 @@ struct FFlareCelestialBody
 	/** Radius of the celestial body. In km */
 	double Radius;
 
+	/** Altitude of the outer part of the rings. In km */
+	double RingsOuterAltitude;
+
 	/** Orbit distance. The orbit are circular. In km. */
 	double OrbitDistance;
 
