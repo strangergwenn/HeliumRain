@@ -5,6 +5,8 @@
 #include "../FlareSpacecraft.h"
 #include "../FlareEngine.h"
 #include "../../Game/FlareGame.h"
+#include "../../Player/FlarePlayerController.h"
+#include "../FlareOrbitalEngine.h"
 #include "../FlarePilotHelper.h"
 
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
