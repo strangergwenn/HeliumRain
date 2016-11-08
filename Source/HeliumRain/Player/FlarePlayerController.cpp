@@ -282,11 +282,19 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 		return;
 	}
 
-	// Reset the current ship to auto
+	// Reset the current ship to autopilot, unless it's a freighter on a player-issued order
 	if (ShipPawn)
 	{
 		ShipPawn->ResetCurrentTarget();
-		ShipPawn->GetStateManager()->EnablePilot(true);
+
+		if (ShipPawn->IsMilitary())
+		{
+			ShipPawn->GetStateManager()->EnablePilot(true);
+		}
+		else if (!ShipPawn->GetNavigationSystem()->IsAutoPilot())
+		{
+			ShipPawn->GetStateManager()->EnablePilot(true);
+		}
 	}
 
 	// Fly the new ship
@@ -370,8 +378,7 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 	bool CandidateFound = false;
 
 	// Last flown ship
-
-	if(PlayerShip && PlayerShip->IsActive())
+	if (PlayerShip && PlayerShip->IsActive())
 	{
 		// Disable pilot during the switch
 		PlayerShip->GetActive()->GetStateManager()->EnablePilot(false);
