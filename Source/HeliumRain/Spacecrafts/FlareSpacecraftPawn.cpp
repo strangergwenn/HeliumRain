@@ -70,7 +70,7 @@ void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 		// Find the best FLIR camera on the ship if any
 		for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
 		{
-			if (SocketNames[SocketIndex] == "Dock" || SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
+			if (SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
 			{
 				FTransform CameraWorldTransform = GetRootComponent()->GetSocketTransform(SocketNames[SocketIndex]);
 
