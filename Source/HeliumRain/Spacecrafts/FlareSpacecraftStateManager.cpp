@@ -59,6 +59,7 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 
 	ResetExternalCamera();
 	LastWeaponType = EFlareWeaponGroupType::WG_NONE;
+	IsFireDirectorInit = false;
 }
 
 
@@ -218,14 +219,31 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 
 	if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
 	{
-		ExternalCameraYaw += FireDirectorAngularVelocity.Z * DeltaSeconds;
+		float YawRotation = FireDirectorAngularVelocity.Z * DeltaSeconds;
+		float PitchRotation = FireDirectorAngularVelocity.Y * DeltaSeconds;
 
-		ExternalCameraPitch -= FireDirectorAngularVelocity.Y * DeltaSeconds;
-		ExternalCameraPitch = FMath::Clamp(ExternalCameraPitch, -20.0f, 80.0f);
 
-		Spacecraft->SetCameraPitch(ExternalCameraPitch);
-		Spacecraft->SetCameraYaw(ExternalCameraYaw);
-		Spacecraft->SetCameraDistance(0);
+		if (!IsFireDirectorInit)
+		{
+			FVector FrontVector = Spacecraft->Airframe->ComponentToWorld.TransformVector(FVector(1, 0, 0));
+			FireDirectorLookDirection = FrontVector;
+			IsFireDirectorInit = true;
+		}
+
+		FVector TopVector = Spacecraft->GetCameraTopVector();
+		FVector LeftVector = FVector::CrossProduct(TopVector, FireDirectorLookDirection);
+
+		FLOGV("YawRotation %f", YawRotation);
+		FLOGV("PitchRotation %f", PitchRotation);
+
+		FireDirectorLookDirection = FireDirectorLookDirection.RotateAngleAxis(YawRotation, TopVector);
+		FireDirectorLookDirection = FireDirectorLookDirection.RotateAngleAxis(PitchRotation, LeftVector);
+
+		FLOGV("FireDirectorLookDirection %s", *FireDirectorLookDirection.ToString());
+
+		FireDirectorLookDirection.Normalize();
+
+		Spacecraft->ConfigureImmersiveCamera(FireDirectorLookDirection);
 	}
 	else if (ExternalCamera)
 	{
@@ -236,9 +254,12 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		ExternalCameraPitch = ExternalCameraPitch * (1 - Speed) + ExternalCameraPitchTarget * Speed;
 		ExternalCameraDistance = ExternalCameraDistance * (1 - Speed) + ExternalCameraDistanceTarget * Speed;
 
+		Spacecraft->DisableImmersiveCamera();
 		Spacecraft->SetCameraPitch(ExternalCameraPitch);
 		Spacecraft->SetCameraYaw(FMath::UnwindDegrees(ExternalCameraYaw));
 		Spacecraft->SetCameraDistance(ExternalCameraDistance);
+
+		IsFireDirectorInit = false;
 	}
 	else
 	{
@@ -246,10 +267,14 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		InternalCameraPitchTarget = 0;
 
 		float Speed = FMath::Clamp(DeltaSeconds * 8, 0.f, 1.f);
+
+		Spacecraft->DisableImmersiveCamera();
 		InternalCameraYaw = InternalCameraYaw * (1 - Speed) + InternalCameraYawTarget * Speed;
 		InternalCameraPitch = InternalCameraPitch * (1 - Speed) + InternalCameraPitchTarget * Speed;
 		Spacecraft->SetCameraPitch(InternalCameraPitch);
 		Spacecraft->SetCameraYaw(InternalCameraYaw);
+
+		IsFireDirectorInit = false;
 	}
 }
 

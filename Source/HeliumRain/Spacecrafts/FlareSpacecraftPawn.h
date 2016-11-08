@@ -33,7 +33,6 @@ public:
 	UPROPERTY(Category = Components, VisibleDefaultsOnly, BlueprintReadOnly)
 	USceneComponent* Camera;
 
-
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
@@ -58,6 +57,9 @@ public:
 	/** Set the camera radius in the spherical coordinate system */
 	void SetCameraDistance(float Value);
 
+	void ConfigureImmersiveCamera(FVector TargetDirection);
+
+	void DisableImmersiveCamera();
 
 	/*----------------------------------------------------
 		Customization
@@ -131,6 +133,9 @@ private:
 	float    CameraOffsetPitch;
 	float    CameraOffsetYaw;
 	float    CameraOffsetDistance;
+	bool UseImmersiveCamera;
+	FVector  ImmersiveTargetDirection;
+	FVector ImmersiveTopDirection;
 
 	float MeshScaleCache;
 
@@ -190,6 +195,8 @@ private:
 		return Cast<UCameraComponent>(Camera);
 	}
 
+	FVector GetCameraTopVector();
+
 	inline float GetCameraPanSpeed() const
 	{
 		return CameraPanSpeed;
@@ -204,5 +211,7 @@ private:
 	{
 		return CameraMaxYaw;
 	}
+
+
 
 };
