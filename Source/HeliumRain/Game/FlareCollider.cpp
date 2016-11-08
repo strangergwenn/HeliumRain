@@ -16,21 +16,5 @@ AFlareCollider::AFlareCollider(const class FObjectInitializer& PCIP) : Super(PCI
 	CollisionComponent->SetHiddenInGame(true);
 	CollisionComponent->SetStaticMesh(ColliderTemplateObj.Object);
 	RootComponent = CollisionComponent;
-
-	//PrimaryActorTick.bCanEverTick = true;
 }
 
-
-/*----------------------------------------------------
-	Gameplay
-----------------------------------------------------*/
-
-void AFlareCollider::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void AFlareCollider::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-}

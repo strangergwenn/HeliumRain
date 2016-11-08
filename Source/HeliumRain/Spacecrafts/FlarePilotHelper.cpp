@@ -133,10 +133,10 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 				AvoidanceAxis = AvoidanceVector.GetUnsafeNormal();
 			}
 
-			DrawDebugLine(Ship->GetWorld(), CurrentLocation, MinDistancePoint , FColor::Yellow, true);
-			DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Ship->Airframe->GetPhysicsLinearVelocity(), FColor::White, true);
-			DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + AvoidanceAxis *1000 , FColor::Green, true);
-			DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + InitialVelocity *10 , FColor::Blue, true);
+			//DrawDebugLine(Ship->GetWorld(), CurrentLocation, MinDistancePoint , FColor::Yellow, true);
+			//DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Ship->Airframe->GetPhysicsLinearVelocity(), FColor::White, true);
+			//DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + AvoidanceAxis *1000 , FColor::Green, true);
+			//DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + InitialVelocity *10 , FColor::Blue, true);
 
 			// Below 5s  begin avoidance maneuver
 			float Alpha = 1 - FMath::Max(0.0f, MostDangerousHitTime - MostDangerousInterCollisionTravelTime)/5.f;
@@ -430,24 +430,34 @@ UFlareSpacecraftComponent* PilotHelper::GetBestTargetComponent(AFlareSpacecraft*
 
 void PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector CurrentLocation, float CurrentSize, FVector TargetVelocity, FVector CurrentVelocity, AActor** MostDangerousCandidateActor, FVector*MostDangerousLocation, float* MostDangerousHitTime, float* MostDangerousInterCollisionTravelTime)
 {
-	FVector DeltaVelocity = TargetVelocity - CurrentVelocity;
-	//FLOGV("  DeltaVelocity=%s", *DeltaVelocity.ToString());
+	//FLOGV("PilotHelper::CheckRelativeDangerosity for %s, ship size %f", *CandidateActor->GetName(), CurrentSize);
 
 	// Relative velocity is near zero : not dangerous
+	FVector DeltaVelocity = TargetVelocity - CurrentVelocity;
 	if (DeltaVelocity.IsNearlyZero())
 	{
 		//FLOG("  !! DeltaVelocity.IsNearlyZero()");
 		return;
 	}
-
-	FBox CandidateBox = CandidateActor->GetComponentsBoundingBox(true);
-	float CandidateSize = FMath::Max(CandidateBox.GetExtent().Size(), 1.0f);
-
-	FVector CandidateLocation = (CandidateBox.Max + CandidateBox.Min) / 2.0;
+	
+	// Get the object size & location
+	float CandidateSize;
+	FVector CandidateLocation;
+	if (CandidateActor->IsA(AFlareCollider::StaticClass()) || CandidateActor->IsA(AFlareAsteroid::StaticClass()))
+	{
+		CandidateSize = Cast<UStaticMeshComponent>(CandidateActor->GetRootComponent())->Bounds.SphereRadius;
+		CandidateLocation = CandidateActor->GetActorLocation();
+	}
+	else
+	{
+		FBox CandidateBox = CandidateActor->GetComponentsBoundingBox();
+		CandidateSize = FMath::Max(CandidateBox.GetExtent().Size(), 1.0f);
+		CandidateLocation = (CandidateBox.Max + CandidateBox.Min) / 2.0;
+	}
+	
+	// Already intersecting ?
 	FVector DeltaLocation = CandidateLocation - CurrentLocation;
 	float SizeSum = CurrentSize + CandidateSize;
-
-	// Already intersecting
 	if (DeltaLocation.Size() < SizeSum)
 	{
 		float IntersectDeep = SizeSum - DeltaLocation.Size();

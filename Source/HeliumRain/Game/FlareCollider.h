@@ -10,16 +10,6 @@ public:
 
 	GENERATED_UCLASS_BODY()
 
-public:
-
-	/*----------------------------------------------------
-		Public methods
-	----------------------------------------------------*/
-
-	virtual void BeginPlay() override;
-
-	virtual void Tick(float DeltaSeconds) override;
-
 
 protected:
 
@@ -30,6 +20,6 @@ protected:
 	// Collider
 	UPROPERTY(Category = Collider, EditAnywhere)
 	UStaticMeshComponent*                           CollisionComponent;
-	
+
 
 };
