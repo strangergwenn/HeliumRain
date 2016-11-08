@@ -57,7 +57,7 @@ public:
 	/** Set the camera radius in the spherical coordinate system */
 	void SetCameraDistance(float Value);
 
-	void ConfigureImmersiveCamera(FVector TargetDirection);
+	void ConfigureImmersiveCamera(FQuat TargetRotation);
 
 	void DisableImmersiveCamera();
 
@@ -134,8 +134,7 @@ private:
 	float    CameraOffsetYaw;
 	float    CameraOffsetDistance;
 	bool UseImmersiveCamera;
-	FVector  ImmersiveTargetDirection;
-	FVector ImmersiveTopDirection;
+	FQuat ImmersiveTargetRotation;
 
 	float MeshScaleCache;
 
@@ -194,8 +193,6 @@ private:
 	{
 		return Cast<UCameraComponent>(Camera);
 	}
-
-	FVector GetCameraTopVector();
 
 	inline float GetCameraPanSpeed() const
 	{

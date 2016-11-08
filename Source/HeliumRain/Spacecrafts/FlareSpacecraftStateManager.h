@@ -138,6 +138,6 @@ protected:
 	FVector2D                                PlayerAim;
 	FVector2D                                LastPlayerAimJoystick;
 	FVector2D                                LastPlayerAimMouse;
-	FVector                                  FireDirectorLookDirection;
+	FQuat                                    FireDirectorLookRotation;
 	bool                                     IsFireDirectorInit;
 };

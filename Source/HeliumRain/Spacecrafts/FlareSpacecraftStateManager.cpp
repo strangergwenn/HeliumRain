@@ -226,24 +226,19 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		if (!IsFireDirectorInit)
 		{
 			FVector FrontVector = Spacecraft->Airframe->ComponentToWorld.TransformVector(FVector(1, 0, 0));
-			FireDirectorLookDirection = FrontVector;
+			FireDirectorLookRotation =  Spacecraft->Airframe->ComponentToWorld.GetRotation();
 			IsFireDirectorInit = true;
 		}
 
-		FVector TopVector = Spacecraft->GetCameraTopVector();
-		FVector LeftVector = FVector::CrossProduct(TopVector, FireDirectorLookDirection);
+		FQuat Yaw(FVector(0,0,1), FMath::DegreesToRadians(YawRotation));
+		FQuat Pitch(FVector(0,1,0), FMath::DegreesToRadians(PitchRotation));
 
-		FLOGV("YawRotation %f", YawRotation);
-		FLOGV("PitchRotation %f", PitchRotation);
+		FireDirectorLookRotation *= Yaw;
+		FireDirectorLookRotation *= Pitch;
+		FireDirectorLookRotation.Normalize();
 
-		FireDirectorLookDirection = FireDirectorLookDirection.RotateAngleAxis(YawRotation, TopVector);
-		FireDirectorLookDirection = FireDirectorLookDirection.RotateAngleAxis(PitchRotation, LeftVector);
 
-		FLOGV("FireDirectorLookDirection %s", *FireDirectorLookDirection.ToString());
-
-		FireDirectorLookDirection.Normalize();
-
-		Spacecraft->ConfigureImmersiveCamera(FireDirectorLookDirection);
+		Spacecraft->ConfigureImmersiveCamera(FireDirectorLookRotation);
 	}
 	else if (ExternalCamera)
 	{

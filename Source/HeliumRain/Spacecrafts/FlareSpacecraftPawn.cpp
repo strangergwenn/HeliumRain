@@ -67,6 +67,8 @@ void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 		bool FlirCameraFound = false;
 		FName BestCameraName;
 
+		FVector ImmersiveTargetDirection = ImmersiveTargetRotation.GetForwardVector();
+
 		// Find the best FLIR camera on the ship if any
 		for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
 		{
@@ -94,49 +96,9 @@ void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 		// Update the FLIR camera
 		if (FlirCameraFound)
 		{
-			FRotator CameraRotation = ImmersiveTargetDirection.Rotation();
-
-			// Try to keep top
-			FVector OldTopVector = GetCameraTopVector();
-			FLOGV("OldTopVector %s", *OldTopVector.ToString());
-
-
-
-			// TODO field
-			//static float LastRoll = 0;
-
-			CameraRotation.Roll = 0;
-			FVector NewTopVector = CameraRotation.RotateVector(FVector(0, 0, 1));
-			float Angle = FMath::RadiansToDegrees((FMath::Acos(FVector::DotProduct(OldTopVector, NewTopVector))));
-
-			//FLOGV("LastRoll %f", LastRoll);
-			//FLOGV("Angle %f", Angle);
-
-
-			CameraRotation.Roll = Angle ;
-
-			/*if(!FMath::IsNearlyZero(Angle))
-			{
-				FVector AngleSignAxis = FVector::CrossProduct(OldTopVector, NewTopVector);
-				float AngleSignAxisDot = FVector::DotProduct(ImmersiveTargetDirection, AngleSignAxis);
-
-				FLOGV("AngleSignAxisDot %f", AngleSignAxisDot);
-
-				CameraRotation.Roll += Angle ;// FMath::Sign(AngleSignAxisDot);
-
-			}*/
-			//LastRoll = CameraRotation.Roll;
-
-			FVector NewTopVector2 = CameraRotation.RotateVector(FVector(0, 0, 1));
-			float Angle2 = FMath::RadiansToDegrees((FMath::Acos(FVector::DotProduct(OldTopVector, NewTopVector2))));
-			FLOGV("Angle2 %f", Angle2);
-
 			CameraContainerPitch->SetRelativeRotation(FRotator(0, 0, 0).GetNormalized());
 			CameraContainerYaw->SetRelativeRotation(FRotator(0, 0, 0).GetNormalized());
-			Camera->SetWorldLocationAndRotation(BestCameraLocation , CameraRotation);
-			ImmersiveTopDirection = Camera->ComponentToWorld.TransformVector(FVector(0, 0, 1));
-
-			FLOGV("NewTopVector %s", *GetCameraTopVector().ToString());
+			Camera->SetWorldLocationAndRotation(BestCameraLocation , ImmersiveTargetRotation);
 		}
 	}
 }
@@ -166,34 +128,16 @@ void AFlareSpacecraftPawn::SetCameraDistance(float Value)
 	CameraOffsetDistance = Value;
 }
 
-void AFlareSpacecraftPawn::ConfigureImmersiveCamera(FVector TargetDirection)
+void AFlareSpacecraftPawn::ConfigureImmersiveCamera(FQuat TargetRotation)
 {
-	if (!UseImmersiveCamera)
-	{
-		ImmersiveTopDirection = GetCameraTopVector();
-	}
-
 	UseImmersiveCamera = true;
-	ImmersiveTargetDirection = TargetDirection;
+	ImmersiveTargetRotation = TargetRotation;
 }
 
 void AFlareSpacecraftPawn::DisableImmersiveCamera()
 {
 	UseImmersiveCamera = false;
 }
-
-FVector AFlareSpacecraftPawn::GetCameraTopVector()
-{
-	if(UseImmersiveCamera)
-	{
-		return Camera->ComponentToWorld.TransformVector(FVector(0, 0, 1));
-	}
-	else
-	{
-		return ImmersiveTopDirection;
-	}
-}
-
 
 /*----------------------------------------------------
 	Customization
