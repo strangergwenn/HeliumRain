@@ -2,6 +2,7 @@
 #include "../Game/FlareCompany.h"
 #include "../Game/FlareSector.h"
 #include "../Game/FlareGame.h"
+#include "../Game/FlareCollider.h"
 #include "FlareRCS.h"
 #include "FlareOrbitalEngine.h"
 #include "FlareWeapon.h"
@@ -22,8 +23,6 @@ bool PilotHelper::CheckFriendlyFire(UFlareSector* Sector, UFlareCompany* MyCompa
 
 		if (SpacecraftCandidate)
 		{
-
-
 			if (MyCompany->GetWarState(SpacecraftCandidate->GetParent()->GetCompany()) == EFlareHostility::Hostile)
 			{
 				//FLOG("  hostile, skip");
@@ -69,85 +68,78 @@ bool PilotHelper::CheckFriendlyFire(UFlareSector* Sector, UFlareCompany* MyCompa
 }
 
 FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, AFlareSpacecraft* SpacecraftToIgnore)
-
 {
-	FBox ShipBox = Ship->GetComponentsBoundingBox();
-	float CurrentSize = FMath::Max(ShipBox.GetExtent().Size(), 1.0f);
-	FVector CurrentVelocity = Ship->GetLinearVelocity() * 100;
-	FVector CurrentLocation = (ShipBox.Max + ShipBox.Min) / 2.0;
-
-
+	UFlareSector* ActiveSector = Ship->GetGame()->GetActiveSector();
 	AActor* MostDangerousCandidateActor = NULL;
+
+	FBox ShipBox = Ship->GetComponentsBoundingBox();
+	FVector CurrentVelocity = Ship->GetLinearVelocity() * 100;
+	FVector CurrentLocation = (ShipBox.Max + ShipBox.Min) / 2.0;	
 	FVector MostDangerousLocation;
+
+	float CurrentSize = FMath::Max(ShipBox.GetExtent().Size(), 1.0f);
 	float MostDangerousHitTime = 0;
 	float MostDangerousInterCollisionTravelTime = 0;
 
-	UFlareSector* ActiveSector = Ship->GetGame()->GetActiveSector();
-
-	for (int32 SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex++)
+	// Investigate ships
+	for (auto SpacecraftCandidate : ActiveSector->GetSpacecrafts())
 	{
-		AFlareSpacecraft* SpacecraftCandidate = ActiveSector->GetSpacecrafts()[SpacecraftIndex];
-
 		if (SpacecraftCandidate != Ship
-				&& SpacecraftCandidate != SpacecraftToIgnore
-				&& !Ship->GetDockingSystem()->IsGrantedShip(SpacecraftCandidate)
-				&& !Ship->GetDockingSystem()->IsDockedShip(SpacecraftCandidate))
+		 && SpacecraftCandidate != SpacecraftToIgnore
+		 && !Ship->GetDockingSystem()->IsGrantedShip(SpacecraftCandidate)
+		 && !Ship->GetDockingSystem()->IsDockedShip(SpacecraftCandidate))
 		{
-			CheckRelativeDangerosity(SpacecraftCandidate, CurrentLocation, CurrentSize, SpacecraftCandidate->Airframe, CurrentVelocity, &MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
+			CheckRelativeDangerosity(SpacecraftCandidate, CurrentLocation, CurrentSize, SpacecraftCandidate->Airframe->GetPhysicsLinearVelocity(),
+				CurrentVelocity, &MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
 		}
 	}
 
-	for (int32 AsteroidIndex = 0; AsteroidIndex < ActiveSector->GetAsteroids().Num(); AsteroidIndex++)
+	// Investigate asteroids
+	for (auto AsteroidCandidate : ActiveSector->GetAsteroids())
 	{
-		AFlareAsteroid* AsteroidCandidate = ActiveSector->GetAsteroids()[AsteroidIndex];
-		//FLOGV("  -> test AsteroidCandidate %s", *AsteroidCandidate->GetName());
-		CheckRelativeDangerosity(AsteroidCandidate, CurrentLocation, CurrentSize, AsteroidCandidate->GetAsteroidComponent(), CurrentVelocity, &MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
+		CheckRelativeDangerosity(AsteroidCandidate, CurrentLocation, CurrentSize, AsteroidCandidate->GetAsteroidComponent()->GetPhysicsLinearVelocity(),
+			CurrentVelocity, &MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
 	}
 
+	// Investigate colliders
+	TArray<AActor*> ColliderActorList;
+	UGameplayStatics::GetAllActorsOfClass(Ship->GetWorld(), AFlareCollider::StaticClass(), ColliderActorList);
+	for (auto ColliderCandidate : ColliderActorList)
+	{
+		AFlareCollider* Collider = Cast<AFlareCollider>(ColliderCandidate);
+	
+		CheckRelativeDangerosity(Collider, CurrentLocation, CurrentSize, FVector::ZeroVector,
+			CurrentVelocity, &MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
+	}
 
-
-
+	// Avoid the most dangerous target
 	if (MostDangerousCandidateActor)
 	{
-		if(MostDangerousHitTime > 0)
+		if (MostDangerousHitTime > 0)
 		{
 			UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(MostDangerousCandidateActor->GetRootComponent());
-
-			// FVector DeltaVelocity = CurrentVelocity - StaticMeshComponent->GetPhysicsLinearVelocity();
-
-			//FLOGV("  -> MostDangerousHitTime %f", MostDangerousHitTime);
-
+			
 			FVector MinDistancePoint = CurrentLocation + Ship->Airframe->GetPhysicsLinearVelocity() * MostDangerousHitTime;
-
 			FVector FutureTargetLocation =  MostDangerousLocation + StaticMeshComponent->GetPhysicsLinearVelocity() * MostDangerousHitTime;
-
 			FVector AvoidanceVector = MinDistancePoint - FutureTargetLocation;
-
 			FVector AvoidanceAxis;
 
 			if (AvoidanceVector.IsNearlyZero())
 			{
 				AvoidanceAxis = FMath::VRand();
-
-
 			}
 			else
 			{
 				AvoidanceAxis = AvoidanceVector.GetUnsafeNormal();
 			}
 
-			//DrawDebugLine(Ship->GetWorld(), CurrentLocation, MinDistancePoint , FColor::Yellow, true);
-
-			// DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Ship->Airframe->GetPhysicsLinearVelocity(), FColor::White, true);
-
-
-			 //DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + AvoidanceAxis *1000 , FColor::Green, true);
-
-			// DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + InitialVelocity *10 , FColor::Blue, true);
+			DrawDebugLine(Ship->GetWorld(), CurrentLocation, MinDistancePoint , FColor::Yellow, true);
+			DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Ship->Airframe->GetPhysicsLinearVelocity(), FColor::White, true);
+			DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + AvoidanceAxis *1000 , FColor::Green, true);
+			DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + InitialVelocity *10 , FColor::Blue, true);
 
 			// Below 5s  begin avoidance maneuver
 			float Alpha = 1 - FMath::Max(0.0f, MostDangerousHitTime - MostDangerousInterCollisionTravelTime)/5.f;
-
 			FVector Temp = InitialVelocity * (1.f - Alpha) + Alpha * AvoidanceAxis * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 
 			//DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Temp * 10, FColor::Magenta, true);
@@ -436,40 +428,28 @@ UFlareSpacecraftComponent* PilotHelper::GetBestTargetComponent(AFlareSpacecraft*
 	return ComponentSelection[ComponentIndex];
 }
 
-
-
-void PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector CurrentLocation, float CurrentSize, UStaticMeshComponent* StaticMeshComponent, FVector CurrentVelocity, AActor** MostDangerousCandidateActor, FVector*MostDangerousLocation, float* MostDangerousHitTime, float* MostDangerousInterCollisionTravelTime)
+void PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector CurrentLocation, float CurrentSize, FVector TargetVelocity, FVector CurrentVelocity, AActor** MostDangerousCandidateActor, FVector*MostDangerousLocation, float* MostDangerousHitTime, float* MostDangerousInterCollisionTravelTime)
 {
-
-	if (!StaticMeshComponent)
-	{
-		// Not physical shape : not dangerous
-		return;
-	}
-
-
-	FVector DeltaVelocity = StaticMeshComponent->GetPhysicsLinearVelocity() - CurrentVelocity;
+	FVector DeltaVelocity = TargetVelocity - CurrentVelocity;
 	//FLOGV("  DeltaVelocity=%s", *DeltaVelocity.ToString());
 
-
+	// Relative velocity is near zero : not dangerous
 	if (DeltaVelocity.IsNearlyZero())
 	{
 		//FLOG("  !! DeltaVelocity.IsNearlyZero()");
-		// Relative velocity is near zero : not dangerous
 		return;
 	}
 
-	FBox CandidateBox = CandidateActor->GetComponentsBoundingBox();
+	FBox CandidateBox = CandidateActor->GetComponentsBoundingBox(true);
 	float CandidateSize = FMath::Max(CandidateBox.GetExtent().Size(), 1.0f);
 
-	FVector CandidateLocation= (CandidateBox.Max + CandidateBox.Min) / 2.0;
+	FVector CandidateLocation = (CandidateBox.Max + CandidateBox.Min) / 2.0;
 	FVector DeltaLocation = CandidateLocation - CurrentLocation;
 	float SizeSum = CurrentSize + CandidateSize;
 
-
-	if(DeltaLocation.Size() < SizeSum)
+	// Already intersecting
+	if (DeltaLocation.Size() < SizeSum)
 	{
-		// Already intersect !
 		float IntersectDeep = SizeSum - DeltaLocation.Size();
 		if (!*MostDangerousCandidateActor || *MostDangerousHitTime > -IntersectDeep)
 		{
@@ -483,56 +463,46 @@ void PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector Curre
 
 	//FLOGV("  CandidateLocation=%s", *CandidateLocation.ToString());
 	//FLOGV("  DeltaLocation=%s", *DeltaLocation.ToString());
-
 	//FLOGV("  FVector::DotProduct(DeltaLocation, DeltaVelocity)=%f", FVector::DotProduct(DeltaLocation, DeltaVelocity));
 
+	// Going away from candidate : not dangerous
 	if (FVector::DotProduct(DeltaLocation, DeltaVelocity) > 0)
 	{
 		//FLOG("  !! Go away from candidate");
-		// Go away from candidate : not dangerous
 		return;
 	}
 
-	FVector RelativeVelocity = -DeltaVelocity;
-
 	// Min distance
+	FVector RelativeVelocity = -DeltaVelocity;
 	float MinDistance = FVector::CrossProduct(DeltaLocation, RelativeVelocity).Size() / RelativeVelocity.Size();
 
+	// Minimum distance highter than object size sum : not Dangerous
 	if (SizeSum < MinDistance)
 	{
 		//FLOG("  !! Minimum distance highter than object size sum");
-		// Minimum distance highter than object size sum : not Dangerous
 		return;
 	}
-
-
+	
 	// There will be a hit.
 	float DistanceToMinDistancePoint = FMath::Sqrt(DeltaLocation.SizeSquared() - FMath::Square(MinDistance));
-
 	float TimeToMinDistance = DistanceToMinDistancePoint / RelativeVelocity.Size();
+	float InterCollisionTravelTime = SizeSum / RelativeVelocity.Size();
 
 	//FLOGV("DistanceToMinDistancePoint %f", DistanceToMinDistancePoint)
-	//FLOGV("TimeToMinDistance %f", TimeToMinDistance)
-
-
-
-
-	float InterCollisionTravelTime = SizeSum / RelativeVelocity.Size();
+	//FLOGV("TimeToMinDistance %f", TimeToMinDistance)	
 	//FLOGV("InterCollisionTravelTime %f", InterCollisionTravelTime)
 
+	// Time to minimum distance hight : not Dangerous
 	if (TimeToMinDistance > 5.f + InterCollisionTravelTime)
 	{
 		//FLOG("  !! Time to minimum distance hight");
-		// Time to minimum distance hight : not Dangerous
 		return;
 	}
 
 	// DrawDebugLine(Ship->GetWorld(), CandidateLocation, Box.Max , FColor::Yellow, true);
 	// DrawDebugLine(Ship->GetWorld(), CandidateLocation, Box.Min , FColor::Green, true);
-
 	/*DrawDebugSphere(Ship->GetWorld(), CandidateLocation, 10, 12, FColor::White, true);
-
-
+	
 	DrawDebugBox(Ship->GetWorld(),
 				 BoxLocation,
 				 BoxSize,
@@ -546,10 +516,9 @@ void PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector Curre
 				 FColor::Cyan,
 				 1.f);*/
 
-	// DrawDebugSphere(Ship->GetWorld(), CandidateLocation, CandidateSize, 12, FColor::Red, true);
-	// DrawDebugSphere(Ship->GetWorld(), CurrentLocation, Ship->GetMeshScale(), 12, FColor::Green, true);
-
-	// DrawDebugSphere(Ship->GetWorld(), Box2Location, CandidateSize * 2.f, 12, FColor::Magenta, true);
+	//DrawDebugSphere(Ship->GetWorld(), CandidateLocation, CandidateSize, 12, FColor::Red, true);
+	//DrawDebugSphere(Ship->GetWorld(), CurrentLocation, Ship->GetMeshScale(), 12, FColor::Green, true);
+	//DrawDebugSphere(Ship->GetWorld(), Box2Location, CandidateSize * 2.f, 12, FColor::Magenta, true);
 
 
 	// Keep only most imminent hit
