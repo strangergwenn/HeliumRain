@@ -110,51 +110,60 @@ protected:
 	----------------------------------------------------*/
 
 	UPROPERTY()
-	AFlareSpacecraft*                               Ship;
+	AFlareSpacecraft*                            Ship;
 
 	UPROPERTY()
-	UFlareCompany*                            PlayerCompany;
+	UFlareCompany*                               PlayerCompany;
 
 	// Component description
-	FFlareShipPilotSave                       ShipPilotData;
+	FFlareShipPilotSave                          ShipPilotData;
 
 	// Output commands
-	bool                                      UseOrbitalBoost;
-	bool                                      WantFire;
-	FVector                                   LinearTargetVelocity;
-	FVector                                   AngularTargetVelocity;
+	bool                                         UseOrbitalBoost;
+	bool                                         WantFire;
+	FVector                                      LinearTargetVelocity;
+	FVector                                      AngularTargetVelocity;
 
 
 	// Pilot brain TODO save in save
-	float                                ReactionTime;
-	float                                TimeUntilNextReaction;
-	FVector                              PilotTargetLocation;
-	float								 WaitTime;
-	UPROPERTY()
-	AFlareSpacecraft*                          PilotTargetShip;
-	UPROPERTY()
-	AFlareSpacecraft*                          PilotTargetStation;
-	UPROPERTY()
-	AFlareSpacecraft*                          PilotLastTargetStation;
-	UPROPERTY()
-	UFlareSpacecraftComponent*			 PilotTargetComponent;
+	float                                        ReactionTime;
+	float                                        TimeUntilNextReaction;
+	FVector                                      PilotTargetLocation;
+	float								         WaitTime;
 
-	float AttackAngle;
-	float AttackDistance;
-	float MaxFollowDistance;
-	int32 AttackPhase;
-	float LastTargetDistance;
-	int32 SelectedWeaponGroupIndex;
-	bool LockTarget;
-	bool LastWantFire;
-	float TimeBeforeNextDrop;
-	float TimeSinceAiming;
-	float                                TimeUntilNextComponentSwitch;
-	EFlareCombatTactic::Type			CurrentTactic;
+	// Pilot targets
+	UPROPERTY()
+	AFlareSpacecraft*                            PilotTargetShip;
+	UPROPERTY()
+	AFlareSpacecraft*                            PilotTargetStation;
+	UPROPERTY()
+	AFlareSpacecraft*                            PilotLastTargetStation;
+	UPROPERTY()
+	UFlareSpacecraftComponent*			         PilotTargetComponent;
+
+	float                                        AttackAngle;
+	float                                        AttackDistance;
+	float                                        MaxFollowDistance;
+	int32                                        AttackPhase;
+	float                                        LastTargetDistance;
+	int32                                        SelectedWeaponGroupIndex;
+	bool                                         LockTarget;
+	bool                                         LastWantFire;
+
+	float                                        TimeBeforeNextDrop;
+	float                                        TimeSinceAiming;
+	float                                        TimeUntilNextComponentSwitch;
+	float                                        TimeSinceLastDockingAttempt;
+	float                                        TimeUntilNextDockingAttempt;
+	float                                        MaxTimeBetweenDockingAttempt;
+
+	EFlareCombatTactic::Type			         CurrentTactic;
+
 
 	/*----------------------------------------------------
 		Helper
 	----------------------------------------------------*/
+
 public:
 
 	inline AFlareSpacecraft* GetTargetShip()

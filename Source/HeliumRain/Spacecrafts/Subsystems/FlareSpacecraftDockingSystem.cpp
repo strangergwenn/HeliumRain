@@ -89,7 +89,7 @@ bool UFlareSpacecraftDockingSystem::HasCompatibleDock(AFlareSpacecraft* Ship) co
 
 FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(AFlareSpacecraft* Ship, FVector PreferredLocation)
 {
-	FLOGV("UFlareSpacecraftDockingSystem::RequestDock ('%s')", *Ship->GetImmatriculation().ToString());
+	//FLOGV("UFlareSpacecraftDockingSystem::RequestDock ('%s')", *Ship->GetImmatriculation().ToString());
 
 	int32 BestIndex = -1;
 	float BestDistance = 0;
@@ -110,7 +110,7 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(AFlareSpacecraft* S
 
 	if (BestIndex >=0)
 	{
-		FLOGV("UFlareSpacecraftDockingSystem::RequestDock : found valid dock %d", BestIndex);
+		//FLOGV("UFlareSpacecraftDockingSystem::RequestDock : found valid dock %d", BestIndex);
 		DockingSlots[BestIndex].Granted = true;
 		DockingSlots[BestIndex].Ship = Ship;
 		return DockingSlots[BestIndex];
@@ -147,7 +147,7 @@ TArray<AFlareSpacecraft*> UFlareSpacecraftDockingSystem::GetDockedShips()
 	{
 		if (DockingSlots[i].Granted && DockingSlots[i].Occupied)
 		{
-			FLOGV("UFlareSpacecraftDockingSystem::GetDockedShips : found valid dock %d", i);
+			//FLOGV("UFlareSpacecraftDockingSystem::GetDockedShips : found valid dock %d", i);
 			Result.AddUnique(DockingSlots[i].Ship);
 		}
 	}

@@ -43,6 +43,10 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 	MaxFollowDistance = 0;
 	LockTarget = false;
 	WantFire = false;
+
+	TimeSinceLastDockingAttempt = 0.0f;
+	TimeUntilNextDockingAttempt = 0.0f;
+	MaxTimeBetweenDockingAttempt = 60.0f;
 }
 
 
@@ -203,6 +207,8 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_Cargo);
 
+	TimeSinceLastDockingAttempt += DeltaSeconds;
+
 	PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::S);
 	if (!PilotTargetShip)
 	{
@@ -238,7 +244,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 	}
 
-	if(PilotTargetShip)
+	if (PilotTargetShip)
 	{
 		// Already done
 	}
@@ -261,12 +267,16 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 		return;
 	}
+
+	// Wait manoeuver
 	else if (Ship->GetNavigationSystem()->IsAutoPilot())
 	{
-		// Wait manoeuver
 		return;
-	} else {
-		// If no station target, find a target : a random friendly station different from the last station
+	}
+
+	// If no station target, find a target : a random friendly station different from the last station
+	else
+	{
 		if (!PilotTargetStation)
 		{
 			TArray<AFlareSpacecraft*> FriendlyStations = GetFriendlyStations();
@@ -285,12 +295,13 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		{
 			FVector DeltaLocation = (PilotTargetStation->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
 			float Distance = DeltaLocation.Size(); // Distance in meters
-
-
-			if (Distance < 1000)
+			
+			if (Distance < 1000 && TimeSinceLastDockingAttempt > TimeUntilNextDockingAttempt)
 			{
 				if (!Ship->GetNavigationSystem()->DockAt(PilotTargetStation))
 				{
+					TimeSinceLastDockingAttempt = 0;
+					TimeUntilNextDockingAttempt = FMath::FRand() * MaxTimeBetweenDockingAttempt;
 					LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 				}
 			}
@@ -301,10 +312,8 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		}
 	}
 
-
 	// Exit avoidance
 	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.4);
-
 	AlignToTargetVelocityWithThrust(DeltaSeconds);
 
 	// Anticollision
