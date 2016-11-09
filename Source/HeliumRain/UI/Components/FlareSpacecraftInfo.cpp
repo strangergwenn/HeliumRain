@@ -347,8 +347,8 @@ void SFlareSpacecraftInfo::Show()
 		bool CanDock =     !IsDocked && IsFriendly && ActiveTargetSpacecraft && ActiveTargetSpacecraft->GetDockingSystem()->HasCompatibleDock(PlayerShip->GetActive());
 		bool CanUpgradeDistant = IsOutsidePlayerFleet && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());
 		bool CanUpgradeDocked = ActiveTargetSpacecraft && DockedStation && DockedStation->GetParent()->HasCapability(EFlareSpacecraftCapability::Upgrade);
-		bool CanUpgrade =  Owned && !IsStation && (CanUpgradeDistant || CanUpgradeDocked);
-		bool CanTrade =    Owned && IsCargo && (IsDocked || IsOutsidePlayerFleet);
+		bool CanUpgrade =  CanUpgradeDistant || CanUpgradeDocked;
+		bool CanTrade =    IsCargo && (IsDocked || IsOutsidePlayerFleet);
 		bool CanScrap =    CanUpgrade && OwnedAndNotSelf;
 		
 		// Is a battle in progress ?
@@ -377,7 +377,7 @@ void SFlareSpacecraftInfo::Show()
 		FlyButton->SetVisibility(!Owned || IsStation ?     EVisibility::Collapsed : EVisibility::Visible);
 
 		// Second line
-		TradeButton->SetVisibility(IsCargo ?                                     EVisibility::Visible : EVisibility::Collapsed);
+		TradeButton->SetVisibility(Owned && IsCargo ?                            EVisibility::Visible : EVisibility::Collapsed);
 		DockButton->SetVisibility(CanDock ?                                      EVisibility::Visible : EVisibility::Collapsed);
 		UndockButton->SetVisibility(Owned && IsDocked && !IsOutsidePlayerFleet ? EVisibility::Visible : EVisibility::Collapsed);
 		ScrapButton->SetVisibility(Owned && !IsStation ?                         EVisibility::Visible : EVisibility::Collapsed);

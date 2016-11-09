@@ -301,7 +301,7 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	bool IsActiveSector = Sector == PC->GetGame()->GetActiveSector()->GetSimulatedSector();
+	bool IsActiveSector = (PC->GetGame()->GetActiveSector() && Sector == PC->GetGame()->GetActiveSector()->GetSimulatedSector());
 
 	// Known sector
 	if (PC->GetCompany()->HasVisitedSector(TargetSector))
