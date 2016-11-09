@@ -1547,7 +1547,7 @@ void UFlareSimulatedSector::UpdateReserveShips()
 		}
 
 
-		float CompanyProportion = CompanyShipCount / TotalShipCount;
+		float CompanyProportion = (float) CompanyShipCount / (float) TotalShipCount;
 		int32 AllowedShipCount = FMath::Max(1, FMath::FloorToInt(CompanyProportion * MaxShipsInSector));
 
 		UFlareCompany* Company = GetGame()->GetGameWorld()->GetCompanies()[CompanyIndex];
