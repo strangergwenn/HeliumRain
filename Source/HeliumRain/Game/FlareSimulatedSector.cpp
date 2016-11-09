@@ -1557,7 +1557,10 @@ void UFlareSimulatedSector::UpdateReserveShips()
 		for (int32 ShipIndex = AllowedShipCount; ShipIndex < CompanyShipCount; ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = ShipListByCompanies[CompanyIndex][ShipIndex];
-			Ship->SetReserve(true);
+			if(Game->GetPC()->GetPlayerShip() != Ship)
+			{
+				Ship->SetReserve(true);
+			}
 		}
 	}
 

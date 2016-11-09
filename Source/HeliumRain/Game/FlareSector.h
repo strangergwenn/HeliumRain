@@ -134,6 +134,11 @@ public:
 		return SectorStations;
 	}
 
+	inline TArray<AFlareSpacecraft*>& GetShips()
+	{
+		return SectorShips;
+	}
+
 	inline TArray<AFlareAsteroid*>& GetAsteroids()
 	{
 		return SectorAsteroids;

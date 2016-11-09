@@ -767,26 +767,25 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 	float MaxSDangerDistance = 250000;
 	float MaxLDangerDistance = 500000;
 
-	if (GetShipPawn())
+	if (GetShipPawn() && GetGame()->GetActiveSector())
 	{
-		TArray<UFlareSimulatedSpacecraft*> Ships = GetShipPawn()->GetParent()->GetCurrentSector()->GetSectorShips();
-		for (UFlareSimulatedSpacecraft* Ship : Ships)
+		TArray<AFlareSpacecraft*>& Ships = GetGame()->GetActiveSector()->GetShips();
+		for (AFlareSpacecraft* Ship : Ships)
 		{
-			FCHECK(Ship->GetActive());
 			bool IsDangerous = false, IsFiring = false;
-			float ShipDistance = (Ship->GetActive()->GetActorLocation() - GetShipPawn()->GetActorLocation()).Size();
+			float ShipDistance = (Ship->GetActorLocation() - GetShipPawn()->GetActorLocation()).Size();
 			
 			// Small ship
 			if (ShipDistance < MaxSDangerDistance && Ship->GetDescription()->Size == EFlarePartSize::S)
 			{
-				IsDangerous = (Ship->GetActive()->GetPilot()->GetTargetShip() == GetShipPawn());
-				IsFiring = IsDangerous && Ship->GetActive()->GetPilot()->IsWantFire();
+				IsDangerous = (Ship->GetPilot()->GetTargetShip() == GetShipPawn());
+				IsFiring = IsDangerous && Ship->GetPilot()->IsWantFire();
 			}
 
 			// Large ship
 			else if (ShipDistance < MaxLDangerDistance && Ship->GetDescription()->Size == EFlarePartSize::L)
 			{
-				for (auto Weapon : Ship->GetActive()->GetWeaponsSystem()->GetWeaponList())
+				for (auto Weapon : Ship->GetWeaponsSystem()->GetWeaponList())
 				{
 					UFlareTurret* Turret = Cast<UFlareTurret>(Weapon);
 					FCHECK(Turret);
@@ -803,20 +802,20 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 			}
 
 			// Confirm this ship is working, then flag it
-			if (IsDangerous && !Ship->GetDamageSystem()->IsDisarmed() && !Ship->GetDamageSystem()->IsUncontrollable())
+			if (IsDangerous && !Ship->GetParent()->GetDamageSystem()->IsDisarmed() && !Ship->GetParent()->GetDamageSystem()->IsUncontrollable())
 			{
 				// Is threat
 				IsTargeted = true;
 				if (!Threat)
 				{
-					Threat = Ship;
+					Threat = Ship->GetParent();
 				}
 
 				// Is active threat
 				if (IsFiring)
 				{
 					IsFiredUpon = true;
-					Threat = Ship;
+					Threat = Ship->GetParent();
 				}
 			}
 		}

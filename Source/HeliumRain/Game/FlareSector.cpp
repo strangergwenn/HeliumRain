@@ -36,7 +36,7 @@ void UFlareSector::Load(UFlareSimulatedSector* Parent)
 	for (int i = 0 ; i < ParentSector->GetSectorSpacecrafts().Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = ParentSector->GetSectorSpacecrafts()[i];
-		if (Spacecraft->GetData().SpawnMode == EFlareSpawnMode::Safe)
+		if (Spacecraft->GetData().SpawnMode == EFlareSpawnMode::Safe && (!Spacecraft->IsReserve() ||  Parent->GetGame()->GetPC()->GetPlayerShip() == Spacecraft))
 		{
 			LoadSpacecraft(Spacecraft);
 		}
@@ -48,7 +48,7 @@ void UFlareSector::Load(UFlareSimulatedSector* Parent)
 	for (int i = 0 ; i < ParentSector->GetSectorSpacecrafts().Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = ParentSector->GetSectorSpacecrafts()[i];
-		if (Spacecraft->GetData().SpawnMode != EFlareSpawnMode::Safe)
+		if (Spacecraft->GetData().SpawnMode != EFlareSpawnMode::Safe && (!Spacecraft->IsReserve() ||  Parent->GetGame()->GetPC()->GetPlayerShip() == Spacecraft))
 		{
 			LoadSpacecraft(Spacecraft);
 		}
