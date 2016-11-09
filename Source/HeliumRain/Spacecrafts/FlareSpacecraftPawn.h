@@ -130,15 +130,19 @@ private:
 	----------------------------------------------------*/
 
 	// Current spherical coordinates for the camera
-	float    CameraOffsetPitch;
-	float    CameraOffsetYaw;
-	float    CameraOffsetDistance;
-	bool UseImmersiveCamera;
-	FQuat ImmersiveTargetRotation;
+	float                                           CameraOffsetPitch;
+	float                                           CameraOffsetYaw;
+	float                                           CameraOffsetDistance;
+	bool                                            UseImmersiveCamera;
+	FQuat                                           ImmersiveTargetRotation;
 
-	float MeshScaleCache;
+	float                                           MeshScaleCache;
 
-	public:
+	FName                                           PreviousCameraName;
+	FName                                           CurrentCameraName;
+
+
+public:
 
 	/*----------------------------------------------------
 		Getters
@@ -209,6 +213,9 @@ private:
 		return CameraMaxYaw;
 	}
 
-
-
+	inline bool HasFLIRCameraChanged() const
+	{
+		return (PreviousCameraName != CurrentCameraName);
+	}
+	
 };

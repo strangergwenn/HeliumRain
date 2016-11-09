@@ -33,6 +33,10 @@ AFlareSpacecraftPawn::AFlareSpacecraftPawn(const class FObjectInitializer& PCIP)
 	Camera->AttachToComponent(CameraContainerPitch, AttachRules);
 	MeshScaleCache = -1;
 	UseImmersiveCamera = false;
+
+	// Init
+	PreviousCameraName = NAME_None;
+	CurrentCameraName = NAME_None;
 }
 
 
@@ -48,10 +52,12 @@ void AFlareSpacecraftPawn::BeginPlay()
 void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	PreviousCameraName = CurrentCameraName;
 	
 	// Apply interpolated values
-	if(!UseImmersiveCamera)
+	if (!UseImmersiveCamera)
 	{
+		CurrentCameraName = NAME_None;
 		CameraContainerPitch->SetRelativeRotation(FRotator(CameraOffsetPitch, 0, 0).GetNormalized());
 		CameraContainerYaw->SetRelativeRotation(FRotator(0, CameraOffsetYaw, 0).GetNormalized());
 		Camera->SetRelativeLocation(CameraLocalPosition - FVector(CameraOffsetDistance, 0, 0));
@@ -96,6 +102,7 @@ void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 		// Update the FLIR camera
 		if (FlirCameraFound)
 		{
+			CurrentCameraName = BestCameraName;
 			CameraContainerPitch->SetRelativeRotation(FRotator(0, 0, 0).GetNormalized());
 			CameraContainerYaw->SetRelativeRotation(FRotator(0, 0, 0).GetNormalized());
 			Camera->SetWorldLocationAndRotation(BestCameraLocation , ImmersiveTargetRotation);
