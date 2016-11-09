@@ -427,6 +427,52 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						]
 					]
 				
+					// Ship count level box
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+
+						// Text
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(LabelSize)
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("ShipCountLabel", "Max ships in sector"))
+								.TextStyle(&Theme.TextFont)
+							]
+						]
+
+						// Slider
+						+ SHorizontalBox::Slot()
+						.VAlign(VAlign_Center)
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(ShipCountSlider, SSlider)
+							.Value(MyGameSettings->MaxShipsInSector / 100.0f)
+							.Style(&Theme.SliderStyle)
+							.OnValueChanged(this, &SFlareSettingsMenu::OnShipCountSliderChanged)
+						]
+
+						// Label
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(ValueSize)
+							[
+								SAssignNew(ShipCountLabel, STextBlock)
+								.TextStyle(&Theme.TextFont)
+								.Text(GetShipCountLabel(MyGameSettings->MaxShipsInSector))
+							]
+						]
+					]
+				
 					// Master sound level box
 					+ SVerticalBox::Slot()
 					.AutoHeight()
@@ -576,6 +622,8 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	// Music volume
 	int32 MusicVolume = MyGameSettings->MusicVolume;
 	int32 MasterVolume = MyGameSettings->MusicVolume;
+	ShipCountSlider->SetValue((float)MyGameSettings->MaxShipsInSector / 100.0f);
+	ShipCountLabel->SetText(GetShipCountLabel((MyGameSettings->MaxShipsInSector - 10) / 5.0f));
 	MusicVolumeSlider->SetValue((float)MusicVolume / 10.0f);
 	MusicVolumeLabel->SetText(GetMusicVolumeLabel(MusicVolume));
 	MasterVolumeSlider->SetValue((float)MasterVolume / 10.0f);
@@ -989,6 +1037,24 @@ void SFlareSettingsMenu::OnPauseInMenusToggle()
 	MyGameSettings->ApplySettings(false);
 }
 
+void SFlareSettingsMenu::OnShipCountSliderChanged(float Value)
+{
+	int32 Step = 18;
+	int32 StepValue = FMath::RoundToInt(Step * Value);
+	ShipCountSlider->SetValue((float)StepValue / (float)Step);
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	int32 NewMaxShipValue = 10 + 5 * StepValue;
+
+	if (MyGameSettings->MaxShipsInSector != NewMaxShipValue)
+	{
+		FLOGV("SFlareSettingsMenu::OnShipCountSliderChanged : Set max ship count to %d (current is %d)", NewMaxShipValue, MyGameSettings->MaxShipsInSector);
+		MyGameSettings->MaxShipsInSector = NewMaxShipValue;
+		MyGameSettings->ApplySettings(false);
+		ShipCountLabel->SetText(GetShipCountLabel(StepValue));
+	}
+}
+
 void SFlareSettingsMenu::OnTextureQualitySliderChanged(float Value)
 {
 	int32 Step = 3;
@@ -1347,6 +1413,11 @@ FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value) const
 		default:
 			return LOCTEXT("PostProcessQualityLow", "Low");
 	}
+}
+
+FText SFlareSettingsMenu::GetShipCountLabel(int32 Value) const
+{
+	return FText::AsNumber(10 + 5 * Value);
 }
 
 FText SFlareSettingsMenu::GetMusicVolumeLabel(int32 Value) const

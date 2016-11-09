@@ -137,6 +137,8 @@ protected:
 
 	void OnPauseInMenusToggle();
 
+	void OnShipCountSliderChanged(float Value);
+
 	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey );
 
 
@@ -159,6 +161,7 @@ protected:
 	FText GetPostProcessQualityLabel(int32 Value) const;
 	FText GetMusicVolumeLabel(int32 Value) const;
 	FText GetMasterVolumeLabel(int32 Value) const;
+	FText GetShipCountLabel(int32 Value) const;
 
 	void CreateBinds();
 
@@ -192,6 +195,8 @@ protected:
 	TSharedPtr<SFlareButton>                    CockpitButton;
 	TSharedPtr<SFlareButton>                    AnticollisionButton;
 	TSharedPtr<SFlareButton>                    PauseInMenusButton;
+	TSharedPtr<SSlider>                         ShipCountSlider;
+	TSharedPtr<STextBlock>	        			ShipCountLabel;
 
 	// Sound
 	TSharedPtr<SSlider>                         MusicVolumeSlider;
