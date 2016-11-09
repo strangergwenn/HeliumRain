@@ -11,6 +11,9 @@
 
 #define LOCTEXT_NAMESPACE "FlareSettingsMenu"
 
+#define MIN_MAX_SHIPS 10
+#define MAX_MAX_SHIPS 100
+#define STEP_MAX_SHIPS 5
 
 /*----------------------------------------------------
 	Construct
@@ -619,11 +622,13 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	AnticollisionButton->SetActive(MyGameSettings->UseAnticollision);
 	PauseInMenusButton->SetActive(MyGameSettings->PauseGameInMenus);
 
+	float MaxShipRatio = ((float) MyGameSettings->MaxShipsInSector - MIN_MAX_SHIPS) / ((float) MAX_MAX_SHIPS - MIN_MAX_SHIPS);
+
 	// Music volume
 	int32 MusicVolume = MyGameSettings->MusicVolume;
 	int32 MasterVolume = MyGameSettings->MusicVolume;
-	ShipCountSlider->SetValue((float)MyGameSettings->MaxShipsInSector / 100.0f);
-	ShipCountLabel->SetText(GetShipCountLabel((MyGameSettings->MaxShipsInSector - 10) / 5.0f));
+	ShipCountSlider->SetValue(MaxShipRatio);
+	ShipCountLabel->SetText(GetShipCountLabel(MyGameSettings->MaxShipsInSector));
 	MusicVolumeSlider->SetValue((float)MusicVolume / 10.0f);
 	MusicVolumeLabel->SetText(GetMusicVolumeLabel(MusicVolume));
 	MasterVolumeSlider->SetValue((float)MasterVolume / 10.0f);
@@ -1039,19 +1044,19 @@ void SFlareSettingsMenu::OnPauseInMenusToggle()
 
 void SFlareSettingsMenu::OnShipCountSliderChanged(float Value)
 {
-	int32 Step = 18;
-	int32 StepValue = FMath::RoundToInt(Step * Value);
-	ShipCountSlider->SetValue((float)StepValue / (float)Step);
+	float NotSteppedValue = Value * (MAX_MAX_SHIPS - MIN_MAX_SHIPS) + MIN_MAX_SHIPS;
+	int32 NewMaxShipValue = FMath::RoundToInt(NotSteppedValue / STEP_MAX_SHIPS) * STEP_MAX_SHIPS;
+	float SteppedRatio = ((float) NewMaxShipValue - MIN_MAX_SHIPS) / ((float) MAX_MAX_SHIPS - MIN_MAX_SHIPS);
+
+	ShipCountSlider->SetValue(SteppedRatio);
 
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	int32 NewMaxShipValue = 10 + 5 * StepValue;
-
 	if (MyGameSettings->MaxShipsInSector != NewMaxShipValue)
 	{
 		FLOGV("SFlareSettingsMenu::OnShipCountSliderChanged : Set max ship count to %d (current is %d)", NewMaxShipValue, MyGameSettings->MaxShipsInSector);
 		MyGameSettings->MaxShipsInSector = NewMaxShipValue;
 		MyGameSettings->ApplySettings(false);
-		ShipCountLabel->SetText(GetShipCountLabel(StepValue));
+		ShipCountLabel->SetText(GetShipCountLabel(NewMaxShipValue));
 	}
 }
 
@@ -1417,7 +1422,7 @@ FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value) const
 
 FText SFlareSettingsMenu::GetShipCountLabel(int32 Value) const
 {
-	return FText::AsNumber(10 + 5 * Value);
+	return FText::AsNumber(Value);
 }
 
 FText SFlareSettingsMenu::GetMusicVolumeLabel(int32 Value) const
