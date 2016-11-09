@@ -340,10 +340,10 @@ public:
 	void ClearBombs();
 
 	/** Get the balance of forces in the sector */
-	void GetSectorBalance(int32& PlayerShips, int32& EnemyShips, int32& NeutralShips);
+	void GetSectorBalance(int32& PlayerShips, int32& EnemyShips, int32& NeutralShips, bool ActiveOnly);
 
 	/** Get the balance of forces as a text */
-	FText GetSectorBalanceText();
+	FText GetSectorBalanceText(bool ActiveOnly);
 
 
 protected:

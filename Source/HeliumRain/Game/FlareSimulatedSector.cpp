@@ -1067,7 +1067,7 @@ void UFlareSimulatedSector::ClearBombs()
 	SectorData.BombData.Empty();
 }
 
-void UFlareSimulatedSector::GetSectorBalance(int32& PlayerShips, int32& EnemyShips, int32& NeutralShips)
+void UFlareSimulatedSector::GetSectorBalance(int32& PlayerShips, int32& EnemyShips, int32& NeutralShips, bool ActiveOnly)
 {
 	PlayerShips = 0;
 	EnemyShips = 0;
@@ -1075,6 +1075,11 @@ void UFlareSimulatedSector::GetSectorBalance(int32& PlayerShips, int32& EnemyShi
 
 	for (int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
 	{
+		if (ActiveOnly && !SectorShips[ShipIndex]->IsActive())
+		{
+			continue;
+		}
+
 		if (SectorShips[ShipIndex]->GetCompany()->GetPlayerHostility() == EFlareHostility::Hostile
 		 && SectorShips[ShipIndex]->IsMilitary() && !SectorShips[ShipIndex]->GetDamageSystem()->IsDisarmed())
 		{
@@ -1092,10 +1097,10 @@ void UFlareSimulatedSector::GetSectorBalance(int32& PlayerShips, int32& EnemyShi
 	}
 }
 
-FText UFlareSimulatedSector::GetSectorBalanceText()
+FText UFlareSimulatedSector::GetSectorBalanceText(bool ActiveOnly)
 {
 	int32 PlayerShips, EnemyShips, NeutralShips;
-	GetSectorBalance(PlayerShips, EnemyShips, NeutralShips);
+	GetSectorBalance(PlayerShips, EnemyShips, NeutralShips, ActiveOnly);
 
 	FText PlayerShipsText = FText::Format(LOCTEXT("PlayerShipsFormat", "Forces : {0} friendly {1}, "),
 		FText::AsNumber(PlayerShips),
@@ -1218,7 +1223,7 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 	}
 
 	int FriendlySpacecraftCount, HostileSpacecraftCount, NeutralSpacecraftCount;
-	GetSectorBalance(FriendlySpacecraftCount, HostileSpacecraftCount, NeutralSpacecraftCount);
+	GetSectorBalance(FriendlySpacecraftCount, HostileSpacecraftCount, NeutralSpacecraftCount, false);
 
 	if (FriendlySpacecraftCount > 0 && HostileSpacecraftCount > 0)
 	{
