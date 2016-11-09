@@ -53,7 +53,7 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(ShowStationsButton, SFlareButton)
 					.Text(LOCTEXT("ShowStations", "Stations"))
-					.HelpText(LOCTEXT("ShowStationsÎnfo", "Show stations in the list"))
+					.HelpText(LOCTEXT("ShowStationsInfo", "Show stations in the list"))
 					.OnClicked(this, &SFlareShipList::OnToggleShowFlags)
 					.SmallToggleIcons(true)
 					.Transparent(true)
