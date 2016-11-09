@@ -262,6 +262,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	JsonObject->SetBoolField("IsTrading", Data->IsTrading);
 	JsonObject->SetBoolField("IsRefilling", Data->IsRefilling);
 	JsonObject->SetBoolField("IsRepairing", Data->IsRepairing);
+	JsonObject->SetBoolField("IsReserve", Data->IsReserve);
 	JsonObject->SetObjectField("Pilot", SavePilot(&Data->Pilot));
 	JsonObject->SetObjectField("Asteroid", SaveAsteroid(&Data->AsteroidData));
 	JsonObject->SetStringField("HarpoonCompany", Data->HarpoonCompany.ToString());

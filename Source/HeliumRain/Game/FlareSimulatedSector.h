@@ -461,6 +461,7 @@ public:
 
 	void SetPreciseResourcePrice(FFlareResourceDescription* Resource, float NewPrice);
 
+	void UpdateReserveShips();
 
 	static float GetDefaultResourcePrice(FFlareResourceDescription* Resource);
 

@@ -428,6 +428,8 @@ struct FFlareSpacecraftSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName AttachActorName;
 	
+	/** Is a in sector reserve */
+	bool IsReserve;
 };
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */

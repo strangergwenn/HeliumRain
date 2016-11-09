@@ -4,6 +4,7 @@
 #include "FlareGame.h"
 #include "FlareWorld.h"
 #include "FlareFleet.h"
+#include "FlareGameUserSettings.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../Player/FlarePlayerController.h"
@@ -212,6 +213,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	ShipData.IsTrading = false;
 	ShipData.IsRepairing = false;
 	ShipData.IsRefilling = false;
+	ShipData.IsReserve = false;
 	ShipData.Level = 1;
 	ShipData.HarpoonCompany = NAME_None;
 
@@ -1493,6 +1495,81 @@ void UFlareSimulatedSector::SwapPrices()
 void UFlareSimulatedSector::SetPreciseResourcePrice(FFlareResourceDescription* Resource, float NewPrice)
 {
 	ResourcePrices[Resource] = FMath::Clamp(NewPrice, (float) Resource->MinPrice, (float) Resource->MaxPrice);
+}
+
+void UFlareSimulatedSector::UpdateReserveShips()
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	int32 MaxShipsInSector = MyGameSettings->MaxShipsInSector;
+	int32 TotalShipCount = GetSectorShips().Num();
+
+	FLOGV("UpdateReserveShips in %s: max=%d total=%d", *GetSectorName().ToString(), MaxShipsInSector, TotalShipCount);
+
+	if (TotalShipCount <= MaxShipsInSector)
+	{
+		FLOG("reserve no ship");
+		for (auto Ship : GetSectorShips())
+		{
+			Ship->SetReserve(false);
+		}
+		return;
+	}
+
+	TArray<TArray<UFlareSimulatedSpacecraft*>> ShipListByCompanies;
+	for (int32 CompanyIndex = 0; CompanyIndex < GetGame()->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		ShipListByCompanies.Add(TArray<UFlareSimulatedSpacecraft*>());
+	}
+
+	for (auto Ship : GetSectorShips())
+	{
+		Ship->SetReserve(false);
+
+		for (int32 CompanyIndex = 0; CompanyIndex < GetGame()->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+		{
+			UFlareCompany* Company = GetGame()->GetGameWorld()->GetCompanies()[CompanyIndex];
+			if (Ship->GetCompany() == Company)
+			{
+				ShipListByCompanies[CompanyIndex].Add(Ship);
+				break;
+			}
+		}
+	}
+
+
+	for (int32 CompanyIndex = 0; CompanyIndex < GetGame()->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		int32 CompanyShipCount = ShipListByCompanies[CompanyIndex].Num();
+
+		if (CompanyShipCount == 0)
+		{
+			continue;
+		}
+
+
+		float CompanyProportion = CompanyShipCount / TotalShipCount;
+		int32 AllowedShipCount = FMath::Max(1, FMath::FloorToInt(CompanyProportion * MaxShipsInSector));
+
+		UFlareCompany* Company = GetGame()->GetGameWorld()->GetCompanies()[CompanyIndex];
+		FLOGV("Allow %d/%d for %s", AllowedShipCount, CompanyShipCount, *Company->GetCompanyName().ToString());
+
+		// Reserve ships
+		for (int32 ShipIndex = AllowedShipCount; ShipIndex < CompanyShipCount; ShipIndex++)
+		{
+			UFlareSimulatedSpacecraft* Ship = ShipListByCompanies[CompanyIndex][ShipIndex];
+			Ship->SetReserve(true);
+		}
+	}
+
+	// TODO
+	// sort
+	// Min 1 ship for each company, then dispatch
+	// always spawn player ship
+	// Player fleet is high priority
+	// Empty ship are low priority
+	// Destroyed ship are low priority
+	// In combat, cargo ar low prioriy
+
 }
 
 int64 UFlareSimulatedSector::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, int32 Age)

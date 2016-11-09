@@ -609,6 +609,14 @@ void UFlareWorld::Simulate()
 		Sectors[SectorIndex]->SwapPrices();
 	}
 
+
+	// Update reserve ships
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		Sectors[SectorIndex]->UpdateReserveShips();
+	}
+
+
 	double EndTs = FPlatformTime::Seconds();
 	FLOGV("** Simulate day %d done in %.6fs", WorldData.Date-1, EndTs- StartTs);
 

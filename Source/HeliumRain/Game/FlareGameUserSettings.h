@@ -51,6 +51,10 @@ public:
 	/** Whether to pause the game in menus */
 	UPROPERTY(Config)
 	bool                                     PauseGameInMenus;
+
+	/** Max ship count in a sector */
+	UPROPERTY(Config)
+	int32                                    MaxShipsInSector;
 		
 	/** Music volume */
 	UPROPERTY(Config)
@@ -59,5 +63,4 @@ public:
 	/** Master volume */
 	UPROPERTY(Config)
 	int32                                    MasterVolume;
-
 };

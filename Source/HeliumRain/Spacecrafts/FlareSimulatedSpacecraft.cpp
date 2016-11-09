@@ -427,6 +427,10 @@ void UFlareSimulatedSpacecraft::SetRepairing(bool Repairing)
 	SpacecraftData.IsRepairing = Repairing;
 }
 
+void UFlareSimulatedSpacecraft::SetReserve(bool InReserve)
+{
+	SpacecraftData.IsReserve = InReserve;
+}
 
 void UFlareSimulatedSpacecraft::SetHarpooned(UFlareCompany* OwnerCompany)
 {

@@ -31,6 +31,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	UseCockpit = true;
 	UseAnticollision = false;
 	PauseGameInMenus = false;
+	MaxShipsInSector = 50;
 
 	// Sound
 	MusicVolume = 8;
