@@ -49,6 +49,11 @@ public:
 	/** Remove all entries from the list */
 	void Reset();
 	
+	int32 GetItemCount() const
+	{
+		return TargetListData.Num();
+	}
+
 
 protected:
 

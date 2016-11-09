@@ -62,6 +62,12 @@ protected:
 	/** Visibility setting for the travel button */
 	bool IsTravelDisabled() const;
 
+	/** Visibility setting for the owned reserve list */
+	EVisibility GetOwnedReserveVisibility() const;
+
+	/** Visibility setting for the other reserve list */
+	EVisibility GetOtherReserveVisibility() const;
+
 	/** Get the refill text */
 	FText GetRefillText() const;
 
@@ -133,6 +139,8 @@ protected:
 	// Menu components
 	TSharedPtr<SFlareShipList>                 OwnedShipList;
 	TSharedPtr<SFlareShipList>                 OtherShipList;
+	TSharedPtr<SFlareShipList>                 OwnedReserveShipList;
+	TSharedPtr<SFlareShipList>                 OtherReserveShipList;
 	UFlareSimulatedSector*                     TargetSector;
 
 	// Station data

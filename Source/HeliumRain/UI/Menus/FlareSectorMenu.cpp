@@ -240,7 +240,15 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					[
 						SAssignNew(OwnedShipList, SFlareShipList)
 						.MenuManager(MenuManager)
-						.Title(LOCTEXT("MyListTitle", "Owned spacecrafts in sector"))
+						.Title(LOCTEXT("OwnedSpacecraftsSector", "Owned spacecrafts in sector"))
+					]
+
+					+ SScrollBox::Slot()
+					[
+						SAssignNew(OwnedReserveShipList, SFlareShipList)
+						.MenuManager(MenuManager)
+						.Title(LOCTEXT("OwnedSpacecraftsReserve", "Owned spacecrafts in reserve"))
+						.Visibility(this, &SFlareSectorMenu::GetOwnedReserveVisibility)
 					]
 				]
 
@@ -256,7 +264,15 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					[
 						SAssignNew(OtherShipList, SFlareShipList)
 						.MenuManager(MenuManager)
-						.Title(LOCTEXT("OtherListTitle", "Other spacecrafts in sector"))
+						.Title(LOCTEXT("OtherSpacecraftsSector", "Other spacecrafts in sector"))
+					]
+
+					+ SScrollBox::Slot()
+					[
+						SAssignNew(OtherReserveShipList, SFlareShipList)
+						.MenuManager(MenuManager)
+						.Title(LOCTEXT("OtherSpacecraftsReserve", "Other spacecrafts in reserve"))
+						.Visibility(this, &SFlareSectorMenu::GetOtherReserveVisibility)
 					]
 				]
 			]
@@ -279,12 +295,14 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 {
 	FLOG("SFlareSectorMenu::Enter");
 
+	StationDescription = NULL;
+	TargetSector = Sector;
+
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-	StationDescription = NULL;
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	TargetSector = Sector;
-	
+	bool IsActiveSector = Sector == PC->GetGame()->GetActiveSector()->GetSimulatedSector();
+
 	// Known sector
 	if (PC->GetCompany()->HasVisitedSector(TargetSector))
 	{		
@@ -313,13 +331,27 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 
 			if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
 			{
-				if (ShipCandidate->GetCompany() == PC->GetCompany())
+				if (IsActiveSector && !ShipCandidate->IsActive())
 				{
-					OwnedShipList->AddShip(ShipCandidate);
+					if (ShipCandidate->GetCompany() == PC->GetCompany())
+					{
+						OwnedReserveShipList->AddShip(ShipCandidate);
+					}
+					else
+					{
+						OtherReserveShipList->AddShip(ShipCandidate);
+					}
 				}
 				else
 				{
-					OtherShipList->AddShip(ShipCandidate);
+					if (ShipCandidate->GetCompany() == PC->GetCompany())
+					{
+						OwnedShipList->AddShip(ShipCandidate);
+					}
+					else
+					{
+						OtherShipList->AddShip(ShipCandidate);
+					}
 				}
 			}
 		}
@@ -333,8 +365,12 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	// List setup
 	OwnedShipList->RefreshList();
 	OtherShipList->RefreshList();
+	OwnedReserveShipList->RefreshList();
+	OtherReserveShipList->RefreshList();
 	OwnedShipList->SetVisibility(EVisibility::Visible);
 	OtherShipList->SetVisibility(EVisibility::Visible);
+	OwnedReserveShipList->SetVisibility(EVisibility::Visible);
+	OtherReserveShipList->SetVisibility(EVisibility::Visible);
 
 	// Fleet list
 	FleetList.Empty();
@@ -358,8 +394,12 @@ void SFlareSectorMenu::Exit()
 
 	OwnedShipList->Reset();
 	OtherShipList->Reset();
+	OwnedReserveShipList->Reset();
+	OtherReserveShipList->Reset();
 	OwnedShipList->SetVisibility(EVisibility::Collapsed);
 	OtherShipList->SetVisibility(EVisibility::Collapsed);
+	OwnedReserveShipList->SetVisibility(EVisibility::Collapsed);
+	OtherReserveShipList->SetVisibility(EVisibility::Collapsed);
 	SetVisibility(EVisibility::Collapsed);
 }
 
@@ -738,6 +778,16 @@ bool SFlareSectorMenu::IsRepairDisabled() const
 		// No repair needed
 		return true;
 	}
+}
+
+EVisibility SFlareSectorMenu::GetOwnedReserveVisibility() const
+{
+	return (OwnedReserveShipList->GetItemCount() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
+}
+
+EVisibility SFlareSectorMenu::GetOtherReserveVisibility() const
+{
+	return (OtherReserveShipList->GetItemCount() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 FText SFlareSectorMenu::GetSectorName() const
