@@ -369,8 +369,6 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	OtherReserveShipList->RefreshList();
 	OwnedShipList->SetVisibility(EVisibility::Visible);
 	OtherShipList->SetVisibility(EVisibility::Visible);
-	OwnedReserveShipList->SetVisibility(EVisibility::Visible);
-	OtherReserveShipList->SetVisibility(EVisibility::Visible);
 
 	// Fleet list
 	FleetList.Empty();
@@ -398,8 +396,6 @@ void SFlareSectorMenu::Exit()
 	OtherReserveShipList->Reset();
 	OwnedShipList->SetVisibility(EVisibility::Collapsed);
 	OtherShipList->SetVisibility(EVisibility::Collapsed);
-	OwnedReserveShipList->SetVisibility(EVisibility::Collapsed);
-	OtherReserveShipList->SetVisibility(EVisibility::Collapsed);
 	SetVisibility(EVisibility::Collapsed);
 }
 
@@ -782,12 +778,12 @@ bool SFlareSectorMenu::IsRepairDisabled() const
 
 EVisibility SFlareSectorMenu::GetOwnedReserveVisibility() const
 {
-	return (OwnedReserveShipList->GetItemCount() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
+	return (IsEnabled() && OwnedReserveShipList->GetItemCount() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 EVisibility SFlareSectorMenu::GetOtherReserveVisibility() const
 {
-	return (OtherReserveShipList->GetItemCount() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
+	return (IsEnabled() && OtherReserveShipList->GetItemCount() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 FText SFlareSectorMenu::GetSectorName() const
