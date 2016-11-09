@@ -402,7 +402,7 @@ void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 	// Update camera switch timer
 	if (PlayerShip->HasFLIRCameraChanged())
 	{
-		FLOGV("AFlareCockpitManager::UpdatePower : FLIR camera switch");
+		FLOG("AFlareCockpitManager::UpdatePower : FLIR camera switch");
 		CameraSwitchTimer = CameraSwitchPeriod;
 	}
 	else
