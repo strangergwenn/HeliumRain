@@ -562,10 +562,6 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 	float ReputationScaledGain = Amount * ReputationGainFactor;
 
 	CompanyReputation->Reputation = FMath::Clamp(CompanyReputation->Reputation + ReputationScaledGain, -200.f, 200.f);
-	if (FMath::Abs(CompanyReputation->Reputation) < 1.f)
-	{
-		CompanyReputation->Reputation = 0.f;
-	}
 
 	if (Propagate)
 	{
