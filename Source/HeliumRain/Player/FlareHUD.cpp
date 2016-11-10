@@ -1209,7 +1209,6 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			
 			// Combat helper
 			if (Spacecraft == PlayerShip->GetCurrentTarget()
-			 && Spacecraft->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile
 			 && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 			{
 				FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
