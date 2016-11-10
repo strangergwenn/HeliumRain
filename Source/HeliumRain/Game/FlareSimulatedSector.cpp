@@ -1536,11 +1536,81 @@ void UFlareSimulatedSector::SetPreciseResourcePrice(FFlareResourceDescription* R
 	ResourcePrices[Resource] = FMath::Clamp(NewPrice, (float) Resource->MinPrice, (float) Resource->MaxPrice);
 }
 
+
+static bool ReserveShipComparator (UFlareSimulatedSpacecraft& Ship1, UFlareSimulatedSpacecraft& Ship2)
+{
+	bool SELECT_SHIP1 = true;
+	bool SELECT_SHIP2 = false;
+
+	UFlareSimulatedSpacecraft* PlayerShip = Ship1.GetGame()->GetPC()->GetPlayerShip();
+	UFlareFleet* PlayerFleet = Ship1.GetGame()->GetPC()->GetPlayerFleet();
+
+	// Player ship is always the first in list
+	if (&Ship1 == PlayerShip)
+	{
+		return SELECT_SHIP1;
+	}
+
+	if (&Ship2 == PlayerShip)
+	{
+		return SELECT_SHIP2;
+	}
+
+	// Ships in player fleet are prioritary
+	if (Ship1.GetCurrentFleet() == PlayerFleet && Ship2.GetCurrentFleet() != PlayerFleet)
+	{
+		return SELECT_SHIP1;
+	}
+
+	if (Ship2.GetCurrentFleet() == PlayerFleet && Ship1.GetCurrentFleet() != PlayerFleet)
+	{
+		return SELECT_SHIP2;
+	}
+
+	// Priority to armed ships
+	if (Ship1.GetDamageSystem()->IsDisarmed() && !Ship2.GetDamageSystem()->IsDisarmed())
+	{
+		return SELECT_SHIP2;
+	}
+
+	if (Ship2.GetDamageSystem()->IsDisarmed() && !Ship1.GetDamageSystem()->IsDisarmed())
+	{
+		return SELECT_SHIP1;
+	}
+
+	// Priority to controllable ships
+	if (Ship1.GetDamageSystem()->IsUncontrollable() && !Ship2.GetDamageSystem()->IsUncontrollable())
+	{
+		return SELECT_SHIP2;
+	}
+
+	if (Ship2.GetDamageSystem()->IsUncontrollable() && !Ship1.GetDamageSystem()->IsUncontrollable())
+	{
+		return SELECT_SHIP1;
+	}
+
+
+	// TODO sort by fleet order
+
+
+	// Priority to full ships
+	if(Ship1.GetCargoBay()->GetUsedCargoSpace() != Ship2.GetCargoBay()->GetUsedCargoSpace())
+	{
+		return Ship1.GetCargoBay()->GetUsedCargoSpace() > Ship2.GetCargoBay()->GetUsedCargoSpace();
+	}
+
+	return FMath::RandBool();
+}
+
+static const int32 MIN_SPAWN = 1;
+
 void UFlareSimulatedSector::UpdateReserveShips()
 {
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	int32 MaxShipsInSector = MyGameSettings->MaxShipsInSector;
 	int32 TotalShipCount = GetSectorShips().Num();
+	int32 TotalCargoShipCount = 0;
+	int32 TotalMilitaryShipCount = 0;
 
 	FLOGV("UpdateReserveShips in %s: max=%d total=%d", *GetSectorName().ToString(), MaxShipsInSector, TotalShipCount);
 
@@ -1554,13 +1624,15 @@ void UFlareSimulatedSector::UpdateReserveShips()
 		return;
 	}
 
-	TArray<TArray<UFlareSimulatedSpacecraft*>> ShipListByCompanies;
+	TArray<TArray<UFlareSimulatedSpacecraft*>> CargoShipListByCompanies;
+	TArray<TArray<UFlareSimulatedSpacecraft*>> MilitaryShipListByCompanies;
 	for (int32 CompanyIndex = 0; CompanyIndex < GetGame()->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
 	{
-		ShipListByCompanies.Add(TArray<UFlareSimulatedSpacecraft*>());
+		CargoShipListByCompanies.Add(TArray<UFlareSimulatedSpacecraft*>());
+		MilitaryShipListByCompanies.Add(TArray<UFlareSimulatedSpacecraft*>());
 	}
 
-	for (auto Ship : GetSectorShips())
+	for (UFlareSimulatedSpacecraft* Ship : GetSectorShips())
 	{
 		Ship->SetReserve(false);
 
@@ -1569,49 +1641,85 @@ void UFlareSimulatedSector::UpdateReserveShips()
 			UFlareCompany* Company = GetGame()->GetGameWorld()->GetCompanies()[CompanyIndex];
 			if (Ship->GetCompany() == Company)
 			{
-				ShipListByCompanies[CompanyIndex].Add(Ship);
+				if(Ship->IsMilitary())
+				{
+					MilitaryShipListByCompanies[CompanyIndex].Add(Ship);
+					TotalMilitaryShipCount++;
+				}
+				else
+				{
+					CargoShipListByCompanies[CompanyIndex].Add(Ship);
+					TotalCargoShipCount++;
+				}
+
 				break;
 			}
 		}
 	}
 
 
+	// Count min ships to spawn
+	int MinShipToSpawn = 0;
+	int MinCargoShipToSpawn = 0;
+	int MinMilitaryShipToSpawn = 0;
+
 	for (int32 CompanyIndex = 0; CompanyIndex < GetGame()->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
 	{
-		int32 CompanyShipCount = ShipListByCompanies[CompanyIndex].Num();
+		int32 CargoCompanyShipCount = CargoShipListByCompanies[CompanyIndex].Num();
+		int32 MilitaryCompanyShipCount = MilitaryShipListByCompanies[CompanyIndex].Num();
 
-		if (CompanyShipCount == 0)
+		if(CargoCompanyShipCount > 0)
 		{
-			continue;
+			MinShipToSpawn += MIN_SPAWN;
+			MinCargoShipToSpawn += MIN_SPAWN;
 		}
 
-
-		float CompanyProportion = (float) CompanyShipCount / (float) TotalShipCount;
-		int32 AllowedShipCount = FMath::Max(1, FMath::FloorToInt(CompanyProportion * MaxShipsInSector));
-
-		UFlareCompany* Company = GetGame()->GetGameWorld()->GetCompanies()[CompanyIndex];
-		FLOGV("Allow %d/%d for %s", AllowedShipCount, CompanyShipCount, *Company->GetCompanyName().ToString());
-
-		// Reserve ships
-		for (int32 ShipIndex = AllowedShipCount; ShipIndex < CompanyShipCount; ShipIndex++)
+		if(MilitaryCompanyShipCount > 0)
 		{
-			UFlareSimulatedSpacecraft* Ship = ShipListByCompanies[CompanyIndex][ShipIndex];
-			if(Game->GetPC()->GetPlayerShip() != Ship)
+			MinShipToSpawn += MIN_SPAWN;
+			MinMilitaryShipToSpawn += MIN_SPAWN;
+		}
+	}
+
+	float MilitaryProportion = (GetSectorBattleState(Game->GetPC()->GetCompany()).InBattle ? 0.75f : 0.25);
+	float CargoProportion = 1.f-MilitaryProportion;
+
+	for (int32 CompanyIndex = 0; CompanyIndex < GetGame()->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* Company = GetGame()->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		int32 CargoCompanyShipCount = CargoShipListByCompanies[CompanyIndex].Num();
+		if (CargoCompanyShipCount > 0)
+		{
+			float CompanyProportion = (float) (CargoCompanyShipCount - MIN_SPAWN) / (float) (TotalCargoShipCount - MinCargoShipToSpawn);
+			int32 AllowedShipCount = FMath::Max(0, FMath::FloorToInt(CompanyProportion * CargoProportion * (MaxShipsInSector - MinShipToSpawn)));
+			AllowedShipCount += MIN_SPAWN;
+			FLOGV("Allow %d/%d cargo for %s", AllowedShipCount, CargoCompanyShipCount, *Company->GetCompanyName().ToString());
+
+			CargoShipListByCompanies[CompanyIndex].Sort(&ReserveShipComparator);
+			for (int32 ShipIndex = AllowedShipCount; ShipIndex < CargoCompanyShipCount; ShipIndex++)
 			{
+				UFlareSimulatedSpacecraft* Ship = CargoShipListByCompanies[CompanyIndex][ShipIndex];
+				Ship->SetReserve(true);
+			}
+		}
+
+		int32 MilitaryCompanyShipCount = MilitaryShipListByCompanies[CompanyIndex].Num();
+		if (MilitaryCompanyShipCount > 0)
+		{
+			float CompanyProportion = (float) (MilitaryCompanyShipCount - MIN_SPAWN) / (float) (TotalMilitaryShipCount - MinMilitaryShipToSpawn);
+			int32 AllowedShipCount = FMath::Max(0, FMath::FloorToInt(CompanyProportion * MilitaryProportion * (MaxShipsInSector - MinShipToSpawn)));
+			AllowedShipCount += MIN_SPAWN;
+			FLOGV("Allow %d/%d military for %s", AllowedShipCount, MilitaryCompanyShipCount, *Company->GetCompanyName().ToString());
+
+			MilitaryShipListByCompanies[CompanyIndex].Sort(&ReserveShipComparator);
+			for (int32 ShipIndex = AllowedShipCount; ShipIndex < MilitaryCompanyShipCount; ShipIndex++)
+			{
+				UFlareSimulatedSpacecraft* Ship = MilitaryShipListByCompanies[CompanyIndex][ShipIndex];
 				Ship->SetReserve(true);
 			}
 		}
 	}
-
-	// TODO
-	// sort
-	// Min 1 ship for each company, then dispatch
-	// always spawn player ship
-	// Player fleet is high priority
-	// Empty ship are low priority
-	// Destroyed ship are low priority
-	// In combat, cargo ar low prioriy
-
 }
 
 int64 UFlareSimulatedSector::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, int32 Age)
