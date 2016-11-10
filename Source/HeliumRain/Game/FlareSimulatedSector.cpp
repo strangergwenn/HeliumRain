@@ -1069,6 +1069,7 @@ void UFlareSimulatedSector::ClearBombs()
 
 void UFlareSimulatedSector::GetSectorBalance(int32& PlayerShips, int32& EnemyShips, int32& NeutralShips, bool ActiveOnly)
 {
+	AFlarePlayerController* PC = GetGame()->GetPC();
 	PlayerShips = 0;
 	EnemyShips = 0;
 	NeutralShips = 0;
@@ -1080,7 +1081,7 @@ void UFlareSimulatedSector::GetSectorBalance(int32& PlayerShips, int32& EnemyShi
 			continue;
 		}
 
-		if (SectorShips[ShipIndex]->GetCompany()->GetPlayerHostility() == EFlareHostility::Hostile
+		if (SectorShips[ShipIndex]->GetCompany()->GetWarState(PC->GetCompany()) == EFlareHostility::Hostile
 		 && SectorShips[ShipIndex]->IsMilitary() && !SectorShips[ShipIndex]->GetDamageSystem()->IsDisarmed())
 		{
 			EnemyShips++;
