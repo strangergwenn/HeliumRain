@@ -89,11 +89,9 @@ bool UFlareBattle::HasBattle()
             continue;
         }
 
-        EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(Company);
+		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(Company);
 
-        if(BattleState == EFlareSectorBattleState::NoBattle ||
-            BattleState == EFlareSectorBattleState::BattleLost ||
-            BattleState == EFlareSectorBattleState::BattleNoRetreat)
+		if(!BattleState.WantFight())
         {
             // Don't want fight
             continue;
@@ -114,12 +112,10 @@ bool UFlareBattle::SimulateTurn()
     {
         UFlareCompany* Company = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
 
-        EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(Company);
+		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(Company);
 
-        if(BattleState == EFlareSectorBattleState::NoBattle ||
-            BattleState == EFlareSectorBattleState::BattleLost ||
-            BattleState == EFlareSectorBattleState::BattleNoRetreat)
-        {
+		if(!BattleState.WantFight())
+		{
             // Don't want fight
             continue;
         }
@@ -133,7 +129,13 @@ bool UFlareBattle::SimulateTurn()
     {
         UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
 
-        if(!Ship->IsMilitary()  || Ship->GetDamageSystem()->IsDisarmed())
+		if(Ship->IsReserve())
+		{
+			// No in fight
+			continue;
+		}
+
+		if(!Ship->IsMilitary()  || Ship->GetDamageSystem()->IsDisarmed())
         {
             // No weapon
             continue;
@@ -317,6 +319,11 @@ UFlareSimulatedSpacecraft* UFlareBattle::GetBestTarget(UFlareSimulatedSpacecraft
 	{
 		UFlareSimulatedSpacecraft* ShipCandidate = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
 
+		if(ShipCandidate->IsReserve())
+		{
+			// No in fight
+			continue;
+		}
 
 		if (Ship->GetCompany()->GetWarState(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
 		{

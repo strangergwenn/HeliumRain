@@ -42,19 +42,93 @@ namespace EFlareSectorFriendlyness
 }
 
 /** Sector battle status */
-UENUM()
-namespace EFlareSectorBattleState
+USTRUCT()
+struct FFlareSectorBattleState
 {
-	enum Type
+	GENERATED_USTRUCT_BODY()
+
+	/** If false, no battle: no ships are dangerous or at war */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool InBattle;
+
+	/** If in battle, and not in fight, the battle can be wont or lost. */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool BattleWon;
+
+	/** Can be true only if a battle. If true, some ship can fight in both camps */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool InFight;
+
+	/** True if the active ships cann fight */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool InActiveFight;
+
+	/** If in fight, and not in  active fight, the active fight can be wont or lost. */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool ActiveFightWon;
+
+
+	/** Indicate if the company can travel. */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool RetreatPossible;
+
+	FFlareSectorBattleState Init()
 	{
-		NoBattle, /** No battle. No ships are dangerous or at war */
-		BattleWon, /** Battle ended. This is enemy ships but not dangerous */
-		BattleLost, /** Battle ended. This is dangerons enemy ships but not owned dangerous ship */
-		BattleLostNoRetreat, /** Battle ended. This is dangerons enemy ships but not owned dangerous ship. No ship can travel */
-		Battle, /** A battle is in progress. Each ennemy company has at least one dangerous ship. One of ship can travel.*/
-		BattleNoRetreat, /** A battle is in progress. Each ennemy company has at least one dangerous ship. No ship can travel */
-	};
-}
+		InBattle = false;
+		BattleWon = false;
+		InFight = false;
+		InActiveFight = false;
+		ActiveFightWon = false;
+		RetreatPossible = false;
+
+		return *this;
+	}
+
+	bool WantFight()
+	{
+		return !(!InBattle
+				||  (!InFight && !BattleWon)
+				||  (InFight && !InActiveFight && !ActiveFightWon));
+	}
+
+	bool IsInDanger()
+	{
+		if(!InBattle)
+		{
+			return false;
+		}
+		else
+		{
+			if(InFight)
+			{
+				return true;
+			}
+			else if(BattleWon)
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+	}
+
+	bool operator==(const FFlareSectorBattleState& lhs)
+	{
+		return lhs.InBattle == InBattle
+				&& lhs.BattleWon == BattleWon
+				&& lhs.InFight == InFight
+				&& lhs.InActiveFight == InActiveFight
+				&& lhs.ActiveFightWon == ActiveFightWon
+				&& lhs.RetreatPossible == RetreatPossible;
+	}
+
+	bool operator!=(const FFlareSectorBattleState& lhs)
+	{
+		return !(*this == lhs);
+	}
+};
 
 /** Debris field settings */
 USTRUCT()
@@ -481,7 +555,7 @@ public:
 	EFlareSectorFriendlyness::Type GetSectorFriendlyness(UFlareCompany* Company);
 
 	/** Get the current battle status of a company */
-	EFlareSectorBattleState::Type GetSectorBattleState(UFlareCompany* Company);
+	FFlareSectorBattleState GetSectorBattleState(UFlareCompany* Company);
 
 	/** Get the current battle status text */
 	FText GetSectorBattleStateText(UFlareCompany* Company);

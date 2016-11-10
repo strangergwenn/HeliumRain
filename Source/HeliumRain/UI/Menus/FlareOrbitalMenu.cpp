@@ -337,10 +337,10 @@ void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 		{
 			UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
 
-			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
+			FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
 			if (LastSectorBattleState.Contains(Sector))
 			{
-				EFlareSectorBattleState::Type LastBattleState = LastSectorBattleState[Sector];
+				FFlareSectorBattleState LastBattleState = LastSectorBattleState[Sector];
 
 				// TODO more detail state and only for some transition
 				if (LastBattleState == BattleState)
@@ -529,18 +529,24 @@ FText SFlareOrbitalMenu::GetFastForwardText() const
 		{
 			UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
 
-			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
-			if (BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
+			FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
+			if (BattleState.InBattle)
 			{
-				BattleInProgress = true;
-			}
-			else if (BattleState == EFlareSectorBattleState::BattleLost)
-			{
-				BattleLostWithRetreat = true;
-			}
-			else if (BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
-			{
-				BattleLostWithoutRetreat = true;
+				if(BattleState.InFight)
+				{
+					BattleInProgress = true;
+				}
+				else if (!BattleState.BattleWon)
+				{
+					if(BattleState.RetreatPossible)
+					{
+						BattleLostWithRetreat = true;
+					}
+					else
+					{
+						BattleLostWithoutRetreat = true;
+					}
+				}
 			}
 		}
 

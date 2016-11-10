@@ -436,19 +436,16 @@ void UFlareWorld::Simulate()
 				continue;
 			}
 
-			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(Company);
+			FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(Company);
 
-			if(BattleState == EFlareSectorBattleState::NoBattle ||
-					BattleState == EFlareSectorBattleState::BattleLost ||
-					BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
+			if(!BattleState.WantFight())
 			{
 				// Don't want fight
 				continue;
 			}
 
-			FLOGV("%s want fight in %s : %d", *Company->GetCompanyName().ToString(),
-				  *Sector->GetSectorName().ToString(),
-				  (int32)BattleState);
+			FLOGV("%s want fight in %s", *Company->GetCompanyName().ToString(),
+				  *Sector->GetSectorName().ToString());
 
 			HasBattle = true;
 			break;
@@ -642,9 +639,14 @@ void UFlareWorld::ProcessShipCapture()
 
 				UFlareCompany* HarpoonOwner = Spacecraft->GetHarpoonCompany();
 
+
+				FFlareSectorBattleState  HarpoonOwnerBattleState = Sector->GetSectorBattleState(HarpoonOwner);
+				FFlareSectorBattleState  SpacecraftOwnerBattleState = Sector->GetSectorBattleState(Spacecraft->GetCompany());
+
+
 				if(HarpoonOwner
 						&& HarpoonOwner->GetWarState(Spacecraft->GetCompany()) == EFlareHostility::Hostile
-						&& Sector->GetSectorBattleState(HarpoonOwner) == EFlareSectorBattleState::BattleWon)
+						&& !HarpoonOwnerBattleState.IsInDanger())
 				{
 					// If battle won state, this mean the Harpoon owner has at least one dangerous ship
 					// This also mean that no company at war with this company has a military ship
@@ -652,7 +654,7 @@ void UFlareWorld::ProcessShipCapture()
 					ShipToCapture.Add(Spacecraft);
 					// Need to keep the harpoon for capture process
 				}
-				else
+				else if(!SpacecraftOwnerBattleState.IsInDanger())
 				{
 					Spacecraft->SetHarpooned(NULL);
 				}
@@ -713,10 +715,9 @@ void UFlareWorld::ProcessStationCapture()
 		{
 			UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorStations()[SpacecraftIndex];
 
-			EFlareSectorBattleState::Type StationOwnerBattleState = Sector->GetSectorBattleState(Spacecraft->GetCompany());
+			FFlareSectorBattleState StationOwnerBattleState = Sector->GetSectorBattleState(Spacecraft->GetCompany());
 
-			if (StationOwnerBattleState != EFlareSectorBattleState::BattleLost
-					&& StationOwnerBattleState != EFlareSectorBattleState::BattleLostNoRetreat)
+			if (!StationOwnerBattleState.IsInDanger())
 			{
 				// The station is not being captured
 				Spacecraft->ResetCapture();
@@ -729,10 +730,9 @@ void UFlareWorld::ProcessStationCapture()
 				UFlareCompany* Company = Companies[CompanyIndex];
 
 				if ((Company->GetWarState(Spacecraft->GetCompany()) != EFlareHostility::Hostile)
-					|| (Sector->GetSectorBattleState(Company) != EFlareSectorBattleState::BattleWon))
+					|| Sector->GetSectorBattleState(Company).IsInDanger())
 				{
 					// Friend don't capture and not winner don't capture
-					Spacecraft->ResetCapture(Company);
 					continue;
 				}
 

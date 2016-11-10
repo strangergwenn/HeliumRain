@@ -257,7 +257,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 
 				float SpawnDistance = GetSectorRadius() + 1;
 
-				if (GetSimulatedSector()->GetSectorBattleState(Spacecraft->GetCompany()) != EFlareSectorBattleState::NoBattle)
+				if (GetSimulatedSector()->GetSectorBattleState(Spacecraft->GetCompany()).InBattle)
 				{
 					SpawnDistance += 500000; // 5 km
 				}
@@ -273,7 +273,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 
 				float SpawnVelocity = 0;
 
-				if (GetSimulatedSector()->GetSectorBattleState(Spacecraft->GetCompany()) != EFlareSectorBattleState::NoBattle)
+				if (GetSimulatedSector()->GetSectorBattleState(Spacecraft->GetCompany()).InBattle)
 				{
 						SpawnVelocity = 10000;
 				}

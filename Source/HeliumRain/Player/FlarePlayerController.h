@@ -88,7 +88,7 @@ public:
 	void OnSectorDeactivated();
 
 	/** The battle state has changed, update music, notify, etc */
-	void UpdateMusicTrack(EFlareSectorBattleState::Type NewBattleState);
+	void UpdateMusicTrack(FFlareSectorBattleState NewBattleState);
 
 	/** Set the currently flown player ship */
 	void SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerShip);
@@ -384,7 +384,7 @@ protected:
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
-	TEnumAsByte<EFlareSectorBattleState::Type> LastBattleState;
+	FFlareSectorBattleState                 LastBattleState;
 	bool									RecoveryActive;
 public:
 

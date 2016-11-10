@@ -1245,21 +1245,27 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 	}
 }
 
-EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlareCompany* Company)
+FFlareSectorBattleState UFlareSimulatedSector::GetSectorBattleState(UFlareCompany* Company)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareSector_GetSectorBattleState);
 
+	FFlareSectorBattleState BattleState;
+	BattleState.Init();
+
+
 	if (GetSectorShips().Num() == 0)
 	{
-		return EFlareSectorBattleState::NoBattle;
+		return BattleState;
 	}
 
 	int HostileSpacecraftCount = 0;
 	int DangerousHostileSpacecraftCount = 0;
+	int DangerousHostileActiveSpacecraftCount = 0;
 
 
 	int FriendlySpacecraftCount = 0;
 	int DangerousFriendlySpacecraftCount = 0;
+	int DangerousFriendlyActiveSpacecraftCount = 0;
 	int CrippledFriendlySpacecraftCount = 0;
 
 	for (int SpacecraftIndex = 0 ; SpacecraftIndex < GetSectorShips().Num(); SpacecraftIndex++)
@@ -1280,6 +1286,10 @@ EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlare
 			if (!Spacecraft->GetDamageSystem()->IsDisarmed())
 			{
 				DangerousFriendlySpacecraftCount++;
+				if(!Spacecraft->IsReserve())
+				{
+					DangerousFriendlyActiveSpacecraftCount++;
+				}
 			}
 
 			if (Spacecraft->GetDamageSystem()->IsStranded())
@@ -1293,6 +1303,10 @@ EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlare
 			if (!Spacecraft->GetDamageSystem()->IsDisarmed())
 			{
 				DangerousHostileSpacecraftCount++;
+				if(!Spacecraft->IsReserve())
+				{
+					DangerousHostileActiveSpacecraftCount++;
+				}
 			}
 		}
 	}
@@ -1319,44 +1333,56 @@ EFlareSectorBattleState::Type UFlareSimulatedSector::GetSectorBattleState(UFlare
 		}
 	}
 
+	BattleState.InBattle = true;
+
 	// No friendly or no hostile ship
 	if (FriendlySpacecraftCount == 0 || HostileSpacecraftCount == 0)
 	{
-		return EFlareSectorBattleState::NoBattle;
+		BattleState.InBattle = false;
 	}
 
 	// No friendly and hostile ship are not dangerous
 	if (DangerousFriendlySpacecraftCount == 0 && DangerousHostileSpacecraftCount == 0)
 	{
-		return EFlareSectorBattleState::NoBattle;
+		BattleState.InBattle = false;
 	}
 
-	// No friendly dangerous ship so the enemy have one. Battle is lost
-	if (DangerousFriendlySpacecraftCount == 0)
+	if (CrippledFriendlySpacecraftCount != FriendlySpacecraftCount)
 	{
-		if (CrippledFriendlySpacecraftCount == FriendlySpacecraftCount)
+		BattleState.RetreatPossible = false;
+	}
+
+	if(BattleState.InBattle)
+	{
+		// No friendly dangerous ship so the enemy have one. Battle is lost
+		if (DangerousFriendlySpacecraftCount == 0)
 		{
-			return EFlareSectorBattleState::BattleLostNoRetreat;
+			BattleState.BattleWon = false;
+		}
+		else if (DangerousHostileSpacecraftCount == 0)
+		{
+			BattleState.BattleWon = true;
 		}
 		else
 		{
-			return EFlareSectorBattleState::BattleLost;
+			BattleState.InFight = true;
+
+			if (DangerousFriendlyActiveSpacecraftCount == 0)
+			{
+				BattleState.ActiveFightWon = false;
+			}
+			else if (DangerousHostileActiveSpacecraftCount == 0)
+			{
+				BattleState.ActiveFightWon = true;
+			}
+			else
+			{
+				BattleState.InActiveFight = true;
+			}
 		}
 	}
 
-	if (DangerousHostileSpacecraftCount == 0)
-	{
-		return EFlareSectorBattleState::BattleWon;
-	}
-
-	if (CrippledFriendlySpacecraftCount == FriendlySpacecraftCount)
-	{
-		return EFlareSectorBattleState::BattleNoRetreat;
-	}
-	else
-	{
-		return EFlareSectorBattleState::Battle;
-	}
+	return BattleState;
 }
 
 
@@ -1364,27 +1390,39 @@ FText UFlareSimulatedSector::GetSectorBattleStateText(UFlareCompany* Company)
 {
 	FText BattleStatusText;
 
-	switch (GetSectorBattleState(Company))
+	FFlareSectorBattleState BattleState = GetSectorBattleState(Company);
+
+
+	if(BattleState.InBattle)
 	{
-		case EFlareSectorBattleState::NoBattle:
-			break;
-		case EFlareSectorBattleState::BattleWon:
+		if(BattleState.InFight)
+		{
+			if(BattleState.InActiveFight)
+			{
+				BattleStatusText = LOCTEXT("SectorBattleBattleFighing", "Battle in progress, fighting");
+			}
+			else if(BattleState.ActiveFightWon)
+			{
+				BattleStatusText = LOCTEXT("SectorBattleBattleWining", "Battle in progress, winning");
+			}
+			else
+			{
+				BattleStatusText = LOCTEXT("SectorBattleBattleLoosing", "Battle in progress, loosing");
+			}
+		}
+		else if(BattleState.BattleWon)
+		{
 			BattleStatusText = LOCTEXT("SectorBattleWon", "Battle won");
-			break;
-		case EFlareSectorBattleState::BattleLost:
-			BattleStatusText = LOCTEXT("SectorBattleLost", "Battle lost, retreat possible");
-			break;
-		case EFlareSectorBattleState::BattleLostNoRetreat:
+		}
+		else
+		{
 			BattleStatusText = LOCTEXT("SectorBattleLostNoRetreat", "Battle lost");
-			break;
-		case EFlareSectorBattleState::Battle:
-			BattleStatusText = LOCTEXT("SectorBattleBattle", "Battle in progress, retreat possible");
-			break;
-		case EFlareSectorBattleState::BattleNoRetreat:
-			BattleStatusText = LOCTEXT("SectorBattleBattleNoRetreat", "Battle in progress");
-			break;
-		default:
-			break;
+		}
+
+		if(BattleState.RetreatPossible)
+		{
+			BattleStatusText = FText::Format(LOCTEXT("BattleStatusWithRetreat", "{0}, retreat possible"), BattleStatusText);
+		}
 	}
 
 	return BattleStatusText;
@@ -1392,12 +1430,7 @@ FText UFlareSimulatedSector::GetSectorBattleStateText(UFlareCompany* Company)
 
 bool UFlareSimulatedSector::IsInDangerousBattle(UFlareCompany* Company)
 {
-	EFlareSectorBattleState::Type BattleState = GetSectorBattleState(Company);
-
-	return (BattleState == EFlareSectorBattleState::Battle ||
-			BattleState == EFlareSectorBattleState::BattleNoRetreat ||
-			BattleState == EFlareSectorBattleState::BattleLost ||
-			BattleState == EFlareSectorBattleState::BattleLostNoRetreat);
+	return GetSectorBattleState(Company).IsInDanger();
 }
 
 FText UFlareSimulatedSector::GetSectorFriendlynessText(UFlareCompany* Company)
@@ -1646,8 +1679,8 @@ uint32 UFlareSimulatedSector::GetTransfertResourcePrice(UFlareSimulatedSpacecraf
 bool UFlareSimulatedSector::CanUpgrade(UFlareCompany* Company)
 {
 	// Can't upgrade during battles
-	EFlareSectorBattleState::Type BattleState = GetSectorBattleState(Company);
-	if (BattleState != EFlareSectorBattleState::NoBattle && BattleState != EFlareSectorBattleState::BattleWon)
+	FFlareSectorBattleState BattleState = GetSectorBattleState(Company);
+	if (BattleState.IsInDanger())
 	{
 		return false;
 	}
@@ -1669,12 +1702,9 @@ bool UFlareSimulatedSector::CanUpgrade(UFlareCompany* Company)
 bool UFlareSimulatedSector::IsPlayerBattleInProgress()
 {
 	AFlarePlayerController* PC = GetGame()->GetPC();
-	EFlareSectorBattleState::Type BattleState = GetSectorBattleState(PC->GetCompany());
+	FFlareSectorBattleState BattleState = GetSectorBattleState(PC->GetCompany());
 
-	if (BattleState == EFlareSectorBattleState::BattleLost
-	 || BattleState == EFlareSectorBattleState::BattleLostNoRetreat
-	 || BattleState == EFlareSectorBattleState::BattleNoRetreat
-	 || BattleState == EFlareSectorBattleState::Battle)
+	if (BattleState.IsInDanger())
 	{
 		return true;
 	}

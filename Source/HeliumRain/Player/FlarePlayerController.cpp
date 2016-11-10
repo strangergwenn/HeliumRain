@@ -61,7 +61,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	CurrentObjective.Version = 0;
 	IsTest1 = false;
 	IsTest2 = false;
-	LastBattleState = EFlareSectorBattleState::NoBattle;
+	LastBattleState.Init();
 	RecoveryActive = false;
 
 	// Setup
@@ -139,7 +139,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		{
 			if (!PlayerWasTraveling)
 			{
-				UpdateMusicTrack(EFlareSectorBattleState::NoBattle);
+				UpdateMusicTrack(FFlareSectorBattleState().Init());
 			}
 
 			PlayerWasTraveling = true;
@@ -148,7 +148,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		{
 			SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_Battle);
 
-			EFlareSectorBattleState::Type BattleState = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(GetCompany());
+			FFlareSectorBattleState BattleState = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(GetCompany());
 			if (BattleState != LastBattleState || PlayerWasTraveling)
 			{
 				LastBattleState = BattleState;
@@ -410,64 +410,56 @@ void AFlarePlayerController::OnSectorDeactivated()
 	}
 
 	// Reset states
-	LastBattleState = EFlareSectorBattleState::NoBattle;
+	LastBattleState.Init();
 }
 
-void AFlarePlayerController::UpdateMusicTrack(EFlareSectorBattleState::Type NewBattleState)
+void AFlarePlayerController::UpdateMusicTrack(FFlareSectorBattleState NewBattleState)
 {
 	FLOG("AFlarePlayerController::UpdateMusicTrack");
 
-	switch (NewBattleState)
+	if (NewBattleState.IsInDanger())
 	{
-		// Peace
-		case EFlareSectorBattleState::NoBattle:
-		case EFlareSectorBattleState::BattleWon:
-			if (GetPlayerFleet()->IsTraveling() || !GetGame()->GetActiveSector())
+		if (NewBattleState.WantFight())
+		{
+			UFlareSimulatedSector* Sector = GetGame()->GetActiveSector()->GetSimulatedSector();
+			if (Sector->GetSectorShips().Num() > 15)
 			{
-				FLOG("AFlarePlayerController::UpdateMusicTrack : travel");
-				SoundManager->RequestMusicTrack(EFlareMusicTrack::Travel);
+				FLOG("AFlarePlayerController::UpdateMusicTrack : war");
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::War);
 			}
 			else
 			{
-				EFlareMusicTrack::Type LevelMusic = GetGame()->GetActiveSector()->GetSimulatedSector()->GetDescription()->LevelTrack;
-				if (LevelMusic != EFlareMusicTrack::None)
-				{
-					FLOG("AFlarePlayerController::UpdateMusicTrack : using level music");
-					SoundManager->RequestMusicTrack(LevelMusic);
-				}
-				else
-				{
-					FLOG("AFlarePlayerController::UpdateMusicTrack : exploration");
-					SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
-				}
+				FLOG("AFlarePlayerController::UpdateMusicTrack : combat");
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::Combat);
 			}
-			break;
-
-		// Battle lost
-		case EFlareSectorBattleState::BattleLost:
-		case EFlareSectorBattleState::BattleLostNoRetreat:
+		}
+		else
+		{
 			FLOG("AFlarePlayerController::UpdateMusicTrack : battle lost");
 			SoundManager->RequestMusicTrack(EFlareMusicTrack::Danger);
-			break;
-
-		// Battle in progress
-		case EFlareSectorBattleState::Battle:
-		case EFlareSectorBattleState::BattleNoRetreat:
-		default:
+		}
+	}
+	else
+	{
+		if (GetPlayerFleet()->IsTraveling() || !GetGame()->GetActiveSector())
+		{
+			FLOG("AFlarePlayerController::UpdateMusicTrack : travel");
+			SoundManager->RequestMusicTrack(EFlareMusicTrack::Travel);
+		}
+		else
+		{
+			EFlareMusicTrack::Type LevelMusic = GetGame()->GetActiveSector()->GetSimulatedSector()->GetDescription()->LevelTrack;
+			if (LevelMusic != EFlareMusicTrack::None)
 			{
-				UFlareSimulatedSector* Sector = GetGame()->GetActiveSector()->GetSimulatedSector();
-				if (Sector->GetSectorShips().Num() > 15)
-				{
-					FLOG("AFlarePlayerController::UpdateMusicTrack : war");
-					SoundManager->RequestMusicTrack(EFlareMusicTrack::War);
-				}
-				else
-				{
-					FLOG("AFlarePlayerController::UpdateMusicTrack : combat");
-					SoundManager->RequestMusicTrack(EFlareMusicTrack::Combat);
-				}
+				FLOG("AFlarePlayerController::UpdateMusicTrack : using level music");
+				SoundManager->RequestMusicTrack(LevelMusic);
 			}
-			break;
+			else
+			{
+				FLOG("AFlarePlayerController::UpdateMusicTrack : exploration");
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+			}
+		}
 	}
 }
 
@@ -550,7 +542,7 @@ void AFlarePlayerController::Clean()
 	QuickSwitchNextOffset = 0;
 	TimeSinceWeaponSwitch = 0;
 
-	LastBattleState = EFlareSectorBattleState::NoBattle;
+	LastBattleState.Init();
 	RecoveryActive = false;
 
 	MenuManager->FlushNotifications();
@@ -893,7 +885,7 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 
 bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 {
-	bool BattleInProgress = false;
+	bool FightInProgress = false;
 	bool BattleLostWithRetreat = false;
 	bool BattleLostWithoutRetreat = false;
 
@@ -902,30 +894,36 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 	{
 		UFlareSimulatedSector* Sector = GetCompany()->GetKnownSectors()[SectorIndex];
 
-		EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(GetCompany());
-		if (BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
+		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(GetCompany());
+		if (BattleState.InBattle)
 		{
-			BattleInProgress = true;
-		}
-		else if (BattleState == EFlareSectorBattleState::BattleLost)
-		{
-			BattleLostWithRetreat = true;
-		}
-		else if (BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
-		{
-			BattleLostWithoutRetreat = true;
+			if(BattleState.InActiveFight)
+			{
+				FightInProgress = true;
+			}
+			else if (!BattleState.InFight && !BattleState.BattleWon)
+			{
+				if(BattleState.RetreatPossible)
+				{
+					BattleLostWithRetreat = true;
+				}
+				else
+				{
+					BattleLostWithoutRetreat = true;
+				}
+			}
 		}
 	}
 
 	// Notify when a battle is happening
-	if (BattleInProgress)
+	if (FightInProgress)
 	{
 		MenuManager->Confirm(LOCTEXT("ConfirmBattleTitle", "AUTOMATIC BATTLE ?"),
 								LOCTEXT("ConfirmBattleText", "Some of the ships engaged in a battle. They will fight and may be lost."),
 								OnConfirmed);
 		return false;
 	}
-	else if (BattleInProgress || BattleLostWithoutRetreat)
+	else if (BattleLostWithoutRetreat)
 	{
 		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithoutRetreatTitle", "SACRIFICE SHIPS ?"),
 								LOCTEXT("ConfirmBattleLostWithoutRetreatText", "Some of the ships engaged in a battle cannot retreat and may be lost."),
