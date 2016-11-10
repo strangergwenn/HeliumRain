@@ -246,10 +246,55 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 		{
 			CompanyData.HostileCompanies.AddUnique(TargetCompany->GetIdentifier());
 			TargetCompany->GiveReputation(this, -50, true);
+
+			UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+			if(TargetCompany == PlayerCompany)
+			{
+
+				if(PlayerCompany->GetHostility(this) != EFlareHostility::Hostile)
+				{
+					FFlareMenuParameterData Data;
+					Game->GetPC()->Notify(LOCTEXT("CompanyDeclareWar", "War declared"),
+						FText::Format(LOCTEXT("CompanyDeclareWarFormat", "{0} declared war to you"), FText::FromString(GetCompanyName().ToString())),
+						FName("war-declared"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Leaderboard,
+						Data);
+				}
+			}
 		}
 		else if(!Hostile && WasHostile)
 		{
 			CompanyData.HostileCompanies.Remove(TargetCompany->GetIdentifier());
+
+			UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+			if(TargetCompany == PlayerCompany)
+			{
+
+				if(PlayerCompany->GetHostility(this) == EFlareHostility::Hostile)
+				{
+					FFlareMenuParameterData Data;
+					Game->GetPC()->Notify(LOCTEXT("CompanyWantPeace", "Peace proposed"),
+						FText::Format(LOCTEXT("CompanyWantPeaceFormat", "{0} proposed you to make peace"), FText::FromString(GetCompanyName().ToString())),
+						FName("peace-proposed"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Leaderboard,
+						Data);
+				}
+				else
+				{
+					FFlareMenuParameterData Data;
+					Game->GetPC()->Notify(LOCTEXT("CompanyAcceptPeace", "Peace accepted"),
+						FText::Format(LOCTEXT("CompanyAcceptPeaceFormat", "{0} accepted to make peace"), FText::FromString(GetCompanyName().ToString())),
+						FName("peace-accepted"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Leaderboard,
+						Data);
+				}
+			}
 		}
 	}
 }
@@ -504,6 +549,8 @@ void UFlareCompany::GiveMoney(int64 Amount)
 void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Propagate)
 {
 	FFlareCompanyReputationSave* CompanyReputation = NULL;
+
+	FLOGV("%s : change reputation for %s by %f", *GetCompanyName().ToString(), *Company->GetCompanyName().ToString(), Amount);
 
 	if (Company == this)
 	{
