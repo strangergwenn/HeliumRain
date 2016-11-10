@@ -103,30 +103,30 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			continue;
 		}
 
-		if(Company == ST->Pirates && !PirateLowProfile && OtherCompany != ST->AxisSupplies)
+		if (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile && Company->GetReputation(OtherCompany) > -100)
+		{
+			Company->SetHostilityTo(OtherCompany, false);
+		}
+		else if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile && Company->GetReputation(OtherCompany) <= -100)
 		{
 			Company->SetHostilityTo(OtherCompany, true);
-		}
-		else
-		{
-			if (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile && Company->GetReputation(OtherCompany) > -100)
+			if (OtherCompany == Game->GetPC()->GetCompany())
 			{
-				Company->SetHostilityTo(OtherCompany, false);
-			}
-			else if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile && Company->GetReputation(OtherCompany) <= -100)
-			{
-				Company->SetHostilityTo(OtherCompany, true);
-				if (OtherCompany == Game->GetPC()->GetCompany())
-				{
-					OtherCompany->SetHostilityTo(Company, true);
-				}
+				OtherCompany->SetHostilityTo(Company, true);
 			}
 		}
+
 	}
 }
 
 void UFlareAIBehavior::SimulatePirateBehavior()
 {
+	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+		Company->GiveReputation(OtherCompany, -1, false);
+	}
+
 	// Repair and refill ships and stations
 	Company->GetAI()->RepairAndRefill();
 
