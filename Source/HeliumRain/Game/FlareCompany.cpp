@@ -626,7 +626,7 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 				continue;
 			}
 
-			float OtherReputation = OtherCompany->GetReputation(Company);
+			float OtherReputation = OtherCompany->GetReputation(this);
 			float PropagationRatio = OtherReputation / 400.f;
 			OtherCompany->GiveReputation(Company, PropagationRatio * ReputationScaledGain, false);
 		}
