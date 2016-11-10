@@ -301,7 +301,6 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	bool IsActiveSector = (PC->GetGame()->GetActiveSector() && Sector == PC->GetGame()->GetActiveSector()->GetSimulatedSector());
 
 	// Known sector
 	if (PC->GetCompany()->HasVisitedSector(TargetSector))
@@ -331,7 +330,7 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 
 			if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
 			{
-				if (IsActiveSector && !ShipCandidate->IsActive())
+				if (ShipCandidate->IsReserve())
 				{
 					if (ShipCandidate->GetCompany() == PC->GetCompany())
 					{
