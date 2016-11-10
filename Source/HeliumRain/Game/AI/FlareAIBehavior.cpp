@@ -36,6 +36,36 @@ void UFlareAIBehavior::Load(UFlareCompany* ParentCompany)
 
 void UFlareAIBehavior::Simulate()
 {
+	// Reputation changes
+	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		if (OtherCompany == Company)
+		{
+			continue;
+		}
+
+		int64 OtherCompanyValue = OtherCompany->GetCompanyValue().TotalValue;
+		int64 CompanyValue = Company->GetCompanyValue().TotalValue;
+		if(CompanyValue > OtherCompanyValue)
+		{
+			float ValueRatio = (float)OtherCompanyValue / (float)CompanyValue;
+			Company->GiveReputation(OtherCompany, 0.1 * (1 - ValueRatio), false);
+		}
+		else
+		{
+			float ValueRatio = (float)CompanyValue / (float)OtherCompanyValue;
+			Company->GiveReputation(OtherCompany, - 0.1 * (1 - ValueRatio), false);
+		}
+
+		if(Company == ST->Pirates)
+		{
+			Company->GiveReputation(OtherCompany, -1, false);
+		}
+	}
+
+
 	if(Company == ST->Pirates)
 	{
 		// TODO save state
@@ -121,12 +151,6 @@ void UFlareAIBehavior::UpdateDiplomacy()
 
 void UFlareAIBehavior::SimulatePirateBehavior()
 {
-	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
-	{
-		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
-		Company->GiveReputation(OtherCompany, -1, false);
-	}
-
 	// Repair and refill ships and stations
 	Company->GetAI()->RepairAndRefill();
 
