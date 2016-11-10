@@ -392,4 +392,6 @@ public:
 		return TacticManager;
 	}
 
+	float GetConfidenceLevel(UFlareCompany* ReferenceCompany);
+
 };

@@ -587,7 +587,7 @@ void UFlareWorld::Simulate()
 			float ReputationDelta = ReputationMean - Reputation1;
 			if(ReputationDelta != 0.f)
 			{
-				Company1->GiveReputation(Company2, -0.01 * FMath::Sign(ReputationDelta), false);
+				Company1->GiveReputation(Company2, 0.01 * FMath::Sign(ReputationDelta), false);
 			}
 		}
 	}

@@ -550,15 +550,17 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 		{
 			continue;
 		}
-		FLOGV("   - %s want %s with %s (reputation: %f). %s want %s with %s (reputation: %f)",
+		FLOGV("   - %s want %s with %s (reputation: %f, confidence: %f). %s want %s with %s (reputation: %f, confidence: %f)",
 			  *Company->GetCompanyName().ToString(),
 			  (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile ? *FString("war") : *FString("peace")),
 			  *OtherCompany->GetCompanyName().ToString(),
 			  Company->GetReputation(OtherCompany),
+			  Company->GetConfidenceLevel(OtherCompany),
 			  *OtherCompany->GetCompanyName().ToString(),
 			  (OtherCompany->GetHostility(Company) == EFlareHostility::Hostile ? *FString("war") : *FString("peace")),
 			  *Company->GetCompanyName().ToString(),
-			  OtherCompany->GetReputation(Company));
+			  OtherCompany->GetReputation(Company),
+			  OtherCompany->GetConfidenceLevel(Company));
 	}
 }
 

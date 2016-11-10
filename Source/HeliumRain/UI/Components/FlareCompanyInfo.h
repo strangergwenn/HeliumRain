@@ -68,6 +68,15 @@ protected:
 	/** Reputation info color */
 	FSlateColor GetReputationColor() const;
 
+	/** Confidence info */
+	FText GetConfidenceText() const;
+
+	/** Confidence value */
+	FText GetConfidenceTextValue() const;
+
+	/** Confidence info color */
+	FSlateColor GetConfidenceColor() const;
+
 	/** War info color */
 	FSlateColor GetWarColor() const;
 

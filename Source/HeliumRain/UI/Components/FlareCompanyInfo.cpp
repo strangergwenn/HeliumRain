@@ -151,6 +151,31 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 							]
 						]
 
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
+
+							// Confidence text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareCompanyInfo::GetConfidenceText)
+								.TextStyle(&Theme.TextFont)
+							]
+
+							// Confidence value
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareCompanyInfo::GetConfidenceTextValue)
+								.ColorAndOpacity(this, &SFlareCompanyInfo::GetConfidenceColor)
+								.TextStyle(&Theme.TextFont)
+							]
+						]
+
 						// Hostility
 						+ SVerticalBox::Slot()
 						.AutoHeight()
@@ -308,6 +333,54 @@ FSlateColor SFlareCompanyInfo::GetReputationColor() const
 		else if (Reputation >= 100)
 		{
 			return Theme.FriendlyColor;
+		}
+		else
+		{
+			return Theme.NeutralColor;
+		}
+	}
+
+	return Result;
+}
+
+FText SFlareCompanyInfo::GetConfidenceText() const
+{
+	FText Result;
+
+	if (Player && Player->GetCompany() != Company)
+	{
+		return LOCTEXT("ConfidenceInfo", "Confidence level : ");
+	}
+
+	return Result;
+}
+
+FText SFlareCompanyInfo::GetConfidenceTextValue() const
+{
+	FText Result;
+
+	if (Player && Company && Player->GetCompany() != Company)
+	{
+		int32 Confidence = Company->GetConfidenceLevel(Player->GetCompany()) * 100;
+		return FText::Format(LOCTEXT("ConfidenceInfoFormat", "{0} %%"), FText::AsNumber(Confidence));
+	}
+
+	return Result;
+}
+
+FSlateColor SFlareCompanyInfo::GetConfidenceColor() const
+{
+	FLinearColor Result;
+
+	if (Player && Company)
+	{
+		float Reputation = Company->GetReputation(Player->GetCompany());
+		float Confidence = Company->GetConfidenceLevel(Player->GetCompany());
+		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+		if (Reputation <= -100 && Confidence > 0)
+		{
+			return Theme.EnemyColor;
 		}
 		else
 		{

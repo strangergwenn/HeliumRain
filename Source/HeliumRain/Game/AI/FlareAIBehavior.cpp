@@ -46,22 +46,29 @@ void UFlareAIBehavior::Simulate()
 			continue;
 		}
 
-		int64 OtherCompanyValue = OtherCompany->GetCompanyValue().TotalValue;
-		int64 CompanyValue = Company->GetCompanyValue().TotalValue;
-		if(CompanyValue > OtherCompanyValue)
+		if(Company == ST->Pirates && OtherCompany != ST->AxisSupplies)
 		{
-			float ValueRatio = (float)OtherCompanyValue / (float)CompanyValue;
-			Company->GiveReputation(OtherCompany, 0.1 * (1 - ValueRatio), false);
+			Company->GiveReputation(OtherCompany, -1, false);
 		}
 		else
 		{
-			float ValueRatio = (float)CompanyValue / (float)OtherCompanyValue;
-			Company->GiveReputation(OtherCompany, - 0.1 * (1 - ValueRatio), false);
-		}
+			int64 OtherCompanyValue = OtherCompany->GetCompanyValue().TotalValue;
+			int64 CompanyValue = Company->GetCompanyValue().TotalValue;
+			if(CompanyValue > OtherCompanyValue)
+			{
+				float ValueRatio = (float)OtherCompanyValue / (float)CompanyValue;
+				Company->GiveReputation(OtherCompany, 0.1 * (1 - ValueRatio), false);
+			}
+			else
+			{
+				float ValueRatio = (float)CompanyValue / (float)OtherCompanyValue;
+				Company->GiveReputation(OtherCompany, - 0.1 * (1 - ValueRatio), false);
+			}
 
-		if(Company == ST->Pirates)
-		{
-			Company->GiveReputation(OtherCompany, -1, false);
+			if(Company == ST->Pirates && OtherCompany != ST->AxisSupplies)
+			{
+				Company->GiveReputation(OtherCompany, -1, false);
+			}
 		}
 	}
 
@@ -133,11 +140,13 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			continue;
 		}
 
-		if (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile && Company->GetReputation(OtherCompany) > -100)
+		if (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile
+				&& (Company->GetReputation(OtherCompany) > -100 || Company->GetConfidenceLevel(OtherCompany) < -0.1))
 		{
 			Company->SetHostilityTo(OtherCompany, false);
 		}
-		else if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile && Company->GetReputation(OtherCompany) <= -100)
+		else if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile
+				 && Company->GetReputation(OtherCompany) <= -100 && Company->GetConfidenceLevel(OtherCompany) > 0.1)
 		{
 			Company->SetHostilityTo(OtherCompany, true);
 			if (OtherCompany == Game->GetPC()->GetCompany())

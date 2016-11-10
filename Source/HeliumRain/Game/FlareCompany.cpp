@@ -667,6 +667,141 @@ void UFlareCompany::ForceReputation(UFlareCompany* Company, float Amount)
 	CompanyReputation->Reputation = Amount;
 }
 
+float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
+{
+	// Confidence level go from 1 to -1
+	// 1 if if the army value of the company and its potential allies is infinite compared to the opposent
+	// -1 if if the army value of the company and its potential allies is zero compared to the opposent
+	//
+	// The enemies are people at war with me, the reference company if provide and all the company that dont like me
+	// The allies are all the people at war the one of my enemies or that dont like my enemies
+
+
+	TArray<UFlareCompany*> Allies;
+	TArray<UFlareCompany*> Enemies;
+
+	Allies.Add(this);
+
+	if(ReferenceCompany)
+	{
+		Enemies.Add(ReferenceCompany);
+	}
+
+	// Find enemies
+	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		if (OtherCompany == ReferenceCompany || OtherCompany == this)
+		{
+			continue;
+		}
+
+		bool IsEnemy = false;
+
+		if (GetWarState(OtherCompany) == EFlareHostility::Hostile)
+		{
+			IsEnemy = true;
+		}
+
+		if (OtherCompany->GetReputation(this) <= -100)
+		{
+			IsEnemy = true;
+		}
+
+		if (IsEnemy)
+		{
+			Enemies.Add(OtherCompany);
+		}
+	}
+
+	// Find allies
+	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		if (OtherCompany == ReferenceCompany || OtherCompany == this)
+		{
+			continue;
+		}
+
+		bool IsAlly = false;
+
+		for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
+		{
+			UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
+
+			if (OtherCompany->GetWarState(EnemyCompany) == EFlareHostility::Hostile)
+			{
+				IsAlly = true;
+				break;
+			}
+
+			if (OtherCompany->GetReputation(EnemyCompany) <= -100)
+			{
+				IsAlly = true;
+				break;
+			}
+		}
+
+		if (IsAlly)
+		{
+			Allies.Add(OtherCompany);
+		}
+	}
+
+
+	// Compute army values
+	int64 EnemiesArmyValues = 0;
+	int64 AlliesArmyValues = 0;
+
+	//FLOGV("Compute confidence for %s (ref: %s)", *GetCompanyName().ToString(), (ReferenceCompany ? *ReferenceCompany->GetCompanyName().ToString(): *FString("none")));
+
+	for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
+	{
+		UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
+		EnemiesArmyValues += EnemyCompany->GetCompanyValue().ArmyValue;
+		//FLOGV("- enemy: %s (%lld)", *EnemyCompany->GetCompanyName().ToString(), EnemyCompany->GetCompanyValue().ArmyValue);
+	}
+
+	for (int32 AllyIndex = 0; AllyIndex < Allies.Num(); AllyIndex++)
+	{
+		UFlareCompany* AllyCompany = Allies[AllyIndex];
+		AlliesArmyValues += AllyCompany->GetCompanyValue().ArmyValue;
+		//FLOGV("- ally: %s (%lld)", *AllyCompany->GetCompanyName().ToString(), AllyCompany->GetCompanyValue().ArmyValue);
+	}
+	//FLOGV("EnemiesArmyValues=%lld AlliesArmyValues=%lld", EnemiesArmyValues, AlliesArmyValues);
+
+	// Compute confidence
+	if(AlliesArmyValues == EnemiesArmyValues)
+	{
+		return 0;
+	}
+	else if(AlliesArmyValues > EnemiesArmyValues)
+	{
+		if(EnemiesArmyValues == 0)
+		{
+			return 1;
+		}
+
+		float Ratio =  (float) AlliesArmyValues /  (float) EnemiesArmyValues;
+		float Confidence = 1.f-1.f / (Ratio + 1);
+		return Confidence;
+	}
+	else
+	{
+		if(AlliesArmyValues == 0)
+		{
+			return -1;
+		}
+
+		float Ratio =  (float) EnemiesArmyValues /  (float) AlliesArmyValues;
+		float Confidence = 1.f-1.f / (Ratio + 1);
+		return -Confidence;
+	}
+
+}
+
 int64 UFlareCompany::GetTributeCost(UFlareCompany* Company)
 {
 	return 0.01 * GetCompanyValue().TotalValue;
@@ -830,7 +965,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 			Value.ShipsValue += SpacecraftPrice;
 		}
 
-		if(Spacecraft->IsMilitary())
+		if(Spacecraft->IsMilitary() && !Spacecraft->GetDamageSystem()->IsDisarmed())
 		{
 			// TODO Upgrade cost
 			Value.ArmyValue += SpacecraftPrice;
