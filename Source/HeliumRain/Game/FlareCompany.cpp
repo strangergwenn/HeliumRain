@@ -250,7 +250,6 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 		else if(!Hostile && WasHostile)
 		{
 			CompanyData.HostileCompanies.Remove(TargetCompany->GetIdentifier());
-			TargetCompany->GiveReputation(this, 20, true);
 		}
 	}
 }
