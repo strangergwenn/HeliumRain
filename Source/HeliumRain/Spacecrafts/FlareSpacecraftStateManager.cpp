@@ -27,6 +27,7 @@ UFlareSpacecraftStateManager::UFlareSpacecraftStateManager(const class FObjectIn
 {
 	// Pilot
 	IsPiloted = true;
+	PilotForced = false;
 }
 
 void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft)
@@ -273,14 +274,19 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 	}
 }
 
-void UFlareSpacecraftStateManager::EnablePilot(bool PilotEnabled)
+void UFlareSpacecraftStateManager::EnablePilot(bool PilotEnabled, bool Force)
 {
 	if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
 	{
 		PilotEnabled = true;
 	}
 
-	IsPiloted = PilotEnabled;
+	if(Force)
+	{
+			PilotForced = PilotEnabled;
+	}
+
+	IsPiloted = PilotEnabled || PilotForced;
 }
 
 void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)

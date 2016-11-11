@@ -22,7 +22,7 @@ public:
 
 	virtual void UpdateCamera(float DeltaSeconds);
 
-	virtual void EnablePilot(bool EnablePilot);
+	virtual void EnablePilot(bool EnablePilot, bool Force = false);
 
 	/** Activate or deactivate the external camera */
 	virtual void SetExternalCamera(bool NewState);
@@ -96,6 +96,7 @@ protected:
 	// Dynamic gameplay data
 	bool                                     IsPiloted;
 	bool                                     ExternalCamera;
+	bool									 PilotForced;
 
 	// External camera
 	float                                    ExternalCameraPitch;

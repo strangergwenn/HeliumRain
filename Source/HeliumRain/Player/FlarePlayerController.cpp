@@ -1260,7 +1260,7 @@ void AFlarePlayerController::TogglePilot()
 {
 	bool NewState = !ShipPawn->GetStateManager()->IsPilotMode();
 	FLOGV("AFlarePlayerController::TooglePilot : new state is %d", NewState);
-	ShipPawn->GetStateManager()->EnablePilot(NewState);
+	ShipPawn->GetStateManager()->EnablePilot(NewState, true);
 }
 
 void AFlarePlayerController::ToggleHUD()
