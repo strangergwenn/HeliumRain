@@ -135,6 +135,8 @@ protected:
 	UPROPERTY()
 	AFlareSpacecraft*                            PilotTargetShip;
 	UPROPERTY()
+	AFlareSpacecraft*                            LastPilotTargetShip;
+	UPROPERTY()
 	AFlareSpacecraft*                            PilotTargetStation;
 	UPROPERTY()
 	AFlareSpacecraft*                            PilotLastTargetStation;

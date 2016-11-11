@@ -1224,21 +1224,11 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 						FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Spacecraft);
 						EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
 						EFlareShellDamageType::Type DamageType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Description->WeaponCharacteristics.DamageType;
-						bool FighterTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_GUN && Spacecraft->GetParent()->GetSize() == EFlarePartSize::L;
-						bool FireDirector = WeaponType == EFlareWeaponGroupType::WG_TURRET;
-						bool BomberTargettingSmall = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetParent()->GetSize() == EFlarePartSize::S;
-						bool BomberTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetParent()->GetSize() == EFlarePartSize::L;
-						bool Salvage = (DamageType == EFlareShellDamageType::LightSalvage || DamageType == EFlareShellDamageType::HeavySalvage);
-						bool AntiLarge = (DamageType == EFlareShellDamageType::HEAT);
 
-						// Draw helper if it makes sense
-						if ((!(FighterTargettingLarge && !AntiLarge) && !(BomberTargettingSmall && ! Salvage)) || FireDirector)
-						{
-							DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
-						}
+						DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
 
 						// Bomber UI
-						if (BomberTargettingLarge || (BomberTargettingSmall && Salvage))
+						if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
 						{
 							// Time display
 							FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");

@@ -37,6 +37,7 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 	WaitTime = 0;
 	PilotTargetLocation = FVector::ZeroVector;
 	PilotTargetShip = NULL;
+	LastPilotTargetShip = NULL;
 	PilotTargetStation = NULL;
 	PilotLastTargetStation = NULL;
 	SelectedWeaponGroupIndex = -1;
@@ -331,7 +332,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	bool DangerousTarget = PilotHelper::IsShipDangerous(PilotTargetShip);
 
 	//float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 2.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
-	float PreferedVelocity = Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+	float PreferedVelocity = Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 2;
 
 	//FLOGV("%s target %s",  *Ship->GetImmatriculation().ToString(),  *PilotTargetShip->GetImmatriculation().ToString());
 	// The pilot have a target, track and kill it
@@ -421,16 +422,18 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	else
 	{
 		TimeSinceAiming = 0;
-		AngularNoise = 10; // 1 degree
+		AngularNoise = 20; // 1 degree
 	}
 
 
 	if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
 	{
-		FLOGV("TargetAxisAngularPrecisionDot=%f", TargetAxisAngularPrecisionDot);
+		/*FLOGV("TargetAxisAngularPrecisionDot=%f", TargetAxisAngularPrecisionDot);
 		FLOGV("TargetAxisAngularPrecision=%f", TargetAxisAngularPrecision);
 		FLOGV("TimeSinceAiming=%f", TimeSinceAiming);
-		FLOGV("AngularNoise=%f", AngularNoise);
+		FLOGV("AngularNoise=%f", AngularNoise);*/
+		FLOGV("Distance=%f", Distance);
+		FLOGV("AttackPhase=%d", AttackPhase);
 	}
 
 	FVector PredictedFireTargetAxisWithError = FMath::VRandCone(PredictedFireTargetAxis, FMath::DegreesToRadians(AngularNoise));
@@ -464,27 +467,29 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		{
 			// Target is approching, prepare attack
 			AttackPhase = 1;
+			if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
+			{
+				FLOG("Pass to phase 1");
+			}
 			LastTargetDistance = Distance;
 		}
 		else
 		{
-			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity * 2 + PilotTargetShip->GetLinearVelocity();
+			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity + PilotTargetShip->GetLinearVelocity() *0.9;
 			UseOrbitalBoost = true;
 		}
-
-		if (Distance < SecurityDistance)
-		{
-			AttackPhase = 1;
-		}
-
 	}
 
 	if (AttackPhase == 1)
 	{
-		if (LastTargetDistance < Distance) // TODO : check if I can't use dot product
+		if (FVector::DotProduct(DeltaLocation, DeltaVelocity) > 0) // TODO : check if I can't use dot product
 		{
 			// Target is passed
 			AttackPhase = 2;
+			if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
+			{
+				FLOG("Pass to phase 2");
+			}
 		}
 		else
 		{
@@ -492,8 +497,13 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 			FVector TopVector = Ship->GetActorRotation().RotateVector(FVector(0,0,AttackDistance));
 			FVector AttackMargin =  AttackDistanceQuat.RotateVector(TopVector);
 
+			if(Distance < SecurityDistance)
+			{
+				PreferedVelocity /=2;
+			}
 
-			LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * PreferedVelocity + PilotTargetShip->GetLinearVelocity();
+
+			LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * PreferedVelocity + PilotTargetShip->GetLinearVelocity() * 0.9;
 			if (Distance > SecurityDistance || DangerousTarget)
 			{
 				UseOrbitalBoost = true;
@@ -508,13 +518,17 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		if (Distance > SecurityDistance)
 		{
 			// Security distance reach
-			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity + PilotTargetShip->GetLinearVelocity();
+			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity + PilotTargetShip->GetLinearVelocity() * 0.9;
 			AttackPhase = 0;
+			if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
+			{
+				FLOG("Pass to phase 0");
+			}
 			ClearTarget = true;
 		}
 		else
 		{
-			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * PreferedVelocity + PilotTargetShip->GetLinearVelocity();
+			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * PreferedVelocity + PilotTargetShip->GetLinearVelocity() * 0.9;
 			if (DangerousTarget)
 			{
 				UseOrbitalBoost = true;
@@ -562,15 +576,19 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 					float AngularPrecision = FMath::Acos(AngularPrecisionDot);
 					float AngularSize = FMath::Atan(TargetSize / Distance);
 
-					if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
+					/*if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
 					{
 						FLOGV("Gun %d Distance=%f", GunIndex, Distance);
 						FLOGV("Gun %d TargetSize=%f", GunIndex, TargetSize);
 						FLOGV("Gun %d AngularSize=%f", GunIndex, AngularSize);
 						FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);
-					}
+					}*/
 					if (AngularPrecision < (DangerousTarget ? AngularSize * 0.5 : AngularSize * 0.2))
 					{
+						/*if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
+						{
+							FLOG("Gun precision ok, check FF");
+						}*/
 						if (!PilotHelper::CheckFriendlyFire(Ship->GetGame()->GetActiveSector(), PlayerCompany, MuzzleLocation, ShipVelocity, AmmoVelocity, GunFireTargetAxis, GunAmmoIntersectionTime, 0))
 						{
 							FVector Location = PilotTargetShip->GetActorLocation();
@@ -1086,8 +1104,14 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 
 		if(PilotTargetShip != TargetCandidate)
 		{
+			if(LastPilotTargetShip != PilotTargetShip && LastPilotTargetShip != TargetCandidate)
+			{
+				TimeSinceAiming = 0;
+			}
+
 			PilotTargetShip = TargetCandidate;
-			TimeSinceAiming = 0;
+			LastPilotTargetShip = TargetCandidate;
+
 			NewTarget = true;
 		}
 

@@ -161,6 +161,7 @@ void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall,
 			}
 			else
 			{
+				LargePool += 0.01;
 				SmallPool += 1.0;
 				NotUncontrollablePool += 1.0;
 				UncontrollableMilitaryPool += 0.01;
@@ -256,7 +257,7 @@ int32 UFlareSimulatedSpacecraftWeaponsSystem::FindBestWeaponGroup(UFlareSimulate
 			}
 			else
 			{
-				Score *= (SmallTarget ? 1.f : 0.f);
+				Score *= (SmallTarget ? 1.f : 0.01f);
 				if(Target->IsMilitary())
 				{
 					Score *= (UncontrollableTarget ? 0.01f : 1.f);

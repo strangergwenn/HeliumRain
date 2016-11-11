@@ -247,7 +247,7 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 			StateScore *= Preferences.IsNotStranded;
 		}
 
-		if (ShipCandidate->GetParent()->GetDamageSystem()->IsUncontrollable())
+		if (ShipCandidate->GetParent()->GetDamageSystem()->IsUncontrollable() && ShipCandidate->GetParent()->GetDamageSystem()->IsDisarmed())
 		{
 			if (ShipCandidate->IsMilitary())
 			{

@@ -389,7 +389,7 @@ UFlareSimulatedSpacecraft* UFlareBattle::GetBestTarget(UFlareSimulatedSpacecraft
 			StateScore *= Preferences.IsNotStranded;
 		}
 
-		if (ShipCandidate->GetDamageSystem()->IsUncontrollable())
+		if (ShipCandidate->GetDamageSystem()->IsUncontrollable() && ShipCandidate->GetDamageSystem()->IsDisarmed())
 		{
 			if(ShipCandidate->IsMilitary())
 			{
