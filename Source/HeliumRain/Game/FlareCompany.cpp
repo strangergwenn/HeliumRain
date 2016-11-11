@@ -694,7 +694,7 @@ void UFlareCompany::ForceReputation(UFlareCompany* Company, float Amount)
 
 	CompanyReputation->Reputation = Amount;
 }
-
+//#define DEBUG_CONFIDENCE
 float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 {
 	// Confidence level go from 1 to -1
@@ -753,11 +753,17 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 			continue;
 		}
 
+		if(Enemies.Contains(OtherCompany))
+		{
+			continue;
+		}
+
 		bool IsAlly = false;
 
 		for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
 		{
 			UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
+
 
 			if (OtherCompany->GetWarState(EnemyCompany) == EFlareHostility::Hostile)
 			{
@@ -782,24 +788,64 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 	// Compute army values
 	int64 EnemiesArmyValues = 0;
 	int64 AlliesArmyValues = 0;
-
-	//FLOGV("Compute confidence for %s (ref: %s)", *GetCompanyName().ToString(), (ReferenceCompany ? *ReferenceCompany->GetCompanyName().ToString(): *FString("none")));
-
+#ifdef DEBUG_CONFIDENCE
+	FLOGV("Compute confidence for %s (ref: %s)", *GetCompanyName().ToString(), (ReferenceCompany ? *ReferenceCompany->GetCompanyName().ToString(): *FString("none")));
+#endif
 	for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
 	{
 		UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
 		EnemiesArmyValues += EnemyCompany->GetCompanyValue().ArmyValue;
-		//FLOGV("- enemy: %s (%lld)", *EnemyCompany->GetCompanyName().ToString(), EnemyCompany->GetCompanyValue().ArmyValue);
+#ifdef DEBUG_CONFIDENCE
+		FLOGV("- enemy: %s (%lld)", *EnemyCompany->GetCompanyName().ToString(), EnemyCompany->GetCompanyValue().ArmyValue);
+#endif
 	}
 
 	for (int32 AllyIndex = 0; AllyIndex < Allies.Num(); AllyIndex++)
 	{
 		UFlareCompany* AllyCompany = Allies[AllyIndex];
-		AlliesArmyValues += AllyCompany->GetCompanyValue().ArmyValue;
-		//FLOGV("- ally: %s (%lld)", *AllyCompany->GetCompanyName().ToString(), AllyCompany->GetCompanyValue().ArmyValue);
-	}
-	//FLOGV("EnemiesArmyValues=%lld AlliesArmyValues=%lld", EnemiesArmyValues, AlliesArmyValues);
 
+		// Allies can be enemy to only a part of my ennemie. Cap to the value of the enemy if not me
+		int64 AllyArmyValue = AllyCompany->GetCompanyValue().ArmyValue;
+#ifdef DEBUG_CONFIDENCE
+		FLOGV("- ally: %s (%lld)", *AllyCompany->GetCompanyName().ToString(), AllyArmyValue);
+#endif
+		if(AllyCompany == this)
+		{
+			AlliesArmyValues += AllyArmyValue;
+		}
+		else
+		{
+			int64 MaxArmyValue = 0;
+
+			for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
+			{
+				UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
+
+				if (AllyCompany->GetWarState(EnemyCompany) == EFlareHostility::Hostile)
+				{
+					MaxArmyValue += EnemyCompany->GetCompanyValue().ArmyValue;
+					continue;
+				}
+
+				if (AllyCompany->GetReputation(EnemyCompany) <= -100)
+				{
+					MaxArmyValue += EnemyCompany->GetCompanyValue().ArmyValue;
+					continue;
+				}
+			}
+#ifdef DEBUG_CONFIDENCE
+			FLOGV("  > restricted to %lld", MaxArmyValue);
+#endif
+			AlliesArmyValues += FMath::Min(MaxArmyValue, AllyArmyValue);
+		}
+
+
+
+
+	}
+#ifdef DEBUG_CONFIDENCE
+	FLOGV("EnemiesArmyValues=%lld AlliesArmyValues=%lld", EnemiesArmyValues, AlliesArmyValues);
+#endif
 	// Compute confidence
 	if(AlliesArmyValues == EnemiesArmyValues)
 	{
@@ -814,6 +860,9 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 
 		float Ratio =  (float) AlliesArmyValues /  (float) EnemiesArmyValues;
 		float Confidence = 1.f-1.f / (Ratio + 1);
+#ifdef DEBUG_CONFIDENCE
+	FLOGV("Ratio=%f Confidence=%f", Ratio, Confidence);
+#endif
 		return Confidence;
 	}
 	else
@@ -825,6 +874,9 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 
 		float Ratio =  (float) EnemiesArmyValues /  (float) AlliesArmyValues;
 		float Confidence = 1.f-1.f / (Ratio + 1);
+#ifdef DEBUG_CONFIDENCE
+	FLOGV("Ratio=%f Confidence=%f", Ratio, -Confidence);
+#endif
 		return -Confidence;
 	}
 

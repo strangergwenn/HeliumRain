@@ -1612,11 +1612,11 @@ void UFlareSimulatedSector::UpdateReserveShips()
 	int32 TotalCargoShipCount = 0;
 	int32 TotalMilitaryShipCount = 0;
 
-	FLOGV("UpdateReserveShips in %s: max=%d total=%d", *GetSectorName().ToString(), MaxShipsInSector, TotalShipCount);
+	//FLOGV("UpdateReserveShips in %s: max=%d total=%d", *GetSectorName().ToString(), MaxShipsInSector, TotalShipCount);
 
 	if (TotalShipCount <= MaxShipsInSector)
 	{
-		FLOG("reserve no ship");
+		//FLOG("reserve no ship");
 		for (auto Ship : GetSectorShips())
 		{
 			Ship->SetReserve(false);
