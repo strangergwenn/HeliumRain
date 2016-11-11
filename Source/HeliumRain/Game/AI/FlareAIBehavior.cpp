@@ -50,26 +50,25 @@ void UFlareAIBehavior::Simulate()
 		{
 			Company->GiveReputation(OtherCompany, -1, false);
 		}
+
+		int64 OtherCompanyValue = OtherCompany->GetCompanyValue().TotalValue;
+		int64 CompanyValue = Company->GetCompanyValue().TotalValue;
+		if(CompanyValue > OtherCompanyValue)
+		{
+			float ValueRatio = (float)OtherCompanyValue / (float)CompanyValue;
+			Company->GiveReputation(OtherCompany, 0.1 * (1 - ValueRatio), false);
+		}
 		else
 		{
-			int64 OtherCompanyValue = OtherCompany->GetCompanyValue().TotalValue;
-			int64 CompanyValue = Company->GetCompanyValue().TotalValue;
-			if(CompanyValue > OtherCompanyValue)
-			{
-				float ValueRatio = (float)OtherCompanyValue / (float)CompanyValue;
-				Company->GiveReputation(OtherCompany, 0.1 * (1 - ValueRatio), false);
-			}
-			else
-			{
-				float ValueRatio = (float)CompanyValue / (float)OtherCompanyValue;
-				Company->GiveReputation(OtherCompany, - 0.1 * (1 - ValueRatio), false);
-			}
-
-			if(Company == ST->Pirates && OtherCompany != ST->AxisSupplies)
-			{
-				Company->GiveReputation(OtherCompany, -1, false);
-			}
+			float ValueRatio = (float)CompanyValue / (float)OtherCompanyValue;
+			Company->GiveReputation(OtherCompany, - 0.1 * (1 - ValueRatio), false);
 		}
+
+		if(Company == ST->Pirates && OtherCompany != ST->AxisSupplies)
+		{
+			Company->GiveReputation(OtherCompany, -1, false);
+		}
+
 	}
 
 
@@ -137,6 +136,12 @@ void UFlareAIBehavior::UpdateDiplomacy()
 
 		if (OtherCompany == Company)
 		{
+			continue;
+		}
+
+		if(Company == ST->AxisSupplies)
+		{
+			// Never declare war
 			continue;
 		}
 
@@ -216,7 +221,7 @@ void UFlareAIBehavior::GenerateAffilities()
 	Agressivity = 1.0;
 	Bold = 1.0;
 	Peaceful = 1.0;
-
+	DiplomaticReactivity = 1;
 
 	// Pirate base
 	SetSectorAffility(ST->Boneyard, 0.f);
@@ -251,6 +256,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		ShipyardAffility = 0.0;
 		ConsumerAffility = 0.0;
 		MaintenanceAffility = 0.0;
+
 
 		// Only buy
 		TradingSell = 0.f;
@@ -391,6 +397,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		ArmySize = 1.0;
 		Agressivity = 0.0;
 		Peaceful = 10.0;
+		DiplomaticReactivity = 0;
 	}
 
 }

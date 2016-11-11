@@ -8,6 +8,7 @@
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "AI/FlareCompanyAI.h"
+#include "AI/FlareAIBehavior.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareCompany"
@@ -558,6 +559,11 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 		return;
 	}
 
+	if (Amount == 0)
+	{
+		return;
+	}
+
 	for (int32 CompanyIndex = 0; CompanyIndex < CompanyData.CompaniesReputation.Num(); CompanyIndex++)
 	{
 		if(Company->GetIdentifier() == CompanyData.CompaniesReputation[CompanyIndex].CompanyIdentifier)
@@ -605,15 +611,24 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 		ReputationGainFactor = - 0.4f * ReputationRatioInVarationDirection + 0.4f;
 	}
 
+
 	float ReputationScaledGain = Amount * ReputationGainFactor;
 
-	CompanyReputation->Reputation = FMath::Clamp(CompanyReputation->Reputation + ReputationScaledGain, -200.f, 200.f);
+	float DiplomaticReactivity = 1.0;
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
+
+	if(this != PC->GetCompany())
+	{
+		DiplomaticReactivity = GetAI()->GetBehavior()->DiplomaticReactivity;
+	}
+
+	CompanyReputation->Reputation = FMath::Clamp(CompanyReputation->Reputation + Amount * DiplomaticReactivity, -200.f, 200.f);
 
 	if (Propagate)
 	{
 		// Other companies gain a part of reputation gain according to their affinity :
-		// 200 = 50 % of the gain
-		// -200 = -50 % of the gain
+		// 200 = 100 % of the gain
+		// -200 = -100 % of the gain
 		// 0 = 0% the the gain
 
 
@@ -627,13 +642,26 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 			}
 
 			float OtherReputation = OtherCompany->GetReputation(this);
-			float PropagationRatio = OtherReputation / 400.f;
+			float PropagationRatio = OtherReputation / 200.f;
 			OtherCompany->GiveReputation(Company, PropagationRatio * ReputationScaledGain, false);
 		}
 
 
 	}
 
+}
+
+void UFlareCompany::GiveReputationToOthers(float Amount, bool Propagate)
+{
+	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		if (OtherCompany != this)
+		{
+			OtherCompany->GiveReputation(this, Amount, Propagate);
+		}
+	}
 }
 
 void UFlareCompany::ForceReputation(UFlareCompany* Company, float Amount)

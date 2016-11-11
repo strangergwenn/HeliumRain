@@ -170,6 +170,8 @@ public:
 
 	virtual void GiveReputation(UFlareCompany* Company, float Amount, bool Propagate);
 
+	void GiveReputationToOthers(float Amount, bool Propagate);
+
 	virtual void ForceReputation(UFlareCompany* Company, float Amount);
 
 	/** Compute how much will be necessary to reset reputation with Company */

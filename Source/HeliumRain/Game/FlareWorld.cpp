@@ -678,6 +678,7 @@ void UFlareWorld::ProcessShipCapture()
 		UFlareSimulatedSpacecraft* Spacecraft = ShipToCapture[SpacecraftIndex];
 
 		UFlareCompany* HarpoonOwner = Spacecraft->GetHarpoonCompany();
+		UFlareCompany* Owner = Spacecraft->GetCompany();
 		UFlareSimulatedSector* Sector =  Spacecraft->GetCurrentSector();
 		FVector SpawnLocation =  Spacecraft->GetData().Location;
 		FRotator SpawnRotation =  Spacecraft->GetData().Rotation;
@@ -686,6 +687,10 @@ void UFlareWorld::ProcessShipCapture()
 
 		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
 		UFlareSimulatedSpacecraft* NewShip = Sector->CreateSpacecraft(ShipDescription, HarpoonOwner, SpawnLocation, SpawnRotation, &Data);
+
+		Owner->GiveReputationToOthers(5, false);
+		Owner->GiveReputation(HarpoonOwner, -10, false);
+		HarpoonOwner->GiveReputationToOthers(-5, false);
 
 		if (GetGame()->GetPC()->GetCompany() == HarpoonOwner)
 		{
@@ -762,6 +767,7 @@ void UFlareWorld::ProcessStationCapture()
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = StationToCapture[SpacecraftIndex];
 		UFlareCompany* Capturer = StationCapturer[SpacecraftIndex];
+		UFlareCompany* Owner = Spacecraft->GetCompany();
 
 		UFlareSimulatedSector* Sector =  Spacecraft->GetCurrentSector();
 		FVector SpawnLocation =  Spacecraft->GetData().Location;
@@ -769,8 +775,13 @@ void UFlareWorld::ProcessStationCapture()
 		FFlareSpacecraftSave Data = Spacecraft->GetData();
 		FFlareSpacecraftDescription* ShipDescription = Spacecraft->GetDescription();
 
+
+
 		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
 		UFlareSimulatedSpacecraft* NewShip = Sector->CreateSpacecraft(ShipDescription, Capturer, SpawnLocation, SpawnRotation, &Data);
+		Owner->GiveReputationToOthers(30, false);
+		Owner->GiveReputation(Capturer, -40, false);
+		Capturer->GiveReputationToOthers(-50, false);
 
 		if (GetGame()->GetPC()->GetCompany() == Capturer)
 		{

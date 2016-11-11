@@ -91,6 +91,7 @@ public:
 	float Agressivity;
 	float Bold;
 	float Peaceful;
+	float DiplomaticReactivity;
 
 	// TODO save
 	bool PirateLowProfile;

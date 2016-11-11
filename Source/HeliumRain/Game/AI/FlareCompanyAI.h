@@ -210,5 +210,12 @@ public:
 		return Game;
 	}
 
+	UFlareAIBehavior* GetBehavior()
+	{
+		return Behavior;
+	}
+
+
+
 };
 
