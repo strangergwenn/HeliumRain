@@ -361,8 +361,8 @@ FText SFlareCompanyInfo::GetConfidenceTextValue() const
 
 	if (Player && Company && Player->GetCompany() != Company)
 	{
-		int32 Confidence = Company->GetConfidenceLevel(Player->GetCompany()) * 100;
-		return FText::Format(LOCTEXT("ConfidenceInfoFormat", "{0} %%"), FText::AsNumber(Confidence));
+		int32 Confidence = 50 + Company->GetConfidenceLevel(Player->GetCompany()) * 50;
+		return FText::FromString(FString::FromInt(Confidence) + "%");
 	}
 
 	return Result;
