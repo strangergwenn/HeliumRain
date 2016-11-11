@@ -42,6 +42,8 @@ public:
 
 	AFlareBomb* LoadBomb(const FFlareBombSave& BombData);
 
+	void OnLevelLoaded();
+
 	void RegisterBomb(AFlareBomb* Bomb);
 
 	void UnregisterBomb(AFlareBomb* Bomb);

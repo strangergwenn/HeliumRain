@@ -877,6 +877,15 @@ void AFlareGame::LoadStreamingLevel(FName SectorLevel)
 		CurrentStreamingLevelIndex++;
 		IsLoadingStreamingLevel = true;
 	}
+	else
+	{
+		FLOGV("AFlareGame::LoadStreamingLevel : No streaming level to load");
+
+		if (GetActiveSector())
+		{
+			GetActiveSector()->OnLevelLoaded();
+		}
+	}
 }
 
 void AFlareGame::UnloadStreamingLevel(FName SectorLevel)
@@ -899,8 +908,13 @@ void AFlareGame::UnloadStreamingLevel(FName SectorLevel)
 
 void AFlareGame::OnLevelLoaded()
 {
-	IsLoadingStreamingLevel = false;
 	FLOG("AFlareGame::OnLevelLoaded");
+
+	IsLoadingStreamingLevel = false;
+	if (GetActiveSector())
+	{
+		GetActiveSector()->OnLevelLoaded();
+	}
 }
 
 void AFlareGame::OnLevelUnLoaded()
