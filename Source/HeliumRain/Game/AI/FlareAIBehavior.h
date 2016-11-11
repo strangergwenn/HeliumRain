@@ -83,19 +83,17 @@ public:
 	float ShipyardAffility;
 	float ConsumerAffility;
 	float MaintenanceAffility;
-	float BudgetTechnology;
-	float BudgetMilitary;
-	float BudgetStation;
-	float BudgetTrade;
+	float BudgetTechnologyWeight;
+	float BudgetMilitaryWeight;
+	float BudgetStationWeight;
+	float BudgetTradeWeight;
 	float ArmySize;
+	float ConfidenceTarget;
 	float Agressivity;
 	float Bold;
 	float Peaceful;
 	float DiplomaticReactivity;
 
-	// TODO save
-	bool PirateLowProfile;
-	float PirateAttackThresold;
 
 	/*----------------------------------------------------
 		Getters
@@ -105,6 +103,8 @@ public:
 	{
 		return Game;
 	}
+
+	float GetBudgetWeight(EFlareBudget::Type Budget);
 
 	float GetSectorAffility(UFlareSimulatedSector* Sector);
 	float GetResourceAffility(FFlareResourceDescription* Resource);
