@@ -46,11 +46,6 @@ void UFlareAIBehavior::Simulate()
 			continue;
 		}
 
-		if(Company == ST->Pirates && OtherCompany != ST->AxisSupplies)
-		{
-			Company->GiveReputation(OtherCompany, -1, false);
-		}
-
 		int64 OtherCompanyValue = OtherCompany->GetCompanyValue().TotalValue;
 		int64 CompanyValue = Company->GetCompanyValue().TotalValue;
 		if(CompanyValue > OtherCompanyValue)

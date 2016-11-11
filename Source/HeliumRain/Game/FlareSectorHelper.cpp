@@ -196,8 +196,8 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft*  SourceSpacecraft, UFlareSi
 		DestinationSpacecraft->GetCompany()->TakeMoney(Price);
 		SourceSpacecraft->GetCompany()->GiveMoney(Price);
 
-		SourceSpacecraft->GetCompany()->GiveReputation(DestinationSpacecraft->GetCompany(), 0.5f, true);
-		DestinationSpacecraft->GetCompany()->GiveReputation(SourceSpacecraft->GetCompany(), 0.5f, true);
+		SourceSpacecraft->GetCompany()->GiveReputation(DestinationSpacecraft->GetCompany(), 0.001f * GivenResources, true);
+		DestinationSpacecraft->GetCompany()->GiveReputation(SourceSpacecraft->GetCompany(), 0.001f * GivenResources, true);
 	}
 	
 	// Set the trading state if not player fleet
