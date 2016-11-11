@@ -136,10 +136,10 @@ protected:
 	----------------------------------------------------*/
 
 	/** Load the game */
-	void LoadGame();
+	bool LoadGame();
 
 	/** Fly this ship */
-	void FlyShip();
+	bool FlyShip();
 
 	/** Travel here */
 	void Travel();

@@ -188,9 +188,6 @@ void AFlareGame::ActivateSector(UFlareSimulatedSector* Sector)
 		return;
 	}
 
-	// Load the sector level - Will call OnLevelLoaded()
-	LoadStreamingLevel(Sector->GetDescription()->LevelName);
-
 	// Check if we should really activate
 	FLOGV("AFlareGame::ActivateSector : %s", *Sector->GetSectorName().ToString());
 	if (ActiveSector)
@@ -206,44 +203,18 @@ void AFlareGame::ActivateSector(UFlareSimulatedSector* Sector)
 		DeactivateSector();
 	}
 
-	// Ships
-	FLOGV("AFlareGame::ActivateSector : Ship count = %d", Sector->GetSectorShips().Num());
-	bool PlayerHasShip = false;
-	for (int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+	if (ActivatingSector == Sector)
 	{
-		UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
-		FLOGV("AFlareGame::ActivateSector : Found ship %s", *Ship->GetImmatriculation().ToString());
-		if (Ship->GetCompany()->GetPlayerHostility()  == EFlareHostility::Owned)
-		{
-			PlayerHasShip = true;
-			break;
-		}
+		// Sector to activate is already activating
+		return;
 	}
 
-	// Planetarium & sector setup
-	FLOGV("AFlareGame::ActivateSector : PlayerHasShip = %d", PlayerHasShip);
-	if (PlayerHasShip)
+	// Load the sector level - Will call OnLevelLoaded()
+	ActivatingSector = Sector;
+	if(LoadStreamingLevel(Sector->GetDescription()->LevelName))
 	{
-		CombatLog::SectorActivated(Sector);
-
-		// Create the new sector
-		ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
-		FFlareSectorSave* SectorData = Sector->Save();
-		if ((SectorData->LocalTime / UFlareGameTools::SECONDS_IN_DAY)  < GetGameWorld()->GetDate())
-		{
-			// TODO Find time with light
-			SectorData->LocalTime = GetGameWorld()->GetDate() * UFlareGameTools::SECONDS_IN_DAY;
-		}
-
-		// Load and setup the sector
-		Planetarium->ResetTime();
-		Planetarium->SkipNight(UFlareGameTools::SECONDS_IN_DAY);
-		ActiveSector->Load(Sector);
-		DebrisFieldSystem->Setup(this, Sector);
-
-		GetPC()->OnSectorActivated(ActiveSector);
+		OnLevelLoaded();
 	}
-	GetQuestManager()->OnSectorActivation(Sector);
 }
 
 void AFlareGame::ActivateCurrentSector()
@@ -861,7 +832,7 @@ void AFlareGame::Clean()
 	Level streaming
 ----------------------------------------------------*/
 
-void AFlareGame::LoadStreamingLevel(FName SectorLevel)
+bool AFlareGame::LoadStreamingLevel(FName SectorLevel)
 {
 	if (SectorLevel != NAME_None)
 	{
@@ -876,16 +847,9 @@ void AFlareGame::LoadStreamingLevel(FName SectorLevel)
 		UGameplayStatics::LoadStreamLevel(this, SectorLevel, true, true, Info);
 		CurrentStreamingLevelIndex++;
 		IsLoadingStreamingLevel = true;
+		return false;
 	}
-	else
-	{
-		FLOGV("AFlareGame::LoadStreamingLevel : No streaming level to load");
-
-		if (GetActiveSector())
-		{
-			GetActiveSector()->OnLevelLoaded();
-		}
-	}
+	return true;
 }
 
 void AFlareGame::UnloadStreamingLevel(FName SectorLevel)
@@ -911,10 +875,52 @@ void AFlareGame::OnLevelLoaded()
 	FLOG("AFlareGame::OnLevelLoaded");
 
 	IsLoadingStreamingLevel = false;
-	if (GetActiveSector())
+
+	if(ActivatingSector == NULL)
 	{
-		GetActiveSector()->OnLevelLoaded();
+		return;
 	}
+
+	// Ships
+	FLOGV("AFlareGame::OnLevelLoaded : Ship count = %d", ActivatingSector->GetSectorShips().Num());
+	bool PlayerHasShip = false;
+	for (int ShipIndex = 0; ShipIndex < ActivatingSector->GetSectorShips().Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = ActivatingSector->GetSectorShips()[ShipIndex];
+		FLOGV("AFlareGame::OnLevelLoaded : Found ship %s", *Ship->GetImmatriculation().ToString());
+		if (Ship->GetCompany()->GetPlayerHostility()  == EFlareHostility::Owned)
+		{
+			PlayerHasShip = true;
+			break;
+		}
+	}
+
+	// Planetarium & sector setup
+	FLOGV("AFlareGame::OnLevelLoaded : PlayerHasShip = %d", PlayerHasShip);
+	if (PlayerHasShip)
+	{
+		CombatLog::SectorActivated(ActivatingSector);
+
+		// Create the new sector
+		ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
+		FFlareSectorSave* SectorData = ActivatingSector->Save();
+		if ((SectorData->LocalTime / UFlareGameTools::SECONDS_IN_DAY)  < GetGameWorld()->GetDate())
+		{
+			// TODO Find time with light
+			SectorData->LocalTime = GetGameWorld()->GetDate() * UFlareGameTools::SECONDS_IN_DAY;
+		}
+
+		// Load and setup the sector
+		Planetarium->ResetTime();
+		Planetarium->SkipNight(UFlareGameTools::SECONDS_IN_DAY);
+		ActiveSector->Load(ActivatingSector);
+		DebrisFieldSystem->Setup(this, ActivatingSector);
+
+		GetPC()->OnSectorActivated(ActiveSector);
+	}
+	GetQuestManager()->OnSectorActivation(ActivatingSector);
+
+	ActivatingSector = NULL;
 }
 
 void AFlareGame::OnLevelUnLoaded()
