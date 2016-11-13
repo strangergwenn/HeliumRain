@@ -78,6 +78,9 @@ void UFlareAIBehavior::Simulate()
 
 void UFlareAIBehavior::SimulateGeneralBehavior()
 {
+	// First make cargo evasion to avoid them to lock themselve trading
+	Company->GetAI()->CargosEvasion();
+
 	// Update trade routes
 	Company->GetAI()->UpdateTrading();
 
@@ -150,6 +153,9 @@ void UFlareAIBehavior::SimulatePirateBehavior()
 {
 	// Repair and refill ships and stations
 	Company->GetAI()->RepairAndRefill();
+
+	// First make cargo evasion to avoid them to lock themselve trading
+	Company->GetAI()->CargosEvasion();
 
 	// Update trade routes
 	Company->GetAI()->UpdateTrading();

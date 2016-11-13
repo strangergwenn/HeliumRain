@@ -81,6 +81,8 @@ public:
 	Behavior API
 ----------------------------------------------------*/
 
+	void CargosEvasion();
+
 	/** Update diplomacy changes */
 	void UpdateDiplomacy();
 
@@ -151,6 +153,7 @@ protected:
 	/*----------------------------------------------------
 		Helpers
 	----------------------------------------------------*/
+
 
 	/** Order one ship at any shipyard */
 	int64 OrderOneShip(FFlareSpacecraftDescription* ShipDescription);

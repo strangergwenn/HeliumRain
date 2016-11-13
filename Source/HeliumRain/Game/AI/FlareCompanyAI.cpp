@@ -1958,6 +1958,80 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos() const
 	return IdleCargos;
 }
 
+void UFlareCompanyAI::CargosEvasion()
+{
+	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
+
+		if(!Sector->GetSectorBattleState(Company).HasDanger)
+		{
+			continue;
+		}
+
+		// Use intermediate list as travel modify the sector list
+		TArray<UFlareSimulatedSpacecraft*> CargoToTravel;
+
+		for (int32 ShipIndex = 0 ; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+		{
+			UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
+			if (Ship->GetCompany() != Company || !Ship->CanTravel())
+			{
+				continue;
+			}
+
+			CargoToTravel.Add(Ship);
+		}
+
+		if(CargoToTravel.Num() > 0)
+		{
+			// Find nearest safe sector
+			// Or if no safe sector, go to the farest sector to maximise travel time
+			UFlareSimulatedSector* SafeSector = NULL;
+			int64 MinDurationTravel;
+			UFlareSimulatedSector* DistantUnsafeSector = NULL;
+			int64 MaxDurationTravel;
+
+			for (int32 SectorIndex2 = 0; SectorIndex2 < Company->GetKnownSectors().Num(); SectorIndex2++)
+			{
+				UFlareSimulatedSector* SectorCandidate = Company->GetKnownSectors()[SectorIndex2];
+				int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), Sector, SectorCandidate);
+
+				if(DistantUnsafeSector == NULL || MaxDurationTravel < TravelDuration)
+				{
+					MaxDurationTravel = TravelDuration;
+					DistantUnsafeSector = SectorCandidate;
+				}
+
+				if(SectorCandidate->GetSectorBattleState(Company).HasDanger)
+				{
+					// Dont go in a dangerous sector
+					continue;
+				}
+
+
+				if(SafeSector == NULL || MinDurationTravel > TravelDuration)
+				{
+					MinDurationTravel = TravelDuration;
+					SafeSector = SectorCandidate;
+				}
+			}
+
+			for(UFlareSimulatedSpacecraft* Ship: CargoToTravel)
+			{
+				if(SafeSector)
+				{
+					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), SafeSector);
+				}
+				else if (DistantUnsafeSector)
+				{
+					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), DistantUnsafeSector);
+				}
+			}
+		}
+	}
+}
+
 int32 UFlareCompanyAI::GetDamagedCargosCapacity()
 {
 	int32 DamagedCapacity = 0;
