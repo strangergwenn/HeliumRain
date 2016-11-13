@@ -1142,7 +1142,7 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 			AttackPhase = 0;
 			AttackAngle = FMath::FRandRange(0, 360);
 			float TargetSize = PilotTargetShip->GetMeshScale() / 100.f; // Radius in meters
-			AttackDistance = FMath::FRandRange(50, 100) + TargetSize;
+			AttackDistance = FMath::FRandRange(100, 200) + TargetSize;
 			MaxFollowDistance = TargetSize * 60; // Distance in meters
 			LockTarget = false;
 		}
