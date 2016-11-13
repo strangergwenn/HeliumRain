@@ -475,7 +475,9 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		}
 		else
 		{
-			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity + PilotTargetShip->GetLinearVelocity() *0.9;
+			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity;
+			LinearTargetVelocity += LinearTargetVelocity.GetUnsafeNormal() * FVector::DotProduct(PilotTargetShip->GetLinearVelocity(),LinearTargetVelocity.GetUnsafeNormal());
+
 			UseOrbitalBoost = true;
 		}
 	}
@@ -503,7 +505,9 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 			}
 
 
-			LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * PreferedVelocity + PilotTargetShip->GetLinearVelocity() * 0.9;
+			LinearTargetVelocity = (AttackMargin + DeltaLocation).GetUnsafeNormal() * PreferedVelocity;
+			LinearTargetVelocity += LinearTargetVelocity.GetUnsafeNormal() * FVector::DotProduct(PilotTargetShip->GetLinearVelocity(),LinearTargetVelocity.GetUnsafeNormal());
+
 			if (Distance > SecurityDistance || DangerousTarget)
 			{
 				UseOrbitalBoost = true;
@@ -518,7 +522,9 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		if (Distance > SecurityDistance)
 		{
 			// Security distance reach
-			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity + PilotTargetShip->GetLinearVelocity() * 0.9;
+			LinearTargetVelocity = PredictedFireTargetAxis * PreferedVelocity;
+			LinearTargetVelocity += LinearTargetVelocity.GetUnsafeNormal() * FVector::DotProduct(PilotTargetShip->GetLinearVelocity(),LinearTargetVelocity.GetUnsafeNormal());
+
 			AttackPhase = 0;
 			if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
 			{
@@ -528,7 +534,9 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		}
 		else
 		{
-			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * PreferedVelocity + PilotTargetShip->GetLinearVelocity() * 0.9;
+			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * PreferedVelocity;
+			LinearTargetVelocity += LinearTargetVelocity.GetUnsafeNormal() * FVector::DotProduct(PilotTargetShip->GetLinearVelocity(),LinearTargetVelocity.GetUnsafeNormal());
+
 			if (DangerousTarget)
 			{
 				UseOrbitalBoost = true;
