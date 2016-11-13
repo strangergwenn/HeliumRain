@@ -1335,6 +1335,11 @@ FFlareSectorBattleState UFlareSimulatedSector::GetSectorBattleState(UFlareCompan
 
 	BattleState.InBattle = true;
 
+	if (DangerousHostileSpacecraftCount > 0)
+	{
+		BattleState.HasDanger = true;
+	}
+
 	// No friendly or no hostile ship
 	if (FriendlySpacecraftCount == 0 || HostileSpacecraftCount == 0)
 	{
@@ -1430,7 +1435,7 @@ FText UFlareSimulatedSector::GetSectorBattleStateText(UFlareCompany* Company)
 
 bool UFlareSimulatedSector::IsInDangerousBattle(UFlareCompany* Company)
 {
-	return GetSectorBattleState(Company).IsInDanger();
+	return GetSectorBattleState(Company).HasDanger;
 }
 
 FText UFlareSimulatedSector::GetSectorFriendlynessText(UFlareCompany* Company)
@@ -1788,7 +1793,7 @@ bool UFlareSimulatedSector::CanUpgrade(UFlareCompany* Company)
 {
 	// Can't upgrade during battles
 	FFlareSectorBattleState BattleState = GetSectorBattleState(Company);
-	if (BattleState.IsInDanger())
+	if (BattleState.HasDanger)
 	{
 		return false;
 	}
@@ -1812,7 +1817,7 @@ bool UFlareSimulatedSector::IsPlayerBattleInProgress()
 	AFlarePlayerController* PC = GetGame()->GetPC();
 	FFlareSectorBattleState BattleState = GetSectorBattleState(PC->GetCompany());
 
-	if (BattleState.IsInDanger())
+	if (BattleState.HasDanger)
 	{
 		return true;
 	}

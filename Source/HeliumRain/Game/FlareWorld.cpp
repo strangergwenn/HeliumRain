@@ -650,7 +650,7 @@ void UFlareWorld::ProcessShipCapture()
 
 				if(HarpoonOwner
 						&& HarpoonOwner->GetWarState(Spacecraft->GetCompany()) == EFlareHostility::Hostile
-						&& !HarpoonOwnerBattleState.IsInDanger())
+						&& !HarpoonOwnerBattleState.HasDanger)
 				{
 					// If battle won state, this mean the Harpoon owner has at least one dangerous ship
 					// This also mean that no company at war with this company has a military ship
@@ -658,7 +658,7 @@ void UFlareWorld::ProcessShipCapture()
 					ShipToCapture.Add(Spacecraft);
 					// Need to keep the harpoon for capture process
 				}
-				else if(!SpacecraftOwnerBattleState.IsInDanger())
+				else if(!SpacecraftOwnerBattleState.HasDanger)
 				{
 					Spacecraft->SetHarpooned(NULL);
 				}
@@ -726,7 +726,7 @@ void UFlareWorld::ProcessStationCapture()
 
 			FFlareSectorBattleState StationOwnerBattleState = Sector->GetSectorBattleState(Spacecraft->GetCompany());
 
-			if (!StationOwnerBattleState.IsInDanger())
+			if (!StationOwnerBattleState.HasDanger)
 			{
 				// The station is not being captured
 				Spacecraft->ResetCapture();
@@ -739,7 +739,7 @@ void UFlareWorld::ProcessStationCapture()
 				UFlareCompany* Company = Companies[CompanyIndex];
 
 				if ((Company->GetWarState(Spacecraft->GetCompany()) != EFlareHostility::Hostile)
-					|| Sector->GetSectorBattleState(Company).IsInDanger())
+					|| Sector->GetSectorBattleState(Company).HasDanger)
 				{
 					// Friend don't capture and not winner don't capture
 					continue;

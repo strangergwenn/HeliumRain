@@ -72,6 +72,10 @@ struct FFlareSectorBattleState
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool RetreatPossible;
 
+	/** Indicate if there is dangerous enemy ships */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool HasDanger;
+
 	FFlareSectorBattleState Init()
 	{
 		InBattle = false;
@@ -80,6 +84,7 @@ struct FFlareSectorBattleState
 		InActiveFight = false;
 		ActiveFightWon = false;
 		RetreatPossible = false;
+		HasDanger = false;
 
 		return *this;
 	}
@@ -89,29 +94,6 @@ struct FFlareSectorBattleState
 		return !(!InBattle
 				||  (!InFight && !BattleWon)
 				||  (InFight && !InActiveFight && !ActiveFightWon));
-	}
-
-	bool IsInDanger()
-	{
-		if(!InBattle)
-		{
-			return false;
-		}
-		else
-		{
-			if(InFight)
-			{
-				return true;
-			}
-			else if(BattleWon)
-			{
-				return false;
-			}
-			else
-			{
-				return true;
-			}
-		}
 	}
 
 	bool operator==(const FFlareSectorBattleState& lhs)

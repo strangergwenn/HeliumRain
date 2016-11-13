@@ -792,7 +792,9 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 	for (int32 ShipIndex = 0; ShipIndex < ConstructionStaticShips.Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = ConstructionStaticShips[ShipIndex];
-		if (!Ship->GetCurrentFleet()->IsTraveling()  && Ship->GetCurrentSector() != ConstructionProjectSector)
+		if (!Ship->GetCurrentFleet()->IsTraveling()  &&
+				Ship->GetCurrentSector() != ConstructionProjectSector &&
+				!ConstructionProjectSector->GetSectorBattleState(Company).HasDanger)
 		{
 			Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), ConstructionProjectSector);
 		}
@@ -882,7 +884,10 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 			if (Ship->GetCargoBay()->GetUsedCargoSpace() > 0)
 			{
 				// If at least 1 resource, go to construction sector
-				Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), ConstructionProjectSector);
+				if(!ConstructionProjectSector->GetSectorBattleState(Company).HasDanger)
+				{
+					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), ConstructionProjectSector);
+				}
 			}
 			else
 			{
@@ -971,7 +976,10 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 			if (IsFull)
 			{
 				// Go to construction sector
-				Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), ConstructionProjectSector);
+				if(!ConstructionProjectSector->GetSectorBattleState(Company).HasDanger)
+				{
+					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), ConstructionProjectSector);
+				}
 				//FLOGV("  full, travel to %s", *ConstructionProjectSector->GetSectorName().ToString());
 			}
 			else
@@ -1050,6 +1058,11 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 					for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 					{
 						UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
+
+						if(Sector->GetSectorBattleState(Company).HasDanger)
+						{
+							continue;
+						}
 
 						SectorVariation* SectorVariation = &WorldResourceVariation[Sector];
 
@@ -2661,6 +2674,11 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 	BestDeal.SectorA = NULL;
 	BestDeal.SectorB = NULL;
 
+	if (SectorA->GetSectorBattleState(Company).HasDanger)
+	{
+		return BestDeal;
+	}
+
 	for (int32 SectorBIndex = 0; SectorBIndex < Company->GetKnownSectors().Num(); SectorBIndex++)
 	{
 		UFlareSimulatedSector* SectorB = Company->GetKnownSectors()[SectorBIndex];
@@ -2668,6 +2686,10 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 		int64 TravelTimeToA;
 		int64 TravelTimeToB;
 
+		if (SectorB->GetSectorBattleState(Company).HasDanger)
+		{
+			return BestDeal;
+		}
 
 		if (Ship->GetCurrentSector() == SectorA)
 		{
