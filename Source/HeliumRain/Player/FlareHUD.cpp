@@ -891,12 +891,17 @@ void AFlareHUD::DrawHUDInternal()
 		{
 			// Draw designators
 			bool ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
-			DrawDockingHelper(Spacecraft);
+
+			// Draw docking guides
+			bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
+			if (Highlighted)
+			{
+				DrawDockingHelper(Spacecraft);
+			}
 
 			// Draw search markers
 			if (!IsExternalCamera && ShouldDrawSearchMarker)
 			{
-				bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
 				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), Highlighted, FocusDistance);
 			}
 		}
