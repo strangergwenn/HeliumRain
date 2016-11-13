@@ -1313,7 +1313,7 @@ void UFlareCompanyAI::ProcessBudgetMilitary(int64 BudgetAmount, bool& Lock, bool
 		}
 	}
 
-	if (MinConfidenceLevel > Behavior->ConfidenceTarget)
+	if (!Company->AtWar() && MinConfidenceLevel > Behavior->ConfidenceTarget)
 	{
 		// Army size is ok
 		Idle = true;

@@ -177,7 +177,7 @@ void UFlareAIBehavior::GenerateAffilities()
 	BudgetStationWeight = 1.0;
 	BudgetTradeWeight = 1.0;
 
-	ConfidenceTarget = 0.2;
+	ConfidenceTarget = -0.1;
 	ArmySize = 5.0;
 	Agressivity = 1.0;
 	Bold = 1.0;
@@ -424,22 +424,7 @@ void UFlareAIBehavior::SetSectorAffilitiesByMoon(FFlareCelestialBody *CelestialB
 
 float UFlareAIBehavior::GetBudgetWeight(EFlareBudget::Type Budget)
 {
-	bool AtWar = false;
-	for (UFlareCompany* OtherCompany : Game->GetGameWorld()->GetCompanies())
-	{
-		if(OtherCompany == Company)
-		{
-			continue;
-		}
-
-		if(Company->GetWarState(OtherCompany) == EFlareHostility::Hostile)
-		{
-			AtWar = true;
-			break;
-		}
-	}
-
-	if(AtWar && Budget!= EFlareBudget::Military)
+	if(Company->AtWar() && Budget!= EFlareBudget::Military)
 	{
 		return 0;
 	}

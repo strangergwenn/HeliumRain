@@ -396,4 +396,6 @@ public:
 
 	float GetConfidenceLevel(UFlareCompany* ReferenceCompany);
 
+	bool AtWar();
+
 };

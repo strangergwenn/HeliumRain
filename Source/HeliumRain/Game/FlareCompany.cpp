@@ -882,6 +882,23 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 
 }
 
+bool UFlareCompany::AtWar()
+{
+	for (UFlareCompany* OtherCompany : Game->GetGameWorld()->GetCompanies())
+	{
+		if(OtherCompany == this)
+		{
+			continue;
+		}
+
+		if(GetWarState(OtherCompany) == EFlareHostility::Hostile)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 int64 UFlareCompany::GetTributeCost(UFlareCompany* Company)
 {
 	return 0.01 * GetCompanyValue().TotalValue;
