@@ -1003,11 +1003,17 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 
 
 	AngularTargetVelocity = FVector::ZeroVector;
-	LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()).GetUnsafeNormal()  * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+	LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()).GetUnsafeNormal()  * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 2;
+
+	LinearTargetVelocity += LinearTargetVelocity.GetUnsafeNormal() * FVector::DotProduct(PilotTargetShip->GetLinearVelocity(),LinearTargetVelocity.GetUnsafeNormal());
 
 	// TODO Bomb avoid
 
 	AlignToTargetVelocityWithThrust(DeltaSeconds);
+
+	// Exit avoidance
+	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.5);
+
 
 	// Anticollision
 	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
