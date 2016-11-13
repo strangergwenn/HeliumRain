@@ -119,8 +119,12 @@ public:
 	/** Repair then refill all ships and stations */
 	void RepairAndRefill();
 
-	/** Buy / build ships at shipyards */
-	void UpdateMilitaryMovement(bool DefendOnly);
+	/** Move military ships */
+	void UpdateMilitaryMovement();
+
+	void UpdateWarMilitaryMovement();
+
+	void UpdatePeaceMilitaryMovement();
 
 	/** Buy war ships */
 	int64 UpdateWarShipAcquisition(bool limitToOne);

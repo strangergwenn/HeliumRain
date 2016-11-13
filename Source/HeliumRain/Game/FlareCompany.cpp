@@ -1015,7 +1015,7 @@ const FSlateBrush* UFlareCompany::GetEmblem() const
 	Getters
 ----------------------------------------------------*/
 
-struct CompanyValue UFlareCompany::GetCompanyValue() const
+struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* SectorFilter, bool IncludeIncoming) const
 {
 	// Company value is the sum of :
 	// - money
@@ -1036,6 +1036,12 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 
 		UFlareSimulatedSector *ReferenceSector =  Spacecraft->GetCurrentSector();
 
+		if(SectorFilter && !IncludeIncoming && SectorFilter != ReferenceSector)
+		{
+			// Not in sector filter
+			continue;
+		}
+
 		if (!ReferenceSector)
 		{
 			if (Spacecraft->GetCurrentFleet() && Spacecraft->GetCurrentFleet()->GetCurrentTravel())
@@ -1048,6 +1054,12 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 				continue;
 			}
 
+		}
+
+		if(SectorFilter && IncludeIncoming && SectorFilter != ReferenceSector)
+		{
+			// Not in sector filter
+			continue;
 		}
 
 		// Value of the spacecraft

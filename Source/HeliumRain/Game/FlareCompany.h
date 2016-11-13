@@ -317,7 +317,7 @@ public:
 		return CompanyData.Money;
 	}
 
-	struct CompanyValue GetCompanyValue() const;
+	struct CompanyValue GetCompanyValue(UFlareSimulatedSector* SectorFilter = NULL, bool IncludeIncoming = true) const;
 
 	inline TArray<UFlareSimulatedSpacecraft*>& GetCompanyStations()
 	{
