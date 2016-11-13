@@ -3,6 +3,7 @@
 #include "FlareSimulatedSector.h"
 #include "FlareSector.h"
 #include "FlareCollider.h"
+#include "../Spacecrafts/FlareShell.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Player/FlarePlayerController.h"
 
