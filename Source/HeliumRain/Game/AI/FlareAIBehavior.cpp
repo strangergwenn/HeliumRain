@@ -28,6 +28,7 @@ void UFlareAIBehavior::Load(UFlareCompany* ParentCompany)
 
 		GenerateAffilities();
 
+		ProposeTributeToPlayer = false;
 	}
 }
 
@@ -96,6 +97,7 @@ void UFlareAIBehavior::SimulateGeneralBehavior()
 
 void UFlareAIBehavior::UpdateDiplomacy()
 {
+	ProposeTributeToPlayer = false;
 
 	// Simulate company attitude towards others
 	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
@@ -114,17 +116,30 @@ void UFlareAIBehavior::UpdateDiplomacy()
 		}
 
 		if (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile
-				&& (Company->GetReputation(OtherCompany) > -100 || Company->GetConfidenceLevel(OtherCompany) < -0.1))
+				&& (Company->GetReputation(OtherCompany) > -100 || Company->GetConfidenceLevel(OtherCompany) < RequestPeaceConfidence))
 		{
 			Company->SetHostilityTo(OtherCompany, false);
 		}
 		else if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile
-				 && Company->GetReputation(OtherCompany) <= -100 && Company->GetConfidenceLevel(OtherCompany) > 0.1)
+				 && Company->GetReputation(OtherCompany) <= -100 && Company->GetConfidenceLevel(OtherCompany) > DeclareWarConfidence)
 		{
 			Company->SetHostilityTo(OtherCompany, true);
 			if (OtherCompany == Game->GetPC()->GetCompany())
 			{
 				OtherCompany->SetHostilityTo(Company, true);
+			}
+		}
+
+		if (Company->GetWarState(OtherCompany) == EFlareHostility::Hostile
+				&& Company->GetConfidenceLevel(OtherCompany) < PayTributeConfidence)
+		{
+			if (OtherCompany == Game->GetPC()->GetCompany())
+			{
+				ProposeTributeToPlayer = true;
+			}
+			else
+			{
+				Company->PayTribute(OtherCompany, true);
 			}
 		}
 
@@ -178,10 +193,11 @@ void UFlareAIBehavior::GenerateAffilities()
 	BudgetTradeWeight = 1.0;
 
 	ConfidenceTarget = -0.1;
+	DeclareWarConfidence = 0.2;
+	RequestPeaceConfidence = -0.5;
+	PayTributeConfidence = -0.8;
+
 	ArmySize = 5.0;
-	Agressivity = 1.0;
-	Bold = 1.0;
-	Peaceful = 1.0;
 	DiplomaticReactivity = 1;
 
 	// Pirate base
@@ -226,9 +242,11 @@ void UFlareAIBehavior::GenerateAffilities()
 		// Don't capture station. Change in recovery
 		StationCapture = 0.f;
 
+		DeclareWarConfidence = -0.2;
+		RequestPeaceConfidence = -0.8;
+		PayTributeConfidence = -1.0;
+
 		ArmySize = 50.0;
-		Agressivity = 10.0;
-		Bold = 10.0;
 
 
 		// Budjet
@@ -307,7 +325,9 @@ void UFlareAIBehavior::GenerateAffilities()
 		BudgetTradeWeight = 2.0;
 
 		ArmySize = 10.0;
-		Agressivity = 2.0;
+		DeclareWarConfidence = 0.1;
+		RequestPeaceConfidence = -0.4;
+		PayTributeConfidence = -0.85;
 	}
 	else if(Company == ST->UnitedFarmsChemicals)
 	{
@@ -356,8 +376,10 @@ void UFlareAIBehavior::GenerateAffilities()
 		BudgetTradeWeight = 2.0;
 
 		ArmySize = 1.0;
-		Agressivity = 0.0;
-		Peaceful = 10.0;
+		DeclareWarConfidence = 1.0;
+		RequestPeaceConfidence = 0.0;
+		PayTributeConfidence = -0.1;
+
 		DiplomaticReactivity = 0;
 	}
 

@@ -130,6 +130,10 @@ public:
 	/** Check if we are friend or foe toward this target company.  Hostile if at least one company is hostile */
 	virtual EFlareHostility::Type GetWarState(const UFlareCompany* TargetCompany) const;
 
+
+	void ResetLastPeaceDate();
+	void ResetLastTributeDate();
+
 	/** Set whether this company is hostile to an other company */
 	virtual void SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile);
 
@@ -178,7 +182,7 @@ public:
 	int64 GetTributeCost(UFlareCompany* Company);
 
 	/** Make peace with Company in echange for money */
-	void PayTribute(UFlareCompany* Company);
+	void PayTribute(UFlareCompany* Company, bool AllowDepts = false);
 
 
 	/*----------------------------------------------------
@@ -392,6 +396,16 @@ public:
 	inline UFlareTacticManager* GetTacticManager()
 	{
 		return TacticManager;
+	}
+
+	inline int64 GetLastPeaceDate()
+	{
+		return CompanyData.PlayerLastPeaceDate;
+	}
+
+	inline int64 GetLastTributeDate()
+	{
+		return CompanyData.PlayerLastTributeDate;
 	}
 
 	float GetConfidenceLevel(UFlareCompany* ReferenceCompany);

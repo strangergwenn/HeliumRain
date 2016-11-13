@@ -238,6 +238,16 @@ EFlareHostility::Type UFlareCompany::GetWarState(const UFlareCompany* TargetComp
 	return GetHostility(TargetCompany);
 }
 
+void UFlareCompany::ResetLastPeaceDate()
+{
+	CompanyData.PlayerLastPeaceDate = Game->GetGameWorld()->GetDate();
+}
+
+void UFlareCompany::ResetLastTributeDate()
+{
+	CompanyData.PlayerLastTributeDate = Game->GetGameWorld()->GetDate();
+}
+
 void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 {
 	if (TargetCompany && TargetCompany != this)
@@ -264,15 +274,37 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 						Data);
 				}
 			}
+
+			if(this == PlayerCompany)
+			{
+				int64 DaySincePeace = Game->GetGameWorld()->GetDate() - TargetCompany->GetLastPeaceDate();
+				int64 DaySinceTribute = Game->GetGameWorld()->GetDate() - TargetCompany->GetLastTributeDate();
+				if(DaySincePeace < 20)
+				{
+					float PenaltyRatio = (float) TargetCompany->GetLastPeaceDate() / 20.f;
+					PlayerCompany->GiveReputationToOthers(PenaltyRatio * -70, false);
+				}
+
+				if(DaySinceTribute < 50)
+				{
+					float PenaltyRatio = (float) TargetCompany->GetLastTributeDate() / 50.f;
+					PlayerCompany->GiveReputationToOthers(PenaltyRatio * -30, false);
+				}
+			}
 		}
 		else if(!Hostile && WasHostile)
 		{
 			CompanyData.HostileCompanies.Remove(TargetCompany->GetIdentifier());
 
 			UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+
+			if(this == PlayerCompany)
+			{
+				TargetCompany->ResetLastPeaceDate();
+			}
+
 			if(TargetCompany == PlayerCompany)
 			{
-
 				if(PlayerCompany->GetHostility(this) == EFlareHostility::Hostile)
 				{
 					FFlareMenuParameterData Data;
@@ -901,19 +933,19 @@ bool UFlareCompany::AtWar()
 
 int64 UFlareCompany::GetTributeCost(UFlareCompany* Company)
 {
-	return 0.01 * GetCompanyValue().TotalValue;
+	return 0.01 * GetCompanyValue().TotalValue + 0.1 * GetCompanyValue().MoneyValue;
 }
 
-void UFlareCompany::PayTribute(UFlareCompany* Company)
+void UFlareCompany::PayTribute(UFlareCompany* Company, bool AllowDepts)
 {
 	int64 Cost = GetTributeCost(Company);
 
-	if (Cost <= GetMoney())
+	if (Cost <= GetMoney() || AllowDepts)
 	{
-		FLOGV("UFlareCompany::PayTribute: paying %ld", Cost);
+		FLOGV("UFlareCompany::PayTribute: %s paying %ld to %s", *GetCompanyName().ToString(), Cost, *Company->GetCompanyName().ToString());
 
 		// Exchange money
-		TakeMoney(Cost);
+		TakeMoney(Cost, AllowDepts);
 		Company->GiveMoney(Cost);
 
 		// Reset target reputation
@@ -923,6 +955,11 @@ void UFlareCompany::PayTribute(UFlareCompany* Company)
 		// Reset hostilities
 		SetHostilityTo(Company, false);
 		Company->SetHostilityTo(this, false);
+
+		if(Company == Game->GetPC()->GetCompany())
+		{
+			ResetLastTributeDate();
+		}
 	}
 	else
 	{

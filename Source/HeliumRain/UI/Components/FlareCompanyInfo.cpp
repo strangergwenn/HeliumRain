@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareCompanyInfo.h"
 #include "../../Game/FlareCompany.h"
+#include "../../Game/AI/FlareAIBehavior.h"
 #include "../../Player/FlarePlayerController.h"
 
 
@@ -535,7 +536,15 @@ FText SFlareCompanyInfo::GetToggleHostilityText() const
 	// We are at war
 	else if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
 	{
-		return LOCTEXT("RequestPeace", "Request peace");
+		if (Company->GetAI()->GetBehavior()->ProposeTributeToPlayer && Company->GetTributeCost(Player->GetCompany()) < Company->GetMoney())
+		{
+			return FText::Format(LOCTEXT("AcceptTributeFormat", "Accept tribute ({0} credits)"),
+				FText::AsNumber(UFlareGameTools::DisplayMoney(Company->GetTributeCost(Player->GetCompany()))));
+		}
+		else
+		{
+			return LOCTEXT("RequestPeace", "Request peace");
+		}
 	}
 
 	// We are at peace
@@ -555,7 +564,14 @@ FText SFlareCompanyInfo::GetToggleHostilityHelpText() const
 	// We are at war
 	else if (Player->GetCompany()->GetHostility(Company) == EFlareHostility::Hostile)
 	{
-		return LOCTEXT("RequestPeaceHelp", "Request peace with this company and stop hostilities (you are currently at war with this company)");
+		if (Company->GetAI()->GetBehavior()->ProposeTributeToPlayer && Company->GetTributeCost(Player->GetCompany()) < Company->GetMoney())
+		{
+			return LOCTEXT("AcceptTributeHelp", "Accept a tribute from this company and stop hostilities (you are currently at war with this company). If you declare war to this company again in the few next weeks you will gain a diplomatic malus.");
+		}
+		else
+		{
+			return LOCTEXT("RequestPeaceHelp", "Request peace with this company and stop hostilities (you are currently at war with this company). If you declare war to this company again in the few next weeks you will gain a diplomatic malus.");
+		}
 	}
 
 	// We are at peace
@@ -586,9 +602,19 @@ void SFlareCompanyInfo::OnToggleHostility()
 		{
 			Player->GetCompany()->SetHostilityTo(Company, false);
 
-			FText Text = LOCTEXT("PeaceRequested", "Peace requested");
-			FText InfoText = FText::Format(LOCTEXT("PeaceRequestedFormat", "You are seeking peace with {0}."), Company->GetCompanyName());
-			Player->Notify(Text, InfoText, NAME_None, EFlareNotification::NT_Military);
+			if (Company->GetAI()->GetBehavior()->ProposeTributeToPlayer && Company->GetTributeCost(Player->GetCompany()) < Company->GetMoney())
+			{
+				Company->PayTribute(Player->GetCompany());
+				FText Text = LOCTEXT("TributeReceived", "Tribute received");
+				FText InfoText = FText::Format(LOCTEXT("TributeReceivedFormat", "Tribute received from {0}."), Company->GetCompanyName());
+				Player->Notify(Text, InfoText, NAME_None, EFlareNotification::NT_Military);
+			}
+			else
+			{
+				FText Text = LOCTEXT("PeaceRequested", "Peace requested");
+				FText InfoText = FText::Format(LOCTEXT("PeaceRequestedFormat", "You are seeking peace with {0}."), Company->GetCompanyName());
+				Player->Notify(Text, InfoText, NAME_None, EFlareNotification::NT_Military);
+			}
 		}
 
 		// Declaring war

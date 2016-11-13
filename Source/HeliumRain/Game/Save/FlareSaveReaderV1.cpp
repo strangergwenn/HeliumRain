@@ -203,6 +203,8 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 	LoadInt32(Object, "CatalogIdentifier", &Data->CatalogIdentifier);
 	LoadInt64(Object, "Money", &Data->Money);
 	LoadInt64(Object, "CompanyValue", &Data->CompanyValue);
+	LoadInt64(Object, "PlayerLastPeaceDate", &Data->PlayerLastPeaceDate);
+	LoadInt64(Object, "PlayerLastTributeDate", &Data->PlayerLastTributeDate);
 	LoadInt32(Object, "FleetImmatriculationIndex", &Data->FleetImmatriculationIndex);
 	LoadInt32(Object, "TradeRouteImmatriculationIndex", &Data->TradeRouteImmatriculationIndex);
 

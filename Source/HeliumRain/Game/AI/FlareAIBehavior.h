@@ -88,12 +88,15 @@ public:
 	float BudgetStationWeight;
 	float BudgetTradeWeight;
 	float ArmySize;
+
 	float ConfidenceTarget;
-	float Agressivity;
-	float Bold;
-	float Peaceful;
+	float DeclareWarConfidence;
+	float RequestPeaceConfidence;
+	float PayTributeConfidence;
+
 	float DiplomaticReactivity;
 
+	bool ProposeTributeToPlayer = false;
 
 	/*----------------------------------------------------
 		Getters

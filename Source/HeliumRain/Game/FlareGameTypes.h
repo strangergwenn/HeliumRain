@@ -270,6 +270,14 @@ struct FFlareCompanySave
 	/** Value of all company assets */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64 CompanyValue;
+
+	/** Date of last tribute given to the player */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 PlayerLastTributeDate;
+
+	/** Date of last peace with the player */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 PlayerLastPeaceDate;
 };
 
 /** Game save data */
