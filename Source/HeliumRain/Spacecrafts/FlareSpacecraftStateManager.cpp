@@ -180,8 +180,8 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		// Pass data
 		if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
 		{
-			FireDirectorAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
-			FireDirectorAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+			FireDirectorAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * 2 * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+			FireDirectorAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * 2 * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
 			PlayerManualAngularVelocity.Z = 0;
 			PlayerManualAngularVelocity.Y = 0;
 		}
