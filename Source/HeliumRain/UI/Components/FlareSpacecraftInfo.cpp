@@ -685,7 +685,7 @@ FSlateColor SFlareSpacecraftInfo::GetTextColor() const
 		{
 			return Theme.FriendlyColor;
 		}
-		else if (TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Hostile)
+		else if (TargetSpacecraft->GetCompany()->GetWarState(PC->GetCompany()) == EFlareHostility::Hostile)
 		{
 			return Theme.EnemyColor;
 		}
