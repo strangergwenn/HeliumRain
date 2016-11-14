@@ -255,6 +255,11 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	}
 }
 
+float AFlarePlayerController::GetCurrentFOV()
+{
+	return PlayerCameraManager->GetFOVAngle();
+}
+
 void AFlarePlayerController::SetExternalCamera(bool NewState)
 {
 	if (ShipPawn)

@@ -483,5 +483,12 @@ public:
 	{
 		return &PlayerData;
 	}
+
+	float GetNormalFOV()
+	{
+		return NormalFOV;
+	}
+
+	float GetCurrentFOV();
 };
 

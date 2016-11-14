@@ -234,13 +234,7 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 		}
 
 		// Update scale - minimum scale value depends on MinimalFOV in PC
-		float Scale = 1.0f;
-		if (PC->GetShipPawn())
-		{
-			// Power is here to vaguely compensate the non-linearity
-			float ScaleAlpha = FMath::Pow(PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha(), 1.15f);
-			Scale = FMath::Lerp(1.0f, 0.34f, ScaleAlpha);
-		}
+		float Scale = FMath::Tan(FMath::DegreesToRadians(PC->GetCurrentFOV() / 2.f)) / FMath::Tan(FMath::DegreesToRadians(PC->GetNormalFOV() / 2.f));
 		CockpitMesh->SetRelativeScale3D(FVector(1.0, Scale, Scale));
 	}
 }
