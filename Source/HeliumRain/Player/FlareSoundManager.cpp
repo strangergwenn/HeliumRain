@@ -73,7 +73,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	MusicPlayer.Sound->bAutoActivate = false;
 	MusicPlayer.Sound->bAutoDestroy = false;
 	MusicPlayer.PitchedFade = false;
-	MusicPlayer.FadeSpeed = 5.0;
+	MusicPlayer.FadeSpeed = 0.2;
 	MusicPlayer.Volume = 0;
 	
 	// Power sound
@@ -89,7 +89,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	EnginePlayer.Sound->bAutoActivate = false;
 	EnginePlayer.Sound->bAutoDestroy = false;
 	EnginePlayer.PitchedFade = true;
-	EnginePlayer.FadeSpeed = 2.0;
+	EnginePlayer.FadeSpeed = 1.0;
 	EnginePlayer.Volume = 0;
 
 	// RCS sound
@@ -97,7 +97,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	RCSPlayer.Sound->bAutoActivate = false;
 	RCSPlayer.Sound->bAutoDestroy = false;
 	RCSPlayer.PitchedFade = true;
-	RCSPlayer.FadeSpeed = 5.0;
+	RCSPlayer.FadeSpeed = 2.0;
 	RCSPlayer.Volume = 0;
 
 	// Warning sound on targeting
