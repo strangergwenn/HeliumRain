@@ -39,6 +39,10 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 	LastPlayerAimJoystick = FVector2D::ZeroVector;
 	LastPlayerAimMouse = FVector2D::ZeroVector;
 
+	CombatZoomEnabled = false;
+	CombatZoomTimer = 0;
+	CombatZoomDuration = 0.3f;
+
 	ExternalCamera = true;
 	LinearVelocityIsJoystick = false;
 	PlayerManualVelocityCommandActive = true;
@@ -76,7 +80,8 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	EFlareWeaponGroupType::Type CurrentWeaponType = Spacecraft->GetWeaponsSystem()->GetActiveWeaponType();
 	float MaxVelocity = Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
 
-	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && IsPiloted) // Do not tick the pilot if a player has disable the pilot
+	// Do not tick the pilot if a player has disable the pilot
+	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && IsPiloted)
 	{
 		Spacecraft->GetPilot()->TickPilot(DeltaSeconds);
 
@@ -200,6 +205,14 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		FireDirectorAngularVelocity.Z = 0;
 		FireDirectorAngularVelocity.Y = 0;
 	}
+
+	// Update combat zoom
+	if (ExternalCamera || !Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+	{
+		CombatZoomEnabled = false;
+	}
+	CombatZoomTimer += (CombatZoomEnabled ? +1 : -1) * DeltaSeconds;
+	CombatZoomTimer = FMath::Clamp(CombatZoomTimer, 0.0f, CombatZoomDuration);
 
 	// Update Camera
 	UpdateCamera(DeltaSeconds);
@@ -415,6 +428,18 @@ void UFlareSpacecraftStateManager::ExternalCameraZoom(bool ZoomIn)
 	}
 }
 
+void UFlareSpacecraftStateManager::SetCombatZoom(bool ZoomIn)
+{
+	if (!ExternalCamera)
+	{
+		CombatZoomEnabled = ZoomIn;
+	}
+	else
+	{
+		CombatZoomEnabled = false;
+	}
+}
+
 void UFlareSpacecraftStateManager::SetPlayerLockDirection(bool Val)
 {
 	PlayerManualLockDirection = Val;
@@ -625,6 +650,11 @@ bool UFlareSpacecraftStateManager::IsWantContextMenu() const
 	{
 		return false;
 	}
+}
+
+float UFlareSpacecraftStateManager::GetCombatZoomAlpha() const
+{
+	return FMath::InterpEaseInOut(0.0f, 1.0f, 1.0f - (CombatZoomTimer / CombatZoomDuration), 3.0f);
 }
 
 void UFlareSpacecraftStateManager::ResetExternalCamera()

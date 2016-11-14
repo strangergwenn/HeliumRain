@@ -196,6 +196,10 @@ public:
 
 	virtual void ZoomOut();
 
+	virtual void CombatZoomIn();
+
+	virtual void CombatZoomOut();
+
 	virtual void FaceForward();
 
 	virtual void FaceBackward();

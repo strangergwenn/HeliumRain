@@ -29,6 +29,8 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, Company(NULL)
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
+	, MinimalFOV(40)
+	, NormalFOV(90)
 {
 	CheatClass = UFlareGameTools::StaticClass();
 		
@@ -158,6 +160,14 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 			PlayerWasTraveling = false;
 		}
 	}
+
+	// Combat zoom
+	float FOV = NormalFOV;
+	if (ShipPawn)
+	{
+		FOV = FMath::Lerp(MinimalFOV, NormalFOV, ShipPawn->GetStateManager()->GetCombatZoomAlpha());
+	}
+	PlayerCameraManager->SetFOV(FOV);
 
 	// Mouse cursor
 	bool NewShowMouseCursor = true;
@@ -315,11 +325,11 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	// Setup FOV
 	if (ShipPawn->GetParent()->IsMilitary())
 	{
-		PlayerCameraManager->SetFOV(94);
+		NormalFOV = 94;
 	}
 	else
 	{
-		PlayerCameraManager->SetFOV(93);
+		NormalFOV = 93;
 	}
 
 	// Combat groups

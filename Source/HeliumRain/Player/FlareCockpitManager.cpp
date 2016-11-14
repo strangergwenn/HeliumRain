@@ -68,7 +68,6 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 	CockpitInstrumentsTargetSize = 512;
 	IsInCockpit = false;
 }
@@ -232,6 +231,16 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 				UpdatePower(DeltaSeconds);
 			}
 		}
+
+		// Update scale - minimum scale value depends on MinimalFOV in PC
+		float Scale = 1.0f;
+		if (PC->GetShipPawn())
+		{
+			// Power is here to vaguely compensate the non-linearity
+			float ScaleAlpha = FMath::Pow(PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha(), 1.15f);
+			Scale = FMath::Lerp(0.34f, 1.0f, ScaleAlpha);
+		}
+		CockpitMesh->SetRelativeScale3D(FVector(1.0, Scale, Scale));
 	}
 }
 

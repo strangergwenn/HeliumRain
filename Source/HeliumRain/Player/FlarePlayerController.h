@@ -384,8 +384,11 @@ protected:
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
-	FFlareSectorBattleState                 LastBattleState;
-	bool									RecoveryActive;
+	float                                    MinimalFOV;
+	float                                    NormalFOV;
+	FFlareSectorBattleState                  LastBattleState;
+	bool									 RecoveryActive;
+
 public:
 
 	/*----------------------------------------------------

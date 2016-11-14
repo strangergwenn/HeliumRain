@@ -1190,6 +1190,9 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("ZoomIn", EInputEvent::IE_Repeat, this, &AFlareSpacecraft::ZoomIn);
 	PlayerInputComponent->BindAction("ZoomOut", EInputEvent::IE_Repeat, this, &AFlareSpacecraft::ZoomOut);
 
+	PlayerInputComponent->BindAction("CombatZoom", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::CombatZoomIn);
+	PlayerInputComponent->BindAction("CombatZoom", EInputEvent::IE_Released, this, &AFlareSpacecraft::CombatZoomOut);
+
 	PlayerInputComponent->BindAction("FaceForward", EInputEvent::IE_Released, this, &AFlareSpacecraft::FaceForward);
 	PlayerInputComponent->BindAction("FaceBackward", EInputEvent::IE_Released, this, &AFlareSpacecraft::FaceBackward);
 	PlayerInputComponent->BindAction("Brake", EInputEvent::IE_Released, this, &AFlareSpacecraft::Brake);
@@ -1496,6 +1499,16 @@ void AFlareSpacecraft::ZoomIn()
 void AFlareSpacecraft::ZoomOut()
 {
 	StateManager->ExternalCameraZoom(false);
+}
+
+void AFlareSpacecraft::CombatZoomIn()
+{
+	StateManager->SetCombatZoom(true);
+}
+
+void AFlareSpacecraft::CombatZoomOut()
+{
+	StateManager->SetCombatZoom(false);
 }
 
 void AFlareSpacecraft::FaceForward()
