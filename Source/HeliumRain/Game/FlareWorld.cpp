@@ -128,7 +128,7 @@ UFlareCompany* UFlareWorld::LoadCompany(const FFlareCompanySave& CompanyData)
     Company->Load(CompanyData);
     Companies.AddUnique(Company);
 
-	FLOGV("UFlareWorld::LoadCompany : loaded '%s'", *Company->GetCompanyName().ToString());
+	//FLOGV("UFlareWorld::LoadCompany : loaded '%s'", *Company->GetCompanyName().ToString());
 
     return Company;
 }
@@ -143,7 +143,7 @@ UFlareSimulatedSector* UFlareWorld::LoadSector(const FFlareSectorDescription* De
 	Sector->Load(Description, SectorData, OrbitParameters);
 	Sectors.AddUnique(Sector);
 
-	FLOGV("UFlareWorld::LoadSector : loaded '%s'", *Sector->GetSectorName().ToString());
+	//FLOGV("UFlareWorld::LoadSector : loaded '%s'", *Sector->GetSectorName().ToString());
 
 	return Sector;
 }

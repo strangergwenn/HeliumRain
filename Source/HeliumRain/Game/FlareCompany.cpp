@@ -419,7 +419,7 @@ UFlareFleet* UFlareCompany::LoadFleet(const FFlareFleetSave& FleetData)
 	Fleet->Load(FleetData);
 	CompanyFleets.AddUnique(Fleet);
 
-	FLOGV("UFlareWorld::LoadFleet : loaded fleet '%s'", *Fleet->GetFleetName().ToString());
+	//FLOGV("UFlareWorld::LoadFleet : loaded fleet '%s'", *Fleet->GetFleetName().ToString());
 
 	return Fleet;
 }
@@ -455,7 +455,7 @@ UFlareTradeRoute* UFlareCompany::LoadTradeRoute(const FFlareTradeRouteSave& Trad
 	TradeRoute->Load(TradeRouteData);
 	CompanyTradeRoutes.AddUnique(TradeRoute);
 
-	FLOGV("UFlareCompany::LoadTradeRoute : loaded trade route '%s'", *TradeRoute->GetTradeRouteName().ToString());
+	//FLOGV("UFlareCompany::LoadTradeRoute : loaded trade route '%s'", *TradeRoute->GetTradeRouteName().ToString());
 
 	return TradeRoute;
 }
@@ -468,7 +468,7 @@ void UFlareCompany::RemoveTradeRoute(UFlareTradeRoute* TradeRoute)
 UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftSave& SpacecraftData)
 {
 	UFlareSimulatedSpacecraft* Spacecraft = NULL;
-	FLOGV("UFlareCompany::LoadSpacecraft ('%s')", *SpacecraftData.Immatriculation.ToString());
+	//FLOGV("UFlareCompany::LoadSpacecraft ('%s')", *SpacecraftData.Immatriculation.ToString());
 
 	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(SpacecraftData.Identifier);
 	if (Desc)

@@ -789,9 +789,9 @@ void AFlareSpacecraft::TryAttachParentActor()
 	// Atrach the actor
 	if (AttachActor)
 	{
-		FLOGV("AFlareSpacecraft::TryAttachParentActor : '%s' found valid actor target '%s'",
-			*GetImmatriculation().ToString(),
-			*GetData().AttachActorName.ToString());
+		//FLOGV("AFlareSpacecraft::TryAttachParentActor : '%s' found valid actor target '%s'",
+		//	*GetImmatriculation().ToString(),
+		//	*GetData().AttachActorName.ToString());
 
 		Airframe->SetSimulatePhysics(true);
 		Airframe->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);

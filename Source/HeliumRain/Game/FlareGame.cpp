@@ -97,7 +97,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	// Do the orbital map setup
 	for (int32 Index = 0; Index < AssetList.Num(); Index++)
 	{
-		FLOGV("AFlareGame::AFlareGame : Found '%s'", *AssetList[Index].GetFullName());
+		//FLOGV("AFlareGame::AFlareGame : Found '%s'", *AssetList[Index].GetFullName());
 		UFlareSectorCatalogEntry* Sector = Cast<UFlareSectorCatalogEntry>(AssetList[Index].GetAsset());
 		FCHECK(Sector);
 		SectorList.Add(Sector);

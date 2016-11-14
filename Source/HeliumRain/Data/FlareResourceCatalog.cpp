@@ -16,7 +16,7 @@ UFlareResourceCatalog::UFlareResourceCatalog(const class FObjectInitializer& PCI
 
 	for (int32 Index = 0; Index < AssetList.Num(); Index++)
 	{
-		FLOGV("UFlareResourceCatalog::UFlareResourceCatalog : Found '%s'", *AssetList[Index].GetFullName());
+		//FLOGV("UFlareResourceCatalog::UFlareResourceCatalog : Found '%s'", *AssetList[Index].GetFullName());
 		UFlareResourceCatalogEntry* Resource = Cast<UFlareResourceCatalogEntry>(AssetList[Index].GetAsset());
 		FCHECK(Resource);
 		

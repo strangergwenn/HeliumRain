@@ -167,7 +167,7 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	AActor* Unused;
 	if (!IsSafeToFire(GunIndex, Unused))
 	{
-		FLOGV("%s Not secure", *GetReadableName());
+		//FLOGV("%s Not secure", *GetReadableName());
 		return false;
 	}
 

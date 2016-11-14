@@ -214,7 +214,7 @@ void AFlareHUD::UpdateHUDVisibility()
 	bool NewVisibility = HUDVisible && !MenuManager->IsMenuOpen();
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
+	//FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
 	HUDMenu->SetVisibility((NewVisibility && !PC->UseCockpit) ? EVisibility::Visible : EVisibility::Collapsed);
 	ContextMenu->SetVisibility(NewVisibility && !MenuManager->IsSwitchingMenu() ? EVisibility::Visible : EVisibility::Collapsed);
 }

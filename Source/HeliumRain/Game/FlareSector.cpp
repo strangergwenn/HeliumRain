@@ -193,9 +193,9 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 				PlaceSpacecraft(Spacecraft, ParentSpacecraft->GetData().Location);
 				{
 					FVector NewLocation = Spacecraft->GetActorLocation();
-					FLOGV("UFlareSector::LoadSpacecraft : Placing '%s' at (%f,%f,%f)",
-						*ParentSpacecraft->GetImmatriculation().ToString(),
-						NewLocation.X, NewLocation.Y, NewLocation.Z);
+					//FLOGV("UFlareSector::LoadSpacecraft : Placing '%s' at (%f,%f,%f)",
+					//	*ParentSpacecraft->GetImmatriculation().ToString(),
+					//	NewLocation.X, NewLocation.Y, NewLocation.Z);
 				}
 
 				RootComponent->SetPhysicsLinearVelocity(FVector::ZeroVector, false);
@@ -206,9 +206,9 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 			case EFlareSpawnMode::Travel:
 			{
 
-				FLOGV("UFlareSector::LoadSpacecraft : Travel '%s' at (%f, %f, %f)",
-					*ParentSpacecraft->GetImmatriculation().ToString(),
-					ParentSpacecraft->GetData().Location.X, ParentSpacecraft->GetData().Location.Y, ParentSpacecraft->GetData().Location.Z);
+				//FLOGV("UFlareSector::LoadSpacecraft : Travel '%s' at (%f, %f, %f)",
+				//	*ParentSpacecraft->GetImmatriculation().ToString(),
+				//	ParentSpacecraft->GetData().Location.X, ParentSpacecraft->GetData().Location.Y, ParentSpacecraft->GetData().Location.Z);
 
 				FVector SpawnDirection;
 				TArray<AFlareSpacecraft*> FriendlySpacecrafts = GetCompanySpacecrafts(Spacecraft->GetCompany());
@@ -290,9 +290,9 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 				FVector Location = SpawnDirection * SpawnDistance;
 				FVector CenterDirection = (GetSectorCenter() - Location).GetUnsafeNormal();
 
-				FLOGV("UFlareSector::LoadSpacecraft : Exit '%s' at (%f, %f, %f)",
-					*ParentSpacecraft->GetImmatriculation().ToString(),
-					Location.X, Location.Y, Location.Z);
+				//FLOGV("UFlareSector::LoadSpacecraft : Exit '%s' at (%f, %f, %f)",
+				//	*ParentSpacecraft->GetImmatriculation().ToString(),
+				//	Location.X, Location.Y, Location.Z);
 
 				PlaceSpacecraft(Spacecraft, Location);
 				Spacecraft->SetActorRotation(CenterDirection.Rotation());

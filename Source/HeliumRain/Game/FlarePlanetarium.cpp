@@ -36,7 +36,7 @@ void AFlarePlanetarium::BeginPlay()
 			UMaterialInstanceConstant* BasePlanetMaterial = Cast<UMaterialInstanceConstant>(PlanetCandidate->GetMaterial(0));
 			if (BasePlanetMaterial)
 			{
-				FLOGV("AFlarePlanetarium::BeginPlay : found planet '%s'", *PlanetCandidate->GetName());
+				//FLOGV("AFlarePlanetarium::BeginPlay : found planet '%s'", *PlanetCandidate->GetName());
 
 #if PLATFORM_LINUX
 				int32 UseNormalAsLightingDirection = 1;
