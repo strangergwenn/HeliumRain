@@ -351,25 +351,25 @@ UFlareSpacecraftComponent* PilotHelper::GetBestTargetComponent(AFlareSpacecraft*
 	float WeaponWeight = 1;
 	float PodWeight = 1;
 	float RCSWeight = 1;
-	float HeatSinkWeight = 1;
+	float InternalWeight = 1;
 
 	if (!TargetSpacecraft->GetParent()->GetDamageSystem()->IsDisarmed())
 	{
 		WeaponWeight = 10;
 		PodWeight = 4;
 		RCSWeight = 1;
-		HeatSinkWeight = 1;
+		InternalWeight = 1;
 	}
 	else if (!TargetSpacecraft->GetParent()->GetDamageSystem()->IsStranded())
 	{
 		PodWeight = 5;
 		RCSWeight = 1;
-		HeatSinkWeight = 1;
+		InternalWeight = 1;
 	}
 	else
 	{
 		RCSWeight = 1;
-		HeatSinkWeight = 1;
+		InternalWeight = 1;
 	}
 
 	TArray<UFlareSpacecraftComponent*> ComponentSelection;
@@ -409,9 +409,9 @@ UFlareSpacecraftComponent* PilotHelper::GetBestTargetComponent(AFlareSpacecraft*
 				}
 			}
 
-			if(Component->GetDescription()->GeneralCharacteristics.HeatSink > 0)
+			if (Component->GetDescription()->Type == EFlarePartType::InternalComponent)
 			{
-				for (int32 i = 0; i < HeatSinkWeight; i++)
+				for (int32 i = 0; i < InternalWeight; i++)
 				{
 					ComponentSelection.Add(Component);
 				}
@@ -419,7 +419,7 @@ UFlareSpacecraftComponent* PilotHelper::GetBestTargetComponent(AFlareSpacecraft*
 		}
 	}
 
-	if(ComponentSelection.Num() == 0)
+	if (ComponentSelection.Num() == 0)
 	{
 		return NULL;
 	}

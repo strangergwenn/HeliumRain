@@ -1059,7 +1059,7 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 	struct PilotHelper::TargetPreferences TargetPreferences;
 	TargetPreferences.IsLarge = 1;
 	TargetPreferences.IsSmall = 1;
-	TargetPreferences.IsStation = 1;
+	TargetPreferences.IsStation = 0;
 	TargetPreferences.IsNotStation = 1;
 	TargetPreferences.IsMilitary = 1;
 	TargetPreferences.IsNotMilitary = 0.1;
@@ -1087,7 +1087,7 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 
 	if (Tactic == EFlareCombatTactic::AttackStations)
 	{
-		TargetPreferences.IsStation *= 10;
+		TargetPreferences.IsStation = 10.0f;
 	}
 	else if (Tactic == EFlareCombatTactic::AttackMilitary)
 	{
