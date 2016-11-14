@@ -309,7 +309,7 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 				{
 					FFlareMenuParameterData Data;
 					Game->GetPC()->Notify(LOCTEXT("CompanyWantPeace", "Peace proposed"),
-						FText::Format(LOCTEXT("CompanyWantPeaceFormat", "{0} wants to make peace with you"), FText::FromString(GetCompanyName().ToString())),
+						FText::Format(LOCTEXT("CompanyWantPeaceFormat", "{0} is offering peace with you"), FText::FromString(GetCompanyName().ToString())),
 						FName("peace-proposed"),
 						EFlareNotification::NT_Military,
 						false,
