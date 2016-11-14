@@ -93,6 +93,8 @@ protected:
 	// Settings
 	int32                                    CockpitInstrumentsTargetSize;
 	float                                    CockpitLightingIntensity;
+	FVector                                  LightLocation1;
+	FVector                                  LightLocation2;
 
 	// Gameplay data
 	bool                                     IsInCockpit;

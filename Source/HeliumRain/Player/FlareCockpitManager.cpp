@@ -18,6 +18,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, PlayerShip(NULL)
 	, CockpitLightingIntensity(5)
+	, LightLocation1(0, -30, -30)
+	, LightLocation2(0, 10, 10)
 	, CockpitHealthLightTimer(0)
 	, CockpitHealthLightPeriod(1.58)
 	, CockpitTargetLightTimer(0)
@@ -50,7 +52,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitLight = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight"));
 	CockpitLight->SetLightColor(FLinearColor(1.0f, 0.871f, 0.731));
 	CockpitLight->SetIntensity(5);
-	CockpitLight->SetRelativeLocation(FVector(0, -30, -30));
+	CockpitLight->SetRelativeLocation(LightLocation1);
 	CockpitLight->SetCastShadows(false);
 	CockpitLight->LightingChannels.bChannel0 = false;
 	CockpitLight->LightingChannels.bChannel1 = true;
@@ -60,7 +62,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	CockpitLight2 = PCIP.CreateDefaultSubobject<UPointLightComponent>(this, TEXT("CockpitLight2"));
 	CockpitLight2->SetLightColor(FLinearColor(1.0f, 0.376f, 0.212f));
 	CockpitLight2->SetIntensity(5);
-	CockpitLight2->SetRelativeLocation(FVector(0, 10, 10));
+	CockpitLight2->SetRelativeLocation(LightLocation2);
 	CockpitLight2->SetCastShadows(false);
 	CockpitLight2->LightingChannels.bChannel0 = false;
 	CockpitLight2->LightingChannels.bChannel1 = true;
@@ -233,9 +235,17 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 			}
 		}
 
-		// Update scale - minimum scale value depends on MinimalFOV in PC
+		// Compute scale for zoom - minimum scale value depends on MinimalFOV in PC
 		float Scale = FMath::Tan(FMath::DegreesToRadians(PC->GetCurrentFOV() / 2.f)) / FMath::Tan(FMath::DegreesToRadians(PC->GetNormalFOV() / 2.f));
+		FVector CurrentLightLocation1 = Scale * LightLocation1;
+		FVector CurrentLightLocation2 = Scale * LightLocation2;
+		CurrentLightLocation1.X = LightLocation1.X;
+		CurrentLightLocation2.X = LightLocation2.X;
+
+		// Update scale
 		CockpitMesh->SetRelativeScale3D(FVector(1.0, Scale, Scale));
+		CockpitLight->SetRelativeLocation(CurrentLightLocation1);
+		CockpitLight2->SetRelativeLocation(CurrentLightLocation2);
 	}
 }
 
@@ -422,8 +432,7 @@ void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 	float PowerAlpha = CockpitPowerTimer / CockpitPowerPeriod;
 	
 	// Update lights
-	float ZoomIntensity = FMath::Lerp(1.0f, 0.2f, PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha());
-	float LightIntensity = PowerAlpha * 50 * ZoomIntensity;
+	float LightIntensity = PowerAlpha * 50;
 	CockpitLight->SetIntensity(LightIntensity);
 	CockpitLight2->SetIntensity(LightIntensity);
 	
