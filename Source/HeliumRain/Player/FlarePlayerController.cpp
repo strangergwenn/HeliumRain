@@ -415,8 +415,6 @@ void AFlarePlayerController::OnSectorDeactivated()
 
 void AFlarePlayerController::UpdateMusicTrack(FFlareSectorBattleState NewBattleState)
 {
-	FLOG("AFlarePlayerController::UpdateMusicTrack");
-
 	if (NewBattleState.HasDanger)
 	{
 		if (NewBattleState.WantFight())

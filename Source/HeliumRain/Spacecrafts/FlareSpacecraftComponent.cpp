@@ -168,7 +168,9 @@ void UFlareSpacecraftComponent::Initialize(FFlareSpacecraftComponentSave* Data, 
 
 		if (!ComponentDescription)
 		{
-			FLOGV("!!! Bad Component Identifier : %s", *Data->ComponentIdentifier.ToString());
+			FLOGV("UFlareSpacecraftComponent::Initialize : bad component identifier : '%s' in '%s'",
+				*Data->ComponentIdentifier.ToString(),
+				*Spacecraft->GetDescription()->Name.ToString());
 		}
 		else
 		{

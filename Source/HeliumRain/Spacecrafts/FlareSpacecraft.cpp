@@ -864,14 +864,12 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 	for (int32 StateIndex = 0; StateIndex < GetDescription()->DynamicComponentStates.Num(); StateIndex++)
 	{
 		FFlareSpacecraftDynamicComponentStateDescription* State = &GetDescription()->DynamicComponentStates[StateIndex];
-
-
-
+		
 		if (State->StateIdentifier == GetData().DynamicComponentStateIdentifier)
 		{
 			if(State->StateTemplates.Num() == 0)
 			{
-				FLOGV("Dynamic component state '%s' has no template", *GetData().DynamicComponentStateIdentifier.ToString())
+				FLOGV("AFlareSpacecraft::UpdateDynamicComponents : dynamic component state '%s' has no template", *GetData().DynamicComponentStateIdentifier.ToString())
 				break;
 			}
 
@@ -881,8 +879,7 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 		}
 	}
 
-
-	for (int32 ComponentIndex = 0; ComponentIndex < DynamicComponents.Num(); ComponentIndex++)
+		for (int32 ComponentIndex = 0; ComponentIndex < DynamicComponents.Num(); ComponentIndex++)
 	{
 		UChildActorComponent* Component = Cast<UChildActorComponent>(DynamicComponents[ComponentIndex]);
 
@@ -893,7 +890,7 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 
 		if (CurrentState == NULL)
 		{
-			FLOGV("Fail to find State '%s'", *GetData().DynamicComponentStateIdentifier.ToString());
+			FLOGV("AFlareSpacecraft::UpdateDynamicComponents : failed to find state '%s'", *GetData().DynamicComponentStateIdentifier.ToString());
 			Component->SetChildActorClass(NULL);
 			return;
 		}

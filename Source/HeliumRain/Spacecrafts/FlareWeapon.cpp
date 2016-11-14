@@ -59,7 +59,7 @@ void UFlareWeapon::Initialize(FFlareSpacecraftComponentSave* Data, UFlareCompany
 		{
 			AmmoVelocity = ComponentDescription->WeaponCharacteristics.BombCharacteristics.DropLinearVelocity;
 			FiringPeriod =  0;
-			FLOGV("IsBomb num = %d", ComponentDescription->WeaponCharacteristics.AmmoCapacity);
+			//FLOGV("UFlareWeapon::Initialize : IsBomb num = %d", ComponentDescription->WeaponCharacteristics.AmmoCapacity);
 			FillBombs();
 		}
 		else
