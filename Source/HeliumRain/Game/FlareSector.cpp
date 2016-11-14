@@ -2,7 +2,10 @@
 #include "FlareGame.h"
 #include "FlareSimulatedSector.h"
 #include "FlareSector.h"
+#include "FlareCollider.h"
+#include "../Spacecrafts/FlareShell.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
+#include "../Player/FlarePlayerController.h"
 
 
 /*----------------------------------------------------
@@ -36,7 +39,7 @@ void UFlareSector::Load(UFlareSimulatedSector* Parent)
 	for (int i = 0 ; i < ParentSector->GetSectorSpacecrafts().Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = ParentSector->GetSectorSpacecrafts()[i];
-		if (Spacecraft->GetData().SpawnMode == EFlareSpawnMode::Safe)
+		if (Spacecraft->GetData().SpawnMode == EFlareSpawnMode::Safe && (!Spacecraft->IsReserve() ||  Parent->GetGame()->GetPC()->GetPlayerShip() == Spacecraft))
 		{
 			LoadSpacecraft(Spacecraft);
 		}
@@ -45,23 +48,23 @@ void UFlareSector::Load(UFlareSimulatedSector* Parent)
 	SectorRepartitionCache = false;
 
 	// Load unsafe location spacecrafts
-	for (int i = 0 ; i < ParentSector->GetSectorSpacecrafts().Num(); i++)
+	for (int i = 0; i < ParentSector->GetSectorSpacecrafts().Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = ParentSector->GetSectorSpacecrafts()[i];
-		if (Spacecraft->GetData().SpawnMode != EFlareSpawnMode::Safe)
+		if (Spacecraft->GetData().SpawnMode != EFlareSpawnMode::Safe && (!Spacecraft->IsReserve() ||  Parent->GetGame()->GetPC()->GetPlayerShip() == Spacecraft))
 		{
 			LoadSpacecraft(Spacecraft);
 		}
 	}
 
 	// Check docking once all spacecraft are loaded
-	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
+	for (int i = 0; i < SectorSpacecrafts.Num(); i++)
 	{
 		SectorSpacecrafts[i]->Redock();
 	}
 
 	// Load bombs
-	for (int i = 0 ; i < ParentSector->GetData()->BombData.Num(); i++)
+	for (int i = 0; i < ParentSector->GetData()->BombData.Num(); i++)
 	{
 		LoadBomb(ParentSector->GetData()->BombData[i]);
 	}
@@ -97,15 +100,7 @@ void UFlareSector::DestroySector()
 	// Remove spacecrafts from world
 	for (int SpacecraftIndex = 0 ; SpacecraftIndex < SectorSpacecrafts.Num(); SpacecraftIndex++)
 	{
-		UFlareSimulatedSpacecraft* Spacecraft = SectorSpacecrafts[SpacecraftIndex]->GetParent();
-		if (!Spacecraft->GetDamageSystem()->IsAlive() && !Spacecraft->GetDescription()->IsSubstation)
-		{
-			DestroySpacecraft(SectorSpacecrafts[SpacecraftIndex], true);
-		}
-		else
-		{
-			SectorSpacecrafts[SpacecraftIndex]->Destroy();
-		}
+		SectorSpacecrafts[SpacecraftIndex]->Destroy();
 	}
 
 	for (int BombIndex = 0 ; BombIndex < SectorBombs.Num(); BombIndex++)
@@ -157,13 +152,10 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 	AFlareSpacecraft* Spacecraft = NULL;
 	/*FLOGV("UFlareSector::LoadSpacecraft : Start loading ('%s')", *ParentSpacecraft->GetImmatriculation().ToString());*/
 
-
 	// Spawn parameters
 	FActorSpawnParameters Params;
 	Params.bNoFail = true;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-
 
 	// Create and configure the ship
 	Spacecraft = GetGame()->GetWorld()->SpawnActor<AFlareSpacecraft>(ParentSpacecraft->GetDescription()->Template->GeneratedClass, ParentSpacecraft->GetData().Location, ParentSpacecraft->GetData().Rotation, Params);
@@ -201,9 +193,9 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 				PlaceSpacecraft(Spacecraft, ParentSpacecraft->GetData().Location);
 				{
 					FVector NewLocation = Spacecraft->GetActorLocation();
-					FLOGV("UFlareSector::LoadSpacecraft : Placing '%s' at (%f,%f,%f)",
-						*ParentSpacecraft->GetImmatriculation().ToString(),
-						NewLocation.X, NewLocation.Y, NewLocation.Z);
+					//FLOGV("UFlareSector::LoadSpacecraft : Placing '%s' at (%f,%f,%f)",
+					//	*ParentSpacecraft->GetImmatriculation().ToString(),
+					//	NewLocation.X, NewLocation.Y, NewLocation.Z);
 				}
 
 				RootComponent->SetPhysicsLinearVelocity(FVector::ZeroVector, false);
@@ -214,9 +206,9 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 			case EFlareSpawnMode::Travel:
 			{
 
-				FLOGV("UFlareSector::LoadSpacecraft : Travel '%s' at (%f, %f, %f)",
-					*ParentSpacecraft->GetImmatriculation().ToString(),
-					ParentSpacecraft->GetData().Location.X, ParentSpacecraft->GetData().Location.Y, ParentSpacecraft->GetData().Location.Z);
+				//FLOGV("UFlareSector::LoadSpacecraft : Travel '%s' at (%f, %f, %f)",
+				//	*ParentSpacecraft->GetImmatriculation().ToString(),
+				//	ParentSpacecraft->GetData().Location.X, ParentSpacecraft->GetData().Location.Y, ParentSpacecraft->GetData().Location.Z);
 
 				FVector SpawnDirection;
 				TArray<AFlareSpacecraft*> FriendlySpacecrafts = GetCompanySpacecrafts(Spacecraft->GetCompany());
@@ -265,7 +257,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 
 				float SpawnDistance = GetSectorRadius() + 1;
 
-				if (GetSimulatedSector()->GetSectorBattleState(Spacecraft->GetCompany()) != EFlareSectorBattleState::NoBattle)
+				if (GetSimulatedSector()->GetSectorBattleState(Spacecraft->GetCompany()).InBattle)
 				{
 					SpawnDistance += 500000; // 5 km
 				}
@@ -281,7 +273,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 
 				float SpawnVelocity = 0;
 
-				if (GetSimulatedSector()->GetSectorBattleState(Spacecraft->GetCompany()) != EFlareSectorBattleState::NoBattle)
+				if (GetSimulatedSector()->GetSectorBattleState(Spacecraft->GetCompany()).InBattle)
 				{
 						SpawnVelocity = 10000;
 				}
@@ -298,9 +290,9 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 				FVector Location = SpawnDirection * SpawnDistance;
 				FVector CenterDirection = (GetSectorCenter() - Location).GetUnsafeNormal();
 
-				FLOGV("UFlareSector::LoadSpacecraft : Exit '%s' at (%f, %f, %f)",
-					*ParentSpacecraft->GetImmatriculation().ToString(),
-					Location.X, Location.Y, Location.Z);
+				//FLOGV("UFlareSector::LoadSpacecraft : Exit '%s' at (%f, %f, %f)",
+				//	*ParentSpacecraft->GetImmatriculation().ToString(),
+				//	Location.X, Location.Y, Location.Z);
 
 				PlaceSpacecraft(Spacecraft, Location);
 				Spacecraft->SetActorRotation(CenterDirection.Rotation());
@@ -417,35 +409,6 @@ void UFlareSector::UnregisterShell(AFlareShell* Shell)
 	}
 }
 
-void UFlareSector::DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroying)
-{
-	FLOGV("UFlareSector::DestroySpacecraft %s", *Spacecraft->GetImmatriculation().ToString());
-
-	if (!Destroying)
-	{
-		SectorSpacecrafts.Remove(Spacecraft);
-		SectorShips.Remove(Spacecraft);
-		SectorStations.Remove(Spacecraft);
-	}
-
-	UFlareSimulatedSpacecraft* SimulatedSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(Spacecraft->GetImmatriculation());
-	SimulatedSpacecraft->GetCompany()->DestroySpacecraft(SimulatedSpacecraft);
-
-	Spacecraft->Destroy();
-
-	if(!Destroying)
-	{
-		// Reload the menu as they can show the destroyed ship
-		// TODO #524: This will crash if a ship inspect menu is open on the destroyed ship,
-		// as the menu will be reload with a invalid spacecraft
-		AFlareMenuManager* MenuManager = GetGame()->GetPC()->GetMenuManager();
-		if (MenuManager->IsMenuOpen())
-		{
-			MenuManager->Reload();
-		}
-	}
-}
-
 void UFlareSector::SetPause(bool Pause)
 {
 	for (int i = 0 ; i < SectorSpacecrafts.Num(); i++)
@@ -497,6 +460,22 @@ AActor* UFlareSector::GetNearestBody(FVector Location, float* NearestDistance, b
 		if (AsteroidCandidate != ActorToIgnore && (!NearestCandidateActor || NearestCandidateActorDistance > Distance))
 		{
 			NearestCandidateActor = AsteroidCandidate;
+			NearestCandidateActorDistance = Distance;
+		}
+	}
+
+	TArray<AActor*> ColliderActorList;
+	UGameplayStatics::GetAllActorsOfClass(GetGame()->GetWorld(), AFlareCollider::StaticClass(), ColliderActorList);
+	for (int32 ColliderIndex = 0; ColliderIndex < ColliderActorList.Num(); ColliderIndex++)
+	{
+		AActor* ColliderCandidate = ColliderActorList[ColliderIndex];
+
+		float CandidateSize = Cast<UStaticMeshComponent>(ColliderCandidate->GetRootComponent())->Bounds.SphereRadius;
+
+		float Distance = FVector::Dist(ColliderCandidate->GetActorLocation(), Location) - CandidateSize;
+		if (ColliderCandidate != ActorToIgnore && (!NearestCandidateActor || NearestCandidateActorDistance > Distance))
+		{
+			NearestCandidateActor = ColliderCandidate;
 			NearestCandidateActorDistance = Distance;
 		}
 	}

@@ -89,8 +89,6 @@ bool UFlareSpacecraftDockingSystem::HasCompatibleDock(AFlareSpacecraft* Ship) co
 
 FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(AFlareSpacecraft* Ship, FVector PreferredLocation)
 {
-	FLOGV("UFlareSpacecraftDockingSystem::RequestDock ('%s')", *Ship->GetImmatriculation().ToString());
-
 	int32 BestIndex = -1;
 	float BestDistance = 0;
 
@@ -108,19 +106,59 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(AFlareSpacecraft* S
 		}
 	}
 
-	if (BestIndex >=0)
+	// Granted
+	if (BestIndex >= 0)
 	{
-		FLOGV("UFlareSpacecraftDockingSystem::RequestDock : found valid dock %d", BestIndex);
 		DockingSlots[BestIndex].Granted = true;
 		DockingSlots[BestIndex].Ship = Ship;
 		return DockingSlots[BestIndex];
 	}
 
-	// Default values
-	FFlareDockingInfo Info;
-	Info.Granted = false;
-	Info.Station = Spacecraft;
-	return Info;
+	// Denied, but player ship, so undock an AI ship
+	else if (Ship->IsPlayerShip())
+	{
+		// Look again without constraint
+		for (int32 i = 0; i < DockingSlots.Num(); i++)
+		{
+			if (DockingSlots[i].DockSize == Ship->GetSize())
+			{
+				float DockDistance = (Spacecraft->Airframe->GetComponentToWorld().TransformPosition(DockingSlots[i].LocalLocation) - PreferredLocation).Size();
+				if (BestIndex < 0 || DockDistance < BestDistance)
+				{
+					BestDistance = DockDistance;
+					BestIndex = i;
+				}
+			}
+		}
+
+		// Undock previous owner
+		FCHECK(BestIndex >= 0);
+		if (DockingSlots[BestIndex].Ship && DockingSlots[BestIndex].Ship->IsValidLowLevel())
+		{
+			if (DockingSlots[BestIndex].Ship->GetNavigationSystem()->IsDocked())
+			{
+				DockingSlots[BestIndex].Ship->GetNavigationSystem()->Undock();
+			}
+			else
+			{
+				DockingSlots[BestIndex].Ship->GetNavigationSystem()->AbortAllCommands();
+			}
+		}
+
+		// Grant dock
+		DockingSlots[BestIndex].Granted = true;
+		DockingSlots[BestIndex].Ship = Ship;
+		return DockingSlots[BestIndex];
+	}
+
+	// Denied
+	else
+	{
+		FFlareDockingInfo Info;
+		Info.Granted = false;
+		Info.Station = Spacecraft;
+		return Info;
+	}
 }
 
 void UFlareSpacecraftDockingSystem::ReleaseDock(AFlareSpacecraft* Ship, int32 DockId)
@@ -147,7 +185,7 @@ TArray<AFlareSpacecraft*> UFlareSpacecraftDockingSystem::GetDockedShips()
 	{
 		if (DockingSlots[i].Granted && DockingSlots[i].Occupied)
 		{
-			FLOGV("UFlareSpacecraftDockingSystem::GetDockedShips : found valid dock %d", i);
+			//FLOGV("UFlareSpacecraftDockingSystem::GetDockedShips : found valid dock %d", i);
 			Result.AddUnique(DockingSlots[i].Ship);
 		}
 	}

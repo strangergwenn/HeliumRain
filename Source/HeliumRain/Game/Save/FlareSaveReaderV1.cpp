@@ -203,6 +203,8 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 	LoadInt32(Object, "CatalogIdentifier", &Data->CatalogIdentifier);
 	LoadInt64(Object, "Money", &Data->Money);
 	LoadInt64(Object, "CompanyValue", &Data->CompanyValue);
+	LoadInt64(Object, "PlayerLastPeaceDate", &Data->PlayerLastPeaceDate);
+	LoadInt64(Object, "PlayerLastTributeDate", &Data->PlayerLastTributeDate);
 	LoadInt32(Object, "FleetImmatriculationIndex", &Data->FleetImmatriculationIndex);
 	LoadInt32(Object, "TradeRouteImmatriculationIndex", &Data->TradeRouteImmatriculationIndex);
 
@@ -311,10 +313,12 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	Data->IsTrading = false;
 	Data->IsRepairing = false;
 	Data->IsRefilling = false;
+	Data->IsReserve = false;
 
 	Object->TryGetBoolField(TEXT("IsTrading"), Data->IsTrading);
 	Object->TryGetBoolField(TEXT("IsRepairing"), Data->IsRepairing);
 	Object->TryGetBoolField(TEXT("IsRefilling"), Data->IsRefilling);
+	Object->TryGetBoolField(TEXT("IsReserve"), Data->IsReserve);
 
 	LoadInt32(Object, "Level", &Data->Level);
 	if (Data->Level == 0)
@@ -630,6 +634,10 @@ void UFlareSaveReaderV1::LoadCompanyAI(const TSharedPtr<FJsonObject> Object, FFl
 	LoadFName(Object, "ConstructionProjectSectorIdentifier", &Data->ConstructionProjectSectorIdentifier);
 	LoadFName(Object, "ConstructionProjectStationIdentifier", &Data->ConstructionProjectStationIdentifier);
 	LoadInt32(Object, "ConstructionProjectNeedCapacity", &Data->ConstructionProjectNeedCapacity);
+	LoadInt64(Object, "BudgetMilitary", &Data->BudgetMilitary);
+	LoadInt64(Object, "BudgetStation", &Data->BudgetStation);
+	LoadInt64(Object, "BudgetTechnology", &Data->BudgetTechnology);
+	LoadInt64(Object, "BudgetTrade", &Data->BudgetTrade);
 
 	LoadFNameArray(Object, "ConstructionShipsIdentifiers", &Data->ConstructionShipsIdentifiers);
 	LoadFNameArray(Object, "ConstructionStaticShipsIdentifiers", &Data->ConstructionStaticShipsIdentifiers);

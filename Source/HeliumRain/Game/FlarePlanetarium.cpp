@@ -36,7 +36,7 @@ void AFlarePlanetarium::BeginPlay()
 			UMaterialInstanceConstant* BasePlanetMaterial = Cast<UMaterialInstanceConstant>(PlanetCandidate->GetMaterial(0));
 			if (BasePlanetMaterial)
 			{
-				FLOGV("AFlarePlanetarium::BeginPlay : found planet '%s'", *PlanetCandidate->GetName());
+				//FLOGV("AFlarePlanetarium::BeginPlay : found planet '%s'", *PlanetCandidate->GetName());
 
 #if PLATFORM_LINUX
 				int32 UseNormalAsLightingDirection = 1;
@@ -200,8 +200,11 @@ void AFlarePlanetarium::SetupCelestialBodies()
 {
 	// Sort by incresing distance
 	BodyPositions.Sort(&BodyDistanceComparator);
-	double BaseDistance = 1500000; // Min distance, 15km
+	double BaseDistance = GetGame()->GetActiveSector()->GetSectorLimits() * 2; // Min distance, 15km
 	double BaseIncrement = BaseDistance;
+#ifdef PLANETARIUM_DEBUG
+	DrawDebugSphere(GetWorld(), FVector::ZeroVector, (BaseDistance /2) /1000 , 32, FColor::Red, false);
+#endif
 	for(int32 BodyIndex = 0; BodyIndex < BodyPositions.Num(); BodyIndex++)
 	{
 		CelestialBodyPosition* BodyPosition = &BodyPositions[BodyIndex];
@@ -210,9 +213,18 @@ void AFlarePlanetarium::SetupCelestialBodies()
 		// So the display is the base distance + the display radius
 		// But the display radius depend on the base distance
 
-		double AngularRadius = FPreciseMath::Atan(BodyPosition->Radius / BodyPosition->Distance);
+		double EffectiveRadius = BodyPosition->Radius;
 
-		double DisplayDistance = BaseDistance / (1- FPreciseMath::Tan(AngularRadius));
+		// If outside the ring take ring radius instead of planet
+		if(BodyIndex == 0 && BodyPosition->Distance > BodyPosition->Radius + BodyPosition->Body->RingsOuterAltitude)
+		{
+			EffectiveRadius += BodyPosition->Body->RingsOuterAltitude;
+		}
+
+		double AngularRadius = FPreciseMath::Atan(BodyPosition->Radius / BodyPosition->Distance);
+		double AngularRadiusWithRings = FPreciseMath::Atan(EffectiveRadius / BodyPosition->Distance);
+
+		double DisplayDistance = (BaseDistance) / (1- FPreciseMath::Tan(AngularRadiusWithRings));
 		double DisplayRadius = FPreciseMath::Tan(AngularRadius) * DisplayDistance;
 
 		SetupCelestialBody(BodyPosition, DisplayDistance, DisplayRadius);
@@ -223,10 +235,18 @@ void AFlarePlanetarium::SetupCelestialBodies()
 		FLOGV("SetupCelestialBodies %s AngularRadius = %f", *BodyPosition->Body->Identifier.ToString(), AngularRadius);
 		FLOGV("SetupCelestialBodies %s DisplayDistance = %f", *BodyPosition->Body->Identifier.ToString(), DisplayDistance);
 		FLOGV("SetupCelestialBodies %s DisplayRadius = %f", *BodyPosition->Body->Identifier.ToString(), DisplayRadius);
+		FLOGV("SetupCelestialBodies %s EffectiveRadius = %f", *BodyPosition->Body->Identifier.ToString(), EffectiveRadius);
 #endif
 
 		// Update BaseDistance for future bodies. Take margin for Nema rings
-		BaseDistance = DisplayDistance + DisplayRadius;
+		if(BodyIndex == 0 && BodyPosition->Body->RingsOuterAltitude == 0)
+		{
+			BaseDistance = DisplayDistance + DisplayRadius / 2;
+		}
+		else
+		{
+			BaseDistance = DisplayDistance + DisplayRadius;
+		}
 	}
 }
 

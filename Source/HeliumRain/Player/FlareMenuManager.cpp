@@ -407,12 +407,13 @@ void AFlareMenuManager::ProcessNextMenu()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	FLOGV("AFlareMenuManager::ProcessNextMenu : '%s'", *GetMenuName(NextMenu.Key).ToString());
+	bool Done = true;
 
 	// Process the target
 	switch (NextMenu.Key)
 	{
-		case EFlareMenu::MENU_LoadGame:           LoadGame();                  break;
-		case EFlareMenu::MENU_FlyShip:            FlyShip();                   break;
+		case EFlareMenu::MENU_LoadGame:           Done = LoadGame();                  break;
+		case EFlareMenu::MENU_FlyShip:            Done = FlyShip();                   break;
 		case EFlareMenu::MENU_ReloadSector:       ReloadSector();              break;
 		case EFlareMenu::MENU_FastForwardSingle:  FastForwardSingle();         break;
 		case EFlareMenu::MENU_Travel:             Travel();                    break;
@@ -443,13 +444,16 @@ void AFlareMenuManager::ProcessNextMenu()
 	}
 
 	// Reset target
-	NextMenu.Value = FFlareMenuParameterData();
-	NextMenu.Key = EFlareMenu::MENU_None;
-
-	// Signal the HUD
-	if (GetPC()->GetNavHUD())
+	if(Done)
 	{
-		GetPC()->GetNavHUD()->UpdateHUDVisibility();
+		NextMenu.Value = FFlareMenuParameterData();
+		NextMenu.Key = EFlareMenu::MENU_None;
+
+		// Signal the HUD
+		if (GetPC()->GetNavHUD())
+		{
+			GetPC()->GetNavHUD()->UpdateHUDVisibility();
+		}
 	}
 }
 
@@ -497,10 +501,8 @@ void AFlareMenuManager::UseDarkBackground()
 	Internal menu callbacks
 ----------------------------------------------------*/
 
-void AFlareMenuManager::LoadGame()
+bool AFlareMenuManager::LoadGame()
 {
-	ExitMenu();
-
 	FText Reason;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	PC->GetGame()->LoadGame(PC);
@@ -530,13 +532,11 @@ void AFlareMenuManager::LoadGame()
 		// Activate sector
 		FLOGV("AFlareMenuManager::LoadGame : found player ship '%s'", *CurrentShip->GetImmatriculation().ToString());
 		PC->GetGame()->ActivateCurrentSector();
-		FCHECK(CurrentShip->GetActive());
 
 		// Fly the ship - we create another set of data here to keep with the convention :) 
 		NextMenu.Key = EFlareMenu::MENU_FlyShip;
 		NextMenu.Value.Spacecraft = CurrentShip;
-		FlyShip();
-		NextMenu.Value = FFlareMenuParameterData();
+		return FlyShip();
 	}
 
 	// TODO : handle game over
@@ -545,9 +545,11 @@ void AFlareMenuManager::LoadGame()
 		FLOG("AFlareMenuManager::LoadGame : still no player ship, player is fucked :) ");
 		OpenMenu(EFlareMenu::MENU_Main);
 	}
+
+	return true;
 }
 
-void AFlareMenuManager::FlyShip()
+bool AFlareMenuManager::FlyShip()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC)
@@ -557,6 +559,12 @@ void AFlareMenuManager::FlyShip()
 		{
 			AFlareSpacecraft* OldShip = PC->GetShipPawn();
 			UFlareSimulatedSpacecraft* Ship = NextMenu.Value.Spacecraft;
+			if(!Ship->IsActive())
+			{
+				// Hack Retry at new tick
+				FLOGV("FlyShip: What ship %s to be active", *Ship->GetImmatriculation().ToString());
+				return false;
+			}
 			PC->FlyShip(Ship->GetActive());
 
 			if (OldShip != Ship->GetActive())
@@ -609,6 +617,8 @@ void AFlareMenuManager::FlyShip()
 		ExitMenu();
 		MenuIsOpen = false;
 	}
+
+	return true;
 }
 
 void AFlareMenuManager::Travel()

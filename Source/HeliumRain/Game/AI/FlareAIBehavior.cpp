@@ -28,42 +28,45 @@ void UFlareAIBehavior::Load(UFlareCompany* ParentCompany)
 
 		GenerateAffilities();
 
-		// TODO save
-		PirateLowProfile = true;
-		PirateAttackThresold = 1;
+		ProposeTributeToPlayer = false;
 	}
 }
 
 void UFlareAIBehavior::Simulate()
 {
+	// Reputation changes
+	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		if (OtherCompany == Company)
+		{
+			continue;
+		}
+
+		int64 OtherCompanyValue = OtherCompany->GetCompanyValue().TotalValue;
+		int64 CompanyValue = Company->GetCompanyValue().TotalValue;
+		if(CompanyValue > OtherCompanyValue)
+		{
+			float ValueRatio = (float)OtherCompanyValue / (float)CompanyValue;
+			Company->GiveReputation(OtherCompany, 0.1 * (1 - ValueRatio), false);
+		}
+		else
+		{
+			float ValueRatio = (float)CompanyValue / (float)OtherCompanyValue;
+			Company->GiveReputation(OtherCompany, - 0.1 * (1 - ValueRatio), false);
+		}
+
+		if(Company == ST->Pirates && OtherCompany != ST->AxisSupplies)
+		{
+			Company->GiveReputation(OtherCompany, -1, false);
+		}
+
+	}
+
+
 	if(Company == ST->Pirates)
 	{
-		// TODO save state
-
-
-		int32 ShipsReady = 0;
-
-		for(int32 ShipIndex = 0; ShipIndex < Company->GetCompanyShips().Num(); ShipIndex++)
-		{
-			UFlareSimulatedSpacecraft* Ship = Company->GetCompanyShips()[ShipIndex];
-			 if (Ship->IsMilitary() && !Ship->GetDamageSystem()->IsDisarmed())
-			 {
-				ShipsReady++;
-			 }
-		}
-
-		FLOGV("Pirate army size: %d, PirateAttackThresold: %f", ShipsReady, PirateAttackThresold);
-		if(PirateLowProfile && ShipsReady > PirateAttackThresold)
-		{
-			PirateLowProfile = false;
-		}
-
-		if(!PirateLowProfile && ShipsReady < (PirateAttackThresold / 2.f))
-		{
-			PirateLowProfile = true;
-			PirateAttackThresold += 0.2;
-		}
-
 		SimulatePirateBehavior();
 	}
 	else
@@ -75,23 +78,29 @@ void UFlareAIBehavior::Simulate()
 
 void UFlareAIBehavior::SimulateGeneralBehavior()
 {
+	// First make cargo evasion to avoid them to lock themselve trading
+	Company->GetAI()->CargosEvasion();
+
 	// Update trade routes
-	int32 IdleCargoCapacity = Company->GetAI()->UpdateTrading();
+	Company->GetAI()->UpdateTrading();
 
 	// Repair and refill ships and stations
 	Company->GetAI()->RepairAndRefill();
 
+	Company->GetAI()->ProcessBudget(Company->GetAI()->AllBudgets);
+
 	// Create or upgrade stations
-	Company->GetAI()->UpdateStationConstruction(IdleCargoCapacity);
+	Company->GetAI()->UpdateStationConstruction();
 
 	// Buy ships
-	Company->GetAI()->UpdateShipAcquisition(IdleCargoCapacity);
+	//Company->GetAI()->UpdateShipAcquisition(IdleCargoCapacity);
 
-	Company->GetAI()->UpdateMilitaryMovement(true);
+	Company->GetAI()->UpdateMilitaryMovement();
 }
 
 void UFlareAIBehavior::UpdateDiplomacy()
 {
+	ProposeTributeToPlayer = false;
 
 	// Simulate company attitude towards others
 	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
@@ -103,25 +112,40 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			continue;
 		}
 
-		if(Company == ST->Pirates && !PirateLowProfile && OtherCompany != ST->AxisSupplies)
+		if(Company == ST->AxisSupplies)
+		{
+			// Never declare war
+			continue;
+		}
+
+		if (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile
+				&& (Company->GetReputation(OtherCompany) > -100 || Company->GetConfidenceLevel(OtherCompany) < RequestPeaceConfidence))
+		{
+			Company->SetHostilityTo(OtherCompany, false);
+		}
+		else if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile
+				 && Company->GetReputation(OtherCompany) <= -100 && Company->GetConfidenceLevel(OtherCompany) > DeclareWarConfidence)
 		{
 			Company->SetHostilityTo(OtherCompany, true);
+			if (OtherCompany == Game->GetPC()->GetCompany())
+			{
+				OtherCompany->SetHostilityTo(Company, true);
+			}
 		}
-		else
+
+		if (Company->GetWarState(OtherCompany) == EFlareHostility::Hostile
+				&& Company->GetConfidenceLevel(OtherCompany) < PayTributeConfidence)
 		{
-			if (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile && Company->GetReputation(OtherCompany) > -100)
+			if (OtherCompany == Game->GetPC()->GetCompany())
 			{
-				Company->SetHostilityTo(OtherCompany, false);
+				ProposeTributeToPlayer = true;
 			}
-			else if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile && Company->GetReputation(OtherCompany) <= -100)
+			else
 			{
-				Company->SetHostilityTo(OtherCompany, true);
-				if (OtherCompany == Game->GetPC()->GetCompany())
-				{
-					OtherCompany->SetHostilityTo(Company, true);
-				}
+				Company->PayTribute(OtherCompany, true);
 			}
 		}
+
 	}
 }
 
@@ -130,24 +154,19 @@ void UFlareAIBehavior::SimulatePirateBehavior()
 	// Repair and refill ships and stations
 	Company->GetAI()->RepairAndRefill();
 
-	if(PirateLowProfile)
-	{
-		// Update trade routes
-		int32 IdleCargoCapacity = Company->GetAI()->UpdateTrading();
+	// First make cargo evasion to avoid them to lock themselve trading
+	Company->GetAI()->CargosEvasion();
 
-		// Buy ships
-		Company->GetAI()->UpdateShipAcquisition(IdleCargoCapacity);
-		Company->GetAI()->UpdateWarShipAcquisition(false);
+	// Update trade routes
+	Company->GetAI()->UpdateTrading();
 
-		Company->GetAI()->UpdateMilitaryMovement(true);
-	}
-	else
-	{
-		// Buy war ships
-		Company->GetAI()->UpdateWarShipAcquisition(false);
+	Company->GetAI()->ProcessBudget(Company->GetAI()->AllBudgets);
 
-		Company->GetAI()->UpdateMilitaryMovement(false);
-	}
+	// Create or upgrade stations
+	Company->GetAI()->UpdateStationConstruction();
+
+	Company->GetAI()->UpdateMilitaryMovement();
+
 }
 
 void UFlareAIBehavior::GenerateAffilities()
@@ -174,16 +193,18 @@ void UFlareAIBehavior::GenerateAffilities()
 	MaintenanceAffility = 0.1;
 
 	// Budjet
-	BudgetTechnology = 1.0;
-	BudgetMilitary = 1.0;
-	BudgetStation = 1.0;
-	BudgetTrade = 1.0;
+	BudgetTechnologyWeight = 1.0;
+	BudgetMilitaryWeight = 1.0;
+	BudgetStationWeight = 1.0;
+	BudgetTradeWeight = 1.0;
+
+	ConfidenceTarget = -0.1;
+	DeclareWarConfidence = 0.2;
+	RequestPeaceConfidence = -0.5;
+	PayTributeConfidence = -0.8;
 
 	ArmySize = 5.0;
-	Agressivity = 1.0;
-	Bold = 1.0;
-	Peaceful = 1.0;
-
+	DiplomaticReactivity = 1;
 
 	// Pirate base
 	SetSectorAffility(ST->Boneyard, 0.f);
@@ -219,6 +240,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		ConsumerAffility = 0.0;
 		MaintenanceAffility = 0.0;
 
+
 		// Only buy
 		TradingSell = 0.f;
 		TradingBoth = 0.f;
@@ -226,16 +248,18 @@ void UFlareAIBehavior::GenerateAffilities()
 		// Don't capture station. Change in recovery
 		StationCapture = 0.f;
 
+		DeclareWarConfidence = -0.2;
+		RequestPeaceConfidence = -0.8;
+		PayTributeConfidence = -1.0;
+
 		ArmySize = 50.0;
-		Agressivity = 10.0;
-		Bold = 10.0;
 
 
 		// Budjet
-		BudgetTechnology = 0.0;
-		BudgetMilitary = 1.0;
-		BudgetStation = 0.0;
-		BudgetTrade = 0.1;
+		BudgetTechnologyWeight = 0.0;
+		BudgetMilitaryWeight = 1.0;
+		BudgetStationWeight = 0.0;
+		BudgetTradeWeight = 0.1;
 
 	}
 	else if(Company == ST->GhostWorksShipyards)
@@ -248,10 +272,10 @@ void UFlareAIBehavior::GenerateAffilities()
 		SetSectorAffilitiesByMoon(ST->Hela, 6.f);
 
 		// Budjet
-		BudgetTechnology = 1.0;
-		BudgetMilitary = 2.0;
-		BudgetStation = 1.0;
-		BudgetTrade = 1.0;
+		BudgetTechnologyWeight = 1.0;
+		BudgetMilitaryWeight = 2.0;
+		BudgetStationWeight = 1.0;
+		BudgetTradeWeight = 1.0;
 	}
 	else if(Company == ST->MiningSyndicate)
 	{
@@ -264,10 +288,10 @@ void UFlareAIBehavior::GenerateAffilities()
 		SetResourceAffility(ST->Hydrogen, 2.f);
 
 		// Budjet
-		BudgetTechnology = 1.0;
-		BudgetMilitary = 1.0;
-		BudgetStation = 2.0;
-		BudgetTrade = 2.0;
+		BudgetTechnologyWeight = 1.0;
+		BudgetMilitaryWeight = 1.0;
+		BudgetStationWeight = 2.0;
+		BudgetTradeWeight = 2.0;
 	}
 	else if(Company == ST->HelixFoundries)
 	{
@@ -281,10 +305,10 @@ void UFlareAIBehavior::GenerateAffilities()
 
 
 		// Budjet
-		BudgetTechnology = 1.5;
-		BudgetMilitary = 1.0;
-		BudgetStation = 2.0;
-		BudgetTrade = 2.0;
+		BudgetTechnologyWeight = 1.5;
+		BudgetMilitaryWeight = 1.0;
+		BudgetStationWeight = 2.0;
+		BudgetTradeWeight = 2.0;
 	}
 	else if(Company == ST->Sunwatch)
 	{
@@ -294,20 +318,22 @@ void UFlareAIBehavior::GenerateAffilities()
 
 
 		// Budjet
-		BudgetTechnology = 1.0;
-		BudgetMilitary = 1.0;
-		BudgetStation = 2.0;
-		BudgetTrade = 2.0;
+		BudgetTechnologyWeight = 1.0;
+		BudgetMilitaryWeight = 1.0;
+		BudgetStationWeight = 2.0;
+		BudgetTradeWeight = 2.0;
 	}
 	else if(Company == ST->IonLane)
 	{
-		BudgetTechnology = 1.0;
-		BudgetMilitary = 2.0;
-		BudgetStation = 0.1;
-		BudgetTrade = 2.0;
+		BudgetTechnologyWeight = 1.0;
+		BudgetMilitaryWeight = 2.0;
+		BudgetStationWeight = 0.1;
+		BudgetTradeWeight = 2.0;
 
 		ArmySize = 10.0;
-		Agressivity = 2.0;
+		DeclareWarConfidence = 0.1;
+		RequestPeaceConfidence = -0.4;
+		PayTributeConfidence = -0.85;
 	}
 	else if(Company == ST->UnitedFarmsChemicals)
 	{
@@ -317,10 +343,10 @@ void UFlareAIBehavior::GenerateAffilities()
 		SetResourceAffility(ST->Methane, 5.f);
 
 		// Budjet
-		BudgetTechnology = 1.5;
-		BudgetMilitary = 1.0;
-		BudgetStation = 2.0;
-		BudgetTrade = 2.0;
+		BudgetTechnologyWeight = 1.5;
+		BudgetMilitaryWeight = 1.0;
+		BudgetStationWeight = 2.0;
+		BudgetTradeWeight = 2.0;
 	}
 	else if(Company == ST->NemaHeavyWorks)
 	{
@@ -334,10 +360,10 @@ void UFlareAIBehavior::GenerateAffilities()
 		ShipyardAffility = 3.0;
 
 		// Budjet
-		BudgetTechnology = 1.5;
-		BudgetMilitary = 1.0;
-		BudgetStation = 2.0;
-		BudgetTrade = 2.0;
+		BudgetTechnologyWeight = 1.5;
+		BudgetMilitaryWeight = 1.0;
+		BudgetStationWeight = 2.0;
+		BudgetTradeWeight = 2.0;
 	}
 	else if(Company == ST->AxisSupplies)
 	{
@@ -350,14 +376,17 @@ void UFlareAIBehavior::GenerateAffilities()
 		MaintenanceAffility = 10.0;
 
 		// Budjet
-		BudgetTechnology = 1.0;
-		BudgetMilitary = 0.5;
-		BudgetStation = 2.0;
-		BudgetTrade = 2.0;
+		BudgetTechnologyWeight = 1.0;
+		BudgetMilitaryWeight = 0.5;
+		BudgetStationWeight = 2.0;
+		BudgetTradeWeight = 2.0;
 
 		ArmySize = 1.0;
-		Agressivity = 0.0;
-		Peaceful = 10.0;
+		DeclareWarConfidence = 1.0;
+		RequestPeaceConfidence = 0.0;
+		PayTributeConfidence = -0.1;
+
+		DiplomaticReactivity = 0;
 	}
 
 }
@@ -420,6 +449,33 @@ void UFlareAIBehavior::SetSectorAffilitiesByMoon(FFlareCelestialBody *CelestialB
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
+
+float UFlareAIBehavior::GetBudgetWeight(EFlareBudget::Type Budget)
+{
+	if(Company->AtWar() && Budget!= EFlareBudget::Military)
+	{
+		return 0;
+	}
+
+	switch (Budget) {
+	case EFlareBudget::Military:
+		return BudgetMilitaryWeight;
+		break;
+	case EFlareBudget::Trade:
+		return BudgetTradeWeight;
+		break;
+	case EFlareBudget::Station:
+		return BudgetStationWeight;
+		break;
+	case EFlareBudget::Technology:
+		return BudgetTechnologyWeight;
+		break;
+	default:
+		break;
+	}
+
+	return 0;
+}
 
 float UFlareAIBehavior::GetSectorAffility(UFlareSimulatedSector* Sector)
 {

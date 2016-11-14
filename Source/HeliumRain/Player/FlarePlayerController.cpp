@@ -61,7 +61,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	CurrentObjective.Version = 0;
 	IsTest1 = false;
 	IsTest2 = false;
-	LastBattleState = EFlareSectorBattleState::NoBattle;
+	LastBattleState.Init();
 	RecoveryActive = false;
 
 	// Setup
@@ -111,9 +111,10 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	Super::PlayerTick(DeltaSeconds);
 	AFlareHUD* HUD = GetNavHUD();
 	TimeSinceWeaponSwitch += DeltaSeconds;
+	static bool PlayerWasTraveling = false;
 
 	// Check recovery
-	if(RecoveryActive)
+	if (RecoveryActive)
 	{
 		RecoveryActive = false;
 		GetGame()->DeactivateSector();
@@ -133,15 +134,27 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		}
 		
 		// Battle state
-		if (GetGame()->GetActiveSector())
+		if (GetPlayerFleet()->IsTraveling())
+		{
+			if (!PlayerWasTraveling)
+			{
+				UpdateMusicTrack(FFlareSectorBattleState().Init());
+			}
+
+			PlayerWasTraveling = true;
+		}
+		else if (GetGame()->GetActiveSector())
 		{
 			SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_Battle);
-			EFlareSectorBattleState::Type BattleState = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(GetCompany());
-			if (BattleState != LastBattleState)
+
+			FFlareSectorBattleState BattleState = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(GetCompany());
+			if (BattleState != LastBattleState || PlayerWasTraveling)
 			{
 				LastBattleState = BattleState;
-				OnBattleStateChanged(BattleState);
+				UpdateMusicTrack(BattleState);
 			}
+
+			PlayerWasTraveling = false;
 		}
 	}
 
@@ -268,11 +281,19 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 		return;
 	}
 
-	// Reset the current ship to auto
+	// Reset the current ship to autopilot, unless it's a freighter on a player-issued order
 	if (ShipPawn)
 	{
 		ShipPawn->ResetCurrentTarget();
-		ShipPawn->GetStateManager()->EnablePilot(true);
+
+		if (ShipPawn->IsMilitary())
+		{
+			ShipPawn->GetStateManager()->EnablePilot(true);
+		}
+		else if (!ShipPawn->GetNavigationSystem()->IsAutoPilot())
+		{
+			ShipPawn->GetStateManager()->EnablePilot(true);
+		}
 	}
 
 	// Fly the new ship
@@ -285,8 +306,8 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	// Setup everything
 	ShipPawn = Ship;
 	SetExternalCamera(false);
+	ShipPawn->ForceManual();
 	ShipPawn->GetStateManager()->EnablePilot(false);
-	ShipPawn->GetNavigationSystem()->AbortAllCommands();
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	CockpitManager->OnFlyShip(ShipPawn);
 
@@ -356,8 +377,7 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 	bool CandidateFound = false;
 
 	// Last flown ship
-
-	if(PlayerShip && PlayerShip->IsActive())
+	if (PlayerShip && PlayerShip->IsActive())
 	{
 		// Disable pilot during the switch
 		PlayerShip->GetActive()->GetStateManager()->EnablePilot(false);
@@ -367,17 +387,6 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 	{
 		FLOG("AFlarePlayerController::OnSectorActivated no candidate");
 		SwitchToNextShip(true);
-	}
-
-	// Level music
-	EFlareMusicTrack::Type LevelMusic = ActiveSector->GetSimulatedSector()->GetDescription()->LevelTrack;
-	if (LevelMusic != EFlareMusicTrack::None)
-	{
-		SoundManager->RequestMusicTrack(LevelMusic);
-	}
-	else
-	{
-		SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
 	}
 }
 
@@ -400,37 +409,54 @@ void AFlarePlayerController::OnSectorDeactivated()
 	}
 
 	// Reset states
-	LastBattleState = EFlareSectorBattleState::NoBattle;
+	LastBattleState.Init();
 }
 
-void AFlarePlayerController::OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState)
+void AFlarePlayerController::UpdateMusicTrack(FFlareSectorBattleState NewBattleState)
 {
-	FLOG("AFlarePlayerController::OnBattleStateChanged");
-
-	if (NewBattleState == EFlareSectorBattleState::NoBattle)
+	if (NewBattleState.HasDanger)
 	{
-		FLOG("AFlarePlayerController::OnBattleStateChanged : peace");
-		if (GetGame()->GetActiveSector())
+		if (NewBattleState.WantFight())
 		{
-			EFlareMusicTrack::Type LevelMusic = GetGame()->GetActiveSector()->GetSimulatedSector()->GetDescription()->LevelTrack;
-			if (LevelMusic != EFlareMusicTrack::None)
+			UFlareSimulatedSector* Sector = GetGame()->GetActiveSector()->GetSimulatedSector();
+			if (Sector->GetSectorShips().Num() > 15)
 			{
-				SoundManager->RequestMusicTrack(LevelMusic);
+				FLOG("AFlarePlayerController::UpdateMusicTrack : war");
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::War);
 			}
 			else
 			{
-				SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+				FLOG("AFlarePlayerController::UpdateMusicTrack : combat");
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::Combat);
 			}
 		}
 		else
 		{
-			SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+			FLOG("AFlarePlayerController::UpdateMusicTrack : battle lost");
+			SoundManager->RequestMusicTrack(EFlareMusicTrack::Danger);
 		}
 	}
 	else
 	{
-		FLOG("AFlarePlayerController::OnBattleStateChanged : battle");
-		SoundManager->RequestMusicTrack(EFlareMusicTrack::Combat);
+		if (GetPlayerFleet()->IsTraveling() || !GetGame()->GetActiveSector())
+		{
+			FLOG("AFlarePlayerController::UpdateMusicTrack : travel");
+			SoundManager->RequestMusicTrack(EFlareMusicTrack::Travel);
+		}
+		else
+		{
+			EFlareMusicTrack::Type LevelMusic = GetGame()->GetActiveSector()->GetSimulatedSector()->GetDescription()->LevelTrack;
+			if (LevelMusic != EFlareMusicTrack::None)
+			{
+				FLOG("AFlarePlayerController::UpdateMusicTrack : using level music");
+				SoundManager->RequestMusicTrack(LevelMusic);
+			}
+			else
+			{
+				FLOG("AFlarePlayerController::UpdateMusicTrack : exploration");
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+			}
+		}
 	}
 }
 
@@ -484,6 +510,18 @@ void AFlarePlayerController::SpacecraftCrashed()
 	}
 }
 
+void AFlarePlayerController::PlayLocalizedSound(USoundCue* Sound, FVector WorldLocation)
+{
+	if (MenuManager->IsMenuOpen())
+	{
+		ClientPlaySound(Sound);
+	}
+	else
+	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, WorldLocation);
+	}
+}
+
 void AFlarePlayerController::Clean()
 {
 	PlayerData.UUID = NAME_None;
@@ -501,7 +539,7 @@ void AFlarePlayerController::Clean()
 	QuickSwitchNextOffset = 0;
 	TimeSinceWeaponSwitch = 0;
 
-	LastBattleState = EFlareSectorBattleState::NoBattle;
+	LastBattleState.Init();
 	RecoveryActive = false;
 
 	MenuManager->FlushNotifications();
@@ -718,26 +756,25 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 	float MaxSDangerDistance = 250000;
 	float MaxLDangerDistance = 500000;
 
-	if (GetShipPawn())
+	if (GetShipPawn() && GetGame()->GetActiveSector())
 	{
-		TArray<UFlareSimulatedSpacecraft*> Ships = GetShipPawn()->GetParent()->GetCurrentSector()->GetSectorShips();
-		for (UFlareSimulatedSpacecraft* Ship : Ships)
+		TArray<AFlareSpacecraft*>& Ships = GetGame()->GetActiveSector()->GetShips();
+		for (AFlareSpacecraft* Ship : Ships)
 		{
-			FCHECK(Ship->GetActive());
 			bool IsDangerous = false, IsFiring = false;
-			float ShipDistance = (Ship->GetActive()->GetActorLocation() - GetShipPawn()->GetActorLocation()).Size();
+			float ShipDistance = (Ship->GetActorLocation() - GetShipPawn()->GetActorLocation()).Size();
 			
 			// Small ship
 			if (ShipDistance < MaxSDangerDistance && Ship->GetDescription()->Size == EFlarePartSize::S)
 			{
-				IsDangerous = (Ship->GetActive()->GetPilot()->GetTargetShip() == GetShipPawn());
-				IsFiring = IsDangerous && Ship->GetActive()->GetPilot()->IsWantFire();
+				IsDangerous = (Ship->GetPilot()->GetTargetShip() == GetShipPawn());
+				IsFiring = IsDangerous && Ship->GetPilot()->IsWantFire();
 			}
 
 			// Large ship
 			else if (ShipDistance < MaxLDangerDistance && Ship->GetDescription()->Size == EFlarePartSize::L)
 			{
-				for (auto Weapon : Ship->GetActive()->GetWeaponsSystem()->GetWeaponList())
+				for (auto Weapon : Ship->GetWeaponsSystem()->GetWeaponList())
 				{
 					UFlareTurret* Turret = Cast<UFlareTurret>(Weapon);
 					FCHECK(Turret);
@@ -754,20 +791,20 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 			}
 
 			// Confirm this ship is working, then flag it
-			if (IsDangerous && !Ship->GetDamageSystem()->IsDisarmed() && !Ship->GetDamageSystem()->IsUncontrollable())
+			if (IsDangerous && !Ship->GetParent()->GetDamageSystem()->IsDisarmed() && !Ship->GetParent()->GetDamageSystem()->IsUncontrollable())
 			{
 				// Is threat
 				IsTargeted = true;
 				if (!Threat)
 				{
-					Threat = Ship;
+					Threat = Ship->GetParent();
 				}
 
 				// Is active threat
 				if (IsFiring)
 				{
 					IsFiredUpon = true;
-					Threat = Ship;
+					Threat = Ship->GetParent();
 				}
 			}
 		}
@@ -845,7 +882,7 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 
 bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 {
-	bool BattleInProgress = false;
+	bool FightInProgress = false;
 	bool BattleLostWithRetreat = false;
 	bool BattleLostWithoutRetreat = false;
 
@@ -854,30 +891,36 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 	{
 		UFlareSimulatedSector* Sector = GetCompany()->GetKnownSectors()[SectorIndex];
 
-		EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(GetCompany());
-		if (BattleState == EFlareSectorBattleState::Battle || BattleState == EFlareSectorBattleState::BattleNoRetreat)
+		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(GetCompany());
+		if (BattleState.InBattle)
 		{
-			BattleInProgress = true;
-		}
-		else if (BattleState == EFlareSectorBattleState::BattleLost)
-		{
-			BattleLostWithRetreat = true;
-		}
-		else if (BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
-		{
-			BattleLostWithoutRetreat = true;
+			if(BattleState.InActiveFight)
+			{
+				FightInProgress = true;
+			}
+			else if (!BattleState.InFight && !BattleState.BattleWon)
+			{
+				if(BattleState.RetreatPossible)
+				{
+					BattleLostWithRetreat = true;
+				}
+				else
+				{
+					BattleLostWithoutRetreat = true;
+				}
+			}
 		}
 	}
 
 	// Notify when a battle is happening
-	if (BattleInProgress)
+	if (FightInProgress)
 	{
 		MenuManager->Confirm(LOCTEXT("ConfirmBattleTitle", "AUTOMATIC BATTLE ?"),
 								LOCTEXT("ConfirmBattleText", "Some of the ships engaged in a battle. They will fight and may be lost."),
 								OnConfirmed);
 		return false;
 	}
-	else if (BattleInProgress || BattleLostWithoutRetreat)
+	else if (BattleLostWithoutRetreat)
 	{
 		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithoutRetreatTitle", "SACRIFICE SHIPS ?"),
 								LOCTEXT("ConfirmBattleLostWithoutRetreatText", "Some of the ships engaged in a battle cannot retreat and may be lost."),
@@ -1214,7 +1257,7 @@ void AFlarePlayerController::TogglePilot()
 {
 	bool NewState = !ShipPawn->GetStateManager()->IsPilotMode();
 	FLOGV("AFlarePlayerController::TooglePilot : new state is %d", NewState);
-	ShipPawn->GetStateManager()->EnablePilot(NewState);
+	ShipPawn->GetStateManager()->EnablePilot(NewState, true);
 }
 
 void AFlarePlayerController::ToggleHUD()
@@ -1412,8 +1455,6 @@ void AFlarePlayerController::WheelPressed()
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::AttackStations));
 				MouseMenu->AddWidget("Mouse_AttackCivilians", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::AttackCivilians),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::AttackCivilians));
-				MouseMenu->AddWidget("Mouse_Nothing", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::StandDown),
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::StandDown));
 			}
 
 			// Fighter controls

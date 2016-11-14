@@ -51,11 +51,7 @@ public:
 	/*----------------------------------------------------
 		System API
 	----------------------------------------------------*/
-
-	virtual void StartFire();
-
-	virtual void StopFire();
-
+	
 	virtual void ActivateWeapons(bool Activate);
 
 	virtual void ActivateWeaponGroup(int32 Index);
@@ -64,6 +60,9 @@ public:
 
 	virtual void ActivateWeapons();
 	virtual void DeactivateWeapons();
+
+	/** Are we using the fire director mode where the player fires turret on capital ships ? */
+	bool IsInFireDirector();
 
 	virtual int32 GetGroupByWeaponIdentifer(FName Identifier) const;
 
@@ -131,7 +130,6 @@ protected:
 	int32                                            LastActiveWeaponGroupIndex;
 	int32                                            ActiveWeaponGroupIndex;
 	FFlareWeaponGroup*                               ActiveWeaponGroup;
-	bool                                             WantFire;
 	bool                                             Armed;
 	
 	UPROPERTY()

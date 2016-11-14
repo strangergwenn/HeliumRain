@@ -5,7 +5,6 @@
 #include "FlareSpacecraft.h"
 #include "FlareShell.h"
 #include "FlareBomb.h"
-#include "../Player/FlarePlayerController.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareWeapon Firing"), STAT_Weapon_Firing, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareWeapon FireGun"), STAT_Weapon_FireGun, STATGROUP_Flare);
@@ -19,7 +18,6 @@ DECLARE_CYCLE_STAT(TEXT("FlareWeapon ConfigureShellFuze"), STAT_Weapon_Configure
 UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, FiringEffect(NULL)
-	, Target(NULL)
 	, FiringRate(0)
 	, Firing(false)
 {
@@ -30,6 +28,9 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 
 	LocalHeatEffect = true;
 	HasFlickeringLights = false;
+
+	TargetLocation = FVector::ZeroVector;
+	TargetVelocity = FVector::ZeroVector;
 }
 
 
@@ -58,7 +59,7 @@ void UFlareWeapon::Initialize(FFlareSpacecraftComponentSave* Data, UFlareCompany
 		{
 			AmmoVelocity = ComponentDescription->WeaponCharacteristics.BombCharacteristics.DropLinearVelocity;
 			FiringPeriod =  0;
-			FLOGV("IsBomb num = %d", ComponentDescription->WeaponCharacteristics.AmmoCapacity);
+			//FLOGV("UFlareWeapon::Initialize : IsBomb num = %d", ComponentDescription->WeaponCharacteristics.AmmoCapacity);
 			FillBombs();
 		}
 		else
@@ -107,7 +108,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 
 	TimeSinceLastShell += DeltaTime;
 
-	if (Firing && TimeSinceLastShell >= FiringPeriod && GetUsableRatio() > 0.f && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+	if (Firing && IsReadyToFire() && GetUsableRatio() > 0.f && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 	{
 		if (GetCurrentAmmo() > 0)
 		{
@@ -139,9 +140,9 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		}
 
 		// Empty
-		else if (!IsTurret() && SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
+		else if (!IsTurret() && SpacecraftPawn->IsPlayerShip())
 		{
-			Spacecraft->GetPC()->ClientPlaySound(EmptySound);
+			SpacecraftPawn->GetPC()->PlayLocalizedSound(EmptySound, GetComponentLocation());
 			TimeSinceLastShell = 0;
 		}
 	}
@@ -152,15 +153,21 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 	}
 }
 
+void UFlareWeapon::SetTarget(FVector NewTargetLocation, FVector NewTargetVelocity)
+{
+	TargetLocation = NewTargetLocation;
+	TargetVelocity = NewTargetVelocity;
+}
 
 bool UFlareWeapon::FireGun(int GunIndex)
 {
 	SCOPE_CYCLE_COUNTER(STAT_Weapon_FireGun);
 
 	// Avoid firing itself
-	if (!IsSafeToFire(GunIndex))
+	AActor* Unused;
+	if (!IsSafeToFire(GunIndex, Unused))
 	{
-		FLOGV("%s Not secure", *GetReadableName());
+		//FLOGV("%s Not secure", *GetReadableName());
 		return false;
 	}
 
@@ -183,9 +190,9 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	ShowFiringEffects(GunIndex);
 
 	// Play sound
-	if (SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
+	if (SpacecraftPawn->IsPlayerShip())
 	{
-		Spacecraft->GetPC()->ClientPlaySound(FiringSound);
+		SpacecraftPawn->GetPC()->PlayLocalizedSound(FiringSound, GetComponentLocation());
 	}
 
 	// Update data
@@ -204,13 +211,11 @@ void UFlareWeapon::ShowFiringEffects(int GunIndex)
 
 bool UFlareWeapon::FireBomb()
 {
-	// Play sound
-	if (SpacecraftPawn && SpacecraftPawn->IsLocallyControlled())
+	if (SpacecraftPawn->IsPlayerShip())
 	{
-		Spacecraft->GetPC()->ClientPlaySound(BombDroppedSound);
+		SpacecraftPawn->GetPC()->PlayLocalizedSound(BombDroppedSound, GetComponentLocation());
 	}
 
-	// Drop bomb
 	AFlareBomb* Bomb = Bombs.Pop();
 	if (Bomb)
 	{
@@ -231,38 +236,20 @@ void UFlareWeapon::ConfigureShellFuze(AFlareShell* Shell)
 		float SecurityDelay = SecurityRadius / ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoVelocity;
 		float ActiveTime = 10;
 
-		if (Target)
-		{
-			FVector TargetOffset = Target->GetActorLocation() - Spacecraft->GetActorLocation();
-			float EstimatedDistance = TargetOffset .Size() / 100;
+		FVector RelativeFiringVelocity = Spacecraft->GetLinearVelocity() - TargetVelocity;
+		FVector TargetOffset = TargetLocation - Spacecraft->GetActorLocation();
+		float EstimatedDistance = TargetOffset.Size() / 100;
 
-			FVector FiringVelocity = Spacecraft->GetLinearVelocity();
-			FVector TargetVelocity = FVector::ZeroVector;
-			UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Target->GetRootComponent());
-			if (RootComponent)
-			{
-				TargetVelocity = RootComponent->GetPhysicsLinearVelocity() / 100;
-			}
+		float RelativeFiringVelocityInAxis = FVector::DotProduct(RelativeFiringVelocity, TargetOffset.GetUnsafeNormal());
+		float EstimatedRelativeVelocity = ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoVelocity + RelativeFiringVelocityInAxis;
+		float EstimatedFlightTime = EstimatedDistance / EstimatedRelativeVelocity;
 
-			FVector RelativeFiringVelocity = FiringVelocity - TargetVelocity;
-
-			float RelativeFiringVelocityInAxis = FVector::DotProduct(RelativeFiringVelocity, TargetOffset.GetUnsafeNormal());
-
-			float EstimatedRelativeVelocity = ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoVelocity + RelativeFiringVelocityInAxis;
-			float EstimatedFlightTime = EstimatedDistance / EstimatedRelativeVelocity;
-
-			float NeededSecurityDelay = EstimatedFlightTime * 0.5;
-			SecurityDelay = FMath::Max(SecurityDelay, NeededSecurityDelay);
-			ActiveTime = EstimatedFlightTime * 1.5 - SecurityDelay;
-		}
+		float NeededSecurityDelay = EstimatedFlightTime * 0.5;
+		SecurityDelay = FMath::Max(SecurityDelay, NeededSecurityDelay);
+		ActiveTime = EstimatedFlightTime * 1.5 - SecurityDelay;
 
 		Shell->SetFuzeTimer(SecurityDelay, ActiveTime);
 	}
-}
-
-void UFlareWeapon::SetTarget(AActor *NewTarget)
-{
-	Target = NewTarget;
 }
 
 void UFlareWeapon::SetVisibleInUpgrade(bool Visible)
@@ -283,6 +270,11 @@ void UFlareWeapon::StartFire()
 void UFlareWeapon::StopFire()
 {
 	Firing = false;
+}
+
+bool UFlareWeapon::IsReadyToFire() const
+{
+	return (TimeSinceLastShell >= FiringPeriod);
 }
 
 float UFlareWeapon::GetHeatProduction() const
@@ -424,9 +416,9 @@ bool UFlareWeapon::IsTurret() const
 	return ComponentDescription->WeaponCharacteristics.TurretCharacteristics.IsTurret;
 }
 
-bool UFlareWeapon::IsSafeToFire(int GunIndex) const
+bool UFlareWeapon::IsSafeToFire(int GunIndex, AActor*& HitTarget) const
 {
-	// Only turret are unsafe
+	HitTarget = NULL;
 	return true;
 }
 

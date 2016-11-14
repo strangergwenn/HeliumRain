@@ -338,7 +338,7 @@ void SFlareSpacecraftInfo::Show()
 		bool Owned = TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
 		bool OwnedAndNotSelf = Owned && TargetSpacecraft != PlayerShip;
 		bool IsFriendly = TargetSpacecraft->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral;
-		bool IsOutsidePlayerFleet = TargetSpacecraft->GetCurrentFleet() != PlayerShip->GetCurrentFleet();
+		bool IsOutsidePlayerFleet = (TargetSpacecraft->GetCurrentFleet() != PlayerShip->GetCurrentFleet()) || !ActiveTargetSpacecraft;
 		bool IsDocked = ActiveTargetSpacecraft && (DockedStation || ActiveTargetSpacecraft->GetDockingSystem()->IsDockedShip(PlayerShip->GetActive()));
 		bool IsStation = TargetSpacecraft->IsStation();
 		bool IsCargo = (TargetSpacecraft->GetDescription()->CargoBayCount > 0) && !IsStation;
@@ -347,8 +347,8 @@ void SFlareSpacecraftInfo::Show()
 		bool CanDock =     !IsDocked && IsFriendly && ActiveTargetSpacecraft && ActiveTargetSpacecraft->GetDockingSystem()->HasCompatibleDock(PlayerShip->GetActive());
 		bool CanUpgradeDistant = IsOutsidePlayerFleet && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());
 		bool CanUpgradeDocked = ActiveTargetSpacecraft && DockedStation && DockedStation->GetParent()->HasCapability(EFlareSpacecraftCapability::Upgrade);
-		bool CanUpgrade =  Owned && !IsStation && (CanUpgradeDistant || CanUpgradeDocked);
-		bool CanTrade =    Owned && IsCargo && (IsDocked || IsOutsidePlayerFleet);
+		bool CanUpgrade =  CanUpgradeDistant || CanUpgradeDocked;
+		bool CanTrade =    IsCargo && (IsDocked || IsOutsidePlayerFleet);
 		bool CanScrap =    CanUpgrade && OwnedAndNotSelf;
 		
 		// Is a battle in progress ?
@@ -359,6 +359,11 @@ void SFlareSpacecraftInfo::Show()
 				CanTrade = false;
 				CanUpgrade = false;
 				CanScrap = false;
+			}
+			if (TargetSpacecraft->GetDamageSystem()->IsUncontrollable())
+			{
+				CanTrade = false;
+				CanUpgrade = false;
 			}
 		}
 		FLOGV("SFlareSpacecraftInfo::Show : CanDock = %d CanUpgrade = %d CanTrade = %d CanScrap = %d", CanDock, CanUpgrade, CanTrade, CanScrap);
@@ -372,7 +377,7 @@ void SFlareSpacecraftInfo::Show()
 		FlyButton->SetVisibility(!Owned || IsStation ?     EVisibility::Collapsed : EVisibility::Visible);
 
 		// Second line
-		TradeButton->SetVisibility(IsCargo ?                                     EVisibility::Visible : EVisibility::Collapsed);
+		TradeButton->SetVisibility(Owned && IsCargo ?                            EVisibility::Visible : EVisibility::Collapsed);
 		DockButton->SetVisibility(CanDock ?                                      EVisibility::Visible : EVisibility::Collapsed);
 		UndockButton->SetVisibility(Owned && IsDocked && !IsOutsidePlayerFleet ? EVisibility::Visible : EVisibility::Collapsed);
 		ScrapButton->SetVisibility(Owned && !IsStation ?                         EVisibility::Visible : EVisibility::Collapsed);
@@ -408,12 +413,12 @@ void SFlareSpacecraftInfo::Show()
 		}
 
 		// Disable trade while flying unless docked
-		if (IsOutsidePlayerFleet || (IsDocked && !TargetSpacecraft->IsTrading()))
+		if (CanTrade && !TargetSpacecraft->IsTrading())
 		{
 			TradeButton->SetHelpText(LOCTEXT("TradeInfo", "Trade with this spacecraft"));
 			TradeButton->SetDisabled(false);
 		}
-		else if (IsDocked && TargetSpacecraft->IsTrading())
+		else if (CanTrade && TargetSpacecraft->IsTrading())
 		{
 			TradeButton->SetHelpText(LOCTEXT("CantTradeInfo", "Trading in progress"));
 			TradeButton->SetDisabled(true);
@@ -680,7 +685,7 @@ FSlateColor SFlareSpacecraftInfo::GetTextColor() const
 		{
 			return Theme.FriendlyColor;
 		}
-		else if (TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Hostile)
+		else if (TargetSpacecraft->GetCompany()->GetWarState(PC->GetCompany()) == EFlareHostility::Hostile)
 		{
 			return Theme.EnemyColor;
 		}

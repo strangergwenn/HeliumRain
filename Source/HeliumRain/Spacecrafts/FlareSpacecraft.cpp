@@ -222,20 +222,9 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				{
 					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits);
 
-					// TODO #496 : destroy ship if stranded, ensure state is fine
-					/*if (PlayerShip->GetParent()->GetDamageSystem()->IsUncontrollable())
-					{
-						PC->Notify(
-							LOCTEXT("ExitSectorLost", "Ship lost"),
-							LOCTEXT("ExitSectorLostDescription", "Your ship was lost in space"),
-							"exit-sector-lost",
-							EFlareNotification::NT_Info);
-
-						GetGame()->GetActiveSector()->DestroySpacecraft(this);
-					}*/
-
 					// Notify if we're just resetting the ship
 					//else
+					if (GetData().SpawnMode != EFlareSpawnMode::Exit)
 					{
 						PC->Notify(
 							LOCTEXT("ExitSector", "Exited sector"),
@@ -255,40 +244,12 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				}
 			}
 
-			// Destroy dead ships when they are 5km away
-			if (PlayerShip && !Parent->GetDamageSystem()->IsAlive())
-			{
-				float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
-				if (Company && Distance > 500000 && !IsStation())
-				{
-					GetGame()->GetActiveSector()->DestroySpacecraft(this);
-					return;
-				}
-			}
-
-			// Destroy lost ships if they are outside 3 * limit
+			// Make ship bounce lost ships if they are outside 1.5 * limit
 			float Distance = GetActorLocation().Size();
 			float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
-			if (Distance > Limits * 3)
+			if (Distance > Limits * 1.5f)
 			{
-				// Ship is lost, destroy it
-				if(GetCompany() ==	PC->GetCompany())
-				{
-					PC->Notify(LOCTEXT("MyShipLost", "Ship lost"),
-						FText::Format(LOCTEXT("MyShipLostFormat", "One of your ships was lost in space ({0})"),
-							 FText::FromString(GetImmatriculation().ToString())),
-						FName("my-ship-lost"),
-						EFlareNotification::NT_Info);
-				}
-				else
-				{
-					PC->Notify(LOCTEXT("ShipLostCompany", "Ship lost"),
-						FText::Format(LOCTEXT("ShipLostCompanyFormat", "{0} lost a ship in space"),
-							GetCompany()->GetCompanyName()),
-						FName("company-ship-lost"),
-						EFlareNotification::NT_Info);
-				}
-				GetGame()->GetActiveSector()->DestroySpacecraft(this);
+				Airframe->SetPhysicsLinearVelocity(- Airframe->GetPhysicsLinearVelocity() / 2.f);
 			}
 
 			// Set a default target if there is current target
@@ -412,7 +373,7 @@ void AFlareSpacecraft::Destroyed()
 				AFlareSpacecraft* PlayerTarget = PC->GetShipPawn()->GetCurrentTarget();
 				if (PlayerTarget == this)
 				{
-					PC->GetShipPawn()->ResetCurrentTarget();
+					//PC->GetShipPawn()->ResetCurrentTarget();
 				}
 			}
 
@@ -828,9 +789,9 @@ void AFlareSpacecraft::TryAttachParentActor()
 	// Atrach the actor
 	if (AttachActor)
 	{
-		FLOGV("AFlareSpacecraft::TryAttachParentActor : '%s' found valid actor target '%s'",
-			*GetImmatriculation().ToString(),
-			*GetData().AttachActorName.ToString());
+		//FLOGV("AFlareSpacecraft::TryAttachParentActor : '%s' found valid actor target '%s'",
+		//	*GetImmatriculation().ToString(),
+		//	*GetData().AttachActorName.ToString());
 
 		Airframe->SetSimulatePhysics(true);
 		Airframe->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -903,14 +864,12 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 	for (int32 StateIndex = 0; StateIndex < GetDescription()->DynamicComponentStates.Num(); StateIndex++)
 	{
 		FFlareSpacecraftDynamicComponentStateDescription* State = &GetDescription()->DynamicComponentStates[StateIndex];
-
-
-
+		
 		if (State->StateIdentifier == GetData().DynamicComponentStateIdentifier)
 		{
 			if(State->StateTemplates.Num() == 0)
 			{
-				FLOGV("Dynamic component state '%s' has no template", *GetData().DynamicComponentStateIdentifier.ToString())
+				FLOGV("AFlareSpacecraft::UpdateDynamicComponents : dynamic component state '%s' has no template", *GetData().DynamicComponentStateIdentifier.ToString())
 				break;
 			}
 
@@ -920,8 +879,7 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 		}
 	}
 
-
-	for (int32 ComponentIndex = 0; ComponentIndex < DynamicComponents.Num(); ComponentIndex++)
+		for (int32 ComponentIndex = 0; ComponentIndex < DynamicComponents.Num(); ComponentIndex++)
 	{
 		UChildActorComponent* Component = Cast<UChildActorComponent>(DynamicComponents[ComponentIndex]);
 
@@ -932,7 +890,7 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 
 		if (CurrentState == NULL)
 		{
-			FLOGV("Fail to find State '%s'", *GetData().DynamicComponentStateIdentifier.ToString());
+			FLOGV("AFlareSpacecraft::UpdateDynamicComponents : failed to find state '%s'", *GetData().DynamicComponentStateIdentifier.ToString());
 			Component->SetChildActorClass(NULL);
 			return;
 		}
@@ -1281,24 +1239,24 @@ void AFlareSpacecraft::LeftMouseRelease()
 
 void AFlareSpacecraft::DeactivateWeapon()
 {
-	// Capital ship
-	if (GetDescription()->Size == EFlarePartSize::L)
-	{
-		GetCompany()->GetTacticManager()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(0));
-	}
-
-	// Fighter
-	else if(!StateManager->IsPilotMode())
+	if (IsMilitary())
 	{
 		FLOG("AFlareSpacecraft::DeactivateWeapon");
-		GetPC()->SetSelectingWeapon();
 
-		if (GetWeaponsSystem()->GetActiveWeaponGroup())
+		// Fighters have an unloading sound
+		if (GetDescription()->Size == EFlarePartSize::S)
 		{
-			GetPC()->ClientPlaySound(WeaponUnloadedSound);
+			if (GetWeaponsSystem()->GetActiveWeaponGroup())
+			{
+				GetPC()->ClientPlaySound(WeaponUnloadedSound);
+			}
 		}
+
 		GetWeaponsSystem()->DeactivateWeapons();
+		GetStateManager()->EnablePilot(false);
 	}
+
+	GetPC()->SetSelectingWeapon();
 }
 
 void AFlareSpacecraft::ActivateWeaponGroup1()
@@ -1320,22 +1278,28 @@ void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 {
 	FLOGV("AFlareSpacecraft::ActivateWeaponGroup : %d", Index);
 
-	// Capital ship
-	if (GetDescription()->Size == EFlarePartSize::L)
+	if (IsMilitary())
 	{
-		GetCompany()->GetTacticManager()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(Index + 1));
-	}
+		GetStateManager()->EnablePilot(false);
 
-	// Fighter
-	else if(!StateManager->IsPilotMode())
-	{
-		if (Index != GetWeaponsSystem()->GetActiveWeaponGroupIndex())
+		// Fighters have a loading sound
+		if (GetDescription()->Size == EFlarePartSize::S)
 		{
-			GetPC()->ClientPlaySound(WeaponLoadedSound);
+			if (Index != GetWeaponsSystem()->GetActiveWeaponGroupIndex())
+			{
+				GetPC()->ClientPlaySound(WeaponLoadedSound);
+			}
 		}
 
+		// Capitals move to autopilot when using fire director
+		else
+		{
+			GetStateManager()->EnablePilot(true);
+		}
+
+		// Change group
 		GetWeaponsSystem()->ActivateWeaponGroup(Index);
-		if (GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
+		if (GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 		{
 			StateManager->SetExternalCamera(false);
 		}
@@ -1348,18 +1312,7 @@ void AFlareSpacecraft::NextWeapon()
 {
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
 	
-	// Capital ship
-	if (GetDescription()->Size == EFlarePartSize::L)
-	{
-		int32 CurrentIndex = GetCompany()->GetTacticManager()->GetCurrentShipGroup() + 1;
-		CurrentIndex = FMath::Clamp(CurrentIndex, 0, static_cast<int32>(EFlareCombatGroup::Civilan));
-		FLOGV("AFlareSpacecraft::NextWeapon : group %d", CurrentIndex);
-
-		GetCompany()->GetTacticManager()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(CurrentIndex));
-	}
-
-	// Fighter
-	else if (WeaponSystems && !StateManager->IsPilotMode())
+	if (WeaponSystems && IsMilitary())
 	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() + 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, 0, WeaponSystems->GetWeaponGroupCount() - 1);
@@ -1375,18 +1328,8 @@ void AFlareSpacecraft::PreviousWeapon()
 {
 	UFlareSpacecraftWeaponsSystem* WeaponSystems = GetWeaponsSystem();
 	
-	// Capital ship
-	if (GetDescription()->Size == EFlarePartSize::L)
-	{
-		int32 CurrentIndex = GetCompany()->GetTacticManager()->GetCurrentShipGroup() - 1;
-		CurrentIndex = FMath::Clamp(CurrentIndex, 0, static_cast<int32>(EFlareCombatGroup::Civilan));
-		FLOGV("AFlareSpacecraft::NextWeapon : group %d", CurrentIndex);
-
-		GetCompany()->GetTacticManager()->SetCurrentShipGroup(static_cast<EFlareCombatGroup::Type>(CurrentIndex));
-	}
-
 	// Fighter
-	else if (WeaponSystems && !StateManager->IsPilotMode())
+	if (WeaponSystems)
 	{
 		int32 CurrentIndex = WeaponSystems->GetActiveWeaponGroupIndex() - 1;
 		CurrentIndex = FMath::Clamp(CurrentIndex, -1, WeaponSystems->GetWeaponGroupCount() - 1);
@@ -1407,65 +1350,59 @@ void AFlareSpacecraft::PreviousWeapon()
 
 void AFlareSpacecraft::NextTarget()
 {
-	if (!StateManager->IsPilotMode())
+	// Data
+	TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
+	auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
 	{
-		// Data
-		TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
-		auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
-		{
-			return Candidate.Spacecraft == CurrentTarget;
-		};
+		return Candidate.Spacecraft == CurrentTarget;
+	};
 
-		// Is visible on screen
-		if (TimeSinceSelection < MaxTimeBeforeSelectionReset && ScreenTargets.FindByPredicate(FindCurrentTarget))
-		{
-			TargetIndex++;
-			TargetIndex = FMath::Min(TargetIndex, ScreenTargets.Num() - 1);
-			CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
-			FLOGV("AFlareSpacecraft::NextTarget : %d", TargetIndex);
-		}
-
-		// Else reset
-		else
-		{
-			TargetIndex = 0;
-			CurrentTarget = NULL;
-			FLOG("AFlareSpacecraft::NextTarget : reset to center");
-		}
-
-		TimeSinceSelection = 0;
+	// Is visible on screen
+	if (TimeSinceSelection < MaxTimeBeforeSelectionReset && ScreenTargets.FindByPredicate(FindCurrentTarget))
+	{
+		TargetIndex++;
+		TargetIndex = FMath::Min(TargetIndex, ScreenTargets.Num() - 1);
+		CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
+		FLOGV("AFlareSpacecraft::NextTarget : %d", TargetIndex);
 	}
+
+	// Else reset
+	else
+	{
+		TargetIndex = 0;
+		CurrentTarget = NULL;
+		FLOG("AFlareSpacecraft::NextTarget : reset to center");
+	}
+
+	TimeSinceSelection = 0;
 }
 
 void AFlareSpacecraft::PreviousTarget()
 {
-	if (!StateManager->IsPilotMode())
+	// Data
+	TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
+	auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
 	{
-		// Data
-		TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
-		auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
-		{
-			return Candidate.Spacecraft == CurrentTarget;
-		};
+		return Candidate.Spacecraft == CurrentTarget;
+	};
 
-		// Is visible on screen
-		if (TimeSinceSelection < MaxTimeBeforeSelectionReset && ScreenTargets.FindByPredicate(FindCurrentTarget))
-		{
-			TargetIndex--;
-			TargetIndex = FMath::Max(TargetIndex, 0);
-			CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
-			FLOGV("AFlareSpacecraft::PreviousTarget : %d", TargetIndex);
-		}
-
-		// Else reset
-		else
-		{
-			TargetIndex = 0;
-			FLOG("AFlareSpacecraft::PreviousTarget : reset to center");
-		}
-
-		TimeSinceSelection = 0;
+	// Is visible on screen
+	if (TimeSinceSelection < MaxTimeBeforeSelectionReset && ScreenTargets.FindByPredicate(FindCurrentTarget))
+	{
+		TargetIndex--;
+		TargetIndex = FMath::Max(TargetIndex, 0);
+		CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
+		FLOGV("AFlareSpacecraft::PreviousTarget : %d", TargetIndex);
 	}
+
+	// Else reset
+	else
+	{
+		TargetIndex = 0;
+		FLOG("AFlareSpacecraft::PreviousTarget : reset to center");
+	}
+
+	TimeSinceSelection = 0;
 }
 
 
@@ -1643,7 +1580,15 @@ void AFlareSpacecraft::FindTarget()
 	TargetPreferences.AlignementWeight = 0.1;
 	TargetPreferences.BaseLocation = GetActorLocation();
 
-	GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrollableCivil, &TargetPreferences.IsUncontrollableMilitary, &TargetPreferences.IsNotUncontrollable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned, GetWeaponsSystem()->GetActiveWeaponGroup());
+	GetWeaponsSystem()->GetTargetPreference(
+		&TargetPreferences.IsSmall,
+		&TargetPreferences.IsLarge,
+		&TargetPreferences.IsUncontrollableCivil,
+		&TargetPreferences.IsUncontrollableMilitary,
+		&TargetPreferences.IsNotUncontrollable,
+		&TargetPreferences.IsStation,
+		&TargetPreferences.IsHarpooned,
+		GetWeaponsSystem()->GetActiveWeaponGroup());
 
 	TargetCandidate = PilotHelper::GetBestTarget(this, TargetPreferences);
 
@@ -1682,7 +1627,18 @@ FText AFlareSpacecraft::GetShipStatus() const
 	}
 	if (Nav->IsAutoPilot())
 	{
-		AutopilotText = LOCTEXT("AutopilotMod", "(Autopilot)");
+		AutopilotText = LOCTEXT("AutopilotMod", "(Auto)");
+	}
+
+	// Get mode info
+	FText ActionInfo;
+	if (GetStateManager()->IsPilotMode())
+	{
+		ActionInfo = LOCTEXT("AutoPilotModeInfo", "Auto-piloted");
+	}
+	else
+	{
+		ActionInfo = GetWeaponsSystem()->GetWeaponModeInfo();
 	}
 
 	// Build mode text
@@ -1709,7 +1665,7 @@ FText AFlareSpacecraft::GetShipStatus() const
 		Speed = IsMovingForward() ? Speed : -Speed;
 		ModeText = FText::Format(LOCTEXT("SpeedNotPausedFormat", "{0}m/s - {1} in {2}"),
 			FText::AsNumber(FMath::RoundToInt(Speed)),
-			GetWeaponsSystem()->GetWeaponModeInfo(),
+			ActionInfo,
 			CurrentSector->GetSimulatedSector()->GetSectorName());
 	}
 	else

@@ -128,7 +128,7 @@ UFlareCompany* UFlareWorld::LoadCompany(const FFlareCompanySave& CompanyData)
     Company->Load(CompanyData);
     Companies.AddUnique(Company);
 
-	FLOGV("UFlareWorld::LoadCompany : loaded '%s'", *Company->GetCompanyName().ToString());
+	//FLOGV("UFlareWorld::LoadCompany : loaded '%s'", *Company->GetCompanyName().ToString());
 
     return Company;
 }
@@ -143,7 +143,7 @@ UFlareSimulatedSector* UFlareWorld::LoadSector(const FFlareSectorDescription* De
 	Sector->Load(Description, SectorData, OrbitParameters);
 	Sectors.AddUnique(Sector);
 
-	FLOGV("UFlareWorld::LoadSector : loaded '%s'", *Sector->GetSectorName().ToString());
+	//FLOGV("UFlareWorld::LoadSector : loaded '%s'", *Sector->GetSectorName().ToString());
 
 	return Sector;
 }
@@ -436,19 +436,16 @@ void UFlareWorld::Simulate()
 				continue;
 			}
 
-			EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(Company);
+			FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(Company);
 
-			if(BattleState == EFlareSectorBattleState::NoBattle ||
-					BattleState == EFlareSectorBattleState::BattleLost ||
-					BattleState == EFlareSectorBattleState::BattleLostNoRetreat)
+			if(!BattleState.WantFight())
 			{
 				// Don't want fight
 				continue;
 			}
 
-			FLOGV("%s want fight in %s : %d", *Company->GetCompanyName().ToString(),
-				  *Sector->GetSectorName().ToString(),
-				  (int32)BattleState);
+			FLOGV("%s want fight in %s", *Company->GetCompanyName().ToString(),
+				  *Sector->GetSectorName().ToString());
 
 			HasBattle = true;
 			break;
@@ -460,8 +457,26 @@ void UFlareWorld::Simulate()
 			Battle->Load(Sector);
 			Battle->Simulate();
 		}
+
+		// Remove destroyed spacecraft
+		TArray<UFlareSimulatedSpacecraft*> SpacecraftToRemove;
+
+		for (int32 SpacecraftIndex = 0 ; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+		{
+			UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+
+			if(!Spacecraft->GetDamageSystem()->IsAlive() && !Spacecraft->GetDescription()->IsSubstation)
+			{
+				SpacecraftToRemove.Add(Spacecraft);
+			}
+		}
+
+		for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftToRemove.Num(); SpacecraftIndex++)
+		{
+			UFlareSimulatedSpacecraft* Spacecraft = SpacecraftToRemove[SpacecraftIndex];
+			Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
+		}
 	}
-	// TODO battles between 2 AI company
 
 	FLOG("* Simulate > AI");
 	// AI. Play them in random order
@@ -565,10 +580,14 @@ void UFlareWorld::Simulate()
 				continue;
 			}
 
-			float Reputation = Company1->GetReputation(Company2);
-			if(Reputation != 0.f)
+			float Reputation1 = Company1->GetReputation(Company2);
+			float Reputation2 = Company2->GetReputation(Company1);
+
+			float ReputationMean = (Reputation1 + Reputation2) / 4.f;
+			float ReputationDelta = ReputationMean - Reputation1;
+			if(ReputationDelta != 0.f)
 			{
-				Company1->GiveReputation(Company2, -0.01 * FMath::Sign(Reputation), false);
+				Company1->GiveReputation(Company2, (Reputation1 < -100 ? 0.8 : 0.01) * FMath::Sign(ReputationDelta), false);
 			}
 		}
 	}
@@ -590,6 +609,14 @@ void UFlareWorld::Simulate()
 	{
 		Sectors[SectorIndex]->SwapPrices();
 	}
+
+
+	// Update reserve ships
+	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
+	{
+		Sectors[SectorIndex]->UpdateReserveShips();
+	}
+
 
 	double EndTs = FPlatformTime::Seconds();
 	FLOGV("** Simulate day %d done in %.6fs", WorldData.Date-1, EndTs- StartTs);
@@ -616,9 +643,14 @@ void UFlareWorld::ProcessShipCapture()
 
 				UFlareCompany* HarpoonOwner = Spacecraft->GetHarpoonCompany();
 
+
+				FFlareSectorBattleState  HarpoonOwnerBattleState = Sector->GetSectorBattleState(HarpoonOwner);
+				FFlareSectorBattleState  SpacecraftOwnerBattleState = Sector->GetSectorBattleState(Spacecraft->GetCompany());
+
+
 				if(HarpoonOwner
 						&& HarpoonOwner->GetWarState(Spacecraft->GetCompany()) == EFlareHostility::Hostile
-						&& Sector->GetSectorBattleState(HarpoonOwner) == EFlareSectorBattleState::BattleWon)
+						&& !HarpoonOwnerBattleState.HasDanger)
 				{
 					// If battle won state, this mean the Harpoon owner has at least one dangerous ship
 					// This also mean that no company at war with this company has a military ship
@@ -626,7 +658,7 @@ void UFlareWorld::ProcessShipCapture()
 					ShipToCapture.Add(Spacecraft);
 					// Need to keep the harpoon for capture process
 				}
-				else
+				else if(!SpacecraftOwnerBattleState.HasDanger)
 				{
 					Spacecraft->SetHarpooned(NULL);
 				}
@@ -646,6 +678,7 @@ void UFlareWorld::ProcessShipCapture()
 		UFlareSimulatedSpacecraft* Spacecraft = ShipToCapture[SpacecraftIndex];
 
 		UFlareCompany* HarpoonOwner = Spacecraft->GetHarpoonCompany();
+		UFlareCompany* Owner = Spacecraft->GetCompany();
 		UFlareSimulatedSector* Sector =  Spacecraft->GetCurrentSector();
 		FVector SpawnLocation =  Spacecraft->GetData().Location;
 		FRotator SpawnRotation =  Spacecraft->GetData().Rotation;
@@ -654,6 +687,10 @@ void UFlareWorld::ProcessShipCapture()
 
 		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
 		UFlareSimulatedSpacecraft* NewShip = Sector->CreateSpacecraft(ShipDescription, HarpoonOwner, SpawnLocation, SpawnRotation, &Data);
+
+		Owner->GiveReputationToOthers(5, false);
+		Owner->GiveReputation(HarpoonOwner, -10, false);
+		HarpoonOwner->GiveReputationToOthers(-5, false);
 
 		if (GetGame()->GetPC()->GetCompany() == HarpoonOwner)
 		{
@@ -687,10 +724,9 @@ void UFlareWorld::ProcessStationCapture()
 		{
 			UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorStations()[SpacecraftIndex];
 
-			EFlareSectorBattleState::Type StationOwnerBattleState = Sector->GetSectorBattleState(Spacecraft->GetCompany());
+			FFlareSectorBattleState StationOwnerBattleState = Sector->GetSectorBattleState(Spacecraft->GetCompany());
 
-			if (StationOwnerBattleState != EFlareSectorBattleState::BattleLost
-					&& StationOwnerBattleState != EFlareSectorBattleState::BattleLostNoRetreat)
+			if (!StationOwnerBattleState.HasDanger)
 			{
 				// The station is not being captured
 				Spacecraft->ResetCapture();
@@ -703,10 +739,9 @@ void UFlareWorld::ProcessStationCapture()
 				UFlareCompany* Company = Companies[CompanyIndex];
 
 				if ((Company->GetWarState(Spacecraft->GetCompany()) != EFlareHostility::Hostile)
-					|| (Sector->GetSectorBattleState(Company) != EFlareSectorBattleState::BattleWon))
+					|| Sector->GetSectorBattleState(Company).HasDanger)
 				{
 					// Friend don't capture and not winner don't capture
-					Spacecraft->ResetCapture(Company);
 					continue;
 				}
 
@@ -732,6 +767,7 @@ void UFlareWorld::ProcessStationCapture()
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = StationToCapture[SpacecraftIndex];
 		UFlareCompany* Capturer = StationCapturer[SpacecraftIndex];
+		UFlareCompany* Owner = Spacecraft->GetCompany();
 
 		UFlareSimulatedSector* Sector =  Spacecraft->GetCurrentSector();
 		FVector SpawnLocation =  Spacecraft->GetData().Location;
@@ -739,8 +775,13 @@ void UFlareWorld::ProcessStationCapture()
 		FFlareSpacecraftSave Data = Spacecraft->GetData();
 		FFlareSpacecraftDescription* ShipDescription = Spacecraft->GetDescription();
 
+
+
 		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
 		UFlareSimulatedSpacecraft* NewShip = Sector->CreateSpacecraft(ShipDescription, Capturer, SpawnLocation, SpawnRotation, &Data);
+		Owner->GiveReputationToOthers(30, false);
+		Owner->GiveReputation(Capturer, -40, false);
+		Capturer->GiveReputationToOthers(-50, false);
 
 		if (GetGame()->GetPC()->GetCompany() == Capturer)
 		{

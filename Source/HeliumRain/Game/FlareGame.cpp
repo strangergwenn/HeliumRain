@@ -97,7 +97,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	// Do the orbital map setup
 	for (int32 Index = 0; Index < AssetList.Num(); Index++)
 	{
-		FLOGV("AFlareGame::AFlareGame : Found '%s'", *AssetList[Index].GetFullName());
+		//FLOGV("AFlareGame::AFlareGame : Found '%s'", *AssetList[Index].GetFullName());
 		UFlareSectorCatalogEntry* Sector = Cast<UFlareSectorCatalogEntry>(AssetList[Index].GetAsset());
 		FCHECK(Sector);
 		SectorList.Add(Sector);
@@ -188,9 +188,6 @@ void AFlareGame::ActivateSector(UFlareSimulatedSector* Sector)
 		return;
 	}
 
-	// Load the sector level - Will call OnLevelLoaded()
-	LoadStreamingLevel(Sector->GetDescription()->LevelName);
-
 	// Check if we should really activate
 	FLOGV("AFlareGame::ActivateSector : %s", *Sector->GetSectorName().ToString());
 	if (ActiveSector)
@@ -206,44 +203,18 @@ void AFlareGame::ActivateSector(UFlareSimulatedSector* Sector)
 		DeactivateSector();
 	}
 
-	// Ships
-	FLOGV("AFlareGame::ActivateSector : Ship count = %d", Sector->GetSectorShips().Num());
-	bool PlayerHasShip = false;
-	for (int ShipIndex = 0; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
+	if (ActivatingSector == Sector)
 	{
-		UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
-		FLOGV("AFlareGame::ActivateSector : Found ship %s", *Ship->GetImmatriculation().ToString());
-		if (Ship->GetCompany()->GetPlayerHostility()  == EFlareHostility::Owned)
-		{
-			PlayerHasShip = true;
-			break;
-		}
+		// Sector to activate is already activating
+		return;
 	}
 
-	// Planetarium & sector setup
-	FLOGV("AFlareGame::ActivateSector : PlayerHasShip = %d", PlayerHasShip);
-	if (PlayerHasShip)
+	// Load the sector level - Will call OnLevelLoaded()
+	ActivatingSector = Sector;
+	if(LoadStreamingLevel(Sector->GetDescription()->LevelName))
 	{
-		CombatLog::SectorActivated(Sector);
-
-		// Create the new sector
-		ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
-		FFlareSectorSave* SectorData = Sector->Save();
-		if ((SectorData->LocalTime / UFlareGameTools::SECONDS_IN_DAY)  < GetGameWorld()->GetDate())
-		{
-			// TODO Find time with light
-			SectorData->LocalTime = GetGameWorld()->GetDate() * UFlareGameTools::SECONDS_IN_DAY;
-		}
-
-		// Load and setup the sector
-		Planetarium->ResetTime();
-		Planetarium->SkipNight(UFlareGameTools::SECONDS_IN_DAY);
-		ActiveSector->Load(Sector);
-		DebrisFieldSystem->Setup(this, Sector);
-
-		GetPC()->OnSectorActivated(ActiveSector);
+		OnLevelLoaded();
 	}
-	GetQuestManager()->OnSectorActivation(Sector);
 }
 
 void AFlareGame::ActivateCurrentSector()
@@ -654,10 +625,16 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	CompanyData.Money = 0;
 	CompanyData.FleetImmatriculationIndex = 0;
 	CompanyData.TradeRouteImmatriculationIndex = 0;
+	CompanyData.PlayerLastPeaceDate = 0;
+	CompanyData.PlayerLastTributeDate = 0;
 	CompanyData.AI.ConstructionProjectNeedCapacity = 0;
 	CompanyData.AI.ConstructionProjectSectorIdentifier = NAME_None;
 	CompanyData.AI.ConstructionProjectStationDescriptionIdentifier = NAME_None;
 	CompanyData.AI.ConstructionProjectStationIdentifier = NAME_None;
+	CompanyData.AI.BudgetMilitary = 0;
+	CompanyData.AI.BudgetStation = 0;
+	CompanyData.AI.BudgetTechnology = 0;
+	CompanyData.AI.BudgetTrade = 0;
 	// Create company
 	Company = World->LoadCompany(CompanyData);
 	FLOGV("AFlareGame::CreateCompany : Created company '%s'", *Company->GetName());
@@ -861,7 +838,7 @@ void AFlareGame::Clean()
 	Level streaming
 ----------------------------------------------------*/
 
-void AFlareGame::LoadStreamingLevel(FName SectorLevel)
+bool AFlareGame::LoadStreamingLevel(FName SectorLevel)
 {
 	if (SectorLevel != NAME_None)
 	{
@@ -876,7 +853,9 @@ void AFlareGame::LoadStreamingLevel(FName SectorLevel)
 		UGameplayStatics::LoadStreamLevel(this, SectorLevel, true, true, Info);
 		CurrentStreamingLevelIndex++;
 		IsLoadingStreamingLevel = true;
+		return false;
 	}
+	return true;
 }
 
 void AFlareGame::UnloadStreamingLevel(FName SectorLevel)
@@ -899,8 +878,55 @@ void AFlareGame::UnloadStreamingLevel(FName SectorLevel)
 
 void AFlareGame::OnLevelLoaded()
 {
-	IsLoadingStreamingLevel = false;
 	FLOG("AFlareGame::OnLevelLoaded");
+
+	IsLoadingStreamingLevel = false;
+
+	if(ActivatingSector == NULL)
+	{
+		return;
+	}
+
+	// Ships
+	FLOGV("AFlareGame::OnLevelLoaded : Ship count = %d", ActivatingSector->GetSectorShips().Num());
+	bool PlayerHasShip = false;
+	for (int ShipIndex = 0; ShipIndex < ActivatingSector->GetSectorShips().Num(); ShipIndex++)
+	{
+		UFlareSimulatedSpacecraft* Ship = ActivatingSector->GetSectorShips()[ShipIndex];
+		FLOGV("AFlareGame::OnLevelLoaded : Found ship %s", *Ship->GetImmatriculation().ToString());
+		if (Ship->GetCompany()->GetPlayerHostility()  == EFlareHostility::Owned)
+		{
+			PlayerHasShip = true;
+			break;
+		}
+	}
+
+	// Planetarium & sector setup
+	FLOGV("AFlareGame::OnLevelLoaded : PlayerHasShip = %d", PlayerHasShip);
+	if (PlayerHasShip)
+	{
+		CombatLog::SectorActivated(ActivatingSector);
+
+		// Create the new sector
+		ActiveSector = NewObject<UFlareSector>(this, UFlareSector::StaticClass());
+		FFlareSectorSave* SectorData = ActivatingSector->Save();
+		if ((SectorData->LocalTime / UFlareGameTools::SECONDS_IN_DAY)  < GetGameWorld()->GetDate())
+		{
+			// TODO Find time with light
+			SectorData->LocalTime = GetGameWorld()->GetDate() * UFlareGameTools::SECONDS_IN_DAY;
+		}
+
+		// Load and setup the sector
+		Planetarium->ResetTime();
+		Planetarium->SkipNight(UFlareGameTools::SECONDS_IN_DAY);
+		ActiveSector->Load(ActivatingSector);
+		DebrisFieldSystem->Setup(this, ActivatingSector);
+
+		GetPC()->OnSectorActivated(ActiveSector);
+	}
+	GetQuestManager()->OnSectorActivation(ActivatingSector);
+
+	ActivatingSector = NULL;
 }
 
 void AFlareGame::OnLevelUnLoaded()
@@ -940,7 +966,7 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 	Immatriculation += FString::Printf(TEXT("-%s"), *NickName);
 
 	// Update data
-	FLOGV("AFlareGame::Immatriculate (%s) : %s", *TargetClass.ToString(), *Immatriculation);
+	//FLOGV("AFlareGame::Immatriculate (%s) : %s", *TargetClass.ToString(), *Immatriculation);
 	SpacecraftSave->Immatriculation = FName(*Immatriculation);
 	SpacecraftSave->NickName = FText::FromString(NickName);
 }
@@ -1046,9 +1072,9 @@ void AFlareGame::InitCapitalShipNameDatabase()
 	BaseImmatriculationNameList.Empty();
 	BaseImmatriculationNameList.Add(FText::FromString("Arrow"));
 	BaseImmatriculationNameList.Add(FText::FromString("Atom"));
-	BaseImmatriculationNameList.Add(FText::FromString("Binary-Star"));
+	BaseImmatriculationNameList.Add(FText::FromString("BinaryStar"));
 	BaseImmatriculationNameList.Add(FText::FromString("Blackout"));
-	BaseImmatriculationNameList.Add(FText::FromString("Crescent-Moon"));
+	BaseImmatriculationNameList.Add(FText::FromString("Crescent"));
 	BaseImmatriculationNameList.Add(FText::FromString("Comet"));
 	BaseImmatriculationNameList.Add(FText::FromString("Coronation"));
 	BaseImmatriculationNameList.Add(FText::FromString("Destiny"));
@@ -1060,9 +1086,12 @@ void AFlareGame::InitCapitalShipNameDatabase()
 	BaseImmatriculationNameList.Add(FText::FromString("Honor"));
 	BaseImmatriculationNameList.Add(FText::FromString("Intruder"));
 	BaseImmatriculationNameList.Add(FText::FromString("Explorer"));
+	BaseImmatriculationNameList.Add(FText::FromString("Kerman"));
+	BaseImmatriculationNameList.Add(FText::FromString("Lance"));
 	BaseImmatriculationNameList.Add(FText::FromString("Meteor"));
 	BaseImmatriculationNameList.Add(FText::FromString("Mammoth"));
 	BaseImmatriculationNameList.Add(FText::FromString("Photon"));
+	BaseImmatriculationNameList.Add(FText::FromString("Repulse"));
 	BaseImmatriculationNameList.Add(FText::FromString("Resolve"));
 	BaseImmatriculationNameList.Add(FText::FromString("Revenge"));
 	BaseImmatriculationNameList.Add(FText::FromString("Sahara"));

@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 
 #include "FlareSpacecraftWeaponsSystem.h"
+#include "../FlareTurret.h"
 #include "../FlareSpacecraft.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareWeaponsSystem Tick"), STAT_FlareWeaponsSystem_Tick, STATGROUP_Flare);
@@ -34,14 +35,21 @@ UFlareSpacecraftWeaponsSystem::~UFlareSpacecraftWeaponsSystem()
 void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareWeaponsSystem_Tick);
-
 	if (!ActiveWeaponGroup)
 	{
 		return;
 	}
 
+	// Are we firing ?
+	bool WantFire = false;
+	if (Spacecraft->GetNavigationSystem()->IsManualPilot() && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+	{
+		WantFire = Spacecraft->GetStateManager()->IsWantFire();
+	}
+
 	switch (ActiveWeaponGroup->Type)
 	{
+		// Guns are controlled directly
 		case EFlareWeaponGroupType::WG_GUN:
 			for (int32 i = 0; i < ActiveWeaponGroup->Weapons.Num(); i++)
 			{
@@ -54,8 +62,31 @@ void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 					ActiveWeaponGroup->Weapons[i]->StopFire();
 				}
 			}
-
 			break;
+
+		// For turrets, use the fire director
+		case EFlareWeaponGroupType::WG_TURRET:
+			if (IsInFireDirector())
+			{
+				for (int32 i = 0; i < ActiveWeaponGroup->Weapons.Num(); i++)
+				{
+					UFlareTurretPilot* Pilot = Cast<UFlareTurret>(ActiveWeaponGroup->Weapons[i])->GetTurretPilot();
+					FVector AimDirection = Spacecraft->GetCamera()->GetComponentRotation().Vector(); // TODO #558 : rotating camera
+					Pilot->PlayerSetAim(AimDirection);
+
+					if (WantFire)
+					{
+						Pilot->PlayerStartFire();
+					}
+					else
+					{
+						Pilot->PlayerStopFire();
+					}
+				}
+			}
+			break;
+
+		// Bombs are like guns, without fire stopping
 		case EFlareWeaponGroupType::WG_BOMB:
 			if (Armed && WantFire)
 			{
@@ -68,14 +99,12 @@ void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 			{
 				Armed = true;
 			}
+			break;
 
 		case EFlareWeaponGroupType::WG_NONE:
-		case EFlareWeaponGroupType::WG_TURRET:
 		default:
 			break;
 	}
-
-
 }
 
 void UFlareSpacecraftWeaponsSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft, FFlareSpacecraftSave* OwnerData)
@@ -180,7 +209,6 @@ void UFlareSpacecraftWeaponsSystem::Start()
 	ActiveWeaponGroupIndex = -1;
 	ActiveWeaponGroup = NULL;
 	LastActiveWeaponGroupIndex = 0;
-	WantFire = false;
 	StopAllWeapons();
 }
 
@@ -207,18 +235,6 @@ void UFlareSpacecraftWeaponsSystem::StopAllWeapons()
 	{
 		WeaponList[WeaponIndex]->StopFire();
 	}
-}
-
-
-
-void UFlareSpacecraftWeaponsSystem::StartFire()
-{
-		WantFire = true;
-}
-
-void UFlareSpacecraftWeaponsSystem::StopFire()
-{
-		WantFire = false;
 }
 
 void UFlareSpacecraftWeaponsSystem::ActivateWeaponGroup(int32 Index)
@@ -253,10 +269,14 @@ void UFlareSpacecraftWeaponsSystem::ActivateWeapons()
 
 void UFlareSpacecraftWeaponsSystem::DeactivateWeapons()
 {
-	StopFire();
 	StopAllWeapons();
-	 ActiveWeaponGroup = NULL;
-	 ActiveWeaponGroupIndex = -1;
+	ActiveWeaponGroup = NULL;
+	ActiveWeaponGroupIndex = -1;
+}
+
+bool UFlareSpacecraftWeaponsSystem::IsInFireDirector()
+{
+	return (ActiveWeaponGroupIndex >= 0 && Spacecraft->GetDescription()->Size != EFlarePartSize::S);
 }
 
 void UFlareSpacecraftWeaponsSystem::ToogleWeaponActivation()
@@ -366,6 +386,7 @@ void UFlareSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* I
 			}
 			else
 			{
+				LargePool += 0.01;
 				SmallPool += 1.0;
 				NotUncontrollablePool += 1.0;
 				HarpoonedPool += 1.0;
@@ -461,7 +482,7 @@ int32 UFlareSpacecraftWeaponsSystem::FindBestWeaponGroup(AFlareSpacecraft* Targe
 			}
 			else
 			{
-				Score *= (SmallTarget ? 1.f : 0.f);
+				Score *= (SmallTarget ? 1.f : 0.01f);
 				if(Target->IsMilitary())
 				{
 					Score *= (UncontrollableTarget ? 0.01f : 1.f);

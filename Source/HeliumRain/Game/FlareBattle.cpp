@@ -71,26 +71,6 @@ void UFlareBattle::Simulate()
         }
     }
 
-	// Remove destroyed spacecraft
-	TArray<UFlareSimulatedSpacecraft*> SpacecraftToRemove;
-
-	for (int32 SpacecraftIndex = 0 ; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
-	{
-		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
-
-		if(!Spacecraft->GetDamageSystem()->IsAlive())
-		{
-			SpacecraftToRemove.Add(Spacecraft);
-		}
-	}
-
-	for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftToRemove.Num(); SpacecraftIndex++)
-	{
-		UFlareSimulatedSpacecraft* Spacecraft = SpacecraftToRemove[SpacecraftIndex];
-		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
-	}
-
-
 	CombatLog::AutomaticBattleEnded(Sector);
     FLOGV("Battle in %s finish after %d turns", *Sector->GetSectorName().ToString(), BattleTurn);
 }
@@ -109,11 +89,9 @@ bool UFlareBattle::HasBattle()
             continue;
         }
 
-        EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(Company);
+		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(Company);
 
-        if(BattleState == EFlareSectorBattleState::NoBattle ||
-            BattleState == EFlareSectorBattleState::BattleLost ||
-            BattleState == EFlareSectorBattleState::BattleNoRetreat)
+		if(!BattleState.WantFight())
         {
             // Don't want fight
             continue;
@@ -134,12 +112,10 @@ bool UFlareBattle::SimulateTurn()
     {
         UFlareCompany* Company = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
 
-        EFlareSectorBattleState::Type BattleState = Sector->GetSectorBattleState(Company);
+		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(Company);
 
-        if(BattleState == EFlareSectorBattleState::NoBattle ||
-            BattleState == EFlareSectorBattleState::BattleLost ||
-            BattleState == EFlareSectorBattleState::BattleNoRetreat)
-        {
+		if(!BattleState.WantFight())
+		{
             // Don't want fight
             continue;
         }
@@ -153,7 +129,13 @@ bool UFlareBattle::SimulateTurn()
     {
         UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
 
-        if(!Ship->IsMilitary()  || Ship->GetDamageSystem()->IsDisarmed())
+		if(Ship->IsReserve())
+		{
+			// No in fight
+			continue;
+		}
+
+		if(!Ship->IsMilitary()  || Ship->GetDamageSystem()->IsDisarmed())
         {
             // No weapon
             continue;
@@ -337,6 +319,11 @@ UFlareSimulatedSpacecraft* UFlareBattle::GetBestTarget(UFlareSimulatedSpacecraft
 	{
 		UFlareSimulatedSpacecraft* ShipCandidate = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
 
+		if(ShipCandidate->IsReserve())
+		{
+			// No in fight
+			continue;
+		}
 
 		if (Ship->GetCompany()->GetWarState(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
 		{
@@ -402,7 +389,7 @@ UFlareSimulatedSpacecraft* UFlareBattle::GetBestTarget(UFlareSimulatedSpacecraft
 			StateScore *= Preferences.IsNotStranded;
 		}
 
-		if (ShipCandidate->GetDamageSystem()->IsUncontrollable())
+		if (ShipCandidate->GetDamageSystem()->IsUncontrollable() && ShipCandidate->GetDamageSystem()->IsDisarmed())
 		{
 			if(ShipCandidate->IsMilitary())
 			{
@@ -633,25 +620,25 @@ int32 UFlareBattle::GetBestTargetComponent(UFlareSimulatedSpacecraft* TargetSpac
 	float WeaponWeight = 1;
 	float PodWeight = 1;
 	float RCSWeight = 1;
-	float HeatSinkWeight = 1;
+	float InternalWeight = 1;
 
 	if (!TargetSpacecraft->GetDamageSystem()->IsDisarmed())
 	{
 		WeaponWeight = 20;
 		PodWeight = 8;
 		RCSWeight = 1;
-		HeatSinkWeight = 1;
+		InternalWeight = 1;
 	}
 	else if (!TargetSpacecraft->GetDamageSystem()->IsStranded())
 	{
 		PodWeight = 8;
 		RCSWeight = 1;
-		HeatSinkWeight = 1;
+		InternalWeight = 1;
 	}
 	else
 	{
 		RCSWeight = 1;
-		HeatSinkWeight = 1;
+		InternalWeight = 1;
 	}
 
 	TArray<int32> ComponentSelection;
@@ -694,7 +681,7 @@ int32 UFlareBattle::GetBestTargetComponent(UFlareSimulatedSpacecraft* TargetSpac
 
 			if (ComponentDescription->Type == EFlarePartType::InternalComponent)
 			{
-				for (int32 i = 0; i < HeatSinkWeight; i++)
+				for (int32 i = 0; i < InternalWeight; i++)
 				{
 					ComponentSelection.Add(ComponentIndex);
 				}

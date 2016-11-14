@@ -4,6 +4,7 @@
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlarePilotHelper.h"
+#include "../Spacecrafts/FlareTurret.h"
 #include "../Spacecrafts/Subsystems/FlareSpacecraftDamageSystem.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Game/AI/FlareCompanyAI.h"
@@ -213,7 +214,7 @@ void AFlareHUD::UpdateHUDVisibility()
 	bool NewVisibility = HUDVisible && !MenuManager->IsMenuOpen();
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
+	//FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
 	HUDMenu->SetVisibility((NewVisibility && !PC->UseCockpit) ? EVisibility::Visible : EVisibility::Collapsed);
 	ContextMenu->SetVisibility(NewVisibility && !MenuManager->IsSwitchingMenu() ? EVisibility::Visible : EVisibility::Collapsed);
 }
@@ -439,15 +440,24 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareTacticManager* TacticManager = MenuManager->GetPC()->GetCompany()->GetTacticManager();
 
-	// Fighter version
-	if (PlayerShip->GetParent()->IsMilitary() && PlayerShip->GetParent()->GetDescription()->Size == EFlarePartSize::S)
+	// Military version
+	if (PlayerShip->GetParent()->IsMilitary())
 	{
 		FText TitleText;
 		FText InfoText;
 		FLinearColor HealthColor = Theme.FriendlyColor;
 		int32 CurrentWeapongroupIndex = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex();
 		FFlareWeaponGroup* CurrentWeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
-		FText DisarmText = LOCTEXT("WeaponsDisabled", "Standing down");;
+
+		FText DisarmText;
+		if (PlayerShip->GetDescription()->Size == EFlarePartSize::S)
+		{
+			DisarmText = LOCTEXT("WeaponsDisabledLight", "Standing down");
+		}
+		else
+		{
+			DisarmText = LOCTEXT("WeaponsDisabledHeavy", "Navigation mode");
+		}		
 
 		if (CurrentWeaponGroup)
 		{
@@ -513,34 +523,6 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		CurrentPos += InstrumentLine;
 	}
 
-	// Capital ship version
-	else if (PlayerShip->GetParent()->IsMilitary())
-	{
-		// Title
-		FText CommandGroupText = LOCTEXT("ShipGroups", "Command groups");
-		FlareDrawText(CommandGroupText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
-		CurrentPos += 2 * InstrumentLine;
-
-		int32 CurrentGroupIndex = TacticManager->GetCurrentShipGroup();
-
-		// Group list
-		for (int32 Index = EFlareCombatGroup::AllMilitary; Index <= EFlareCombatGroup::Civilan; Index++)
-		{
-			EFlareCombatGroup::Type GroupType = static_cast<EFlareCombatGroup::Type>(Index);
-			FText GroupName = UFlareGameTypes::GetCombatGroupDescription(GroupType);
-			FText GroupText = FText::Format(LOCTEXT("GroupListInfoFormat", "{0}. {1} ({2}) : {3}"),
-				FText::AsNumber(Index + 1),
-				GroupName,
-				FText::AsNumber(TacticManager->GetShipCountForShipGroup(GroupType)),
-				UFlareGameTypes::GetCombatTacticDescription(TacticManager->GetCurrentTacticForShipGroup(GroupType)));
-
-			FString GroupString = ((Index == CurrentGroupIndex) ? FString("> ") : FString("   ")) + GroupText.ToString();
-
-			FlareDrawText(GroupString, CurrentPos, Theme.FriendlyColor, false);
-			CurrentPos += InstrumentLine;
-		}
-	}
-
 	// Unarmed version
 	else
 	{
@@ -602,7 +584,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		CurrentPos += InstrumentLine;
 
 		// Sector forces
-		FlareDrawText(CurrentSector->GetSectorBalanceText().ToString(), CurrentPos, Theme.FriendlyColor, false);
+		FlareDrawText(CurrentSector->GetSectorBalanceText(true).ToString(), CurrentPos, Theme.FriendlyColor, false);
 		CurrentPos += InstrumentLine;
 
 		// Battle status
@@ -861,12 +843,15 @@ void AFlareHUD::DrawHUDInternal()
 			NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
 		}
 
-		DrawHUDIcon(
-			CurrentViewportSize / 2,
-			IconSize,
-			NoseIcon,
-			HudColorNeutral,
-			true);
+		if (WeaponType != EFlareWeaponGroupType::WG_TURRET)
+		{
+			DrawHUDIcon(
+				CurrentViewportSize / 2,
+				IconSize,
+				NoseIcon,
+				HudColorNeutral,
+				true);
+		}
 
 		// Speed indication
 		FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
@@ -906,12 +891,17 @@ void AFlareHUD::DrawHUDInternal()
 		{
 			// Draw designators
 			bool ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
-			DrawDockingHelper(Spacecraft);
+
+			// Draw docking guides
+			bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
+			if (Highlighted)
+			{
+				DrawDockingHelper(Spacecraft);
+			}
 
 			// Draw search markers
 			if (!IsExternalCamera && ShouldDrawSearchMarker)
 			{
-				bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
 				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), Highlighted, FocusDistance);
 			}
 		}
@@ -965,6 +955,66 @@ void AFlareHUD::DrawHUDInternal()
 		}
 	}
 
+	// Draw turrets in fire director
+	if (WeaponType == EFlareWeaponGroupType::WG_TURRET)
+	{
+		bool HasOneTurretInPosition = false;
+		int TurretReadyCount = 0;
+
+		for (auto Weapon : PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons)
+		{
+			UFlareTurret* Turret = Cast<UFlareTurret>(Weapon);
+			FVector EndPoint = Turret->GetTurretBaseLocation() + Turret->GetFireAxis() * 1000000;
+			FVector2D ScreenPosition;
+
+			if (ProjectWorldLocationToCockpit(EndPoint, ScreenPosition))
+			{
+				// Update turret data
+				if (Turret->IsCloseToAim())
+				{
+					AActor* Unused;
+					HasOneTurretInPosition = true;
+					if (Turret->IsReadyToFire() && Turret->IsSafeToFire(0, Unused))
+					{
+						TurretReadyCount++;
+					}
+				}
+
+				// Draw turret reticle
+				FLinearColor TurretColor = HudColorNeutral;
+				TurretColor.A = GetFadeAlpha(ScreenPosition, ViewportSize / 2, PC->UseCockpit);
+				DrawHUDIcon(ScreenPosition, IconSize, HUDAimIcon, TurretColor, true);
+			}
+		}
+
+		// Get color
+		FLinearColor TurretColor = HudColorEnemy;
+		if (TurretReadyCount)
+		{
+			TurretColor = HudColorFriendly;
+		}
+		else if (HasOneTurretInPosition)
+		{
+			TurretColor = HudColorNeutral;
+		}
+
+		// Get info text
+		FText TurretText;
+		if (TurretReadyCount > 1)
+		{
+			TurretText = FText::Format(LOCTEXT("ReadyTurretFormatPlural", "{0} turrets ready"), FText::AsNumber(TurretReadyCount));
+		}
+		else
+		{
+			TurretText = FText::Format(LOCTEXT("ReadyTurretFormatSingular", "{0} turret ready"), FText::AsNumber(TurretReadyCount));
+		}
+
+		// Draw main reticle
+		UTexture2D* NoseIcon = NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
+		DrawHUDIcon(CurrentViewportSize / 2, IconSize, NoseIcon, TurretColor, true);
+		FlareDrawText(TurretText.ToString(), FVector2D(0, -70), HudColorNeutral);
+	}
+
 	// Draw bomb marker
 	if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
 	{
@@ -1015,7 +1065,6 @@ void AFlareHUD::DrawDebugGrid(FLinearColor Color)
 	{
 		for (int32 VIndex = -VPrecision; VIndex <= VPrecision; VIndex++)
 		{
-
 			FVector2D Screen = FVector2D(0.5 * ViewportSize.X * ((VPrecision + VIndex) / VPrecision),
 										 0.5 * ViewportSize.Y * ((HPrecision + HIndex) / HPrecision));
 			FVector2D Cockpit = Screen;
@@ -1067,15 +1116,10 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		float ScreenBorderDistanceY = 20;
 		ScreenPosition.X = FMath::Clamp(ScreenPosition.X, ScreenBorderDistanceX, CurrentViewportSize.X - ScreenBorderDistanceX);
 		ScreenPosition.Y = FMath::Clamp(ScreenPosition.Y, ScreenBorderDistanceY, CurrentViewportSize.Y - ScreenBorderDistanceY);
-
-		// Fade the cursor when near the center
-		float FadePower = PC->UseCockpit ? 3.0f : 2.0f;
-		float FadeDistance = PC->UseCockpit ? 10.0f : 50.0f;
-		float CenterDistance = FMath::Clamp(FadeDistance * (ScreenPosition - ViewportSize / 2).Size() / ViewportSize.Y, 0.0f, 1.0f);
-		FLinearColor DrawColor = HudColorNeutral;
-		DrawColor.A = FMath::Pow(CenterDistance, FadePower);
-
+		
 		// Icon
+		FLinearColor DrawColor = HudColorNeutral;
+		DrawColor.A = GetFadeAlpha(ScreenPosition, ViewportSize / 2, PC->UseCockpit);
 		FVector2D IndicatorPosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(0, 30);
 		DrawHUDIcon(ScreenPosition, IconSize, Icon, DrawColor, true);
 	}
@@ -1091,7 +1135,7 @@ void AFlareHUD::DrawSearchArrow(FVector TargetLocation, FLinearColor Color, bool
 	if (Direction.Size() < MaxDistance)
 	{
 		// Compute position
-		FVector LocalDirection = Ship->GetRootComponent()->GetComponentToWorld().GetRotation().Inverse().RotateVector(Direction);
+		FVector LocalDirection = Ship->GetCamera()->GetComponentToWorld().GetRotation().Inverse().RotateVector(Direction);
 		FVector2D ScreenspacePosition = FVector2D(LocalDirection.Y, -LocalDirection.Z);
 		ScreenspacePosition.Normalize();
 		ScreenspacePosition *= 1.2 * CombatMouseRadius;
@@ -1170,7 +1214,6 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			
 			// Combat helper
 			if (Spacecraft == PlayerShip->GetCurrentTarget()
-			 && Spacecraft->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile
 			 && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 			{
 				FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
@@ -1186,20 +1229,11 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 						FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Spacecraft);
 						EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
 						EFlareShellDamageType::Type DamageType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Description->WeaponCharacteristics.DamageType;
-						bool FighterTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_GUN && Spacecraft->GetParent()->GetSize() == EFlarePartSize::L;
-						bool BomberTargettingSmall = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetParent()->GetSize() == EFlarePartSize::S;
-						bool BomberTargettingLarge = WeaponType == EFlareWeaponGroupType::WG_BOMB && Spacecraft->GetParent()->GetSize() == EFlarePartSize::L;
-						bool Salvage = (DamageType == EFlareShellDamageType::LightSalvage || DamageType == EFlareShellDamageType::HeavySalvage);
-						bool AntiLarge = (DamageType == EFlareShellDamageType::HEAT);
 
-						// Draw helper if it makes sense
-						if (!(FighterTargettingLarge && !AntiLarge) && !(BomberTargettingSmall && ! Salvage))
-						{
-							DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
-						}
+						DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
 
 						// Bomber UI
-						if (BomberTargettingLarge || (BomberTargettingSmall && Salvage))
+						if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
 						{
 							// Time display
 							FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");
@@ -1494,6 +1528,14 @@ void AFlareHUD::FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY
 		TileItem.SetColor(Color);
 		CurrentCanvas->DrawItem(TileItem);
 	}
+}
+
+float AFlareHUD::GetFadeAlpha(FVector2D A, FVector2D B, bool UseCockpit)
+{
+	float FadePower = UseCockpit ? 3.0f : 2.0f;
+	float FadeDistance = UseCockpit ? 10.0f : 50.0f;
+	float CenterDistance = FMath::Clamp(FadeDistance * (A - B).Size() / ViewportSize.Y, 0.0f, 1.0f);
+	return FMath::Pow(CenterDistance, FadePower);
 }
 
 bool AFlareHUD::IsInScreen(FVector2D ScreenPosition) const

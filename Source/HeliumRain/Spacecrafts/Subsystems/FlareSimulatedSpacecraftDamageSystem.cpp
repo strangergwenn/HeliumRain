@@ -343,13 +343,23 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 			float Reputation;
 			if(Spacecraft->IsStation())
 			{
-				Reputation = -InflictedDamageRatio * 3000;
+				Reputation = -InflictedDamageRatio * 200;
 			}
 			else
 			{
-				Reputation = -InflictedDamageRatio * 30;
+				Reputation = -InflictedDamageRatio * 5;
 			}
-			Spacecraft->GetCompany()->GiveReputation(DamageSource, Reputation, true);
+
+
+			if (Reputation != 0)
+			{
+				if(Spacecraft->GetCompany()->GetWarState(DamageSource) == EFlareHostility::Hostile)
+				{
+					Reputation /= 1000;
+				}
+
+				Spacecraft->GetCompany()->GiveReputation(DamageSource, Reputation, true);
+			}
 		}
 	}
 

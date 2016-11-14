@@ -2,12 +2,14 @@
 #include "../Flare.h"
 
 #include "FlareSpacecraftStateManager.h"
+#include "../Game/FlareGameUserSettings.h"
 #include "../Player/FlareCockpitManager.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Player/FlareMenuManager.h"
 #include "../Player/FlareHUD.h"
 #include "FlareShipPilot.h"
 #include "FlareSpacecraft.h"
+#include "FlareShipPilot.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareStateManager Tick"), STAT_FlareStateManager_Tick, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareStateManager Camera"), STAT_FlareStateManager_Camera, STATGROUP_Flare);
@@ -25,6 +27,7 @@ UFlareSpacecraftStateManager::UFlareSpacecraftStateManager(const class FObjectIn
 {
 	// Pilot
 	IsPiloted = true;
+	PilotForced = false;
 }
 
 void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft)
@@ -57,6 +60,7 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 
 	ResetExternalCamera();
 	LastWeaponType = EFlareWeaponGroupType::WG_NONE;
+	IsFireDirectorInit = false;
 }
 
 
@@ -75,14 +79,20 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && IsPiloted) // Do not tick the pilot if a player has disable the pilot
 	{
 		Spacecraft->GetPilot()->TickPilot(DeltaSeconds);
-		int32 PreferedWeaponGroup = Spacecraft->GetPilot()->GetPreferedWeaponGroup();
-		if (PreferedWeaponGroup >= 0)
+
+		// Fighters can use different weapons.
+		// If this is needed for capitals too, it needs to check that the player didn't select a group already.
+		if (Spacecraft->GetDescription()->Size == EFlarePartSize::S)
 		{
-			Spacecraft->GetWeaponsSystem()->ActivateWeaponGroup(PreferedWeaponGroup);
-		}
-		else
-		{
-			Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
+			int32 PreferedWeaponGroup = Spacecraft->GetPilot()->GetPreferedWeaponGroup();
+			if (PreferedWeaponGroup >= 0)
+			{
+				Spacecraft->GetWeaponsSystem()->ActivateWeaponGroup(PreferedWeaponGroup);
+			}
+			else
+			{
+				Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
+			}
 		}
 	}
 
@@ -159,52 +169,36 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		Spacecraft->ForceManual();
 	}
 
-	// Control
-	switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
+	// Mouse control
+	if (Spacecraft->IsFlownByPlayer() && PC && !PC->GetNavHUD()->IsWheelMenuOpen() && !PC->GetMenuManager()->IsUIOpen())
 	{
-		case EFlareWeaponGroupType::WG_TURRET:
+		// Compensation curve
+		float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerAim.X) + FMath::Square(PlayerAim.Y));
+		float CompensatedDistance = FMath::Pow(FMath::Clamp((DistanceToCenter - AngularInputDeadRatio), 0.f, 1.f), MouseSensitivityPower);
+		float Angle = FMath::Atan2(PlayerAim.Y, PlayerAim.X);
+
+		// Pass data
+		if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
 		{
-			if (PlayerLeftMousePressed && !ExternalCamera && !PC->GetMenuManager()->IsUIOpen())
-			{
-				float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerMousePosition.X) + FMath::Square(PlayerMousePosition.Y));
-
-				// Compensation curve
-				float CompensatedDistance = FMath::Pow(FMath::Clamp((DistanceToCenter - AngularInputDeadRatio) , 0.f, 1.f), MouseSensitivityPower);
-				float Angle = FMath::Atan2(PlayerMousePosition.Y, PlayerMousePosition.X);
-
-				PlayerManualAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
-				PlayerManualAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
-			}
-			else
-			{
-				PlayerManualAngularVelocity.Z = 0;
-				PlayerManualAngularVelocity.Y = 0;
-			}
+			FireDirectorAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * 2 * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+			FireDirectorAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * 2 * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+			PlayerManualAngularVelocity.Z = 0;
+			PlayerManualAngularVelocity.Y = 0;
 		}
-		break;
-
-		case EFlareWeaponGroupType::WG_NONE:
-		case EFlareWeaponGroupType::WG_GUN:
-		case EFlareWeaponGroupType::WG_BOMB:
+		else
 		{
-			if (Spacecraft->IsFlownByPlayer() && PC && !PC->GetNavHUD()->IsWheelMenuOpen() && !PC->GetMenuManager()->IsUIOpen())
-			{
-				float DistanceToCenter = FMath::Sqrt(FMath::Square(PlayerAim.X) + FMath::Square(PlayerAim.Y));
-
-				// Compensation curve
-				float CompensatedDistance = FMath::Pow(FMath::Clamp((DistanceToCenter - AngularInputDeadRatio), 0.f, 1.f), MouseSensitivityPower);
-				float Angle = FMath::Atan2(PlayerAim.Y, PlayerAim.X);
-
-				PlayerManualAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
-				PlayerManualAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
-			}
-			else
-			{
-				PlayerManualAngularVelocity.Z = 0;
-				PlayerManualAngularVelocity.Y = 0;
-			}
+			FireDirectorAngularVelocity.Z = 0;
+			FireDirectorAngularVelocity.Y = 0;
+			PlayerManualAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+			PlayerManualAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
 		}
-		break;
+	}
+	else
+	{
+		PlayerManualAngularVelocity.Z = 0;
+		PlayerManualAngularVelocity.Y = 0;
+		FireDirectorAngularVelocity.Z = 0;
+		FireDirectorAngularVelocity.Y = 0;
 	}
 
 	// Update Camera
@@ -224,50 +218,76 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		}
 	}
 
-	if (ExternalCamera)
+	if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
+	{
+		float YawRotation = FireDirectorAngularVelocity.Z * DeltaSeconds;
+		float PitchRotation = FireDirectorAngularVelocity.Y * DeltaSeconds;
+
+
+		if (!IsFireDirectorInit)
+		{
+			FVector FrontVector = Spacecraft->Airframe->ComponentToWorld.TransformVector(FVector(1, 0, 0));
+			FireDirectorLookRotation =  Spacecraft->Airframe->ComponentToWorld.GetRotation();
+			IsFireDirectorInit = true;
+		}
+
+		FQuat Yaw(FVector(0,0,1), FMath::DegreesToRadians(YawRotation));
+		FQuat Pitch(FVector(0,1,0), FMath::DegreesToRadians(PitchRotation));
+
+		FireDirectorLookRotation *= Yaw;
+		FireDirectorLookRotation *= Pitch;
+		FireDirectorLookRotation.Normalize();
+
+
+		Spacecraft->ConfigureImmersiveCamera(FireDirectorLookRotation);
+	}
+	else if (ExternalCamera)
 	{
 		float Speed = FMath::Clamp(DeltaSeconds * 12, 0.f, 1.f);
+
 		ExternalCameraYaw = ExternalCameraYaw * (1 - Speed) + ExternalCameraYawTarget * Speed;
-
 		ExternalCameraPitchTarget = FMath::Clamp(ExternalCameraPitchTarget, -Spacecraft->GetCameraMaxPitch(), Spacecraft->GetCameraMaxPitch());
-
 		ExternalCameraPitch = ExternalCameraPitch * (1 - Speed) + ExternalCameraPitchTarget * Speed;
 		ExternalCameraDistance = ExternalCameraDistance * (1 - Speed) + ExternalCameraDistanceTarget * Speed;
 
+		Spacecraft->DisableImmersiveCamera();
 		Spacecraft->SetCameraPitch(ExternalCameraPitch);
 		Spacecraft->SetCameraYaw(FMath::UnwindDegrees(ExternalCameraYaw));
 		Spacecraft->SetCameraDistance(ExternalCameraDistance);
+
+		IsFireDirectorInit = false;
 	}
 	else
 	{
-
-		switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
-		{
-			case EFlareWeaponGroupType::WG_NONE:
-			case EFlareWeaponGroupType::WG_TURRET:
-			case EFlareWeaponGroupType::WG_BOMB:
-			case EFlareWeaponGroupType::WG_GUN:
-				// Camera to front
-				InternalCameraYawTarget = 0;
-				InternalCameraPitchTarget = 0;
-				break;
-		}
+		InternalCameraYawTarget = 0;
+		InternalCameraPitchTarget = 0;
 
 		float Speed = FMath::Clamp(DeltaSeconds * 8, 0.f, 1.f);
+
+		Spacecraft->DisableImmersiveCamera();
 		InternalCameraYaw = InternalCameraYaw * (1 - Speed) + InternalCameraYawTarget * Speed;
 		InternalCameraPitch = InternalCameraPitch * (1 - Speed) + InternalCameraPitchTarget * Speed;
 		Spacecraft->SetCameraPitch(InternalCameraPitch);
 		Spacecraft->SetCameraYaw(InternalCameraYaw);
+
+		IsFireDirectorInit = false;
 	}
-	// TODO Camera smoothing
-
 }
 
-void UFlareSpacecraftStateManager::EnablePilot(bool PilotEnabled)
+void UFlareSpacecraftStateManager::EnablePilot(bool PilotEnabled, bool Force)
 {
-	IsPiloted = PilotEnabled;
-}
+	if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
+	{
+		PilotEnabled = true;
+	}
 
+	if(Force)
+	{
+			PilotForced = PilotEnabled;
+	}
+
+	IsPiloted = PilotEnabled || PilotForced;
+}
 
 void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 {
@@ -404,6 +424,7 @@ void UFlareSpacecraftStateManager::SetPlayerXLinearVelocity(float Val)
 {
 	if (Val != LastPlayerLinearVelocityKeyboard.X)
 	{
+		EnablePilot(false);
 		LinearVelocityIsJoystick = false;
 		LastPlayerLinearVelocityKeyboard.X = Val;
 		PlayerManualLinearVelocity.X = Val;
@@ -414,6 +435,7 @@ void UFlareSpacecraftStateManager::SetPlayerYLinearVelocity(float Val)
 {
 	if (Val != LastPlayerLinearVelocityKeyboard.Y)
 	{
+		EnablePilot(false);
 		LastPlayerLinearVelocityKeyboard.Y = Val;
 		PlayerManualLinearVelocity.Y = Val;
 	}
@@ -423,6 +445,7 @@ void UFlareSpacecraftStateManager::SetPlayerZLinearVelocity(float Val)
 {
 	if (Val != LastPlayerLinearVelocityKeyboard.Z)
 	{
+		EnablePilot(false);
 		LastPlayerLinearVelocityKeyboard.Z = Val;
 		PlayerManualLinearVelocity.Z = Val;
 	}
@@ -432,6 +455,7 @@ void UFlareSpacecraftStateManager::SetPlayerXLinearVelocityJoystick(float Val)
 {
 	if (Val != LastPlayerLinearVelocityJoystick.X)
 	{
+		EnablePilot(false);
 		LinearVelocityIsJoystick = true;
 		LastPlayerLinearVelocityJoystick.X = Val;
 		PlayerManualLinearVelocity.X = Val;
@@ -442,6 +466,7 @@ void UFlareSpacecraftStateManager::SetPlayerYLinearVelocityJoystick(float Val)
 {
 	if (Val != LastPlayerLinearVelocityJoystick.Y)
 	{
+		EnablePilot(false);
 		LastPlayerLinearVelocityJoystick.Y = Val;
 		PlayerManualLinearVelocity.Y = Val;
 	}
@@ -451,6 +476,7 @@ void UFlareSpacecraftStateManager::SetPlayerZLinearVelocityJoystick(float Val)
 {
 	if (Val != LastPlayerLinearVelocityJoystick.Z)
 	{
+		EnablePilot(false);
 		LastPlayerLinearVelocityJoystick.Z = Val;
 		PlayerManualLinearVelocity.Z = Val;
 	}
@@ -460,6 +486,7 @@ void UFlareSpacecraftStateManager::SetPlayerRollAngularVelocityKeyboard(float Va
 {
 	if (Val != LastPlayerAngularRollKeyboard)
 	{
+		EnablePilot(false);
 		LastPlayerAngularRollKeyboard = Val;
 		PlayerManualAngularVelocity.X = Val;
 	}
@@ -469,6 +496,7 @@ void UFlareSpacecraftStateManager::SetPlayerRollAngularVelocityJoystick(float Va
 {
 	if (Val != LastPlayerAngularRollJoystick)
 	{
+		EnablePilot(false);
 		LastPlayerAngularRollJoystick = Val;
 		PlayerManualAngularVelocity.X = Val;
 	}
@@ -482,32 +510,32 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 	}
 	else
 	{
-		switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
+		FVector PlayerForwardVelocity;
+
+		if (PlayerManualLockDirection && ! Spacecraft->GetLinearVelocity().IsNearlyZero())
 		{
-			case EFlareWeaponGroupType::WG_TURRET:
-			case EFlareWeaponGroupType::WG_NONE:
-			case EFlareWeaponGroupType::WG_GUN:
-			case EFlareWeaponGroupType::WG_BOMB:
-			default:
+			PlayerForwardVelocity =  PlayerManualLockDirectionVector * FMath::Abs(PlayerManualVelocityCommand) * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
+		}
+		else
+		{
+			FVector LocalPlayerForwardVelocity = PlayerManualVelocityCommand * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity() * FVector(1, 0, 0);
+			PlayerForwardVelocity = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerForwardVelocity);
+		}
+
+		FVector LocalPlayerLateralLinearVelocity = FVector(0, PlayerManualLinearVelocity.Y, PlayerManualLinearVelocity.Z);
+		FVector FinalLinearVelocity = PlayerForwardVelocity + Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerLateralLinearVelocity);
+
+		// Check if we should apply anticollision to the player ship ?
+		if (Spacecraft->IsPlayerShip())
+		{
+			UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+			if (MyGameSettings->UseAnticollision || Spacecraft->GetPC()->GetMenuManager()->IsUIOpen())
 			{
-				FVector PlayerForwardVelocity;
-
-				if(PlayerManualLockDirection && ! Spacecraft->GetLinearVelocity().IsNearlyZero())
-				{
-
-					PlayerForwardVelocity =  PlayerManualLockDirectionVector * FMath::Abs(PlayerManualVelocityCommand) * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
-				}
-				else
-				{
-					FVector LocalPlayerForwardVelocity = PlayerManualVelocityCommand * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity() * FVector(1, 0, 0);
-					PlayerForwardVelocity = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerForwardVelocity);
-				}
-
-				FVector LocalPlayerLateralLinearVelocity = FVector(0, PlayerManualLinearVelocity.Y, PlayerManualLinearVelocity.Z);
-
-				return PlayerForwardVelocity + Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerLateralLinearVelocity);
+				FinalLinearVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, FinalLinearVelocity);
 			}
 		}
+
+		return FinalLinearVelocity;
 	}
 }
 
@@ -526,20 +554,9 @@ FVector UFlareSpacecraftStateManager::GetAngularTargetVelocity() const
 	}
 	else
 	{
-		switch(Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
-		{
-			case EFlareWeaponGroupType::WG_BOMB:
-			case EFlareWeaponGroupType::WG_TURRET:
-			case EFlareWeaponGroupType::WG_NONE:
-			case EFlareWeaponGroupType::WG_GUN:
-			default:
-			{
-				return Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(PlayerManualAngularVelocity);
-			}
-		}
+		return Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(PlayerManualAngularVelocity);
 	}
 }
-
 
 bool UFlareSpacecraftStateManager::IsUseOrbitalBoost() const
 {
@@ -555,7 +572,13 @@ bool UFlareSpacecraftStateManager::IsUseOrbitalBoost() const
 
 bool UFlareSpacecraftStateManager::IsWantFire() const
 {
-	if (IsPiloted)
+	bool PlayerWantsToFire = (PlayerLeftMousePressed || PlayerFiring) && !Spacecraft->GetPC()->GetMenuManager()->IsUIOpen();
+
+	if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
+	{
+		return PlayerWantsToFire;
+	}
+	else if (IsPiloted)
 	{
 		return Spacecraft->GetPilot()->IsWantFire();
 	}
@@ -565,19 +588,13 @@ bool UFlareSpacecraftStateManager::IsWantFire() const
 		{
 			return false;
 		}
+		else if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
+		{
+			return PlayerWantsToFire;
+		}
 		else
 		{
-			switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
-			{
-				case EFlareWeaponGroupType::WG_NONE:
-				case EFlareWeaponGroupType::WG_TURRET:
-					return false;
-				case EFlareWeaponGroupType::WG_BOMB:
-				case EFlareWeaponGroupType::WG_GUN:
-					return (PlayerLeftMousePressed || PlayerFiring) && !Spacecraft->GetPC()->GetMenuManager()->IsUIOpen();
-				default:
-					return false;
-			}
+			return false;
 		}
 	}
 }
@@ -590,17 +607,7 @@ bool UFlareSpacecraftStateManager::IsWantCursor() const
 	}
 	else
 	{
-		switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
-		{
-			case EFlareWeaponGroupType::WG_TURRET:
-				return true;
-			case EFlareWeaponGroupType::WG_NONE:
-			case EFlareWeaponGroupType::WG_BOMB:
-			case EFlareWeaponGroupType::WG_GUN:
-				return false;
-			default:
-				return true;
-		}
+		return false;
 	}
 }
 
@@ -616,19 +623,7 @@ bool UFlareSpacecraftStateManager::IsWantContextMenu() const
 	}
 	else
 	{
-		switch (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType())
-		{
-			case EFlareWeaponGroupType::WG_TURRET:
-				return true;
-
-			case EFlareWeaponGroupType::WG_NONE:
-			case EFlareWeaponGroupType::WG_BOMB:
-			case EFlareWeaponGroupType::WG_GUN:
-				return false;
-
-			default:
-				return true;
-		}
+		return false;
 	}
 }
 

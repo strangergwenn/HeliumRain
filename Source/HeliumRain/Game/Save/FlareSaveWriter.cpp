@@ -181,6 +181,8 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompany(FFlareCompanySave* Data)
 	JsonObject->SetStringField("CatalogIdentifier", FormatInt32(Data->CatalogIdentifier));
 	JsonObject->SetStringField("Money", FormatInt64(Data->Money));
 	JsonObject->SetStringField("CompanyValue", FormatInt64(Data->CompanyValue));
+	JsonObject->SetStringField("PlayerLastPeaceDate", FormatInt64(Data->PlayerLastPeaceDate));
+	JsonObject->SetStringField("PlayerLastTributeDate", FormatInt64(Data->PlayerLastTributeDate));
 	JsonObject->SetStringField("FleetImmatriculationIndex", FormatInt32(Data->FleetImmatriculationIndex));
 	JsonObject->SetStringField("TradeRouteImmatriculationIndex", FormatInt32(Data->TradeRouteImmatriculationIndex));
 	JsonObject->SetObjectField("AI", SaveCompanyAI(&Data->AI));
@@ -262,6 +264,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	JsonObject->SetBoolField("IsTrading", Data->IsTrading);
 	JsonObject->SetBoolField("IsRefilling", Data->IsRefilling);
 	JsonObject->SetBoolField("IsRepairing", Data->IsRepairing);
+	JsonObject->SetBoolField("IsReserve", Data->IsReserve);
 	JsonObject->SetObjectField("Pilot", SavePilot(&Data->Pilot));
 	JsonObject->SetObjectField("Asteroid", SaveAsteroid(&Data->AsteroidData));
 	JsonObject->SetStringField("HarpoonCompany", Data->HarpoonCompany.ToString());
@@ -521,6 +524,10 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompanyAI(FFlareCompanyAISave* Dat
 	JsonObject->SetStringField("ConstructionProjectSectorIdentifier", Data->ConstructionProjectSectorIdentifier.ToString());
 	JsonObject->SetStringField("ConstructionProjectStationIdentifier", Data->ConstructionProjectStationIdentifier.ToString());
 	JsonObject->SetStringField("ConstructionProjectNeedCapacity", FormatInt32(Data->ConstructionProjectNeedCapacity));
+	JsonObject->SetStringField("BudgetMilitary", FormatInt64(Data->BudgetMilitary));
+	JsonObject->SetStringField("BudgetStation", FormatInt64(Data->BudgetStation));
+	JsonObject->SetStringField("BudgetTechnology", FormatInt64(Data->BudgetTechnology));
+	JsonObject->SetStringField("BudgetTrade", FormatInt64(Data->BudgetTrade));
 
 
 	TArray< TSharedPtr<FJsonValue> > ConstructionShipsIdentifiers;

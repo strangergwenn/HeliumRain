@@ -5,6 +5,8 @@
 #include "../FlareSpacecraft.h"
 #include "../FlareEngine.h"
 #include "../../Game/FlareGame.h"
+#include "../../Player/FlarePlayerController.h"
+#include "../FlareOrbitalEngine.h"
 #include "../FlarePilotHelper.h"
 
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
@@ -61,15 +63,6 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 		LinearTargetVelocity = Spacecraft->GetStateManager()->GetLinearTargetVelocity();
 		AngularTargetVelocity = Spacecraft->GetStateManager()->GetAngularTargetVelocity();
 		UseOrbitalBoost = Spacecraft->GetStateManager()->IsUseOrbitalBoost();
-
-		if (Spacecraft->GetStateManager()->IsWantFire())
-		{
-			Spacecraft->GetWeaponsSystem()->StartFire();
-		}
-		else
-		{
-			Spacecraft->GetWeaponsSystem()->StopFire();
-		}
 	}
 
 	// Autopilot

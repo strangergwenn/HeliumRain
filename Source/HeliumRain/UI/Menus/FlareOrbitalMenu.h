@@ -143,6 +143,6 @@ protected:
 	TSharedPtr<SFlarePlanetaryBox>              AdenaBox;
 	TSharedPtr<SFlareButton>                    FastForwardAuto;
 	TSharedPtr<SVerticalBox>                    TradeRouteList;
-	TMap<UFlareSimulatedSector*, EFlareSectorBattleState::Type> LastSectorBattleState;
+	TMap<UFlareSimulatedSector*, FFlareSectorBattleState> LastSectorBattleState;
 
 };

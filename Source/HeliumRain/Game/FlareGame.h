@@ -136,7 +136,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Load a streaming level */
-	void LoadStreamingLevel(FName SectorLevel);
+	bool LoadStreamingLevel(FName SectorLevel);
 
 	/** Unload a streaming level */
 	void UnloadStreamingLevel(FName SectorLevel);
@@ -198,6 +198,10 @@ protected:
 	/** Active sector */
 	UPROPERTY()
 	UFlareSector*                              ActiveSector;
+
+	/** Activating sector */
+	UPROPERTY()
+	UFlareSimulatedSector*                     ActivatingSector;
 
 	/** Debris field */
 	UPROPERTY()

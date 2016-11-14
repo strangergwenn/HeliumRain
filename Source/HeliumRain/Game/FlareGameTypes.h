@@ -88,6 +88,20 @@ namespace EFlareHostility
 	};
 }
 
+/** Hostility status */
+UENUM()
+namespace EFlareBudget
+{
+	enum Type
+	{
+		Military,
+		Station,
+		Technology,
+		Trade,
+		None
+	};
+}
+
 /** Combat groups */
 UENUM()
 namespace EFlareCombatGroup
@@ -191,6 +205,11 @@ struct FFlareCompanyAISave
 
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 ConstructionProjectNeedCapacity;
+
+	int64 BudgetTechnology;
+	int64 BudgetMilitary;
+	int64 BudgetStation;
+	int64 BudgetTrade;
 };
 
 
@@ -251,6 +270,14 @@ struct FFlareCompanySave
 	/** Value of all company assets */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64 CompanyValue;
+
+	/** Date of last tribute given to the player */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 PlayerLastTributeDate;
+
+	/** Date of last peace with the player */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 PlayerLastPeaceDate;
 };
 
 /** Game save data */

@@ -117,6 +117,7 @@ public:
 
 	virtual void TickAI();
 
+
 	/** Check if we are friend or for toward the player */
 	virtual EFlareHostility::Type GetPlayerHostility() const;
 
@@ -129,8 +130,13 @@ public:
 	/** Check if we are friend or foe toward this target company.  Hostile if at least one company is hostile */
 	virtual EFlareHostility::Type GetWarState(const UFlareCompany* TargetCompany) const;
 
+
+	void ResetLastPeaceDate();
+	void ResetLastTributeDate();
+
 	/** Set whether this company is hostile to an other company */
 	virtual void SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile);
+
 
 	/** Get an info string for this company */
 	virtual FText GetShortInfoText();
@@ -159,6 +165,7 @@ public:
 	/** Set a sector visited */
 	virtual void VisitSector(UFlareSimulatedSector* Sector);
 
+
 	/** Take a money amount from the company */
 	virtual bool TakeMoney(int64 Amount, bool AllowDepts = false);
 
@@ -167,7 +174,16 @@ public:
 
 	virtual void GiveReputation(UFlareCompany* Company, float Amount, bool Propagate);
 
+	void GiveReputationToOthers(float Amount, bool Propagate);
+
 	virtual void ForceReputation(UFlareCompany* Company, float Amount);
+
+	/** Compute how much will be necessary to reset reputation with Company */
+	int64 GetTributeCost(UFlareCompany* Company);
+
+	/** Make peace with Company in echange for money */
+	void PayTribute(UFlareCompany* Company, bool AllowDepts = false);
+
 
 	/*----------------------------------------------------
 		Customization
@@ -305,7 +321,7 @@ public:
 		return CompanyData.Money;
 	}
 
-	struct CompanyValue GetCompanyValue() const;
+	struct CompanyValue GetCompanyValue(UFlareSimulatedSector* SectorFilter = NULL, bool IncludeIncoming = true) const;
 
 	inline TArray<UFlareSimulatedSpacecraft*>& GetCompanyStations()
 	{
@@ -381,5 +397,19 @@ public:
 	{
 		return TacticManager;
 	}
+
+	inline int64 GetLastPeaceDate()
+	{
+		return CompanyData.PlayerLastPeaceDate;
+	}
+
+	inline int64 GetLastTributeDate()
+	{
+		return CompanyData.PlayerLastTributeDate;
+	}
+
+	float GetConfidenceLevel(UFlareCompany* ReferenceCompany);
+
+	bool AtWar();
 
 };

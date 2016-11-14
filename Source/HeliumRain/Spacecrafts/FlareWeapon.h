@@ -37,6 +37,9 @@ public:
 	/** Stop firing */
 	virtual void StopFire();
 
+	/** Is this weapon ready to fire a shell ?*/
+	virtual bool IsReadyToFire() const;
+
 	/** Return the current amount of heat production in KW */
 	virtual float GetHeatProduction() const override;
 
@@ -50,7 +53,7 @@ public:
 
 	virtual bool IsTurret() const;
 
-	virtual bool IsSafeToFire(int GunIndex) const;
+	virtual bool IsSafeToFire(int GunIndex, AActor*& HitTarget) const;
 
 	/** Return the aim need minimum radius. 0 if not proximity fuze */
 	virtual float GetAimRadius() const;
@@ -64,7 +67,8 @@ public:
 
 	virtual void ConfigureShellFuze(AFlareShell* Shell);
 
-	virtual void SetTarget(AActor *NewTarget);
+	/** Set the target data */
+	virtual void SetTarget(FVector TargetLocation, FVector TargetVelocity);
 
 	virtual void OnAttachmentChanged() override;
 
@@ -109,8 +113,10 @@ protected:
 	UPROPERTY()
 	UParticleSystemComponent*   FiringEffect;
 
-	UPROPERTY()
-	AActor *                    Target;
+	// Target info
+	FVector                     TargetLocation;
+	FVector                     TargetVelocity;
+
 	// Weapon properties
 	float                       FiringRate;
 	float                       FiringPeriod;

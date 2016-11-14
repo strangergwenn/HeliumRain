@@ -49,6 +49,11 @@ public:
 	/** Remove all entries from the list */
 	void Reset();
 	
+	int32 GetItemCount() const
+	{
+		return SpacecraftList.Num();
+	}
+
 
 protected:
 
@@ -64,7 +69,10 @@ protected:
 
 	/** Target item selected */
 	void OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo);
-	
+
+	/** Update filters */
+	void OnToggleShowFlags();
+
 
 protected:
 
@@ -78,9 +86,15 @@ protected:
 
 	// Menu components
 	TSharedPtr<SFlareListItem>                                   PreviousSelection;
-	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >   TargetList;
-	TArray< TSharedPtr<FInterfaceContainer> >                    TargetListData;
+	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >   ListWidget;
+	TArray< TSharedPtr<FInterfaceContainer> >                    FilteredList;
+	TArray< TSharedPtr<FInterfaceContainer> >                    SpacecraftList;
 	TSharedPtr<FInterfaceContainer>                              SelectedItem;
+
+	// Filters
+	TSharedPtr<SFlareButton>                                     ShowStationsButton;
+	TSharedPtr<SFlareButton>                                     ShowMilitaryButton;
+	TSharedPtr<SFlareButton>                                     ShowFreightersButton;
 
 	// State data
 	FFlareListItemSelected                                       OnItemSelected;

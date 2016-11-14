@@ -36,7 +36,10 @@ public:
 
 	virtual FVector GetTurretBaseLocation() const;
 
-	virtual bool IsSafeToFire(int GunIndex) const;
+	/** Are we close to the target ? */
+	virtual bool IsCloseToAim() const;
+
+	virtual bool IsSafeToFire(int GunIndex, AActor*& HitTarget) const override;
 
 	virtual bool IsReacheableAxis(FVector TargetAxis) const;
 

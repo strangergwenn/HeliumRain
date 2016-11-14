@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../FlareSpacecraftTypes.h"
 #include "FlareSpacecraftDockingSystem.generated.h"
 
 class AFlareSpacecraft;

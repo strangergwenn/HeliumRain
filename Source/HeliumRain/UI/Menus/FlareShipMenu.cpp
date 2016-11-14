@@ -125,7 +125,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
-						.Text(LOCTEXT("EditInfoText", "Click on a component to upgrade it."))
+						.Text(LOCTEXT("EditInfoText", "Click on a part to exchange it. Please return only loaded, functional parts. Combat damage will void the warranty."))
 						.Visibility(this, &SFlareShipMenu::GetEditVisibility)
 					]
 
@@ -209,6 +209,16 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						SAssignNew(UpgradeTitle, STextBlock)
 						.TextStyle(&Theme.SubTitleFont)
 						.Text(LOCTEXT("TransactionTitle", "Upgrade component"))
+					]
+
+					// Can't upgrade
+					+ SVerticalBox::Slot()
+					.Padding(Theme.ContentPadding)
+					.AutoHeight()
+					[
+						SAssignNew(CantUpgradeReason, STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(LOCTEXT("CantUpgradeDamaged", "This system has been damaged and can't be exchanged. Please repair your ships through the Sector menu."))
 					]
 
 					// Button box
@@ -458,6 +468,7 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 	ShipPartCustomizationBox->SetVisibility(EVisibility::Visible);
 	PartCharacteristicBox->SetVisibility(EVisibility::Visible);
 	ShipCustomizationBox->SetVisibility(EVisibility::Collapsed);
+	CantUpgradeReason->SetVisibility(EVisibility::Collapsed);
 
 	// Boxes depending on edit mode
 	UpgradeTitle->SetVisibility(CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
@@ -938,6 +949,21 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 	{
 		AFlareMenuPawn* Viewer = PC->GetMenuPawn();
 
+		// Ensure this part can be changed
+		bool CanBeChanged = true;
+		switch(Item->PartDescription->Type)
+		{
+			case EFlarePartType::RCS:
+				CanBeChanged = (TargetSpacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS) == 1.0f);
+				break;
+			case EFlarePartType::OrbitalEngine:
+				CanBeChanged = (TargetSpacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) == 1.0f);
+				break;
+			case EFlarePartType::Weapon:
+				CanBeChanged = (TargetSpacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_WeaponAndAmmo) == 1.0f);
+				break;
+		}	
+
 		// Load the part
 		if (Viewer)
 		{
@@ -945,17 +971,33 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 			LoadPart(Item->PartDescription->Identifier);
 		}
 		CurrentPartIndex = Index;
-
-		int64 TransactionCost = GetTransactionCost(Item->PartDescription);
-
+		
 		// Show the confirmation dialog
 		if (CurrentPartIndex != ShipPartIndex)
 		{
-			BuyConfirmation->Show(TransactionCost, PC->GetCompany());
+			if (CanBeChanged)
+			{
+				int64 TransactionCost = GetTransactionCost(Item->PartDescription);
+				BuyConfirmation->Show(TransactionCost, PC->GetCompany());
+				CantUpgradeReason->SetVisibility(EVisibility::Collapsed);
+			}
+			else
+			{
+				BuyConfirmation->Hide();
+				if (CanEdit)
+				{
+					CantUpgradeReason->SetVisibility(EVisibility::Visible);
+				}
+				else
+				{
+					CantUpgradeReason->SetVisibility(EVisibility::Collapsed);
+				}
+			}
 		}
 		else
 		{
 			BuyConfirmation->Hide();
+			CantUpgradeReason->SetVisibility(EVisibility::Collapsed);
 		}
 	}
 

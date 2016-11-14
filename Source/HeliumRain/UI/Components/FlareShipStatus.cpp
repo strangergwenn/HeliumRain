@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareShipStatus.h"
 #include "../../Player/FlareMenuManager.h"
+#include "../../Data/FlareSpacecraftComponentsCatalog.h"
 
 #define LOCTEXT_NAMESPACE "FlareShipStatus"
 
@@ -134,6 +135,28 @@ void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerE
 			if (TargetShip->IsMilitary() && DamageSystem->IsDisarmed())
 			{
 				Info = FText::Format(LOCTEXT("ShipDisarmedFormat", "{0}This ship is disarmed and unable to fight back !\n"), Info);
+			}
+
+			if (TargetShip->IsMilitary())
+			{
+				int32 MaxAmmo = 0;
+				int32 CurrentSpentAmmo = 0;
+
+				UFlareSpacecraftComponentsCatalog* Catalog = TargetShip->GetGame()->GetShipPartsCatalog();
+				for (int32 ComponentIndex = 0; ComponentIndex < TargetShip->GetData().Components.Num(); ComponentIndex++)
+				{
+					FFlareSpacecraftComponentSave* ComponentData = &TargetShip->GetData().Components[ComponentIndex];
+					FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+
+					if (ComponentDescription->Type == EFlarePartType::Weapon)
+					{
+						MaxAmmo += ComponentDescription->WeaponCharacteristics.AmmoCapacity;
+						CurrentSpentAmmo += ComponentData->Weapon.FiredAmmo;
+					}
+				}
+
+				Info = FText::Format(LOCTEXT("AmmoInfoFormat", "{0}\nAmmo : {1} / {2}"), Info,
+					FText::AsNumber(MaxAmmo - CurrentSpentAmmo), FText::AsNumber(MaxAmmo));
 			}
 
 			// Subsystems

@@ -158,7 +158,6 @@ void AFlareBomb::Tick(float DeltaSeconds)
 void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
-	FLOG("AFlareBomb::NotifyHit");
 
 	AFlareBomb* BombCandidate = Cast<AFlareBomb>(Other);
 	AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(Other);
@@ -236,7 +235,6 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 
 void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecraftComponent* HitComponent, FVector HitLocation, FVector InertialNormal)
 {
-	FLOG("AFlareBomb::OnSpacecraftHit");
 	UFlareCompany* OwnerCompany = ParentWeapon->GetSpacecraft()->GetCompany();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
@@ -248,9 +246,9 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 		ParentWeapon->GetSpacecraft()->GetParent());
 
 	// Play sound
-	if (HitSpacecraft->IsLocallyControlled())
+	if (HitSpacecraft->IsPlayerShip())
 	{
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamageSound, HitLocation, 1, 1);
+		HitSpacecraft->GetPC()->PlayLocalizedSound(DamageSound, HitLocation);
 	}
 
 	// Ship salvage

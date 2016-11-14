@@ -18,18 +18,18 @@ void UFlareGameUserSettings::SetToDefaults()
 {
 	Super::SetToDefaults();
 
+	// Graphics
 	ScreenPercentage = 100;
-
-#if LINUX
 	UseTemporalAA = false;
-#else
-	UseTemporalAA = true;
-#endif
-
 	UseMotionBlur = true;
-	UseCockpit = true;
-	PauseGameInMenus = false;
 
+	// Gameplay
+	UseCockpit = true;
+	UseAnticollision = false;
+	PauseGameInMenus = false;
+	MaxShipsInSector = 50;
+
+	// Sound
 	MusicVolume = 8;
 	MasterVolume = 10;
 }

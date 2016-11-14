@@ -179,6 +179,7 @@ protected:
 
 	// Parts list UI
 	TSharedPtr<STextBlock>                          UpgradeTitle;
+	TSharedPtr<STextBlock>                          CantUpgradeReason;
 	TSharedPtr<SFlareListItem>                      PreviousSelection;
 	TSharedPtr<SVerticalBox>                        ShipPartCustomizationBox;
 	TSharedPtr<STextBlock>                          ShipPartPickerTitle;

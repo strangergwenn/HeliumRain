@@ -15,12 +15,13 @@ namespace EFlareMusicTrack
 	enum Type
 	{
 		None,
+		Menu,
 		Exploration,
-		Danger,
+		Travel,
 		Pacific,
+		Danger,
 		Combat,
-		War,
-		Menu
+		War
 	};
 }
 
@@ -86,8 +87,11 @@ protected:
 	/** Start playing the requested music */
 	void SetDesiredMusicTrack();
 
+	/** Update the effects volume */
+	void UpdateEffectsVolume(float DeltaSeconds);
+
 	/** Update the sound state using fading */
-	void UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDelta, bool Force = false);
+	void UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDelta);
 
 	/** Stop this sound without fading */
 	void StopPlayer(FFlareSoundPlayer& Player);
@@ -111,11 +115,21 @@ protected:
 	UPROPERTY()
 	USoundClass*                             MasterSoundClass;
 
+	// Music sound class
+	UPROPERTY()
+	USoundClass*                             MusicSoundClass;
+
+	// Effects sound class
+	UPROPERTY()
+	USoundClass*                             EffectsSoundClass;
+
 	// Master sound mix
 	UPROPERTY()
 	USoundMix*                               MasterSoundMix;
 
+	float                                    MasterVolume;
 	float                                    MusicVolume;
+	float                                    EffectsVolume;
 
 
 	/*----------------------------------------------------

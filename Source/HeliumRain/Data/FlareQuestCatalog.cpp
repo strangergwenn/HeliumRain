@@ -17,7 +17,7 @@ UFlareQuestCatalog::UFlareQuestCatalog(const class FObjectInitializer& PCIP)
 
 	for (int32 Index = 0; Index < AssetList.Num(); Index++)
 	{
-		FLOGV("UFlareQuestCatalog::UFlareQuestCatalog : Found '%s'", *AssetList[Index].GetFullName());
+		//FLOGV("UFlareQuestCatalog::UFlareQuestCatalog : Found '%s'", *AssetList[Index].GetFullName());
 		UFlareQuestCatalogEntry* Quest = Cast<UFlareQuestCatalogEntry>(AssetList[Index].GetAsset());
 		FCHECK(Quest);
 		Quests.Add(Quest);

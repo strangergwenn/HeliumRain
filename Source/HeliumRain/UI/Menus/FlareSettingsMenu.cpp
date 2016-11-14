@@ -11,6 +11,9 @@
 
 #define LOCTEXT_NAMESPACE "FlareSettingsMenu"
 
+#define MIN_MAX_SHIPS 10
+#define MAX_MAX_SHIPS 100
+#define STEP_MAX_SHIPS 5
 
 /*----------------------------------------------------
 	Construct
@@ -402,6 +405,18 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.OnClicked(this, &SFlareSettingsMenu::OnCockpitToggle)
 						]
 					
+						// Anticollision
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(AnticollisionButton, SFlareButton)
+							.Text(LOCTEXT("Anticollision", "Use anticollision"))
+							.HelpText(LOCTEXT("AnticollisionInfo", "Anti-collision will prevent your ship from crahsing into objects and forbid close fly-bys."))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnAnticollisionToggle)
+						]
+					
 						// Pause in menus
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
@@ -412,6 +427,52 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.HelpText(LOCTEXT("PauseInMenusInfo", "Pause the game when entering a full-screen menu."))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnPauseInMenusToggle)
+						]
+					]
+				
+					// Ship count level box
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+
+						// Text
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(LabelSize)
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("ShipCountLabel", "Max ships in sector"))
+								.TextStyle(&Theme.TextFont)
+							]
+						]
+
+						// Slider
+						+ SHorizontalBox::Slot()
+						.VAlign(VAlign_Center)
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(ShipCountSlider, SSlider)
+							.Value(MyGameSettings->MaxShipsInSector / 100.0f)
+							.Style(&Theme.SliderStyle)
+							.OnValueChanged(this, &SFlareSettingsMenu::OnShipCountSliderChanged)
+						]
+
+						// Label
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(ValueSize)
+							[
+								SAssignNew(ShipCountLabel, STextBlock)
+								.TextStyle(&Theme.TextFont)
+								.Text(GetShipCountLabel(MyGameSettings->MaxShipsInSector))
+							]
 						]
 					]
 				
@@ -558,11 +619,16 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
 	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
+	AnticollisionButton->SetActive(MyGameSettings->UseAnticollision);
 	PauseInMenusButton->SetActive(MyGameSettings->PauseGameInMenus);
+
+	float MaxShipRatio = ((float) MyGameSettings->MaxShipsInSector - MIN_MAX_SHIPS) / ((float) MAX_MAX_SHIPS - MIN_MAX_SHIPS);
 
 	// Music volume
 	int32 MusicVolume = MyGameSettings->MusicVolume;
 	int32 MasterVolume = MyGameSettings->MusicVolume;
+	ShipCountSlider->SetValue(MaxShipRatio);
+	ShipCountLabel->SetText(GetShipCountLabel(MyGameSettings->MaxShipsInSector));
 	MusicVolumeSlider->SetValue((float)MusicVolume / 10.0f);
 	MusicVolumeLabel->SetText(GetMusicVolumeLabel(MusicVolume));
 	MasterVolumeSlider->SetValue((float)MasterVolume / 10.0f);
@@ -957,6 +1023,15 @@ void SFlareSettingsMenu::OnCockpitToggle()
 	MyGameSettings->ApplySettings(false);
 }
 
+void SFlareSettingsMenu::OnAnticollisionToggle()
+{
+	bool New = AnticollisionButton->IsActive();
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->UseAnticollision = New;
+	MyGameSettings->ApplySettings(false);
+}
+
 void SFlareSettingsMenu::OnPauseInMenusToggle()
 {
 	bool New = PauseInMenusButton->IsActive();
@@ -965,6 +1040,24 @@ void SFlareSettingsMenu::OnPauseInMenusToggle()
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	MyGameSettings->PauseGameInMenus = New;
 	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnShipCountSliderChanged(float Value)
+{
+	float NotSteppedValue = Value * (MAX_MAX_SHIPS - MIN_MAX_SHIPS) + MIN_MAX_SHIPS;
+	int32 NewMaxShipValue = FMath::RoundToInt(NotSteppedValue / STEP_MAX_SHIPS) * STEP_MAX_SHIPS;
+	float SteppedRatio = ((float) NewMaxShipValue - MIN_MAX_SHIPS) / ((float) MAX_MAX_SHIPS - MIN_MAX_SHIPS);
+
+	ShipCountSlider->SetValue(SteppedRatio);
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	if (MyGameSettings->MaxShipsInSector != NewMaxShipValue)
+	{
+		FLOGV("SFlareSettingsMenu::OnShipCountSliderChanged : Set max ship count to %d (current is %d)", NewMaxShipValue, MyGameSettings->MaxShipsInSector);
+		MyGameSettings->MaxShipsInSector = NewMaxShipValue;
+		MyGameSettings->ApplySettings(false);
+		ShipCountLabel->SetText(GetShipCountLabel(NewMaxShipValue));
+	}
 }
 
 void SFlareSettingsMenu::OnTextureQualitySliderChanged(float Value)
@@ -1323,6 +1416,11 @@ FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value) const
 		default:
 			return LOCTEXT("PostProcessQualityLow", "Low");
 	}
+}
+
+FText SFlareSettingsMenu::GetShipCountLabel(int32 Value) const
+{
+	return FText::AsNumber(Value);
 }
 
 FText SFlareSettingsMenu::GetMusicVolumeLabel(int32 Value) const

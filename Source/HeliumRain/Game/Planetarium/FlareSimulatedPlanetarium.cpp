@@ -28,6 +28,7 @@ void UFlareSimulatedPlanetarium::Load()
 	Sun.Identifier = "star-sun";
 	Sun.Mass = 2.472e30;
 	Sun.Radius = 739886*2; // TODO fix in spec
+	Sun.RingsOuterAltitude = 0.;
 	Sun.RotationVelocity = 0;
 	Sun.OrbitDistance = 0;
 	Sun.RelativeLocation = FPreciseVector::ZeroVector;
@@ -41,6 +42,7 @@ void UFlareSimulatedPlanetarium::Load()
 		Nema.Identifier = "nema";
 		Nema.Mass = 8.421e26;
 		Nema.Radius = 69586;
+		Nema.RingsOuterAltitude = 30000;
 		Nema.RotationVelocity = -0.0037254354102635744;
 		Nema.OrbitDistance = 110491584;
 
@@ -49,6 +51,7 @@ void UFlareSimulatedPlanetarium::Load()
 		Anka.Identifier = "anka";
 		Anka.Mass = 1.3e23;
 		Anka.Radius = 2600;
+		Anka.RingsOuterAltitude = 0.;
 		Anka.RotationVelocity = -0.03;
 		Anka.OrbitDistance = 320000;
 		Nema.Sattelites.Add(Anka);
@@ -58,6 +61,7 @@ void UFlareSimulatedPlanetarium::Load()
 		Hela.Identifier = "hela";
 		Hela.Mass = 5.3e23;
 		Hela.Radius = 4600;
+		Hela.RingsOuterAltitude = 0.;
 		Hela.RotationVelocity = 0.003;
 		Hela.OrbitDistance = 571000;
 		Nema.Sattelites.Add(Hela);
@@ -67,6 +71,7 @@ void UFlareSimulatedPlanetarium::Load()
 		Asta.Identifier = "asta";
 		Asta.Mass = 0.9e23;
 		Asta.Radius = 2000;
+		Asta.RingsOuterAltitude = 0.;
 		Asta.RotationVelocity = 0.05;
 		Asta.OrbitDistance = 870000;
 		Nema.Sattelites.Add(Asta);
@@ -76,6 +81,7 @@ void UFlareSimulatedPlanetarium::Load()
 		Adena.Identifier = "adena";
 		Adena.Mass = 2e23;
 		Adena.Radius = 2500;
+		Adena.RingsOuterAltitude = 0.;
 		Adena.RotationVelocity = 0.04;
 		Adena.OrbitDistance = 1150000;
 		Nema.Sattelites.Add(Adena);

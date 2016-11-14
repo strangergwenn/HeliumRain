@@ -88,7 +88,7 @@ public:
 	void OnSectorDeactivated();
 
 	/** The battle state has changed, update music, notify, etc */
-	void OnBattleStateChanged(EFlareSectorBattleState::Type NewBattleState);
+	void UpdateMusicTrack(FFlareSectorBattleState NewBattleState);
 
 	/** Set the currently flown player ship */
 	void SetPlayerShip(UFlareSimulatedSpacecraft* NewPlayerShip);
@@ -101,6 +101,9 @@ public:
 
 	/** We've impacted into something */
 	void SpacecraftCrashed();
+
+	/** Play a sound */
+	void PlayLocalizedSound(USoundCue* Sound, FVector WorldLocation);
 
 	/** Cleanup the PC owned stuff */
 	void Clean();
@@ -381,7 +384,7 @@ protected:
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
-	TEnumAsByte<EFlareSectorBattleState::Type> LastBattleState;
+	FFlareSectorBattleState                 LastBattleState;
 	bool									RecoveryActive;
 
 public:

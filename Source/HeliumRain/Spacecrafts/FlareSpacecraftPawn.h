@@ -33,7 +33,6 @@ public:
 	UPROPERTY(Category = Components, VisibleDefaultsOnly, BlueprintReadOnly)
 	USceneComponent* Camera;
 
-
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
@@ -58,6 +57,9 @@ public:
 	/** Set the camera radius in the spherical coordinate system */
 	void SetCameraDistance(float Value);
 
+	void ConfigureImmersiveCamera(FQuat TargetRotation);
+
+	void DisableImmersiveCamera();
 
 	/*----------------------------------------------------
 		Customization
@@ -128,13 +130,19 @@ private:
 	----------------------------------------------------*/
 
 	// Current spherical coordinates for the camera
-	float    CameraOffsetPitch;
-	float    CameraOffsetYaw;
-	float    CameraOffsetDistance;
+	float                                           CameraOffsetPitch;
+	float                                           CameraOffsetYaw;
+	float                                           CameraOffsetDistance;
+	bool                                            UseImmersiveCamera;
+	FQuat                                           ImmersiveTargetRotation;
 
-	float MeshScaleCache;
+	float                                           MeshScaleCache;
 
-	public:
+	FName                                           PreviousCameraName;
+	FName                                           CurrentCameraName;
+
+
+public:
 
 	/*----------------------------------------------------
 		Getters
@@ -145,6 +153,8 @@ private:
 	{
 		return PresentationMode;
 	}
+
+	bool IsPlayerShip();
 
 	inline EFlareHostility::Type GetPlayerHostility() const
 	{
@@ -183,6 +193,10 @@ private:
 		}
 	}
 
+	UCameraComponent* GetCamera() const
+	{
+		return Cast<UCameraComponent>(Camera);
+	}
 
 	inline float GetCameraPanSpeed() const
 	{
@@ -199,4 +213,9 @@ private:
 		return CameraMaxYaw;
 	}
 
+	inline bool HasFLIRCameraChanged() const
+	{
+		return (PreviousCameraName != CurrentCameraName);
+	}
+	
 };

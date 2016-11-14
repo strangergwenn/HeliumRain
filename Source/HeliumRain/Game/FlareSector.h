@@ -50,9 +50,6 @@ public:
 
 	void UnregisterShell(AFlareShell* Shell);
 
-	/** Destroy a ship or a station*/
-	virtual void DestroySpacecraft(AFlareSpacecraft* Spacecraft, bool Destroying = false);
-
 	virtual void SetPause(bool Pause);
 
 	AActor* GetNearestBody(FVector Location, float* NearestDistance, bool IncludeSize = true, AActor* ActorToIgnore = NULL);
@@ -135,6 +132,11 @@ public:
 	inline TArray<AFlareSpacecraft*>& GetStations()
 	{
 		return SectorStations;
+	}
+
+	inline TArray<AFlareSpacecraft*>& GetShips()
+	{
+		return SectorShips;
 	}
 
 	inline TArray<AFlareAsteroid*>& GetAsteroids()

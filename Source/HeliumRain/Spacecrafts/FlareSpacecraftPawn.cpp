@@ -32,6 +32,11 @@ AFlareSpacecraftPawn::AFlareSpacecraftPawn(const class FObjectInitializer& PCIP)
 	Camera = PCIP.CreateDefaultSubobject<UCameraComponent>(this, TEXT("Camera"));
 	Camera->AttachToComponent(CameraContainerPitch, AttachRules);
 	MeshScaleCache = -1;
+	UseImmersiveCamera = false;
+
+	// Init
+	PreviousCameraName = NAME_None;
+	CurrentCameraName = NAME_None;
 }
 
 
@@ -47,11 +52,62 @@ void AFlareSpacecraftPawn::BeginPlay()
 void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	PreviousCameraName = CurrentCameraName;
 	
 	// Apply interpolated values
-	CameraContainerPitch->SetRelativeRotation(FRotator(CameraOffsetPitch, 0, 0).GetNormalized());
-	CameraContainerYaw->SetRelativeRotation(FRotator(0, CameraOffsetYaw, 0).GetNormalized());
-	Camera->SetRelativeLocation(CameraLocalPosition - FVector(CameraOffsetDistance, 0, 0));
+	if (!UseImmersiveCamera)
+	{
+		CurrentCameraName = NAME_None;
+		CameraContainerPitch->SetRelativeRotation(FRotator(CameraOffsetPitch, 0, 0).GetNormalized());
+		CameraContainerYaw->SetRelativeRotation(FRotator(0, CameraOffsetYaw, 0).GetNormalized());
+		Camera->SetRelativeLocation(CameraLocalPosition - FVector(CameraOffsetDistance, 0, 0));
+		Camera->SetRelativeRotation(FRotator::ZeroRotator);
+	}
+	else
+	{
+		// Find best FLIR camera
+		TArray<FName> SocketNames = GetRootComponent()->GetAllSocketNames();
+		float BestAngle = 0;
+		FVector CameraMainDirection;
+		FVector BestCameraLocation;
+		bool FlirCameraFound = false;
+		FName BestCameraName;
+
+		FVector ImmersiveTargetDirection = ImmersiveTargetRotation.GetForwardVector();
+
+		// Find the best FLIR camera on the ship if any
+		for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
+		{
+			if (SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
+			{
+				FTransform CameraWorldTransform = GetRootComponent()->GetSocketTransform(SocketNames[SocketIndex]);
+
+				FVector CameraLocation = CameraWorldTransform.GetTranslation();
+				FVector CandidateCameraMainDirection = CameraWorldTransform.GetRotation().RotateVector(FVector(1, 0, 0));
+
+				float Angle = FMath::RadiansToDegrees((FMath::Acos(FVector::DotProduct(ImmersiveTargetDirection, CandidateCameraMainDirection))));
+
+				if (!FlirCameraFound || Angle < BestAngle)
+				{
+					// Select camera
+					BestAngle = Angle;
+					BestCameraLocation = CameraLocation;
+					CameraMainDirection = CandidateCameraMainDirection;
+					FlirCameraFound = true;
+					BestCameraName = SocketNames[SocketIndex];
+				}
+			}
+		}
+
+		// Update the FLIR camera
+		if (FlirCameraFound)
+		{
+			CurrentCameraName = BestCameraName;
+			CameraContainerPitch->SetRelativeRotation(FRotator(0, 0, 0).GetNormalized());
+			CameraContainerYaw->SetRelativeRotation(FRotator(0, 0, 0).GetNormalized());
+			Camera->SetWorldLocationAndRotation(BestCameraLocation , ImmersiveTargetRotation);
+		}
+	}
 }
 
 
@@ -79,6 +135,16 @@ void AFlareSpacecraftPawn::SetCameraDistance(float Value)
 	CameraOffsetDistance = Value;
 }
 
+void AFlareSpacecraftPawn::ConfigureImmersiveCamera(FQuat TargetRotation)
+{
+	UseImmersiveCamera = true;
+	ImmersiveTargetRotation = TargetRotation;
+}
+
+void AFlareSpacecraftPawn::DisableImmersiveCamera()
+{
+	UseImmersiveCamera = false;
+}
 
 /*----------------------------------------------------
 	Customization
@@ -163,6 +229,11 @@ float AFlareSpacecraftPawn::GetMeshScale() const
 		UnprotectedThis->MeshScaleCache = FMath::Max(Box.GetExtent().Size(), 1.0f);
 	}
 	return MeshScaleCache;
+}
+
+bool AFlareSpacecraftPawn::IsPlayerShip()
+{
+	return (this == GetPC()->GetShipPawn());
 }
 
 #undef LOCTEXT_NAMESPACE

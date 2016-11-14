@@ -17,7 +17,7 @@ UFlareSpacecraftComponentsCatalog::UFlareSpacecraftComponentsCatalog(const class
 
 	for (int32 Index = 0; Index < AssetList.Num(); Index++)
 	{
-		FLOGV("UFlareSpacecraftComponentsCatalog::UFlareSpacecraftComponentsCatalog : Found '%s'", *AssetList[Index].GetFullName());
+		//FLOGV("UFlareSpacecraftComponentsCatalog::UFlareSpacecraftComponentsCatalog : Found '%s'", *AssetList[Index].GetFullName());
 		UFlareSpacecraftComponentsCatalogEntry* SpacecraftComponent = Cast<UFlareSpacecraftComponentsCatalogEntry>(AssetList[Index].GetAsset());
 		FCHECK(SpacecraftComponent);
 

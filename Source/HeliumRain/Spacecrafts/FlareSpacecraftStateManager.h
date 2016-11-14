@@ -22,7 +22,7 @@ public:
 
 	virtual void UpdateCamera(float DeltaSeconds);
 
-	virtual void EnablePilot(bool EnablePilot);
+	virtual void EnablePilot(bool EnablePilot, bool Force = false);
 
 	/** Activate or deactivate the external camera */
 	virtual void SetExternalCamera(bool NewState);
@@ -96,6 +96,7 @@ protected:
 	// Dynamic gameplay data
 	bool                                     IsPiloted;
 	bool                                     ExternalCamera;
+	bool									 PilotForced;
 
 	// External camera
 	float                                    ExternalCameraPitch;
@@ -118,6 +119,7 @@ protected:
 	bool                                     PlayerLeftMousePressed;
 	bool                                     PlayerManualLockDirection;
 	FVector                                  PlayerManualAngularVelocity; // In local space
+	FVector                                  FireDirectorAngularVelocity; // In local space
 	FVector                                  PlayerManualLinearVelocity;
 	FVector2D                                PlayerMousePosition;
 	float	                                 PlayerManualVelocityCommand;
@@ -137,5 +139,6 @@ protected:
 	FVector2D                                PlayerAim;
 	FVector2D                                LastPlayerAimJoystick;
 	FVector2D                                LastPlayerAimMouse;
-
+	FQuat                                    FireDirectorLookRotation;
+	bool                                     IsFireDirectorInit;
 };

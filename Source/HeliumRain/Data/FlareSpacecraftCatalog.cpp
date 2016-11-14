@@ -17,7 +17,7 @@ UFlareSpacecraftCatalog::UFlareSpacecraftCatalog(const class FObjectInitializer&
 
 	for (int32 Index = 0; Index < AssetList.Num(); Index++)
 	{
-		FLOGV("UFlareSpacecraftCatalog::UFlareSpacecraftCatalog : Found '%s'", *AssetList[Index].GetFullName());
+		//FLOGV("UFlareSpacecraftCatalog::UFlareSpacecraftCatalog : Found '%s'", *AssetList[Index].GetFullName());
 		UFlareSpacecraftCatalogEntry* Spacecraft = Cast<UFlareSpacecraftCatalogEntry>(AssetList[Index].GetAsset());
 		FCHECK(Spacecraft);
 

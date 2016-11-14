@@ -4,7 +4,6 @@
 #include "../../Spacecrafts/FlareSpacecraft.h"
 #include "../HUD/FlareSubsystemStatus.h"
 #include "../HUD/FlareWeaponStatus.h"
-#include "../HUD/FlareGroupStatus.h"
 #include "../HUD/FlareMouseMenu.h"
 
 

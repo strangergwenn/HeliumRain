@@ -24,6 +24,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	, CockpitTargetLightPeriod(0.8)
 	, CockpitPowerTimer(0)
 	, CockpitPowerPeriod(0.7)
+	, CameraSwitchTimer(0)
+	, CameraSwitchPeriod(0.3)
 	, FreighterCockpitMaterialInstance(NULL)
 	, FreighterCockpitFrameMaterialInstance(NULL)
 	, FighterCockpitMaterialInstance(NULL)
@@ -144,6 +146,7 @@ void AFlareCockpitManager::OnFlyShip(AFlareSpacecraft* NewPlayerShip)
 	if (PlayerShip != NewPlayerShip)
 	{
 		CockpitPowerTimer = 0;
+		CameraSwitchTimer = 0;
 	}
 	PlayerShip = NewPlayerShip;
 
@@ -390,21 +393,35 @@ void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 }
 
 void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
-{
-	// Update timer
+{		
+	// Update camera switch timer
+	if (PlayerShip->HasFLIRCameraChanged())
+	{
+		FLOG("AFlareCockpitManager::UpdatePower : FLIR camera switch");
+		CameraSwitchTimer = CameraSwitchPeriod;
+	}
+	else
+	{
+		CameraSwitchTimer -= DeltaSeconds;
+	}
+	CameraSwitchTimer = FMath::Clamp(CameraSwitchTimer, 0.0f, CameraSwitchPeriod);
+	float CameraSwitchAlpha = CameraSwitchTimer / CameraSwitchPeriod;
+
+	// Update power timer
 	CockpitPowerTimer += (PlayerShipIsPowered() ? 1.0f : -1.0f) * DeltaSeconds;
 	CockpitPowerTimer = FMath::Clamp(CockpitPowerTimer, 0.0f, CockpitPowerPeriod);
 	float PowerAlpha = CockpitPowerTimer / CockpitPowerPeriod;
-
+	
 	// Update lights
 	float LightIntensity = PowerAlpha * 50;
 	CockpitLight->SetIntensity(LightIntensity);
 	CockpitLight2->SetIntensity(LightIntensity);
-
+	
 	// Update materials
 	FLinearColor HealthColor = PC->GetNavHUD()->GetHealthColor(PowerAlpha);
 	GetCurrentScreenMaterial()->SetScalarParameterValue("Power", PowerAlpha);
 	GetCurrentFrameMaterial()->SetScalarParameterValue( "Power", PowerAlpha);
+	GetCurrentScreenMaterial()->SetScalarParameterValue("CameraSwitched", CameraSwitchAlpha);
 	GetCurrentScreenMaterial()->SetVectorParameterValue("IndicatorColorBorders", HealthColor);
 	GetCurrentFrameMaterial()->SetVectorParameterValue( "IndicatorColorBorders", HealthColor);
 }

@@ -8,6 +8,7 @@
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "AI/FlareCompanyAI.h"
+#include "AI/FlareAIBehavior.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareCompany"
@@ -237,6 +238,16 @@ EFlareHostility::Type UFlareCompany::GetWarState(const UFlareCompany* TargetComp
 	return GetHostility(TargetCompany);
 }
 
+void UFlareCompany::ResetLastPeaceDate()
+{
+	CompanyData.PlayerLastPeaceDate = Game->GetGameWorld()->GetDate();
+}
+
+void UFlareCompany::ResetLastTributeDate()
+{
+	CompanyData.PlayerLastTributeDate = Game->GetGameWorld()->GetDate();
+}
+
 void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 {
 	if (TargetCompany && TargetCompany != this)
@@ -246,11 +257,77 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 		{
 			CompanyData.HostileCompanies.AddUnique(TargetCompany->GetIdentifier());
 			TargetCompany->GiveReputation(this, -50, true);
+
+			UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+			if(TargetCompany == PlayerCompany)
+			{
+
+				if(PlayerCompany->GetHostility(this) != EFlareHostility::Hostile)
+				{
+					FFlareMenuParameterData Data;
+					Game->GetPC()->Notify(LOCTEXT("CompanyDeclareWar", "War declared"),
+						FText::Format(LOCTEXT("CompanyDeclareWarFormat", "{0} declared war on you"), FText::FromString(GetCompanyName().ToString())),
+						FName("war-declared"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Leaderboard,
+						Data);
+				}
+			}
+
+			if(this == PlayerCompany)
+			{
+				int64 DaySincePeace = Game->GetGameWorld()->GetDate() - TargetCompany->GetLastPeaceDate();
+				int64 DaySinceTribute = Game->GetGameWorld()->GetDate() - TargetCompany->GetLastTributeDate();
+				if(DaySincePeace < 20)
+				{
+					float PenaltyRatio = (float) TargetCompany->GetLastPeaceDate() / 20.f;
+					PlayerCompany->GiveReputationToOthers(PenaltyRatio * -70, false);
+				}
+
+				if(DaySinceTribute < 50)
+				{
+					float PenaltyRatio = (float) TargetCompany->GetLastTributeDate() / 50.f;
+					PlayerCompany->GiveReputationToOthers(PenaltyRatio * -30, false);
+				}
+			}
 		}
 		else if(!Hostile && WasHostile)
 		{
 			CompanyData.HostileCompanies.Remove(TargetCompany->GetIdentifier());
-			TargetCompany->GiveReputation(this, 20, true);
+
+			UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+
+			if(this == PlayerCompany)
+			{
+				TargetCompany->ResetLastPeaceDate();
+			}
+
+			if(TargetCompany == PlayerCompany)
+			{
+				if(PlayerCompany->GetHostility(this) == EFlareHostility::Hostile)
+				{
+					FFlareMenuParameterData Data;
+					Game->GetPC()->Notify(LOCTEXT("CompanyWantPeace", "Peace proposed"),
+						FText::Format(LOCTEXT("CompanyWantPeaceFormat", "{0} is offering peace with you"), FText::FromString(GetCompanyName().ToString())),
+						FName("peace-proposed"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Leaderboard,
+						Data);
+				}
+				else
+				{
+					FFlareMenuParameterData Data;
+					Game->GetPC()->Notify(LOCTEXT("CompanyAcceptPeace", "Peace accepted"),
+						FText::Format(LOCTEXT("CompanyAcceptPeaceFormat", "{0} accepted to make peace with you"), FText::FromString(GetCompanyName().ToString())),
+						FName("peace-accepted"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Leaderboard,
+						Data);
+				}
+			}
 		}
 	}
 }
@@ -342,7 +419,7 @@ UFlareFleet* UFlareCompany::LoadFleet(const FFlareFleetSave& FleetData)
 	Fleet->Load(FleetData);
 	CompanyFleets.AddUnique(Fleet);
 
-	FLOGV("UFlareWorld::LoadFleet : loaded fleet '%s'", *Fleet->GetFleetName().ToString());
+	//FLOGV("UFlareWorld::LoadFleet : loaded fleet '%s'", *Fleet->GetFleetName().ToString());
 
 	return Fleet;
 }
@@ -378,7 +455,7 @@ UFlareTradeRoute* UFlareCompany::LoadTradeRoute(const FFlareTradeRouteSave& Trad
 	TradeRoute->Load(TradeRouteData);
 	CompanyTradeRoutes.AddUnique(TradeRoute);
 
-	FLOGV("UFlareCompany::LoadTradeRoute : loaded trade route '%s'", *TradeRoute->GetTradeRouteName().ToString());
+	//FLOGV("UFlareCompany::LoadTradeRoute : loaded trade route '%s'", *TradeRoute->GetTradeRouteName().ToString());
 
 	return TradeRoute;
 }
@@ -391,7 +468,7 @@ void UFlareCompany::RemoveTradeRoute(UFlareTradeRoute* TradeRoute)
 UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftSave& SpacecraftData)
 {
 	UFlareSimulatedSpacecraft* Spacecraft = NULL;
-	FLOGV("UFlareCompany::LoadSpacecraft ('%s')", *SpacecraftData.Immatriculation.ToString());
+	//FLOGV("UFlareCompany::LoadSpacecraft ('%s')", *SpacecraftData.Immatriculation.ToString());
 
 	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(SpacecraftData.Identifier);
 	if (Desc)
@@ -424,7 +501,7 @@ UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftS
 	}
 	else
 	{
-		FLOG("UFlareCompany::LoadSpacecraft failed (no description available)");
+		FLOG("UFlareCompany::LoadSpacecraft : Failed (no description available)");
 	}
 
 	return Spacecraft;
@@ -432,7 +509,7 @@ UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftS
 
 void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 {
-	FLOGV("UFlareCompany::DestroySpacecraft remove %s from company %s", *Spacecraft->GetImmatriculation().ToString(), *GetCompanyName().ToString());
+	FLOGV("UFlareCompany::DestroySpacecraft : Remove %s from company %s", *Spacecraft->GetImmatriculation().ToString(), *GetCompanyName().ToString());
 
 	CompanySpacecrafts.Remove(Spacecraft);
 	CompanyStations.Remove(Spacecraft);
@@ -469,7 +546,8 @@ bool UFlareCompany::TakeMoney(int64 Amount, bool AllowDepts)
 {
 	if (Amount < 0 || (Amount > CompanyData.Money && !AllowDepts))
 	{
-		FLOGV("Fail to take %f money from %s (balance: %f)", Amount/100., *GetCompanyName().ToString(), CompanyData.Money/100.);
+		FLOGV("UFlareCompany::TakeMoney : Failed to take %f money from %s (balance: %f)",
+			Amount/100., *GetCompanyName().ToString(), CompanyData.Money/100.);
 		return false;
 	}
 	else
@@ -488,7 +566,8 @@ void UFlareCompany::GiveMoney(int64 Amount)
 {
 	if (Amount < 0)
 	{
-		FLOGV("Fail to give %f money from %s (balance: %f)", Amount/100., *GetCompanyName().ToString(), CompanyData.Money/100.);
+		FLOGV("UFlareCompany::GiveMoney : Failed to give %f money from %s (balance: %f)",
+			Amount/100., *GetCompanyName().ToString(), CompanyData.Money/100.);
 		return;
 	}
 
@@ -504,9 +583,16 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 {
 	FFlareCompanyReputationSave* CompanyReputation = NULL;
 
+	//FLOGV("%s : change reputation for %s by %f", *GetCompanyName().ToString(), *Company->GetCompanyName().ToString(), Amount);
+
 	if (Company == this)
 	{
-		FLOG("ERROR: A company don't have reputation for itself!");
+		//FLOG("UFlareCompany::GiveReputation : A company doesn't have reputation for itself");
+		return;
+	}
+
+	if (Amount == 0)
+	{
 		return;
 	}
 
@@ -557,19 +643,24 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 		ReputationGainFactor = - 0.4f * ReputationRatioInVarationDirection + 0.4f;
 	}
 
+
 	float ReputationScaledGain = Amount * ReputationGainFactor;
 
-	CompanyReputation->Reputation = FMath::Clamp(CompanyReputation->Reputation + ReputationScaledGain, -200.f, 200.f);
-	if (FMath::Abs(CompanyReputation->Reputation) < 1.f)
+	float DiplomaticReactivity = 1.0;
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
+
+	if(this != PC->GetCompany())
 	{
-		CompanyReputation->Reputation = 0.f;
+		DiplomaticReactivity = GetAI()->GetBehavior()->DiplomaticReactivity;
 	}
+
+	CompanyReputation->Reputation = FMath::Clamp(CompanyReputation->Reputation + Amount * DiplomaticReactivity, -200.f, 200.f);
 
 	if (Propagate)
 	{
 		// Other companies gain a part of reputation gain according to their affinity :
-		// 200 = 50 % of the gain
-		// -200 = -50 % of the gain
+		// 200 = 100 % of the gain
+		// -200 = -100 % of the gain
 		// 0 = 0% the the gain
 
 
@@ -582,8 +673,8 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 				continue;
 			}
 
-			float OtherReputation = OtherCompany->GetReputation(Company);
-			float PropagationRatio = OtherReputation / 400.f;
+			float OtherReputation = OtherCompany->GetReputation(this);
+			float PropagationRatio = OtherReputation / 200.f;
 			OtherCompany->GiveReputation(Company, PropagationRatio * ReputationScaledGain, false);
 		}
 
@@ -592,6 +683,18 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 
 }
 
+void UFlareCompany::GiveReputationToOthers(float Amount, bool Propagate)
+{
+	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		if (OtherCompany != this)
+		{
+			OtherCompany->GiveReputation(this, Amount, Propagate);
+		}
+	}
+}
 
 void UFlareCompany::ForceReputation(UFlareCompany* Company, float Amount)
 {
@@ -599,7 +702,7 @@ void UFlareCompany::ForceReputation(UFlareCompany* Company, float Amount)
 
 	if (Company == this)
 	{
-		FLOG("ERROR: A company don't have reputation for itself!");
+		FLOG("UFlareCompany::ForceReputation : A company don't have reputation for itself!");
 		return;
 	}
 
@@ -623,6 +726,247 @@ void UFlareCompany::ForceReputation(UFlareCompany* Company, float Amount)
 
 	CompanyReputation->Reputation = Amount;
 }
+//#define DEBUG_CONFIDENCE
+float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
+{
+	// Confidence level go from 1 to -1
+	// 1 if if the army value of the company and its potential allies is infinite compared to the opposent
+	// -1 if if the army value of the company and its potential allies is zero compared to the opposent
+	//
+	// The enemies are people at war with me, the reference company if provide and all the company that dont like me
+	// The allies are all the people at war the one of my enemies or that dont like my enemies
+
+
+	TArray<UFlareCompany*> Allies;
+	TArray<UFlareCompany*> Enemies;
+
+	Allies.Add(this);
+
+	if(ReferenceCompany)
+	{
+		Enemies.Add(ReferenceCompany);
+	}
+
+	// Find enemies
+	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		if (OtherCompany == ReferenceCompany || OtherCompany == this)
+		{
+			continue;
+		}
+
+		bool IsEnemy = false;
+
+		if (GetWarState(OtherCompany) == EFlareHostility::Hostile)
+		{
+			IsEnemy = true;
+		}
+
+		if (OtherCompany->GetReputation(this) <= -100)
+		{
+			IsEnemy = true;
+		}
+
+		if (IsEnemy)
+		{
+			Enemies.Add(OtherCompany);
+		}
+	}
+
+	// Find allies
+	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	{
+		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+
+		if (OtherCompany == ReferenceCompany || OtherCompany == this)
+		{
+			continue;
+		}
+
+		if(Enemies.Contains(OtherCompany))
+		{
+			continue;
+		}
+
+		bool IsAlly = false;
+
+		for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
+		{
+			UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
+
+
+			if (OtherCompany->GetWarState(EnemyCompany) == EFlareHostility::Hostile)
+			{
+				IsAlly = true;
+				break;
+			}
+
+			if (OtherCompany->GetReputation(EnemyCompany) <= -100)
+			{
+				IsAlly = true;
+				break;
+			}
+		}
+
+		if (IsAlly)
+		{
+			Allies.Add(OtherCompany);
+		}
+	}
+
+
+	// Compute army values
+	int64 EnemiesArmyValues = 0;
+	int64 AlliesArmyValues = 0;
+#ifdef DEBUG_CONFIDENCE
+	FLOGV("Compute confidence for %s (ref: %s)", *GetCompanyName().ToString(), (ReferenceCompany ? *ReferenceCompany->GetCompanyName().ToString(): *FString("none")));
+#endif
+	for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
+	{
+		UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
+		EnemiesArmyValues += EnemyCompany->GetCompanyValue().ArmyValue;
+#ifdef DEBUG_CONFIDENCE
+		FLOGV("- enemy: %s (%lld)", *EnemyCompany->GetCompanyName().ToString(), EnemyCompany->GetCompanyValue().ArmyValue);
+#endif
+	}
+
+	for (int32 AllyIndex = 0; AllyIndex < Allies.Num(); AllyIndex++)
+	{
+		UFlareCompany* AllyCompany = Allies[AllyIndex];
+
+		// Allies can be enemy to only a part of my ennemie. Cap to the value of the enemy if not me
+		int64 AllyArmyValue = AllyCompany->GetCompanyValue().ArmyValue;
+#ifdef DEBUG_CONFIDENCE
+		FLOGV("- ally: %s (%lld)", *AllyCompany->GetCompanyName().ToString(), AllyArmyValue);
+#endif
+		if(AllyCompany == this)
+		{
+			AlliesArmyValues += AllyArmyValue;
+		}
+		else
+		{
+			int64 MaxArmyValue = 0;
+
+			for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
+			{
+				UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
+
+				if (AllyCompany->GetWarState(EnemyCompany) == EFlareHostility::Hostile)
+				{
+					MaxArmyValue += EnemyCompany->GetCompanyValue().ArmyValue;
+					continue;
+				}
+
+				if (AllyCompany->GetReputation(EnemyCompany) <= -100)
+				{
+					MaxArmyValue += EnemyCompany->GetCompanyValue().ArmyValue;
+					continue;
+				}
+			}
+#ifdef DEBUG_CONFIDENCE
+			FLOGV("  > restricted to %lld", MaxArmyValue);
+#endif
+			AlliesArmyValues += FMath::Min(MaxArmyValue, AllyArmyValue);
+		}
+
+
+
+
+	}
+#ifdef DEBUG_CONFIDENCE
+	FLOGV("EnemiesArmyValues=%lld AlliesArmyValues=%lld", EnemiesArmyValues, AlliesArmyValues);
+#endif
+	// Compute confidence
+	if(AlliesArmyValues == EnemiesArmyValues)
+	{
+		return 0;
+	}
+	else if(AlliesArmyValues > EnemiesArmyValues)
+	{
+		if(EnemiesArmyValues == 0)
+		{
+			return 1;
+		}
+
+		float Ratio =  (float) AlliesArmyValues /  (float) EnemiesArmyValues;
+		float Confidence = 1.f-1.f / (Ratio + 1);
+#ifdef DEBUG_CONFIDENCE
+	FLOGV("Ratio=%f Confidence=%f", Ratio, Confidence);
+#endif
+		return Confidence;
+	}
+	else
+	{
+		if(AlliesArmyValues == 0)
+		{
+			return -1;
+		}
+
+		float Ratio =  (float) EnemiesArmyValues /  (float) AlliesArmyValues;
+		float Confidence = 1.f-1.f / (Ratio + 1);
+#ifdef DEBUG_CONFIDENCE
+	FLOGV("Ratio=%f Confidence=%f", Ratio, -Confidence);
+#endif
+		return -Confidence;
+	}
+
+}
+
+bool UFlareCompany::AtWar()
+{
+	for (UFlareCompany* OtherCompany : Game->GetGameWorld()->GetCompanies())
+	{
+		if(OtherCompany == this)
+		{
+			continue;
+		}
+
+		if(GetWarState(OtherCompany) == EFlareHostility::Hostile)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+int64 UFlareCompany::GetTributeCost(UFlareCompany* Company)
+{
+	return 0.01 * GetCompanyValue().TotalValue + 0.1 * GetCompanyValue().MoneyValue;
+}
+
+void UFlareCompany::PayTribute(UFlareCompany* Company, bool AllowDepts)
+{
+	int64 Cost = GetTributeCost(Company);
+
+	if (Cost <= GetMoney() || AllowDepts)
+	{
+		FLOGV("UFlareCompany::PayTribute: %s paying %ld to %s", *GetCompanyName().ToString(), Cost, *Company->GetCompanyName().ToString());
+
+		// Exchange money
+		TakeMoney(Cost, AllowDepts);
+		Company->GiveMoney(Cost);
+
+		// Reset target reputation
+		ForceReputation(Company, 0);
+		Company->ForceReputation(this, 0);
+
+		// Reset hostilities
+		SetHostilityTo(Company, false);
+		Company->SetHostilityTo(this, false);
+
+		if(Company == Game->GetPC()->GetCompany())
+		{
+			ResetLastTributeDate();
+		}
+	}
+	else
+	{
+		FLOG("UFlareCompany::PayTribute: not enough money to pay tribute");
+	}
+}
+
 
 /*----------------------------------------------------
 	Customization
@@ -708,7 +1052,7 @@ const FSlateBrush* UFlareCompany::GetEmblem() const
 	Getters
 ----------------------------------------------------*/
 
-struct CompanyValue UFlareCompany::GetCompanyValue() const
+struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* SectorFilter, bool IncludeIncoming) const
 {
 	// Company value is the sum of :
 	// - money
@@ -729,6 +1073,12 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 
 		UFlareSimulatedSector *ReferenceSector =  Spacecraft->GetCurrentSector();
 
+		if(SectorFilter && !IncludeIncoming && SectorFilter != ReferenceSector)
+		{
+			// Not in sector filter
+			continue;
+		}
+
 		if (!ReferenceSector)
 		{
 			if (Spacecraft->GetCurrentFleet() && Spacecraft->GetCurrentFleet()->GetCurrentTravel())
@@ -743,6 +1093,12 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 
 		}
 
+		if(SectorFilter && IncludeIncoming && SectorFilter != ReferenceSector)
+		{
+			// Not in sector filter
+			continue;
+		}
+
 		// Value of the spacecraft
 		int64 SpacecraftPrice = UFlareGameTools::ComputeSpacecraftPrice(Spacecraft->GetDescription()->Identifier, ReferenceSector, true);
 
@@ -755,7 +1111,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue() const
 			Value.ShipsValue += SpacecraftPrice;
 		}
 
-		if(Spacecraft->IsMilitary())
+		if(Spacecraft->IsMilitary() && !Spacecraft->GetDamageSystem()->IsDisarmed())
 		{
 			// TODO Upgrade cost
 			Value.ArmyValue += SpacecraftPrice;

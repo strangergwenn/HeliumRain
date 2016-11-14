@@ -32,15 +32,60 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 		[
 			SNew(SVerticalBox)
 
-			// Section title
+			// Filters
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.Padding(Theme.TitlePadding)
-			.HAlign(HAlign_Left)
+			.HAlign(HAlign_Fill)
 			[
-				SNew(STextBlock)
-				.Text(InArgs._Title)
-				.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
+				SNew(SHorizontalBox)
+
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Center)
+				[
+					SNew(STextBlock)
+					.Text(InArgs._Title)
+					.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
+				]
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SAssignNew(ShowStationsButton, SFlareButton)
+					.Text(LOCTEXT("ShowStations", "Stations"))
+					.HelpText(LOCTEXT("ShowStationsInfo", "Show stations in the list"))
+					.OnClicked(this, &SFlareShipList::OnToggleShowFlags)
+					.SmallToggleIcons(true)
+					.Transparent(true)
+					.Toggle(true)
+					.Width(2)
+				]
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SAssignNew(ShowMilitaryButton, SFlareButton)
+					.Text(LOCTEXT("ShowMilitary", "Military"))
+					.HelpText(LOCTEXT("ShowMilitaryInfo", "Show military ships in the list"))
+					.OnClicked(this, &SFlareShipList::OnToggleShowFlags)
+					.SmallToggleIcons(true)
+					.Transparent(true)
+					.Toggle(true)
+					.Width(2)
+				]
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SAssignNew(ShowFreightersButton, SFlareButton)
+					.Text(LOCTEXT("ShowFreighters", "Freighters"))
+					.HelpText(LOCTEXT("ShowFreightersInfo", "Show freighters in the list"))
+					.OnClicked(this, &SFlareShipList::OnToggleShowFlags)
+					.SmallToggleIcons(true)
+					.Transparent(true)
+					.Toggle(true)
+					.Width(2)
+				]
 			]
 
 			// Section title
@@ -61,14 +106,19 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 			.Padding(Theme.ContentPadding)
 			.HAlign(HAlign_Fill)
 			[
-				SAssignNew(TargetList, SListView< TSharedPtr<FInterfaceContainer> >)
-				.ListItemsSource(&TargetListData)
+				SAssignNew(ListWidget, SListView< TSharedPtr<FInterfaceContainer> >)
+				.ListItemsSource(&FilteredList)
 				.SelectionMode(ESelectionMode::Single)
 				.OnGenerateRow(this, &SFlareShipList::GenerateTargetInfo)
 				.OnSelectionChanged(this, &SFlareShipList::OnTargetSelected)
 			]
 		]
 	];
+
+	// Set filters
+	ShowStationsButton->SetActive(true);
+	ShowMilitaryButton->SetActive(true);
+	ShowFreightersButton->SetActive(true);
 }
 
 
@@ -78,12 +128,12 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 
 void SFlareShipList::AddFleet(UFlareFleet* Fleet)
 {
-	TargetListData.AddUnique(FInterfaceContainer::New(Fleet));
+	SpacecraftList.AddUnique(FInterfaceContainer::New(Fleet));
 }
 
 void SFlareShipList::AddShip(UFlareSimulatedSpacecraft* Ship)
 {
-	TargetListData.AddUnique(FInterfaceContainer::New(Ship));
+	SpacecraftList.AddUnique(FInterfaceContainer::New(Ship));
 }
 
 void SFlareShipList::RefreshList()
@@ -115,7 +165,7 @@ void SFlareShipList::RefreshList()
 
 			if (A->IsStation())
 			{
-					return true;
+				return true;
 			}
 			else if (B->IsStation())
 			{
@@ -152,15 +202,38 @@ void SFlareShipList::RefreshList()
 	};
 
 	ClearSelection();
-	TargetListData.Sort(FSortBySize());
-	TargetList->RequestListRefresh();
 
+	// Apply filters
+	FilteredList.Empty();
+	for (auto Spacecraft : SpacecraftList)
+	{
+		if (Spacecraft->ShipInterfacePtr)
+		{
+			bool IsStation = Spacecraft->ShipInterfacePtr->IsStation();
+			bool IsMilitary = Spacecraft->ShipInterfacePtr->IsMilitary();
+
+			if ((IsStation && ShowStationsButton->IsActive())
+			 || (IsMilitary && ShowMilitaryButton->IsActive())
+			 || (!IsStation && !IsMilitary && ShowFreightersButton->IsActive()))
+			{
+				FilteredList.Add(Spacecraft);
+			}
+		}
+		else
+		{
+			FilteredList.Add(Spacecraft);
+		}
+	}
+
+	// Sort and update
+	FilteredList.Sort(FSortBySize());
+	ListWidget->RequestListRefresh();
 	SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
 }
 
 void SFlareShipList::ClearSelection()
 {
-	TargetList->ClearSelection();
+	ListWidget->ClearSelection();
 
 	if (PreviousSelection.IsValid())
 	{
@@ -172,9 +245,10 @@ void SFlareShipList::ClearSelection()
 
 void SFlareShipList::Reset()
 {
-	TargetListData.Empty();
-	TargetList->ClearSelection();
-	TargetList->RequestListRefresh();
+	SpacecraftList.Empty();
+	FilteredList.Empty();
+	ListWidget->ClearSelection();
+	ListWidget->RequestListRefresh();
 	SelectedItem.Reset();
 }
 
@@ -185,7 +259,7 @@ void SFlareShipList::Reset()
 
 EVisibility SFlareShipList::GetNoObjectsVisibility() const
 {
-	return (TargetListData.Num() > 0 ? EVisibility::Collapsed : EVisibility::Visible);
+	return (FilteredList.Num() > 0 ? EVisibility::Collapsed : EVisibility::Visible);
 }
 
 TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
@@ -288,7 +362,7 @@ TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceCo
 void SFlareShipList::OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo)
 {
 	FLOG("SFlareShipList::OnTargetSelected");
-	TSharedPtr<SFlareListItem> ItemWidget = StaticCastSharedPtr<SFlareListItem>(TargetList->WidgetFromItem(Item));
+	TSharedPtr<SFlareListItem> ItemWidget = StaticCastSharedPtr<SFlareListItem>(ListWidget->WidgetFromItem(Item));
 	SelectedItem = Item;
 
 	bool ExpandShipWidgets = Item.IsValid() && Item->ShipInterfacePtr && !UseCompactDisplay;
@@ -321,6 +395,10 @@ void SFlareShipList::OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESel
 	}
 }
 
+void SFlareShipList::OnToggleShowFlags()
+{
+	RefreshList();
+}
 
 #undef LOCTEXT_NAMESPACE
 

@@ -3,6 +3,7 @@
 #include "FlareSpacecraft.h"
 #include "FlareShell.h"
 #include "../Game/FlareGame.h"
+#include "../Player/FlarePlayerController.h"
 
 
 /*----------------------------------------------------
@@ -67,8 +68,9 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftCompone
 			true);
 	}
 
-	SetLifeSpan(ShellDescription->WeaponCharacteristics.GunCharacteristics.AmmoRange * 100 / ShellVelocity.Size()); // 2km
+	SetLifeSpan(ShellDescription->WeaponCharacteristics.GunCharacteristics.AmmoRange * 100 / ShellVelocity.Size()); // 10km
 	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->RegisterShell(this);
+	PC = ParentWeapon->GetSpacecraft()->GetGame()->GetPC();
 }
 
 void AFlareShell::Tick(float DeltaSeconds)
@@ -79,6 +81,29 @@ void AFlareShell::Tick(float DeltaSeconds)
 	FVector NextActorLocation = ActorLocation + ShellVelocity * DeltaSeconds;
 	SetActorLocation(NextActorLocation, false);
 	SetActorRotation(ShellVelocity.Rotation());
+	// 1 at 100m or less
+	float Scale = 1;
+	float BaseDistance = 10000.f;
+	float MinScale= 0.2f;
+	if(PC->GetShipPawn())
+	{
+		float LifeRatio = GetLifeSpan() / InitialLifeSpan;
+
+		float LifeRatioScale = 1.f;
+
+		if(LifeRatio < 0.1f)
+		{
+			LifeRatioScale = LifeRatio * 10.f;
+		}
+
+		float Distance = (NextActorLocation - PC->GetShipPawn()->GetActorLocation()).Size();
+		if(Distance > BaseDistance)
+		{
+			Scale = (Distance / BaseDistance) * ((1.f-MinScale) * BaseDistance / Distance +MinScale) * LifeRatioScale;
+		}
+	}
+
+	SetActorRelativeScale3D(FVector(0.6 + Scale * 0.4 , Scale, Scale));
 
 	if (ShellDescription)
 	{
@@ -424,10 +449,10 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 									, EFlareDamage::DAM_HighExplosive);
 
 						// Play sound
-						AFlareSpacecraftPawn* ShipBase = Cast<AFlareSpacecraftPawn>(Spacecraft);
-						if (ShipBase && ShipBase->IsLocallyControlled())
+						AFlareSpacecraftPawn* SpacecraftPawn = Cast<AFlareSpacecraftPawn>(Spacecraft);
+						if (SpacecraftPawn->IsPlayerShip())
 						{
-							UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, BestHitResult.Location, 1, 1);
+							SpacecraftPawn->GetPC()->PlayLocalizedSound(ImpactSound, BestHitResult.Location);
 						}
 					}
 				}
@@ -479,13 +504,12 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 
 		// Physics impulse
 		Spacecraft->Airframe->AddImpulseAtLocation( 5000	 * ImpactRadius * AbsorbedEnergy * (PenetrateArmor ? ImpactAxis : -ImpactNormal), ImpactLocation);
-
-
+		
 		// Play sound
-		AFlareSpacecraftPawn* ShipBase = Cast<AFlareSpacecraftPawn>(Spacecraft);
-		if (ShipBase && ShipBase->IsLocallyControlled())
+		AFlareSpacecraftPawn* SpacecraftPawn = Cast<AFlareSpacecraftPawn>(Spacecraft);
+		if (SpacecraftPawn->IsPlayerShip())
 		{
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), PenetrateArmor ? DamageSound : ImpactSound, ImpactLocation, 1, 1);
+			SpacecraftPawn->GetPC()->PlayLocalizedSound(PenetrateArmor ? DamageSound : ImpactSound, ImpactLocation);
 		}
 	}
 	else if (Asteroid)

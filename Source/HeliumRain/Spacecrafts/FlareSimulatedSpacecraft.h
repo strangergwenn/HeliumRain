@@ -101,6 +101,8 @@ public:
 
 	void SetRefilling(bool Refilling);
 
+	void SetReserve(bool InReserve);
+
 	/** This ship was harpooned */
 	void SetHarpooned(UFlareCompany* OwnerCompany);
 
@@ -241,6 +243,11 @@ public:
 	inline bool IsRefilling() const
 	{
 		return SpacecraftData.IsRefilling;
+	}
+
+	inline bool IsReserve() const
+	{
+		return SpacecraftData.IsReserve;
 	}
 
 	inline bool IsConsumeResource(FFlareResourceDescription* Resource) const

@@ -33,6 +33,7 @@ struct ResourceVariation
 	int32 OwnedCapacity;
 	int32 FactoryCapacity;
 	int32 StorageCapacity;
+	int32 MaintenanceCapacity;
 
 	int32 MinCapacity;
 	int32 ConsumerMaxStock;
@@ -45,6 +46,8 @@ struct SectorVariation
 	int32 IncomingCapacity;
 	TMap<FFlareResourceDescription*, ResourceVariation> ResourceVariations;
 };
+
+
 
 
 UCLASS()
@@ -78,14 +81,16 @@ public:
 	Behavior API
 ----------------------------------------------------*/
 
+	void CargosEvasion();
+
 	/** Update diplomacy changes */
 	void UpdateDiplomacy();
 
 	/** Update trading for the company's fleet*/
-	int32 UpdateTrading();
+	void UpdateTrading();
 
 	/** Manage the construction of stations */
-	void UpdateStationConstruction(int32& IdleCargoCapacity);
+	void UpdateStationConstruction();
 
 
 	void UpdateBestScore(float Score,
@@ -98,17 +103,33 @@ public:
 						  UFlareSimulatedSpacecraft** BestStation,
 						  UFlareSimulatedSector** BestSector);
 
-	/** Buy / build ships at shipyards */
-	void UpdateShipAcquisition(int32& IdleCargoCapacity);
+	void SpendBudget(EFlareBudget::Type Type, int64 Amount);
+
+	void ModifyBudget(EFlareBudget::Type Type, int64 Amount);
+
+	int64 GetBudget(EFlareBudget::Type Type);
+
+	void ProcessBudget(TArray<EFlareBudget::Type> BudgetToProcess);
+
+	void ProcessBudgetMilitary(int64 BudgetAmount, bool& Lock, bool& Idle);
+
+	void ProcessBudgetTrade(int64 BudgetAmount, bool& Lock, bool& Idle);
+
+	void ProcessBudgetStation(int64 BudgetAmount, bool& Lock, bool& Idle);
+
 
 	/** Repair then refill all ships and stations */
 	void RepairAndRefill();
 
-	/** Buy / build ships at shipyards */
-	void UpdateMilitaryMovement(bool DefendOnly);
+	/** Move military ships */
+	void UpdateMilitaryMovement();
+
+	void UpdateWarMilitaryMovement();
+
+	void UpdatePeaceMilitaryMovement();
 
 	/** Buy war ships */
-	void UpdateWarShipAcquisition(bool limitToOne);
+	int64 UpdateWarShipAcquisition(bool limitToOne);
 
 protected:
 
@@ -125,7 +146,7 @@ protected:
 
 
 	/** Buy cargos ships */
-	void UpdateCargoShipAcquisition();
+	int64 UpdateCargoShipAcquisition();
 
 
 
@@ -133,8 +154,9 @@ protected:
 		Helpers
 	----------------------------------------------------*/
 
+
 	/** Order one ship at any shipyard */
-	bool OrderOneShip(FFlareSpacecraftDescription* ShipDescription);
+	int64 OrderOneShip(FFlareSpacecraftDescription* ShipDescription);
 
 	FFlareSpacecraftDescription* FindBestShipToBuild(bool Military);
 
@@ -198,8 +220,10 @@ protected:
 	TMap<FFlareResourceDescription *, int32> MissingResourcesQuantity;
 	TMap<FFlareResourceDescription *, int32> MissingStaticResourcesQuantity;
 
-public:
+	int32 IdleCargoCapacity;
 
+public:
+	TArray<EFlareBudget::Type> AllBudgets;
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
@@ -208,6 +232,13 @@ public:
 	{
 		return Game;
 	}
+
+	UFlareAIBehavior* GetBehavior()
+	{
+		return Behavior;
+	}
+
+
 
 };
 
