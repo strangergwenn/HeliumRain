@@ -68,6 +68,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 	CockpitInstrumentsTargetSize = 512;
 	IsInCockpit = false;
 }
