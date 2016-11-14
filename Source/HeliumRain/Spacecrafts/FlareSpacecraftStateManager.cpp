@@ -654,7 +654,7 @@ bool UFlareSpacecraftStateManager::IsWantContextMenu() const
 
 float UFlareSpacecraftStateManager::GetCombatZoomAlpha() const
 {
-	return FMath::InterpEaseInOut(0.0f, 1.0f, 1.0f - (CombatZoomTimer / CombatZoomDuration), 3.0f);
+	return FMath::InterpEaseInOut(0.0f, 1.0f, CombatZoomTimer / CombatZoomDuration, 3.0f);
 }
 
 void UFlareSpacecraftStateManager::ResetExternalCamera()

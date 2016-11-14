@@ -165,7 +165,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	float FOV = NormalFOV;
 	if (ShipPawn)
 	{
-		FOV = FMath::Lerp(MinimalFOV, NormalFOV, ShipPawn->GetStateManager()->GetCombatZoomAlpha());
+		FOV = FMath::Lerp(NormalFOV, MinimalFOV, ShipPawn->GetStateManager()->GetCombatZoomAlpha());
 	}
 	PlayerCameraManager->SetFOV(FOV);
 

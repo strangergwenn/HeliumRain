@@ -238,7 +238,7 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 		{
 			// Power is here to vaguely compensate the non-linearity
 			float ScaleAlpha = FMath::Pow(PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha(), 1.15f);
-			Scale = FMath::Lerp(0.34f, 1.0f, ScaleAlpha);
+			Scale = FMath::Lerp(1.0f, 0.34f, ScaleAlpha);
 		}
 		CockpitMesh->SetRelativeScale3D(FVector(1.0, Scale, Scale));
 	}
@@ -427,7 +427,8 @@ void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 	float PowerAlpha = CockpitPowerTimer / CockpitPowerPeriod;
 	
 	// Update lights
-	float LightIntensity = PowerAlpha * 50;
+	float ZoomIntensity = FMath::Lerp(1.0f, 0.2f, PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha());
+	float LightIntensity = PowerAlpha * 50 * ZoomIntensity;
 	CockpitLight->SetIntensity(LightIntensity);
 	CockpitLight2->SetIntensity(LightIntensity);
 	
