@@ -65,36 +65,43 @@ void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 	}
 	else
 	{
-		// Find best FLIR camera
-		TArray<FName> SocketNames = GetRootComponent()->GetAllSocketNames();
-		float BestAngle = 0;
-		FVector CameraMainDirection;
-		FVector BestCameraLocation;
 		bool FlirCameraFound = false;
+
+		// New data
+		FVector BestCameraLocation;
 		FName BestCameraName;
+		float BestAngle = 0;
 
-		FVector ImmersiveTargetDirection = ImmersiveTargetRotation.GetForwardVector();
-
+		// Previous data
+		FVector PreviousCameraLocation;
+		float PreviousAngle = 180;
+		
 		// Find the best FLIR camera on the ship if any
+		TArray<FName> SocketNames = GetRootComponent()->GetAllSocketNames();
 		for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
 		{
 			if (SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
 			{
+				// Compute data
 				FTransform CameraWorldTransform = GetRootComponent()->GetSocketTransform(SocketNames[SocketIndex]);
-
 				FVector CameraLocation = CameraWorldTransform.GetTranslation();
 				FVector CandidateCameraMainDirection = CameraWorldTransform.GetRotation().RotateVector(FVector(1, 0, 0));
+				float Angle = FMath::RadiansToDegrees((FMath::Acos(FVector::DotProduct(ImmersiveTargetRotation.GetForwardVector(), CandidateCameraMainDirection))));
 
-				float Angle = FMath::RadiansToDegrees((FMath::Acos(FVector::DotProduct(ImmersiveTargetDirection, CandidateCameraMainDirection))));
-
+				// Select camera if it's good
 				if (!FlirCameraFound || Angle < BestAngle)
 				{
-					// Select camera
 					BestAngle = Angle;
 					BestCameraLocation = CameraLocation;
-					CameraMainDirection = CandidateCameraMainDirection;
 					FlirCameraFound = true;
 					BestCameraName = SocketNames[SocketIndex];
+				}
+
+				// Store data separately for previous camera
+				if (SocketNames[SocketIndex] == PreviousCameraName)
+				{
+					PreviousAngle = Angle;
+					PreviousCameraLocation = CameraLocation;
 				}
 			}
 		}
@@ -102,10 +109,20 @@ void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 		// Update the FLIR camera
 		if (FlirCameraFound)
 		{
-			CurrentCameraName = BestCameraName;
+			// Was the previous one not good enough ?
+			if (PreviousCameraName != NAME_None && FMath::Abs(PreviousAngle - BestAngle) < 10)
+			{
+				CurrentCameraName = PreviousCameraName;
+				BestCameraLocation = PreviousCameraLocation;
+			}
+			else
+			{
+				CurrentCameraName = BestCameraName;
+			}
+
 			CameraContainerPitch->SetRelativeRotation(FRotator(0, 0, 0).GetNormalized());
 			CameraContainerYaw->SetRelativeRotation(FRotator(0, 0, 0).GetNormalized());
-			Camera->SetWorldLocationAndRotation(BestCameraLocation , ImmersiveTargetRotation);
+			Camera->SetWorldLocationAndRotation(BestCameraLocation, ImmersiveTargetRotation);
 		}
 	}
 }
