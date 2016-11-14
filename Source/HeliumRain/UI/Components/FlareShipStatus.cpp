@@ -155,7 +155,7 @@ void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerE
 					}
 				}
 
-				Info = FText::Format(LOCTEXT("ShipDisarmedFormat", "{0}\nAmmo : {1} / {2}"), Info,
+				Info = FText::Format(LOCTEXT("AmmoInfoFormat", "{0}\nAmmo : {1} / {2}"), Info,
 					FText::AsNumber(MaxAmmo - CurrentSpentAmmo), FText::AsNumber(MaxAmmo));
 			}
 

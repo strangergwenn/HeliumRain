@@ -468,6 +468,7 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 	ShipPartCustomizationBox->SetVisibility(EVisibility::Visible);
 	PartCharacteristicBox->SetVisibility(EVisibility::Visible);
 	ShipCustomizationBox->SetVisibility(EVisibility::Collapsed);
+	CantUpgradeReason->SetVisibility(EVisibility::Collapsed);
 
 	// Boxes depending on edit mode
 	UpgradeTitle->SetVisibility(CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
@@ -983,7 +984,14 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 			else
 			{
 				BuyConfirmation->Hide();
-				CantUpgradeReason->SetVisibility(EVisibility::Visible);
+				if (CanEdit)
+				{
+					CantUpgradeReason->SetVisibility(EVisibility::Visible);
+				}
+				else
+				{
+					CantUpgradeReason->SetVisibility(EVisibility::Collapsed);
+				}
 			}
 		}
 		else
