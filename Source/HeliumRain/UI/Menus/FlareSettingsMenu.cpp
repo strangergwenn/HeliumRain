@@ -1445,32 +1445,32 @@ void SFlareSettingsMenu::CreateBinds()
 {
 	// Piloting
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Flying", "FLYING")))->MakeHeader()));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveForward", "Move Forward")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveForward", "Move forward")))
 		->AddAxisMapping("NormalThrustInput", 1.0f)
 		->AddDefaults(EKeys::W)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveBackward", "Move Backward")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveBackward", "Move backward")))
 		->AddAxisMapping("NormalThrustInput", -1.0f)
 		->AddDefaults(EKeys::S)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveLeft", "Move Left")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveLeft", "Move left")))
 		->AddAxisMapping("MoveHorizontalInput", -1.0f)
 		->AddDefaults(EKeys::A)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveRight", "Move Right")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveRight", "Move right")))
 		->AddAxisMapping("MoveHorizontalInput", 1.0f)
 		->AddDefaults(EKeys::D)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveUp", "Move Up")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveUp", "Move up")))
 		->AddAxisMapping("MoveVerticalInput", 1.0f)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveDown", "Move Down")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveDown", "Move down")))
 		->AddAxisMapping("MoveVerticalInput", -1.0f)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCW", "Roll Right")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCW", "Roll right")))
 		->AddAxisMapping("NormalRollInput", 1.0f)
 		->AddDefaults(EKeys::A)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCCW", "Roll Left")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCCW", "Roll left")))
 		->AddAxisMapping("NormalRollInput", -1.0f)
 		->AddDefaults(EKeys::E)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Quick Ship Switch", "Quick Ship Switch")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Quick Ship Switch", "Quick ship switch")))
 		->AddActionMapping("QuickSwitch")
 		->AddDefaults(EKeys::N)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Camera", "Toogle Camera")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Camera", "Toogle camera")))
 		->AddActionMapping("ToggleCamera")
 		->AddDefaults(EKeys::C)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("LockDirection", "Lock direction")))
@@ -1482,34 +1482,34 @@ void SFlareSettingsMenu::CreateBinds()
 
 	// Auto pilot
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Autopilot", "AUTOPILOT")))->MakeHeader()));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("AlignPrograde", "Align to Speed")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("AlignPrograde", "Align to speed")))
 		->AddActionMapping("FaceForward")
 		->AddDefaults(EKeys::X)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("AlignRetrograde", "Align to Reverse")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("AlignRetrograde", "Align to reverse")))
 		->AddActionMapping("FaceBackward")
 		->AddDefaults(EKeys::Z)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Disengage Autopilot", "Disengage Autopilot")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Disengage Autopilot", "Disengage autopilot")))
 		->AddActionMapping("Manual")
 		->AddDefaults(EKeys::M)));
 
 	// Weapons
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Weapons", "WEAPONS")))->MakeHeader()));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Deactivate Weapons", "Deactivate Weapons")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Deactivate Weapons", "Deactivate weapons")))
 		->AddActionMapping("DeactivateWeapon")
 		->AddDefaults(EKeys::One)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate primary weapons", "Weapon Group 1")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate primary weapons", "Weapon group 1")))
 		->AddActionMapping("WeaponGroup1")
 		->AddDefaults(EKeys::Two)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate secondary weapons", "Weapon Group 2")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate secondary weapons", "Weapon group 2")))
 		->AddActionMapping("WeaponGroup2")
 		->AddDefaults(EKeys::Three)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate tertiary weapons", "Weapon Group 3")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate tertiary weapons", "Weapon group 3")))
 		->AddActionMapping("WeaponGroup3")
 		->AddDefaults(EKeys::Four)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Fire Weapon", "Fire")))
 		->AddActionMapping("StartFire")
 		->AddDefaults(EKeys::LeftControl)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Weapons", "Toogle Weapons")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Weapons", "Toogle weapons")))
 		->AddActionMapping("ToggleCombat")
 		->AddDefaults(EKeys::F)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Find best target", "Find best target")))
