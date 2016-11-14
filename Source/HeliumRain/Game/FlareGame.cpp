@@ -966,7 +966,7 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 	Immatriculation += FString::Printf(TEXT("-%s"), *NickName);
 
 	// Update data
-	//FLOGV("AFlareGame::Immatriculate (%s) : %s", *TargetClass.ToString(), *Immatriculation);
+	FLOGV("AFlareGame::Immatriculate (%s) : %s", *TargetClass.ToString(), *Immatriculation);
 	SpacecraftSave->Immatriculation = FName(*Immatriculation);
 	SpacecraftSave->NickName = FText::FromString(NickName);
 }
