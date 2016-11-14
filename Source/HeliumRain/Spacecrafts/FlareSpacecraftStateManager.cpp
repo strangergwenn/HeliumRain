@@ -313,15 +313,15 @@ void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 	ExternalCamera = NewState;
 	AFlarePlayerController* PC = Spacecraft->GetPC();
 
+	// Reset state
+	Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
+	EnablePilot(false);
+
 	// Put the camera at the right spot
 	if (ExternalCamera)
 	{
 		ResetExternalCamera();
 		Spacecraft->SetCameraLocalPosition(FVector::ZeroVector);
-		if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
-		{
-			Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
-		}
 	}
 	else
 	{
