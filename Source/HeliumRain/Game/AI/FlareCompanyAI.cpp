@@ -1988,9 +1988,9 @@ void UFlareCompanyAI::CargosEvasion()
 			// Find nearest safe sector
 			// Or if no safe sector, go to the farest sector to maximise travel time
 			UFlareSimulatedSector* SafeSector = NULL;
-			int64 MinDurationTravel;
 			UFlareSimulatedSector* DistantUnsafeSector = NULL;
-			int64 MaxDurationTravel;
+			int64 MinDurationTravel = 0;
+			int64 MaxDurationTravel = 0;
 
 			for (int32 SectorIndex2 = 0; SectorIndex2 < Company->GetKnownSectors().Num(); SectorIndex2++)
 			{
