@@ -327,7 +327,8 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 
 	ComponentData->Damage += EffectiveEnergy;
 	float MaxHitPoints = GetMaxHitPoints(ComponentDescription);
-	if (ComponentData->Damage > MaxHitPoints) {
+	if (ComponentData->Damage > MaxHitPoints)
+	{
 		ComponentData->Damage = MaxHitPoints;
 	}
 	float StateAfterDamage = GetDamageRatio(ComponentDescription, ComponentData);
@@ -338,27 +339,37 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 	{
 		CombatLog::SpacecraftComponentDamaged(Spacecraft, ComponentData, ComponentDescription, Energy, EffectiveEnergy, DamageType, StateBeforeDamage, StateAfterDamage);
 
-		if(DamageSource != NULL && DamageSource != Spacecraft->GetCompany())
+		// This ship has been damaged and someone is to blame
+		if (DamageSource != NULL && DamageSource != Spacecraft->GetCompany())
 		{
-			float Reputation;
-			if(Spacecraft->IsStation())
+			float ReputationCost;
+
+			if (Spacecraft->IsStation())
 			{
-				Reputation = -InflictedDamageRatio * 200;
+				ReputationCost = -InflictedDamageRatio * 100;
 			}
 			else
 			{
-				Reputation = -InflictedDamageRatio * 5;
+				ReputationCost = -InflictedDamageRatio * 2;
 			}
 
-
-			if (Reputation != 0)
+			if (ReputationCost != 0)
 			{
-				if(Spacecraft->GetCompany()->GetWarState(DamageSource) == EFlareHostility::Hostile)
+				// Being shot by enemies is pretty much expected
+				if (Spacecraft->GetCompany()->GetWarState(DamageSource) == EFlareHostility::Hostile)
 				{
-					Reputation /= 1000;
+					ReputationCost /= 1000;
 				}
 
-				Spacecraft->GetCompany()->GiveReputation(DamageSource, Reputation, true);
+				// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
+				else
+				{
+					Spacecraft->GetCompany()->GiveReputationToOthers(-0.1 * ReputationCost, false);
+					DamageSource->GiveReputationToOthers(ReputationCost, false);
+				}
+
+				// Lower attacker's reputation on victim
+				Spacecraft->GetCompany()->GiveReputation(DamageSource, ReputationCost, true);
 			}
 		}
 	}
