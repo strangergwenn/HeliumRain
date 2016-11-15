@@ -108,7 +108,8 @@ public:
 		return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	}
 
-	double GetSunOcclusion() const
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	float GetSunOcclusion() const
 	{
 		return SunOcclusion;
 	}
@@ -118,7 +119,8 @@ public:
 		return SmoothTime;
 	}
 
-	inline FVector GetSunDirection()
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	FVector GetSunDirection() const
 	{
 		FVector Direction;
 
@@ -130,7 +132,8 @@ public:
 		return Direction;
 	}
 
-	bool IsReady() {
+	bool IsReady()
+	{
 		return Ready;
 	}
 
