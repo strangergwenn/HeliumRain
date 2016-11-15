@@ -658,6 +658,11 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_Bomber);
 
+	// Weapon info
+	UFlareWeapon* CurrentWeapon = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0];
+	bool IsSalvage = CurrentWeapon->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage
+		|| CurrentWeapon->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage;
+
 	// Get speed and location data
 	LinearTargetVelocity = FVector::ZeroVector;
 	FVector DeltaLocation = (PilotTargetComponent->GetComponentLocation() - Ship->GetActorLocation()) / 100.f;
@@ -672,14 +677,15 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 
 	// Get mass coefficient for use as a reference
 	float WeigthCoef = FMath::Sqrt(Ship->GetSpacecraftMass()) / FMath::Sqrt(5425.f) * (2-Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS)) ; // 1 for ghoul at 100%
-	float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 2.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
+	float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 3.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
 	TimeUntilNextReaction /= 5;
 
 	// Compute distances and reaction times
 	float ApproachDistance = 15 * PreferedVelocity * WeigthCoef ;
 	float AlignTime = 12 * WeigthCoef;
-	float EvadeTime = 2.5 * WeigthCoef;
-	float TimeBetweenDrop = 0.50 * WeigthCoef;
+	float DropTime = (IsSalvage ? 3 : 5) * WeigthCoef;
+	float EvadeTime = 2 * WeigthCoef;
+	float TimeBetweenDrop = (IsSalvage ? 5.0 : 0.5) * WeigthCoef;
 	float SecurityDistance = 1500;
 	
 	// Setup behaviour flags
@@ -710,7 +716,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	if (AttackPhase == 1)
 	{
 		FVector AmmoIntersectionLocation;
-		float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity() * 100;
+		float AmmoVelocity = CurrentWeapon->GetAmmoVelocity() * 100;
 		float AmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), Ship->GetActorLocation(), Ship->Airframe->GetPhysicsLinearVelocity(), AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 
 		AlignToSpeed = true;
@@ -759,11 +765,10 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		{
 			if (TimeBeforeNextDrop > 0)
 			{
-				TimeBeforeNextDrop -= ReactionTime;
+				TimeBeforeNextDrop -= DeltaSeconds;
 			}
 			else
 			{
-
 				WantFire = !LastWantFire;
 				LastWantFire = WantFire;
 				if (WantFire)
