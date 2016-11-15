@@ -74,5 +74,9 @@ protected:
 	FText                                        InfoTitle;
 	FSimpleDelegate                              OnConfirmedCB;
 
+	// Widgets
+	TSharedPtr<SFlareButton>                     OKButton;
+	TSharedPtr<SFlareButton>                     CancelButton;
+
 
 };

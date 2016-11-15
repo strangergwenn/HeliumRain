@@ -25,7 +25,7 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	, CockpitPowerTimer(0)
 	, CockpitPowerPeriod(0.7)
 	, CameraSwitchTimer(0)
-	, CameraSwitchPeriod(0.3)
+	, CameraSwitchPeriod(0.15)
 	, FreighterCockpitMaterialInstance(NULL)
 	, FreighterCockpitFrameMaterialInstance(NULL)
 	, FighterCockpitMaterialInstance(NULL)
@@ -227,6 +227,10 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 				UpdatePower(DeltaSeconds);
 			}
 		}
+
+		// Update scale - minimum scale value depends on MinimalFOV in PC
+		float Scale = FMath::Tan(FMath::DegreesToRadians(PC->GetCurrentFOV() / 2.f)) / FMath::Tan(FMath::DegreesToRadians(PC->GetNormalFOV() / 2.f));
+		CockpitMesh->SetRelativeScale3D(FVector(1.0, Scale, Scale));
 	}
 }
 
@@ -413,9 +417,13 @@ void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 	float PowerAlpha = CockpitPowerTimer / CockpitPowerPeriod;
 	
 	// Update lights
-	float LightIntensity = PowerAlpha * 50;
-	CockpitLight->SetIntensity(LightIntensity);
-	CockpitLight2->SetIntensity(LightIntensity);
+	if (PC->GetShipPawn())
+	{
+		float ZoomIntensity = FMath::Lerp(1.0f, 0.02f, FMath::Clamp(PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha() * 2, 0.f, 1.f));
+		float LightIntensity = PowerAlpha * 50 * ZoomIntensity;
+		CockpitLight->SetIntensity(LightIntensity);
+		CockpitLight2->SetIntensity(LightIntensity);
+	}
 	
 	// Update materials
 	FLinearColor HealthColor = PC->GetNavHUD()->GetHealthColor(PowerAlpha);

@@ -29,6 +29,8 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, Company(NULL)
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
+	, MinimalFOV(40)
+	, NormalFOV(90)
 {
 	CheatClass = UFlareGameTools::StaticClass();
 		
@@ -42,11 +44,11 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	CameraShakeCatalog = CameraShakeCatalogObj.Object;
 
 	// Sound data
-	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationInfoSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationInfo"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationCombatSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationCombat"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationQuestSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationQuest"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationTradingSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationEconomy"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> CrashSoundObj(TEXT("/Game/Master/Sound/Sounds/A_Collision"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationInfoSoundObj(TEXT("/Game/Sound/Game/A_NotificationInfo"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationCombatSoundObj(TEXT("/Game/Sound/Game/A_NotificationCombat"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationQuestSoundObj(TEXT("/Game/Sound/Game/A_NotificationQuest"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationTradingSoundObj(TEXT("/Game/Sound/Game/A_NotificationEconomy"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> CrashSoundObj(TEXT("/Game/Sound/Impacts/A_Collision"));
 
 	// Sound
 	NotificationInfoSound = NotificationInfoSoundObj.Object;
@@ -158,6 +160,14 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		}
 	}
 
+	// Combat zoom
+	float FOV = NormalFOV;
+	if (ShipPawn)
+	{
+		FOV = FMath::Lerp(NormalFOV, MinimalFOV, ShipPawn->GetStateManager()->GetCombatZoomAlpha());
+	}
+	PlayerCameraManager->SetFOV(FOV);
+
 	// Mouse cursor
 	bool NewShowMouseCursor = true;
 	if (!MenuManager->IsUIOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
@@ -244,6 +254,11 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	}
 }
 
+float AFlarePlayerController::GetCurrentFOV()
+{
+	return PlayerCameraManager->GetFOVAngle();
+}
+
 void AFlarePlayerController::SetExternalCamera(bool NewState)
 {
 	if (ShipPawn)
@@ -314,11 +329,11 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	// Setup FOV
 	if (ShipPawn->GetParent()->IsMilitary())
 	{
-		PlayerCameraManager->SetFOV(94);
+		NormalFOV = 94;
 	}
 	else
 	{
-		PlayerCameraManager->SetFOV(93);
+		NormalFOV = 93;
 	}
 
 	// Combat groups

@@ -39,6 +39,10 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 	LastPlayerAimJoystick = FVector2D::ZeroVector;
 	LastPlayerAimMouse = FVector2D::ZeroVector;
 
+	CombatZoomEnabled = false;
+	CombatZoomTimer = 0;
+	CombatZoomDuration = 0.3f;
+
 	ExternalCamera = true;
 	LinearVelocityIsJoystick = false;
 	PlayerManualVelocityCommandActive = true;
@@ -76,7 +80,8 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	EFlareWeaponGroupType::Type CurrentWeaponType = Spacecraft->GetWeaponsSystem()->GetActiveWeaponType();
 	float MaxVelocity = Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
 
-	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && IsPiloted) // Do not tick the pilot if a player has disable the pilot
+	// Do not tick the pilot if a player has disable the pilot
+	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && IsPiloted)
 	{
 		Spacecraft->GetPilot()->TickPilot(DeltaSeconds);
 
@@ -201,6 +206,14 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		FireDirectorAngularVelocity.Y = 0;
 	}
 
+	// Update combat zoom
+	if (ExternalCamera || !Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+	{
+		CombatZoomEnabled = false;
+	}
+	CombatZoomTimer += (CombatZoomEnabled ? +1 : -1) * DeltaSeconds;
+	CombatZoomTimer = FMath::Clamp(CombatZoomTimer, 0.0f, CombatZoomDuration);
+
 	// Update Camera
 	UpdateCamera(DeltaSeconds);
 }
@@ -300,15 +313,15 @@ void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 	ExternalCamera = NewState;
 	AFlarePlayerController* PC = Spacecraft->GetPC();
 
+	// Reset state
+	Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
+	EnablePilot(false);
+
 	// Put the camera at the right spot
 	if (ExternalCamera)
 	{
 		ResetExternalCamera();
 		Spacecraft->SetCameraLocalPosition(FVector::ZeroVector);
-		if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
-		{
-			Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
-		}
 	}
 	else
 	{
@@ -412,6 +425,18 @@ void UFlareSpacecraftStateManager::ExternalCameraZoom(bool ZoomIn)
 
 		// Move camera
 		ExternalCameraDistanceTarget = FMath::Clamp(ExternalCameraDistance + Offset, LimitNear, LimitFar);
+	}
+}
+
+void UFlareSpacecraftStateManager::SetCombatZoom(bool ZoomIn)
+{
+	if (!ExternalCamera)
+	{
+		CombatZoomEnabled = ZoomIn;
+	}
+	else
+	{
+		CombatZoomEnabled = false;
 	}
 }
 
@@ -625,6 +650,11 @@ bool UFlareSpacecraftStateManager::IsWantContextMenu() const
 	{
 		return false;
 	}
+}
+
+float UFlareSpacecraftStateManager::GetCombatZoomAlpha() const
+{
+	return FMath::InterpEaseInOut(0.0f, 1.0f, CombatZoomTimer / CombatZoomDuration, 3.0f);
 }
 
 void UFlareSpacecraftStateManager::ResetExternalCamera()

@@ -145,10 +145,10 @@ protected:
 	void Travel();
 
 	/** Reload the sector */
-	void ReloadSector();
+	bool ReloadSector();
 
 	/** Reload the sector after a FF */
-	void FastForwardSingle();
+	bool FastForwardSingle();
 
 	/** Open the main menu */
 	void OpenMainMenu();
@@ -221,27 +221,42 @@ public:
 	static FString GetKeyNameFromActionName(FName ActionName);
 
 	/** Is UI visible */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	bool IsUIOpen() const;
 
 	/** Is a menu open */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	bool IsMenuOpen() const;
 
 	/** Can we go back ? */
 	bool HasPreviousMenu() const;
 
 	/** Is the overlay open ? */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	bool IsOverlayOpen() const;
 
 	/** Is a menu being opened or closed */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	bool IsSwitchingMenu() const;
 
 	/** Are we during a fade transition ? */
-	bool IsFading();
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	bool IsFading() const;
+
+	/** Are we during a fade transition ? */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	bool IsFadingFromBlack() const;
+
+	/** Get the fade value */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	float GetFadeAlpha() const;
 
 	/** Which menu, if any, is opened ? */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	EFlareMenu::Type GetCurrentMenu() const;
 
 	/** Which menu, if any, is coming next ? */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	EFlareMenu::Type GetNextMenu() const;
 
 	/** Get the PC */
@@ -276,6 +291,7 @@ protected:
 	static AFlareMenuManager*               Singleton;
 
 	// General data
+	bool                                    MenuOperationDone;
 	bool                                    MenuIsOpen;
 	bool                                    FadeFromBlack;
 	bool                                    SkipNextFade;

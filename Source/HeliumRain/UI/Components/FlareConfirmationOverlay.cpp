@@ -1,5 +1,6 @@
 
 #include "../../Flare.h"
+#include "../../Player/FlareMenuManager.h"
 #include "FlareConfirmationOverlay.h"
 
 #define LOCTEXT_NAMESPACE "FlareConfirmationOverlay"
@@ -68,7 +69,7 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						[
-							SNew(SFlareButton)
+							SAssignNew(OKButton, SFlareButton)
 							.Text(LOCTEXT("Confirm", "Confirm"))
 							.HelpText(LOCTEXT("ConfirmInfo", "Confirm this action"))
 							.Icon(FFlareStyleSet::GetIcon("OK"))
@@ -78,7 +79,7 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						[
-							SNew(SFlareButton)
+							SAssignNew(CancelButton, SFlareButton)
 							.Text(LOCTEXT("Cancel", "Cancel"))
 							.HelpText(LOCTEXT("CancelInfo", "Cancel this action"))
 							.Icon(FFlareStyleSet::GetIcon("Delete"))
@@ -128,12 +129,17 @@ FText SFlareConfirmationOverlay::GetText() const
 
 void SFlareConfirmationOverlay::OnConfirmed()
 {
-	OnConfirmedCB.ExecuteIfBound();
+	MenuManager->HideTooltip(OKButton.Get());
+	MenuManager->HideTooltip(CancelButton.Get());
 	SetVisibility(EVisibility::Collapsed);
+
+	OnConfirmedCB.ExecuteIfBound();
 }
 
 void SFlareConfirmationOverlay::OnCancelled()
 {
+	MenuManager->HideTooltip(OKButton.Get());
+	MenuManager->HideTooltip(CancelButton.Get());
 	SetVisibility(EVisibility::Collapsed);
 }
 

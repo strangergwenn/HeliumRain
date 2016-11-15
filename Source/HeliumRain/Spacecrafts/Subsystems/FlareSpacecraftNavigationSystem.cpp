@@ -355,11 +355,11 @@ static const float ApproachDockToDockDistanceLimit = 40000; // 400 m approch dis
 
 static const float FinalApproachDockToDockLateralDistanceLimit = 100; // 50 cm of linear lateral distance
 
-static const float DockingAngleLimit = 2; // 1° of angle error to dock
+static const float DockingAngleLimit = 2; // 2° of angle error to dock
 static const float FinalApproachAngleLimit = 10;// 10° of angle error to dock
 static const float ApproachAngleLimit = 90;
 
-static const float DockingVelocityLimit = 200; // 1 m/s
+static const float DockingVelocityLimit = 200; // 2 m/s
 static const float FinalApproachVelocityLimit = 500; // 5 m/s
 
 static const float DockingLateralVelocityLimit = 20; // 10 cm/s

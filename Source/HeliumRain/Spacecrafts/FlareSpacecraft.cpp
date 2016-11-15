@@ -37,8 +37,8 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	ShipNameFont = ShipNameFontObj.Object;
 
 	// Sound
-	static ConstructorHelpers::FObjectFinder<USoundCue> WeaponLoadedSoundObj(TEXT("/Game/Master/Sound/Sounds/A_WeaponLoaded"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> WeaponUnloadedSoundObj(TEXT("/Game/Master/Sound/Sounds/A_WeaponUnloaded"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> WeaponLoadedSoundObj(TEXT("/Game/Sound/Firing/A_WeaponLoaded"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> WeaponUnloadedSoundObj(TEXT("/Game/Sound/Firing/A_WeaponUnloaded"));
 	WeaponLoadedSound = WeaponLoadedSoundObj.Object;
 	WeaponUnloadedSound = WeaponUnloadedSoundObj.Object;
 
@@ -58,6 +58,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	JoystickThrustExponent = 2;
 
 	// Gameplay
+	HasExitedSector = false;
 	Paused = false;
 	AttachedToParentActor = false;
 	LastMass = 0;
@@ -157,7 +158,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			SCOPE_CYCLE_COUNTER(STAT_FlareSpacecraft_PlayerShip);
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 			
-			if (this == PlayerShip)
+			if (this == PlayerShip && !HasExitedSector)
 			{
 				// Warn player if he's going to exit the sector
 				float Distance = GetActorLocation().Size();
@@ -223,7 +224,6 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits);
 
 					// Notify if we're just resetting the ship
-					//else
 					if (GetData().SpawnMode != EFlareSpawnMode::Exit)
 					{
 						PC->Notify(
@@ -240,6 +240,8 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 					MenuParameters.Spacecraft = GetParent();
 					MenuParameters.Sector = GetParent()->GetCurrentSector();
 					PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ReloadSector, MenuParameters);
+
+					HasExitedSector = true;
 					return;
 				}
 			}
@@ -1190,6 +1192,9 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("ZoomIn", EInputEvent::IE_Repeat, this, &AFlareSpacecraft::ZoomIn);
 	PlayerInputComponent->BindAction("ZoomOut", EInputEvent::IE_Repeat, this, &AFlareSpacecraft::ZoomOut);
 
+	PlayerInputComponent->BindAction("CombatZoom", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::CombatZoomIn);
+	PlayerInputComponent->BindAction("CombatZoom", EInputEvent::IE_Released, this, &AFlareSpacecraft::CombatZoomOut);
+
 	PlayerInputComponent->BindAction("FaceForward", EInputEvent::IE_Released, this, &AFlareSpacecraft::FaceForward);
 	PlayerInputComponent->BindAction("FaceBackward", EInputEvent::IE_Released, this, &AFlareSpacecraft::FaceBackward);
 	PlayerInputComponent->BindAction("Brake", EInputEvent::IE_Released, this, &AFlareSpacecraft::Brake);
@@ -1278,7 +1283,7 @@ void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 {
 	FLOGV("AFlareSpacecraft::ActivateWeaponGroup : %d", Index);
 
-	if (IsMilitary())
+	if (IsMilitary() && Index < GetWeaponsSystem()->GetWeaponGroupCount())
 	{
 		GetStateManager()->EnablePilot(false);
 
@@ -1496,6 +1501,16 @@ void AFlareSpacecraft::ZoomIn()
 void AFlareSpacecraft::ZoomOut()
 {
 	StateManager->ExternalCameraZoom(false);
+}
+
+void AFlareSpacecraft::CombatZoomIn()
+{
+	StateManager->SetCombatZoom(true);
+}
+
+void AFlareSpacecraft::CombatZoomOut()
+{
+	StateManager->SetCombatZoom(false);
 }
 
 void AFlareSpacecraft::FaceForward()

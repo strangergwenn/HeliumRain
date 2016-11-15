@@ -58,6 +58,7 @@ public:
 	
 	// Mouse zoom
 	virtual void ExternalCameraZoom(bool ZoomIn);
+	virtual void SetCombatZoom(bool ZoomIn);
 
 	// Mouse movement
 	virtual void SetPlayerLockDirection(bool Val);
@@ -83,6 +84,7 @@ public:
 	virtual bool IsWantFire() const;
 	virtual bool IsWantCursor() const;
 	virtual bool IsWantContextMenu() const;
+	virtual float GetCombatZoomAlpha() const;
 
 protected:
 
@@ -97,6 +99,11 @@ protected:
 	bool                                     IsPiloted;
 	bool                                     ExternalCamera;
 	bool									 PilotForced;
+
+	// Combat zoom
+	bool                                     CombatZoomEnabled;
+	float                                    CombatZoomTimer;
+	float                                    CombatZoomDuration;
 
 	// External camera
 	float                                    ExternalCameraPitch;

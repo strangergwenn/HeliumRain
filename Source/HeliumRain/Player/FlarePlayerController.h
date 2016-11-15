@@ -384,8 +384,10 @@ protected:
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
-	FFlareSectorBattleState                 LastBattleState;
-	bool									RecoveryActive;
+	float                                    MinimalFOV;
+	float                                    NormalFOV;
+	FFlareSectorBattleState                  LastBattleState;
+	bool									 RecoveryActive;
 
 public:
 
@@ -399,12 +401,17 @@ public:
 	/** Whether to use motion blur */
 	bool                                     UseMotionBlur;
 
+	/** Whether to use temporal AA */
+	bool                                     UseTemporalAA;
+
 	/** Whether to pause the game in menus */
 	bool                                     PauseGameInMenus;
 	
 	void SetUseCockpit(bool New);
 
 	void SetUseMotionBlur(bool New);
+
+	void SetUseTemporalAA(bool New);
 
 	void SetPauseGameInMenus(bool New);
 
@@ -419,6 +426,7 @@ public:
 		Getters for game classes
 	----------------------------------------------------*/
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline UFlareCompany* GetCompany() const
 	{
 		return Company;
@@ -429,11 +437,13 @@ public:
 		return &CompanyData;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline AFlareMenuPawn* GetMenuPawn() const
 	{
 		return MenuPawn;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline AFlareSpacecraft* GetShipPawn() const
 	{
 		return ShipPawn;
@@ -444,21 +454,25 @@ public:
 		return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline AFlareMenuManager* GetMenuManager() const
 	{
 		return MenuManager;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline AFlareHUD* GetNavHUD() const
 	{
 		return Cast<AFlareHUD>(GetHUD());
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline AFlareCockpitManager* GetCockpitManager()
 	{
 		return CockpitManager;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline UFlareSoundManager* GetSoundManager()
 	{
 		return SoundManager;
@@ -476,5 +490,12 @@ public:
 	{
 		return &PlayerData;
 	}
+
+	float GetNormalFOV()
+	{
+		return NormalFOV;
+	}
+
+	float GetCurrentFOV();
 };
 

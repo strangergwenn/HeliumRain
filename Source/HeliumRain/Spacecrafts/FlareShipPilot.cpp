@@ -658,8 +658,13 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_Bomber);
 
+	// Weapon info
+	UFlareWeapon* CurrentWeapon = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0];
+	bool IsSalvage = CurrentWeapon->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage
+		|| CurrentWeapon->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage;
+
+	// Get speed and location data
 	LinearTargetVelocity = FVector::ZeroVector;
-	
 	FVector DeltaLocation = (PilotTargetComponent->GetComponentLocation() - Ship->GetActorLocation()) / 100.f;
 	FVector TargetAxis = DeltaLocation.GetUnsafeNormal();
 	float Distance = DeltaLocation.Size(); // Distance in meters
@@ -670,30 +675,32 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	// 3 - Drop : Drop util its not safe to stay
 	// 2 - Withdraw : target is passed, wait a security distance to attack again
 
+	// Get mass coefficient for use as a reference
 	float WeigthCoef = FMath::Sqrt(Ship->GetSpacecraftMass()) / FMath::Sqrt(5425.f) * (2-Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS)) ; // 1 for ghoul at 100%
+	float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 3.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
+	TimeUntilNextReaction /= 5;
 
-	float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 2.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
-
-	TimeUntilNextReaction /=5;
-
-	float ChargeDistance = 15 * PreferedVelocity * WeigthCoef ;
+	// Compute distances and reaction times
+	float ApproachDistance = 15 * PreferedVelocity * WeigthCoef ;
 	float AlignTime = 12 * WeigthCoef;
-	float DropTime = 5 * WeigthCoef ;
-	float EvadeTime = 2.5 * WeigthCoef;
-	float TimeBetweenDrop = 0.50 * WeigthCoef;
+	float DropTime = (IsSalvage ? 3 : 5) * WeigthCoef;
+	float EvadeTime = 2 * WeigthCoef;
+	float TimeBetweenDrop = (IsSalvage ? 5.0 : 0.5) * WeigthCoef;
 	float SecurityDistance = 1500;
+	
+	// Setup behaviour flags
 	UseOrbitalBoost = false;
 	bool ClearTarget = false;
 	bool AlignToSpeed = false;
 	bool HardBoost = false;
 	bool Anticollision = true;
 
-
+	// Approach phase
 	if (AttackPhase == 0)
 	{
-		if (Distance < ChargeDistance)
+		// Target is approching, prepare attack
+		if (Distance < ApproachDistance)
 		{
-			// Target is approching, prepare attack
 			AttackPhase = 1;
 			LockTarget = true;
 		}
@@ -705,17 +712,18 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		}
 	}
 
+	// Attack phase
 	if (AttackPhase == 1)
 	{
 		FVector AmmoIntersectionLocation;
-		float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity() * 100;
+		float AmmoVelocity = CurrentWeapon->GetAmmoVelocity() * 100;
 		float AmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), Ship->GetActorLocation(), Ship->Airframe->GetPhysicsLinearVelocity(), AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 
 		AlignToSpeed = true;
 
+		// Near enough, start bombing
 		if (AmmoIntersectionTime > 0 && AmmoIntersectionTime < DropTime)
 		{
-			// Near enougt
 			AttackPhase = 2;
 			LastWantFire = false;
 			TimeBeforeNextDrop = 0;
@@ -736,6 +744,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		LastTargetDistance = Distance;
 	}
 
+	// Bombing phase
 	if (AttackPhase == 2)
 	{
 		FVector AmmoIntersectionLocation;
@@ -743,25 +752,23 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		float AmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), Ship->GetActorLocation(), Ship->Airframe->GetPhysicsLinearVelocity(), AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 		FVector FrontVector = Ship->GetFrontVector();
 		FVector ChargeAxis = (AmmoIntersectionLocation - Ship->GetActorLocation()).GetUnsafeNormal();
-		// DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), AmmoIntersectionLocation, FColor::Blue, false, ReactionTime);
 
 		Anticollision = false;
 		AlignToSpeed = true;
 
+		// Security distance reached
 		if (AmmoIntersectionTime < EvadeTime || FVector::DotProduct(FrontVector, ChargeAxis) < 0.6 || AmmoIntersectionTime > AlignTime)
 		{
-			// Security distance reach
 			AttackPhase = 3;
 		}
 		else if (FVector::DotProduct(FrontVector, ChargeAxis) > 0.9 && AmmoIntersectionTime < DropTime)
 		{
 			if (TimeBeforeNextDrop > 0)
 			{
-				TimeBeforeNextDrop -= ReactionTime;
+				TimeBeforeNextDrop -= DeltaSeconds;
 			}
 			else
 			{
-
 				WantFire = !LastWantFire;
 				LastWantFire = WantFire;
 				if (WantFire)
@@ -774,12 +781,13 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		}
 	}
 
+	// Evasion phase
 	if (AttackPhase == 3)
 	{
+		// Security distance reached
 		FVector DeltaVelocity = (PilotTargetShip->GetLinearVelocity() - Ship->GetLinearVelocity()) / 100.;
 		if (Distance > SecurityDistance)
 		{
-			// Security distance reach
 			AttackPhase = 0;
 			ClearTarget = true;
 			LockTarget = false;
@@ -803,10 +811,8 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), -TargetAxis, FVector::ZeroVector, DeltaSeconds);
 		}
 	}
-
-
-	// DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), Ship->GetActorLocation() + LinearTargetVelocity * 100, FColor::Red, false, ReactionTime);
-
+	
+	// Compute speed
 	if (AlignToSpeed)
 	{
 		if (Ship->GetLinearVelocity().IsNearlyZero())
@@ -829,24 +835,11 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	{
 		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, PilotTargetShip);
 	}
-
-
+	
 	if (ClearTarget)
 	{
 		PilotTargetShip = NULL;
 	}
-	// TODO ignore target
-
-
-	// Manage orbital boost
-	if (Ship->GetParent()->GetDamageSystem()->GetTemperature() > Ship->GetParent()->GetDamageSystem()->GetOverheatTemperature() * 0.75)
-	{
-		//UseOrbitalBoost = false;
-	}
-
-
-	// Manage orbital boost
-
 }
 
 void UFlareShipPilot::IdlePilot(float DeltaSeconds)
