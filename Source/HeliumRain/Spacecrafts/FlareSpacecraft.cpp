@@ -1283,7 +1283,7 @@ void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 {
 	FLOGV("AFlareSpacecraft::ActivateWeaponGroup : %d", Index);
 
-	if (IsMilitary())
+	if (IsMilitary() && Index < GetWeaponsSystem()->GetWeaponGroupCount())
 	{
 		GetStateManager()->EnablePilot(false);
 
