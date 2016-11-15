@@ -26,25 +26,25 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	MusicDesiredTrack = EFlareMusicTrack::None;
 
 	// Music track references
-	static ConstructorHelpers::FObjectFinder<USoundCue> MenuMusicObj(TEXT("/Game/Master/Music/A_Menu_Cue"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> ExplorationMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> TravelMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> DangerMusicObk(TEXT("/Game/Master/Music/A_Danger_Cue"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> PacificMusicObj(TEXT("/Game/Master/Music/A_Exploration_Cue"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> CombatMusicObj(TEXT("/Game/Master/Music/A_Combat_Cue"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> WarMusicObj(TEXT("/Game/Master/Music/A_Combat_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> MenuMusicObj(TEXT("/Game/Music/A_Menu_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> ExplorationMusicObj(TEXT("/Game/Music/A_Exploration_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> TravelMusicObj(TEXT("/Game/Music/A_Exploration_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> DangerMusicObk(TEXT("/Game/Music/A_Danger_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> PacificMusicObj(TEXT("/Game/Music/A_Exploration_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> CombatMusicObj(TEXT("/Game/Music/A_Combat_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> WarMusicObj(TEXT("/Game/Music/A_Combat_Cue"));
 
 	// Mix references
 	static ConstructorHelpers::FObjectFinder<USoundClass> MasterClassObj(TEXT("/Engine/EngineSounds/Master"));
 	static ConstructorHelpers::FObjectFinder<USoundClass> MusicClassObj(TEXT("/Engine/EngineSounds/Music"));
 	static ConstructorHelpers::FObjectFinder<USoundClass> EffectsClassObj(TEXT("/Engine/EngineSounds/SFX"));
-	static ConstructorHelpers::FObjectFinder<USoundMix> MasterSoundMixObj(TEXT("/Game/Master/Sound/Mix_Master"));
+	static ConstructorHelpers::FObjectFinder<USoundMix> MasterSoundMixObj(TEXT("/Game/Sound/Mix_Master"));
 	
 	// Sound references
-	static ConstructorHelpers::FObjectFinder<USoundCue> TargetWarningSoundObj(TEXT("/Game/Master/Sound/Sounds/A_TargetWarning"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> AttackWarningSoundObj(TEXT("/Game/Master/Sound/Sounds/A_AttackWarning"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> HealthWarningSoundObj(TEXT("/Game/Master/Sound/Sounds/A_HealthWarning"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> HealthWarningHeavySoundObj(TEXT("/Game/Master/Sound/Sounds/A_HealthWarningHeavy"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> TargetWarningSoundObj(TEXT("/Game/Sound/Game/A_TargetWarning"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> AttackWarningSoundObj(TEXT("/Game/Sound/Game/A_AttackWarning"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> HealthWarningSoundObj(TEXT("/Game/Sound/Game/A_HealthWarning"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> HealthWarningHeavySoundObj(TEXT("/Game/Sound/Game/A_HealthWarningHeavy"));
 
 	// Sound class
 	MasterSoundClass = MasterClassObj.Object;

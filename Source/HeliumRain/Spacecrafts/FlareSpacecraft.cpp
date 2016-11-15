@@ -37,8 +37,8 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	ShipNameFont = ShipNameFontObj.Object;
 
 	// Sound
-	static ConstructorHelpers::FObjectFinder<USoundCue> WeaponLoadedSoundObj(TEXT("/Game/Master/Sound/Sounds/A_WeaponLoaded"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> WeaponUnloadedSoundObj(TEXT("/Game/Master/Sound/Sounds/A_WeaponUnloaded"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> WeaponLoadedSoundObj(TEXT("/Game/Sound/Firing/A_WeaponLoaded"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> WeaponUnloadedSoundObj(TEXT("/Game/Sound/Firing/A_WeaponUnloaded"));
 	WeaponLoadedSound = WeaponLoadedSoundObj.Object;
 	WeaponUnloadedSound = WeaponUnloadedSoundObj.Object;
 

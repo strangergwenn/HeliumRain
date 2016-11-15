@@ -44,11 +44,11 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	CameraShakeCatalog = CameraShakeCatalogObj.Object;
 
 	// Sound data
-	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationInfoSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationInfo"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationCombatSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationCombat"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationQuestSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationQuest"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationTradingSoundObj(TEXT("/Game/Master/Sound/Sounds/A_NotificationEconomy"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> CrashSoundObj(TEXT("/Game/Master/Sound/Sounds/A_Collision"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationInfoSoundObj(TEXT("/Game/Sound/Game/A_NotificationInfo"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationCombatSoundObj(TEXT("/Game/Sound/Game/A_NotificationCombat"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationQuestSoundObj(TEXT("/Game/Sound/Game/A_NotificationQuest"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationTradingSoundObj(TEXT("/Game/Sound/Game/A_NotificationEconomy"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> CrashSoundObj(TEXT("/Game/Sound/Impacts/A_Collision"));
 
 	// Sound
 	NotificationInfoSound = NotificationInfoSoundObj.Object;

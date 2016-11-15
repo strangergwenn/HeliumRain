@@ -21,8 +21,8 @@ UFlareWeapon::UFlareWeapon(const class FObjectInitializer& PCIP)
 	, FiringRate(0)
 	, Firing(false)
 {
-	static ConstructorHelpers::FObjectFinder<USoundCue> EmptySoundObj(TEXT("/Game/Master/Sound/Sounds/A_Empty"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> BombDroppedSoundObj(TEXT("/Game/Master/Sound/Sounds/A_Bomb_Dropped"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> EmptySoundObj(TEXT("/Game/Sound/Firing/A_Empty"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> BombDroppedSoundObj(TEXT("/Game/Sound/Firing/A_Bomb_Dropped"));
 	BombDroppedSound = BombDroppedSoundObj.Object;
 	EmptySound = EmptySoundObj.Object;
 
