@@ -376,6 +376,8 @@ void AFlareMenuManager::ResetMenu()
 	WorldEconomyMenu->Exit();
 	CreditsMenu->Exit();
 
+	Tooltip->HideTooltipForce();
+
 	if (PC)
 	{
 		PC->GetMenuPawn()->ResetContent();
