@@ -243,6 +243,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Flare")
 	bool IsFading() const;
 
+	/** Are we during a fade transition ? */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	bool IsFadingFromBlack() const;
+
 	/** Get the fade value */
 	UFUNCTION(BlueprintCallable, Category = "Flare")
 	float GetFadeAlpha() const;
@@ -252,6 +256,7 @@ public:
 	EFlareMenu::Type GetCurrentMenu() const;
 
 	/** Which menu, if any, is coming next ? */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	EFlareMenu::Type GetNextMenu() const;
 
 	/** Get the PC */

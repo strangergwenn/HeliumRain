@@ -991,6 +991,11 @@ bool AFlareMenuManager::IsFading() const
 	return (FadeTimer < FadeDuration);
 }
 
+bool AFlareMenuManager::IsFadingFromBlack() const
+{
+	return FadeFromBlack;
+}
+
 float AFlareMenuManager::GetFadeAlpha() const
 {
 	return FadeTimer / FadeDuration;
