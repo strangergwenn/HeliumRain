@@ -986,9 +986,14 @@ bool AFlareMenuManager::IsOverlayOpen() const
 	return MainOverlay->IsOpen();
 }
 
-bool AFlareMenuManager::IsFading()
+bool AFlareMenuManager::IsFading() const
 {
 	return (FadeTimer < FadeDuration);
+}
+
+float AFlareMenuManager::GetFadeAlpha() const
+{
+	return FadeTimer / FadeDuration;
 }
 
 bool AFlareMenuManager::IsSwitchingMenu() const

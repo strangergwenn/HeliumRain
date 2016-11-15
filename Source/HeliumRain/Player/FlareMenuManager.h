@@ -221,24 +221,34 @@ public:
 	static FString GetKeyNameFromActionName(FName ActionName);
 
 	/** Is UI visible */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	bool IsUIOpen() const;
 
 	/** Is a menu open */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	bool IsMenuOpen() const;
 
 	/** Can we go back ? */
 	bool HasPreviousMenu() const;
 
 	/** Is the overlay open ? */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	bool IsOverlayOpen() const;
 
 	/** Is a menu being opened or closed */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	bool IsSwitchingMenu() const;
 
 	/** Are we during a fade transition ? */
-	bool IsFading();
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	bool IsFading() const;
+
+	/** Get the fade value */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	float GetFadeAlpha() const;
 
 	/** Which menu, if any, is opened ? */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	EFlareMenu::Type GetCurrentMenu() const;
 
 	/** Which menu, if any, is coming next ? */

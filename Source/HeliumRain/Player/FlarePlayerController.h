@@ -426,6 +426,7 @@ public:
 		Getters for game classes
 	----------------------------------------------------*/
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline UFlareCompany* GetCompany() const
 	{
 		return Company;
@@ -436,11 +437,13 @@ public:
 		return &CompanyData;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline AFlareMenuPawn* GetMenuPawn() const
 	{
 		return MenuPawn;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline AFlareSpacecraft* GetShipPawn() const
 	{
 		return ShipPawn;
@@ -451,21 +454,25 @@ public:
 		return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline AFlareMenuManager* GetMenuManager() const
 	{
 		return MenuManager;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline AFlareHUD* GetNavHUD() const
 	{
 		return Cast<AFlareHUD>(GetHUD());
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline AFlareCockpitManager* GetCockpitManager()
 	{
 		return CockpitManager;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline UFlareSoundManager* GetSoundManager()
 	{
 		return SoundManager;
