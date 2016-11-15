@@ -51,7 +51,6 @@ void UFlareTravel::Load(const FFlareTravelSave& Data)
 	SectorDescription.Description = LOCTEXT("TravelSectorDescription", "Travel local sector");
 	SectorDescription.Identifier=Fleet->GetIdentifier();
 	SectorDescription.Phase = 0;
-	SectorDescription.IsPeaceful = true;
 	SectorDescription.IsIcy = false;
 	SectorDescription.IsGeostationary = false;
 	SectorDescription.IsSolarPoor = false;

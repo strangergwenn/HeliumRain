@@ -44,15 +44,18 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	Lighthouse =  World->FindSector("lighthouse");
 	BlueShores =  World->FindSector("blue-shores");
 	TheSpire =    World->FindSector("the-spire");
+	Pendulum =    World->FindSector("pendulum");
 	
 	// Notable sectors (Anka)
 	Outpost =     World->FindSector("outpost");
 	Crossroads =  World->FindSector("crossroads");
 	Colossus =    World->FindSector("colossus");
 	TheDig =      World->FindSector("the-dig");
+	TheForge =    World->FindSector("the-forge");
 
 	// Notable sectors (Hela)
 	FrozenRealm = World->FindSector("frozen-realm");
+	NightsHome =  World->FindSector("nights-home");
 	ShoreOfIce =  World->FindSector("shore-of-ice");
 	Ruins =       World->FindSector("ruins");
 	WinterJunction = World->FindSector("winter-junction");
@@ -60,9 +63,11 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	// Notable sectors (Asta)
 	Decay =       World->FindSector("decay");
 	Boneyard =    World->FindSector("boneyard");
+	Daedalus =    World->FindSector("daedalus");
 
 	// Notable sectors (Adena)
 	Solitude =    World->FindSector("solitude");
+	Serenity =    World->FindSector("serenity");
 	Tranquility = World->FindSector("tranquility");
 
 
@@ -187,10 +192,7 @@ void UFlareScenarioTools::SetupWorld()
 	SetupKnownSectors(GhostWorksShipyards);
 	SetupKnownSectors(NemaHeavyWorks);
 	SetupKnownSectors(Pirates);
-
-	// Player-exclusive sectors
-	SetupPlayerSectors();
-
+	
 	// Company setup
 	PlayerCompany->GiveMoney(5000000);
 	MiningSyndicate->GiveMoney(100000000);
@@ -205,6 +207,7 @@ void UFlareScenarioTools::SetupWorld()
 	// Population setup
 	BlueHeart->GetPeople()->GiveBirth(3000);
 	FrozenRealm->GetPeople()->GiveBirth(1000);
+	TheForge->GetPeople()->GiveBirth(500);
 	
 	// Nema main economy
 	CreateStations(StationIceMine, MiningSyndicate, TheDepths, 3);
@@ -253,9 +256,12 @@ void UFlareScenarioTools::SetupWorld()
 	}
 	
 	// Anka HFR factory
-	CreateStations(StationSteelworks, HelixFoundries, Outpost, 2);
-	CreateStations(StationToolFactory, HelixFoundries, Outpost, 2);
-	CreateStations(StationHabitation, Sunwatch, Outpost, 1);
+	CreateStations(StationSteelworks, HelixFoundries, TheForge, 2);
+	CreateStations(StationToolFactory, HelixFoundries, TheForge, 2);
+	CreateStations(StationHabitation, Sunwatch, TheForge, 1);
+
+	// Create Night's Home capital station
+	// TODO
 	
 	// Hela secondary economy
 	CreateStations(StationArsenal, AxisSupplies, FrozenRealm, 2, 2);
@@ -273,12 +279,11 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationOutpost, Pirates, Boneyard, 1);
 
 	// Create hubs
-	// TODO fix hub before
 	CreateStations(StationHub, IonLane, Crossroads, 2);
 	CreateStations(StationHub, IonLane, Lighthouse, 1);
 	CreateStations(StationHub, IonLane, BlueHeart, 1);
 	CreateStations(StationHub, IonLane, MinersHome, 1);
-	CreateStations(StationHub, IonLane, Outpost, 1);
+	CreateStations(StationHub, IonLane, TheForge, 1);
 	CreateStations(StationHub, IonLane, TheSpire, 1);
 	
 	// Create outposts
@@ -288,7 +293,7 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationOutpost, AxisSupplies, BlueHeart, 1);
 	CreateStations(StationOutpost, AxisSupplies, BlueShores, 1);
 	CreateStations(StationOutpost, AxisSupplies, TheSpire, 1);
-	CreateStations(StationOutpost, AxisSupplies, Outpost, 1);
+	CreateStations(StationOutpost, AxisSupplies, TheForge, 1);
 	CreateStations(StationOutpost, AxisSupplies, Crossroads, 1);
 	CreateStations(StationOutpost, AxisSupplies, TheDig, 1);
 	CreateStations(StationOutpost, AxisSupplies, FrozenRealm, 1);
@@ -306,8 +311,8 @@ void UFlareScenarioTools::SetupWorld()
 	CreateShips(ShipSolen, UnitedFarmsChemicals, TheSpire, 3);
 	CreateShips(ShipOmen, UnitedFarmsChemicals, TheSpire, 1);
 	CreateShips(ShipSolen, Sunwatch, Lighthouse, 4);
-	CreateShips(ShipSolen, HelixFoundries, Outpost, 3);
-	CreateShips(ShipOmen, HelixFoundries, Outpost, 1);
+	CreateShips(ShipSolen, HelixFoundries, TheForge, 3);
+	CreateShips(ShipOmen, HelixFoundries, TheForge, 1);
 	CreateShips(ShipSolen, Pirates, Boneyard, 1);
 
 	// Create military ships
@@ -321,52 +326,45 @@ void UFlareScenarioTools::SetupAsteroids()
 	CreateAsteroids(TheDepths, 39, FVector(35, 5, 10));
 
 	CreateAsteroids(Outpost, 27, FVector(29, 5, 8));
+	CreateAsteroids(TheForge, 12, FVector(31, 7, 9));
 	CreateAsteroids(TheDig, 32, FVector(27, 7, 20));
 
 	CreateAsteroids(ShoreOfIce, 32, FVector(35, 9, 17));
 	CreateAsteroids(Ruins, 35, FVector(28, 7, 9));
 
 	CreateAsteroids(Boneyard, 28, FVector(17, 8, 3));
+
+	CreateAsteroids(Serenity, 17, FVector(20, 9, 4));
 }
-
-void UFlareScenarioTools::SetupPlayerSectors()
-{
-	// Notable sectors (Nema)
-	PlayerCompany->DiscoverSector(FirstLight);
-	PlayerCompany->DiscoverSector(Anomaly);
-
-	// Notable sectors (Asta)
-	PlayerCompany->DiscoverSector(Decay);
-
-	// Notable sectors (Hela)
-	PlayerCompany->DiscoverSector(ShoreOfIce);
-
-	// Notable sectors (Adena)
-	PlayerCompany->DiscoverSector(Solitude);
-}
-
 void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 {
-	// Notable sectors (Nema)
+	// Nema
 	Company->DiscoverSector(TheDepths);
 	Company->DiscoverSector(MinersHome);
-	Company->DiscoverSector(Lighthouse);
 	Company->DiscoverSector(BlueHeart);
+	Company->DiscoverSector(Lighthouse);
 	Company->DiscoverSector(BlueShores);
 	Company->DiscoverSector(TheSpire);
+	// Unknown : FirstLight, Anomaly, Pendulum
 
-	// Notable sectors (Anka)
-	Company->DiscoverSector(Outpost);
+	// Anka
 	Company->DiscoverSector(Crossroads);
 	Company->DiscoverSector(TheDig);
+	Company->DiscoverSector(TheForge);
+	// Unknown : Colossus, Outpost
 
-	// Notable sectors (Hela)
+	// Hela
+	Company->DiscoverSector(NightsHome);
 	Company->DiscoverSector(FrozenRealm);
-	Company->DiscoverSector(Ruins);
 	Company->DiscoverSector(WinterJunction);
+	// Unknown : Ruins, ShoreOfIce
 
-	// Notable sectors (Adena)
+	// Asta
+	// Unknown : Decay, Boneyard, Daedalus
+
+	// Adena
 	Company->DiscoverSector(Tranquility);
+	// Unknown : Serenity, Solitude
 }
 
 

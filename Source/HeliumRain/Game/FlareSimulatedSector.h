@@ -165,10 +165,6 @@ struct FFlareSectorDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	float Phase;
 
-	/** Peaceful sector */
-	UPROPERTY(EditAnywhere, Category = Content)
-	bool IsPeaceful;
-
 	/** Is this sector ice-rich */
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool IsIcy;
