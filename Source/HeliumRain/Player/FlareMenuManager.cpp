@@ -36,6 +36,7 @@ AFlareMenuManager* AFlareMenuManager::Singleton;
 
 AFlareMenuManager::AFlareMenuManager(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
+	, MenuOperationDone(true)
 	, MenuIsOpen(false)
 	, FadeFromBlack(true)
 	, FadeDuration(0.3)
@@ -407,15 +408,14 @@ void AFlareMenuManager::ProcessNextMenu()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	FLOGV("AFlareMenuManager::ProcessNextMenu : '%s'", *GetMenuName(NextMenu.Key).ToString());
-	bool Done = true;
 
 	// Process the target
 	switch (NextMenu.Key)
 	{
-		case EFlareMenu::MENU_LoadGame:           Done = LoadGame();                  break;
-		case EFlareMenu::MENU_FlyShip:            Done = FlyShip();                   break;
-		case EFlareMenu::MENU_ReloadSector:       ReloadSector();              break;
-		case EFlareMenu::MENU_FastForwardSingle:  FastForwardSingle();         break;
+		case EFlareMenu::MENU_LoadGame:           MenuOperationDone = LoadGame();           break;
+		case EFlareMenu::MENU_FlyShip:            MenuOperationDone = FlyShip();            break;
+		case EFlareMenu::MENU_ReloadSector:       MenuOperationDone = ReloadSector();       break;
+		case EFlareMenu::MENU_FastForwardSingle:  MenuOperationDone = FastForwardSingle();  break;
 		case EFlareMenu::MENU_Travel:             Travel();                    break;
 
 		case EFlareMenu::MENU_Main:               OpenMainMenu();              break;
@@ -444,7 +444,7 @@ void AFlareMenuManager::ProcessNextMenu()
 	}
 
 	// Reset target
-	if(Done)
+	if (MenuOperationDone)
 	{
 		NextMenu.Value = FFlareMenuParameterData();
 		NextMenu.Key = EFlareMenu::MENU_None;
@@ -559,10 +559,11 @@ bool AFlareMenuManager::FlyShip()
 		{
 			AFlareSpacecraft* OldShip = PC->GetShipPawn();
 			UFlareSimulatedSpacecraft* Ship = NextMenu.Value.Spacecraft;
-			if(!Ship->IsActive())
+
+			// Fly the ship - retry at new tick if not possible
+			if (!Ship->IsActive())
 			{
-				// Hack Retry at new tick
-				FLOGV("FlyShip: What ship %s to be active", *Ship->GetImmatriculation().ToString());
+				FLOGV("AFlareMenuManager::FlyShip: need ship %s to be active", *Ship->GetImmatriculation().ToString());
 				return false;
 			}
 			PC->FlyShip(Ship->GetActive());
@@ -647,35 +648,54 @@ void AFlareMenuManager::Travel()
 	OpenOrbit();
 }
 
-void AFlareMenuManager::ReloadSector()
+bool AFlareMenuManager::ReloadSector()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC)
 	{
-		PC->GetGame()->DeactivateSector();
-		PC->GetGame()->ActivateCurrentSector();
+		// Reload the sector (only when not reentrant)
+		if (MenuOperationDone)
+		{
+			PC->GetGame()->DeactivateSector();
+			PC->GetGame()->ActivateCurrentSector();
+		}
 
 		if (NextMenu.Value.Spacecraft)
 		{
+			// Fly the ship - retry at new tick if not possible
+			if (!NextMenu.Value.Spacecraft->IsActive())
+			{
+				FLOGV("AFlareMenuManager::ReloadSector: need ship %s to be active", *NextMenu.Value.Spacecraft->GetImmatriculation().ToString());
+				return false;
+			}
 			PC->FlyShip(NextMenu.Value.Spacecraft->GetActive());
 		}
 
 		ExitMenu();
 		MenuIsOpen = false;
 	}
+	return true;
 }
 
-void AFlareMenuManager::FastForwardSingle()
+bool AFlareMenuManager::FastForwardSingle()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC)
 	{
-		// Exit sector
-		PC->GetGame()->DeactivateSector();
-		PC->GetGame()->GetGameWorld()->Simulate();
+		// Exit sector (only when not reentrant)
+		if (MenuOperationDone)
+		{
+			PC->GetGame()->DeactivateSector();
+			PC->GetGame()->GetGameWorld()->Simulate();
+			PC->GetGame()->ActivateCurrentSector();
+		}
 
-		// reload sector
-		PC->GetGame()->ActivateCurrentSector();
+		// Fly the ship - retry at new tick if not possible
+		if (!PC->GetShipPawn())
+		{
+			FLOGV("AFlareMenuManager::FastForwardSingle: need player ship to be active");
+			return false;
+		}
 		PC->FlyShip(PC->GetShipPawn());
 
 		// Notify date
@@ -686,6 +706,7 @@ void AFlareMenuManager::FastForwardSingle()
 		ExitMenu();
 		MenuIsOpen = false;
 	}
+	return true;
 }
 
 void AFlareMenuManager::OpenMainMenu()

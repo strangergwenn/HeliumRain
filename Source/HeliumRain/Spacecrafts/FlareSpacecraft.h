@@ -272,6 +272,7 @@ protected:
 	UPROPERTY()
 	UFlareSpacecraftStateManager*				   StateManager;
 
+	bool                                           HasExitedSector;
 	bool                                           Paused;
 
 	float                                          LastMass;

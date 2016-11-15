@@ -58,6 +58,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	JoystickThrustExponent = 2;
 
 	// Gameplay
+	HasExitedSector = false;
 	Paused = false;
 	AttachedToParentActor = false;
 	LastMass = 0;
@@ -157,7 +158,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			SCOPE_CYCLE_COUNTER(STAT_FlareSpacecraft_PlayerShip);
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 			
-			if (this == PlayerShip)
+			if (this == PlayerShip && !HasExitedSector)
 			{
 				// Warn player if he's going to exit the sector
 				float Distance = GetActorLocation().Size();
@@ -223,7 +224,6 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits);
 
 					// Notify if we're just resetting the ship
-					//else
 					if (GetData().SpawnMode != EFlareSpawnMode::Exit)
 					{
 						PC->Notify(
@@ -240,6 +240,8 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 					MenuParameters.Spacecraft = GetParent();
 					MenuParameters.Sector = GetParent()->GetCurrentSector();
 					PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ReloadSector, MenuParameters);
+
+					HasExitedSector = true;
 					return;
 				}
 			}

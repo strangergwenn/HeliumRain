@@ -145,10 +145,10 @@ protected:
 	void Travel();
 
 	/** Reload the sector */
-	void ReloadSector();
+	bool ReloadSector();
 
 	/** Reload the sector after a FF */
-	void FastForwardSingle();
+	bool FastForwardSingle();
 
 	/** Open the main menu */
 	void OpenMainMenu();
@@ -291,6 +291,7 @@ protected:
 	static AFlareMenuManager*               Singleton;
 
 	// General data
+	bool                                    MenuOperationDone;
 	bool                                    MenuIsOpen;
 	bool                                    FadeFromBlack;
 	bool                                    SkipNextFade;
