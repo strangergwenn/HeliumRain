@@ -882,7 +882,8 @@ void AFlareGame::OnLevelLoaded()
 
 	IsLoadingStreamingLevel = false;
 
-	if(ActivatingSector == NULL)
+	// Ensure the current state is correct
+	if (ActivatingSector == NULL || ActivatingSector->GetGame()->GetGameWorld() == NULL)
 	{
 		return;
 	}
