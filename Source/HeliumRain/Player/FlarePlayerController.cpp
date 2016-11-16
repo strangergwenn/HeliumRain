@@ -935,9 +935,7 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 
 bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 {
-	bool FightInProgress = false;
-	bool BattleLostWithRetreat = false;
-	bool BattleLostWithoutRetreat = false;
+	FText BattleDetailsText;
 
 	// Check for battle
 	for (int32 SectorIndex = 0; SectorIndex < GetCompany()->GetKnownSectors().Num(); SectorIndex++)
@@ -947,45 +945,31 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(GetCompany());
 		if (BattleState.InBattle)
 		{
-			if(BattleState.InActiveFight)
+			if (BattleState.InActiveFight)
 			{
-				FightInProgress = true;
+				BattleDetailsText = FText::Format(LOCTEXT("BattleSectorFormat", "{0}Battle in progress in {1}. Ships will fight and may be lost.\n"),
+					BattleDetailsText, Sector->GetSectorName());
 			}
 			else if (!BattleState.InFight && !BattleState.BattleWon)
 			{
-				if(BattleState.RetreatPossible)
+				if (BattleState.RetreatPossible)
 				{
-					BattleLostWithRetreat = true;
+					BattleDetailsText = FText::Format(LOCTEXT("BattleSectorLostRetreatFormat", "{0}Battle lost in {1}. Ships can still retreat.\n"),
+						BattleDetailsText, Sector->GetSectorName());
 				}
 				else
 				{
-					BattleLostWithoutRetreat = true;
+					BattleDetailsText = FText::Format(LOCTEXT("BattleSectorLostNoRetreatFormat", "{0}Battle lost in {1}. Ships cannot retreat and may be lost.\n"),
+						BattleDetailsText, Sector->GetSectorName());
 				}
 			}
 		}
 	}
 
 	// Notify when a battle is happening
-	if (FightInProgress)
+	if (BattleDetailsText.ToString().Len())
 	{
-		MenuManager->Confirm(LOCTEXT("ConfirmBattleTitle", "AUTOMATIC BATTLE ?"),
-								LOCTEXT("ConfirmBattleText", "Some of the ships engaged in a battle. They will fight and may be lost."),
-								OnConfirmed);
-		return false;
-	}
-	else if (BattleLostWithoutRetreat)
-	{
-		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithoutRetreatTitle", "SACRIFICE SHIPS ?"),
-								LOCTEXT("ConfirmBattleLostWithoutRetreatText", "Some of the ships engaged in a battle cannot retreat and may be lost."),
-								OnConfirmed);
-		return false;
-
-	}
-	else if (BattleLostWithRetreat)
-	{
-		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithRetreatTitle", "SACRIFICE SHIPS ?"),
-								LOCTEXT("ConfirmBattleLostWithRetreatText", "Some of the ships engaged in a battle can still retreat ! They may be lost."),
-								OnConfirmed);
+		MenuManager->Confirm(LOCTEXT("ConfirmBattleTitle", "BATTLE IN PROGRESS"), BattleDetailsText, OnConfirmed);
 		return false;
 	}
 	else
