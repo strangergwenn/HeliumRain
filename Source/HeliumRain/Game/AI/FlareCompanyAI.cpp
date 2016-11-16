@@ -161,6 +161,12 @@ void UFlareCompanyAI::Simulate()
 
 void UFlareCompanyAI::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 {
+	// Don't keep reference on destroyed stations
+	if (ConstructionProjectStation == Spacecraft)
+	{
+		ClearConstructionProject();
+	}
+
 	// Don't keep reference on destroyed ship
 	ConstructionShips.Remove(Spacecraft);
 	ConstructionStaticShips.Remove(Spacecraft);
