@@ -935,6 +935,7 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 
 bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 {
+	FText BattleTitleText = LOCTEXT("ConfirmBattleTitle", "BATTLE IN PROGRESS");
 	FText BattleDetailsText;
 
 	// Check for battle
@@ -947,19 +948,21 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 		{
 			if (BattleState.InActiveFight)
 			{
-				BattleDetailsText = FText::Format(LOCTEXT("BattleSectorFormat", "{0}Battle in progress in {1}. Ships will fight and may be lost.\n"),
+				BattleDetailsText = FText::Format(LOCTEXT("ConfirmBattleFormat", "{0}Battle in progress in {1}. Ships will fight and may be lost.\n"),
 					BattleDetailsText, Sector->GetSectorName());
 			}
 			else if (!BattleState.InFight && !BattleState.BattleWon)
 			{
+				BattleTitleText = LOCTEXT("ConfirmBattleLostTitle", "BATTLE LOST");
+
 				if (BattleState.RetreatPossible)
 				{
-					BattleDetailsText = FText::Format(LOCTEXT("BattleSectorLostRetreatFormat", "{0}Battle lost in {1}. Ships can still retreat.\n"),
+					BattleDetailsText = FText::Format(LOCTEXT("ConfirmBattleLostRetreatFormat", "{0}Battle lost in {1}. Ships can still retreat.\n"),
 						BattleDetailsText, Sector->GetSectorName());
 				}
 				else
 				{
-					BattleDetailsText = FText::Format(LOCTEXT("BattleSectorLostNoRetreatFormat", "{0}Battle lost in {1}. Ships cannot retreat and may be lost.\n"),
+					BattleDetailsText = FText::Format(LOCTEXT("ConfirmBattleLostNoRetreatFormat", "{0}Battle lost in {1}. Ships cannot retreat and may be lost.\n"),
 						BattleDetailsText, Sector->GetSectorName());
 				}
 			}
@@ -969,7 +972,7 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 	// Notify when a battle is happening
 	if (BattleDetailsText.ToString().Len())
 	{
-		MenuManager->Confirm(LOCTEXT("ConfirmBattleTitle", "BATTLE IN PROGRESS"), BattleDetailsText, OnConfirmed);
+		MenuManager->Confirm(BattleTitleText, BattleDetailsText, OnConfirmed);
 		return false;
 	}
 	else
