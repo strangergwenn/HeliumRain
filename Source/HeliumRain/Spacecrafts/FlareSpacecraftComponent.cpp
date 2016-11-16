@@ -34,8 +34,8 @@ UFlareSpacecraftComponent::UFlareSpacecraftComponent(const class FObjectInitiali
 	, ImpactEffectChance(0.1)
 {
 	// Fire effects
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> ImpactEffectTemplateSObj(TEXT("/Game/Master/Particles/PS_Fire.PS_Fire"));
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> ImpactEffectTemplateLObj(TEXT("/Game/Master/Particles/PS_Fire_L.PS_Fire_L"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ImpactEffectTemplateSObj(TEXT("/Game/Master/Particles/DamageEffects/PS_Fire.PS_Fire"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ImpactEffectTemplateLObj(TEXT("/Game/Master/Particles/DamageEffects/PS_Fire_L.PS_Fire_L"));
 	ImpactEffectTemplateS = ImpactEffectTemplateSObj.Object;
 	ImpactEffectTemplateL = ImpactEffectTemplateLObj.Object;
 
