@@ -76,7 +76,6 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		}
 	}
 
-
 	// Update uncontrollable status
 	if (WasControllable && Parent->IsUncontrollable())
 	{
@@ -170,13 +169,14 @@ void UFlareSpacecraftDamageSystem::Start()
 {
 	// Reload components
 	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-
 	Parent->TickSystem();
 
 	// Init alive status
 	WasControllable = !Parent->IsUncontrollable();
 	WasAlive = Parent->IsAlive();
 	TimeSinceLastExternalDamage = 10000;
+
+	CheckRecovery();
 }
 
 void UFlareSpacecraftDamageSystem::SetLastDamageCauser(AFlareSpacecraft* Ship)
@@ -277,22 +277,6 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 		}
 
 		CheckRecovery();
-		// Check if it the last ship
-		bool EmptyFleet = true;
-		for(int ShipIndex = 0; ShipIndex < PC->GetPlayerFleet()->GetShips().Num(); ShipIndex++)
-		{
-			UFlareSimulatedSpacecraft* Ship = PC->GetPlayerFleet()->GetShips()[ShipIndex];
-			if(Ship->GetDamageSystem()->IsAlive() && !Ship->GetDamageSystem()->IsUncontrollable())
-			{
-				EmptyFleet = false;
-				break;
-			}
-		}
-
-		if(EmptyFleet)
-		{
-			PC->ActivateRecovery();
-		}
 	}
 
 	// Lost company ship
@@ -311,7 +295,6 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	Spacecraft->GetNavigationSystem()->AbortAllCommands();
 }
 
-
 void UFlareSpacecraftDamageSystem::CheckRecovery()
 {
 	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
@@ -328,7 +311,8 @@ void UFlareSpacecraftDamageSystem::CheckRecovery()
 		}
 	}
 
-	if(EmptyFleet)
+	// If last, activate recovery
+	if (EmptyFleet)
 	{
 		PC->ActivateRecovery();
 	}
