@@ -114,7 +114,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	Super::PlayerTick(DeltaSeconds);
 	AFlareHUD* HUD = GetNavHUD();
 	TimeSinceWeaponSwitch += DeltaSeconds;
-	static bool PlayerWasTraveling = false;
 
 	// Check recovery
 	if (RecoveryActive)
@@ -132,32 +131,22 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		HUD->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
 		{
 			SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_ControlGroups);
+
 			UFlareSimulatedSector* Sector = ShipPawn->GetParent()->GetCurrentSector();
 			GetTacticManager()->ResetControlGroups(Sector);
 		}
 		
 		// Battle state
-		if (GetPlayerFleet()->IsTraveling())
-		{
-			if (!PlayerWasTraveling)
-			{
-				UpdateMusicTrack(FFlareSectorBattleState().Init());
-			}
-
-			PlayerWasTraveling = true;
-		}
-		else if (GetGame()->GetActiveSector())
+		if (GetGame()->GetActiveSector())
 		{
 			SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_Battle);
 
 			FFlareSectorBattleState BattleState = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(GetCompany());
-			if (BattleState != LastBattleState || PlayerWasTraveling)
+			if (BattleState != LastBattleState)
 			{
 				LastBattleState = BattleState;
 				UpdateMusicTrack(BattleState);
 			}
-
-			PlayerWasTraveling = false;
 		}
 	}
 
@@ -404,6 +393,8 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 		FLOG("AFlarePlayerController::OnSectorActivated no candidate");
 		SwitchToNextShip(true);
 	}
+
+	UpdateMusicTrack(FFlareSectorBattleState().Init());
 }
 
 void AFlarePlayerController::OnSectorDeactivated()
