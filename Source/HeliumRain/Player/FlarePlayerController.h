@@ -332,13 +332,21 @@ protected:
 	UPROPERTY()
 	UFlareSoundManager*                      SoundManager;
 
-	/** Dust effect template */
+	/** Speed effect template */
 	UPROPERTY()
-	UParticleSystem*                         DustEffectTemplate;
+	UParticleSystem*                         LowSpeedEffectTemplate;
 
-	/** Dust effect */
+	/** Speed effect template */
 	UPROPERTY()
-	UParticleSystemComponent*                DustEffect;
+	UParticleSystem*                         HighSpeedEffectTemplate;
+
+	/** Speed effect */
+	UPROPERTY()
+	UParticleSystemComponent*                LowSpeedEffect;
+
+	/** Speed effect */
+	UPROPERTY()
+	UParticleSystemComponent*                HighSpeedEffect;
 
 	/** Player save structure */
 	UPROPERTY()

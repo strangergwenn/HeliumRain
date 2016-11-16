@@ -48,6 +48,10 @@ public:
 
 	void SkipNight(float TimeRange);
 
+	/** Get the speed of dust particles for travel */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	FVector GetStellarDustVelocity() const;
+
 
 	/*----------------------------------------------------
 		Public Blueprint events

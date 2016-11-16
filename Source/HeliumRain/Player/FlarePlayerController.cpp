@@ -25,7 +25,8 @@ DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Sound"), STAT_FlarePlayerTick_Sound, ST
 
 AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
-	, DustEffect(NULL)
+	, LowSpeedEffect(NULL)
+	, HighSpeedEffect(NULL)
 	, Company(NULL)
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
@@ -35,8 +36,10 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	CheatClass = UFlareGameTools::StaticClass();
 		
 	// Mouse
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
-	DustEffectTemplate = DustEffectTemplateObj.Object;
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> LowSpeedEffectTemplateObj(TEXT("/Game/Master/Particles/SpeedEffects/PS_SpeedDust"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> HighSpeedEffectTemplateObj(TEXT("/Game/Master/Particles/SpeedEffects/PS_SpeedDust_Travel"));
+	LowSpeedEffectTemplate = LowSpeedEffectTemplateObj.Object;
+	HighSpeedEffectTemplate = HighSpeedEffectTemplateObj.Object;
 	DefaultMouseCursor = EMouseCursor::Default;
 
 	// Camera shakes
@@ -201,39 +204,82 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		}
 	}
 
-	// Spawn dust effects if they are not already here
-	if (!DustEffect && ShipPawn)
+	// Update speed effects
+	if (ShipPawn && !IsInMenu())
 	{
-		DustEffect = UGameplayStatics::SpawnEmitterAtLocation(this, DustEffectTemplate, FVector::ZeroVector);
-	}
-
-	// Update dust effects
-	if (DustEffect && ShipPawn && !IsInMenu())
-	{
-		// Ship velocity
-		FVector Velocity = ShipPawn->GetLinearVelocity();
-		FVector Direction = Velocity;
-		Direction.Normalize();
-
-		// Particle position
+		// Get ship velocity & direction
 		FVector ViewLocation;
 		FRotator ViewRotation;
+		FVector ShipVelocity = ShipPawn->GetLinearVelocity();
+		FVector ShipDirection = ShipVelocity;
+		ShipDirection.Normalize();
 		GetPlayerViewPoint(ViewLocation, ViewRotation);
-		ViewLocation += Direction.Rotation().RotateVector(5000 * FVector(1, 0, 0));
-		DustEffect->SetWorldLocation(ViewLocation);
+		
+		// Spawn dust effects if they are not already here
+		if (!LowSpeedEffect)
+		{
+			LowSpeedEffect = UGameplayStatics::SpawnEmitterAtLocation(this, LowSpeedEffectTemplate, ViewLocation, FRotator::ZeroRotator, false);
+			FCHECK(LowSpeedEffect);
+		}
+		if (!HighSpeedEffect)
+		{
+			HighSpeedEffect = UGameplayStatics::SpawnEmitterAtLocation(this, HighSpeedEffectTemplate, ViewLocation, FRotator::ZeroRotator, false);
+			FCHECK(HighSpeedEffect);
+		}
 
-		// Particle params
-		float VelocityFactor = FMath::Clamp(Velocity.Size() / 100.0f, 0.0f, 1.0f);
-		FLinearColor Color = FLinearColor::White * VelocityFactor;
-		DustEffect->SetFloatParameter("SpawnCount", VelocityFactor);
-		DustEffect->SetColorParameter("Intensity", Color);
-		DustEffect->SetVectorParameter("Direction", -Direction);
-		DustEffect->SetVectorParameter("Size", FVector(1, VelocityFactor, 1));
+		// Update location
+		ViewLocation += ShipDirection.Rotation().RotateVector(5000 * FVector(1, 0, 0));
+		LowSpeedEffect->SetWorldLocation(ViewLocation);
+		HighSpeedEffect->SetWorldLocation(ViewLocation);
+
+		// Update effects
+		if (GetPlayerFleet()->IsTraveling())
+		{
+			// Get the stellar velocity, and multiply it if the player is flying faster than that in reverse
+			FVector StellarVelocity = GetGame()->GetPlanetarium()->GetStellarDustVelocity();
+			float ShipColinearity = FVector::DotProduct(StellarVelocity.GetSafeNormal(), ShipDirection);
+			if (ShipColinearity > 0)
+			{
+				StellarVelocity = (1 + ShipColinearity) * StellarVelocity;
+			}
+
+			// Low speed effect
+			LowSpeedEffect->SetFloatParameter("SpawnCount", 0);
+			LowSpeedEffect->SetColorParameter("Intensity", FVector::ZeroVector);
+			LowSpeedEffect->SetColorParameter("Direction", FVector::ZeroVector);
+
+			// High speed effect
+			HighSpeedEffect->SetFloatParameter("SpawnCount", 1.0f);
+			HighSpeedEffect->SetColorParameter("Intensity", FLinearColor::White);
+			HighSpeedEffect->SetVectorParameter("Direction", StellarVelocity);
+			HighSpeedEffect->SetVectorParameter("Size", FVector(1, 1, 1));
+		}
+		else
+		{
+			float VelocityFactor = FMath::Clamp(ShipVelocity.Size() / 100.0f, 0.0f, 1.0f);
+			FLinearColor Intensity = FLinearColor::White * VelocityFactor;
+
+			// Low speed effect
+			LowSpeedEffect->SetFloatParameter("SpawnCount", VelocityFactor);
+			LowSpeedEffect->SetColorParameter("Intensity", Intensity);
+			LowSpeedEffect->SetVectorParameter("Direction", -ShipDirection);
+			LowSpeedEffect->SetVectorParameter("Size", FVector(1, VelocityFactor, 1));
+
+			// High speed effect
+			HighSpeedEffect->SetFloatParameter("SpawnCount", 0);
+			HighSpeedEffect->SetColorParameter("Intensity", FVector::ZeroVector);
+		}
 	}
-	else if (DustEffect)
+	else if (LowSpeedEffect && HighSpeedEffect)
 	{
-		DustEffect->SetColorParameter("Intensity", FVector::ZeroVector);
-		DustEffect->SetColorParameter("Direction", FVector::ZeroVector);
+		// Low speed effect
+		LowSpeedEffect->SetFloatParameter("SpawnCount", 0);
+		LowSpeedEffect->SetColorParameter("Intensity", FVector::ZeroVector);
+		LowSpeedEffect->SetColorParameter("Direction", FVector::ZeroVector);
+
+		// High speed effect
+		HighSpeedEffect->SetFloatParameter("SpawnCount", 0);
+		HighSpeedEffect->SetColorParameter("Intensity", FVector::ZeroVector);
 	}
 
 	// Sound

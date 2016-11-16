@@ -450,5 +450,8 @@ void AFlarePlanetarium::SkipNight(float TimeRange)
 	SkipNightTimeRange = TimeRange;
 }
 
-
+FVector AFlarePlanetarium::GetStellarDustVelocity() const
+{
+	return FVector(25000, 0, 0);
+}
 
