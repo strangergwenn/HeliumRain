@@ -325,16 +325,16 @@ void UFlareScenarioTools::SetupAsteroids()
 	CreateAsteroids(MinersHome, 40, FVector(55, 7, 13));
 	CreateAsteroids(TheDepths, 39, FVector(35, 5, 10));
 
-	CreateAsteroids(Outpost, 27, FVector(29, 5, 8));
+	CreateAsteroids(Outpost, 27, FVector(29, 6, 8));
 	CreateAsteroids(TheForge, 12, FVector(31, 7, 9));
-	CreateAsteroids(TheDig, 32, FVector(27, 7, 20));
+	CreateAsteroids(TheDig, 32, FVector(27, 13, 20));
 
 	CreateAsteroids(ShoreOfIce, 32, FVector(35, 9, 17));
 	CreateAsteroids(Ruins, 35, FVector(28, 7, 9));
 
-	CreateAsteroids(Boneyard, 28, FVector(17, 8, 3));
+	CreateAsteroids(Boneyard, 28, FVector(27, 8, 7));
 
-	CreateAsteroids(Serenity, 17, FVector(20, 9, 4));
+	CreateAsteroids(Serenity, 17, FVector(22, 9, 7));
 }
 void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 {
