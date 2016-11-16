@@ -76,14 +76,39 @@ FFlareTravelSave* UFlareTravel::Save()
 	return &TravelData;
 }
 
+
 /*----------------------------------------------------
 	Gameplay
 ----------------------------------------------------*/
 
-
 void UFlareTravel::Simulate()
 {
-	if (GetRemainingTravelDuration() <= 0)
+	int64 RemainingTime = GetRemainingTravelDuration();
+
+	// Incoming player notification. This doesn't work for incoming enemies, as they don't travel in fleets.
+	if (RemainingTime == 1)
+	{
+		UFlareCompany* PlayerCompany = Fleet->GetGame()->GetPC()->GetCompany();
+
+		if (Fleet->GetFleetCompany() == PlayerCompany
+			&& DestinationSector->GetSectorFriendlyness(PlayerCompany) >= EFlareSectorFriendlyness::Contested)
+		{
+			FFlareMenuParameterData Data;
+			Data.Sector = DestinationSector;
+
+			Game->GetPC()->Notify(LOCTEXT("TravelAttackingSoon", "Destination is defended"),
+				FText::Format(LOCTEXT("TravelAttackingSoonFormat", "Your fleet is arriving at {0}, but this sector is defended. Prepare for battle."),
+					DestinationSector->GetSectorName()),
+				FName("travel-raid-soon"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Sector,
+				Data);
+		}
+	}
+
+	// Trael is done
+	else if (RemainingTime <= 0)
 	{
 		EndTravel();
 	}

@@ -1067,9 +1067,8 @@ void UFlareSimulatedSector::ClearBombs()
 	SectorData.BombData.Empty();
 }
 
-void UFlareSimulatedSector::GetSectorBalance(int32& PlayerShips, int32& EnemyShips, int32& NeutralShips, bool ActiveOnly)
+void UFlareSimulatedSector::GetSectorBalance(UFlareCompany* Company, int32& PlayerShips, int32& EnemyShips, int32& NeutralShips, bool ActiveOnly)
 {
-	AFlarePlayerController* PC = GetGame()->GetPC();
 	PlayerShips = 0;
 	EnemyShips = 0;
 	NeutralShips = 0;
@@ -1081,12 +1080,12 @@ void UFlareSimulatedSector::GetSectorBalance(int32& PlayerShips, int32& EnemyShi
 			continue;
 		}
 
-		if (SectorShips[ShipIndex]->GetCompany()->GetWarState(PC->GetCompany()) == EFlareHostility::Hostile
+		if (SectorShips[ShipIndex]->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile
 		 && SectorShips[ShipIndex]->IsMilitary() && !SectorShips[ShipIndex]->GetDamageSystem()->IsDisarmed())
 		{
 			EnemyShips++;
 		}
-		else if (SectorShips[ShipIndex]->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned
+		else if (SectorShips[ShipIndex]->GetCompany()->GetHostility(Company) == EFlareHostility::Owned
 		 && SectorShips[ShipIndex]->IsMilitary() && !SectorShips[ShipIndex]->GetDamageSystem()->IsDisarmed())
 		{
 			PlayerShips++;
@@ -1101,7 +1100,7 @@ void UFlareSimulatedSector::GetSectorBalance(int32& PlayerShips, int32& EnemyShi
 FText UFlareSimulatedSector::GetSectorBalanceText(bool ActiveOnly)
 {
 	int32 PlayerShips, EnemyShips, NeutralShips;
-	GetSectorBalance(PlayerShips, EnemyShips, NeutralShips, ActiveOnly);
+	GetSectorBalance(GetGame()->GetPC()->GetCompany(), PlayerShips, EnemyShips, NeutralShips, ActiveOnly);
 
 	FText PlayerShipsText = FText::Format(LOCTEXT("PlayerShipsFormat", "Forces : {0} friendly {1}, "),
 		FText::AsNumber(PlayerShips),
@@ -1224,7 +1223,7 @@ EFlareSectorFriendlyness::Type UFlareSimulatedSector::GetSectorFriendlyness(UFla
 	}
 
 	int FriendlySpacecraftCount, HostileSpacecraftCount, NeutralSpacecraftCount;
-	GetSectorBalance(FriendlySpacecraftCount, HostileSpacecraftCount, NeutralSpacecraftCount, false);
+	GetSectorBalance(Company, FriendlySpacecraftCount, HostileSpacecraftCount, NeutralSpacecraftCount, false);
 
 	if (FriendlySpacecraftCount > 0 && HostileSpacecraftCount > 0)
 	{
