@@ -73,6 +73,9 @@ protected:
 	/** Update filters */
 	void OnToggleShowFlags();
 
+	/** Ship removed */
+	void OnShipRemoved(UFlareSimulatedSpacecraft* Ship);
+
 
 protected:
 

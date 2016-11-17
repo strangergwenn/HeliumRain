@@ -8,6 +8,9 @@
 #include "../../Game/FlareCompany.h"
 
 
+DECLARE_DELEGATE_OneParam(FFlareObjectRemoved, UFlareSimulatedSpacecraft*)
+
+
 class SFlareSpacecraftInfo : public SCompoundWidget
 {
 	/*----------------------------------------------------
@@ -26,6 +29,8 @@ class SFlareSpacecraftInfo : public SCompoundWidget
 	SLATE_ARGUMENT(AFlarePlayerController*, Player)
 	SLATE_ARGUMENT(UFlareSimulatedSpacecraft*, Spacecraft)
 	SLATE_ARGUMENT(SWidget*, OwnerWidget)
+
+	SLATE_EVENT(FFlareObjectRemoved, OnRemoved)
 
 	SLATE_ARGUMENT(bool, NoInspect)
 	SLATE_ARGUMENT(bool, Minimized)
@@ -146,6 +151,7 @@ protected:
 	TSharedPtr<SFlareButton>          OrderHeavyShipButton;
 
 	// Slate data (various)
+	FFlareObjectRemoved               OnRemoved;
 	TSharedPtr<SFlareShipStatus>      ShipStatus;
 	TSharedPtr<SFlareCompanyFlag>     CompanyFlag;
 	TSharedPtr<SHorizontalBox>        CargoBay;

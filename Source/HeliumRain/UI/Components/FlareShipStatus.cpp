@@ -106,7 +106,7 @@ void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerE
 	SWidget::OnMouseEnter(MyGeometry, MouseEvent);
 
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
-	if (MenuManager && TargetShip)
+	if (MenuManager && TargetShip && TargetShip->IsValidLowLevel())
 	{
 		FText Info;
 		UFlareSimulatedSpacecraftDamageSystem* DamageSystem = TargetShip->GetDamageSystem();
@@ -190,7 +190,7 @@ void SFlareShipStatus::OnMouseLeave(const FPointerEvent& MouseEvent)
 
 TOptional<float> SFlareShipStatus::GetGlobalHealth() const
 {
-	if (TargetShip)
+	if (TargetShip && TargetShip->IsValidLowLevel())
 	{
 		return TargetShip->GetDamageSystem()->GetGlobalHealth();
 	}
@@ -206,7 +206,7 @@ FSlateColor SFlareShipStatus::GetIconColor(EFlareSubsystem::Type Type) const
 	Result.A = 0.0f;
 
 	// Ignore stations
-	if (TargetShip && !TargetShip->IsStation())
+	if (TargetShip && TargetShip->IsValidLowLevel() && !TargetShip->IsStation())
 	{
 		bool IsIncapacitated = false;
 		UFlareSimulatedSpacecraftDamageSystem* DamageSystem = TargetShip->GetDamageSystem();
