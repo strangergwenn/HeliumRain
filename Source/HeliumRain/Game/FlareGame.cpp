@@ -277,9 +277,9 @@ void AFlareGame::Recovery()
 		OtherCompany->SetHostilityTo(PlayerCompany, false);
 		PlayerCompany->SetHostilityTo(OtherCompany, false);
 
-		if (OtherCompany->GetReputation(PlayerCompany) <= -100)
+		if (OtherCompany->GetReputation(PlayerCompany) < 0)
 		{
-			OtherCompany->ForceReputation(PlayerCompany, -99);
+			OtherCompany->ForceReputation(PlayerCompany, 0);
 		}
 	}
 

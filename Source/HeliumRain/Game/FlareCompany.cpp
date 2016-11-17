@@ -275,19 +275,19 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 				}
 			}
 
-			if(this == PlayerCompany)
+			if (this == PlayerCompany)
 			{
 				int64 DaySincePeace = Game->GetGameWorld()->GetDate() - TargetCompany->GetLastPeaceDate();
 				int64 DaySinceTribute = Game->GetGameWorld()->GetDate() - TargetCompany->GetLastTributeDate();
-				if(DaySincePeace < 20)
+				if (DaySincePeace < 20)
 				{
-					float PenaltyRatio = (float) TargetCompany->GetLastPeaceDate() / 20.f;
+					float PenaltyRatio = 1 - ((float)DaySincePeace / 20);
 					PlayerCompany->GiveReputationToOthers(PenaltyRatio * -70, false);
 				}
 
-				if(DaySinceTribute < 50)
+				if (DaySinceTribute < 50)
 				{
-					float PenaltyRatio = (float) TargetCompany->GetLastTributeDate() / 50.f;
+					float PenaltyRatio = 1 - ((float)DaySinceTribute / 50);
 					PlayerCompany->GiveReputationToOthers(PenaltyRatio * -30, false);
 				}
 			}
