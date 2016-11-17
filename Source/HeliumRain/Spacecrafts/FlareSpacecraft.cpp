@@ -61,7 +61,6 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	HasExitedSector = false;
 	Paused = false;
 	AttachedToParentActor = false;
-	LastMass = 0;
 	TargetIndex = 0;
 	TimeSinceSelection = 0;
 	MaxTimeBeforeSelectionReset = 3.0;
@@ -115,13 +114,7 @@ void AFlareSpacecraft::BeginPlay()
 void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
 	FCHECK(IsValidLowLevel());
-
-	// Show mass in logs
-	if (LastMass <= KINDA_SMALL_NUMBER && Airframe && Airframe->IsSimulatingPhysics())
-	{
-		LastMass = Airframe->GetMass();
-	}
-
+	
 	// Attach to parent actor, if any
 	if (GetData().AttachActorName != NAME_None && !AttachedToParentActor)
 	{
@@ -476,6 +469,10 @@ float AFlareSpacecraft::GetSpacecraftMass()
 	if (Mass)
 	{
 		return Mass;
+	}
+	else if (AttachedToParentActor)
+	{
+		return Cast<UPrimitiveComponent>(GetAttachParentActor()->GetRootComponent())->GetMass();
 	}
 	else if (Airframe)
 	{
