@@ -698,8 +698,8 @@ void UFlareWorld::ProcessShipCapture()
 			MenuData.Sector = Sector;
 
 			GetGame()->GetPC()->Notify(LOCTEXT("ShipCaptured", "Ship captured"),
-				FText::Format(LOCTEXT("ShipCapturedFormat", "The ship {0} has been captured in {1}. Its new name is {2}."),
-							  FText::FromString(Data.Immatriculation.ToString()),
+				FText::Format(LOCTEXT("ShipCapturedFormat", "You have captured a {0}-class ship in {1}. Its new name is {2}."),
+							  NewShip->GetDescription()->Name,
 							  FText::FromString(Sector->GetSectorName().ToString()),
 							  FText::FromString(NewShip->GetImmatriculation().ToString())),
 				FName("ship-captured"),
@@ -789,10 +789,10 @@ void UFlareWorld::ProcessStationCapture()
 			MenuData.Sector = Sector;
 
 			GetGame()->GetPC()->Notify(LOCTEXT("StationCaptured", "Station captured"),
-				FText::Format(LOCTEXT("StationCapturedFormat", "The station {0} has been captured in {1}. Its new name is {2}."),
-							  FText::FromString(Data.Immatriculation.ToString()),
-							  FText::FromString(Sector->GetSectorName().ToString()),
-							  FText::FromString(NewShip->GetImmatriculation().ToString())),
+				FText::Format(LOCTEXT("StationCapturedFormat", "You have captured a {0} in {1}. Its new name is {2}."),
+							NewShip->GetDescription()->Name,
+							FText::FromString(Sector->GetSectorName().ToString()),
+							FText::FromString(NewShip->GetImmatriculation().ToString())),
 				FName("station-captured"),
 				EFlareNotification::NT_Military,
 				false,
