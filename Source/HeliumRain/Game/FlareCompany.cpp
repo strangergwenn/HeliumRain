@@ -1111,11 +1111,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 			Value.ShipsValue += SpacecraftPrice;
 		}
 
-		if(Spacecraft->IsMilitary() && !Spacecraft->GetDamageSystem()->IsDisarmed())
-		{
-			// TODO Upgrade cost
-			Value.ArmyValue += SpacecraftPrice;
-		}
+		Value.ArmyValue += Spacecraft->ComputeCombatValue();
 
 		// Value of the stock
 		TArray<FFlareCargo>& CargoBaySlots = Spacecraft->GetCargoBay()->GetSlots();

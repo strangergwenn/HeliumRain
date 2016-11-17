@@ -695,7 +695,7 @@ bool AFlareMenuManager::FastForwardSingle()
 		// Fly the ship - retry at new tick if not possible
 		if (!PC->GetShipPawn())
 		{
-			FLOGV("AFlareMenuManager::FastForwardSingle: need player ship to be active");
+			FLOG("AFlareMenuManager::FastForwardSingle: need player ship to be active");
 			return false;
 		}
 		PC->FlyShip(PC->GetShipPawn());

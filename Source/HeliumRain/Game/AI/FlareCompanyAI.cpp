@@ -1614,10 +1614,318 @@ void UFlareCompanyAI::UpdateMilitaryMovement()
 	}
 }
 
+
+
+TArray<WarTargetIncomingFleet> UFlareCompanyAI::GenerateWarTargetIncomingFleets(UFlareSimulatedSector* DestinationSector)
+{
+	TArray<WarTargetIncomingFleet> IncomingFleetList;
+
+	for (UFlareTravel* Travel : Game->GetGameWorld()->GetTravels())
+	{
+		if (Travel->GetDestinationSector() != DestinationSector)
+		{
+			continue;
+		}
+
+		if(Travel->GetFleet()->GetFleetCompany() != Company)
+		{
+			continue;
+		}
+
+		int64 TravelDuration = Travel->GetRemainingTravelDuration();
+		int64 ArmyValue = 0;
+
+
+		for (UFlareSimulatedSpacecraft* Ship : Travel->GetFleet()->GetShips())
+		{
+			ArmyValue += Ship->ComputeCombatValue();
+		}
+
+		// Add an entry or modify one
+		bool ExistingTravelFound = false;
+		for(WarTargetIncomingFleet& Fleet : IncomingFleetList)
+		{
+			if(Fleet.TravelDuration  == TravelDuration)
+			{
+				Fleet.ArmyValue += ArmyValue;
+				ExistingTravelFound = true;
+				break;
+			}
+		}
+
+		if (!ExistingTravelFound)
+		{
+			WarTargetIncomingFleet Fleet;
+			Fleet.TravelDuration = TravelDuration;
+			Fleet.ArmyValue = ArmyValue;
+			IncomingFleetList.Add(Fleet);
+		}
+	}
+	return IncomingFleetList;
+}
+
+
+TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
+{
+	TArray<WarTarget> WarTargetList;
+
+	for (UFlareSimulatedSector* Sector : Company->GetKnownSectors())
+	{
+		if(Sector->GetSectorBattleState(Company).HasDanger)
+		{
+			/* TODO
+			 - damaged company ships,in danger, store price to sort
+			 - capturing station in danger
+			 - enemy fleet per size
+			 - enemy station and cargo, random
+			*/
+			WarTarget Target;
+			Target.Sector = Sector;
+			Target.EnemyArmyValue = 0;
+			Target.WarTargetIncomingFleets = GenerateWarTargetIncomingFleets(Sector);
+
+			for (UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
+			{
+				if(Ship->GetCompany()->GetWarState(Company) != EFlareHostility::Hostile)
+				{
+					continue;
+				}
+
+				Target.EnemyArmyValue += Ship->ComputeCombatValue();
+			}
+			WarTargetList.Add(Target);
+		}
+	}
+
+	// TODO Sort
+}
+
+TArray<DefenceSector> UFlareCompanyAI::GenerateDefenceSectorList()
+{
+	TArray<DefenceSector> DefenceSectorList;
+
+	for (UFlareSimulatedSector* Sector : Company->GetKnownSectors())
+	{
+		if(Sector->GetSectorBattleState(Company).HasDanger)
+		{
+			continue;
+		}
+
+		DefenceSector Target;
+		Target.Sector = Sector;
+		Target.ArmyValue = 0;
+		Target.LargeShipArmyValue = 0;
+		Target.SmallShipArmyValue = 0;
+		Target.LargeShipArmyCount = 0;
+		Target.SmallShipArmyCount = 0;
+
+		for (UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
+		{
+			if(Ship->GetCompany() != Company)
+			{
+				continue;
+			}
+
+			int64 ShipValue = Ship->ComputeCombatValue();
+
+			if(ShipValue == 0)
+			{
+				continue;
+			}
+
+			Target.ArmyValue += ShipValue;
+			if (Ship->GetSize() == EFlarePartSize::L)
+			{
+				Target.LargeShipArmyValue += ShipValue;
+				Target.LargeShipArmyCount++;
+			}
+			else
+			{
+				Target.SmallShipArmyValue += ShipValue;
+				Target.SmallShipArmyCount++;
+			}
+		}
+		DefenceSectorList.Add(Target);
+	}
+
+	return DefenceSectorList;
+}
+
+inline static bool BodyDistanceComparator (const DefenceSector& ip1, const DefenceSector& ip2)
+{
+	int64 ip1TravelDuration = UFlareTravel::ComputeTravelDuration(ip1.Sector->GetGame()->GetGameWorld(), ip1.TempBaseSector, ip1.Sector);
+	int64 ip2TravelDuration = UFlareTravel::ComputeTravelDuration(ip1.Sector->GetGame()->GetGameWorld(), ip2.TempBaseSector, ip2.Sector);
+
+	return (ip1TravelDuration < ip2TravelDuration);
+}
+
+TArray<DefenceSector> UFlareCompanyAI::SortSectorsByDistance(UFlareSimulatedSector* BaseSector, TArray<DefenceSector> SectorsToSort)
+{
+	for (DefenceSector Sector& : SectorsToSort)
+	{
+		Sector.TempBaseSector = BaseSector;
+	}
+
+	SectorsToSort.Sort(&SectorDefenceDistanceComparator);
+
+}
+
 void UFlareCompanyAI::UpdateWarMilitaryMovement()
 {
-	// TODO #471
-	UpdatePeaceMilitaryMovement();
+	TArray<WarTarget> TargetList = GenerateWarTargetList();
+	TArray<DefenceSector> DefenceSectorList = GenerateDefenceSectorList();
+
+	for (WarTarget Target& : TargetList)
+	{
+		TArray<DefenceSector> SortedDefenceSectorList = SortSectorsByDistance(Target.Sector, DefenceSectorList);
+
+		for (DefenceSector Sector& : SortedDefenceSectorList)
+		{
+			// Check if army is strong enough
+			if (Sector.ArmyValue < Target.EnemyArmyValue * Behavior->AttackThreshold)
+			{
+				// Army too weak
+				continue;
+			}
+
+			// Check if there is an incomming fleet bigger than local
+			bool DefenseFleetFound = false;
+			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Sector, Target.Sector);
+			for (WarTargetIncomingFleet Fleet& : Target.WarTargetIncomingFleet)
+			{
+				if (Fleet.TravelDuration > TravelDuration)
+				{
+					// Incomming fleet will be late, ignore it
+					continue;
+				}
+
+				if (Fleet.ArmyValue <  Target.EnemyArmyValue * Behavior->AttackThreshold)
+				{
+					// Incomming fleet is too weak, ignore it
+					continue;
+				}
+
+				DefenseFleetFound = true;
+				break;
+			}
+
+			if(DefenseFleetFound)
+			{
+				// Defense already incomming
+				continue;
+			}
+
+			// Should go defend ! Assemble a fleet
+			int64 FleetValue = 0;
+			int64 FleetValueLimit = Target.EnemyArmyValue * Behavior->AttackThreshold * 1.5;
+			TArray<UFlareSimulatedSpacecraft*> MovableShips = SectorHelper::GenerateWarShipList(Sector)
+
+			while (MovableShip.Num() > 0 && FleetValue < FleetValueLimit)
+			{
+				// Pick a random ship
+				int32 ShipIndex = FMath::RandRange(0, MovableShip.Num()-1);
+
+				UFlareSimulatedSpacecraft* SelectedShip = MovableShips[ShipIndex];
+				MovableShip.Remove(ShipIndex);
+
+				int64 ShipValue = SectorHelper::ComputeShipValue(SelectedShip);
+				FleetValue += ShipValue;
+				Sector.ArmyValue -= ShipValue;
+
+				// Send ship
+				Game->GetGameWorld()->StartTravel(SelectedShip->GetCurrentFleet(), Target.Sector);
+			}
+
+			if(Sector.ArmyValue == 0)
+			{
+				DefenceSectorList.Remove(Sector);
+			}
+
+		}
+	}
+
+
+	// Manager remaining defence ships
+	for (DefenceSector Sector& : DefenceSectorList)
+	{
+
+		// Don't move if capturing station
+		bool CapturingStation = false;
+		TArray<UFlareSimulatedSpacecraft*>& Stations  Sector.Sector->GetSectorStations();
+		for (UFlareSimulatedSpacecraft* Station :Stations)
+		{
+			if(Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
+			{
+				// Capturing station
+				CapturingStation = true;
+				break;
+			}
+		}
+
+		if (CapturingStation)
+		{
+			// Capturing, don't move
+			continue;
+		}
+
+		int64 MaxTravelDuration = GetDefenceSectorTravelDuration(DefenceSectorList, Sector);
+		for(int32 TravelDuration = 1; TravelDuration <= MaxTravelDuration, TravelDuration++)
+		{
+			TArray<DefenceSector> DefenceSectorListInRange = GetDefenceSectorListInRange(DefenceSectorList, Sector, TravelDuration);
+
+			if(DefenceSectorListInRange == 0)
+			{
+				continue;
+			}
+
+			// Find bigger
+			DefenceSector StrongestSector;
+			StrongestSector.Sector = NULL;
+			StrongestSector.ArmyValue = 0;
+			for (DefenceSector DistantSector& : DefenceSectorListInRange)
+			{
+				if(!StrongestSector.Sector || StrongestSector.ArmyValue < DistantSector.ArmyValue)
+				{
+					StrongestSector = DistantSector;
+				}
+
+			}
+
+			if (StrongestSector.ArmyValue > Sector->ArmyValue)
+			{
+
+				// There is a stronger sector, travel here if no incoming army before
+				bool IncomingFleet = false;
+				TArray<WarTargetIncomingFleet> WarTargetIncomingFleets = GenerateWarTargetIncomingFleets(StrongestSector.Sector);
+				for(WarTargetIncomingFleet& Fleet : WarTargetIncomingFleets)
+				{
+					if(Fleet.TravelDuration <= TravelDuration)
+					{
+						IncomingFleet = true;
+						break;
+					}
+				}
+				if (IncomingFleet)
+				{
+					// Wait incoming fleets
+					break;
+				}
+
+
+				TArray<UFlareSimulatedSpacecraft*> MovableShips = SectorHelper::GenerateWarShipList(Sector)
+				for(UFlareSimulatedSpacecraft* Ship : MovableShips)
+				{
+					// Send ship
+					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), StrongestSector.Sector);
+				}
+
+				Sector.ArmyValue = 0;
+			}
+
+			break;
+		}
+	}
+
 }
 
 void UFlareCompanyAI::UpdatePeaceMilitaryMovement()
