@@ -203,38 +203,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 			SetInputMode(InputMode);
 		}
 	}
-
-	// Player is being attacked
-	if (GetGame()->GetActiveSector())
-	{
-		UFlareWorld* GameWorld = GetGame()->GetGameWorld();
-		for (int32 TravelIndex = 0; TravelIndex < GameWorld->GetTravels().Num(); TravelIndex++)
-		{
-			UFlareTravel* Travel = GameWorld->GetTravels()[TravelIndex];
-
-			if (Travel->GetDestinationSector() == GetGame()->GetActiveSector()->GetSimulatedSector()
-			 && Travel->GetFleet()->GetFleetCompany()->GetPlayerHostility() >= EFlareHostility::Hostile)
-			{
-				FFlareMenuParameterData Data;
-				Data.Sector = Travel->GetDestinationSector();
-
-				int32 ShipCount = Travel->GetFleet()->GetShipCount();
-				FText ShipText = (ShipCount <= 1) ? LOCTEXT("ShipSingle", "ship") : LOCTEXT("ShipPlural", "ships");
-
-				Notify(LOCTEXT("PlayerAttackedSoon", "Incoming attack"),
-					FText::Format(LOCTEXT("PlayerAttackedSoonFormat", "Your current sector {0} will be attacked by {1} tomorrow with {2} {3}. Prepare for battle."),
-						Travel->GetDestinationSector()->GetSectorName(),
-						Travel->GetFleet()->GetFleetCompany()->GetCompanyName(),
-						FText::AsNumber(ShipCount),
-						ShipText),
-					FName("travel-raid-soon"),
-					EFlareNotification::NT_Military,
-					false,
-					EFlareMenu::MENU_Sector,
-					Data);
-			}
-		}
-	}
 	
 	// Update speed effects
 	if (ShipPawn && !IsInMenu())

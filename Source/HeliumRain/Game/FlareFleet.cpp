@@ -148,6 +148,21 @@ uint32 UFlareFleet::GetShipCount() const
 	return FleetShips.Num();
 }
 
+uint32 UFlareFleet::GetMilitaryShipCountBySize(EFlarePartSize::Type Size) const
+{
+	uint32 Count = 0;
+
+	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
+	{
+		if (FleetShips[ShipIndex]->GetDescription()->Size == Size && FleetShips[ShipIndex]->IsMilitary())
+		{
+			Count++;
+		}
+	}
+
+	return Count;
+}
+
 uint32 UFlareFleet::GetMaxShipCount()
 {
 	return 20;

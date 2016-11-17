@@ -609,15 +609,16 @@ void UFlareWorld::Simulate()
 	{
 		Sectors[SectorIndex]->SwapPrices();
 	}
-
-
+	
 	// Update reserve ships
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
 		Sectors[SectorIndex]->UpdateReserveShips();
 	}
 
-
+	// Player is being attacked
+	ProcessIncomingPlayerEnemy();
+	
 	double EndTs = FPlatformTime::Seconds();
 	FLOGV("** Simulate day %d done in %.6fs", WorldData.Date-1, EndTs- StartTs);
 
@@ -908,6 +909,72 @@ void UFlareWorld::FastForward()
 			break;
 		}
 	}*/
+}
+
+void UFlareWorld::ProcessIncomingPlayerEnemy()
+{
+	if (GetGame()->GetActiveSector())
+	{
+		// Notification data
+		FText SingleShip = LOCTEXT("ShipSingle", "ship");
+		FText MultipleShips = LOCTEXT("ShipPlural", "ships");
+		int32 LightShipCount = 0;
+		int32 HeavyShipCount = 0;
+		FText CompanyName;
+
+		// Count incoming ships
+		UFlareWorld* GameWorld = GetGame()->GetGameWorld();
+		for (int32 TravelIndex = 0; TravelIndex < GameWorld->GetTravels().Num(); TravelIndex++)
+		{
+			UFlareTravel* Travel = GameWorld->GetTravels()[TravelIndex];
+
+			if (Travel->GetDestinationSector() == GetGame()->GetActiveSector()->GetSimulatedSector()
+				&& Travel->GetFleet()->GetFleetCompany()->GetPlayerHostility() >= EFlareHostility::Hostile)
+			{
+				CompanyName = Travel->GetFleet()->GetFleetCompany()->GetCompanyName();
+				LightShipCount += Travel->GetFleet()->GetMilitaryShipCountBySize(EFlarePartSize::S);
+				HeavyShipCount += Travel->GetFleet()->GetMilitaryShipCountBySize(EFlarePartSize::L);
+			}
+		}
+
+		// Warn player
+		if (LightShipCount > 0 || HeavyShipCount > 0)
+		{
+			// Fighters
+			FText LightShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} light {1}"),
+				FText::AsNumber(LightShipCount),
+				(LightShipCount > 1) ? MultipleShips : SingleShip);
+
+			// Heavies
+			FText HeavyShipText;
+			if (HeavyShipCount > 0)
+			{
+				HeavyShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} heavy {1}"),
+					FText::AsNumber(LightShipCount),
+					(HeavyShipCount > 1) ? MultipleShips : SingleShip);
+
+				if (LightShipCount > 0)
+				{
+					HeavyShipText = FText::FromString(", " + HeavyShipText.ToString());
+				}
+			}
+
+			// Notify
+			FFlareMenuParameterData Data;
+			Data.Sector = GetGame()->GetActiveSector()->GetSimulatedSector();
+			GetGame()->GetPC()->Notify(LOCTEXT("PlayerAttackedSoon", "Incoming attack"),
+				FText::Format(LOCTEXT("PlayerAttackedSoonFormat", "Your current sector {0} will be attacked by {1} tomorrow with {2}{3}. Prepare for battle."),
+					Data.Sector->GetSectorName(),
+					CompanyName,
+					LightShipText,
+					HeavyShipText),
+				FName("travel-raid-soon"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Sector,
+				Data);
+		}
+	}
 }
 
 void UFlareWorld::ForceDate(int64 Date)
