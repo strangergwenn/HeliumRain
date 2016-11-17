@@ -272,4 +272,6 @@ public:
 	int32 GetCapturePointThreshold() const;
 
 	float GetStationEfficiency();
+
+	int64 ComputeCombatValue();
 };

@@ -48,6 +48,40 @@ struct SectorVariation
 };
 
 
+struct DefenceSector
+{
+	UFlareSimulatedSector* Sector;
+	UFlareSimulatedSector* TempBaseSector;
+	int64 ArmyValue;
+	int64 LargeShipArmyValue;
+	int64 SmallShipArmyValue;
+	int32 LargeShipArmyCount;
+	int32 SmallShipArmyCount;
+
+	bool operator==(const DefenceSector& lhs)
+	{
+		return lhs.Sector == Sector;
+	}
+
+	bool operator!=(const DefenceSector& lhs)
+	{
+		return !(*this == lhs);
+	}
+};
+
+struct WarTargetIncomingFleet
+{
+	int64 TravelDuration;
+	int64 ArmyValue;
+};
+
+
+struct WarTarget
+{
+	UFlareSimulatedSector* Sector;
+	int64 EnemyArmyValue;
+	TArray<WarTargetIncomingFleet> WarTargetIncomingFleets; // List player company fleets
+};
 
 
 UCLASS()
@@ -127,6 +161,14 @@ public:
 	void UpdateWarMilitaryMovement();
 
 	void UpdatePeaceMilitaryMovement();
+
+	TArray<WarTargetIncomingFleet> GenerateWarTargetIncomingFleets(UFlareSimulatedSector* DestinationSector);
+
+	TArray<WarTarget> GenerateWarTargetList();
+
+	TArray<DefenceSector> GenerateDefenceSectorList();
+
+	TArray<DefenceSector> SortSectorsByDistance(UFlareSimulatedSector* BaseSector, TArray<DefenceSector> SectorsToSort);
 
 	/** Buy war ships */
 	int64 UpdateWarShipAcquisition(bool limitToOne);

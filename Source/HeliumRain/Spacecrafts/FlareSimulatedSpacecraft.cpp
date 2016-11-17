@@ -564,6 +564,22 @@ float UFlareSimulatedSpacecraft::GetStationEfficiency()
 	return Efficiency;
 }
 
+int64 UFlareSimulatedSpacecraft::ComputeCombatValue()
+{
+	if(GetDamageSystem()->IsDisarmed())
+	{
+		return 0;
+	}
+
+	int64 SpacecraftPrice = UFlareGameTools::ComputeSpacecraftPrice(GetDescription()->Identifier, NULL, true, false, true);
+
+	SpacecraftPrice *= GetDamageSystem()->GetGlobalHealth();
+
+	// TODO, upgrade and ammo
+
+	return SpacecraftPrice;
+}
+
 const FSlateBrush* FFlareSpacecraftDescription::GetIcon(FFlareSpacecraftDescription* Characteristic)
 {
 	if (Characteristic)
