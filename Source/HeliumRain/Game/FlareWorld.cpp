@@ -488,7 +488,6 @@ void UFlareWorld::Simulate()
 		CompaniesToSimulateAI.RemoveAt(Index);
 	}
 
-
 	// Clear bombs
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
@@ -528,7 +527,6 @@ void UFlareWorld::Simulate()
 
 	// Ship capture
 	ProcessShipCapture();
-
 	ProcessStationCapture();
 
 	// Factories
@@ -616,7 +614,7 @@ void UFlareWorld::Simulate()
 		Sectors[SectorIndex]->UpdateReserveShips();
 	}
 
-	// Player is being attacked
+	// Player being attacked ?
 	ProcessIncomingPlayerEnemy();
 	
 	double EndTs = FPlatformTime::Seconds();
@@ -913,8 +911,10 @@ void UFlareWorld::FastForward()
 
 void UFlareWorld::ProcessIncomingPlayerEnemy()
 {
-	if (GetGame()->GetActiveSector())
+	if (GetGame()->GetPC()->GetPlayerShip())
 	{
+		UFlareSimulatedSector* PlayerSector = GetGame()->GetPC()->GetPlayerShip()->GetCurrentSector();
+
 		// Notification data
 		FText SingleShip = LOCTEXT("ShipSingle", "ship");
 		FText MultipleShips = LOCTEXT("ShipPlural", "ships");
@@ -923,13 +923,13 @@ void UFlareWorld::ProcessIncomingPlayerEnemy()
 		FText CompanyName;
 
 		// Count incoming ships
-		UFlareWorld* GameWorld = GetGame()->GetGameWorld();
-		for (int32 TravelIndex = 0; TravelIndex < GameWorld->GetTravels().Num(); TravelIndex++)
+		for (int32 TravelIndex = 0; TravelIndex < GetTravels().Num(); TravelIndex++)
 		{
-			UFlareTravel* Travel = GameWorld->GetTravels()[TravelIndex];
-
-			if (Travel->GetDestinationSector() == GetGame()->GetActiveSector()->GetSimulatedSector()
-				&& Travel->GetFleet()->GetFleetCompany()->GetPlayerHostility() >= EFlareHostility::Hostile)
+			UFlareTravel* Travel = GetTravels()[TravelIndex];
+			
+			if (Travel->GetDestinationSector() == PlayerSector
+				&& Travel->GetRemainingTravelDuration() == 1
+				&& Travel->GetFleet()->GetFleetCompany()->GetPlayerWarState() == EFlareHostility::Hostile)
 			{
 				CompanyName = Travel->GetFleet()->GetFleetCompany()->GetCompanyName();
 				LightShipCount += Travel->GetFleet()->GetMilitaryShipCountBySize(EFlarePartSize::S);
@@ -961,10 +961,10 @@ void UFlareWorld::ProcessIncomingPlayerEnemy()
 
 			// Notify
 			FFlareMenuParameterData Data;
-			Data.Sector = GetGame()->GetActiveSector()->GetSimulatedSector();
+			Data.Sector = PlayerSector;
 			GetGame()->GetPC()->Notify(LOCTEXT("PlayerAttackedSoon", "Incoming attack"),
-				FText::Format(LOCTEXT("PlayerAttackedSoonFormat", "Your current sector {0} will be attacked by {1} tomorrow with {2}{3}. Prepare for battle."),
-					Data.Sector->GetSectorName(),
+				FText::Format(LOCTEXT("PlayerAttackedSoonFormat", "Your current sector {0} will be attacked tomorrow by {1} with {2}{3}. Prepare for battle."),
+					PlayerSector->GetSectorName(),
 					CompanyName,
 					LightShipText,
 					HeavyShipText),
