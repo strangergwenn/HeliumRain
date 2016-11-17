@@ -336,34 +336,55 @@ void SFlareOrbitalMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 		for (int32 SectorIndex = 0; SectorIndex < MenuManager->GetPC()->GetCompany()->GetKnownSectors().Num(); SectorIndex++)
 		{
 			UFlareSimulatedSector* Sector = MenuManager->GetPC()->GetCompany()->GetKnownSectors()[SectorIndex];
-
 			FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(MenuManager->GetPC()->GetCompany());
+			FText BattleStateText = Sector->GetSectorBattleStateText(MenuManager->GetPC()->GetCompany());
+
 			if (LastSectorBattleState.Contains(Sector))
 			{
 				FFlareSectorBattleState LastBattleState = LastSectorBattleState[Sector];
 
-				// TODO more detail state and only for some transition
-				if (LastBattleState == BattleState)
+				// Ignore same states and victory states that are boring for the player
+				if (LastBattleState == BattleState || BattleState.BattleWon || BattleState.ActiveFightWon)
 				{
 					continue;
 				}
 
-				// Notify
-				FFlareMenuParameterData Data;
-				Data.Sector = Sector;
-				MenuManager->GetPC()->Notify(LOCTEXT("BattleStateChange", "Battle update"),
-					FText::Format(LOCTEXT("BattleStateChangeFormat", "The military status of {0} has changed !"), Sector->GetSectorName()),
-					FName("battle-state-changed"),
-					EFlareNotification::NT_Military,
-					false,
-					EFlareMenu::MENU_Sector,
-					Data);
+				// Fight in progress with player fleet
+				else if (BattleState.HasDanger && Sector == MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector())
+				{
+					FFlareMenuParameterData Data;
+					Data.Sector = Sector;
+					MenuManager->GetPC()->Notify(LOCTEXT("BattleStateFight", "Battle"),
+						FText::Format(LOCTEXT("BattleStateFightFormat", "Your personal fleet is engaged in battle in {0} !"),
+							Sector->GetSectorName()),
+						FName("battle-state-fight"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Sector,
+						Data);
+				}
+
+				// Battle in progress
+				else if (BattleState.HasDanger && BattleState.InBattle)
+				{
+					FFlareMenuParameterData Data;
+					Data.Sector = Sector;
+					MenuManager->GetPC()->Notify(LOCTEXT("BattleStateInProgress", "Battle"),
+						FText::Format(LOCTEXT("BattleStateInProgressFormat", "{0} in {1}"),
+							BattleStateText,
+							Sector->GetSectorName()),
+						FName("battle-state-in-progress"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Sector,
+						Data);
+				}
 
 				LastSectorBattleState[Sector] = BattleState;
 			}
 			else
 			{
-				LastSectorBattleState.Add(Sector,BattleState);
+				LastSectorBattleState.Add(Sector, BattleState);
 			}
 		}
 
