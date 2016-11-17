@@ -1600,7 +1600,8 @@ int64 UFlareCompanyAI::UpdateWarShipAcquisition(bool limitToOne)
 	return OrderOneShip(ShipDescription);
 }
 
-#define DEBUG_AI_MILITARTY_MOVEMENT
+//#define DEBUG_AI_MILITARTY_MOVEMENT
+
 void UFlareCompanyAI::UpdateMilitaryMovement()
 {
 	if(Company->AtWar())
