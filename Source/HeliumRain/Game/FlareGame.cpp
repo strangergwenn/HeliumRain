@@ -878,23 +878,20 @@ void AFlareGame::UnloadStreamingLevel(FName SectorLevel)
 
 void AFlareGame::OnLevelLoaded()
 {
-	FLOG("AFlareGame::OnLevelLoaded");
-
 	IsLoadingStreamingLevel = false;
 
 	// Ensure the current state is correct
 	if (ActivatingSector == NULL || ActivatingSector->GetGame()->GetGameWorld() == NULL)
 	{
+		FLOG("AFlareGame::OnLevelLoaded : no sector");
 		return;
 	}
 
 	// Ships
-	FLOGV("AFlareGame::OnLevelLoaded : Ship count = %d", ActivatingSector->GetSectorShips().Num());
 	bool PlayerHasShip = false;
 	for (int ShipIndex = 0; ShipIndex < ActivatingSector->GetSectorShips().Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = ActivatingSector->GetSectorShips()[ShipIndex];
-		FLOGV("AFlareGame::OnLevelLoaded : Found ship %s", *Ship->GetImmatriculation().ToString());
 		if (Ship->GetCompany()->GetPlayerHostility()  == EFlareHostility::Owned)
 		{
 			PlayerHasShip = true;

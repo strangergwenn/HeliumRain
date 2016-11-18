@@ -322,7 +322,6 @@ void SFlareOrbitalMenu::StopFastForward()
 
 void SFlareOrbitalMenu::RequestStopFastForward()
 {
-	FLOG("Stop fast forward requested");
 	FastForwardStopRequested = true;
 }
 

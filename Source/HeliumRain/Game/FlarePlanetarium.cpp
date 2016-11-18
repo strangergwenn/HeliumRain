@@ -143,11 +143,11 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 					PrepareCelestialBody(&Sun, -PlayerLocation, AngleOffset);
 					SetupCelestialBodies();
 
-					if(SkipNightTimeRange > 0 && SunOcclusion >= 1)
+					// Try to find night
+					if (SkipNightTimeRange > 0 && SunOcclusion >= 1)
 					{
-						//Try to find night
 						SmoothTime = FMath::FRand() * SkipNightTimeRange;
-						FLOGV("AFlarePlanetarium::Tick : night, try to find light at %f (max %f)",SmoothTime, SkipNightTimeRange);
+						//FLOGV("AFlarePlanetarium::Tick : night, try to find light at %f (max %f)",SmoothTime, SkipNightTimeRange);
 					}
 					else
 					{
@@ -174,11 +174,8 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 					}
 					else
 					{
-
 						FLOG("AFlarePlanetarium::Tick : no sunlight found");
 					}
-
-
 				}
 				else
 				{
