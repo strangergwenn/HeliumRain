@@ -1635,7 +1635,7 @@ TArray<WarTargetIncomingFleet> UFlareCompanyAI::GenerateWarTargetIncomingFleets(
 			continue;
 		}
 
-		if(Travel->GetFleet()->GetFleetCompany() != Company)
+		if (Travel->GetFleet()->GetFleetCompany() != Company)
 		{
 			continue;
 		}
@@ -1672,14 +1672,13 @@ TArray<WarTargetIncomingFleet> UFlareCompanyAI::GenerateWarTargetIncomingFleets(
 	return IncomingFleetList;
 }
 
-
 TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 {
 	TArray<WarTarget> WarTargetList;
 
 	for (UFlareSimulatedSector* Sector : Company->GetKnownSectors())
 	{
-		if(Sector->GetSectorBattleState(Company).HasDanger)
+		if (Sector->GetSectorBattleState(Company).HasDanger)
 		{
 			/* TODO
 			 - damaged company ships,in danger, store price to sort
@@ -1705,7 +1704,9 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 		}
 	}
 
-	// TODO Sort
+	// TODO sort
+	//WarTargetList.Sort();
+	return WarTargetList;
 }
 
 TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList()
@@ -1729,18 +1730,15 @@ TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList()
 
 		for (UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
 		{
-			if(Ship->GetCompany() != Company)
-			{
-				continue;
-			}
-
 			int64 ShipValue = Ship->ComputeCombatValue();
 
-			if(ShipValue == 0)
+			if (Ship->GetCompany() != Company
+			 || Ship->CanTravel() == false
+			 || ShipValue == 0)
 			{
 				continue;
 			}
-
+			
 			Target.ArmyValue += ShipValue;
 			if (Ship->GetSize() == EFlarePartSize::L)
 			{
@@ -1759,6 +1757,56 @@ TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList()
 	return DefenseSectorList;
 }
 
+TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::GenerateWarShipList(UFlareSimulatedSector* Sector)
+{
+	TArray<UFlareSimulatedSpacecraft*> WarShips;
+
+	for (UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
+	{
+		if ( Ship->GetCompany() == Company
+		 &&  Ship->CanTravel()
+		 && !Ship->GetDamageSystem()->IsDisarmed()
+		 && !Ship->GetDamageSystem()->IsStranded())
+		{
+			WarShips.Add(Ship);
+		}
+	}
+
+	return WarShips;
+}
+
+int64 UFlareCompanyAI::GetDefenseSectorTravelDuration(TArray<DefenseSector>& DefenseSectorList, const DefenseSector& OriginSector)
+{
+	int64 MaxTravelDuration = 0;
+
+	for (DefenseSector& Sector : DefenseSectorList)
+	{
+		int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), OriginSector.Sector, Sector.Sector);
+		if (TravelDuration > MaxTravelDuration)
+		{
+			MaxTravelDuration = TravelDuration;
+		}
+	}
+
+	return MaxTravelDuration;
+}
+
+TArray<DefenseSector> UFlareCompanyAI::GetDefenseSectorListInRange(TArray<DefenseSector>& DefenseSectorList, const DefenseSector& OriginSector, int64 MaxTravelDuration)
+{
+	TArray<DefenseSector> Sectors;
+
+	for (DefenseSector& Sector : DefenseSectorList)
+	{
+		int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), OriginSector.Sector, Sector.Sector);
+		if (TravelDuration <= MaxTravelDuration)
+		{
+			Sectors.Add(Sector);
+		}
+	}
+
+	return Sectors;
+}
+
 inline static bool SectorDefenseDistanceComparator(const DefenseSector& ip1, const DefenseSector& ip2)
 {
 	int64 ip1TravelDuration = UFlareTravel::ComputeTravelDuration(ip1.Sector->GetGame()->GetGameWorld(), ip1.TempBaseSector, ip1.Sector);
@@ -1775,7 +1823,7 @@ TArray<DefenseSector> UFlareCompanyAI::SortSectorsByDistance(UFlareSimulatedSect
 	}
 
 	SectorsToSort.Sort(&SectorDefenseDistanceComparator);
-
+	return SectorsToSort;
 }
 
 void UFlareCompanyAI::UpdateWarMilitaryMovement()
@@ -1783,10 +1831,10 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 	TArray<WarTarget> TargetList = GenerateWarTargetList();
 	TArray<DefenseSector> DefenseSectorList = GenerateDefenseSectorList();
 
+	// Manage attacking fleets
 	for (WarTarget& Target : TargetList)
 	{
 		TArray<DefenseSector> SortedDefenseSectorList = SortSectorsByDistance(Target.Sector, DefenseSectorList);
-
 		for (DefenseSector& Sector : SortedDefenseSectorList)
 		{
 			// Check if the army is strong enough
@@ -1826,7 +1874,7 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 			// Should go defend ! Assemble a fleet
 			int64 FleetValue = 0;
 			int64 FleetValueLimit = Target.EnemyArmyValue * Behavior->AttackThreshold * 1.5;
-			TArray<UFlareSimulatedSpacecraft*> MovableShips = SectorHelper::GenerateWarShipList(Sector);
+			TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(Sector.Sector);
 
 			// Send random ships
 			while (MovableShips.Num() > 0 && FleetValue < FleetValueLimit)
@@ -1836,7 +1884,7 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 				UFlareSimulatedSpacecraft* SelectedShip = MovableShips[ShipIndex];
 				MovableShips.RemoveAt(ShipIndex);
 
-				int64 ShipValue = SectorHelper::ComputeShipValue(SelectedShip);
+				int64 ShipValue = SelectedShip->ComputeCombatValue();
 				FleetValue += ShipValue;
 				Sector.ArmyValue -= ShipValue;
 
@@ -1850,7 +1898,7 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 		}
 	}
 
-	// Manage remaining fefense ships
+	// Manage remaining ships for defense
 	for (DefenseSector& Sector : DefenseSectorList)
 	{
 		// Don't move if capturing station
@@ -1916,7 +1964,7 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 				}
 				
 				// Send ships
-				TArray<UFlareSimulatedSpacecraft*>& MovableShips = SectorHelper::GenerateWarShipList(Sector);
+				TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(Sector.Sector);
 				for (UFlareSimulatedSpacecraft* Ship : MovableShips)
 				{
 					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), StrongestSector.Sector);

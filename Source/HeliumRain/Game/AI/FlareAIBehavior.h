@@ -65,11 +65,12 @@ protected:
 	// Gameplay data
 	UFlareCompany*			               Company;
 	AFlareGame*                            Game;
-	UFlareScenarioTools*                    ST;
+	UFlareScenarioTools*                   ST;
 
 
 	TMap<FFlareResourceDescription*, float> ResourceAffilities;
 	TMap<UFlareSimulatedSector*, float> SectorAffilities;
+
 public:
 
 	/*----------------------------------------------------
@@ -89,6 +90,8 @@ public:
 	float BudgetTradeWeight;
 	float ArmySize;
 
+	float AttackThreshold;
+
 	float ConfidenceTarget;
 	float DeclareWarConfidence;
 	float RequestPeaceConfidence;
@@ -97,6 +100,7 @@ public:
 	float DiplomaticReactivity;
 
 	bool ProposeTributeToPlayer = false;
+
 
 	/*----------------------------------------------------
 		Getters
