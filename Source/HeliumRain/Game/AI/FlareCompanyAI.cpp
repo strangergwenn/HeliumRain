@@ -1926,6 +1926,12 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 				FleetValue += ShipValue;
 				Sector.ArmyValue -= ShipValue;
 
+				FLOGV("UpdateWarMilitaryMovement %s : move %s from %s to %s for attack",
+					*Company->GetCompanyName().ToString(),
+					*SelectedShip->GetImmatriculation().ToString(),
+					*SelectedShip->GetCurrentSector()->GetSectorName().ToString(),
+					*Target.Sector->GetSectorName().ToString());
+
 				Game->GetGameWorld()->StartTravel(SelectedShip->GetCurrentFleet(), Target.Sector);
 			}
 
@@ -2005,6 +2011,12 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 				TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(Sector.Sector);
 				for (UFlareSimulatedSpacecraft* Ship : MovableShips)
 				{
+					FLOGV("UpdateWarMilitaryMovement%s : move %s from %s to %s for defense",
+						*Company->GetCompanyName().ToString(),
+						*Ship->GetImmatriculation().ToString(),
+						*Ship->GetCurrentSector()->GetSectorName().ToString(),
+						*StrongestSector.Sector->GetSectorName().ToString());
+
 					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), StrongestSector.Sector);
 				}
 
@@ -2024,8 +2036,10 @@ void UFlareCompanyAI::UpdatePeaceMilitaryMovement()
 	float TotalDefenseRatio = (float) TotalValue.ArmyValue / (float) TotalDefendableValue;
 
 #ifdef DEBUG_AI_MILITARTY_MOVEMENT
-	FLOGV("UpdatePeaceMilitaryMovement TotalDefendableValue %lld", TotalDefendableValue);
-	FLOGV("UpdatePeaceMilitaryMovement TotalDefenseRatio %f", TotalDefenseRatio);
+	FLOGV("UpdatePeaceMilitaryMovement for %s : TotalDefendableValue %lld, TotalDefenseRatio %f",
+		*Company->GetCompanyName().ToString(),
+		TotalDefendableValue,
+		TotalDefenseRatio);
 #endif
 	
 	TArray<UFlareSimulatedSpacecraft*> ShipsToMove;
@@ -2040,13 +2054,16 @@ void UFlareCompanyAI::UpdatePeaceMilitaryMovement()
 		int64 SectorArmyValue = SectorValue.ArmyValue;
 		float SectorDefenseRatio = (float) SectorArmyValue / (float) SectorDefendableValue;
 
-		#ifdef DEBUG_AI_MILITARTY_MOVEMENT
-			FLOGV("UpdatePeaceMilitaryMovement %s SectorDefendableValue %lld", *Sector->GetSectorName().ToString(), SectorDefendableValue);
-			FLOGV("UpdatePeaceMilitaryMovement %s SectorDefenseRatio %f", *Sector->GetSectorName().ToString(), SectorDefenseRatio);
-		#endif
-
-		if((SectorDefendableValue == 0 && SectorArmyValue > 0) || SectorDefenseRatio > TotalDefenseRatio * 1.5)
+		if ((SectorDefendableValue == 0 && SectorArmyValue > 0) || SectorDefenseRatio > TotalDefenseRatio * 1.5)
 		{
+
+#ifdef DEBUG_AI_MILITARTY_MOVEMENT
+			FLOGV("UpdatePeaceMilitaryMovement %s SectorDefendableValue %lld, SectorDefenseRatio %f",
+				*Sector->GetSectorName().ToString(),
+				SectorDefendableValue,
+				SectorDefenseRatio);
+#endif
+
 			// Too much defense here, move a ship, pick a random ship and add to the ship to move list
 			TArray<UFlareSimulatedSpacecraft*> ShipCandidates;
 			TArray<UFlareSimulatedSpacecraft*>&SectorShips = Sector->GetSectorShips();
@@ -2071,13 +2088,13 @@ void UFlareCompanyAI::UpdatePeaceMilitaryMovement()
 				ShipsToMove.Add(SelectedShip);
 
 				#ifdef DEBUG_AI_MILITARTY_MOVEMENT
-							FLOGV("- %s has high defense: pick %s", *Sector->GetSectorName().ToString(), *SelectedShip->GetImmatriculation().ToString());
+							FLOGV("UpdatePeaceMilitaryMovement - %s has high defense: pick %s", *Sector->GetSectorName().ToString(), *SelectedShip->GetImmatriculation().ToString());
 				#endif
 			}
 			else
 			{
 #ifdef DEBUG_AI_MILITARTY_MOVEMENT
-				FLOGV("- %s has high defense: no available ships", *Sector->GetSectorName().ToString());
+				FLOGV("UpdatePeaceMilitaryMovement - %s has high defense: no available ships", *Sector->GetSectorName().ToString());
 #endif
 			}
 
@@ -2087,7 +2104,7 @@ void UFlareCompanyAI::UpdatePeaceMilitaryMovement()
 		else if(SectorDefendableValue > 0 && SectorDefenseRatio < TotalDefenseRatio )
 		{
 #ifdef DEBUG_AI_MILITARTY_MOVEMENT
-			FLOGV("- %s has low defense", *Sector->GetSectorName().ToString());
+			FLOGV("UpdatePeaceMilitaryMovement - %s has low defense", *Sector->GetSectorName().ToString());
 #endif
 			LowDefenseSectors.Add(Sector);
 		}
@@ -2109,23 +2126,16 @@ void UFlareCompanyAI::UpdatePeaceMilitaryMovement()
 			}
 		}
 
-		// No low defense sector, nobody will move
-		if (!BestSectorCandidate)
+		// Low defense sector in reach
+		if (BestSectorCandidate)
 		{
-			break;
+			FLOGV("UpdatePeaceMilitaryMovement > move %s from %s to %s",
+				*Ship->GetImmatriculation().ToString(),
+				*Ship->GetCurrentSector()->GetSectorName().ToString(),
+				*BestSectorCandidate->GetSectorName().ToString());
+
+			Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestSectorCandidate);
 		}
-
-		Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestSectorCandidate);
-
-#ifdef DEBUG_AI_MILITARTY_MOVEMENT
-				FLOGV("> move %s from %s to %s",
-					  *Ship->GetImmatriculation().ToString(),
-					  *Ship->GetCurrentSector()->GetSectorName().ToString(),
-					  *BestSectorCandidate->GetSectorName().ToString());
-#endif
-
-	break;
-
 	}
 }
 
