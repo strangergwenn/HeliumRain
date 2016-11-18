@@ -812,8 +812,8 @@ void AFlareSpacecraft::ApplyAsteroidData()
 			UActorComponent* Component = Components[ComponentIndex];
 			if (Component->GetName().Contains("Asteroid"))
 			{
-				FLOGV("AFlareSpacecraft::ApplyAsteroidData : Found asteroid component '%s', previously set from '%s'",
-					*Component->GetName(), *GetData().AsteroidData.Identifier.ToString());
+				//FLOGV("AFlareSpacecraft::ApplyAsteroidData : Found asteroid component '%s', previously set from '%s'",
+				//	*Component->GetName(), *GetData().AsteroidData.Identifier.ToString());
 
 				// Get a valid sector
 				UFlareSimulatedSector* Sector = GetParent()->GetCurrentSector();
