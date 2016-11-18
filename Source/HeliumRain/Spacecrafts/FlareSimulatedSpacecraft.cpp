@@ -2,6 +2,7 @@
 #include "../Flare.h"
 #include "../Game/FlareSimulatedSector.h"
 #include "../Game/FlareGame.h"
+#include "../Game/FlareFleet.h"
 #include "../Game/FlareWorld.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Economy/FlareCargoBay.h"
@@ -566,12 +567,13 @@ float UFlareSimulatedSpacecraft::GetStationEfficiency()
 
 int64 UFlareSimulatedSpacecraft::ComputeCombatValue()
 {
-	if(GetDamageSystem()->IsDisarmed())
+	if (GetDamageSystem()->IsDisarmed())
 	{
 		return 0;
 	}
 
-	int64 SpacecraftPrice = UFlareGameTools::ComputeSpacecraftPrice(GetDescription()->Identifier, NULL, true, false, true);
+	UFlareSimulatedSector* PriceSector = GetCurrentFleet()->IsTraveling() ? GetCurrentFleet()->GetCurrentTravel()->GetDestinationSector() : GetCurrentSector();
+	int64 SpacecraftPrice = UFlareGameTools::ComputeSpacecraftPrice(GetDescription()->Identifier, PriceSector, true, false, true);
 
 	SpacecraftPrice *= GetDamageSystem()->GetGlobalHealth();
 
