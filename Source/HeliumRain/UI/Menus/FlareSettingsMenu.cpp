@@ -502,7 +502,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SAssignNew(MasterVolumeSlider, SSlider)
-							.Value(MyGameSettings->MusicVolume / 10.0f)
+							.Value(MyGameSettings->MasterVolume / 10.0f)
 							.Style(&Theme.SliderStyle)
 							.OnValueChanged(this, &SFlareSettingsMenu::OnMasterVolumeSliderChanged)
 						]
