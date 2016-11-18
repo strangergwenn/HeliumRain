@@ -48,7 +48,7 @@ struct SectorVariation
 };
 
 
-struct DefenceSector
+struct DefenseSector
 {
 	UFlareSimulatedSector* Sector;
 	UFlareSimulatedSector* TempBaseSector;
@@ -58,12 +58,12 @@ struct DefenceSector
 	int32 LargeShipArmyCount;
 	int32 SmallShipArmyCount;
 
-	bool operator==(const DefenceSector& lhs)
+	bool operator==(const DefenseSector& lhs)
 	{
 		return lhs.Sector == Sector;
 	}
 
-	bool operator!=(const DefenceSector& lhs)
+	bool operator!=(const DefenseSector& lhs)
 	{
 		return !(*this == lhs);
 	}
@@ -166,9 +166,9 @@ public:
 
 	TArray<WarTarget> GenerateWarTargetList();
 
-	TArray<DefenceSector> GenerateDefenceSectorList();
+	TArray<DefenseSector> GenerateDefenseSectorList();
 
-	TArray<DefenceSector> SortSectorsByDistance(UFlareSimulatedSector* BaseSector, TArray<DefenceSector> SectorsToSort);
+	TArray<DefenseSector> SortSectorsByDistance(UFlareSimulatedSector* BaseSector, TArray<DefenseSector> SectorsToSort);
 
 	/** Buy war ships */
 	int64 UpdateWarShipAcquisition(bool limitToOne);

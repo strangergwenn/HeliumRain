@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 
-
+class UFlareQuest;
 class AFlareMenuManager;
 
 
