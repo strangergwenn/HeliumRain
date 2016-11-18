@@ -111,9 +111,9 @@ public:
 	virtual void DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
 
 
-/*----------------------------------------------------
-	Behavior API
-----------------------------------------------------*/
+	/*----------------------------------------------------
+		Behavior API
+	----------------------------------------------------*/
 
 	void CargosEvasion();
 
@@ -151,58 +151,64 @@ public:
 
 	void ProcessBudgetStation(int64 BudgetAmount, bool& Lock, bool& Idle);
 
+	/** Buy war ships */
+	int64 UpdateWarShipAcquisition(bool limitToOne);
 
 	/** Repair then refill all ships and stations */
 	void RepairAndRefill();
 
+	/*----------------------------------------------------
+		Military AI
+	----------------------------------------------------*/
+
 	/** Move military ships */
 	void UpdateMilitaryMovement();
 
+	/** Move military ships while at war */
 	void UpdateWarMilitaryMovement();
 
+	/** Move military ships while in peace */
 	void UpdatePeaceMilitaryMovement();
 
 	TArray<WarTargetIncomingFleet> GenerateWarTargetIncomingFleets(UFlareSimulatedSector* DestinationSector);
 
 	TArray<WarTarget> GenerateWarTargetList();
 
-	TArray<DefenseSector> GenerateDefenseSectorList();
+	TArray<UFlareSimulatedSpacecraft*> GenerateWarShipList(UFlareSimulatedSector* Sector);
 
 	TArray<DefenseSector> SortSectorsByDistance(UFlareSimulatedSector* BaseSector, TArray<DefenseSector> SectorsToSort);
 
-	/** Buy war ships */
-	int64 UpdateWarShipAcquisition(bool limitToOne);
+	int64 GetDefenseSectorTravelDuration(TArray<DefenseSector>& DefenseSectorList, const DefenseSector& OriginSector);
+
+	TArray<DefenseSector> GetDefenseSectorListInRange(TArray<DefenseSector>& DefenseSectorList, const DefenseSector& OriginSector, int64 MaxTravelDuration);
+
+	TArray<DefenseSector> GenerateDefenseSectorList();
+
 
 protected:
 
 	/*----------------------------------------------------
 		Internal subsystems
 	----------------------------------------------------*/
-
-
-
+	
 	/** Try to muster resources to build stations */
 	void FindResourcesForStationConstruction();
 
 	void ClearConstructionProject();
-
-
+	
 	/** Buy cargos ships */
 	int64 UpdateCargoShipAcquisition();
 
-
-
+	
 	/*----------------------------------------------------
 		Helpers
 	----------------------------------------------------*/
-
-
+	
 	/** Order one ship at any shipyard */
 	int64 OrderOneShip(FFlareSpacecraftDescription* ShipDescription);
 
 	FFlareSpacecraftDescription* FindBestShipToBuild(bool Military);
-
-
+	
 	/** Return if a ship is currently build for the company */
 	bool IsBuildingShip(bool Military);
 
@@ -265,7 +271,9 @@ protected:
 	int32 IdleCargoCapacity;
 
 public:
+
 	TArray<EFlareBudget::Type> AllBudgets;
+
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
@@ -279,7 +287,6 @@ public:
 	{
 		return Behavior;
 	}
-
 
 
 };
