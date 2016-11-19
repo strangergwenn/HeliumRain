@@ -284,6 +284,7 @@ TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceCo
 				.OwnerWidget(this)
 				.Minimized(true)
 				.Visible(true)
+				.OnRemoved(this, &SFlareShipList::OnShipRemoved)
 			];
 	}
 
@@ -309,6 +310,7 @@ TSharedRef<ITableRow> SFlareShipList::GenerateTargetInfo(TSharedPtr<FInterfaceCo
 					.OwnerWidget(this)
 					.Minimized(true)
 					.Visible(true)
+					.OnRemoved(this, &SFlareShipList::OnShipRemoved)
 				];
 		}
 
@@ -397,6 +399,21 @@ void SFlareShipList::OnTargetSelected(TSharedPtr<FInterfaceContainer> Item, ESel
 
 void SFlareShipList::OnToggleShowFlags()
 {
+	RefreshList();
+}
+
+void SFlareShipList::OnShipRemoved(UFlareSimulatedSpacecraft* Ship)
+{
+	for (auto Spacecraft : SpacecraftList)
+	{
+		if (Spacecraft->ShipInterfacePtr == Ship)
+		{
+			SpacecraftList.Remove(Spacecraft);
+			break;
+		}
+	}
+
+	PreviousSelection.Reset();
 	RefreshList();
 }
 

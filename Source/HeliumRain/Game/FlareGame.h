@@ -300,37 +300,44 @@ public:
 		Get & Set
 	----------------------------------------------------*/
 
-	inline UFlareWorld* GetGameWorld() const
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	UFlareWorld* GetGameWorld() const
 	{
 		return World;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	AFlarePlayerController* GetPC() const
 	{
 		return PlayerController;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	APostProcessVolume* GetPostProcessVolume() const
 	{
 		return PostProcessVolume;
 	}
 
+	UFUNCTION(BlueprintCallable, Category = "Flare")
 	UMaterialInstanceDynamic* GetBlurMaterial() const
 	{
 		return BlurMaterial;
 	}
 
-	inline UFlareSector* GetActiveSector() const
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	UFlareSector* GetActiveSector() const
 	{
 		return ActiveSector;
 	}
 
-	inline AFlarePlanetarium* GetPlanetarium() const
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	AFlarePlanetarium* GetPlanetarium() const
 	{
 		return Planetarium;
 	}
 
-	inline UFlareQuestManager* GetQuestManager() const
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	UFlareQuestManager* GetQuestManager() const
 	{
 		return QuestManager;
 	}

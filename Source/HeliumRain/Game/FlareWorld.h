@@ -109,6 +109,8 @@ public:
 
 	void ProcessStationCapture();
 
+	void ProcessIncomingPlayerEnemy();
+
 	/** Simulate world for a day */
 	void Simulate();
 

@@ -48,6 +48,10 @@ public:
 
 	void SkipNight(float TimeRange);
 
+	/** Get the speed of dust particles for travel */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	FVector GetStellarDustVelocity() const;
+
 
 	/*----------------------------------------------------
 		Public Blueprint events
@@ -108,7 +112,8 @@ public:
 		return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	}
 
-	double GetSunOcclusion() const
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	float GetSunOcclusion() const
 	{
 		return SunOcclusion;
 	}
@@ -118,7 +123,8 @@ public:
 		return SmoothTime;
 	}
 
-	inline FVector GetSunDirection()
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	FVector GetSunDirection() const
 	{
 		FVector Direction;
 
@@ -130,7 +136,8 @@ public:
 		return Direction;
 	}
 
-	bool IsReady() {
+	bool IsReady()
+	{
 		return Ready;
 	}
 

@@ -25,7 +25,8 @@ DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Sound"), STAT_FlarePlayerTick_Sound, ST
 
 AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
-	, DustEffect(NULL)
+	, LowSpeedEffect(NULL)
+	, HighSpeedEffect(NULL)
 	, Company(NULL)
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
@@ -35,8 +36,10 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	CheatClass = UFlareGameTools::StaticClass();
 		
 	// Mouse
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> DustEffectTemplateObj(TEXT("/Game/Master/Particles/PS_Dust"));
-	DustEffectTemplate = DustEffectTemplateObj.Object;
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> LowSpeedEffectTemplateObj(TEXT("/Game/Master/Particles/SpeedEffects/PS_SpeedDust"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> HighSpeedEffectTemplateObj(TEXT("/Game/Master/Particles/SpeedEffects/PS_SpeedDust_Travel"));
+	LowSpeedEffectTemplate = LowSpeedEffectTemplateObj.Object;
+	HighSpeedEffectTemplate = HighSpeedEffectTemplateObj.Object;
 	DefaultMouseCursor = EMouseCursor::Default;
 
 	// Camera shakes
@@ -113,7 +116,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	Super::PlayerTick(DeltaSeconds);
 	AFlareHUD* HUD = GetNavHUD();
 	TimeSinceWeaponSwitch += DeltaSeconds;
-	static bool PlayerWasTraveling = false;
 
 	// Check recovery
 	if (RecoveryActive)
@@ -131,32 +133,22 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		HUD->SetInteractive(ShipPawn->GetStateManager()->IsWantContextMenu());
 		{
 			SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_ControlGroups);
+
 			UFlareSimulatedSector* Sector = ShipPawn->GetParent()->GetCurrentSector();
 			GetTacticManager()->ResetControlGroups(Sector);
 		}
 		
 		// Battle state
-		if (GetPlayerFleet()->IsTraveling())
-		{
-			if (!PlayerWasTraveling)
-			{
-				UpdateMusicTrack(FFlareSectorBattleState().Init());
-			}
-
-			PlayerWasTraveling = true;
-		}
-		else if (GetGame()->GetActiveSector())
+		if (GetGame()->GetActiveSector())
 		{
 			SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_Battle);
 
 			FFlareSectorBattleState BattleState = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(GetCompany());
-			if (BattleState != LastBattleState || PlayerWasTraveling)
+			if (BattleState != LastBattleState)
 			{
 				LastBattleState = BattleState;
 				UpdateMusicTrack(BattleState);
 			}
-
-			PlayerWasTraveling = false;
 		}
 	}
 
@@ -210,40 +202,83 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 			SetInputMode(InputMode);
 		}
 	}
-
-	// Spawn dust effects if they are not already here
-	if (!DustEffect && ShipPawn)
+	
+	// Update speed effects
+	if (ShipPawn && !IsInMenu())
 	{
-		DustEffect = UGameplayStatics::SpawnEmitterAtLocation(this, DustEffectTemplate, FVector::ZeroVector);
-	}
-
-	// Update dust effects
-	if (DustEffect && ShipPawn && !IsInMenu())
-	{
-		// Ship velocity
-		FVector Velocity = ShipPawn->GetLinearVelocity();
-		FVector Direction = Velocity;
-		Direction.Normalize();
-
-		// Particle position
+		// Get ship velocity & direction
 		FVector ViewLocation;
 		FRotator ViewRotation;
+		FVector ShipVelocity = ShipPawn->GetLinearVelocity();
+		FVector ShipDirection = ShipVelocity;
+		ShipDirection.Normalize();
 		GetPlayerViewPoint(ViewLocation, ViewRotation);
-		ViewLocation += Direction.Rotation().RotateVector(5000 * FVector(1, 0, 0));
-		DustEffect->SetWorldLocation(ViewLocation);
+		
+		// Spawn dust effects if they are not already here
+		if (!LowSpeedEffect)
+		{
+			LowSpeedEffect = UGameplayStatics::SpawnEmitterAtLocation(this, LowSpeedEffectTemplate, ViewLocation, FRotator::ZeroRotator, false);
+			FCHECK(LowSpeedEffect);
+		}
+		if (!HighSpeedEffect)
+		{
+			HighSpeedEffect = UGameplayStatics::SpawnEmitterAtLocation(this, HighSpeedEffectTemplate, ViewLocation, FRotator::ZeroRotator, false);
+			FCHECK(HighSpeedEffect);
+		}
 
-		// Particle params
-		float VelocityFactor = FMath::Clamp(Velocity.Size() / 100.0f, 0.0f, 1.0f);
-		FLinearColor Color = FLinearColor::White * VelocityFactor;
-		DustEffect->SetFloatParameter("SpawnCount", VelocityFactor);
-		DustEffect->SetColorParameter("Intensity", Color);
-		DustEffect->SetVectorParameter("Direction", -Direction);
-		DustEffect->SetVectorParameter("Size", FVector(1, VelocityFactor, 1));
+		// Update location
+		ViewLocation += ShipDirection.Rotation().RotateVector(5000 * FVector(1, 0, 0));
+		LowSpeedEffect->SetWorldLocation(ViewLocation);
+		HighSpeedEffect->SetWorldLocation(ViewLocation);
+
+		// Update effects
+		if (GetPlayerFleet()->IsTraveling())
+		{
+			// Get the stellar velocity, and multiply it if the player is flying faster than that in reverse
+			FVector StellarVelocity = GetGame()->GetPlanetarium()->GetStellarDustVelocity();
+			float ShipColinearity = FVector::DotProduct(StellarVelocity.GetSafeNormal(), ShipDirection);
+			if (ShipColinearity > 0)
+			{
+				StellarVelocity = (1 + ShipColinearity) * StellarVelocity;
+			}
+
+			// Low speed effect
+			LowSpeedEffect->SetFloatParameter("SpawnCount", 0);
+			LowSpeedEffect->SetColorParameter("Intensity", FVector::ZeroVector);
+			LowSpeedEffect->SetColorParameter("Direction", FVector::ZeroVector);
+
+			// High speed effect
+			HighSpeedEffect->SetFloatParameter("SpawnCount", 1.0f);
+			HighSpeedEffect->SetColorParameter("Intensity", FLinearColor::White);
+			HighSpeedEffect->SetVectorParameter("Direction", StellarVelocity);
+			HighSpeedEffect->SetVectorParameter("Size", FVector(1, 1, 1));
+		}
+		else
+		{
+			float VelocityFactor = FMath::Clamp(ShipVelocity.Size() / 100.0f, 0.0f, 1.0f);
+			FLinearColor Intensity = FLinearColor::White * VelocityFactor;
+
+			// Low speed effect
+			LowSpeedEffect->SetFloatParameter("SpawnCount", VelocityFactor);
+			LowSpeedEffect->SetColorParameter("Intensity", Intensity);
+			LowSpeedEffect->SetVectorParameter("Direction", -ShipDirection);
+			LowSpeedEffect->SetVectorParameter("Size", FVector(1, VelocityFactor, 1));
+
+			// High speed effect
+			HighSpeedEffect->SetFloatParameter("SpawnCount", 0);
+			HighSpeedEffect->SetColorParameter("Intensity", FVector::ZeroVector);
+		}
 	}
-	else if (DustEffect)
+	else if (LowSpeedEffect && HighSpeedEffect)
 	{
-		DustEffect->SetColorParameter("Intensity", FVector::ZeroVector);
-		DustEffect->SetColorParameter("Direction", FVector::ZeroVector);
+		// Low speed effect
+		LowSpeedEffect->SetFloatParameter("SpawnCount", 0);
+		LowSpeedEffect->SetColorParameter("Intensity", FVector::ZeroVector);
+		LowSpeedEffect->SetColorParameter("Direction", FVector::ZeroVector);
+
+		// High speed effect
+		HighSpeedEffect->SetFloatParameter("SpawnCount", 0);
+		HighSpeedEffect->SetColorParameter("Intensity", FVector::ZeroVector);
 	}
 
 	// Sound
@@ -403,6 +438,8 @@ void AFlarePlayerController::OnSectorActivated(UFlareSector* ActiveSector)
 		FLOG("AFlarePlayerController::OnSectorActivated no candidate");
 		SwitchToNextShip(true);
 	}
+
+	UpdateMusicTrack(FFlareSectorBattleState().Init());
 }
 
 void AFlarePlayerController::OnSectorDeactivated()
@@ -897,9 +934,8 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 
 bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 {
-	bool FightInProgress = false;
-	bool BattleLostWithRetreat = false;
-	bool BattleLostWithoutRetreat = false;
+	FText BattleTitleText = LOCTEXT("ConfirmBattleTitle", "BATTLE IN PROGRESS");
+	FText BattleDetailsText;
 
 	// Check for battle
 	for (int32 SectorIndex = 0; SectorIndex < GetCompany()->GetKnownSectors().Num(); SectorIndex++)
@@ -909,45 +945,33 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(GetCompany());
 		if (BattleState.InBattle)
 		{
-			if(BattleState.InActiveFight)
+			if (BattleState.InActiveFight)
 			{
-				FightInProgress = true;
+				BattleDetailsText = FText::Format(LOCTEXT("ConfirmBattleFormat", "{0}Battle in progress in {1}. Ships will fight and may be lost.\n"),
+					BattleDetailsText, Sector->GetSectorName());
 			}
 			else if (!BattleState.InFight && !BattleState.BattleWon)
 			{
-				if(BattleState.RetreatPossible)
+				BattleTitleText = LOCTEXT("ConfirmBattleLostTitle", "BATTLE LOST");
+
+				if (BattleState.RetreatPossible)
 				{
-					BattleLostWithRetreat = true;
+					BattleDetailsText = FText::Format(LOCTEXT("ConfirmBattleLostRetreatFormat", "{0}Battle lost in {1}. Ships can still retreat.\n"),
+						BattleDetailsText, Sector->GetSectorName());
 				}
 				else
 				{
-					BattleLostWithoutRetreat = true;
+					BattleDetailsText = FText::Format(LOCTEXT("ConfirmBattleLostNoRetreatFormat", "{0}Battle lost in {1}. Ships cannot retreat and may be lost.\n"),
+						BattleDetailsText, Sector->GetSectorName());
 				}
 			}
 		}
 	}
 
 	// Notify when a battle is happening
-	if (FightInProgress)
+	if (BattleDetailsText.ToString().Len())
 	{
-		MenuManager->Confirm(LOCTEXT("ConfirmBattleTitle", "AUTOMATIC BATTLE ?"),
-								LOCTEXT("ConfirmBattleText", "Some of the ships engaged in a battle. They will fight and may be lost."),
-								OnConfirmed);
-		return false;
-	}
-	else if (BattleLostWithoutRetreat)
-	{
-		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithoutRetreatTitle", "SACRIFICE SHIPS ?"),
-								LOCTEXT("ConfirmBattleLostWithoutRetreatText", "Some of the ships engaged in a battle cannot retreat and may be lost."),
-								OnConfirmed);
-		return false;
-
-	}
-	else if (BattleLostWithRetreat)
-	{
-		MenuManager->Confirm(LOCTEXT("ConfirmBattleLostWithRetreatTitle", "SACRIFICE SHIPS ?"),
-								LOCTEXT("ConfirmBattleLostWithRetreatText", "Some of the ships engaged in a battle can still retreat ! They may be lost."),
-								OnConfirmed);
+		MenuManager->Confirm(BattleTitleText, BattleDetailsText, OnConfirmed);
 		return false;
 	}
 	else

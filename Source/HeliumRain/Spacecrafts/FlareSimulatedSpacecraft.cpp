@@ -2,6 +2,7 @@
 #include "../Flare.h"
 #include "../Game/FlareSimulatedSector.h"
 #include "../Game/FlareGame.h"
+#include "../Game/FlareFleet.h"
 #include "../Game/FlareWorld.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Economy/FlareCargoBay.h"
@@ -404,7 +405,7 @@ void UFlareSimulatedSpacecraft::SetTrading(bool Trading)
 		FFlareMenuParameterData Data;
 		Data.Spacecraft = this;
 		Game->GetPC()->Notify(LOCTEXT("TradingStateEnd", "Trading complete"),
-			FText::Format(LOCTEXT("TravelEndedFormat", "{0} finished trading at {1}"),
+			FText::Format(LOCTEXT("TravelEndedFormat", "{0} finished trading in {1}"),
 				FText::FromString(GetImmatriculation().ToString()),
 				GetCurrentSector()->GetSectorName()),
 			FName("trading-state-end"),
@@ -562,6 +563,23 @@ float UFlareSimulatedSpacecraft::GetStationEfficiency()
 	}
 
 	return Efficiency;
+}
+
+int64 UFlareSimulatedSpacecraft::ComputeCombatValue()
+{
+	if (GetDamageSystem()->IsDisarmed())
+	{
+		return 0;
+	}
+
+	UFlareSimulatedSector* PriceSector = GetCurrentFleet()->IsTraveling() ? GetCurrentFleet()->GetCurrentTravel()->GetDestinationSector() : GetCurrentSector();
+	int64 SpacecraftPrice = UFlareGameTools::ComputeSpacecraftPrice(GetDescription()->Identifier, PriceSector, true, false, true);
+
+	SpacecraftPrice *= GetDamageSystem()->GetGlobalHealth();
+
+	// TODO, upgrade and ammo
+
+	return SpacecraftPrice;
 }
 
 const FSlateBrush* FFlareSpacecraftDescription::GetIcon(FFlareSpacecraftDescription* Characteristic)

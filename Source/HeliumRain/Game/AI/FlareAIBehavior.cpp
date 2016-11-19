@@ -118,6 +118,17 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			continue;
 		}
 
+		// Lock war with player for 10 days
+		int64 DaySinceWarWithPlayer = Game->GetGameWorld()->GetDate() - Company->GetLastWarDate();
+		if (OtherCompany == Game->GetPC()->GetCompany() && Company->GetLastWarDate() > 0 && DaySinceWarWithPlayer < 10)
+		{
+			if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile)
+			{
+				Company->SetHostilityTo(OtherCompany, true);
+			}
+			continue;
+		}
+
 		if (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile
 				&& (Company->GetReputation(OtherCompany) > -100 || Company->GetConfidenceLevel(OtherCompany) < RequestPeaceConfidence))
 		{
@@ -192,7 +203,7 @@ void UFlareAIBehavior::GenerateAffilities()
 	ConsumerAffility = 0.5;
 	MaintenanceAffility = 0.1;
 
-	// Budjet
+	// Budget
 	BudgetTechnologyWeight = 1.0;
 	BudgetMilitaryWeight = 1.0;
 	BudgetStationWeight = 1.0;
@@ -202,6 +213,8 @@ void UFlareAIBehavior::GenerateAffilities()
 	DeclareWarConfidence = 0.2;
 	RequestPeaceConfidence = -0.5;
 	PayTributeConfidence = -0.8;
+
+	AttackThreshold = 1.2;
 
 	ArmySize = 5.0;
 	DiplomaticReactivity = 1;
@@ -253,7 +266,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		PayTributeConfidence = -1.0;
 
 		ArmySize = 50.0;
-
+		AttackThreshold = 0.8;
 
 		// Budjet
 		BudgetTechnologyWeight = 0.0;

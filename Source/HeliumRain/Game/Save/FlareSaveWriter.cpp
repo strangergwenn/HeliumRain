@@ -182,6 +182,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompany(FFlareCompanySave* Data)
 	JsonObject->SetStringField("Money", FormatInt64(Data->Money));
 	JsonObject->SetStringField("CompanyValue", FormatInt64(Data->CompanyValue));
 	JsonObject->SetStringField("PlayerLastPeaceDate", FormatInt64(Data->PlayerLastPeaceDate));
+	JsonObject->SetStringField("PlayerLastWarDate", FormatInt64(Data->PlayerLastWarDate));
 	JsonObject->SetStringField("PlayerLastTributeDate", FormatInt64(Data->PlayerLastTributeDate));
 	JsonObject->SetStringField("FleetImmatriculationIndex", FormatInt32(Data->FleetImmatriculationIndex));
 	JsonObject->SetStringField("TradeRouteImmatriculationIndex", FormatInt32(Data->TradeRouteImmatriculationIndex));

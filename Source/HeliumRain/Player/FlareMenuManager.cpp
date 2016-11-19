@@ -695,7 +695,7 @@ bool AFlareMenuManager::FastForwardSingle()
 		// Fly the ship - retry at new tick if not possible
 		if (!PC->GetShipPawn())
 		{
-			FLOGV("AFlareMenuManager::FastForwardSingle: need player ship to be active");
+			FLOG("AFlareMenuManager::FastForwardSingle: need player ship to be active");
 			return false;
 		}
 		PC->FlyShip(PC->GetShipPawn());
@@ -749,27 +749,23 @@ void AFlareMenuManager::InspectCompany()
 
 void AFlareMenuManager::InspectShip(bool IsEditable)
 {
-	UFlareSimulatedSpacecraft* MenuTarget = NULL;
+	UFlareSimulatedSpacecraft* MenuTarget = NextMenu.Value.Spacecraft;
 
 	// Make sure we're not simulating anymore when going from orbit to ship, as we use player pawn
 	OrbitMenu->StopFastForward();
 
 	// No target passed - "Inspect" on target ship
-	if (NextMenu.Value.Spacecraft == NULL && GetPC()->GetShipPawn())
+	if (MenuTarget == NULL)
 	{
-		MenuTarget = GetPC()->GetShipPawn()->GetParent();
-		if (MenuTarget)
+		if (GetPC()->GetPlayerShip())
 		{
+			MenuTarget = GetPC()->GetPlayerShip();
 			FLOGV("AFlareMenuManager::InspectShip : No ship passed, using player ship : %s", *MenuTarget->GetImmatriculation().ToString());
 		}
 		else
 		{
 			FLOG("AFlareMenuManager::InspectShip : No ship, aborting");
 		}
-	}
-	else
-	{
-		MenuTarget = NextMenu.Value.Spacecraft;
 	}
 
 	// Open the menu for good

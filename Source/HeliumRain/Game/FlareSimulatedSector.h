@@ -165,10 +165,6 @@ struct FFlareSectorDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	float Phase;
 
-	/** Peaceful sector */
-	UPROPERTY(EditAnywhere, Category = Content)
-	bool IsPeaceful;
-
 	/** Is this sector ice-rich */
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool IsIcy;
@@ -396,7 +392,7 @@ public:
 	void ClearBombs();
 
 	/** Get the balance of forces in the sector */
-	void GetSectorBalance(int32& PlayerShips, int32& EnemyShips, int32& NeutralShips, bool ActiveOnly);
+	void GetSectorBalance(UFlareCompany* Company, int32& PlayerShips, int32& EnemyShips, int32& NeutralShips, bool ActiveOnly);
 
 	/** Get the balance of forces as a text */
 	FText GetSectorBalanceText(bool ActiveOnly);

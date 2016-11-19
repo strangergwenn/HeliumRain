@@ -70,7 +70,7 @@ float UFlareEngine::GetEffectiveAlpha() const
 void UFlareEngine::UpdateEffects()
 {
 	// Apply the glow value
-	if (EffectMaterial && SpacecraftPawn)
+	if (EffectMaterial && SpacecraftPawn && IsComponentVisible())
 	{
 		float Opacity = ExhaustAccumulator;
 
@@ -83,7 +83,7 @@ void UFlareEngine::UpdateEffects()
 		{
 			EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), Opacity);
 		}
-		else if (SpacecraftPawn->IsPresentationMode())
+		else
 		{
 			EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), 0);
 		}

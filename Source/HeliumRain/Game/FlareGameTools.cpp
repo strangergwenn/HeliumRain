@@ -1705,7 +1705,7 @@ FText UFlareGameTools::GetDisplayDate(int64 Days)
 		FText::AsNumber(RemainingDays + 1));
 }
 
-int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSector* Sector, bool WithMargin, bool ConstructionPrice)
+int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSector* Sector, bool WithMargin, bool ConstructionPrice, bool LocalPrice)
 {
 	FFlareSpacecraftDescription* Desc = Sector->GetGame()->GetSpacecraftCatalog()->Get(ShipClass);
 
@@ -1729,14 +1729,34 @@ int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSe
 	for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.InputResources.Num() ; ResourceIndex++)
 	{
 		FFlareFactoryResource* Resource = &Desc->CycleCost.InputResources[ResourceIndex];
-		Cost += Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::Default);
+		int64 ResourcePrice;
+		if(LocalPrice)
+		{
+			ResourcePrice = Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::Default);
+		}
+		else
+		{
+			ResourcePrice = Resource->Resource->Data.MinPrice;
+		}
+
+		Cost += Resource->Quantity * ResourcePrice;
 	}
 
 	// Substract output resource
 	for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.OutputResources.Num() ; ResourceIndex++)
 	{
 		FFlareFactoryResource* Resource = &Desc->CycleCost.OutputResources[ResourceIndex];
-		Cost -= Resource->Quantity * Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::Default);
+		int64 ResourcePrice;
+		if(LocalPrice)
+		{
+			ResourcePrice = Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::Default);
+		}
+		else
+		{
+			ResourcePrice = Resource->Resource->Data.MinPrice;
+		}
+
+		Cost -= Resource->Quantity * ResourcePrice;
 	}
 
 	// Upgrade value

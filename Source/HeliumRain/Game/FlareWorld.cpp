@@ -488,7 +488,6 @@ void UFlareWorld::Simulate()
 		CompaniesToSimulateAI.RemoveAt(Index);
 	}
 
-
 	// Clear bombs
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
@@ -528,7 +527,6 @@ void UFlareWorld::Simulate()
 
 	// Ship capture
 	ProcessShipCapture();
-
 	ProcessStationCapture();
 
 	// Factories
@@ -560,9 +558,10 @@ void UFlareWorld::Simulate()
 	}
 	FLOG("* Simulate > Travels");
 	// Travels
-	for (int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex++)
+	TArray<UFlareTravel*> TravelsToProcess = Travels;
+	for (int TravelIndex = 0; TravelIndex < TravelsToProcess.Num(); TravelIndex++)
 	{
-		Travels[TravelIndex]->Simulate();
+		TravelsToProcess[TravelIndex]->Simulate();
 	}
 
 	FLOG("* Simulate > Reputation");
@@ -609,15 +608,16 @@ void UFlareWorld::Simulate()
 	{
 		Sectors[SectorIndex]->SwapPrices();
 	}
-
-
+	
 	// Update reserve ships
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{
 		Sectors[SectorIndex]->UpdateReserveShips();
 	}
 
-
+	// Player being attacked ?
+	ProcessIncomingPlayerEnemy();
+	
 	double EndTs = FPlatformTime::Seconds();
 	FLOGV("** Simulate day %d done in %.6fs", WorldData.Date-1, EndTs- StartTs);
 
@@ -698,8 +698,8 @@ void UFlareWorld::ProcessShipCapture()
 			MenuData.Sector = Sector;
 
 			GetGame()->GetPC()->Notify(LOCTEXT("ShipCaptured", "Ship captured"),
-				FText::Format(LOCTEXT("ShipCapturedFormat", "The ship {0} has been captured in {1}. Its new name is {2}."),
-							  FText::FromString(Data.Immatriculation.ToString()),
+				FText::Format(LOCTEXT("ShipCapturedFormat", "You have captured a {0}-class ship in {1}. Its new name is {2}."),
+							  NewShip->GetDescription()->Name,
 							  FText::FromString(Sector->GetSectorName().ToString()),
 							  FText::FromString(NewShip->GetImmatriculation().ToString())),
 				FName("ship-captured"),
@@ -789,10 +789,10 @@ void UFlareWorld::ProcessStationCapture()
 			MenuData.Sector = Sector;
 
 			GetGame()->GetPC()->Notify(LOCTEXT("StationCaptured", "Station captured"),
-				FText::Format(LOCTEXT("StationCapturedFormat", "The station {0} has been captured in {1}. Its new name is {2}."),
-							  FText::FromString(Data.Immatriculation.ToString()),
-							  FText::FromString(Sector->GetSectorName().ToString()),
-							  FText::FromString(NewShip->GetImmatriculation().ToString())),
+				FText::Format(LOCTEXT("StationCapturedFormat", "You have captured a {0} in {1}. Its new name is {2}."),
+							NewShip->GetDescription()->Name,
+							FText::FromString(Sector->GetSectorName().ToString()),
+							FText::FromString(NewShip->GetImmatriculation().ToString())),
 				FName("station-captured"),
 				EFlareNotification::NT_Military,
 				false,
@@ -872,42 +872,74 @@ void UFlareWorld::SimulatePeopleMoneyMigration()
 void UFlareWorld::FastForward()
 {
 	Simulate();
-	// TODO repair
-	/*int64 FastForwardEnd = WorldData.Time + 86400;
+}
 
-	while(WorldData.Time < FastForwardEnd)
+void UFlareWorld::ProcessIncomingPlayerEnemy()
+{
+	if (GetGame()->GetPC()->GetPlayerShip())
 	{
-		TArray<FFlareWorldEvent> NextEvents = GenerateEvents();
+		UFlareSimulatedSector* PlayerSector = GetGame()->GetPC()->GetPlayerShip()->GetCurrentSector();
 
-		if (NextEvents.Num() == 0)
+		// Notification data
+		FText SingleShip = LOCTEXT("ShipSingle", "ship");
+		FText MultipleShips = LOCTEXT("ShipPlural", "ships");
+		int32 LightShipCount = 0;
+		int32 HeavyShipCount = 0;
+		FText CompanyName;
+
+		// Count incoming ships
+		for (int32 TravelIndex = 0; TravelIndex < GetTravels().Num(); TravelIndex++)
 		{
-			// Nothing will append in futur
-			return;
+			UFlareTravel* Travel = GetTravels()[TravelIndex];
+			
+			if (Travel->GetDestinationSector() == PlayerSector
+				&& Travel->GetRemainingTravelDuration() == 1
+				&& Travel->GetFleet()->GetFleetCompany()->GetPlayerWarState() == EFlareHostility::Hostile)
+			{
+				CompanyName = Travel->GetFleet()->GetFleetCompany()->GetCompanyName();
+				LightShipCount += Travel->GetFleet()->GetMilitaryShipCountBySize(EFlarePartSize::S);
+				HeavyShipCount += Travel->GetFleet()->GetMilitaryShipCountBySize(EFlarePartSize::L);
+			}
 		}
 
-		FFlareWorldEvent& NextEvent = NextEvents[0];
-
-		if (NextEvent.Time < WorldData.Time)
+		// Warn player
+		if (LightShipCount > 0 || HeavyShipCount > 0)
 		{
-			FLOGV("Fast forward fail: next event is in the past. Current time is %ld but next event time %ld", WorldData.Time, NextEvent.Time);
-			return;
+			// Fighters
+			FText LightShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} light {1}"),
+				FText::AsNumber(LightShipCount),
+				(LightShipCount > 1) ? MultipleShips : SingleShip);
+
+			// Heavies
+			FText HeavyShipText;
+			if (HeavyShipCount > 0)
+			{
+				HeavyShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} heavy {1}"),
+					FText::AsNumber(LightShipCount),
+					(HeavyShipCount > 1) ? MultipleShips : SingleShip);
+
+				if (LightShipCount > 0)
+				{
+					HeavyShipText = FText::FromString(", " + HeavyShipText.ToString());
+				}
+			}
+
+			// Notify
+			FFlareMenuParameterData Data;
+			Data.Sector = PlayerSector;
+			GetGame()->GetPC()->Notify(LOCTEXT("PlayerAttackedSoon", "Incoming attack"),
+				FText::Format(LOCTEXT("PlayerAttackedSoonFormat", "Your current sector {0} will be attacked tomorrow by {1} with {2}{3}. Prepare for battle."),
+					PlayerSector->GetSectorName(),
+					CompanyName,
+					LightShipText,
+					HeavyShipText),
+				FName("travel-raid-soon"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Sector,
+				Data);
 		}
-
-		int64 TimeJump = NextEvent.Time - WorldData.Time;
-
-		if(NextEvent.Time > FastForwardEnd)
-		{
-			TimeJump = FastForwardEnd - WorldData.Time;
-		}
-
-		Simulate(TimeJump);
-
-		if (NextEvent.Visibility == EFlareEventVisibility::Blocking)
-		{
-			// End fast forward
-			break;
-		}
-	}*/
+	}
 }
 
 void UFlareWorld::ForceDate(int64 Date)

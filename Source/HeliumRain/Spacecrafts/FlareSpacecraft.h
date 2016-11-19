@@ -275,8 +275,6 @@ protected:
 	bool                                           HasExitedSector;
 	bool                                           Paused;
 
-	float                                          LastMass;
-
 	bool										   InWarningZone;
 
 	bool                                           AttachedToParentActor;

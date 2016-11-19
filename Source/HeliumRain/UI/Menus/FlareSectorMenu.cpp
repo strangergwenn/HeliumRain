@@ -843,16 +843,6 @@ FText SFlareSectorMenu::GetSectorLocation() const
 				LightRatioString = FText::Format(LOCTEXT("SectorLightRatioFormat", "{0}%"), FText::AsNumber(LightRatio));
 			}
 
-			// Peaceful
-			if (TargetSector->GetDescription()->IsPeaceful)
-			{
-				if (AttributeString.Len())
-				{
-					AttributeString += ", ";
-				}
-				AttributeString += LOCTEXT("Peaceful", "Peaceful").ToString();
-			}
-
 			// Icy
 			if (TargetSector->GetDescription()->IsIcy)
 			{

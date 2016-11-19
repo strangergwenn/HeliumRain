@@ -486,7 +486,7 @@ AActor* UFlareSector::GetNearestBody(FVector Location, float* NearestDistance, b
 
 void UFlareSector::PlaceSpacecraft(AFlareSpacecraft* Spacecraft, FVector Location)
 {
-	float RandomLocationRadiusIncrement = 80000; // 800m
+	float RandomLocationRadiusIncrement = 100000; // 1000m
 	float RandomLocationRadius = RandomLocationRadiusIncrement;
 	float EffectiveDistance = -1;
 

@@ -41,10 +41,7 @@ protected:
 	/** Setup asteroids */
 	void SetupAsteroids();
 	
-	/** Discover all private sectors*/
-	void SetupPlayerSectors();
-
-	/** Discover all public sectors*/
+	/** Discover all known sectors*/
 	void SetupKnownSectors(UFlareCompany* Company);
 
 
@@ -80,6 +77,7 @@ public:
 	/*----------------------------------------------------
 		Public data
 	----------------------------------------------------*/
+
 	// Celestial body
 	FFlareCelestialBody*                       Nema;
 	FFlareCelestialBody*                       Anka;
@@ -96,15 +94,18 @@ public:
 	UFlareSimulatedSector*                     Lighthouse;
 	UFlareSimulatedSector*                     BlueShores;
 	UFlareSimulatedSector*                     TheSpire;
+	UFlareSimulatedSector*                     Pendulum;
 
 	// Notable sectors (Anka)
 	UFlareSimulatedSector*                     Outpost;
 	UFlareSimulatedSector*                     Colossus;
 	UFlareSimulatedSector*                     Crossroads;
 	UFlareSimulatedSector*                     TheDig;
+	UFlareSimulatedSector*                     TheForge;
 
 	// Notable sectors (Hela)
 	UFlareSimulatedSector*                     FrozenRealm;
+	UFlareSimulatedSector*                     NightsHome;
 	UFlareSimulatedSector*                     ShoreOfIce;
 	UFlareSimulatedSector*                     Ruins;
 	UFlareSimulatedSector*                     WinterJunction;
@@ -112,10 +113,12 @@ public:
 	// Notable sectors (Asta)
 	UFlareSimulatedSector*                     Decay;
 	UFlareSimulatedSector*                     Boneyard;
+	UFlareSimulatedSector*                     Daedalus;
 
 	// Notable sectors (Adena)
 	UFlareSimulatedSector*                     Solitude;
 	UFlareSimulatedSector*                     Tranquility;
+	UFlareSimulatedSector*                     Serenity;
 	
 	// Companies
 	UFlareCompany*                             MiningSyndicate;

@@ -132,6 +132,7 @@ public:
 
 
 	void ResetLastPeaceDate();
+	void ResetLastWarDate();
 	void ResetLastTributeDate();
 
 	/** Set whether this company is hostile to an other company */
@@ -401,6 +402,11 @@ public:
 	inline int64 GetLastPeaceDate()
 	{
 		return CompanyData.PlayerLastPeaceDate;
+	}
+
+	inline int64 GetLastWarDate()
+	{
+		return CompanyData.PlayerLastWarDate;
 	}
 
 	inline int64 GetLastTributeDate()

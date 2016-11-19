@@ -541,8 +541,6 @@ void UFlarePeople::Migrate(UFlareSimulatedSector* DestinationSector, int32 ShipC
 
 		DestinationPeople->GetData()->Population += MigratingPopulation;
 		DestinationPeople->GetData()->HappinessPoint += MigratingHappiness;
-
-		FLOGV("Migration from %s to %s : %d people", *Parent->GetSectorName().ToString(), DestinationSector);
 	}
 }
 

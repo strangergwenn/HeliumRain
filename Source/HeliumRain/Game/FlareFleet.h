@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Object.h"
+#include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareFleet.generated.h"
 
 
@@ -146,6 +147,9 @@ public:
 
 	/** Get the current ship count in the fleet */
 	uint32 GetShipCount() const;
+
+	/** Get the current military ship count by size in the fleet */
+	uint32 GetMilitaryShipCountBySize(EFlarePartSize::Type Size) const;
 
 	/** Get the maximum ship count in a fleet */
 	uint32 GetMaxShipCount();

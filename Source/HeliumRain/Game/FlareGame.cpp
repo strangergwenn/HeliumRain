@@ -277,14 +277,14 @@ void AFlareGame::Recovery()
 		OtherCompany->SetHostilityTo(PlayerCompany, false);
 		PlayerCompany->SetHostilityTo(OtherCompany, false);
 
-		if (OtherCompany->GetReputation(PlayerCompany) <= -100)
+		if (OtherCompany->GetReputation(PlayerCompany) < 0)
 		{
-			OtherCompany->ForceReputation(PlayerCompany, -99);
+			OtherCompany->ForceReputation(PlayerCompany, 0);
 		}
 	}
 
 	GetPC()->Notify(LOCTEXT("ShipRecovery", "Recovery ship"),
-		FText::Format(LOCTEXT("ShipRecoveryFormat", "Your fleet was destroyed. You wake up in a recovery ship at {0}..."),
+		FText::Format(LOCTEXT("ShipRecoveryFormat", "Your fleet was destroyed. You wake up in a recovery ship in {0}..."),
 					  GetPC()->GetPlayerShip()->GetCurrentSector()->GetSectorName()),
 		FName("ship-recovery"),
 		EFlareNotification::NT_Info);
@@ -552,13 +552,13 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	// Manually setup the player company before creating it
 	FFlareCompanyDescription CompanyData;
 	CompanyData.Name = CompanyName;
-	CompanyData.ShortName = *FString("PLY"); // TODO : Extract better short name
-	CompanyData.Emblem = NULL; // TODO
+	CompanyData.ShortName = *FString("PLY");
+	CompanyData.Emblem = NULL;
 	CompanyData.CustomizationBasePaintColorIndex = 0;
-	CompanyData.CustomizationPaintColorIndex = 4;
-	CompanyData.CustomizationOverlayColorIndex = 13;
-	CompanyData.CustomizationLightColorIndex = 8;
-	CompanyData.CustomizationPatternIndex = 1;
+	CompanyData.CustomizationPaintColorIndex = 8;
+	CompanyData.CustomizationOverlayColorIndex = 4;
+	CompanyData.CustomizationLightColorIndex = 13;
+	CompanyData.CustomizationPatternIndex = 0;
 	PC->SetCompanyDescription(CompanyData);
 
 	// Player company
@@ -627,6 +627,7 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	CompanyData.TradeRouteImmatriculationIndex = 0;
 	CompanyData.PlayerLastPeaceDate = 0;
 	CompanyData.PlayerLastTributeDate = 0;
+	CompanyData.PlayerLastWarDate = 0;
 	CompanyData.AI.ConstructionProjectNeedCapacity = 0;
 	CompanyData.AI.ConstructionProjectSectorIdentifier = NAME_None;
 	CompanyData.AI.ConstructionProjectStationDescriptionIdentifier = NAME_None;
@@ -878,22 +879,20 @@ void AFlareGame::UnloadStreamingLevel(FName SectorLevel)
 
 void AFlareGame::OnLevelLoaded()
 {
-	FLOG("AFlareGame::OnLevelLoaded");
-
 	IsLoadingStreamingLevel = false;
 
-	if(ActivatingSector == NULL)
+	// Ensure the current state is correct
+	if (ActivatingSector == NULL || ActivatingSector->GetGame()->GetGameWorld() == NULL)
 	{
+		FLOG("AFlareGame::OnLevelLoaded : no sector");
 		return;
 	}
 
 	// Ships
-	FLOGV("AFlareGame::OnLevelLoaded : Ship count = %d", ActivatingSector->GetSectorShips().Num());
 	bool PlayerHasShip = false;
 	for (int ShipIndex = 0; ShipIndex < ActivatingSector->GetSectorShips().Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = ActivatingSector->GetSectorShips()[ShipIndex];
-		FLOGV("AFlareGame::OnLevelLoaded : Found ship %s", *Ship->GetImmatriculation().ToString());
 		if (Ship->GetCompany()->GetPlayerHostility()  == EFlareHostility::Owned)
 		{
 			PlayerHasShip = true;

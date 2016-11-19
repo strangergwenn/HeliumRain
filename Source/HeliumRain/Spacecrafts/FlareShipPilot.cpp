@@ -19,7 +19,7 @@ DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Military"), STAT_FlareShipPilot_Military
 DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Cargo"), STAT_FlareShipPilot_Cargo, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Fighter"), STAT_FlareShipPilot_Fighter, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Bomber"), STAT_FlareShipPilot_Bomber, STATGROUP_Flare);
-DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Idle)"), STAT_FlareShipPilot_Idle, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Idle"), STAT_FlareShipPilot_Idle, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Flagship"), STAT_FlareShipPilot_Flagship, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareShipPilot FindBestHostileTarget"), STAT_FlareShipPilot_FindBestHostileTarget, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareShipPilot ExitAvoidance"), STAT_FlareShipPilot_ExitAvoidance, STATGROUP_Flare);

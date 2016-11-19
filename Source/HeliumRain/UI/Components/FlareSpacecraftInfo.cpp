@@ -20,6 +20,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 	OwnerWidget = InArgs._OwnerWidget->AsShared();
 	NoInspect = InArgs._NoInspect;
 	Minimized = InArgs._Minimized;
+	OnRemoved = InArgs._OnRemoved;
 	AFlareGame* Game = InArgs._Player->GetGame();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	
@@ -322,7 +323,7 @@ void SFlareSpacecraftInfo::Show()
 		UndockButton->SetVisibility(EVisibility::Collapsed);
 		ScrapButton->SetVisibility(EVisibility::Collapsed);
 	}
-	else if (TargetSpacecraft)
+	else if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
 	{
 		// Useful data
 		UFlareSimulatedSpacecraft* PlayerShip = PC->GetPlayerShip();
@@ -452,9 +453,9 @@ void SFlareSpacecraftInfo::Show()
 			ScrapButton->SetHelpText(LOCTEXT("CantScrapInfo", "Scrapping requires to be docked in a peaceful sector (ships outside the player fleet can be scrapped when a station is present)"));
 			ScrapButton->SetDisabled(true);
 		}
-
-		UpdateCaptureList();
 	}
+
+	UpdateCaptureList();
 
 	if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Trade)
 	{
@@ -482,7 +483,7 @@ void SFlareSpacecraftInfo::UpdateCaptureList()
 
 	// Initial checks
 	FCHECK(PC);
-	FCHECK(TargetSpacecraft);
+	FCHECK(TargetSpacecraft->IsValidLowLevel());
 	if (!TargetSpacecraft->IsStation())
 	{
 		return;
@@ -625,9 +626,9 @@ void SFlareSpacecraftInfo::OnUndock()
 
 void SFlareSpacecraftInfo::OnScrap()
 {
-	if (PC && TargetSpacecraft)
+	if (PC && TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
 	{
-		FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping '%s'", *TargetSpacecraft->GetImmatriculation().ToString())
+		FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping '%s'", *TargetSpacecraft->GetImmatriculation().ToString());
 		UFlareSimulatedSpacecraft* TargetStation = NULL;
 		TArray<UFlareSimulatedSpacecraft*> SectorStations = TargetSpacecraft->GetCurrentSector()->GetSectorStations();
 
@@ -637,7 +638,7 @@ void SFlareSpacecraftInfo::OnScrap()
 			if (SectorStations[Index]->GetCompany() == PC->GetCompany())
 			{
 				TargetStation = SectorStations[Index];
-				FLOGV("SFlareSpacecraftInfo::OnScrap : found player station '%s'", *TargetStation->GetImmatriculation().ToString())
+				FLOGV("SFlareSpacecraftInfo::OnScrap : found player station '%s'", *TargetStation->GetImmatriculation().ToString());
 				break;
 			}
 			else if (TargetStation == NULL)
@@ -649,13 +650,15 @@ void SFlareSpacecraftInfo::OnScrap()
 		// Scrap
 		if (TargetStation)
 		{
-			FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping at '%s'", *TargetStation->GetImmatriculation().ToString())
+			FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping at '%s'", *TargetStation->GetImmatriculation().ToString());
+
+			OnRemoved.ExecuteIfBound(TargetSpacecraft);
 			PC->GetGame()->Scrap(TargetSpacecraft->GetImmatriculation(), TargetStation->GetImmatriculation());
 			PC->GetMenuManager()->Back();
 		}
 		else
 		{
-			FLOG("SFlareSpacecraftInfo::OnScrap : couldn't find a valid station here !")
+			FLOG("SFlareSpacecraftInfo::OnScrap : couldn't find a valid station here !");
 		}
 	}
 }
@@ -675,7 +678,7 @@ FSlateColor SFlareSpacecraftInfo::GetTextColor() const
 	FLinearColor Result;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	if (TargetSpacecraft)
+	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
 	{
 		if (TargetSpacecraft == PC->GetPlayerShip())
 		{
@@ -704,7 +707,7 @@ FText SFlareSpacecraftInfo::GetDescription() const
 	FText DefaultText = LOCTEXT("Default", "UNKNOWN OBJECT");
 
 	// Description builder
-	if (TargetSpacecraftDesc)
+	if (TargetSpacecraftDesc && TargetSpacecraft->IsValidLowLevel())
 	{
 		// TODO exclude shipyard
 		if(TargetSpacecraft && TargetSpacecraft->IsStation())
@@ -750,7 +753,7 @@ EVisibility SFlareSpacecraftInfo::GetCompanyFlagVisibility() const
 	}
 
 	// Check the target
-	if (TargetSpacecraft)
+	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
 	{
 		UFlareCompany* TargetCompany = TargetSpacecraft->GetCompany();
 
@@ -778,7 +781,7 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 		return FText();
 	}
 
-	if (TargetSpacecraft)
+	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
 	{
 		// Get the object's distance
 		FText DistanceText;

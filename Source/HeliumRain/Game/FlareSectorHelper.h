@@ -32,4 +32,5 @@ struct SectorHelper
 	static void RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Company);
 
 	static void ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 ConsumedFS);
+
 };

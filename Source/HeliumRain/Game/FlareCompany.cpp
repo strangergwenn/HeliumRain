@@ -238,6 +238,11 @@ EFlareHostility::Type UFlareCompany::GetWarState(const UFlareCompany* TargetComp
 	return GetHostility(TargetCompany);
 }
 
+void UFlareCompany::ResetLastWarDate()
+{
+	CompanyData.PlayerLastWarDate = Game->GetGameWorld()->GetDate();
+}
+
 void UFlareCompany::ResetLastPeaceDate()
 {
 	CompanyData.PlayerLastPeaceDate = Game->GetGameWorld()->GetDate();
@@ -275,21 +280,23 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 				}
 			}
 
-			if(this == PlayerCompany)
+			if (this == PlayerCompany)
 			{
 				int64 DaySincePeace = Game->GetGameWorld()->GetDate() - TargetCompany->GetLastPeaceDate();
 				int64 DaySinceTribute = Game->GetGameWorld()->GetDate() - TargetCompany->GetLastTributeDate();
-				if(DaySincePeace < 20)
+				if (TargetCompany->GetLastPeaceDate() > 0 && DaySincePeace < 20)
 				{
-					float PenaltyRatio = (float) TargetCompany->GetLastPeaceDate() / 20.f;
+					float PenaltyRatio = 1 - ((float)DaySincePeace / 20);
 					PlayerCompany->GiveReputationToOthers(PenaltyRatio * -70, false);
 				}
 
-				if(DaySinceTribute < 50)
+				if (TargetCompany->GetLastTributeDate() > 0 && DaySinceTribute < 50)
 				{
-					float PenaltyRatio = (float) TargetCompany->GetLastTributeDate() / 50.f;
+					float PenaltyRatio = 1 - ((float)DaySinceTribute / 50);
 					PlayerCompany->GiveReputationToOthers(PenaltyRatio * -30, false);
 				}
+
+				TargetCompany->ResetLastWarDate();
 			}
 		}
 		else if(!Hostile && WasHostile)
@@ -1111,11 +1118,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 			Value.ShipsValue += SpacecraftPrice;
 		}
 
-		if(Spacecraft->IsMilitary() && !Spacecraft->GetDamageSystem()->IsDisarmed())
-		{
-			// TODO Upgrade cost
-			Value.ArmyValue += SpacecraftPrice;
-		}
+		Value.ArmyValue += Spacecraft->ComputeCombatValue();
 
 		// Value of the stock
 		TArray<FFlareCargo>& CargoBaySlots = Spacecraft->GetCargoBay()->GetSlots();

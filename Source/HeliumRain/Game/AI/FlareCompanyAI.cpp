@@ -161,6 +161,12 @@ void UFlareCompanyAI::Simulate()
 
 void UFlareCompanyAI::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 {
+	// Don't keep reference on destroyed stations
+	if (ConstructionProjectStation == Spacecraft)
+	{
+		ClearConstructionProject();
+	}
+
 	// Don't keep reference on destroyed ship
 	ConstructionShips.Remove(Spacecraft);
 	ConstructionStaticShips.Remove(Spacecraft);
@@ -482,6 +488,8 @@ void UFlareCompanyAI::RepairAndRefill()
 	}
 }
 
+//#define DEBUG_AI_CONSTRUCTION
+
 void UFlareCompanyAI::UpdateBestScore(float Score,
 									  UFlareSimulatedSector* Sector,
 									  FFlareSpacecraftDescription* StationDescription,
@@ -557,18 +565,27 @@ void UFlareCompanyAI::UpdateStationConstruction()
 						(ConstructionProjectSector->BuildStation(ConstructionProjectStationDescription, Company) != NULL);
 			}
 
-			if(BuildSuccess)
+			// Build success clean contruction project
+			if (BuildSuccess)
 			{
-				// Build success clean contruction project
-				FLOGV("UFlareCompanyAI::UpdateStationConstruction %s build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStationDescription->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
-
+#if DEBUG_AI_CONSTRUCTION
+				FLOGV("UFlareCompanyAI::UpdateStationConstruction %s build %s in %s",
+					*Company->GetCompanyName().ToString(),
+					*ConstructionProjectStationDescription->Name.ToString(),
+					*ConstructionProjectSector->GetSectorName().ToString());
+#endif
 				ClearConstructionProject();
 			}
 
 			// Cannot build
 			else
 			{
-				FLOGV("UFlareCompanyAI::UpdateStationConstruction %s failed to build %s in %s", *Company->GetCompanyName().ToString(), *ConstructionProjectStationDescription->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString());
+#if DEBUG_AI_CONSTRUCTION
+				FLOGV("UFlareCompanyAI::UpdateStationConstruction %s failed to build %s in %s",
+					*Company->GetCompanyName().ToString(),
+					*ConstructionProjectStationDescription->Name.ToString(),
+					*ConstructionProjectSector->GetSectorName().ToString());
+#endif
 				
 				int32 NeedCapacity = UFlareGameTools::ComputeConstructionCapacity(ConstructionProjectStationDescription->Identifier, Game);
 				if (NeedCapacity > IdleCargoCapacity)
@@ -579,10 +596,16 @@ void UFlareCompanyAI::UpdateStationConstruction()
 				FindResourcesForStationConstruction();
 			}
 		}
+
+		// Abandon build project
 		else
 		{
-			// Abandon build project
-			FLOGV("UFlareCompanyAI::UpdateStationConstruction %s abandon building of %s in %s (upgrade: %d) : cannot build for strange reason", *Company->GetCompanyName().ToString(), *ConstructionProjectStationDescription->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString(), (ConstructionProjectStation != NULL));
+#if DEBUG_AI_CONSTRUCTION
+			FLOGV("UFlareCompanyAI::UpdateStationConstruction %s abandon building of %s in %s (upgrade: %d) : cannot build for strange reason",
+				*Company->GetCompanyName().ToString(), *ConstructionProjectStationDescription->Name.ToString(), *ConstructionProjectSector->GetSectorName().ToString(),
+				(ConstructionProjectStation != NULL));
+#endif
+
 			if (ConstructionProjectStationDescription && ConstructionProjectSector)
 			{
 				float StationPrice = ComputeStationPrice(ConstructionProjectSector, ConstructionProjectStationDescription, ConstructionProjectStation);
@@ -803,19 +826,19 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 		ShipsInOtherSector.Remove(Ship);
 		ShipsToTravel.Remove(Ship);
 
+#if DEBUG_AI_CONSTRUCTION
 		FLOGV("Static Construction ship %s", *Ship->GetImmatriculation().ToString());
+#endif
 	}
-
-
-
 
 	// First strep, agregate ressources in construction sector
 	for (int32 ShipIndex = 0; ShipIndex < ShipsInConstructionSector.Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = ShipsInConstructionSector[ShipIndex];
 
+#if DEBUG_AI_CONSTRUCTION
 		FLOGV("Construction ship %s", *Ship->GetImmatriculation().ToString());
-
+#endif
 
 		// Give to others ships
 		for (uint32 CargoIndex = 0; CargoIndex < Ship->GetCargoBay()->GetSlotCount(); CargoIndex++)
@@ -830,7 +853,9 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 			FFlareResourceDescription* ResourceToGive = Cargo->Resource;
 			int32 QuantityToGive = Ship->GetCargoBay()->GetResourceQuantity(ResourceToGive, Ship->GetCompany());
 
+#if DEBUG_AI_CONSTRUCTION
 			FLOGV("  %d %s to give", QuantityToGive, *ResourceToGive->Name.ToString());
+#endif
 
 			for (int32 StaticShipIndex = 0; QuantityToGive > 0 && StaticShipIndex < ConstructionStaticShips.Num(); StaticShipIndex++)
 			{
@@ -840,15 +865,15 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 					continue;
 				}
 
-
 				int32 GivenQuantity = StaticShip->GetCargoBay()->GiveResources(ResourceToGive, QuantityToGive, Ship->GetCompany());
 
 				Ship->GetCargoBay()->TakeResources(ResourceToGive, GivenQuantity, StaticShip->GetCompany());
 
 				QuantityToGive -= GivenQuantity;
 
-
+#if DEBUG_AI_CONSTRUCTION
 				FLOGV("  %d given to %s", QuantityToGive, *StaticShip->GetImmatriculation().ToString());
+#endif
 
 				if (QuantityToGive == 0)
 				{
@@ -879,7 +904,10 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 		for (int32 ShipIndex = 0; ShipIndex < ShipsToTravel.Num(); ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = ShipsToTravel[ShipIndex];
+
+#if DEBUG_AI_CONSTRUCTION
 			FLOGV("Construction ship %s to flush", *Ship->GetImmatriculation().ToString());
+#endif
 
 			if (Ship->GetCargoBay()->GetUsedCargoSpace() > 0)
 			{
@@ -902,8 +930,10 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 		for (int32 ShipIndex = 0; ShipIndex < ShipsToTravel.Num(); ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = ShipsToTravel[ShipIndex];
-			FLOGV("Construction ship %s to travel", *Ship->GetImmatriculation().ToString());
 
+#if DEBUG_AI_CONSTRUCTION
+			FLOGV("Construction ship %s to travel", *Ship->GetImmatriculation().ToString());
+#endif
 
 			TArray<FFlareResourceDescription*> MissingResources;
 			MissingResourcesQuantity.GetKeys(MissingResources);
@@ -915,16 +945,17 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 				}
 
 				FFlareResourceDescription* MissingResource = MissingResources[ResourceIndex];
+
+#if DEBUG_AI_CONSTRUCTION
 				if (!MissingResourcesQuantity.Contains(MissingResource))
 				{
 					FLOGV("UFlareCompanyAI::FindResourcesForStationConstruction : !!! MissingResourcesQuantity doesn't contain %s 0", *MissingResource->Name.ToString());
 				}
+#endif
+
 				int32 MissingResourceQuantity = MissingResourcesQuantity[MissingResource];
-
 				int32 Capacity = Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource, Ship->GetCompany());
-
 				int32 QuantityToBuy = FMath::Min(Capacity, MissingResourceQuantity);
-
 				int32 TakenQuantity = 0;
 
 
@@ -941,8 +972,10 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 				if (StationCandidate)
 				{
 					TakenQuantity = SectorHelper::Trade(StationCandidate, Ship, MissingResource, Request.MaxQuantity);
-					FLOGV("  %d %s taken to %s", TakenQuantity, *MissingResource->Name.ToString(), *StationCandidate->GetImmatriculation().ToString());
 
+#if DEBUG_AI_CONSTRUCTION
+					FLOGV("  %d %s taken to %s", TakenQuantity, *MissingResource->Name.ToString(), *StationCandidate->GetImmatriculation().ToString());
+#endif
 				}
 
 				MissingResourceQuantity -= TakenQuantity;
@@ -952,10 +985,12 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 				}
 				else
 				{
+#if DEBUG_AI_CONSTRUCTION
 					if (!MissingResourcesQuantity.Contains(MissingResource))
 					{
 						FLOGV("UFlareCompanyAI::FindResourcesForStationConstruction : !!! MissingResourcesQuantity doesn't contain %s 1", *MissingResource->Name.ToString());
 					}
+#endif
 					MissingResourcesQuantity[MissingResource] = MissingResourceQuantity;
 				}
 			}
@@ -998,10 +1033,13 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 				{
 					UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
 
+#if DEBUG_AI_CONSTRUCTION
 					if (!WorldResourceVariation.Contains(Sector))
 					{
 						FLOGV("UFlareCompanyAI::FindResourcesForStationConstruction : !!! WorldResourceVariation doesn't contain %s", *Sector->GetSectorName().ToString());
 					}
+#endif
+
 					SectorVariation* SectorVariation = &WorldResourceVariation[Sector];
 					
 					for (int32 ResourceIndex = 0; ResourceIndex < MissingResources.Num(); ResourceIndex++)
@@ -1021,10 +1059,13 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 						}
 
 						// Sector with missing ressource stock
+#if DEBUG_AI_CONSTRUCTION
 						if (!MissingResourcesQuantity.Contains(MissingResource))
 						{
 							FLOGV("UFlareCompanyAI::FindResourcesForStationConstruction : !!! MissingResourcesQuantity doesn't contain %s 2", *MissingResource->Name.ToString());
 						}
+#endif
+
 						int32 MissingResourceQuantity = MissingResourcesQuantity[MissingResource];
 						int32 Capacity = Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource, Ship->GetCompany());
 						
@@ -1053,7 +1094,6 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 
 				if (!BestSector)
 				{
-					FLOG("no best sector");
 					// Try a sector with a flow
 					for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 					{
@@ -1086,33 +1126,30 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 							}
 
 							// Sector with missing ressource stock
+#if DEBUG_AI_CONSTRUCTION
 							if (!MissingResourcesQuantity.Contains(MissingResource))
 							{
 								FLOGV("UFlareCompanyAI::FindResourcesForStationConstruction : !!! MissingResourcesQuantity doesn't contain %s 3", *MissingResource->Name.ToString());
 							}
+#endif
 							int32 MissingResourceQuantity = MissingResourcesQuantity[MissingResource];
 							int32 Capacity = Ship->GetCargoBay()->GetFreeSpaceForResource(MissingResource, Ship->GetCompany());
-
-
+							
 							/* Owned stock will be set negative if multiple cargo go here. This will impact the score */
 							float Score = FMath::Min((float)Flow / (Variation->OwnedStock-1),(float) MissingResourceQuantity);
 							Score = FMath::Min(Score, (float)Capacity);
-
-
-
+							
 							/*FLOGV("MissingResourceQuantity %d", MissingResourceQuantity);
 							FLOGV("Capacity %d", Capacity);
 							FLOGV("Score %f", Score);*/
-
-
+							
 							if (Score > 0 && (BestSector == NULL || BestScore < Score))
 							{
 								/*FLOGV("Best sector with flow %s for %s. Score = %f", *Sector->GetSectorName().ToString(), *MissingResource->Name.ToString(), Score);
 								FLOGV("Flow = %d",Flow);
 								FLOGV("Variation->FactoryFlow = %d",Variation->FactoryFlow);
 								FLOGV("Variation->OwnedFlow = %d",Variation->OwnedFlow);*/
-
-
+								
 								BestSector = Sector;
 								BestScore = Score;
 								BestResource = MissingResource;
@@ -1126,13 +1163,16 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 				{
 					// Travel to sector
 					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestSector);
+#if DEBUG_AI_CONSTRUCTION
 					FLOGV("  travel to %s", *BestSector->GetSectorName().ToString());
-
+#endif
 					// Decrease missing quantity
+#if DEBUG_AI_CONSTRUCTION
 					if (!MissingResourcesQuantity.Contains(BestResource))
 					{
 						FLOGV("UFlareCompanyAI::FindResourcesForStationConstruction : !!! MissingResourcesQuantity doesn't contain %s 4", *BestResource->Name.ToString());
 					}
+#endif
 					MissingResourcesQuantity[BestResource] -= FMath::Max(0, BestEstimateTake);
 					SectorVariation* SectorVariation = &WorldResourceVariation[BestSector];
 					struct ResourceVariation* Variation = &SectorVariation->ResourceVariations[BestResource];
@@ -1144,6 +1184,11 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 		}
 	}
 }
+
+
+/*----------------------------------------------------
+	Budget
+----------------------------------------------------*/
 
 //#define DEBUG_AI_BUDGET
 
@@ -1468,7 +1513,11 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool& Lock, bool&
 	if (BestSector && BestStationDescription)
 	{
 #ifdef DEBUG_AI_BUDGET
-		FLOGV("UFlareCompanyAI::UpdateStationConstruction : %s >>> %s in %s (upgrade: %d) Score=%f", *Company->GetCompanyName().ToString(), *BestStationDescription->Name.ToString(), *BestSector->GetSectorName().ToString(), (BestStation != NULL),BestScore);
+		FLOGV("UFlareCompanyAI::UpdateStationConstruction : %s >>> %s in %s (upgrade: %d) Score=%f",
+			*Company->GetCompanyName().ToString(),
+			*BestStationDescription->Name.ToString(),
+			*BestSector->GetSectorName().ToString(),
+			(BestStation != NULL),BestScore);
 #endif
 		// Start construction only if can afford to buy the station
 
@@ -1594,10 +1643,15 @@ int64 UFlareCompanyAI::UpdateWarShipAcquisition(bool limitToOne)
 	return OrderOneShip(ShipDescription);
 }
 
-#define DEBUG_AI_MILITARTY_MOVEMENT
+
+/*----------------------------------------------------
+	Military AI
+----------------------------------------------------*/
+
+
 void UFlareCompanyAI::UpdateMilitaryMovement()
 {
-	if(Company->AtWar())
+	if (Company->AtWar())
 	{
 		UpdateWarMilitaryMovement();
 	}
@@ -1607,11 +1661,377 @@ void UFlareCompanyAI::UpdateMilitaryMovement()
 	}
 }
 
+
+#define DEBUG_AI_WAR_MILITARY_MOVEMENT
+
+
+TArray<WarTargetIncomingFleet> UFlareCompanyAI::GenerateWarTargetIncomingFleets(UFlareSimulatedSector* DestinationSector)
+{
+	TArray<WarTargetIncomingFleet> IncomingFleetList;
+
+	for (UFlareTravel* Travel : Game->GetGameWorld()->GetTravels())
+	{
+		if (Travel->GetDestinationSector() != DestinationSector)
+		{
+			continue;
+		}
+
+		if (Travel->GetFleet()->GetFleetCompany() != Company)
+		{
+			continue;
+		}
+
+		int64 TravelDuration = Travel->GetRemainingTravelDuration();
+		int64 ArmyValue = 0;
+
+
+		for (UFlareSimulatedSpacecraft* Ship : Travel->GetFleet()->GetShips())
+		{
+			ArmyValue += Ship->ComputeCombatValue();
+		}
+
+		// Add an entry or modify one
+		bool ExistingTravelFound = false;
+		for(WarTargetIncomingFleet& Fleet : IncomingFleetList)
+		{
+			if(Fleet.TravelDuration  == TravelDuration)
+			{
+				Fleet.ArmyValue += ArmyValue;
+				ExistingTravelFound = true;
+				break;
+			}
+		}
+
+		if (!ExistingTravelFound)
+		{
+			WarTargetIncomingFleet Fleet;
+			Fleet.TravelDuration = TravelDuration;
+			Fleet.ArmyValue = ArmyValue;
+			IncomingFleetList.Add(Fleet);
+		}
+	}
+	return IncomingFleetList;
+}
+
+TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
+{
+	TArray<WarTarget> WarTargetList;
+
+	for (UFlareSimulatedSector* Sector : Company->GetKnownSectors())
+	{
+		if (Sector->GetSectorBattleState(Company).HasDanger)
+		{
+			/* TODO
+			 - damaged company ships,in danger, store price to sort
+			 - capturing station in danger
+			 - enemy fleet per size
+			 - enemy station and cargo, random
+			*/
+			WarTarget Target;
+			Target.Sector = Sector;
+			Target.EnemyArmyValue = 0;
+			Target.WarTargetIncomingFleets = GenerateWarTargetIncomingFleets(Sector);
+
+			for (UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
+			{
+				if (Ship->GetCompany()->GetWarState(Company) != EFlareHostility::Hostile)
+				{
+					continue;
+				}
+
+				Target.EnemyArmyValue += Ship->ComputeCombatValue();
+			}
+			WarTargetList.Add(Target);
+		}
+	}
+
+	// TODO sort
+	//WarTargetList.Sort();
+	return WarTargetList;
+}
+
+TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList()
+{
+	TArray<DefenseSector> DefenseSectorList;
+
+	for (UFlareSimulatedSector* Sector : Company->GetKnownSectors())
+	{
+		if(Sector->GetSectorBattleState(Company).HasDanger)
+		{
+			continue;
+		}
+
+		DefenseSector Target;
+		Target.Sector = Sector;
+		Target.ArmyValue = 0;
+		Target.LargeShipArmyValue = 0;
+		Target.SmallShipArmyValue = 0;
+		Target.LargeShipArmyCount = 0;
+		Target.SmallShipArmyCount = 0;
+
+		for (UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
+		{
+			int64 ShipValue = Ship->ComputeCombatValue();
+
+			if (Ship->GetCompany() != Company
+			 || Ship->CanTravel() == false
+			 || ShipValue == 0)
+			{
+				continue;
+			}
+			
+			Target.ArmyValue += ShipValue;
+			if (Ship->GetSize() == EFlarePartSize::L)
+			{
+				Target.LargeShipArmyValue += ShipValue;
+				Target.LargeShipArmyCount++;
+			}
+			else
+			{
+				Target.SmallShipArmyValue += ShipValue;
+				Target.SmallShipArmyCount++;
+			}
+		}
+		DefenseSectorList.Add(Target);
+	}
+
+	return DefenseSectorList;
+}
+
+TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::GenerateWarShipList(UFlareSimulatedSector* Sector)
+{
+	TArray<UFlareSimulatedSpacecraft*> WarShips;
+
+	for (UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
+	{
+		if ( Ship->GetCompany() == Company
+		 &&  Ship->CanTravel()
+		 && !Ship->GetDamageSystem()->IsDisarmed()
+		 && !Ship->GetDamageSystem()->IsStranded())
+		{
+			WarShips.Add(Ship);
+		}
+	}
+
+	return WarShips;
+}
+
+int64 UFlareCompanyAI::GetDefenseSectorTravelDuration(TArray<DefenseSector>& DefenseSectorList, const DefenseSector& OriginSector)
+{
+	int64 MaxTravelDuration = 0;
+
+	for (DefenseSector& Sector : DefenseSectorList)
+	{
+		int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), OriginSector.Sector, Sector.Sector);
+		if (TravelDuration > MaxTravelDuration)
+		{
+			MaxTravelDuration = TravelDuration;
+		}
+	}
+
+	return MaxTravelDuration;
+}
+
+TArray<DefenseSector> UFlareCompanyAI::GetDefenseSectorListInRange(TArray<DefenseSector>& DefenseSectorList, const DefenseSector& OriginSector, int64 MaxTravelDuration)
+{
+	TArray<DefenseSector> Sectors;
+
+	for (DefenseSector& Sector : DefenseSectorList)
+	{
+		int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), OriginSector.Sector, Sector.Sector);
+		if (TravelDuration <= MaxTravelDuration)
+		{
+			Sectors.Add(Sector);
+		}
+	}
+
+	return Sectors;
+}
+
+inline static bool SectorDefenseDistanceComparator(const DefenseSector& ip1, const DefenseSector& ip2)
+{
+	int64 ip1TravelDuration = UFlareTravel::ComputeTravelDuration(ip1.Sector->GetGame()->GetGameWorld(), ip1.TempBaseSector, ip1.Sector);
+	int64 ip2TravelDuration = UFlareTravel::ComputeTravelDuration(ip1.Sector->GetGame()->GetGameWorld(), ip2.TempBaseSector, ip2.Sector);
+
+	return (ip1TravelDuration < ip2TravelDuration);
+}
+
+TArray<DefenseSector> UFlareCompanyAI::SortSectorsByDistance(UFlareSimulatedSector* BaseSector, TArray<DefenseSector> SectorsToSort)
+{
+	for (DefenseSector& Sector : SectorsToSort)
+	{
+		Sector.TempBaseSector = BaseSector;
+	}
+
+	SectorsToSort.Sort(&SectorDefenseDistanceComparator);
+	return SectorsToSort;
+}
+
 void UFlareCompanyAI::UpdateWarMilitaryMovement()
 {
-	// TODO #471
-	UpdatePeaceMilitaryMovement();
+	TArray<WarTarget> TargetList = GenerateWarTargetList();
+	TArray<DefenseSector> DefenseSectorList = GenerateDefenseSectorList();
+
+	// Manage attacking fleets
+	for (WarTarget& Target : TargetList)
+	{
+		TArray<DefenseSector> SortedDefenseSectorList = SortSectorsByDistance(Target.Sector, DefenseSectorList);
+		for (DefenseSector& Sector : SortedDefenseSectorList)
+		{
+			// Check if the army is strong enough
+			if (Sector.ArmyValue < Target.EnemyArmyValue * Behavior->AttackThreshold)
+			{
+				// Army too weak
+				continue;
+			}
+
+			// Check if there is an incomming fleet bigger than local
+			bool DefenseFleetFound = false;
+			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), Sector.Sector, Target.Sector);
+			for (WarTargetIncomingFleet& Fleet : Target.WarTargetIncomingFleets)
+			{
+				// Incoming fleet will be late, ignore it
+				if (Fleet.TravelDuration > TravelDuration)
+				{
+					continue;
+				}
+
+				// Incoming fleet is too weak, ignore it
+				else if (Fleet.ArmyValue <  Target.EnemyArmyValue * Behavior->AttackThreshold)
+				{
+					continue;
+				}
+
+				DefenseFleetFound = true;
+				break;
+			}
+
+			// Defense already incomming
+			if (DefenseFleetFound)
+			{
+				continue;
+			}
+
+			// Should go defend ! Assemble a fleet
+			int64 FleetValue = 0;
+			int64 FleetValueLimit = Target.EnemyArmyValue * Behavior->AttackThreshold * 1.5;
+			TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(Sector.Sector);
+
+			// Send random ships
+			while (MovableShips.Num() > 0 && FleetValue < FleetValueLimit)
+			{
+				int32 ShipIndex = FMath::RandRange(0, MovableShips.Num()-1);
+
+				UFlareSimulatedSpacecraft* SelectedShip = MovableShips[ShipIndex];
+				MovableShips.RemoveAt(ShipIndex);
+
+				int64 ShipValue = SelectedShip->ComputeCombatValue();
+				FleetValue += ShipValue;
+				Sector.ArmyValue -= ShipValue;
+
+				FLOGV("UpdateWarMilitaryMovement %s : move %s from %s to %s for attack",
+					*Company->GetCompanyName().ToString(),
+					*SelectedShip->GetImmatriculation().ToString(),
+					*SelectedShip->GetCurrentSector()->GetSectorName().ToString(),
+					*Target.Sector->GetSectorName().ToString());
+
+				Game->GetGameWorld()->StartTravel(SelectedShip->GetCurrentFleet(), Target.Sector);
+			}
+
+			if (Sector.ArmyValue == 0)
+			{
+				DefenseSectorList.Remove(Sector);
+			}
+		}
+	}
+
+	// Manage remaining ships for defense
+	for (DefenseSector& Sector : DefenseSectorList)
+	{
+		// Don't move if capturing station
+		bool CapturingStation = false;
+		TArray<UFlareSimulatedSpacecraft*>& Stations =  Sector.Sector->GetSectorStations();
+		for (UFlareSimulatedSpacecraft* Station : Stations)
+		{
+			// Capturing station
+			if (Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
+			{
+				CapturingStation = true;
+				break;
+			}
+		}
+
+		// Capturing, don't move
+		if (CapturingStation)
+		{
+			continue;
+		}
+
+		int64 MaxTravelDuration = GetDefenseSectorTravelDuration(DefenseSectorList, Sector);
+		for (int32 TravelDuration = 1; TravelDuration <= MaxTravelDuration; TravelDuration++)
+		{
+			TArray<DefenseSector> DefenseSectorListInRange = GetDefenseSectorListInRange(DefenseSectorList, Sector, TravelDuration);
+
+			if (DefenseSectorListInRange.Num() == 0)
+			{
+				continue;
+			}
+
+			// Find bigger
+			DefenseSector StrongestSector;
+			StrongestSector.Sector = NULL;
+			StrongestSector.ArmyValue = 0;
+			for (DefenseSector& DistantSector : DefenseSectorListInRange)
+			{
+				if(!StrongestSector.Sector || StrongestSector.ArmyValue < DistantSector.ArmyValue)
+				{
+					StrongestSector = DistantSector;
+				}
+
+			}
+
+			if (StrongestSector.ArmyValue > Sector.ArmyValue)
+			{
+				// There is a stronger sector, travel here if no incoming army before
+				bool IncomingFleet = false;
+				TArray<WarTargetIncomingFleet> WarTargetIncomingFleets = GenerateWarTargetIncomingFleets(StrongestSector.Sector);
+				for (WarTargetIncomingFleet& Fleet : WarTargetIncomingFleets)
+				{
+					if (Fleet.TravelDuration <= TravelDuration)
+					{
+						IncomingFleet = true;
+						break;
+					}
+				}
+
+				// Wait incoming fleets
+				if (IncomingFleet)
+				{
+					break;
+				}
+				
+				// Send ships
+				TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(Sector.Sector);
+				for (UFlareSimulatedSpacecraft* Ship : MovableShips)
+				{
+					FLOGV("UpdateWarMilitaryMovement%s : move %s from %s to %s for defense",
+						*Company->GetCompanyName().ToString(),
+						*Ship->GetImmatriculation().ToString(),
+						*Ship->GetCurrentSector()->GetSectorName().ToString(),
+						*StrongestSector.Sector->GetSectorName().ToString());
+
+					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), StrongestSector.Sector);
+				}
+
+				Sector.ArmyValue = 0;
+			}
+
+			break;
+		}
+	}
 }
+
+//#define DEBUG_AI_PEACE_MILITARY_MOVEMENT
 
 void UFlareCompanyAI::UpdatePeaceMilitaryMovement()
 {
@@ -1620,47 +2040,46 @@ void UFlareCompanyAI::UpdatePeaceMilitaryMovement()
 	int64 TotalDefendableValue = TotalValue.StationsValue + TotalValue.StockValue + TotalValue.ShipsValue - TotalValue.ArmyValue;
 	float TotalDefenseRatio = (float) TotalValue.ArmyValue / (float) TotalDefendableValue;
 
-#ifdef DEBUG_AI_MILITARTY_MOVEMENT
-	FLOGV("UpdatePeaceMilitaryMovement TotalDefendableValue %lld", TotalDefendableValue);
-	FLOGV("UpdatePeaceMilitaryMovement TotalDefenseRatio %f", TotalDefenseRatio);
+#ifdef DEBUG_AI_PEACE_MILITARY_MOVEMENT
+	FLOGV("UpdatePeaceMilitaryMovement for %s : TotalDefendableValue %lld, TotalDefenseRatio %f",
+		*Company->GetCompanyName().ToString(),
+		TotalDefendableValue,
+		TotalDefenseRatio);
 #endif
-
-
+	
 	TArray<UFlareSimulatedSpacecraft*> ShipsToMove;
 	TArray<UFlareSimulatedSector*> LowDefenseSectors;
 
 	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 	{
 		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
-
 		CompanyValue SectorValue = Company->GetCompanyValue(Sector, true);
 
 		int64 SectorDefendableValue = SectorValue.StationsValue + SectorValue.StockValue + SectorValue.ShipsValue - SectorValue.ArmyValue;
-
 		int64 SectorArmyValue = SectorValue.ArmyValue;
-
 		float SectorDefenseRatio = (float) SectorArmyValue / (float) SectorDefendableValue;
 
-		#ifdef DEBUG_AI_MILITARTY_MOVEMENT
-			FLOGV("UpdatePeaceMilitaryMovement %s SectorDefendableValue %lld", *Sector->GetSectorName().ToString(), SectorDefendableValue);
-			FLOGV("UpdatePeaceMilitaryMovement %s SectorDefenseRatio %f", *Sector->GetSectorName().ToString(), SectorDefenseRatio);
-		#endif
-
-		if((SectorDefendableValue == 0 && SectorArmyValue > 0) || SectorDefenseRatio > TotalDefenseRatio * 1.5)
+		if ((SectorDefendableValue == 0 && SectorArmyValue > 0) || SectorDefenseRatio > TotalDefenseRatio * 1.5)
 		{
-			// Too much defense here move a ship
-			// Pick a random ship and add to the ship to move list
 
+#ifdef DEBUG_AI_PEACE_MILITARY_MOVEMENT
+			FLOGV("UpdatePeaceMilitaryMovement %s SectorDefendableValue %lld, SectorDefenseRatio %f",
+				*Sector->GetSectorName().ToString(),
+				SectorDefendableValue,
+				SectorDefenseRatio);
+#endif
+
+			// Too much defense here, move a ship, pick a random ship and add to the ship to move list
 			TArray<UFlareSimulatedSpacecraft*> ShipCandidates;
 			TArray<UFlareSimulatedSpacecraft*>&SectorShips = Sector->GetSectorShips();
-			for(UFlareSimulatedSpacecraft* ShipCandidate : SectorShips)
+			for (UFlareSimulatedSpacecraft* ShipCandidate : SectorShips)
 			{
-				if(ShipCandidate->GetCompany() != Company)
+				if (ShipCandidate->GetCompany() != Company)
 				{
 					continue;
 				}
 
-				if(!ShipCandidate->IsMilitary()  || !ShipCandidate->CanTravel() || ShipCandidate->GetDamageSystem()->IsDisarmed())
+				if (!ShipCandidate->IsMilitary()  || !ShipCandidate->CanTravel() || ShipCandidate->GetDamageSystem()->IsDisarmed())
 				{
 					continue;
 				}
@@ -1668,46 +2087,42 @@ void UFlareCompanyAI::UpdatePeaceMilitaryMovement()
 				ShipCandidates.Add(ShipCandidate);
 			}
 
-			if(ShipCandidates.Num() > 1 || (SectorDefendableValue == 0 && ShipCandidates.Num() > 0))
+			if (ShipCandidates.Num() > 1 || (SectorDefendableValue == 0 && ShipCandidates.Num() > 0))
 			{
 				UFlareSimulatedSpacecraft* SelectedShip = ShipCandidates[FMath::RandRange(0, ShipCandidates.Num()-1)];
 				ShipsToMove.Add(SelectedShip);
 
-				#ifdef DEBUG_AI_MILITARTY_MOVEMENT
-							FLOGV("- %s has high defense: pick %s", *Sector->GetSectorName().ToString(), *SelectedShip->GetImmatriculation().ToString());
+				#ifdef DEBUG_AI_PEACE_MILITARY_MOVEMENT
+							FLOGV("UpdatePeaceMilitaryMovement - %s has high defense: pick %s", *Sector->GetSectorName().ToString(), *SelectedShip->GetImmatriculation().ToString());
 				#endif
 			}
 			else
 			{
-#ifdef DEBUG_AI_MILITARTY_MOVEMENT
-				FLOGV("- %s has high defense: no available ships", *Sector->GetSectorName().ToString());
+#ifdef DEBUG_AI_PEACE_MILITARY_MOVEMENT
+				FLOGV("UpdatePeaceMilitaryMovement - %s has high defense: no available ships", *Sector->GetSectorName().ToString());
 #endif
 			}
 
 		}
+
+		// Too few defense, add to the target sector list
 		else if(SectorDefendableValue > 0 && SectorDefenseRatio < TotalDefenseRatio )
 		{
-			// Too fee defense
-			// At to the target sector list
-#ifdef DEBUG_AI_MILITARTY_MOVEMENT
-			FLOGV("- %s has low defense", *Sector->GetSectorName().ToString());
+#ifdef DEBUG_AI_PEACE_MILITARY_MOVEMENT
+			FLOGV("UpdatePeaceMilitaryMovement - %s has low defense", *Sector->GetSectorName().ToString());
 #endif
-
 			LowDefenseSectors.Add(Sector);
 		}
 	}
 
+	// Find destination sector
 	for (UFlareSimulatedSpacecraft* Ship: ShipsToMove)
 	{
-		// Find destination sector
-
 		int64 MinDurationTravel = 0;
 		UFlareSimulatedSector* BestSectorCandidate = NULL;
 
-
 		for (UFlareSimulatedSector* SectorCandidate : LowDefenseSectors)
 		{
-
 			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), Ship->GetCurrentSector(), SectorCandidate);
 			if (BestSectorCandidate == NULL || MinDurationTravel > TravelDuration)
 			{
@@ -1716,26 +2131,19 @@ void UFlareCompanyAI::UpdatePeaceMilitaryMovement()
 			}
 		}
 
-
-		if (!BestSectorCandidate)
+		// Low defense sector in reach
+		if (BestSectorCandidate)
 		{
-			// No low defense sector, nobody will move
-			break;
+			FLOGV("UpdatePeaceMilitaryMovement > move %s from %s to %s",
+				*Ship->GetImmatriculation().ToString(),
+				*Ship->GetCurrentSector()->GetSectorName().ToString(),
+				*BestSectorCandidate->GetSectorName().ToString());
+
+			Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestSectorCandidate);
 		}
-
-		Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestSectorCandidate);
-
-#ifdef DEBUG_AI_MILITARTY_MOVEMENT
-				FLOGV("> move %s from %s to %s",
-					  *Ship->GetImmatriculation().ToString(),
-					  *Ship->GetCurrentSector()->GetSectorName().ToString(),
-					  *BestSectorCandidate->GetSectorName().ToString());
-#endif
-
-	break;
-
 	}
 }
+
 
 /*----------------------------------------------------
 	Helpers
