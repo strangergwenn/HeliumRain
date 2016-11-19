@@ -120,7 +120,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 
 		// Lock war with player for 10 days
 		int64 DaySinceWarWithPlayer = Game->GetGameWorld()->GetDate() - Company->GetLastWarDate();
-		if (OtherCompany == Game->GetPC()->GetCompany() && DaySinceWarWithPlayer < 10)
+		if (OtherCompany == Game->GetPC()->GetCompany() && Company->GetLastWarDate() > 0 && DaySinceWarWithPlayer < 10)
 		{
 			if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile)
 			{
