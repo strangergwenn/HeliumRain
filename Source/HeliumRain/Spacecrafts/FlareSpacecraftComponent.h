@@ -432,6 +432,9 @@ public:
 	/** Should we start destruction effects ? */
 	virtual bool IsDestroyedEffectRelevant();
 
+	/** Is this component being drawn */
+	virtual bool IsComponentVisible() const;
+
 
 protected:
 

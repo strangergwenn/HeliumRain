@@ -69,10 +69,10 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
 	// Graphical updates
-	if (ComponentMaterial)
+	if (ComponentMaterial && SpacecraftPawn)
 	{
 		// Update the light status
-		if (HasFlickeringLights)
+		if (HasFlickeringLights && IsComponentVisible())
 		{
 			float GlowAlpha = 0;
 
@@ -122,6 +122,7 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 					GlowAlpha = 1;
 					break;
 			}
+
 			ComponentMaterial->SetScalarParameterValue("GlowAlpha", GlowAlpha);
 		}
 	}
@@ -225,7 +226,7 @@ void UFlareSpacecraftComponent::SetVisibleInUpgrade(bool Visible)
 
 void UFlareSpacecraftComponent::SetTemperature(int32 TemperatureKelvin)
 {
-	if (TemperatureKelvin != PreviousTemperatureKelvin && ComponentMaterial)
+	if (ComponentMaterial && TemperatureKelvin != PreviousTemperatureKelvin && IsComponentVisible())
 	{
 		ComponentMaterial->SetScalarParameterValue("Temperature", TemperatureKelvin);
 		PreviousTemperatureKelvin = TemperatureKelvin;
@@ -234,7 +235,7 @@ void UFlareSpacecraftComponent::SetTemperature(int32 TemperatureKelvin)
 
 void UFlareSpacecraftComponent::SetHealth(float HealthRatio)
 {
-	if (HealthRatio != PreviousHealthRatio && ComponentMaterial)
+	if (ComponentMaterial && HealthRatio != PreviousHealthRatio && IsComponentVisible())
 	{
 		ComponentMaterial->SetScalarParameterValue("Health", HealthRatio);
 		PreviousHealthRatio = HealthRatio;
@@ -588,4 +589,9 @@ bool UFlareSpacecraftComponent::IsDestroyedEffectRelevant()
 {
 	// No smoke
 	return false;
+}
+
+bool UFlareSpacecraftComponent::IsComponentVisible() const
+{
+	return ((SpacecraftPawn->GetWorld()->GetTimeSeconds() - LastRenderTime) > 0.2f);
 }
