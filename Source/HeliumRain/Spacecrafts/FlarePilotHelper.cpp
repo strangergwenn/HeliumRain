@@ -11,11 +11,16 @@
 
 
 DECLARE_CYCLE_STAT(TEXT("PilotHelper CheckFriendlyFire"), STAT_PilotHelper_CheckFriendlyFire, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("PilotHelper AnticollisionCorrection"), STAT_PilotHelper_AnticollisionCorrection, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("PilotHelper GetBestTarget"), STAT_PilotHelper_GetBestTarget, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("PilotHelper GetBestTargetComponent"), STAT_PilotHelper_GetBestTargetComponent, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("PilotHelper CheckRelativeDangerosity"), STAT_PilotHelper_CheckRelativeDangerosity, STATGROUP_Flare);
 
 
 bool PilotHelper::CheckFriendlyFire(UFlareSector* Sector, UFlareCompany* MyCompany, FVector FireBaseLocation, FVector FireBaseVelocity , float AmmoVelocity, FVector FireAxis, float MaxDelay, float AimRadius)
 {
 	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_CheckFriendlyFire);
+
 	//FLOG("CheckFriendlyFire");
 	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSpacecrafts().Num(); SpacecraftIndex++)
 	{
@@ -69,6 +74,8 @@ bool PilotHelper::CheckFriendlyFire(UFlareSector* Sector, UFlareCompany* MyCompa
 
 FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, AFlareSpacecraft* SpacecraftToIgnore)
 {
+	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_AnticollisionCorrection);
+
 	UFlareSector* ActiveSector = Ship->GetGame()->GetActiveSector();
 	AActor* MostDangerousCandidateActor = NULL;
 
@@ -161,6 +168,8 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 
 AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct TargetPreferences Preferences)
 {
+	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_GetBestTarget);
+
 	AFlareSpacecraft* BestTarget = NULL;
 	float BestScore = 0;
 
@@ -344,6 +353,8 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 
 UFlareSpacecraftComponent* PilotHelper::GetBestTargetComponent(AFlareSpacecraft* TargetSpacecraft)
 {
+	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_GetBestTargetComponent);
+
 	// Is armed, target the gun
 	// Else if not stranger target the orbital
 	// else target the rsc
@@ -430,6 +441,8 @@ UFlareSpacecraftComponent* PilotHelper::GetBestTargetComponent(AFlareSpacecraft*
 
 void PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector CurrentLocation, float CurrentSize, FVector TargetVelocity, FVector CurrentVelocity, AActor** MostDangerousCandidateActor, FVector*MostDangerousLocation, float* MostDangerousHitTime, float* MostDangerousInterCollisionTravelTime)
 {
+	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_CheckRelativeDangerosity);
+
 	//FLOGV("PilotHelper::CheckRelativeDangerosity for %s, ship size %f", *CandidateActor->GetName(), CurrentSize);
 
 	// Relative velocity is near zero : not dangerous
