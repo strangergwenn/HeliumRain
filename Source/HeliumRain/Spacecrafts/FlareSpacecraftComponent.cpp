@@ -593,5 +593,8 @@ bool UFlareSpacecraftComponent::IsDestroyedEffectRelevant()
 
 bool UFlareSpacecraftComponent::IsComponentVisible() const
 {
-	return ((GetWorld()->TimeSeconds - LastRenderTime) < 1000);
+	// Optimization to relieve the uniform shader cache
+	// Show if the last render is under 200ms old
+	// Show if it belongs to the player (to avoid issue when going external)
+	return (SpacecraftPawn && (SpacecraftPawn->IsPlayerShip() || (GetWorld()->TimeSeconds - LastRenderTime) < 0.2));
 }
