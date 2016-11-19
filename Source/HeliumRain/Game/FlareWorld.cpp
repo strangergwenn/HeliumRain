@@ -558,9 +558,10 @@ void UFlareWorld::Simulate()
 	}
 	FLOG("* Simulate > Travels");
 	// Travels
-	for (int TravelIndex = 0; TravelIndex < Travels.Num(); TravelIndex++)
+	TArray<UFlareTravel*> TravelsToProcess = Travels;
+	for (int TravelIndex = 0; TravelIndex < TravelsToProcess.Num(); TravelIndex++)
 	{
-		Travels[TravelIndex]->Simulate();
+		TravelsToProcess[TravelIndex]->Simulate();
 	}
 
 	FLOG("* Simulate > Reputation");
