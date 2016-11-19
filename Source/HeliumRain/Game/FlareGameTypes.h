@@ -278,6 +278,10 @@ struct FFlareCompanySave
 	/** Date of last peace with the player */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64 PlayerLastPeaceDate;
+
+	/** Date of last war with the player */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 PlayerLastWarDate;
 };
 
 /** Game save data */

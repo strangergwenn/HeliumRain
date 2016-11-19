@@ -627,6 +627,7 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	CompanyData.TradeRouteImmatriculationIndex = 0;
 	CompanyData.PlayerLastPeaceDate = 0;
 	CompanyData.PlayerLastTributeDate = 0;
+	CompanyData.PlayerLastWarDate = 0;
 	CompanyData.AI.ConstructionProjectNeedCapacity = 0;
 	CompanyData.AI.ConstructionProjectSectorIdentifier = NAME_None;
 	CompanyData.AI.ConstructionProjectStationDescriptionIdentifier = NAME_None;
