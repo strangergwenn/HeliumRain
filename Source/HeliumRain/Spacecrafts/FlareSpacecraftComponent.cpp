@@ -593,5 +593,5 @@ bool UFlareSpacecraftComponent::IsDestroyedEffectRelevant()
 
 bool UFlareSpacecraftComponent::IsComponentVisible() const
 {
-	return ((SpacecraftPawn->GetWorld()->GetTimeSeconds() - LastRenderTime) > 0.2f);
+	return ((GetWorld()->TimeSeconds - LastRenderTime) < 1000);
 }
