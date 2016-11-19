@@ -872,42 +872,6 @@ void UFlareWorld::SimulatePeopleMoneyMigration()
 void UFlareWorld::FastForward()
 {
 	Simulate();
-	// TODO repair
-	/*int64 FastForwardEnd = WorldData.Time + 86400;
-
-	while(WorldData.Time < FastForwardEnd)
-	{
-		TArray<FFlareWorldEvent> NextEvents = GenerateEvents();
-
-		if (NextEvents.Num() == 0)
-		{
-			// Nothing will append in futur
-			return;
-		}
-
-		FFlareWorldEvent& NextEvent = NextEvents[0];
-
-		if (NextEvent.Time < WorldData.Time)
-		{
-			FLOGV("Fast forward fail: next event is in the past. Current time is %ld but next event time %ld", WorldData.Time, NextEvent.Time);
-			return;
-		}
-
-		int64 TimeJump = NextEvent.Time - WorldData.Time;
-
-		if(NextEvent.Time > FastForwardEnd)
-		{
-			TimeJump = FastForwardEnd - WorldData.Time;
-		}
-
-		Simulate(TimeJump);
-
-		if (NextEvent.Visibility == EFlareEventVisibility::Blocking)
-		{
-			// End fast forward
-			break;
-		}
-	}*/
 }
 
 void UFlareWorld::ProcessIncomingPlayerEnemy()
