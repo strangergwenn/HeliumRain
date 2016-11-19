@@ -596,5 +596,12 @@ bool UFlareSpacecraftComponent::IsComponentVisible() const
 	// Optimization to relieve the uniform shader cache
 	// Show if the last render is under 200ms old
 	// Show if it belongs to the player (to avoid issue when going external)
-	return (SpacecraftPawn && (SpacecraftPawn->IsPlayerShip() || (GetWorld()->TimeSeconds - LastRenderTime) < 0.2));
+	if (Spacecraft)
+	{
+		return (Spacecraft->IsPlayerShip() || (GetWorld()->TimeSeconds - LastRenderTime) < 0.2);
+	}
+	else
+	{
+		return true;
+	}
 }
