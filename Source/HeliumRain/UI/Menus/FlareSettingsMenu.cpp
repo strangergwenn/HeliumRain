@@ -626,7 +626,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 
 	// Music volume
 	int32 MusicVolume = MyGameSettings->MusicVolume;
-	int32 MasterVolume = MyGameSettings->MusicVolume;
+	int32 MasterVolume = MyGameSettings->MasterVolume;
 	ShipCountSlider->SetValue(MaxShipRatio);
 	ShipCountLabel->SetText(GetShipCountLabel(MyGameSettings->MaxShipsInSector));
 	MusicVolumeSlider->SetValue((float)MusicVolume / 10.0f);
