@@ -57,6 +57,7 @@ struct DefenseSector
 	int64 SmallShipArmyValue;
 	int32 LargeShipArmyCount;
 	int32 SmallShipArmyCount;
+	bool CapturingStation;
 
 	bool operator==(const DefenseSector& lhs)
 	{
@@ -80,6 +81,12 @@ struct WarTarget
 {
 	UFlareSimulatedSector* Sector;
 	int64 EnemyArmyValue;
+	int64 EnemyStationCount;
+	int64 EnemyCargoCount;
+	int64 OwnedArmyValue;
+	int64 OwnedStationCount;
+	int64 OwnedCargoCount;
+	int64 OwnedMilitaryCount;
 	TArray<WarTargetIncomingFleet> WarTargetIncomingFleets; // List player company fleets
 };
 

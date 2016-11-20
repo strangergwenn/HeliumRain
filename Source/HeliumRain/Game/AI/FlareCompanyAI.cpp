@@ -16,6 +16,9 @@
 #define AI_NERF_RATIO 0.5
 // TODO, make it depend on company's nature
 #define AI_CARGO_DIVERSITY_THRESOLD 10
+#define AI_CARGO_SIZE_DIVERSITY_THRESOLD 15
+#define AI_MILITARY_DIVERSITY_THRESOLD 4
+#define AI_MILITARY_SIZE_DIVERSITY_THRESOLD 15
 
 // TODO, make it depend on company's nature
 #define AI_CARGO_PEACE_MILILTARY_THRESOLD 10
@@ -1713,40 +1716,154 @@ TArray<WarTargetIncomingFleet> UFlareCompanyAI::GenerateWarTargetIncomingFleets(
 	return IncomingFleetList;
 }
 
+inline static bool WarTargetComparator(const WarTarget& ip1, const WarTarget& ip2)
+{
+	bool SELECT_TARGET1 = true;
+	bool SELECT_TARGET2 = false;
+
+	if(ip1.EnemyArmyValue > 0 && ip2.EnemyArmyValue == 0)
+	{
+		return SELECT_TARGET1;
+	}
+
+	if(ip2.EnemyArmyValue > 0 && ip1.EnemyArmyValue == 0)
+	{
+		return SELECT_TARGET2;
+	}
+
+	if(ip1.EnemyArmyValue > 0 && ip2.EnemyArmyValue > 0)
+	{
+		// Defend military
+		if(ip1.OwnedMilitaryCount > ip2.OwnedMilitaryCount)
+		{
+			return SELECT_TARGET1;
+		}
+
+		if(ip2.OwnedMilitaryCount > ip1.OwnedMilitaryCount)
+		{
+			return SELECT_TARGET2;
+		}
+
+		// Defend station
+		if(ip1.OwnedStationCount > ip2.OwnedStationCount)
+		{
+			return SELECT_TARGET1;
+		}
+
+		if(ip2.OwnedStationCount > ip1.OwnedStationCount)
+		{
+			return SELECT_TARGET2;
+		}
+
+		// Defend cargo
+		if(ip1.OwnedCargoCount > ip2.OwnedCargoCount)
+		{
+			return SELECT_TARGET1;
+		}
+
+		if(ip2.OwnedCargoCount > ip1.OwnedCargoCount)
+		{
+			return SELECT_TARGET2;
+		}
+
+		return ip1.EnemyArmyValue > ip2.EnemyArmyValue;
+	}
+
+
+	// Cargo or station
+	return FMath::RandBool();
+}
+
+
 TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 {
 	TArray<WarTarget> WarTargetList;
 
 	for (UFlareSimulatedSector* Sector : Company->GetKnownSectors())
 	{
+		bool IsTarget = false;
+
 		if (Sector->GetSectorBattleState(Company).HasDanger)
 		{
-			/* TODO
-			 - damaged company ships,in danger, store price to sort
-			 - capturing station in danger
-			 - enemy fleet per size
-			 - enemy station and cargo, random
-			*/
-			WarTarget Target;
-			Target.Sector = Sector;
-			Target.EnemyArmyValue = 0;
-			Target.WarTargetIncomingFleets = GenerateWarTargetIncomingFleets(Sector);
+			IsTarget = false;
+		}
 
-			for (UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
+		for(UFlareSimulatedSpacecraft* Spacecraft : Sector->GetSectorSpacecrafts())
+		{
+			if(Spacecraft->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
 			{
-				if (Ship->GetCompany()->GetWarState(Company) != EFlareHostility::Hostile)
-				{
-					continue;
-				}
-
-				Target.EnemyArmyValue += Ship->ComputeCombatValue();
+				IsTarget = true;
+				break;
 			}
+		}
+
+		if(!IsTarget)
+		{
+			continue;
+		}
+
+		WarTarget Target;
+		Target.Sector = Sector;
+		Target.EnemyArmyValue = 0;
+		Target.EnemyCargoCount = 0;
+		Target.EnemyStationCount = 0;
+		Target.OwnedArmyValue = 0;
+		Target.OwnedCargoCount = 0;
+		Target.OwnedStationCount = 0;
+		Target.OwnedMilitaryCount = 0;
+		Target.WarTargetIncomingFleets = GenerateWarTargetIncomingFleets(Sector);
+
+		for(UFlareSimulatedSpacecraft* Spacecraft : Sector->GetSectorSpacecrafts())
+		{
+			EFlareHostility::Type Hostility = Spacecraft->GetCompany()->GetWarState(Company);
+
+			if (Hostility == EFlareHostility::Hostile)
+			{
+				if(Spacecraft->IsStation())
+				{
+					Target.EnemyStationCount++;
+				}
+				else
+				{
+					if(Spacecraft->IsMilitary())
+					{
+						Target.EnemyArmyValue += Spacecraft->ComputeCombatValue();
+					}
+					else
+					{
+						Target.EnemyCargoCount++;
+					}
+				}
+			}
+			else if (Hostility == EFlareHostility::Owned)
+			{
+				if(Spacecraft->IsStation())
+				{
+					Target.OwnedStationCount++;
+				}
+				else
+				{
+					if(Spacecraft->IsMilitary())
+					{
+						Target.OwnedArmyValue += Spacecraft->ComputeCombatValue();
+						Target.OwnedMilitaryCount++;
+					}
+					else
+					{
+						Target.OwnedCargoCount++;
+					}
+				}
+			}
+		}
+
+		if(Target.OwnedArmyValue <= Target.EnemyArmyValue)
+		{
 			WarTargetList.Add(Target);
 		}
 	}
 
-	// TODO sort
-	//WarTargetList.Sort();
+	WarTargetList.Sort(&WarTargetComparator);
+
 	return WarTargetList;
 }
 
@@ -1792,6 +1909,19 @@ TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList()
 				Target.SmallShipArmyCount++;
 			}
 		}
+
+		Target.CapturingStation = false;
+		TArray<UFlareSimulatedSpacecraft*>& Stations =  Sector->GetSectorStations();
+		for (UFlareSimulatedSpacecraft* Station : Stations)
+		{
+			// Capturing station
+			if (Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
+			{
+				Target.CapturingStation = true;
+				break;
+			}
+		}
+
 		DefenseSectorList.Add(Target);
 	}
 
@@ -1885,6 +2015,12 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 				continue;
 			}
 
+			if(Target.EnemyArmyValue == 0 && Sector.CapturingStation)
+			{
+				// Capturing station, don't move
+				continue;
+			}
+
 			// Check if there is an incomming fleet bigger than local
 			bool DefenseFleetFound = false;
 			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), Sector.Sector, Target.Sector);
@@ -1948,21 +2084,8 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 	// Manage remaining ships for defense
 	for (DefenseSector& Sector : DefenseSectorList)
 	{
-		// Don't move if capturing station
-		bool CapturingStation = false;
-		TArray<UFlareSimulatedSpacecraft*>& Stations =  Sector.Sector->GetSectorStations();
-		for (UFlareSimulatedSpacecraft* Station : Stations)
-		{
-			// Capturing station
-			if (Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
-			{
-				CapturingStation = true;
-				break;
-			}
-		}
-
-		// Capturing, don't move
-		if (CapturingStation)
+		// Capturing station, don't move
+		if (Sector.CapturingStation)
 		{
 			continue;
 		}
@@ -2211,27 +2334,121 @@ int64 UFlareCompanyAI::OrderOneShip(FFlareSpacecraftDescription* ShipDescription
 	return 0;
 }
 
+#define DEBUG_AI_SHIP_ORDER
 FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Military)
 {
 
+	int32 ShipSCount = 0;
+	int32 ShipLCount = 0;
+
 	// Count owned ships
-	TMap<FFlareSpacecraftDescription*, int32> OwnedShipCount;
+	TMap<FFlareSpacecraftDescription*, int32> OwnedShipSCount;
+	TMap<FFlareSpacecraftDescription*, int32> OwnedShipLCount;
 	for(int32 ShipIndex = 0; ShipIndex < Company->GetCompanyShips().Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = Company->GetCompanyShips()[ShipIndex];
 
-		if(OwnedShipCount.Contains(Ship->GetDescription()))
+		if(Military != Ship->IsMilitary())
 		{
-			OwnedShipCount[Ship->GetDescription()]++;
+			continue;
 		}
-		else
+
+		if(Ship->GetSize() ==EFlarePartSize::S)
 		{
-			OwnedShipCount.Add(Ship->GetDescription(), 1);
+			ShipSCount++;
+			if(OwnedShipSCount.Contains(Ship->GetDescription()))
+			{
+				OwnedShipSCount[Ship->GetDescription()]++;
+			}
+			else
+			{
+				OwnedShipSCount.Add(Ship->GetDescription(), 1);
+			}
+		}
+		else if(Ship->GetSize() ==EFlarePartSize::L)
+		{
+			ShipLCount++;
+			if(OwnedShipLCount.Contains(Ship->GetDescription()))
+			{
+				OwnedShipLCount[Ship->GetDescription()]++;
+			}
+			else
+			{
+				OwnedShipLCount.Add(Ship->GetDescription(), 1);
+			}
 		}
 	}
 
+	// Count ship in production
+	for(int32 ShipyardIndex = 0; ShipyardIndex < Shipyards.Num(); ShipyardIndex++)
+	{
+		UFlareSimulatedSpacecraft* Shipyard =Shipyards[ShipyardIndex];
+
+		TArray<UFlareFactory*>& Factories = Shipyard->GetFactories();
+
+		for (int32 Index = 0; Index < Factories.Num(); Index++)
+		{
+			UFlareFactory* Factory = Factories[Index];
+			if(Factory->GetTargetShipCompany() == Company->GetIdentifier())
+			{
+				FFlareSpacecraftDescription* BuildingShip = Game->GetSpacecraftCatalog()->Get(Factory->GetTargetShipClass());
+				if(Military != BuildingShip->IsMilitary())
+				{
+					continue;
+				}
+
+				if(BuildingShip->Size ==EFlarePartSize::S)
+				{
+					ShipSCount++;
+					if(OwnedShipSCount.Contains(BuildingShip))
+					{
+						OwnedShipSCount[BuildingShip]++;
+					}
+					else
+					{
+						OwnedShipSCount.Add(BuildingShip, 1);
+					}
+				}
+				else if(BuildingShip->Size ==EFlarePartSize::L)
+				{
+					ShipLCount++;
+					if(OwnedShipLCount.Contains(BuildingShip))
+					{
+						OwnedShipLCount[BuildingShip]++;
+					}
+					else
+					{
+						OwnedShipLCount.Add(BuildingShip, 1);
+					}
+				}
+
+			}
+		}
+	}
+
+
+
+
 	FFlareSpacecraftDescription* BestShipDescription = NULL;
-	FFlareSpacecraftDescription* BiggestShipDescription = NULL;
+
+	int32 SizeDiversity = (Military ? AI_MILITARY_SIZE_DIVERSITY_THRESOLD : AI_CARGO_SIZE_DIVERSITY_THRESOLD);
+	int32 Diversity = (Military ? AI_MILITARY_DIVERSITY_THRESOLD : AI_CARGO_DIVERSITY_THRESOLD);
+	bool PickLShip = true;
+	if((ShipLCount+1) * SizeDiversity > ShipSCount)
+	{
+		PickLShip = false;
+	}
+
+#ifdef DEBUG_AI_SHIP_ORDER
+			FLOGV("FindBestShipToBuild for %s (military=%d) pick L=%d",
+				  *Company->GetCompanyName().ToString(),
+				  Military,
+				  PickLShip);
+			FLOGV("- ShipSCount %d", ShipSCount);
+			FLOGV("- ShipLCount %d", ShipLCount);
+			FLOGV("- SizeDiversity %d", SizeDiversity);
+			FLOGV("- Diversity %d", Diversity);
+#endif
 
 	for (int SpacecraftIndex = 0; SpacecraftIndex < Game->GetSpacecraftCatalog()->ShipCatalog.Num(); SpacecraftIndex++)
 	{
@@ -2243,32 +2460,60 @@ FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Military)
 			continue;
 		}
 
-
-
-
-		if (!OwnedShipCount.Contains(Description) || OwnedShipCount[Description] < AI_CARGO_DIVERSITY_THRESOLD)
+		if (PickLShip && Description->Size != EFlarePartSize::L)
 		{
-			if(BestShipDescription == NULL || (Military?
-											   BestShipDescription->Mass > Description-> Mass
-											   : BestShipDescription->GetCapacity() > Description->GetCapacity()))
-			{
-				BestShipDescription = Description;
-			}
+			continue;
 		}
 
-		if(BiggestShipDescription == NULL || (Military ?
-											  BestShipDescription->Mass < Description->Mass
-											  : BiggestShipDescription->GetCapacity() < Description->GetCapacity()))
+		if (!PickLShip && Description->Size != EFlarePartSize::S)
 		{
-			BiggestShipDescription = Description;
+			continue;
 		}
-	}
 
 
-	if(BestShipDescription == NULL)
-	{
-		// If no best ship, the thresold is reach for each ship, so build the bigger ship
-		BestShipDescription = BiggestShipDescription;
+		TMap<FFlareSpacecraftDescription*, int32>* OwnedShipCount = (PickLShip ? &OwnedShipLCount : &OwnedShipSCount);
+
+
+
+		if(BestShipDescription == NULL)
+		{
+			BestShipDescription = Description;
+			continue;
+		}
+
+		int32 CandidateCount = 0;
+		int32 BestCount = 0;
+
+
+		if (OwnedShipCount->Contains(Description))
+		{
+			CandidateCount = (*OwnedShipCount)[Description];
+		}
+
+		if (OwnedShipCount->Contains(BestShipDescription))
+		{
+			BestCount = (*OwnedShipCount)[BestShipDescription];
+		}
+
+
+		bool BestBigger = (Military?  BestShipDescription->Mass > Description-> Mass
+									: BestShipDescription->GetCapacity() > Description->GetCapacity());
+
+
+		bool Select = false;
+		if(BestBigger && BestCount * Diversity > CandidateCount)
+		{
+			Select = true;
+		}
+		else if (!BestBigger && CandidateCount * Diversity < BestCount)
+		{
+			Select = true;
+		}
+
+		if(Select)
+		{
+			BestShipDescription = Description;
+		}
 	}
 
 	if(BestShipDescription == NULL)
