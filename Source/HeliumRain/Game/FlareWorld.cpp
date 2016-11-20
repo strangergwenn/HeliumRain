@@ -906,16 +906,20 @@ void UFlareWorld::ProcessIncomingPlayerEnemy()
 		if (LightShipCount > 0 || HeavyShipCount > 0)
 		{
 			// Fighters
-			FText LightShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} light {1}"),
-				FText::AsNumber(LightShipCount),
-				(LightShipCount > 1) ? MultipleShips : SingleShip);
+			FText LightShipText;
+			if (LightShipCount > 0)
+			{
+				LightShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} light {1}"),
+					FText::AsNumber(LightShipCount),
+					(LightShipCount > 1) ? MultipleShips : SingleShip);
+			}
 
 			// Heavies
 			FText HeavyShipText;
 			if (HeavyShipCount > 0)
 			{
 				HeavyShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} heavy {1}"),
-					FText::AsNumber(LightShipCount),
+					FText::AsNumber(HeavyShipCount),
 					(HeavyShipCount > 1) ? MultipleShips : SingleShip);
 
 				if (LightShipCount > 0)
