@@ -465,14 +465,9 @@ void UFlareAIBehavior::SetSectorAffilitiesByMoon(FFlareCelestialBody *CelestialB
 
 float UFlareAIBehavior::GetBudgetWeight(EFlareBudget::Type Budget)
 {
-	if(Company->AtWar() && Budget!= EFlareBudget::Military)
-	{
-		return 0;
-	}
-
 	switch (Budget) {
 	case EFlareBudget::Military:
-		return BudgetMilitaryWeight;
+		return (Company->AtWar() ? BudgetMilitaryWeight * 10 : BudgetMilitaryWeight);
 		break;
 	case EFlareBudget::Trade:
 		return BudgetTradeWeight;
