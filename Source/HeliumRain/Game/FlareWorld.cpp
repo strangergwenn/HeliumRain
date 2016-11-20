@@ -918,7 +918,7 @@ void UFlareWorld::ProcessIncomingPlayerEnemy()
 			FText HeavyShipText;
 			if (HeavyShipCount > 0)
 			{
-				HeavyShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} heavy {1}"),
+				HeavyShipText = FText::Format(LOCTEXT("PlayerAttackedHeaviesFormat", "{0} heavy {1}"),
 					FText::AsNumber(HeavyShipCount),
 					(HeavyShipCount > 1) ? MultipleShips : SingleShip);
 
