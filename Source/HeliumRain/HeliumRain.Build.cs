@@ -14,6 +14,7 @@ public class HeliumRain : ModuleRules
 				"OnlineSubsystem",
 				"OnlineSubsystemUtils",
                 "RHI",
+                "RenderCore",
                 "Json",
                 "JsonUtilities"
             }

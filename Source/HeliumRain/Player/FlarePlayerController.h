@@ -214,6 +214,9 @@ public:
 	/** Simulate a turn */
 	void SimulateConfirmed();
 
+	/** Toggle the performance logger */
+	void TogglePerformance();
+
 	// Menus
 	void ShipMenu();
 	void SectorMenu();

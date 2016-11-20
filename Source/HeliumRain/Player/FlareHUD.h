@@ -84,6 +84,9 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	/** Toggle performance counters */
+	void TogglePerformance();
+
 
 	/*----------------------------------------------------
 		Cockpit
@@ -303,6 +306,13 @@ protected:
 
 	// Debug
 	uint32                                  DistortionGrid;
+	bool                                    ShowPerformance;
+	float                                   PerformanceTimer;
+	float                                   FrameTime;
+	float                                   GameThreadTime;
+	float                                   RenderThreadTime;
+	float                                   GPUFrameTime;
+	FText                                   PerformanceText;
 
 public:
 
@@ -339,6 +349,11 @@ public:
 	UCanvas* GetCanvas() const
 	{
 		return Canvas;
+	}
+
+	FText GetPerformanceText() const
+	{
+		return PerformanceText;
 	}
 
 };

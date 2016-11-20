@@ -338,9 +338,10 @@ FText SFlareHUDMenu::GetInfoText() const
 			}
 		}
 
-		FText SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "{0} ({1})"),
+		FText SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "{0} ({1})\n{2}"),
 			TargetShip->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName(),
-			TargetShip->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorFriendlynessText(TargetShip->GetCompany()));
+			TargetShip->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorFriendlynessText(TargetShip->GetCompany()),
+			MenuManager->GetPC()->GetNavHUD()->GetPerformanceText());
 
 		return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0}m/s - {1} {2} - {3}"),
 			FText::AsNumber(FMath::RoundToInt(ActiveTargetShip->GetLinearVelocity().Size())),

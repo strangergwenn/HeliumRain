@@ -22,6 +22,12 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	, CombatMouseRadius(100)
 	, HUDVisible(true)
 	, IsDrawingCockpit(false)
+	, PerformanceTimer(0)
+	, ShowPerformance(false)
+	, FrameTime(0)
+	, GameThreadTime(0)
+	, RenderThreadTime(0)
+	, GPUFrameTime(0)
 {
 	// Load content (general icons)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj         (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
@@ -294,6 +300,41 @@ void AFlareHUD::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	// Ingame profiler
+	if (ShowPerformance)
+	{
+		// Get time values
+		float DiffTime = FApp::GetCurrentTime() - FApp::GetLastTime();
+		float RawFrameTime = DiffTime * 1000.0f;
+		float RawGameThreadTime = FPlatformTime::ToMilliseconds(GGameThreadTime);
+		float RawRenderThreadTime = FPlatformTime::ToMilliseconds(GRenderThreadTime);
+		float RawGPUFrameTime = FPlatformTime::ToMilliseconds(RHIGetGPUFrameCycles());
+
+		// Average values
+		FrameTime = 0.9 * FrameTime + 0.1 * RawFrameTime;
+		GameThreadTime = 0.9 * GameThreadTime + 0.1 * RawGameThreadTime;
+		RenderThreadTime = 0.9 * RenderThreadTime + 0.1 * RawRenderThreadTime;
+		GPUFrameTime = 0.9 * GPUFrameTime + 0.1 * RawGPUFrameTime;
+		
+		// Show values every second
+		PerformanceTimer += DeltaSeconds;
+		if (PerformanceTimer >= 1.0f)
+		{
+			FNumberFormattingOptions Options;
+			Options.MaximumFractionalDigits = 1;
+			Options.MinimumFractionalDigits = 1;
+
+			PerformanceText = FText::Format(LOCTEXT("PerfFormat", "Frame : {0} Game : {1} Render : {2} GPU : {3}"),
+				FText::AsNumber(FrameTime, &Options),
+				FText::AsNumber(GameThreadTime, &Options),
+				FText::AsNumber(RenderThreadTime, &Options),
+				FText::AsNumber(GPUFrameTime, &Options));
+
+			FLOGV("AFlareHUD::Tick : %s", *PerformanceText.ToString());
+			PerformanceTimer = 0;
+		}
+	}
+
 	// Update data
 	ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	PlayerHitTime += DeltaSeconds;
@@ -307,6 +348,11 @@ void AFlareHUD::Tick(float DeltaSeconds)
 		MousePos = 2 * ((MousePos - ViewportCenter) / ViewportSize);
 		PC->MousePositionInput(MousePos);
 	}
+}
+
+void AFlareHUD::TogglePerformance()
+{
+	ShowPerformance = !ShowPerformance;
 }
 
 
@@ -580,7 +626,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 				CurrentSector->GetSectorName(),
 				CurrentSector->GetSectorFriendlynessText(PC->GetCompany()));
 		}
-		FlareDrawText(SectorText.ToString(), CurrentPos, Theme.FriendlyColor, false);
+		FlareDrawText((ShowPerformance ? PerformanceText : SectorText).ToString(), CurrentPos, Theme.FriendlyColor, false);
 		CurrentPos += InstrumentLine;
 
 		// Sector forces

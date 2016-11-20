@@ -1066,6 +1066,7 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("TooglePilot", EInputEvent::IE_Released, this, &AFlarePlayerController::TogglePilot);
 	InputComponent->BindAction("ToggleHUD", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleHUD);
 	InputComponent->BindAction("QuickSwitch", EInputEvent::IE_Released, this, &AFlarePlayerController::QuickSwitch);
+	InputComponent->BindAction("TogglePerformance", EInputEvent::IE_Released, this, &AFlarePlayerController::TogglePerformance);
 
 	// Menus
 	InputComponent->BindAction("ShipMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ShipMenu);
@@ -1197,6 +1198,11 @@ void AFlarePlayerController::SimulateConfirmed()
 		FLOG("AFlarePlayerController::SimulateConfirmed : asynchronous");
 		MenuManager->OpenMenu(EFlareMenu::MENU_FastForwardSingle);
 	}
+}
+
+void AFlarePlayerController::TogglePerformance()
+{
+	GetNavHUD()->TogglePerformance();
 }
 
 void AFlarePlayerController::ShipMenu()
