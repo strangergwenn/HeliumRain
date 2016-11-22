@@ -185,7 +185,10 @@ protected:
 
 	/** Draw a texture */
 	void FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY, float ScreenW, float ScreenH, float TextureU, float TextureV, float TextureUWidth, float TextureVHeight, FLinearColor TintColor = FLinearColor::White, EBlendMode BlendMode = BLEND_Translucent, float Scale = 1.f, bool bScalePosition = false, float Rotation = 0.f, FVector2D RotPivot = FVector2D::ZeroVector);
-	
+
+	/** Draw a line */
+	void FlareDrawLine(FVector2D Start, FVector2D End, FLinearColor Color);
+
 	/** Get an alpha fade to avoid overdrawing two objects */
 	float GetFadeAlpha(FVector2D A, FVector2D B, bool UseCockpit);
 

@@ -946,7 +946,7 @@ void AFlareHUD::DrawHUDInternal()
 			}
 
 			// Draw search markers
-			if (!IsExternalCamera && ShouldDrawSearchMarker)
+			if (!IsExternalCamera && ShouldDrawSearchMarker && !Spacecraft->IsStation() && Spacecraft->GetCompany()->GetPlayerWarState() != EFlareHostility::Owned)
 			{
 				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), Highlighted, FocusDistance);
 			}
@@ -1265,20 +1265,21 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 				FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
 				if (WeaponGroup)
 				{
-					float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
+					FVector2D HelperScreenPosition;
 					FVector AmmoIntersectionLocation;
+					float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
+					float Range = 100 * WeaponGroup->Weapons[0]->GetDescription()->WeaponCharacteristics.GunCharacteristics.AmmoRange;
 					float InterceptTime = Spacecraft->GetAimPosition(PlayerShip, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 
-					if (InterceptTime > 0 && ProjectWorldLocationToCockpit(AmmoIntersectionLocation, ScreenPosition))
+					if (InterceptTime > 0 && ProjectWorldLocationToCockpit(AmmoIntersectionLocation, HelperScreenPosition) && Distance < Range)
 					{
-						// Get some more data
+						// Draw
 						FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Spacecraft);
-						EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
-						EFlareShellDamageType::Type DamageType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Description->WeaponCharacteristics.DamageType;
-
-						DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
+						DrawHUDIcon(HelperScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
+						FlareDrawLine(ScreenPosition, HelperScreenPosition, HUDAimHelperColor);
 
 						// Bomber UI
+						EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
 						if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
 						{
 							// Time display
@@ -1549,6 +1550,17 @@ void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Col
 	}
 }
 
+void AFlareHUD::FlareDrawLine(FVector2D Start, FVector2D End, FLinearColor Color)
+{
+	if (CurrentCanvas)
+	{
+		FCanvasLineItem LineItem(Start, End);
+		LineItem.SetColor(Color);
+		LineItem.LineThickness = 1.0f;
+		CurrentCanvas->DrawItem(LineItem);
+	}
+}
+
 void AFlareHUD::FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY, float ScreenW, float ScreenH, float TextureU, float TextureV, float TextureUWidth, float TextureVHeight, FLinearColor Color, EBlendMode BlendMode, float Scale, bool bScalePosition, float Rotation, FVector2D RotPivot)
 {
 	if (CurrentCanvas && Texture)
@@ -1586,7 +1598,7 @@ float AFlareHUD::GetFadeAlpha(FVector2D A, FVector2D B, bool UseCockpit)
 
 bool AFlareHUD::IsInScreen(FVector2D ScreenPosition) const
 {
-	int32 ScreenBorderDistance = 100;
+	int32 ScreenBorderDistance = 150;
 
 	if (ScreenPosition.X > CurrentViewportSize.X - ScreenBorderDistance || ScreenPosition.X < ScreenBorderDistance
 	 || ScreenPosition.Y > CurrentViewportSize.Y - ScreenBorderDistance || ScreenPosition.Y < ScreenBorderDistance)
