@@ -1154,8 +1154,21 @@ void AFlarePlayerController::BackMenu()
 	FLOG("AFlarePlayerController::BackMenu");
 	if (IsInMenu())
 	{
-		FLOG("AFlarePlayerController::BackMenu IsInMenu");
-		MenuManager->Back();
+		if (MenuManager->HasPreviousMenu())
+		{
+			FLOG("AFlarePlayerController::BackMenu Back");
+			MenuManager->Back();
+		}
+		else
+		{
+			FLOG("AFlarePlayerController::BackMenu Close");
+			MenuManager->CloseMenu();
+		}
+	}
+	else
+	{
+		FLOG("AFlarePlayerController::BackMenu Toggle");
+		ToggleOverlay();
 	}
 }
 
