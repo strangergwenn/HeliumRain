@@ -524,7 +524,7 @@ public:
 
 	virtual UStaticMesh* GetMesh(bool PresentationMode) const
 	{
-		return (ComponentDescription && ComponentDescription->Mesh ? ComponentDescription->Mesh : StaticMesh);
+		return (ComponentDescription && ComponentDescription->Mesh ? ComponentDescription->Mesh : GetStaticMesh());
 	}
 
 	virtual bool HasLocalHeatEffect() const

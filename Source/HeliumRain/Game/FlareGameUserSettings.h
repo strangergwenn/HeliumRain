@@ -21,6 +21,8 @@ public:
 
 	virtual void ApplySettings(bool bCheckForCommandLineOverrides) override;
 
+	void SetUseTemporalAA(bool NewSetting);
+
 	void SetScreenPercentage(int32 NewScreenPercentage);
 
 

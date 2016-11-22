@@ -97,7 +97,7 @@ void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* C
 
 	// Material
 	UMaterialInstanceDynamic* AsteroidMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), Component->GetWorld());
-	for (int32 LodIndex = 0; LodIndex < Component->StaticMesh->RenderData->LODResources.Num(); LodIndex++)
+	for (int32 LodIndex = 0; LodIndex < Component->GetStaticMesh()->RenderData->LODResources.Num(); LodIndex++)
 	{
 		Component->SetMaterial(LodIndex, AsteroidMaterial);
 	}

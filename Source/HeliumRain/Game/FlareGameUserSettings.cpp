@@ -44,7 +44,18 @@ void UFlareGameUserSettings::ApplySettings(bool bCheckForCommandLineOverrides)
 
 	Super::ApplySettings(bCheckForCommandLineOverrides);
 
+	SetUseTemporalAA(UseTemporalAA);
+
 	SetScreenPercentage(ScreenPercentage);
+}
+
+void UFlareGameUserSettings::SetUseTemporalAA(bool NewSetting)
+{
+	FLOGV("UFlareGameUserSettings::SetUseTemporalAA %d", NewSetting);
+	UseTemporalAA = NewSetting;
+
+	auto TemporalAACVar = IConsoleManager::Get().FindConsoleVariable(TEXT("r.DefaultFeature.AntiAliasing"));
+	TemporalAACVar->Set(UseTemporalAA ? AAM_TemporalAA : AAM_FXAA, ECVF_SetByConsole);
 }
 
 void UFlareGameUserSettings::SetScreenPercentage(int32 NewScreenPercentage)
@@ -53,5 +64,5 @@ void UFlareGameUserSettings::SetScreenPercentage(int32 NewScreenPercentage)
 	ScreenPercentage = NewScreenPercentage;
 
 	auto ScreenPercentageCVar = IConsoleManager::Get().FindConsoleVariable(TEXT("r.ScreenPercentage"));
-	ScreenPercentageCVar->Set(ScreenPercentage, ECVF_SetByGameSetting);
+	ScreenPercentageCVar->Set(ScreenPercentage, ECVF_SetByConsole);
 }

@@ -93,7 +93,6 @@ void AFlarePlayerController::BeginPlay()
 	UseCockpit = MyGameSettings->UseCockpit;
 	PauseGameInMenus = MyGameSettings->PauseGameInMenus;
 	SetUseMotionBlur(MyGameSettings->UseMotionBlur);
-	SetUseTemporalAA(MyGameSettings->UseTemporalAA);
 
 	// Cockpit
 	SetupCockpit();
@@ -1662,13 +1661,6 @@ void AFlarePlayerController::SetUseMotionBlur(bool New)
 	UseMotionBlur = New;
 	GetGame()->GetPostProcessVolume()->Settings.bOverride_MotionBlurAmount = true;
 	GetGame()->GetPostProcessVolume()->Settings.MotionBlurAmount = UseMotionBlur ? 0.25 : 0;
-}
-
-void AFlarePlayerController::SetUseTemporalAA(bool New)
-{
-	UseTemporalAA = New;
-	GetGame()->GetPostProcessVolume()->Settings.bOverride_AntiAliasingMethod = true;
-	GetGame()->GetPostProcessVolume()->Settings.AntiAliasingMethod = (New ? AAM_TemporalAA : AAM_FXAA);
 }
 
 void AFlarePlayerController::SetPauseGameInMenus(bool New)
