@@ -30,7 +30,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	// Current settings
 	float CurrentTextureQualityRatio = MyGameSettings->ScalabilityQuality.TextureQuality / 3.f;
 	float CurrentEffectsQualityRatio = MyGameSettings->ScalabilityQuality.EffectsQuality / 3.f;
-	float CurrentAntiAliasingQualityRatio = MyGameSettings->ScalabilityQuality.AntiAliasingQuality / 6.f;
+	float CurrentAntiAliasingQualityRatio = MyGameSettings->ScalabilityQuality.AntiAliasingQuality / 4.f;
 	float CurrentPostProcessQualityRatio = MyGameSettings->ScalabilityQuality.PostProcessQuality / 3.f;
 	FLOGV("MyGameSettings->ScalabilityQuality.TextureQuality=%d CurrentTextureQualityRatio=%f", MyGameSettings->ScalabilityQuality.TextureQuality, CurrentTextureQualityRatio);
 	FLOGV("MyGameSettings->ScalabilityQuality.EffectsQuality=%d CurrentEffectsQualityRatio=%f", MyGameSettings->ScalabilityQuality.EffectsQuality, CurrentEffectsQualityRatio);
@@ -1096,7 +1096,7 @@ void SFlareSettingsMenu::OnEffectsQualitySliderChanged(float Value)
 
 void SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged(float Value)
 {
-	int32 Step = 6;
+	int32 Step = 4;
 	int32 StepValue = FMath::RoundToInt(Step * Value);
 	AntiAliasingQualitySlider->SetValue((float)StepValue / (float)Step);
 
@@ -1385,16 +1385,12 @@ FText SFlareSettingsMenu::GetAntiAliasingQualityLabel(int32 Value) const
 	switch(Value)
 	{
 		case 1:
-			return LOCTEXT("AntiAliasingQualityVeryLow", "Very low");
-		case 2:
 			return LOCTEXT("AntiAliasingQualityLow", "Low");
-		case 3:
+		case 2:
 			return LOCTEXT("AntiAliasingQualityMedium", "Medium");
-		case 4:
+		case 3:
 			return LOCTEXT("AntiAliasingQualityHigh", "High");
-		case 5:
-			return LOCTEXT("AntiAliasingQualityVeryHigh", "Very high");
-		case 6:
+		case 4:
 			return LOCTEXT("AntiAliasingQualityUltra", "Ultra");
 		case 0:
 		default:
