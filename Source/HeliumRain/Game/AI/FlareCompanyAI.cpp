@@ -1665,7 +1665,7 @@ void UFlareCompanyAI::UpdateMilitaryMovement()
 }
 
 
-#define DEBUG_AI_WAR_MILITARY_MOVEMENT
+//#define DEBUG_AI_WAR_MILITARY_MOVEMENT
 
 
 TArray<WarTargetIncomingFleet> UFlareCompanyAI::GenerateWarTargetIncomingFleets(UFlareSimulatedSector* DestinationSector)
@@ -1805,6 +1805,8 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 		WarTarget Target;
 		Target.Sector = Sector;
 		Target.EnemyArmyValue = 0;
+		Target.EnemyArmyLValue = 0;
+		Target.EnemyArmySValue = 0;
 		Target.EnemyCargoCount = 0;
 		Target.EnemyStationCount = 0;
 		Target.OwnedArmyValue = 0;
@@ -1827,7 +1829,17 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 				{
 					if(Spacecraft->IsMilitary())
 					{
-						Target.EnemyArmyValue += Spacecraft->ComputeCombatValue();
+						int64 ShipValue = Spacecraft->ComputeCombatValue();
+						Target.EnemyArmyValue += ShipValue;
+
+						if (Spacecraft->GetSize() == EFlarePartSize::L)
+						{
+							Target.EnemyArmyLValue += ShipValue;
+						}
+						else
+						{
+							Target.EnemyArmySValue += ShipValue;
+						}
 					}
 					else
 					{
@@ -1881,6 +1893,8 @@ TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList()
 		DefenseSector Target;
 		Target.Sector = Sector;
 		Target.ArmyValue = 0;
+		Target.ArmyAntiSValue = 0;
+		Target.ArmyAntiLValue = 0;
 		Target.LargeShipArmyValue = 0;
 		Target.SmallShipArmyValue = 0;
 		Target.LargeShipArmyCount = 0;
@@ -1908,6 +1922,16 @@ TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList()
 				Target.SmallShipArmyValue += ShipValue;
 				Target.SmallShipArmyCount++;
 			}
+
+			if (Ship->GetWeaponsSystem()->HasAntiLargeShipWeapon())
+			{
+				Target.ArmyAntiLValue += ShipValue;
+			}
+
+			if (Ship->GetWeaponsSystem()->HasAntiSmallShipWeapon())
+			{
+				Target.ArmyAntiSValue += ShipValue;
+			}
 		}
 
 		Target.CapturingStation = false;
@@ -1922,7 +1946,10 @@ TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList()
 			}
 		}
 
-		DefenseSectorList.Add(Target);
+		if (Target.ArmyValue > 0)
+		{
+			DefenseSectorList.Add(Target);
+		}
 	}
 
 	return DefenseSectorList;
@@ -1968,6 +1995,11 @@ TArray<DefenseSector> UFlareCompanyAI::GetDefenseSectorListInRange(TArray<Defens
 
 	for (DefenseSector& Sector : DefenseSectorList)
 	{
+		if(Sector.Sector == OriginSector.Sector)
+		{
+			continue;
+		}
+
 		int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), OriginSector.Sector, Sector.Sector);
 		if (TravelDuration <= MaxTravelDuration)
 		{
@@ -2002,6 +2034,13 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 	TArray<WarTarget> TargetList = GenerateWarTargetList();
 	TArray<DefenseSector> DefenseSectorList = GenerateDefenseSectorList();
 
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+	FLOGV("UpdateWarMilitaryMovement for %s : Target count %d, Defense sector count %d",
+		*Company->GetCompanyName().ToString(),
+		TargetList.Num(),
+		DefenseSectorList.Num());
+#endif
+
 	// Manage attacking fleets
 	for (WarTarget& Target : TargetList)
 	{
@@ -2012,12 +2051,25 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 			if (Sector.ArmyValue < Target.EnemyArmyValue * Behavior->AttackThreshold)
 			{
 				// Army too weak
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("army at %s too weak to attack %s : ArmyValue = %lld, EnemyArmyValue = %lld ",
+					*Sector.Sector->GetSectorName().ToString(),
+					*Target.Sector->GetSectorName().ToString(),
+					Sector.ArmyValue, Target.EnemyArmyValue);
+#endif
+
 				continue;
 			}
 
 			if(Target.EnemyArmyValue == 0 && Sector.CapturingStation)
 			{
 				// Capturing station, don't move
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("army at %s won't move to attack %s : capturing station",
+					*Sector.Sector->GetSectorName().ToString(),
+					*Target.Sector->GetSectorName().ToString());
+#endif
+
 				continue;
 			}
 
@@ -2045,16 +2097,53 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 			// Defense already incomming
 			if (DefenseFleetFound)
 			{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("army at %s won't move to attack %s : another fleet is coming",
+					*Sector.Sector->GetSectorName().ToString(),
+					*Target.Sector->GetSectorName().ToString());
+#endif
 				continue;
 			}
 
 			// Should go defend ! Assemble a fleet
-			int64 FleetValue = 0;
-			int64 FleetValueLimit = Target.EnemyArmyValue * Behavior->AttackThreshold * 1.5;
+			int64 AntiLFleetValue = 0;
+			int64 AntiSFleetValue = 0;
+			int64 AntiLFleetValueLimit = Target.EnemyArmyLValue * Behavior->AttackThreshold * 1.5;
+			int64 AntiSFleetValueLimit = Target.EnemyArmySValue * Behavior->AttackThreshold * 1.5;
 			TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(Sector.Sector);
 
+
+			// Check if weapon are optimal
+			// Check if the army is strong enough
+			if (Sector.ArmyAntiLValue < Target.EnemyArmyLValue * Behavior->AttackThreshold ||
+					Sector.ArmyAntiSValue < Target.EnemyArmySValue * Behavior->AttackThreshold)
+			{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("army at %s want to attack %s after upgrade : ArmyAntiLValue=%lld, EnemyArmyLValue=%lld, ArmyAntiSValue=%lld, EnemyArmySValue=%lld",
+					*Sector.Sector->GetSectorName().ToString(),
+					*Target.Sector->GetSectorName().ToString(),
+					 Sector.ArmyAntiLValue, Target.EnemyArmyLValue,Sector.ArmyAntiSValue, Target.EnemyArmySValue);
+#endif
+				if(!UpgradeMilitaryFleet(Target, Sector, MovableShips))
+				{
+					// cannot upgrade, don't attack
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("army at %s won't attack %s : upgrade failed",
+					*Sector.Sector->GetSectorName().ToString(),
+					*Target.Sector->GetSectorName().ToString());
+#endif
+					continue;
+				}
+			}
+
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("army at %s attack %s !",
+					*Sector.Sector->GetSectorName().ToString(),
+					*Target.Sector->GetSectorName().ToString());
+#endif
+
 			// Send random ships
-			while (MovableShips.Num() > 0 && FleetValue < FleetValueLimit)
+			while (MovableShips.Num() > 0 && (AntiLFleetValue < AntiLFleetValueLimit || AntiSFleetValue < AntiSFleetValueLimit))
 			{
 				int32 ShipIndex = FMath::RandRange(0, MovableShips.Num()-1);
 
@@ -2062,8 +2151,23 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 				MovableShips.RemoveAt(ShipIndex);
 
 				int64 ShipValue = SelectedShip->ComputeCombatValue();
-				FleetValue += ShipValue;
-				Sector.ArmyValue -= ShipValue;
+				if (SelectedShip->GetWeaponsSystem()->HasAntiLargeShipWeapon())
+				{
+					AntiLFleetValue += ShipValue;
+					Sector.ArmyValue -= ShipValue;
+					Sector.ArmyAntiLValue -= ShipValue;
+				}
+				else if (SelectedShip->GetWeaponsSystem()->HasAntiSmallShipWeapon())
+				{
+					AntiSFleetValue += ShipValue;
+					Sector.ArmyValue -= ShipValue;
+					Sector.ArmyAntiSValue -= ShipValue;
+				}
+				else
+				{
+					// Not useful don't travel
+					continue;
+				}
 
 				FLOGV("UpdateWarMilitaryMovement %s : move %s from %s to %s for attack",
 					*Company->GetCompanyName().ToString(),
@@ -2087,13 +2191,27 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 		// Capturing station, don't move
 		if (Sector.CapturingStation)
 		{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+			FLOGV("army at %s won't move to defend: capturing station",
+				*Sector.Sector->GetSectorName().ToString());
+#endif
 			continue;
 		}
 
 		int64 MaxTravelDuration = GetDefenseSectorTravelDuration(DefenseSectorList, Sector);
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("army at %s MaxTravelDuration=%lld",
+				*Sector.Sector->GetSectorName().ToString(), MaxTravelDuration);
+#endif
+
 		for (int32 TravelDuration = 1; TravelDuration <= MaxTravelDuration; TravelDuration++)
 		{
 			TArray<DefenseSector> DefenseSectorListInRange = GetDefenseSectorListInRange(DefenseSectorList, Sector, TravelDuration);
+
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("army at %s DefenseSectorListInRange(%d)=%lld",
+				*Sector.Sector->GetSectorName().ToString(), TravelDuration, DefenseSectorListInRange.Num());
+#endif
 
 			if (DefenseSectorListInRange.Num() == 0)
 			{
@@ -2130,6 +2248,10 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 				// Wait incoming fleets
 				if (IncomingFleet)
 				{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("army at %s won't move to defend: incoming fleet",
+				*Sector.Sector->GetSectorName().ToString());
+#endif
 					break;
 				}
 				
@@ -2148,10 +2270,451 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 
 				Sector.ArmyValue = 0;
 			}
+			else
+			{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("army at %s won't move to defend at %s: army is weaker (StrongestSector.ArmyValue=%lld Sector.ArmyValue=%lld)",
+				*Sector.Sector->GetSectorName().ToString(),
+				*StrongestSector.Sector->GetSectorName().ToString(),
+				StrongestSector.ArmyValue, Sector.ArmyValue);
+#endif
+			}
+
 
 			break;
 		}
 	}
+}
+
+UFlareSimulatedSector* UFlareCompanyAI::FindNearestSectorWithUpgradePossible(UFlareSimulatedSector* OriginSector)
+{
+	UFlareSimulatedSector* NearestSector = NULL;
+	int64 NearestDuration = 0;
+
+	for (UFlareSimulatedSector* Sector : Company->GetKnownSectors())
+	{
+		if (!Sector->CanUpgrade(Company))
+		{
+			continue;
+		}
+
+		int64 Duration = UFlareTravel::ComputeTravelDuration(Sector->GetGame()->GetGameWorld(), OriginSector, Sector);
+
+		if (!NearestSector || Duration < NearestDuration)
+		{
+			NearestSector = Sector;
+			NearestDuration = Duration;
+		}
+
+	}
+	return NearestSector;
+}
+
+bool UFlareCompanyAI::UpgradeShip(UFlareSimulatedSpacecraft* Ship, EFlarePartSize::Type WeaponTargetSize)
+{
+	UFlareSpacecraftComponentsCatalog* Catalog = Game->GetPC()->GetGame()->GetShipPartsCatalog();
+
+	// Upgrade weapon
+	if (!Ship->CanUpgrade(EFlarePartType::Weapon))
+	{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("failed to upgrade %s : cannot upgrade weapons",
+					*Ship->GetImmatriculation().ToString());
+#endif
+		return false;
+	}
+
+	// iterate to find best weapon
+	{
+		FFlareSpacecraftComponentDescription* BestWeapon = NULL;
+		TArray< FFlareSpacecraftComponentDescription* > PartListData;
+		Catalog->GetWeaponList(PartListData, Ship->GetSize());
+
+		for (FFlareSpacecraftComponentDescription* Part : PartListData)
+		{
+			if(!Part->WeaponCharacteristics.IsWeapon)
+			{
+				continue;
+			}
+
+			if(WeaponTargetSize == EFlarePartSize::L)
+			{
+				if(Part->WeaponCharacteristics.BombCharacteristics.IsBomb && FMath::FRand() < 0.8)
+				{
+					continue;
+				}
+
+				if (Part->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
+				{
+					// Compatible target
+					bool HasChance = FMath::FRand() < 0.7;
+					if(!BestWeapon || (BestWeapon->Cost < Part->Cost && HasChance))
+					{
+						BestWeapon = Part;
+					}
+				}
+			}
+			else
+			{
+				if(Part->WeaponCharacteristics.BombCharacteristics.IsBomb)
+				{
+					continue;
+				}
+
+				if (Part->WeaponCharacteristics.DamageType != EFlareShellDamageType::HEAT)
+				{
+					// Compatible target
+					bool HasChance = FMath::RandBool();
+					if(!BestWeapon || (BestWeapon->Cost < Part->Cost && HasChance))
+					{
+						BestWeapon = Part;
+					}
+				}
+
+			}
+		}
+
+		if(BestWeapon)
+		{
+			int32 WeaponGroupCount = Ship->GetDescription()->WeaponGroups.Num();
+			int64 TransactionCost = 0;
+			for(int32 WeaponGroupIndex = 0; WeaponGroupIndex < WeaponGroupCount; WeaponGroupIndex++)
+			{
+				FFlareSpacecraftComponentDescription* OldWeapon = Ship->GetCurrentPart(EFlarePartType::Weapon, WeaponGroupIndex);
+				TransactionCost += Ship->GetUpgradeCost(BestWeapon, OldWeapon);
+			}
+
+			if(TransactionCost > Company->GetMoney())
+			{
+				// Cannot afford
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("failed to upgrade %s : cannot afford upgrade",
+					*Ship->GetImmatriculation().ToString());
+#endif
+				return false;
+			}
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+			FLOGV("%s upgrade its weapons to %s", *Ship->GetImmatriculation().ToString(), *BestWeapon->Identifier.ToString());
+#endif
+			for(int32 WeaponGroupIndex = 0; WeaponGroupIndex < WeaponGroupCount; WeaponGroupIndex++)
+			{
+				if(!Ship->UpgradePart(BestWeapon, WeaponGroupIndex))
+				{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("failed to upgrade %s : upgrade failed for unknown reseon",
+					*Ship->GetImmatriculation().ToString());
+#endif
+
+					// Something fail
+					return false;
+				}
+			}
+		}
+	}
+
+	// Chance to upgrade rcs (optional)
+	if(FMath::RandBool() && Ship->CanUpgrade(EFlarePartType::RCS)) // 50 % chance
+	{
+		// iterate to find best par
+		FFlareSpacecraftComponentDescription* OldPart = Ship->GetCurrentPart(EFlarePartType::RCS, 0);
+		FFlareSpacecraftComponentDescription* BestPart = OldPart;
+		TArray< FFlareSpacecraftComponentDescription* > PartListData;
+		Catalog->GetRCSList(PartListData, Ship->GetSize());
+
+		for (FFlareSpacecraftComponentDescription* Part : PartListData)
+		{
+			bool HasChance = FMath::RandBool();
+			if(!BestPart || (BestPart->Cost < Part->Cost && HasChance))
+			{
+				BestPart = Part;
+			}
+		}
+
+		if(BestPart != OldPart)
+		{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+			FLOGV("%s upgrade its rcs to %s", *Ship->GetImmatriculation().ToString(), *BestPart->Identifier.ToString());
+#endif
+			Ship->UpgradePart(BestPart, 0);
+		}
+	}
+
+	// Chance to upgrade pod (optional)
+	if(FMath::RandBool() && Ship->CanUpgrade(EFlarePartType::OrbitalEngine)) // 50 % chance
+	{
+		// iterate to find best par
+		FFlareSpacecraftComponentDescription* OldPart = Ship->GetCurrentPart(EFlarePartType::OrbitalEngine, 0);
+		FFlareSpacecraftComponentDescription* BestPart = OldPart;
+		TArray< FFlareSpacecraftComponentDescription* > PartListData;
+		Catalog->GetEngineList(PartListData, Ship->GetSize());
+
+		for (FFlareSpacecraftComponentDescription* Part : PartListData)
+		{
+			bool HasChance = FMath::RandBool();
+			if(!BestPart || (BestPart->Cost < Part->Cost && HasChance))
+			{
+				BestPart = Part;
+			}
+		}
+
+		if(BestPart != OldPart)
+		{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+			FLOGV("%s upgrade its orbital engines to %s", *Ship->GetImmatriculation().ToString(), *BestPart->Identifier.ToString());
+#endif
+			Ship->UpgradePart(BestPart, 0);
+		}
+	}
+
+	return true;
+}
+
+bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sector, TArray<UFlareSimulatedSpacecraft*> &MovableShips)
+{
+	// First check if upgrade is possible in sector
+	// If not, find the closest sector where upgrade is possible and travel here
+	if(!Sector.Sector->CanUpgrade(Company))
+	{
+		UFlareSimulatedSector* UpgradeSector = FindNearestSectorWithUpgradePossible(Sector.Sector);
+		if(UpgradeSector)
+		{
+			for (UFlareSimulatedSpacecraft* Ship : MovableShips)
+			{
+				FLOGV("UpdateWarMilitaryMovement %s : move %s from %s to %s for upgrade",
+					*Company->GetCompanyName().ToString(),
+					*Ship->GetImmatriculation().ToString(),
+					*Ship->GetCurrentSector()->GetSectorName().ToString(),
+					*UpgradeSector->GetSectorName().ToString());
+
+				Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), UpgradeSector);
+			}
+		}
+		else
+		{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("failed to find upgrade sector from %s",
+					*Sector.Sector->GetSectorName().ToString());
+#endif
+		}
+		return false;
+	}
+
+	// If upgrade possible
+	bool UpgradeFailed = false;
+
+	//for each L ship
+	for (UFlareSimulatedSpacecraft* Ship : MovableShips)
+	{
+		if (Ship->GetSize() != EFlarePartSize::L)
+		{
+			// L only
+			continue;
+		}
+
+		bool EnoughAntiL = Sector.ArmyAntiLValue >= Target.EnemyArmyLValue * Behavior->AttackThreshold;
+		bool EnoughAntiS = Sector.ArmyAntiSValue >= Target.EnemyArmySValue * Behavior->AttackThreshold;
+		int64 CombatValue = Ship->ComputeCombatValue();
+		bool HasAntiLargeShipWeapon = Ship->GetWeaponsSystem()->HasAntiLargeShipWeapon();
+		bool HasAntiSmallShipWeapon = Ship->GetWeaponsSystem()->HasAntiSmallShipWeapon();
+
+		//if no enought anti L, upgrade to anti L
+		if (!EnoughAntiL && !HasAntiLargeShipWeapon)
+		{
+			bool Upgraded = UpgradeShip(Ship, EFlarePartSize::L);
+			if (Upgraded)
+			{
+				Sector.ArmyAntiLValue += CombatValue;
+				if (HasAntiSmallShipWeapon)
+				{
+					Sector.ArmyAntiSValue -= CombatValue;
+				}
+			}
+			else
+			{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("failed to upgrade %s to anti L",
+					*Ship->GetImmatriculation().ToString());
+#endif
+				UpgradeFailed = true;
+			}
+		}
+		// if enought anti L and L ship value is not nesessary, upgrade to Anti S
+		else if(!EnoughAntiS && HasAntiLargeShipWeapon)
+		{
+			bool EnoughAntiLWithoutShip = (Sector.ArmyAntiLValue - CombatValue) >= Target.EnemyArmyLValue * Behavior->AttackThreshold;
+			if(EnoughAntiLWithoutShip)
+			{
+				bool Upgraded = UpgradeShip(Ship, EFlarePartSize::S);
+				if (Upgraded)
+				{
+					Sector.ArmyAntiSValue += CombatValue;
+					Sector.ArmyAntiLValue -= CombatValue;
+				}
+				else
+				{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("failed to upgrade %s to anti S",
+					*Ship->GetImmatriculation().ToString());
+#endif
+					UpgradeFailed = true;
+				}
+			}
+		}
+	}
+
+	//for each S ship
+	for (UFlareSimulatedSpacecraft* Ship : MovableShips)
+	{
+
+		if (Ship->GetSize() != EFlarePartSize::S)
+		{
+			// S only
+			continue;
+		}
+
+		bool EnoughAntiL = Sector.ArmyAntiLValue >= Target.EnemyArmyLValue * Behavior->AttackThreshold;
+		bool EnoughAntiS = Sector.ArmyAntiSValue >= Target.EnemyArmySValue * Behavior->AttackThreshold;
+		int64 CombatValue = Ship->ComputeCombatValue();
+		bool HasAntiLargeShipWeapon = Ship->GetWeaponsSystem()->HasAntiLargeShipWeapon();
+		bool HasAntiSmallShipWeapon = Ship->GetWeaponsSystem()->HasAntiSmallShipWeapon();
+
+		//if no enought anti S, upgrade to anti S
+		if (!EnoughAntiS && !HasAntiSmallShipWeapon)
+		{
+			bool Upgraded = UpgradeShip(Ship, EFlarePartSize::S);
+			if (Upgraded)
+			{
+				Sector.ArmyAntiSValue += CombatValue;
+				if (HasAntiLargeShipWeapon)
+				{
+					Sector.ArmyAntiLValue -= CombatValue;
+				}
+			}
+			else
+			{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("failed to upgrade %s to anti S",
+					*Ship->GetImmatriculation().ToString());
+#endif
+				UpgradeFailed = true;
+			}
+		}
+		// if enought anti S and S ship value is not nesessary, upgrade to Anti L
+		else if(!EnoughAntiL && HasAntiSmallShipWeapon)
+		{
+			bool EnoughAntiSWithoutShip = (Sector.ArmyAntiSValue - CombatValue) >= Target.EnemyArmySValue * Behavior->AttackThreshold;
+			if(EnoughAntiSWithoutShip)
+			{
+				bool Upgraded = UpgradeShip(Ship, EFlarePartSize::L);
+				if (Upgraded)
+				{
+					Sector.ArmyAntiLValue += CombatValue;
+					Sector.ArmyAntiSValue -= CombatValue;
+				}
+				else
+				{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("failed to upgrade %s to anti L",
+					*Ship->GetImmatriculation().ToString());
+#endif
+					UpgradeFailed = true;
+				}
+			}
+		}
+	}
+
+	// if enought anti S and L, upgrade to min ratio
+	if ((Sector.ArmyAntiLValue >= Target.EnemyArmyLValue * Behavior->AttackThreshold) &&
+			(Sector.ArmyAntiSValue >= Target.EnemyArmySValue * Behavior->AttackThreshold))
+	{
+		for (UFlareSimulatedSpacecraft* Ship : MovableShips)
+		{
+			float AntiLRatio = (Target.EnemyArmyLValue > 0 ?
+									Sector.ArmyAntiLValue / Target.EnemyArmyLValue * Behavior->AttackThreshold :
+									1000);
+			float AntiSRatio = (Target.EnemyArmySValue > 0 ?
+									Sector.ArmyAntiSValue / Target.EnemyArmySValue * Behavior->AttackThreshold :
+									1000);
+
+			if(AntiLRatio == AntiSRatio)
+			{
+				// Any change will change the balance
+				break;
+			}
+
+			if(AntiLRatio > AntiSRatio)
+			{
+				if (Ship->GetWeaponsSystem()->HasAntiLargeShipWeapon())
+				{
+					int64 CombatValue = Ship->ComputeCombatValue();
+					// See if upgrade to S improve this
+					float FutureAntiLRatio = (Target.EnemyArmyLValue > 0 ?
+											(Sector.ArmyAntiLValue - CombatValue) / Target.EnemyArmyLValue * Behavior->AttackThreshold :
+											1000);
+					float FutureAntiSRatio = (Target.EnemyArmySValue > 0 ?
+											(Sector.ArmyAntiSValue + CombatValue) / Target.EnemyArmySValue * Behavior->AttackThreshold :
+											1000);
+					if(FutureAntiLRatio > FutureAntiSRatio)
+					{
+						// Ratio of ratio still unchanged, upgrade to S
+						bool Upgraded = UpgradeShip(Ship, EFlarePartSize::S);
+						if (Upgraded)
+						{
+							Sector.ArmyAntiSValue += CombatValue;
+							Sector.ArmyAntiLValue -= CombatValue;
+						}
+						else
+						{
+							UpgradeFailed = true;
+						}
+					}
+				}
+			}
+			else
+			{
+				if (Ship->GetWeaponsSystem()->HasAntiSmallShipWeapon())
+				{
+					int64 CombatValue = Ship->ComputeCombatValue();
+					// See if upgrade to S improve this
+					float FutureAntiLRatio = (Target.EnemyArmyLValue > 0 ?
+											(Sector.ArmyAntiLValue + CombatValue) / Target.EnemyArmyLValue * Behavior->AttackThreshold :
+											1000);
+					float FutureAntiSRatio = (Target.EnemyArmySValue > 0 ?
+											(Sector.ArmyAntiSValue - CombatValue) / Target.EnemyArmySValue * Behavior->AttackThreshold :
+											1000);
+					if(FutureAntiSRatio > FutureAntiLRatio)
+					{
+						// Ratio of ratio still unchanged, upgrade to L
+						bool Upgraded = UpgradeShip(Ship, EFlarePartSize::L);
+						if (Upgraded)
+						{
+							Sector.ArmyAntiLValue += CombatValue;
+							Sector.ArmyAntiSValue -= CombatValue;
+						}
+						else
+						{
+							UpgradeFailed = true;
+						}
+					}
+				}
+			}
+
+		}
+	}
+
+	bool FinalEnoughAntiL = Sector.ArmyAntiLValue >= Target.EnemyArmyLValue * Behavior->AttackThreshold;
+	bool FinalEnoughAntiS = Sector.ArmyAntiSValue >= Target.EnemyArmySValue * Behavior->AttackThreshold;
+
+	#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+					FLOGV("upgrade at %s failed FinalEnoughAntiL=%d, FinalEnoughAntiS=%d",
+						*Sector.Sector->GetSectorName().ToString(),
+						  FinalEnoughAntiL, FinalEnoughAntiS);
+					FLOGV("ArmyAntiLValue=%lld EnemyArmyLValue=%lld ArmyAntiSValue=%lld EnemyArmySValue=%lld",
+						Sector.ArmyAntiLValue, Target.EnemyArmyLValue,
+						Sector.ArmyAntiSValue, Target.EnemyArmySValue);
+	#endif
+
+	return !UpgradeFailed || (FinalEnoughAntiL && FinalEnoughAntiS);
 }
 
 //#define DEBUG_AI_PEACE_MILITARY_MOVEMENT
@@ -2334,7 +2897,7 @@ int64 UFlareCompanyAI::OrderOneShip(FFlareSpacecraftDescription* ShipDescription
 	return 0;
 }
 
-#define DEBUG_AI_SHIP_ORDER
+//#define DEBUG_AI_SHIP_ORDER
 FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Military)
 {
 

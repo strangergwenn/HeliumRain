@@ -117,6 +117,16 @@ public:
 
 	bool TryCapture(UFlareCompany* Company, int32 CapturePoint);
 
+	bool UpgradePart(FFlareSpacecraftComponentDescription* NewPartDesc, int32 WeaponGroupIndex);
+
+	bool CanUpgrade(EFlarePartType::Type Type);
+
+	int64 GetUpgradeCost(FFlareSpacecraftComponentDescription* NewPart, FFlareSpacecraftComponentDescription* OldPart);
+
+	FFlareSpacecraftComponentDescription* GetCurrentPart(EFlarePartType::Type Type, int32 WeaponGroupIndex);
+
+
+
 	/*----------------------------------------------------
 		Resources
 	----------------------------------------------------*/

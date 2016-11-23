@@ -518,6 +518,141 @@ bool UFlareSimulatedSpacecraft::TryCapture(UFlareCompany* Company, int32 Capture
 	return false;
 }
 
+bool UFlareSimulatedSpacecraft::UpgradePart(FFlareSpacecraftComponentDescription* NewPartDesc, int32 WeaponGroupIndex)
+{
+
+	UFlareSpacecraftComponentsCatalog* Catalog = Game->GetPC()->GetGame()->GetShipPartsCatalog();
+	int32 TransactionCost = 0;
+
+	// Update all components
+	for (int32 i = 0; i < SpacecraftData.Components.Num(); i++)
+	{
+		bool UpdatePart = false;
+		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(SpacecraftData.Components[i].ComponentIdentifier);
+
+		if (ComponentDescription->Type == NewPartDesc->Type)
+		{
+
+			// For a weapon, check if this slot belongs to the current group
+			if (ComponentDescription->Type == EFlarePartType::Weapon)
+			{
+				FName SlotName = SpacecraftData.Components[i].ShipSlotIdentifier;
+				int32 TargetGroupIndex = UFlareSimulatedSpacecraftWeaponsSystem::GetGroupIndexFromSlotIdentifier(GetDescription(), SlotName);
+				UpdatePart = (TargetGroupIndex == WeaponGroupIndex);
+			}
+			else
+			{
+				UpdatePart = true;
+			}
+		}
+
+		// Set the new description and reload the weapon if it was marked for change
+		if (UpdatePart)
+		{
+			if(TransactionCost == 0)
+			{
+				TransactionCost = GetUpgradeCost(NewPartDesc, ComponentDescription);
+				if(TransactionCost > GetCompany()->GetMoney())
+				{
+					// Cannot afford upgrade
+					return false;
+				}
+			}
+			SpacecraftData.Components[i].ComponentIdentifier = NewPartDesc->Identifier;
+			SpacecraftData.Components[i].Weapon.FiredAmmo = 0;
+			GetDamageSystem()->SetDamageDirty(ComponentDescription);
+		}
+	}
+
+	// Update the world ship, take money from player, etc
+	if (TransactionCost > 0)
+	{
+		GetCompany()->TakeMoney(TransactionCost);
+	}
+	else
+	{
+		GetCompany()->GiveMoney(FMath::Abs(TransactionCost));
+	}
+
+	UFlareSimulatedSector* Sector = GetCurrentSector();
+	if (Sector)
+	{
+		if (TransactionCost > 0)
+		{
+			Sector->GetPeople()->Pay(TransactionCost);
+		}
+		else
+		{
+			Sector->GetPeople()->TakeMoney(FMath::Abs(TransactionCost));
+		}
+	}
+
+	Load(SpacecraftData);
+
+	return true;
+}
+
+FFlareSpacecraftComponentDescription* UFlareSimulatedSpacecraft::GetCurrentPart(EFlarePartType::Type Type, int32 WeaponGroupIndex)
+{
+	UFlareSpacecraftComponentsCatalog* Catalog = Game->GetPC()->GetGame()->GetShipPartsCatalog();
+
+	// Update all components
+	for (int32 i = 0; i < SpacecraftData.Components.Num(); i++)
+	{
+		bool UpdatePart = false;
+		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(SpacecraftData.Components[i].ComponentIdentifier);
+
+		if (ComponentDescription->Type == Type)
+		{
+
+			// For a weapon, check if this slot belongs to the current group
+			if (ComponentDescription->Type == EFlarePartType::Weapon)
+			{
+				FName SlotName = SpacecraftData.Components[i].ShipSlotIdentifier;
+				int32 TargetGroupIndex = UFlareSimulatedSpacecraftWeaponsSystem::GetGroupIndexFromSlotIdentifier(GetDescription(), SlotName);
+				if(TargetGroupIndex == WeaponGroupIndex)
+				{
+					return ComponentDescription;
+				}
+			}
+			else
+			{
+				return ComponentDescription;
+			}
+		}
+	}
+	return NULL;
+}
+
+int64 UFlareSimulatedSpacecraft::GetUpgradeCost(FFlareSpacecraftComponentDescription* NewPart, FFlareSpacecraftComponentDescription* OldPart)
+{
+	return NewPart->Cost - OldPart->Cost;
+}
+
+bool UFlareSimulatedSpacecraft::CanUpgrade(EFlarePartType::Type Type)
+{
+	if(!GetCurrentSector()->CanUpgrade(GetCompany()))
+	{
+		return false;
+	}
+
+	bool CanBeChanged = false;
+
+	switch(Type)
+	{
+		case EFlarePartType::RCS:
+			CanBeChanged = (GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS) == 1.0f);
+			break;
+		case EFlarePartType::OrbitalEngine:
+			CanBeChanged = (GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) == 1.0f);
+			break;
+		case EFlarePartType::Weapon:
+			CanBeChanged = (GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_WeaponAndAmmo) == 1.0f);
+			break;
+	}
+	return CanBeChanged;
+}
+
 EFlareHostility::Type UFlareSimulatedSpacecraft::GetPlayerWarState() const
 {
 	return GetCompany()->GetPlayerWarState();

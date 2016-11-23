@@ -35,6 +35,16 @@ public:
 	void GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollableCivil, float* IsUncontrollableMilitary, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned);
 
 	int32 FindBestWeaponGroup(UFlareSimulatedSpacecraft* Target);
+
+
+	/*----------------------------------------------------
+		Helper
+	----------------------------------------------------*/
+
+	static FName GetSlotIdentifierFromWeaponGroupIndex(const FFlareSpacecraftDescription* ShipDesc, int32 WeaponGroupIndex);
+
+	static  int32 GetGroupIndexFromSlotIdentifier(const FFlareSpacecraftDescription* ShipDesc, FName SlotName);
+
 public:
 
 	/*----------------------------------------------------
@@ -51,6 +61,10 @@ public:
 	}
 
 	virtual int32 GetGroupByWeaponIdentifer(FName Identifier) const;
+
+	bool HasAntiLargeShipWeapon();
+
+	bool HasAntiSmallShipWeapon();
 
 protected:
 

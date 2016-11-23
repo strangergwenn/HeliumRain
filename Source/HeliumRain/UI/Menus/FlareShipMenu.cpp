@@ -389,7 +389,7 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		WeaponDescriptions.Empty();
 		for (int32 GroupIndex = 0; GroupIndex < ShipDesc->WeaponGroups.Num(); GroupIndex++)
 		{
-			FName SlotName = GetSlotIdentifierFromWeaponGroupIndex(ShipDesc, GroupIndex);
+			FName SlotName = UFlareSimulatedSpacecraftWeaponsSystem::GetSlotIdentifierFromWeaponGroupIndex(ShipDesc, GroupIndex);
 
 			for (int32 i = 0; i < TargetSpacecraftData->Components.Num(); i++)
 			{
@@ -921,7 +921,7 @@ void SFlareShipMenu::ShowWeapons(TSharedPtr<int32> WeaponGroupIndex)
 		FFlareSpacecraftComponentDescription* Desc = Catalog->Get(TargetSpacecraftData->Components[Index].ComponentIdentifier);
 		if (Desc && Desc->Type == EFlarePartType::Weapon)
 		{
-			FName TargetSlotName = GetSlotIdentifierFromWeaponGroupIndex(ShipDesc, CurrentWeaponGroupIndex);
+			FName TargetSlotName = UFlareSimulatedSpacecraftWeaponsSystem::GetSlotIdentifierFromWeaponGroupIndex(ShipDesc, CurrentWeaponGroupIndex);
 
 			if (TargetSpacecraftData->Components[Index].ShipSlotIdentifier == TargetSlotName)
 			{
@@ -950,19 +950,7 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 		AFlareMenuPawn* Viewer = PC->GetMenuPawn();
 
 		// Ensure this part can be changed
-		bool CanBeChanged = true;
-		switch(Item->PartDescription->Type)
-		{
-			case EFlarePartType::RCS:
-				CanBeChanged = (TargetSpacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS) == 1.0f);
-				break;
-			case EFlarePartType::OrbitalEngine:
-				CanBeChanged = (TargetSpacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) == 1.0f);
-				break;
-			case EFlarePartType::Weapon:
-				CanBeChanged = (TargetSpacecraft->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_WeaponAndAmmo) == 1.0f);
-				break;
-		}	
+		bool CanBeChanged = TargetSpacecraft->CanUpgrade(Item->PartDescription->Type);
 
 		// Load the part
 		if (Viewer)
@@ -977,7 +965,7 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 		{
 			if (CanBeChanged)
 			{
-				int64 TransactionCost = GetTransactionCost(Item->PartDescription);
+				int64 TransactionCost = TargetSpacecraft->GetUpgradeCost(Item->PartDescription, PartListData[CurrentEquippedPartIndex]);
 				BuyConfirmation->Show(TransactionCost, PC->GetCompany());
 				CantUpgradeReason->SetVisibility(EVisibility::Collapsed);
 			}
@@ -1024,65 +1012,12 @@ void SFlareShipMenu::OnPartConfirmed()
 
 	// Edit the correct save data property
 	FFlareSpacecraftComponentDescription* NewPartDesc = PartListData[CurrentPartIndex];
-	int32 TransactionCost = GetTransactionCost(NewPartDesc);
 	CurrentEquippedPartIndex = CurrentPartIndex;
-
-	// Update all components
-	for (int32 i = 0; i < TargetSpacecraftData->Components.Num(); i++)
-	{
-		bool UpdatePart = false;
-		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(TargetSpacecraftData->Components[i].ComponentIdentifier);
-
-		if (ComponentDescription->Type == NewPartDesc->Type)
-		{
-			// For a weapon, check if this slot belongs to the current group
-			if (ComponentDescription->Type == EFlarePartType::Weapon)
-			{
-				FName SlotName = TargetSpacecraftData->Components[i].ShipSlotIdentifier;
-				int32 TargetGroupIndex = GetGroupIndexFromSlotIdentifier(TargetSpacecraft->GetDescription(), SlotName);
-				UpdatePart = (TargetGroupIndex == CurrentWeaponGroupIndex);
-			}
-			else
-			{
-				UpdatePart = true;
-			}
-		}
-
-		// Set the new description and reload the weapon if it was marked for change
-		if (UpdatePart)
-		{
-			TargetSpacecraftData->Components[i].ComponentIdentifier = NewPartDesc->Identifier;
-			TargetSpacecraftData->Components[i].Weapon.FiredAmmo = 0;
-			TargetSpacecraft-> GetDamageSystem()->SetDamageDirty(ComponentDescription);
-		}
-	}
 		
-	// Update the world ship, take money from player, etc
+	// Upgrade the ship
 	if (TargetSpacecraft)
 	{
-		if (TransactionCost > 0)
-		{
-			TargetSpacecraft->GetCompany()->TakeMoney(TransactionCost);
-		}
-		else
-		{
-			TargetSpacecraft->GetCompany()->GiveMoney(FMath::Abs(TransactionCost));
-		}
-
-		UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
-		if (Sector)
-		{
-			if (TransactionCost > 0)
-			{
-				Sector->GetPeople()->Pay(TransactionCost);
-			}
-			else
-			{
-				Sector->GetPeople()->TakeMoney(FMath::Abs(TransactionCost));
-			}
-		}
-
-		TargetSpacecraft->Load(*TargetSpacecraftData);
+		TargetSpacecraft->UpgradePart(NewPartDesc, CurrentWeaponGroupIndex);
 	}
 
 	// Get back to the ship config
@@ -1094,66 +1029,6 @@ void SFlareShipMenu::OnPartCancelled()
 {
 	BuyConfirmation->Hide();
 	LoadTargetSpacecraft();
-}
-
-
-/*----------------------------------------------------
-	Helpers
-----------------------------------------------------*/
-
-int64 SFlareShipMenu::GetTransactionCost(FFlareSpacecraftComponentDescription* SelectedPart)
-{
-	return SelectedPart->Cost - PartListData[CurrentEquippedPartIndex]->Cost;
-}
-
-FName SFlareShipMenu::GetSlotIdentifierFromWeaponGroupIndex(const FFlareSpacecraftDescription* ShipDesc, int32 WeaponGroupIndex)
-{
-	FName TargetSlotName = NAME_None;
-
-	for (int32 WeaponIndex = 0; WeaponIndex < ShipDesc->GunSlots.Num(); WeaponIndex++)
-	{
-		if (ShipDesc->GunSlots[WeaponIndex].GroupIndex == WeaponGroupIndex)
-		{
-			TargetSlotName = ShipDesc->GunSlots[WeaponIndex].SlotIdentifier;
-			break;
-		}
-	}
-
-	for (int32 WeaponIndex = 0; WeaponIndex < ShipDesc->TurretSlots.Num(); WeaponIndex++)
-	{
-		if (ShipDesc->TurretSlots[WeaponIndex].GroupIndex == WeaponGroupIndex)
-		{
-			TargetSlotName = ShipDesc->TurretSlots[WeaponIndex].SlotIdentifier;
-			break;
-		}
-	}
-
-	return TargetSlotName;
-}
-
-int32 SFlareShipMenu::GetGroupIndexFromSlotIdentifier(const FFlareSpacecraftDescription* ShipDesc, FName SlotName)
-{
-	int32 TargetIndex = 0;
-
-	for (int32 WeaponIndex = 0; WeaponIndex < ShipDesc->GunSlots.Num(); WeaponIndex++)
-	{
-		if (ShipDesc->GunSlots[WeaponIndex].SlotIdentifier == SlotName)
-		{
-			TargetIndex = ShipDesc->GunSlots[WeaponIndex].GroupIndex;
-			break;
-		}
-	}
-
-	for (int32 WeaponIndex = 0; WeaponIndex < ShipDesc->TurretSlots.Num(); WeaponIndex++)
-	{
-		if (ShipDesc->TurretSlots[WeaponIndex].SlotIdentifier == SlotName)
-		{
-			TargetIndex = ShipDesc->TurretSlots[WeaponIndex].GroupIndex;
-			break;
-		}
-	}
-
-	return TargetIndex;
 }
 
 #undef LOCTEXT_NAMESPACE

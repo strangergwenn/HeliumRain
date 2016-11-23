@@ -134,17 +134,6 @@ protected:
 
 	bool IsUpgradeStationDisabled() const;
 
-	/*----------------------------------------------------
-		Helpers
-	----------------------------------------------------*/
-
-	int64 GetTransactionCost(FFlareSpacecraftComponentDescription* SelectedPart);
-
-	FName GetSlotIdentifierFromWeaponGroupIndex(const FFlareSpacecraftDescription* ShipDesc, int32 WeaponGroupIndex);
-
-	int32 GetGroupIndexFromSlotIdentifier(const FFlareSpacecraftDescription* ShipDesc, FName SlotName);
-
-
 protected:
 
 	/*----------------------------------------------------

@@ -53,6 +53,8 @@ struct DefenseSector
 	UFlareSimulatedSector* Sector;
 	UFlareSimulatedSector* TempBaseSector;
 	int64 ArmyValue;
+	int64 ArmyAntiSValue;
+	int64 ArmyAntiLValue;
 	int64 LargeShipArmyValue;
 	int64 SmallShipArmyValue;
 	int32 LargeShipArmyCount;
@@ -81,6 +83,8 @@ struct WarTarget
 {
 	UFlareSimulatedSector* Sector;
 	int64 EnemyArmyValue;
+	int64 EnemyArmyLValue;
+	int64 EnemyArmySValue;
 	int64 EnemyStationCount;
 	int64 EnemyCargoCount;
 	int64 OwnedArmyValue;
@@ -176,6 +180,12 @@ public:
 
 	/** Move military ships while in peace */
 	void UpdatePeaceMilitaryMovement();
+
+	UFlareSimulatedSector* FindNearestSectorWithUpgradePossible(UFlareSimulatedSector* OriginSector);
+
+	bool UpgradeShip(UFlareSimulatedSpacecraft* Ship, EFlarePartSize::Type WeaponTargetSize);
+
+	bool UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sector, TArray<UFlareSimulatedSpacecraft*> &MovableShips);
 
 	TArray<WarTargetIncomingFleet> GenerateWarTargetIncomingFleets(UFlareSimulatedSector* DestinationSector);
 

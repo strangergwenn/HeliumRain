@@ -104,6 +104,63 @@ int32 UFlareSimulatedSpacecraftWeaponsSystem::GetGroupByWeaponIdentifer(FName Id
 	return -1;
 }
 
+bool UFlareSimulatedSpacecraftWeaponsSystem::HasAntiLargeShipWeapon()
+{
+	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
+	{
+		EFlareShellDamageType::Type DamageType = WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.DamageType;
+
+		if (Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, true) <= 0)
+		{
+			continue;
+		}
+
+		if (WeaponGroupList[GroupIndex]->Type == EFlareWeaponGroupType::WG_BOMB)
+		{
+			if(DamageType == EFlareShellDamageType::HEAT)
+			{
+				return true;
+			}
+		}
+		else
+		{
+			if (DamageType == EFlareShellDamageType::HEAT)
+			{
+				return true;
+			}
+
+		}
+	}
+	return false;
+}
+
+bool UFlareSimulatedSpacecraftWeaponsSystem::HasAntiSmallShipWeapon()
+{
+	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
+	{
+		EFlareShellDamageType::Type DamageType = WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.DamageType;
+
+		if (Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, true) <= 0)
+		{
+			continue;
+		}
+
+		if (WeaponGroupList[GroupIndex]->Type == EFlareWeaponGroupType::WG_BOMB)
+		{
+			// Ignore bombs
+		}
+		else
+		{
+			if (DamageType != EFlareShellDamageType::HEAT)
+			{
+				return true;
+			}
+
+		}
+	}
+	return false;
+}
+
 
 void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollableCivil, float* IsUncontrollableMilitary, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned)
 {
@@ -277,6 +334,56 @@ int32 UFlareSimulatedSpacecraftWeaponsSystem::FindBestWeaponGroup(UFlareSimulate
 	}
 
 	return BestWeaponGroup;
+}
+
+FName UFlareSimulatedSpacecraftWeaponsSystem::GetSlotIdentifierFromWeaponGroupIndex(const FFlareSpacecraftDescription* ShipDesc, int32 WeaponGroupIndex)
+{
+	FName TargetSlotName = NAME_None;
+
+	for (int32 WeaponIndex = 0; WeaponIndex < ShipDesc->GunSlots.Num(); WeaponIndex++)
+	{
+		if (ShipDesc->GunSlots[WeaponIndex].GroupIndex == WeaponGroupIndex)
+		{
+			TargetSlotName = ShipDesc->GunSlots[WeaponIndex].SlotIdentifier;
+			break;
+		}
+	}
+
+	for (int32 WeaponIndex = 0; WeaponIndex < ShipDesc->TurretSlots.Num(); WeaponIndex++)
+	{
+		if (ShipDesc->TurretSlots[WeaponIndex].GroupIndex == WeaponGroupIndex)
+		{
+			TargetSlotName = ShipDesc->TurretSlots[WeaponIndex].SlotIdentifier;
+			break;
+		}
+	}
+
+	return TargetSlotName;
+}
+
+int32 UFlareSimulatedSpacecraftWeaponsSystem::GetGroupIndexFromSlotIdentifier(const FFlareSpacecraftDescription* ShipDesc, FName SlotName)
+{
+	int32 TargetIndex = 0;
+
+	for (int32 WeaponIndex = 0; WeaponIndex < ShipDesc->GunSlots.Num(); WeaponIndex++)
+	{
+		if (ShipDesc->GunSlots[WeaponIndex].SlotIdentifier == SlotName)
+		{
+			TargetIndex = ShipDesc->GunSlots[WeaponIndex].GroupIndex;
+			break;
+		}
+	}
+
+	for (int32 WeaponIndex = 0; WeaponIndex < ShipDesc->TurretSlots.Num(); WeaponIndex++)
+	{
+		if (ShipDesc->TurretSlots[WeaponIndex].SlotIdentifier == SlotName)
+		{
+			TargetIndex = ShipDesc->TurretSlots[WeaponIndex].GroupIndex;
+			break;
+		}
+	}
+
+	return TargetIndex;
 }
 
 /*----------------------------------------------------
