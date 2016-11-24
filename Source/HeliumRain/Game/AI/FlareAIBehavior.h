@@ -91,6 +91,7 @@ public:
 	float ArmySize;
 
 	float AttackThreshold;
+	float RetreatThreshold;
 
 	/* Amount of caution gain at each defeat of loose at each victory */
 	float DefeatAdaptation;

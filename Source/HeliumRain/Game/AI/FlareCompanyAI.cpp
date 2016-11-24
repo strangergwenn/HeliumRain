@@ -1863,7 +1863,7 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 
 		if (Sector->GetSectorBattleState(Company).HasDanger)
 		{
-			IsTarget = false;
+			IsTarget = true;
 		}
 
 		for(UFlareSimulatedSpacecraft* Spacecraft : Sector->GetSectorSpacecrafts())
@@ -1888,6 +1888,8 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 		Target.EnemyCargoCount = 0;
 		Target.EnemyStationCount = 0;
 		Target.OwnedArmyValue = 0;
+		Target.OwnedArmyAntiSValue = 0;
+		Target.OwnedArmyAntiLValue = 0;
 		Target.OwnedCargoCount = 0;
 		Target.OwnedStationCount = 0;
 		Target.OwnedMilitaryCount = 0;
@@ -1935,8 +1937,20 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 				{
 					if(Spacecraft->IsMilitary())
 					{
-						Target.OwnedArmyValue += Spacecraft->ComputeCombatValue();
+						int64 ShipValue = Spacecraft->ComputeCombatValue();
+
+						Target.OwnedArmyValue += ShipValue;
 						Target.OwnedMilitaryCount++;
+
+						if (Spacecraft->GetWeaponsSystem()->HasAntiLargeShipWeapon())
+						{
+							Target.OwnedArmyAntiLValue += ShipValue;
+						}
+
+						if (Spacecraft->GetWeaponsSystem()->HasAntiSmallShipWeapon())
+						{
+							Target.OwnedArmyAntiSValue += ShipValue;
+						}
 					}
 					else
 					{
@@ -1946,9 +1960,37 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 			}
 		}
 
-		if(Target.OwnedArmyValue <= Target.EnemyArmyValue)
+
+		if (Target.OwnedArmyAntiLValue <= Target.EnemyArmyLValue * Behavior->RetreatThreshold ||
+				Target.OwnedArmyAntiSValue <= Target.EnemyArmySValue * Behavior->RetreatThreshold)
 		{
 			WarTargetList.Add(Target);
+
+			// Retreat
+			TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(Target.Sector);
+			if (MovableShips.Num() > 0)
+			{
+				// Find nearest sector without danger with available FS and travel there
+				UFlareSimulatedSector* RetreatSector = FindNearestSectorWithFS(Target.Sector);
+				if (!RetreatSector)
+				{
+					RetreatSector = FindNearestSectorWithPeace(Target.Sector);
+				}
+
+				if(RetreatSector)
+				{
+					for (UFlareSimulatedSpacecraft* Ship : MovableShips)
+					{
+						FLOGV("UpdateWarMilitaryMovement %s : move %s from %s to %s for retreat",
+							*Company->GetCompanyName().ToString(),
+							*Ship->GetImmatriculation().ToString(),
+							*Ship->GetCurrentSector()->GetSectorName().ToString(),
+							*RetreatSector->GetSectorName().ToString());
+
+						Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), RetreatSector);
+					}
+				}
+			}
 		}
 	}
 
@@ -2406,6 +2448,31 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 			break;
 		}
 	}
+}
+
+UFlareSimulatedSector* UFlareCompanyAI::FindNearestSectorWithPeace(UFlareSimulatedSector* OriginSector)
+{
+	UFlareSimulatedSector* NearestSector = NULL;
+	int64 NearestDuration = 0;
+
+	for (UFlareSimulatedSector* Sector : Company->GetKnownSectors())
+	{
+		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(Company);
+		if (BattleState.HasDanger)
+		{
+			continue;
+		}
+
+		int64 Duration = UFlareTravel::ComputeTravelDuration(Sector->GetGame()->GetGameWorld(), OriginSector, Sector);
+
+		if (!NearestSector || Duration < NearestDuration)
+		{
+			NearestSector = Sector;
+			NearestDuration = Duration;
+		}
+
+	}
+	return NearestSector;
 }
 
 UFlareSimulatedSector* UFlareCompanyAI::FindNearestSectorWithFS(UFlareSimulatedSector* OriginSector)
@@ -3360,7 +3427,7 @@ void UFlareCompanyAI::CargosEvasion()
 		for (int32 ShipIndex = 0 ; ShipIndex < Sector->GetSectorShips().Num(); ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = Sector->GetSectorShips()[ShipIndex];
-			if (Ship->GetCompany() != Company || !Ship->CanTravel())
+			if (Ship->GetCompany() != Company || !Ship->CanTravel() || Ship->IsMilitary())
 			{
 				continue;
 			}

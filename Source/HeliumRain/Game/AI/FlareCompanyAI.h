@@ -88,6 +88,8 @@ struct WarTarget
 	int64 EnemyStationCount;
 	int64 EnemyCargoCount;
 	int64 OwnedArmyValue;
+	int64 OwnedArmyAntiSValue;
+	int64 OwnedArmyAntiLValue;
 	int64 OwnedStationCount;
 	int64 OwnedCargoCount;
 	int64 OwnedMilitaryCount;
@@ -180,6 +182,8 @@ public:
 
 	/** Move military ships while in peace */
 	void UpdatePeaceMilitaryMovement();
+
+	UFlareSimulatedSector* FindNearestSectorWithPeace(UFlareSimulatedSector* OriginSector);
 
 	UFlareSimulatedSector* FindNearestSectorWithFS(UFlareSimulatedSector* OriginSector);
 

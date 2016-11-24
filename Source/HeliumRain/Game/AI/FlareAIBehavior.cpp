@@ -215,6 +215,7 @@ void UFlareAIBehavior::GenerateAffilities()
 	PayTributeConfidence = -0.8;
 
 	AttackThreshold = 1.2;
+	RetreatThreshold = 0.5;
 	DefeatAdaptation = 0.01;
 
 	ArmySize = 5.0;
@@ -268,6 +269,7 @@ void UFlareAIBehavior::GenerateAffilities()
 
 		ArmySize = 50.0;
 		AttackThreshold = 0.8;
+		RetreatThreshold = 0.2;
 		DefeatAdaptation = 0.001;
 
 		// Budjet
