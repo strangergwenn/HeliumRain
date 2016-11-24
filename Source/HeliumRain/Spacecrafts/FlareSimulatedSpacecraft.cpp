@@ -712,7 +712,57 @@ int64 UFlareSimulatedSpacecraft::ComputeCombatValue()
 
 	SpacecraftPrice *= GetDamageSystem()->GetGlobalHealth();
 
-	// TODO, upgrade and ammo
+	int64 UpgradesCost = 0;
+
+	int32 WeaponGroupCount = GetDescription()->WeaponGroups.Num();
+	UFlareSpacecraftComponentsCatalog* Catalog = Game->GetPC()->GetGame()->GetShipPartsCatalog();
+
+	FName DefaultWeaponIdentifier;
+	FName DefaultRCSIdentifier;
+	FName DefaultOrbitalEngineIdentifier;
+
+	if(GetSize() == EFlarePartSize::S)
+	{
+		DefaultWeaponIdentifier = Game->GetDefaultWeaponIdentifier();
+		// TODO constants
+		DefaultRCSIdentifier = FName("rcs-coral");
+		DefaultOrbitalEngineIdentifier = FName("engine-thresher");
+	}
+	else
+	{
+		DefaultWeaponIdentifier = Game->GetDefaultTurretIdentifier();
+		// TODO constants
+		DefaultRCSIdentifier = FName("rcs-rift");
+		DefaultOrbitalEngineIdentifier = FName("pod-surtsey");
+
+	}
+
+	FFlareSpacecraftComponentDescription* DefaultWeapon = Catalog->Get(DefaultWeaponIdentifier);
+	FFlareSpacecraftComponentDescription* DefaultRCS = Catalog->Get(DefaultRCSIdentifier);
+	FFlareSpacecraftComponentDescription* DefaultOrbitalEngine = Catalog->Get(DefaultOrbitalEngineIdentifier);
+
+	if(DefaultWeapon)
+	{
+		for(int32 WeaponGroupIndex = 0; WeaponGroupIndex < WeaponGroupCount; WeaponGroupIndex++)
+		{
+			FFlareSpacecraftComponentDescription* CurrentWeapon = GetCurrentPart(EFlarePartType::Weapon, WeaponGroupIndex);
+			UpgradesCost += GetUpgradeCost(CurrentWeapon, DefaultWeapon);
+		}
+	}
+
+	if(DefaultRCS)
+	{
+		FFlareSpacecraftComponentDescription* CurrentPart = GetCurrentPart(EFlarePartType::RCS, 0);
+		UpgradesCost += GetUpgradeCost(CurrentPart, DefaultRCS);
+	}
+
+	if(DefaultOrbitalEngine)
+	{
+		FFlareSpacecraftComponentDescription* CurrentPart = GetCurrentPart(EFlarePartType::OrbitalEngine, 0);
+		UpgradesCost += GetUpgradeCost(CurrentPart, DefaultOrbitalEngine);
+	}
+
+	SpacecraftPrice += UpgradesCost;
 
 	return SpacecraftPrice;
 }
