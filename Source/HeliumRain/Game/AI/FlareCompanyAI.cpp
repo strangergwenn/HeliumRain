@@ -2476,11 +2476,15 @@ bool UFlareCompanyAI::UpgradeShip(UFlareSimulatedSpacecraft* Ship, EFlarePartSiz
 #endif
 			for(int32 WeaponGroupIndex = 0; WeaponGroupIndex < WeaponGroupCount; WeaponGroupIndex++)
 			{
-				if(!Ship->UpgradePart(BestWeapon, WeaponGroupIndex))
+				if(Ship->UpgradePart(BestWeapon, WeaponGroupIndex))
+				{
+					SpendBudget(EFlareBudget::Military, TransactionCost);
+				}
+				else
 				{
 #ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
-				FLOGV("failed to upgrade %s : upgrade failed for unknown reseon",
-					*Ship->GetImmatriculation().ToString());
+					FLOGV("failed to upgrade %s : upgrade failed for unknown reseon",
+						*Ship->GetImmatriculation().ToString());
 #endif
 
 					// Something fail
@@ -2513,7 +2517,11 @@ bool UFlareCompanyAI::UpgradeShip(UFlareSimulatedSpacecraft* Ship, EFlarePartSiz
 #ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
 			FLOGV("%s upgrade its rcs to %s", *Ship->GetImmatriculation().ToString(), *BestPart->Identifier.ToString());
 #endif
-			Ship->UpgradePart(BestPart, 0);
+			if (Ship->UpgradePart(BestPart, 0))
+			{
+				int64 TransactionCost = Ship->GetUpgradeCost(BestPart, OldPart);
+				SpendBudget(EFlareBudget::Military, TransactionCost);
+			}
 		}
 	}
 
@@ -2540,7 +2548,11 @@ bool UFlareCompanyAI::UpgradeShip(UFlareSimulatedSpacecraft* Ship, EFlarePartSiz
 #ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
 			FLOGV("%s upgrade its orbital engines to %s", *Ship->GetImmatriculation().ToString(), *BestPart->Identifier.ToString());
 #endif
-			Ship->UpgradePart(BestPart, 0);
+			if (Ship->UpgradePart(BestPart, 0))
+			{
+				int64 TransactionCost = Ship->GetUpgradeCost(BestPart, OldPart);
+				SpendBudget(EFlareBudget::Military, TransactionCost);
+			}
 		}
 	}
 
