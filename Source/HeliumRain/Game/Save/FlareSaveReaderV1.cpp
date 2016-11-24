@@ -208,7 +208,7 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 	LoadInt64(Object, "PlayerLastTributeDate", &Data->PlayerLastTributeDate);
 	LoadInt32(Object, "FleetImmatriculationIndex", &Data->FleetImmatriculationIndex);
 	LoadInt32(Object, "TradeRouteImmatriculationIndex", &Data->TradeRouteImmatriculationIndex);
-
+	LoadFloat(Object, "Shame", &Data->Shame);
 
 	const TSharedPtr< FJsonObject >* AI;
 	if(Object->TryGetObjectField(TEXT("AI"), AI))

@@ -285,6 +285,9 @@ struct FFlareCompanySave
 	/** Date of last war with the player */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64 PlayerLastWarDate;
+
+	/* Modify reputation to this company */
+	float Shame;
 };
 
 /** Game save data */

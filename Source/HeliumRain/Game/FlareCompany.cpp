@@ -974,6 +974,10 @@ void UFlareCompany::PayTribute(UFlareCompany* Company, bool AllowDepts)
 	}
 }
 
+void UFlareCompany::GiveShame(float ShameGain)
+{
+	CompanyData.Shame += ShameGain;
+}
 
 /*----------------------------------------------------
 	Customization

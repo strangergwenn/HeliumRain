@@ -185,6 +185,7 @@ public:
 	/** Make peace with Company in echange for money */
 	void PayTribute(UFlareCompany* Company, bool AllowDepts = false);
 
+	void GiveShame(float ShameGain);
 
 	/*----------------------------------------------------
 		Customization
@@ -412,6 +413,11 @@ public:
 	inline int64 GetLastTributeDate()
 	{
 		return CompanyData.PlayerLastTributeDate;
+	}
+
+	inline float GetShame()
+	{
+		return CompanyData.Shame;
 	}
 
 	float GetConfidenceLevel(UFlareCompany* ReferenceCompany);

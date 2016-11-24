@@ -566,29 +566,9 @@ void UFlareWorld::Simulate()
 
 	FLOG("* Simulate > Reputation");
 	// Reputation stabilization
-	for (int CompanyIndex1 = 0; CompanyIndex1 < Companies.Num(); CompanyIndex1++)
+	for (UFlareCompany* Company : Companies)
 	{
-		UFlareCompany* Company1 =Companies[CompanyIndex1];
-
-		for (int CompanyIndex2 = 0; CompanyIndex2 < Companies.Num(); CompanyIndex2++)
-		{
-			UFlareCompany* Company2 =Companies[CompanyIndex2];
-
-			if(Company1 == Company2)
-			{
-				continue;
-			}
-
-			float Reputation1 = Company1->GetReputation(Company2);
-			float Reputation2 = Company2->GetReputation(Company1);
-
-			float ReputationMean = (Reputation1 + Reputation2) / 4.f;
-			float ReputationDelta = ReputationMean - Reputation1;
-			if(ReputationDelta != 0.f)
-			{
-				Company1->GiveReputation(Company2, (Reputation1 < -100 ? 0.8 : 0.01) * FMath::Sign(ReputationDelta), false);
-			}
-		}
+		Company->GiveReputationToOthers(-Company->GetShame(), false);
 	}
 
 	FLOG("* Simulate > Prices");
@@ -794,6 +774,10 @@ void UFlareWorld::ProcessStationCapture()
 		Owner->GiveReputationToOthers(30, false);
 		Owner->GiveReputation(Capturer, -40, false);
 		Capturer->GiveReputationToOthers(-50, false);
+		// Shame
+		float Shame = 0.1 * NewShip->GetLevel();
+		Capturer->GiveShame(Shame);
+		Owner->GiveShame(-Shame);
 
 		if (GetGame()->GetPC()->GetCompany() == Capturer)
 		{
