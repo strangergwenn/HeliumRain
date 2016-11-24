@@ -124,7 +124,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 		{
 			if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile)
 			{
-				Company->SetHostilityTo(OtherCompany, true);
+				Company->SetHostilityTo(OtherCompany, false);
 			}
 			continue;
 		}
@@ -140,7 +140,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			Company->SetHostilityTo(OtherCompany, true);
 			if (OtherCompany == Game->GetPC()->GetCompany())
 			{
-				OtherCompany->SetHostilityTo(Company, true);
+				OtherCompany->SetHostilityTo(Company, false);
 			}
 		}
 
