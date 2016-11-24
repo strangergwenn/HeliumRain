@@ -453,9 +453,9 @@ void SFlareSpacecraftInfo::Show()
 			ScrapButton->SetHelpText(LOCTEXT("CantScrapInfo", "Scrapping requires to be docked in a peaceful sector (ships outside the player fleet can be scrapped when a station is present)"));
 			ScrapButton->SetDisabled(true);
 		}
-
-		UpdateCaptureList();
 	}
+
+	UpdateCaptureList();
 
 	if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Trade)
 	{
@@ -483,8 +483,7 @@ void SFlareSpacecraftInfo::UpdateCaptureList()
 
 	// Initial checks
 	FCHECK(PC);
-	FCHECK(TargetSpacecraft->IsValidLowLevel());
-	if (!TargetSpacecraft->IsStation())
+	if (TargetSpacecraft == NULL || !TargetSpacecraft->IsValidLowLevel() || !TargetSpacecraft->IsStation())
 	{
 		return;
 	}
