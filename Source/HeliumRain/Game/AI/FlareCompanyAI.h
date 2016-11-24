@@ -201,6 +201,9 @@ public:
 
 	TArray<DefenseSector> GenerateDefenseSectorList();
 
+	void CheckBattleResolution();
+
+	void CheckBattleState();
 
 protected:
 
@@ -285,6 +288,8 @@ protected:
 	TMap<FFlareResourceDescription *, int32> MissingResourcesQuantity;
 	TMap<FFlareResourceDescription *, int32> MissingStaticResourcesQuantity;
 
+	TArray<UFlareSimulatedSector*>            SectorWithBattle;
+
 	int32 IdleCargoCapacity;
 
 public:
@@ -305,6 +310,10 @@ public:
 		return Behavior;
 	}
 
+	FFlareCompanyAISave* GetData()
+	{
+		return &AIData;
+	}
 
 };
 

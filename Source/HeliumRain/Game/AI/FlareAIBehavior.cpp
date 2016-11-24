@@ -215,6 +215,7 @@ void UFlareAIBehavior::GenerateAffilities()
 	PayTributeConfidence = -0.8;
 
 	AttackThreshold = 1.2;
+	DefeatAdaptation = 0.01;
 
 	ArmySize = 5.0;
 	DiplomaticReactivity = 1;
@@ -267,6 +268,7 @@ void UFlareAIBehavior::GenerateAffilities()
 
 		ArmySize = 50.0;
 		AttackThreshold = 0.8;
+		DefeatAdaptation = 0.001;
 
 		// Budjet
 		BudgetTechnologyWeight = 0.0;
@@ -501,4 +503,9 @@ float UFlareAIBehavior::GetResourceAffility(FFlareResourceDescription* Resource)
 		return ResourceAffilities[Resource];
 	}
 	return 1.f;
+}
+
+float UFlareAIBehavior::GetAttackThreshold()
+{
+	return AttackThreshold + Company->GetAI()->GetData()->Caution;
 }

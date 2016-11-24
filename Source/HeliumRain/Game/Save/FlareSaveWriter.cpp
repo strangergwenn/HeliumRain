@@ -529,6 +529,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompanyAI(FFlareCompanyAISave* Dat
 	JsonObject->SetStringField("BudgetStation", FormatInt64(Data->BudgetStation));
 	JsonObject->SetStringField("BudgetTechnology", FormatInt64(Data->BudgetTechnology));
 	JsonObject->SetStringField("BudgetTrade", FormatInt64(Data->BudgetTrade));
+	SaveFloat(JsonObject,"Caution", Data->Caution);
 
 
 	TArray< TSharedPtr<FJsonValue> > ConstructionShipsIdentifiers;

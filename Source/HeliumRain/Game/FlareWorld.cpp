@@ -617,11 +617,23 @@ void UFlareWorld::Simulate()
 
 	// Player being attacked ?
 	ProcessIncomingPlayerEnemy();
+
+	// Lets AI check if in battle
+	CheckAIBattleState();
+
 	
 	double EndTs = FPlatformTime::Seconds();
 	FLOGV("** Simulate day %d done in %.6fs", WorldData.Date-1, EndTs- StartTs);
 
 	GameLog::DaySimulated(WorldData.Date);
+}
+
+void UFlareWorld::CheckAIBattleState()
+{
+	for (UFlareCompany* Company : Companies)
+	{
+		Company->GetAI()->CheckBattleState();
+	}
 }
 
 void UFlareWorld::ProcessShipCapture()

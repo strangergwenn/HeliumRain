@@ -639,6 +639,7 @@ void UFlareSaveReaderV1::LoadCompanyAI(const TSharedPtr<FJsonObject> Object, FFl
 	LoadInt64(Object, "BudgetStation", &Data->BudgetStation);
 	LoadInt64(Object, "BudgetTechnology", &Data->BudgetTechnology);
 	LoadInt64(Object, "BudgetTrade", &Data->BudgetTrade);
+	LoadFloat(Object, "Caution", &Data->Caution);
 
 	LoadFNameArray(Object, "ConstructionShipsIdentifiers", &Data->ConstructionShipsIdentifiers);
 	LoadFNameArray(Object, "ConstructionStaticShipsIdentifiers", &Data->ConstructionStaticShipsIdentifiers);

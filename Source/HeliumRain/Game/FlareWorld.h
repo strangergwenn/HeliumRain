@@ -109,6 +109,8 @@ public:
 
 	void ProcessStationCapture();
 
+	void CheckAIBattleState();
+
 	void ProcessIncomingPlayerEnemy();
 
 	/** Simulate world for a day */

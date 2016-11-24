@@ -24,6 +24,9 @@
 #define AI_CARGO_PEACE_MILILTARY_THRESOLD 10
 
 
+//#define DEBUG_AI_WAR_MILITARY_MOVEMENT
+//#define DEBUG_AI_BATTLE_STATES
+
 /*----------------------------------------------------
 	Public API
 ----------------------------------------------------*/
@@ -141,6 +144,7 @@ void UFlareCompanyAI::Simulate()
 	{
 		Behavior->Load(Company);
 
+		CheckBattleResolution();
 		UpdateDiplomacy();
 	
 		ResourceFlow = ComputeWorldResourceFlow();
@@ -1664,9 +1668,83 @@ void UFlareCompanyAI::UpdateMilitaryMovement()
 	}
 }
 
+void UFlareCompanyAI::CheckBattleResolution()
+{
+#ifdef DEBUG_AI_BATTLE_STATES
+			FLOGV("CheckBattleResolution for %s : %d sector with battle",
+				*Company->GetCompanyName().ToString(),
+				SectorWithBattle.Num());
+#endif
 
-//#define DEBUG_AI_WAR_MILITARY_MOVEMENT
+	for (UFlareSimulatedSector* Sector : SectorWithBattle)
+	{
+		bool BattleLost = false;
+		bool BattleWin = false;
+		FFlareSectorBattleState BattleState =  Sector->GetSectorBattleState(Company);
+		if(BattleState.InBattle)
+		{
+			if(BattleState.InFight)
+			{
+				// Still no winner
+			}
+			else if(BattleState.BattleWon)
+			{
+				BattleWin = true;
+			}
+			else
+			{
+				BattleLost = true;
+			}
+		}
+		else
+		{
+			if (BattleState.HasDanger)
+			{
+				BattleLost = true;
+			}
+			else
+			{
+				BattleWin = true;
+			}
+		}
 
+		if(BattleLost)
+		{
+			AIData.Caution += Behavior->DefeatAdaptation;
+#ifdef DEBUG_AI_BATTLE_STATES
+			FLOGV("%s lost battle in %s, new caution is %f",
+				*Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(),
+				AIData.Caution);
+#endif
+
+		}
+
+		if(BattleWin)
+		{
+			AIData.Caution -= Behavior->DefeatAdaptation;
+#ifdef DEBUG_AI_BATTLE_STATES
+			FLOGV("%s win battle in %s, new caution is %f",
+				*Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString(),
+				AIData.Caution);
+#endif
+		}
+	}
+}
+
+
+void UFlareCompanyAI::CheckBattleState()
+{
+	SectorWithBattle.Empty();
+
+	for (UFlareSimulatedSector* Sector : Company->GetKnownSectors())
+	{
+		FFlareSectorBattleState BattleState =  Sector->GetSectorBattleState(Company);
+		if (BattleState.InFight)
+		{
+			SectorWithBattle.Add(Sector);
+		}
+	}
+}
 
 TArray<WarTargetIncomingFleet> UFlareCompanyAI::GenerateWarTargetIncomingFleets(UFlareSimulatedSector* DestinationSector)
 {
@@ -2048,7 +2126,7 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 		for (DefenseSector& Sector : SortedDefenseSectorList)
 		{
 			// Check if the army is strong enough
-			if (Sector.ArmyValue < Target.EnemyArmyValue * Behavior->AttackThreshold)
+			if (Sector.ArmyValue < Target.EnemyArmyValue * Behavior->GetAttackThreshold())
 			{
 				// Army too weak
 #ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
@@ -2085,7 +2163,7 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 				}
 
 				// Incoming fleet is too weak, ignore it
-				else if (Fleet.ArmyValue <  Target.EnemyArmyValue * Behavior->AttackThreshold)
+				else if (Fleet.ArmyValue <  Target.EnemyArmyValue * Behavior->GetAttackThreshold())
 				{
 					continue;
 				}
@@ -2108,15 +2186,15 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 			// Should go defend ! Assemble a fleet
 			int64 AntiLFleetValue = 0;
 			int64 AntiSFleetValue = 0;
-			int64 AntiLFleetValueLimit = Target.EnemyArmyLValue * Behavior->AttackThreshold * 1.5;
-			int64 AntiSFleetValueLimit = Target.EnemyArmySValue * Behavior->AttackThreshold * 1.5;
+			int64 AntiLFleetValueLimit = Target.EnemyArmyLValue * Behavior->GetAttackThreshold() * 1.5;
+			int64 AntiSFleetValueLimit = Target.EnemyArmySValue * Behavior->GetAttackThreshold() * 1.5;
 			TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(Sector.Sector);
 
 
 			// Check if weapon are optimal
 			// Check if the army is strong enough
-			if (Sector.ArmyAntiLValue < Target.EnemyArmyLValue * Behavior->AttackThreshold ||
-					Sector.ArmyAntiSValue < Target.EnemyArmySValue * Behavior->AttackThreshold)
+			if (Sector.ArmyAntiLValue < Target.EnemyArmyLValue * Behavior->GetAttackThreshold() ||
+					Sector.ArmyAntiSValue < Target.EnemyArmySValue * Behavior->GetAttackThreshold())
 			{
 #ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
 				FLOGV("army at %s want to attack %s after upgrade : ArmyAntiLValue=%lld, EnemyArmyLValue=%lld, ArmyAntiSValue=%lld, EnemyArmySValue=%lld",
@@ -2511,8 +2589,8 @@ bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sect
 			continue;
 		}
 
-		bool EnoughAntiL = Sector.ArmyAntiLValue >= Target.EnemyArmyLValue * Behavior->AttackThreshold;
-		bool EnoughAntiS = Sector.ArmyAntiSValue >= Target.EnemyArmySValue * Behavior->AttackThreshold;
+		bool EnoughAntiL = Sector.ArmyAntiLValue >= Target.EnemyArmyLValue * Behavior->GetAttackThreshold();
+		bool EnoughAntiS = Sector.ArmyAntiSValue >= Target.EnemyArmySValue * Behavior->GetAttackThreshold();
 		int64 CombatValue = Ship->ComputeCombatValue();
 		bool HasAntiLargeShipWeapon = Ship->GetWeaponsSystem()->HasAntiLargeShipWeapon();
 		bool HasAntiSmallShipWeapon = Ship->GetWeaponsSystem()->HasAntiSmallShipWeapon();
@@ -2541,7 +2619,7 @@ bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sect
 		// if enought anti L and L ship value is not nesessary, upgrade to Anti S
 		else if(!EnoughAntiS && HasAntiLargeShipWeapon)
 		{
-			bool EnoughAntiLWithoutShip = (Sector.ArmyAntiLValue - CombatValue) >= Target.EnemyArmyLValue * Behavior->AttackThreshold;
+			bool EnoughAntiLWithoutShip = (Sector.ArmyAntiLValue - CombatValue) >= Target.EnemyArmyLValue * Behavior->GetAttackThreshold();
 			if(EnoughAntiLWithoutShip)
 			{
 				bool Upgraded = UpgradeShip(Ship, EFlarePartSize::S);
@@ -2572,8 +2650,8 @@ bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sect
 			continue;
 		}
 
-		bool EnoughAntiL = Sector.ArmyAntiLValue >= Target.EnemyArmyLValue * Behavior->AttackThreshold;
-		bool EnoughAntiS = Sector.ArmyAntiSValue >= Target.EnemyArmySValue * Behavior->AttackThreshold;
+		bool EnoughAntiL = Sector.ArmyAntiLValue >= Target.EnemyArmyLValue * Behavior->GetAttackThreshold();
+		bool EnoughAntiS = Sector.ArmyAntiSValue >= Target.EnemyArmySValue * Behavior->GetAttackThreshold();
 		int64 CombatValue = Ship->ComputeCombatValue();
 		bool HasAntiLargeShipWeapon = Ship->GetWeaponsSystem()->HasAntiLargeShipWeapon();
 		bool HasAntiSmallShipWeapon = Ship->GetWeaponsSystem()->HasAntiSmallShipWeapon();
@@ -2602,7 +2680,7 @@ bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sect
 		// if enought anti S and S ship value is not nesessary, upgrade to Anti L
 		else if(!EnoughAntiL && HasAntiSmallShipWeapon)
 		{
-			bool EnoughAntiSWithoutShip = (Sector.ArmyAntiSValue - CombatValue) >= Target.EnemyArmySValue * Behavior->AttackThreshold;
+			bool EnoughAntiSWithoutShip = (Sector.ArmyAntiSValue - CombatValue) >= Target.EnemyArmySValue * Behavior->GetAttackThreshold();
 			if(EnoughAntiSWithoutShip)
 			{
 				bool Upgraded = UpgradeShip(Ship, EFlarePartSize::L);
@@ -2624,16 +2702,16 @@ bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sect
 	}
 
 	// if enought anti S and L, upgrade to min ratio
-	if ((Sector.ArmyAntiLValue >= Target.EnemyArmyLValue * Behavior->AttackThreshold) &&
-			(Sector.ArmyAntiSValue >= Target.EnemyArmySValue * Behavior->AttackThreshold))
+	if ((Sector.ArmyAntiLValue >= Target.EnemyArmyLValue * Behavior->GetAttackThreshold()) &&
+			(Sector.ArmyAntiSValue >= Target.EnemyArmySValue * Behavior->GetAttackThreshold()))
 	{
 		for (UFlareSimulatedSpacecraft* Ship : MovableShips)
 		{
 			float AntiLRatio = (Target.EnemyArmyLValue > 0 ?
-									Sector.ArmyAntiLValue / Target.EnemyArmyLValue * Behavior->AttackThreshold :
+									Sector.ArmyAntiLValue / Target.EnemyArmyLValue * Behavior->GetAttackThreshold() :
 									1000);
 			float AntiSRatio = (Target.EnemyArmySValue > 0 ?
-									Sector.ArmyAntiSValue / Target.EnemyArmySValue * Behavior->AttackThreshold :
+									Sector.ArmyAntiSValue / Target.EnemyArmySValue * Behavior->GetAttackThreshold() :
 									1000);
 
 			if(AntiLRatio == AntiSRatio)
@@ -2649,10 +2727,10 @@ bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sect
 					int64 CombatValue = Ship->ComputeCombatValue();
 					// See if upgrade to S improve this
 					float FutureAntiLRatio = (Target.EnemyArmyLValue > 0 ?
-											(Sector.ArmyAntiLValue - CombatValue) / Target.EnemyArmyLValue * Behavior->AttackThreshold :
+											(Sector.ArmyAntiLValue - CombatValue) / Target.EnemyArmyLValue * Behavior->GetAttackThreshold() :
 											1000);
 					float FutureAntiSRatio = (Target.EnemyArmySValue > 0 ?
-											(Sector.ArmyAntiSValue + CombatValue) / Target.EnemyArmySValue * Behavior->AttackThreshold :
+											(Sector.ArmyAntiSValue + CombatValue) / Target.EnemyArmySValue * Behavior->GetAttackThreshold() :
 											1000);
 					if(FutureAntiLRatio > FutureAntiSRatio)
 					{
@@ -2677,10 +2755,10 @@ bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sect
 					int64 CombatValue = Ship->ComputeCombatValue();
 					// See if upgrade to S improve this
 					float FutureAntiLRatio = (Target.EnemyArmyLValue > 0 ?
-											(Sector.ArmyAntiLValue + CombatValue) / Target.EnemyArmyLValue * Behavior->AttackThreshold :
+											(Sector.ArmyAntiLValue + CombatValue) / Target.EnemyArmyLValue * Behavior->GetAttackThreshold() :
 											1000);
 					float FutureAntiSRatio = (Target.EnemyArmySValue > 0 ?
-											(Sector.ArmyAntiSValue - CombatValue) / Target.EnemyArmySValue * Behavior->AttackThreshold :
+											(Sector.ArmyAntiSValue - CombatValue) / Target.EnemyArmySValue * Behavior->GetAttackThreshold() :
 											1000);
 					if(FutureAntiSRatio > FutureAntiLRatio)
 					{
@@ -2702,8 +2780,8 @@ bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sect
 		}
 	}
 
-	bool FinalEnoughAntiL = Sector.ArmyAntiLValue >= Target.EnemyArmyLValue * Behavior->AttackThreshold;
-	bool FinalEnoughAntiS = Sector.ArmyAntiSValue >= Target.EnemyArmySValue * Behavior->AttackThreshold;
+	bool FinalEnoughAntiL = Sector.ArmyAntiLValue >= Target.EnemyArmyLValue * Behavior->GetAttackThreshold();
+	bool FinalEnoughAntiS = Sector.ArmyAntiSValue >= Target.EnemyArmySValue * Behavior->GetAttackThreshold();
 
 	#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
 					FLOGV("upgrade at %s failed FinalEnoughAntiL=%d, FinalEnoughAntiS=%d",

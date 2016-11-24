@@ -210,6 +210,9 @@ struct FFlareCompanyAISave
 	int64 BudgetMilitary;
 	int64 BudgetStation;
 	int64 BudgetTrade;
+
+	/* Modify AttackThreshold */
+	float Caution;
 };
 
 

@@ -92,6 +92,9 @@ public:
 
 	float AttackThreshold;
 
+	/* Amount of caution gain at each defeat of loose at each victory */
+	float DefeatAdaptation;
+
 	float ConfidenceTarget;
 	float DeclareWarConfidence;
 	float RequestPeaceConfidence;
@@ -115,6 +118,8 @@ public:
 
 	float GetSectorAffility(UFlareSimulatedSector* Sector);
 	float GetResourceAffility(FFlareResourceDescription* Resource);
+
+	float GetAttackThreshold();
 
 };
 
