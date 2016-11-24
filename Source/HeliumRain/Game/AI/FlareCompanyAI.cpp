@@ -2276,6 +2276,50 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 			continue;
 		}
 
+		// Check if need fleet supply
+		int32 NeededFS;
+		int32 TotalNeededFS;
+
+		int32 CumulatedTotalNeededFS = 0;
+
+		SectorHelper::GetRefillFleetSupplyNeeds(Sector.Sector, Company, NeededFS, TotalNeededFS);
+		CumulatedTotalNeededFS += TotalNeededFS;
+
+		SectorHelper::GetRepairFleetSupplyNeeds(Sector.Sector, Company, NeededFS, TotalNeededFS);
+		CumulatedTotalNeededFS += TotalNeededFS;
+
+		if (CumulatedTotalNeededFS > 0)
+		{
+			// FS need
+
+			int32 AvailableFS;
+			int32 OwnedFS;
+			int32 AffordableFS;
+			SectorHelper::GetAvailableFleetSupplyCount(Sector.Sector, Company, OwnedFS, AvailableFS, AffordableFS);
+
+			if(AvailableFS == 0)
+			{
+				// Find nearest sector without danger with available FS and travel there
+				UFlareSimulatedSector* RepairSector = FindNearestSectorWithFS(Sector.Sector);
+				if (RepairSector)
+				{
+					TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(Sector.Sector);
+					for (UFlareSimulatedSpacecraft* Ship : MovableShips)
+					{
+						FLOGV("UpdateWarMilitaryMovement %s : move %s from %s to %s for repair/refill",
+							*Company->GetCompanyName().ToString(),
+							*Ship->GetImmatriculation().ToString(),
+							*Ship->GetCurrentSector()->GetSectorName().ToString(),
+							*RepairSector->GetSectorName().ToString());
+
+						Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), RepairSector);
+					}
+
+					continue;
+				}
+			}
+		}
+
 		int64 MaxTravelDuration = GetDefenseSectorTravelDuration(DefenseSectorList, Sector);
 #ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
 				FLOGV("army at %s MaxTravelDuration=%lld",
@@ -2362,6 +2406,41 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 			break;
 		}
 	}
+}
+
+UFlareSimulatedSector* UFlareCompanyAI::FindNearestSectorWithFS(UFlareSimulatedSector* OriginSector)
+{
+	UFlareSimulatedSector* NearestSector = NULL;
+	int64 NearestDuration = 0;
+
+	for (UFlareSimulatedSector* Sector : Company->GetKnownSectors())
+	{
+		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(Company);
+		if (BattleState.HasDanger)
+		{
+			continue;
+		}
+
+		int32 AvailableFS;
+		int32 OwnedFS;
+		int32 AffordableFS;
+		SectorHelper::GetAvailableFleetSupplyCount(Sector, Company, OwnedFS, AvailableFS, AffordableFS);
+
+		if(AvailableFS == 0)
+		{
+			continue;
+		}
+
+		int64 Duration = UFlareTravel::ComputeTravelDuration(Sector->GetGame()->GetGameWorld(), OriginSector, Sector);
+
+		if (!NearestSector || Duration < NearestDuration)
+		{
+			NearestSector = Sector;
+			NearestDuration = Duration;
+		}
+
+	}
+	return NearestSector;
 }
 
 UFlareSimulatedSector* UFlareCompanyAI::FindNearestSectorWithUpgradePossible(UFlareSimulatedSector* OriginSector)

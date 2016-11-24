@@ -181,6 +181,8 @@ public:
 	/** Move military ships while in peace */
 	void UpdatePeaceMilitaryMovement();
 
+	UFlareSimulatedSector* FindNearestSectorWithFS(UFlareSimulatedSector* OriginSector);
+
 	UFlareSimulatedSector* FindNearestSectorWithUpgradePossible(UFlareSimulatedSector* OriginSector);
 
 	bool UpgradeShip(UFlareSimulatedSpacecraft* Ship, EFlarePartSize::Type WeaponTargetSize);
