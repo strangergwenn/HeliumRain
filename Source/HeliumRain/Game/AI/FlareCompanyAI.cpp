@@ -2263,7 +2263,10 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 #endif
 
 			// Send random ships
-			while (MovableShips.Num() > 0 && (AntiLFleetValue < AntiLFleetValueLimit || AntiSFleetValue < AntiSFleetValueLimit))
+			int32 MinShipToSend = FMath::Max(Target.EnemyCargoCount, Target.EnemyStationCount);
+			int32 SentShips = 0;
+			while (MovableShips.Num() > 0 &&
+				   ((SentShips < MinShipToSend) || (AntiLFleetValue < AntiLFleetValueLimit || AntiSFleetValue < AntiSFleetValueLimit)))
 			{
 				int32 ShipIndex = FMath::RandRange(0, MovableShips.Num()-1);
 
@@ -2296,6 +2299,7 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 					*Target.Sector->GetSectorName().ToString());
 
 				Game->GetGameWorld()->StartTravel(SelectedShip->GetCurrentFleet(), Target.Sector);
+				SentShips++;
 			}
 
 			if (Sector.ArmyValue == 0)
