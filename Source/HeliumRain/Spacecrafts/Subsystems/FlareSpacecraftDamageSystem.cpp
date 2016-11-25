@@ -176,7 +176,11 @@ void UFlareSpacecraftDamageSystem::Start()
 	WasAlive = Parent->IsAlive();
 	TimeSinceLastExternalDamage = 10000;
 
-	CheckRecovery();
+	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
+	if (Spacecraft->GetParent()->GetCurrentFleet() == PC->GetPlayerFleet())
+	{
+		CheckRecovery();
+	}
 }
 
 void UFlareSpacecraftDamageSystem::SetLastDamageCauser(AFlareSpacecraft* Ship)
@@ -276,7 +280,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 			}
 		}
 
-		CheckRecovery();
+
 	}
 
 	// Lost company ship
@@ -289,6 +293,11 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 			FName("ship-uncontrollable"),
 			EFlareNotification::NT_Military);
 		}
+	}
+
+	if (Spacecraft->GetParent()->GetCurrentFleet() == PC->GetPlayerFleet())
+	{
+		CheckRecovery();
 	}
 
 	Spacecraft->GetNavigationSystem()->Undock();
