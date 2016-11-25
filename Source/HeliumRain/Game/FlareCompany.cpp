@@ -666,8 +666,8 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 	if (Propagate)
 	{
 		// Other companies gain a part of reputation gain according to their affinity :
-		// 200 = 100 % of the gain
-		// -200 = -100 % of the gain
+		// 200 = 50 % of the gain
+		// -200 = -50 % of the gain
 		// 0 = 0% the the gain
 
 
@@ -681,7 +681,7 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 			}
 
 			float OtherReputation = OtherCompany->GetReputation(this);
-			float PropagationRatio = OtherReputation / 200.f;
+			float PropagationRatio = 0.5 * OtherReputation / 200.f;
 			OtherCompany->GiveReputation(Company, PropagationRatio * ReputationScaledGain, false);
 		}
 
