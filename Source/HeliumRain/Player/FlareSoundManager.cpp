@@ -263,7 +263,7 @@ void UFlareSoundManager::Update(float DeltaSeconds)
 		bool IsHeavy = (ShipPawn->GetParent()->GetDescription()->Size == EFlarePartSize::L);
 		UpdatePlayer(TargetWarningPlayer, (!IsHeavy && !FiredUpon & Targeted ?  1.0f : -1.0f) * DeltaSeconds);
 		UpdatePlayer(AttackWarningPlayer, (!IsHeavy &&  FiredUpon ?             1.0f : -1.0f) * DeltaSeconds);
-		UpdatePlayer(HealthWarningPlayer, (PlayerShipEndangered && !FiredUpon ? 1.0f : -1.0f) * DeltaSeconds);
+		UpdatePlayer(HealthWarningPlayer, (PlayerShipEndangered ?               1.0f : -1.0f) * DeltaSeconds);
 	}
 
 	// No ship : stop all ship sounds
