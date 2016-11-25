@@ -1868,6 +1868,12 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 
 		for(UFlareSimulatedSpacecraft* Spacecraft : Sector->GetSectorSpacecrafts())
 		{
+			if(!Spacecraft->IsStation() && !Spacecraft->IsMilitary() && Spacecraft->GetDamageSystem()->IsUncontrollable())
+			{
+				// Don't target uncontrollable ships
+				continue;
+			}
+
 			if(Spacecraft->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
 			{
 				IsTarget = true;
@@ -2167,6 +2173,13 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 		TArray<DefenseSector> SortedDefenseSectorList = SortSectorsByDistance(Target.Sector, DefenseSectorList);
 		for (DefenseSector& Sector : SortedDefenseSectorList)
 		{
+#ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
+				FLOGV("check attack from %s to %s : ArmyValue=%lld, EnemyArmyValue=%lld",
+					*Sector.Sector->GetSectorName().ToString(),
+					*Target.Sector->GetSectorName().ToString(),
+					 Sector.ArmyValue, Target.EnemyArmyValue);
+#endif
+
 			// Check if the army is strong enough
 			if (Sector.ArmyValue < Target.EnemyArmyValue * Behavior->GetAttackThreshold())
 			{
