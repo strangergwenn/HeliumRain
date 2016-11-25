@@ -30,7 +30,7 @@ public:
 	void TickPilot(float DeltaSeconds);
 
 	/** Indicate the direction the player is aiming */
-	void PlayerSetAim(FVector AimDirection);
+	void PlayerSetAim(FVector AimDirection, float AimDistance);
 
 	/** Fire the turret if ready */
 	void PlayerStartFire();
@@ -83,6 +83,7 @@ protected:
 	bool                                 WantFire;
 	FVector                              AimAxis;
 	FVector                              ManualAimDirection;
+	float                                ManualAimDistance;
 	
 	// Pilot brain TODO save in save
 	float                                TargetSelectionReactionTime;
@@ -103,6 +104,11 @@ public:
 	inline AFlareSpacecraft* GetTargetShip()
 	{
 		return PilotTargetShip;
+	}
+
+	float GetFireDistance() const
+	{
+		return ManualAimDistance;
 	}
 
 };

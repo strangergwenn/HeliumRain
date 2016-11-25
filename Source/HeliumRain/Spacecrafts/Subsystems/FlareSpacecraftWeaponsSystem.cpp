@@ -70,9 +70,47 @@ void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 			{
 				for (int32 i = 0; i < ActiveWeaponGroup->Weapons.Num(); i++)
 				{
-					UFlareTurretPilot* Pilot = Cast<UFlareTurret>(ActiveWeaponGroup->Weapons[i])->GetTurretPilot();
-					FVector AimDirection = Spacecraft->GetCamera()->GetComponentRotation().Vector(); // TODO #558 : rotating camera
-					Pilot->PlayerSetAim(AimDirection);
+					UFlareTurret* Turret = Cast<UFlareTurret>(ActiveWeaponGroup->Weapons[i]);
+					UFlareTurretPilot* Pilot = Turret->GetTurretPilot();
+					FVector CameraLocation = Spacecraft->GetCamera()->GetComponentLocation();
+					FVector CameraAimDirection = Spacecraft->GetCamera()->GetComponentRotation().Vector();
+
+					FVector AimDirection;
+					float AimDistance;
+
+					if(Spacecraft->GetCurrentTarget())
+					{
+
+						FVector AmmoIntersectionLocation;
+						float AmmoVelocity = Turret->GetAmmoVelocity();
+						float InterceptTime = Spacecraft->GetCurrentTarget()->GetAimPosition(Spacecraft, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
+
+						FVector MuzzleLocation = Turret->GetMuzzleLocation(0);
+
+						FVector TargetOffset = AmmoIntersectionLocation - MuzzleLocation;
+						FVector CameraOffset = CameraLocation - MuzzleLocation;
+
+						float InterceptDistance = TargetOffset.Size();
+						float CameraOffsetSize = CameraOffset.Size();
+						float Cos = FVector::DotProduct(TargetOffset.GetUnsafeNormal(), CameraOffset.GetUnsafeNormal());
+
+						// Law of cosines c^2 = a^2 + b^2 - 2 ab cos alpha
+						float CameraDistance = FMath::Sqrt(CameraOffsetSize*CameraOffsetSize // a^2
+														   + InterceptDistance*InterceptDistance
+														   - CameraOffsetSize*InterceptDistance*Cos); // b^2
+
+						FVector AimLocation = CameraLocation + CameraAimDirection * CameraDistance;
+
+						AimDirection = (AimLocation - MuzzleLocation).GetUnsafeNormal();
+						AimDistance = InterceptDistance;
+					}
+					else
+					{
+						AimDirection = CameraAimDirection;
+						AimDistance = 100000;
+					}
+
+					Pilot->PlayerSetAim(AimDirection, AimDistance);
 
 					if (WantFire)
 					{

@@ -1010,7 +1010,7 @@ void AFlareHUD::DrawHUDInternal()
 		for (auto Weapon : PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons)
 		{
 			UFlareTurret* Turret = Cast<UFlareTurret>(Weapon);
-			FVector EndPoint = Turret->GetTurretBaseLocation() + Turret->GetFireAxis() * 1000000;
+			FVector EndPoint = Turret->GetTurretBaseLocation() + Turret->GetFireAxis() * Turret->GetTurretPilot()->GetFireDistance();
 			FVector2D ScreenPosition;
 
 			if (ProjectWorldLocationToCockpit(EndPoint, ScreenPosition))

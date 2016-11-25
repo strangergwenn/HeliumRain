@@ -54,9 +54,10 @@ void UFlareTurretPilot::Initialize(const FFlareTurretPilotSave* Data, UFlareComp
 	}
 }
 
-void UFlareTurretPilot::PlayerSetAim(FVector AimDirection)
+void UFlareTurretPilot::PlayerSetAim(FVector AimDirection, float AimDistance)
 {
 	ManualAimDirection = AimDirection;
+	ManualAimDistance = AimDistance;
 }
 
 void UFlareTurretPilot::PlayerStartFire()
