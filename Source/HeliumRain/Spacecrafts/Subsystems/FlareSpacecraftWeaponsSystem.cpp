@@ -107,7 +107,7 @@ void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 					else
 					{
 						AimDirection = CameraAimDirection;
-						AimDistance = 100000;
+						AimDistance = 10000000;
 					}
 
 					Pilot->PlayerSetAim(AimDirection, AimDistance);

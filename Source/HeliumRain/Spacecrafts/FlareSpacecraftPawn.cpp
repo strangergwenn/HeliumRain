@@ -89,7 +89,8 @@ void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 				float Angle = FMath::RadiansToDegrees((FMath::Acos(FVector::DotProduct(ImmersiveTargetRotation.GetForwardVector(), CandidateCameraMainDirection))));
 
 				// Select camera if it's good
-				if (!FlirCameraFound || Angle < BestAngle)
+				//if (!FlirCameraFound || Angle < BestAngle)
+				if (!FlirCameraFound)
 				{
 					BestAngle = Angle;
 					BestCameraLocation = CameraLocation;
@@ -122,6 +123,8 @@ void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 
 			CameraContainerPitch->SetRelativeRotation(FRotator(0, 0, 0).GetNormalized());
 			CameraContainerYaw->SetRelativeRotation(FRotator(0, 0, 0).GetNormalized());
+
+			BestCameraLocation = GetRootComponent()->GetSocketLocation(FName("Camera"));
 			Camera->SetWorldLocationAndRotation(BestCameraLocation, ImmersiveTargetRotation);
 		}
 	}
@@ -154,13 +157,37 @@ void AFlareSpacecraftPawn::SetCameraDistance(float Value)
 
 void AFlareSpacecraftPawn::ConfigureImmersiveCamera(FQuat TargetRotation)
 {
-	UseImmersiveCamera = true;
+	if(!UseImmersiveCamera)
+	{
+		UseImmersiveCamera = true;
+		SetPhysicalVisibility(false);
+	}
 	ImmersiveTargetRotation = TargetRotation;
 }
 
 void AFlareSpacecraftPawn::DisableImmersiveCamera()
 {
-	UseImmersiveCamera = false;
+	if(UseImmersiveCamera)
+	{
+		UseImmersiveCamera = false;
+		SetPhysicalVisibility(true);
+	}
+}
+
+void AFlareSpacecraftPawn::SetPhysicalVisibility(bool Visibility)
+{
+	// Find all components
+	TArray<UActorComponent*> ActorComponents;
+	GetComponents(ActorComponents);
+
+	for (TArray<UActorComponent*>::TIterator ComponentIt(ActorComponents); ComponentIt; ++ComponentIt)
+	{
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(*ComponentIt);
+		if (Component)
+		{
+			Component->SetVisibility(Visibility);
+		}
+	}
 }
 
 /*----------------------------------------------------

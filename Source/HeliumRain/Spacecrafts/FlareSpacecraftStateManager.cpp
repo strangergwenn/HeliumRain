@@ -231,6 +231,12 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		}
 	}
 
+	if (!Spacecraft->IsFlownByPlayer())
+	{
+		Spacecraft->DisableImmersiveCamera();
+		return;
+	}
+
 	if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
 	{
 		float YawRotation = FireDirectorAngularVelocity.Z * DeltaSeconds;

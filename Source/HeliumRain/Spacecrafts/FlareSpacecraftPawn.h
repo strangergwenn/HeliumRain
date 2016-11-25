@@ -61,6 +61,8 @@ public:
 
 	void DisableImmersiveCamera();
 
+	void SetPhysicalVisibility(bool Visibility);
+
 	/*----------------------------------------------------
 		Customization
 	----------------------------------------------------*/
