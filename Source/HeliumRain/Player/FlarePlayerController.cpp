@@ -287,6 +287,11 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		SCOPE_CYCLE_COUNTER(STAT_FlarePlayerTick_Sound);
 		SoundManager->Update(DeltaSeconds);
 	}
+
+	if (ShipPawn && GetPlayerShip()->GetCurrentSector())
+	{
+		CheckSectorStateChanges(GetPlayerShip()->GetCurrentSector());
+	}
 }
 
 float AFlarePlayerController::GetCurrentFOV()
@@ -592,6 +597,7 @@ void AFlarePlayerController::Clean()
 	TimeSinceWeaponSwitch = 0;
 
 	LastBattleState.Init();
+	LastSectorBattleStates.Empty();
 	RecoveryActive = false;
 
 	MenuManager->FlushNotifications();
@@ -866,6 +872,91 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 void AFlarePlayerController::ActivateRecovery()
 {
 	RecoveryActive = true;
+}
+
+void AFlarePlayerController::CheckSectorStateChanges(UFlareSimulatedSector* Sector)
+{
+	FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(GetCompany());
+	FText BattleStateText = Sector->GetSectorBattleStateText(GetCompany());
+
+
+	FFlareSectorBattleState LastSectorBattleState;
+	LastSectorBattleState.Init();
+	if (LastSectorBattleStates.Contains(Sector))
+	{
+		LastSectorBattleState = LastSectorBattleStates[Sector];
+	}
+
+	// Ignore same states
+	if (LastSectorBattleState == BattleState)
+	{
+		return;
+	}
+
+	// Fight in progress with player fleet
+	else if (BattleState.HasDanger && Sector == GetPlayerShip()->GetCurrentSector())
+	{
+		FString NotificationIdStr;
+		NotificationIdStr += "battle-state-fight-";
+		NotificationIdStr += Sector->GetIdentifier().ToString();
+		FName NotificationId(*NotificationIdStr);
+
+		if(BattleState.InFight)
+		{
+			BattleStateText = FText::Format(LOCTEXT("BattleStateFightFormat", "Your personal fleet is engaged in battle in {0} !"),
+											Sector->GetSectorName());
+		}
+		else if(BattleState.BattleWon)
+		{
+			BattleStateText = FText::Format(LOCTEXT("BattleStateWonFormat", "Your personal fleet won a battle in {0} !"),
+											Sector->GetSectorName());
+		}
+		else
+		{
+			BattleStateText = FText::Format(LOCTEXT("BattleStateWonFormat", "Your personal fleet lost a battle in {0} !"),
+											Sector->GetSectorName());
+		}
+
+		FFlareMenuParameterData Data;
+		Data.Sector = Sector;
+		Notify(LOCTEXT("BattleStateFight", "Battle"),
+			BattleStateText,
+			NotificationId,
+			EFlareNotification::NT_Military,
+			false,
+			EFlareMenu::MENU_Sector,
+			Data);
+	}
+
+	// Battle in progress and ignore victory states that are boring for the player
+	else if (BattleState.HasDanger && BattleState.InBattle && !(BattleState.BattleWon || BattleState.ActiveFightWon))
+	{
+		FString NotificationIdStr;
+		NotificationIdStr += "battle-state-in-progress-";
+		NotificationIdStr += Sector->GetIdentifier().ToString();
+		FName NotificationId(*NotificationIdStr);
+
+		FFlareMenuParameterData Data;
+		Data.Sector = Sector;
+		Notify(LOCTEXT("BattleStateInProgress", "Battle"),
+			FText::Format(LOCTEXT("BattleStateInProgressFormat", "{0} in {1}"),
+				BattleStateText,
+				Sector->GetSectorName()),
+			NotificationId,
+			EFlareNotification::NT_Military,
+			false,
+			EFlareMenu::MENU_Sector,
+			Data);
+	}
+
+	if (LastSectorBattleStates.Contains(Sector))
+	{
+		LastSectorBattleStates[Sector] = BattleState;
+	}
+	else
+	{
+		LastSectorBattleStates.Add(Sector, BattleState);
+	}
 }
 
 bool AFlarePlayerController::IsInMenu()

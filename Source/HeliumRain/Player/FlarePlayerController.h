@@ -61,6 +61,7 @@ public:
 	/** Get a recovery ship */
 	void ActivateRecovery();
 
+	void CheckSectorStateChanges(UFlareSimulatedSector* Sector);
 
 	/*----------------------------------------------------
 		Data management
@@ -399,6 +400,7 @@ protected:
 	float                                    NormalFOV;
 	FFlareSectorBattleState                  LastBattleState;
 	bool									 RecoveryActive;
+	TMap<UFlareSimulatedSector*, FFlareSectorBattleState> LastSectorBattleStates;
 
 public:
 
