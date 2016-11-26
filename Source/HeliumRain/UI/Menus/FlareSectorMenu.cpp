@@ -926,33 +926,43 @@ void SFlareSectorMenu::OnTravelHereClicked()
 		{
 			FText TitleText;
 			FText ConfirmText;
-			if(Escape)
+
+			FText SingleShip = LOCTEXT("ShipIsSingle", "ship is");
+			FText MultipleShips = LOCTEXT("ShipArePlural", "ships are");
+			FText TooDamagedTravelText = LOCTEXT("TooDamagedToTravel", "too damaged to travel and will be left behind");
+
+			// We can escape
+			if (Escape)
 			{
 				TitleText = LOCTEXT("ConfirmTravelEscapeTitle", "ESCAPE ?");
+				FText EscapeWarningText = LOCTEXT("ConfirmTravelEscapeWarningText", "Ships can be intercepted while escaping, are you sure ?");
+
 				if (Abandon)
 				{
-					FText ShipText = LOCTEXT("ConfirmEscapeTravelSingular", "Some ships could be intercepted during the escape attempt. Also, {0} ship is too damaged to travel. Do you really want to leave it in this sector ?");
-					FText ShipsText = LOCTEXT("ConfirmEscapeTravelPlural", "Some ships could be intercepted during the escape attempt. Also, {0} ships are too damaged to travel. Do you really want to leave them in this sector ?");
-
-					ConfirmText = FText::Format(SelectedFleet->GetImmobilizedShipCount() != 1 ? ShipsText : ShipText,
-													  FText::AsNumber(SelectedFleet->GetImmobilizedShipCount()));
+					ConfirmText = FText::Format(LOCTEXT("ConfirmTravelEscapeFormat", "{0} {1} {2} {3}."),
+						EscapeWarningText,
+						FText::AsNumber(SelectedFleet->GetImmobilizedShipCount()),
+						(SelectedFleet->GetImmobilizedShipCount() > 1) ? MultipleShips : SingleShip,
+						TooDamagedTravelText);
 				}
 				else
 				{
-					ConfirmText = LOCTEXT("ConfirmEscapeTravel", "Some ships could be intercepted during the escape attempt. Do you really want to leave them in this sector ?");
+					ConfirmText = EscapeWarningText;
 				}
 			}
+
+			// We have to abandon
 			else
 			{
-				TitleText = LOCTEXT("ConfirmTravelAbadonTitle", "ABANDON SHIPS ?");
+				TitleText = LOCTEXT("ConfirmTravelAbandonTitle", "ABANDON SHIPS ?");
 
-				FText ShipText = LOCTEXT("ConfirmTravelSingular", "{0} ship is too damaged to travel. Do you really want to leave it in this sector ?");
-				FText ShipsText = LOCTEXT("ConfirmTravelPlural", "{0} ships are too damaged to travel. Do you really want to leave them in this sector ?");
-
-				ConfirmText = FText::Format(SelectedFleet->GetImmobilizedShipCount() != 1 ? ShipsText : ShipText,
-												  FText::AsNumber(SelectedFleet->GetImmobilizedShipCount()));
+				ConfirmText = FText::Format(LOCTEXT("ConfirmTravelAbandonFormat", "{0} {1} {2}."),
+					FText::AsNumber(SelectedFleet->GetImmobilizedShipCount()),
+					(SelectedFleet->GetImmobilizedShipCount() > 1) ? MultipleShips : SingleShip,
+					TooDamagedTravelText);
 			}
 
+			// Open the confirmation
 			MenuManager->Confirm(TitleText,
 								 ConfirmText,
 								 FSimpleDelegate::CreateSP(this, &SFlareSectorMenu::OnStartTravelConfirmed, SelectedFleet));

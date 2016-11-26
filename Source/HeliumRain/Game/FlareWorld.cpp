@@ -1038,11 +1038,16 @@ UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimul
 
 			if (InterceptedShips > 0)
 			{
+				FText SingleShip = LOCTEXT("ShipSingle", "ship");
+				FText MultipleShips = LOCTEXT("ShipPlural", "ships");
+				FText ShipText = (InterceptedShips > 1) ? MultipleShips : SingleShip;
+
 				FFlareMenuParameterData Data;
 				Data.Sector = OriginSector;
 				GetGame()->GetPC()->Notify(LOCTEXT("ShipsIntercepted", "Ships intercepted"),
-					FText::Format(LOCTEXT("ShipCapturedFormat", "{0} ships have been intercepted trying to escape from {1}."),
+					FText::Format(LOCTEXT("ShipCapturedFormat", "{0} {1} have been intercepted trying to escape from {2}."),
 								  FText::AsNumber(InterceptedShips),
+					              ShipText,
 								  FText::FromString(OriginSector->GetSectorName().ToString())),
 					FName("ships-intersepted"),
 					EFlareNotification::NT_Military,
