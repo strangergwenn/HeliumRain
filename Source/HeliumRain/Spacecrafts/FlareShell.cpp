@@ -284,9 +284,9 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 		}
 		else
 		{
+			AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(HitResult.Actor.Get());
 			if (ShellDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
 			{
-				AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(HitResult.Actor.Get());
 				AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(HitResult.Actor.Get());
 				if (Spacecraft)
 				{
@@ -307,17 +307,20 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 			}
 
 			// Spawn penetration effect
-			UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
-				ExplosionEffectTemplate,
-				HitResult.GetComponent(),
-				NAME_None,
-				HitResult.Location,
-				HitResult.ImpactNormal.Rotation(),
-				EAttachLocation::KeepWorldPosition,
-				true);
-			if (PSC)
+			if(!(Spacecraft && Spacecraft->IsInImmersiveMode()))
 			{
-				PSC->SetWorldScale3D(FVector(1, 1, 1));
+				UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
+					ExplosionEffectTemplate,
+					HitResult.GetComponent(),
+					NAME_None,
+					HitResult.Location,
+					HitResult.ImpactNormal.Rotation(),
+					EAttachLocation::KeepWorldPosition,
+					true);
+				if (PSC)
+				{
+					PSC->SetWorldScale3D(FVector(1, 1, 1));
+				}
 			}
 
 			// Spawn hull damage effect
@@ -545,7 +548,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	}
 
 	// Apply FX
-	if (HitComponent)
+	if (HitComponent && !(Spacecraft && Spacecraft->IsInImmersiveMode()))
 	{
 		UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
 			ImpactEffectTemplate,

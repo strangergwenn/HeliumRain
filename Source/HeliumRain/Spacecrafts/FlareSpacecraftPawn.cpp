@@ -65,68 +65,9 @@ void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 	}
 	else
 	{
-		bool FlirCameraFound = false;
-
-		// New data
-		FVector BestCameraLocation;
-		FName BestCameraName;
-		float BestAngle = 0;
-
-		// Previous data
-		FVector PreviousCameraLocation;
-		float PreviousAngle = 180;
-		
-		// Find the best FLIR camera on the ship if any
-		TArray<FName> SocketNames = GetRootComponent()->GetAllSocketNames();
-		for (int32 SocketIndex = 0; SocketIndex < SocketNames.Num(); SocketIndex++)
-		{
-			if (SocketNames[SocketIndex].ToString().StartsWith("FLIR"))
-			{
-				// Compute data
-				FTransform CameraWorldTransform = GetRootComponent()->GetSocketTransform(SocketNames[SocketIndex]);
-				FVector CameraLocation = CameraWorldTransform.GetTranslation();
-				FVector CandidateCameraMainDirection = CameraWorldTransform.GetRotation().RotateVector(FVector(1, 0, 0));
-				float Angle = FMath::RadiansToDegrees((FMath::Acos(FVector::DotProduct(ImmersiveTargetRotation.GetForwardVector(), CandidateCameraMainDirection))));
-
-				// Select camera if it's good
-				//if (!FlirCameraFound || Angle < BestAngle)
-				if (!FlirCameraFound)
-				{
-					BestAngle = Angle;
-					BestCameraLocation = CameraLocation;
-					FlirCameraFound = true;
-					BestCameraName = SocketNames[SocketIndex];
-				}
-
-				// Store data separately for previous camera
-				if (SocketNames[SocketIndex] == PreviousCameraName)
-				{
-					PreviousAngle = Angle;
-					PreviousCameraLocation = CameraLocation;
-				}
-			}
-		}
-
-		// Update the FLIR camera
-		if (FlirCameraFound)
-		{
-			// Was the previous one not good enough ?
-			if (PreviousCameraName != NAME_None && FMath::Abs(PreviousAngle - BestAngle) < 10)
-			{
-				CurrentCameraName = PreviousCameraName;
-				BestCameraLocation = PreviousCameraLocation;
-			}
-			else
-			{
-				CurrentCameraName = BestCameraName;
-			}
-
-			CameraContainerPitch->SetRelativeRotation(FRotator(0, 0, 0).GetNormalized());
-			CameraContainerYaw->SetRelativeRotation(FRotator(0, 0, 0).GetNormalized());
-
-			BestCameraLocation = GetRootComponent()->GetSocketLocation(FName("Camera"));
-			Camera->SetWorldLocationAndRotation(BestCameraLocation, ImmersiveTargetRotation);
-		}
+		CurrentCameraName = FName("Camera");
+		FVector CameraLocation = GetRootComponent()->GetSocketLocation(CurrentCameraName);
+		Camera->SetWorldLocationAndRotation(CameraLocation, ImmersiveTargetRotation);
 	}
 }
 
@@ -160,8 +101,8 @@ void AFlareSpacecraftPawn::ConfigureImmersiveCamera(FQuat TargetRotation)
 	if(!UseImmersiveCamera)
 	{
 		UseImmersiveCamera = true;
-		SetPhysicalVisibility(false);
 	}
+	SetPhysicalVisibility(false);
 	ImmersiveTargetRotation = TargetRotation;
 }
 
@@ -186,6 +127,14 @@ void AFlareSpacecraftPawn::SetPhysicalVisibility(bool Visibility)
 		if (Component)
 		{
 			Component->SetVisibility(Visibility);
+			continue;
+		}
+
+		UParticleSystemComponent* PSComponent = Cast<UParticleSystemComponent>(*ComponentIt);
+		if (PSComponent)
+		{
+			PSComponent->SetVisibility(Visibility);
+			continue;
 		}
 	}
 }

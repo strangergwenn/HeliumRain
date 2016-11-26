@@ -215,6 +215,11 @@ public:
 		return CameraMaxYaw;
 	}
 
+	inline bool IsInImmersiveMode() const
+	{
+		return UseImmersiveCamera;
+	}
+
 	inline bool HasFLIRCameraChanged() const
 	{
 		return (PreviousCameraName != CurrentCameraName);
