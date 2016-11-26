@@ -388,6 +388,9 @@ void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 	GetRepairFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, TotalNeededFleetSupply);
 	GetAvailableFleetSupplyCount(Sector, Company, OwnedFS, AvailableFS, AffordableFS);
 
+	// Note not available fleet supply as consumed
+	Sector->GetGame()->GetGameWorld()->OnFleetSupplyConsumed(FMath::Max(0, CurrentNeededFleetSupply - AvailableFS));
+
 	if(Sector->IsInDangerousBattle(Company) || AffordableFS == 0 || CurrentNeededFleetSupply == 0)
 	{
 		// No repair possible
@@ -447,6 +450,9 @@ void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 
 	GetRefillFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, TotalNeededFleetSupply);
 	GetAvailableFleetSupplyCount(Sector, Company, OwnedFS, AvailableFS, AffordableFS);
+
+	// Note not available fleet supply as consumed
+	Sector->GetGame()->GetGameWorld()->OnFleetSupplyConsumed(FMath::Max(0, CurrentNeededFleetSupply - AvailableFS));
 
 	if(Sector->IsInDangerousBattle(Company) || AffordableFS == 0 || CurrentNeededFleetSupply == 0)
 	{
