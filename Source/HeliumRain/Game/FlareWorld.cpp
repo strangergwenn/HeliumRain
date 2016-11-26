@@ -1036,7 +1036,7 @@ UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimul
 		{
 			int32 InterceptedShips = TravelingFleet->InterceptShips();
 
-			if (InterceptedShips > 0)
+			if (TravelingFleet->GetFleetCompany() == Game->GetPC()->GetCompany() && InterceptedShips > 0)
 			{
 				FText SingleShip = LOCTEXT("ShipSingle", "ship");
 				FText MultipleShips = LOCTEXT("ShipPlural", "ships");
