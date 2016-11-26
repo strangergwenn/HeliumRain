@@ -132,7 +132,8 @@ public:
 
 
 	void ResetLastPeaceDate();
-	void ResetLastWarDate();
+	void SetLastWarDate();
+	void ClearLastWarDate();
 	void ResetLastTributeDate();
 
 	/** Set whether this company is hostile to an other company */

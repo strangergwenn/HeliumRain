@@ -238,7 +238,12 @@ EFlareHostility::Type UFlareCompany::GetWarState(const UFlareCompany* TargetComp
 	return GetHostility(TargetCompany);
 }
 
-void UFlareCompany::ResetLastWarDate()
+void UFlareCompany::ClearLastWarDate()
+{
+	CompanyData.PlayerLastWarDate = 0;
+}
+
+void UFlareCompany::SetLastWarDate()
 {
 	CompanyData.PlayerLastWarDate = Game->GetGameWorld()->GetDate();
 }
@@ -296,7 +301,7 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 					PlayerCompany->GiveReputationToOthers(PenaltyRatio * -30, false);
 				}
 
-				TargetCompany->ResetLastWarDate();
+				TargetCompany->SetLastWarDate();
 			}
 		}
 		else if(!Hostile && WasHostile)
@@ -334,6 +339,8 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 						EFlareMenu::MENU_Leaderboard,
 						Data);
 				}
+
+				ClearLastWarDate();
 			}
 		}
 	}
