@@ -194,6 +194,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 	if (Idle)
 	{
+		PilotTargetShip = NULL;
 		WantFire = false;
 		IdlePilot(DeltaSeconds);
 	}
@@ -210,17 +211,17 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 	TimeSinceLastDockingAttempt += DeltaSeconds;
 
-	PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::S);
-	if (!PilotTargetShip)
+	AFlareSpacecraft* PilotAvoidShip = GetNearestHostileShip(true, EFlarePartSize::S);
+	if (!PilotAvoidShip)
 	{
-		PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::L);
+		PilotAvoidShip = GetNearestHostileShip(true, EFlarePartSize::L);
 	}
 
 	// If enemy near, run away !
-	if (PilotTargetShip)
+	if (PilotAvoidShip)
 	{
 
-		FVector DeltaLocation = (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
+		FVector DeltaLocation = (PilotAvoidShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
 		float Distance = DeltaLocation.Size(); // Distance in meters
 
 		// There is at least one hostile enemy
@@ -240,12 +241,12 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		}
 		else
 		{
-			PilotTargetShip = NULL;
+			PilotAvoidShip = NULL;
 		}
 
 	}
 
-	if (PilotTargetShip)
+	if (PilotAvoidShip)
 	{
 		// Already done
 	}
@@ -850,16 +851,16 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 	//UseOrbitalBoost = false;
 
 	// If there is ennemy fly away
-	PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::S);
-	if (!PilotTargetShip)
+	AFlareSpacecraft* PilotAvoidShip = GetNearestHostileShip(true, EFlarePartSize::S);
+	if (!PilotAvoidShip)
 	{
-		PilotTargetShip = GetNearestHostileShip(true, EFlarePartSize::L);
+		PilotAvoidShip = GetNearestHostileShip(true, EFlarePartSize::L);
 	}
 
 	// If enemy near, run away !
-	if (PilotTargetShip)
+	if (PilotAvoidShip)
 	{
-		FVector DeltaLocation = (PilotTargetShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
+		FVector DeltaLocation = (PilotAvoidShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
 		float Distance = DeltaLocation.Size(); // Distance in meters
 
 		// There is at least one hostile enemy
