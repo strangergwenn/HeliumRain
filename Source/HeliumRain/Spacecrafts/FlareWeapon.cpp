@@ -159,6 +159,43 @@ void UFlareWeapon::SetTarget(FVector NewTargetLocation, FVector NewTargetVelocit
 	TargetVelocity = NewTargetVelocity;
 }
 
+FVector UFlareWeapon::ComputeParallaxCorrection(int GunIndex)
+{
+	if(Spacecraft->GetCurrentTarget() && !IsTurret())
+	{
+		FVector CameraLocation = Spacecraft->GetCamera()->GetComponentLocation();
+		FVector CameraAimDirection = Spacecraft->GetCamera()->GetComponentRotation().Vector();
+
+		FVector AmmoIntersectionLocation;
+
+		float InterceptTime = Spacecraft->GetCurrentTarget()->GetAimPosition(Spacecraft, GetAmmoVelocity(), 0.0, &AmmoIntersectionLocation);
+
+		FVector MuzzleLocation = GetMuzzleLocation(GunIndex);
+
+		FVector TargetOffset = AmmoIntersectionLocation - MuzzleLocation;
+		FVector CameraOffset = CameraLocation - MuzzleLocation;
+
+		float InterceptDistance = TargetOffset.Size();
+		float CameraOffsetSize = CameraOffset.Size();
+		float Cos = FVector::DotProduct(TargetOffset.GetUnsafeNormal(), CameraOffset.GetUnsafeNormal());
+
+		// Law of cosines c^2 = a^2 + b^2 - 2 ab cos alpha
+		float CameraDistance = FMath::Sqrt(CameraOffsetSize*CameraOffsetSize // a^2
+										   + InterceptDistance*InterceptDistance
+										   - CameraOffsetSize*InterceptDistance*Cos); // b^2
+
+		FVector AimLocation = CameraLocation + CameraAimDirection * CameraDistance;
+
+		FVector AimDirection = (AimLocation - MuzzleLocation).GetUnsafeNormal();
+		return AimDirection;
+		//AimDistance = InterceptDistance;
+	}
+	else
+	{
+		return GetFireAxis();
+	}
+}
+
 bool UFlareWeapon::FireGun(int GunIndex)
 {
 	SCOPE_CYCLE_COUNTER(STAT_Weapon_FireGun);
@@ -174,7 +211,9 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	// Get firing data
 	FVector FiringLocation = GetMuzzleLocation(GunIndex);
 	float Imprecision  = FMath::DegreesToRadians(ComponentDescription->WeaponCharacteristics.GunCharacteristics.AmmoPrecision  + 3.f *(1 - GetUsableRatio()));
-	FVector FiringDirection = FMath::VRandCone(GetFireAxis(), Imprecision);
+
+	FVector FiringAxis = ComputeParallaxCorrection(GunIndex);
+	FVector FiringDirection = FMath::VRandCone(FiringAxis, Imprecision);
 	FVector FiringVelocity = GetPhysicsLinearVelocity();
 
 	// Create a shell

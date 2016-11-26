@@ -1124,6 +1124,7 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 			}
 
 			PilotTargetShip = TargetCandidate;
+			Ship->SetCurrentTarget(PilotTargetShip);
 			LastPilotTargetShip = TargetCandidate;
 
 			NewTarget = true;

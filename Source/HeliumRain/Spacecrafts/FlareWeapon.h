@@ -70,6 +70,8 @@ public:
 	/** Set the target data */
 	virtual void SetTarget(FVector TargetLocation, FVector TargetVelocity);
 
+	FVector ComputeParallaxCorrection(int GunIndex);
+
 	virtual void OnAttachmentChanged() override;
 
 	virtual void BeginDestroy() override;
@@ -114,6 +116,7 @@ protected:
 	UParticleSystemComponent*   FiringEffect;
 
 	// Target info
+	bool                        TargetDefined;
 	FVector                     TargetLocation;
 	FVector                     TargetVelocity;
 

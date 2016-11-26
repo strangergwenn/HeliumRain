@@ -124,6 +124,11 @@ public:
 	
 	UFlareSimulatedSector* GetOwnerSector();
 	
+	void SetCurrentTarget(AFlareSpacecraft* Target)
+	{
+		CurrentTarget = Target;
+	}
+
 public:
 
 	/*----------------------------------------------------
