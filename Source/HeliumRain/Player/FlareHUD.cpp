@@ -1313,10 +1313,13 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 					}
 				}
 			}
-
-			// Tell the HUD to draw the search marker only if we are outside this
-			return !IsInScreen(ScreenPosition);
 		}
+	}
+
+	if(ScreenPositionValid)
+	{
+		// Tell the HUD to draw the search marker only if we are outside this
+		return !IsInScreen(ScreenPosition);
 	}
 
 	// Dead ship
