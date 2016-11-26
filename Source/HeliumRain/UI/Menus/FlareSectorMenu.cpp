@@ -790,7 +790,7 @@ FText SFlareSectorMenu::GetSectorName() const
 	FText Result;
 	if (IsEnabled() && TargetSector)
 	{
-		if (MenuManager->GetPC()->GetPlayerFleet() && MenuManager->GetPC()->GetPlayerFleet()->IsTraveling())
+		if (MenuManager->GetPC()->GetPlayerFleet() && MenuManager->GetPC()->GetPlayerFleet()->IsTraveling() && TargetSector == MenuManager->GetPC()->GetPlayerFleet()->GetCurrentSector())
 		{
 			Result = MenuManager->GetPC()->GetPlayerFleet()->GetStatusInfo();
 		}
