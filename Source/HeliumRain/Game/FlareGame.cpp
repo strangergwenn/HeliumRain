@@ -564,6 +564,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	// Player company
 	FFlarePlayerSave PlayerData;
 	UFlareCompany* PlayerCompany = CreateCompany(-1);
+	PlayerCompany->GiveShame(-0.1);
 	PlayerData.CompanyIdentifier = PlayerCompany->GetIdentifier();
 	PlayerData.UUID = FName(*FGuid::NewGuid().ToString());
 	PlayerData.ScenarioId = ScenarioIndex;
@@ -628,7 +629,7 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	CompanyData.PlayerLastPeaceDate = 0;
 	CompanyData.PlayerLastTributeDate = 0;
 	CompanyData.PlayerLastWarDate = 0;
-	CompanyData.Shame = -0.1;
+	CompanyData.Shame = 0.0;
 	CompanyData.AI.ConstructionProjectNeedCapacity = 0;
 	CompanyData.AI.ConstructionProjectSectorIdentifier = NAME_None;
 	CompanyData.AI.ConstructionProjectStationDescriptionIdentifier = NAME_None;

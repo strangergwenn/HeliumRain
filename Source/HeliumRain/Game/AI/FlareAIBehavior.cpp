@@ -32,29 +32,44 @@ void UFlareAIBehavior::Load(UFlareCompany* ParentCompany)
 	}
 }
 
+inline static bool CompanyValueComparator(const UFlareCompany& ip1, const UFlareCompany& ip2)
+{
+	return ip1.GetCompanyValue().TotalValue < ip2.GetCompanyValue().TotalValue;
+}
+
+
 void UFlareAIBehavior::Simulate()
 {
+	TArray<UFlareCompany*> SortedCompany = Game->GetGameWorld()->GetCompanies();
+	SortedCompany.Sort(&CompanyValueComparator);
+	int32 AICompanyIndex = SortedCompany.IndexOfByKey(Company);
+
 	// Reputation changes
-	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	for (int32 CompanyIndex = 0; CompanyIndex < SortedCompany.Num(); CompanyIndex++)
 	{
-		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+		UFlareCompany* OtherCompany = SortedCompany[CompanyIndex];
 
 		if (OtherCompany == Company)
 		{
 			continue;
 		}
 
+		int IndexDelta = FMath::Abs(CompanyIndex - AICompanyIndex);
+
+
 		int64 OtherCompanyValue = OtherCompany->GetCompanyValue().TotalValue;
 		int64 CompanyValue = Company->GetCompanyValue().TotalValue;
 		if(CompanyValue > OtherCompanyValue)
 		{
-			float ValueRatio = (float)OtherCompanyValue / (float)CompanyValue;
-			Company->GiveReputation(OtherCompany, 0.1 * (1 - ValueRatio), false);
+			// Like more the most distant opponent
+			float Intensity = IndexDelta * (1.f / SortedCompany.Num());
+			Company->GiveReputation(OtherCompany, Intensity, false);
 		}
 		else
 		{
-			float ValueRatio = (float)CompanyValue / (float)OtherCompanyValue;
-			Company->GiveReputation(OtherCompany, - 0.1 * (1 - ValueRatio), false);
+			// Dislike more the closest opponent
+			float Intensity = -1.f / IndexDelta;
+			Company->GiveReputation(OtherCompany, Intensity, false);
 		}
 
 		if(Company == ST->Pirates && OtherCompany != ST->AxisSupplies)
@@ -215,7 +230,7 @@ void UFlareAIBehavior::GenerateAffilities()
 	RequestPeaceConfidence = -0.5;
 	PayTributeConfidence = -0.8;
 
-	AttackThreshold = 1.2;
+	AttackThreshold = 0.99;
 	RetreatThreshold = 0.5;
 	DefeatAdaptation = 0.01;
 

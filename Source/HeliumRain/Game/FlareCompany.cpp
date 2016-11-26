@@ -597,16 +597,16 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 {
 	FFlareCompanyReputationSave* CompanyReputation = NULL;
 
+	if (Amount == 0)
+	{
+		return;
+	}
+
 	//FLOGV("%s : change reputation for %s by %f", *GetCompanyName().ToString(), *Company->GetCompanyName().ToString(), Amount);
 
 	if (Company == this)
 	{
 		//FLOG("UFlareCompany::GiveReputation : A company doesn't have reputation for itself");
-		return;
-	}
-
-	if (Amount == 0)
-	{
 		return;
 	}
 
