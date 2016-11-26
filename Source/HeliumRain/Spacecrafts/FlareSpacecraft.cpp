@@ -248,9 +248,9 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			}
 
 			// Set a default target if there is current target
-			if (this == PlayerShip && !CurrentTarget && PC->GetNavHUD()->GetCurrentTargetsOwner() == GetImmatriculation())
+			if (this == PlayerShip && !CurrentTarget)
 			{
-				TArray<FFlareScreenTarget>& ScreenTargets = PC->GetNavHUD()->GetCurrentTargets();
+				TArray<FFlareScreenTarget>& ScreenTargets = GetCurrentTargets();
 				if (ScreenTargets.Num())
 				{
 					int32 ActualIndex = TargetIndex % ScreenTargets.Num();
@@ -267,6 +267,47 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 
 	// The FlareSpacecraftPawn do the camera effective update in its Tick so call it after camera order update
 	Super::Tick(DeltaSeconds);
+}
+
+inline static bool IsCloserToCenter(const FFlareScreenTarget& TargetA, const FFlareScreenTarget& TargetB)
+{
+	return (TargetA.DistanceFromScreenCenter < TargetB.DistanceFromScreenCenter);
+}
+
+TArray<FFlareScreenTarget>& AFlareSpacecraft::GetCurrentTargets()
+{
+	Targets.Empty();
+
+	FVector CameraLocation = GetCamera()->GetComponentLocation();
+	FVector CameraAimDirection = GetCamera()->GetComponentRotation().Vector();
+	CameraAimDirection.Normalize();
+
+
+	for (AFlareSpacecraft* Spacecraft: GetGame()->GetActiveSector()->GetSpacecrafts())
+	{
+		if(Spacecraft == this)
+		{
+			continue;
+		}
+
+		if(!Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+		{
+			continue;
+		}
+
+		FVector LocationOffset = Spacecraft->GetActorLocation() - CameraLocation;
+		FVector SpacecraftDirection = LocationOffset.GetUnsafeNormal();
+
+		float Dot = FVector::DotProduct(CameraAimDirection, SpacecraftDirection);
+		FFlareScreenTarget Target;
+		Target.Spacecraft = Spacecraft;
+		Target.DistanceFromScreenCenter = 1.f-Dot;
+
+		Targets.Add(Target);
+	}
+
+	Targets.Sort(&IsCloserToCenter);
+	return Targets;
 }
 
 void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
@@ -370,11 +411,6 @@ void AFlareSpacecraft::Destroyed()
 				{
 					//PC->GetShipPawn()->ResetCurrentTarget();
 				}
-			}
-
-			if (PC->GetNavHUD())
-			{
-				PC->GetNavHUD()->RemoveTarget(this);
 			}
 		}
 
@@ -1353,7 +1389,7 @@ void AFlareSpacecraft::PreviousWeapon()
 void AFlareSpacecraft::NextTarget()
 {
 	// Data
-	TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
+	TArray<FFlareScreenTarget>& ScreenTargets = GetCurrentTargets();
 	auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
 	{
 		return Candidate.Spacecraft == CurrentTarget;
@@ -1382,7 +1418,7 @@ void AFlareSpacecraft::NextTarget()
 void AFlareSpacecraft::PreviousTarget()
 {
 	// Data
-	TArray<FFlareScreenTarget>& ScreenTargets = GetPC()->GetNavHUD()->GetCurrentTargets();
+	TArray<FFlareScreenTarget>& ScreenTargets = GetCurrentTargets();
 	auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
 	{
 		return Candidate.Spacecraft == CurrentTarget;

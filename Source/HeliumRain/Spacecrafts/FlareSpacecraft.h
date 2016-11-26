@@ -12,6 +12,20 @@
 #include "FlareSpacecraft.generated.h"
 
 class UFlareShipPilot;
+class AFlareSpacecraft;
+
+/** Target info */
+USTRUCT()
+struct FFlareScreenTarget
+{
+	GENERATED_USTRUCT_BODY()
+
+	AFlareSpacecraft*      Spacecraft;
+
+	float                  DistanceFromScreenCenter;
+
+};
+
 
 /** Ship class */
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship))
@@ -301,6 +315,10 @@ protected:
 
 	// Max time between target selections before "prev" or "next" resets to center
 	float                                          MaxTimeBeforeSelectionReset;
+
+	TArray<FFlareScreenTarget> Targets;
+
+	TArray<FFlareScreenTarget>& GetCurrentTargets();
 
 
 public:

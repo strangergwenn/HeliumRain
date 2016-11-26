@@ -12,19 +12,6 @@ class SFlareMouseMenu;
 class UFlareWeapon;
 
 
-/** Target info */
-USTRUCT()
-struct FFlareScreenTarget
-{
-	GENERATED_USTRUCT_BODY()
-
-	AFlareSpacecraft*      Spacecraft;
-
-	float                  DistanceFromScreenCenter;
-
-};
-
-
 /** Navigation HUD */
 UCLASS()
 class HELIUMRAIN_API AFlareHUD : public AHUD
@@ -69,12 +56,6 @@ public:
 
 	/** Decide if the HUD is displayed or not */
 	void UpdateHUDVisibility();
-	
-	/** Reset target */
-	void RemoveTarget(AFlareSpacecraft* Target);
-
-	/** Reset all targets */
-	void RemoveAllTargets();
 
 	/** We just hit this spacecraft with a weapon */
 	void SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType);
@@ -233,11 +214,6 @@ protected:
 	FLinearColor                            HudColorEnemy;
 	FLinearColor                            HudColorObjective;
 	FLinearColor                            ShadowColor;
-	
-	// Spacecraft targets
-	UPROPERTY()
-	TArray<FFlareScreenTarget>              ScreenTargets;
-	FName									ScreenTargetsOwner;
 
 	// General data
 	bool                                    HUDVisible;
@@ -322,17 +298,6 @@ public:
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
-
-	/** Get the spacecrafts shown on screen */
-	inline TArray<FFlareScreenTarget>& GetCurrentTargets()
-	{
-		return ScreenTargets;
-	}
-
-	inline FName GetCurrentTargetsOwner()
-	{
-		return ScreenTargetsOwner;
-	}
 
 	const FVector2D& GetContextMenuLocation() const
 	{

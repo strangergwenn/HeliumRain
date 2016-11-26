@@ -459,12 +459,6 @@ void AFlarePlayerController::OnSectorDeactivated()
 		ShipPawn = NULL;
 	}
 
-	// Reset the HUD
-	if (GetNavHUD())
-	{
-		GetNavHUD()->RemoveAllTargets();
-	}
-
 	// Reset states
 	LastBattleState.Init();
 }

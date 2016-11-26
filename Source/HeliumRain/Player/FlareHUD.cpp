@@ -225,23 +225,6 @@ void AFlareHUD::UpdateHUDVisibility()
 	ContextMenu->SetVisibility(NewVisibility && !MenuManager->IsSwitchingMenu() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
-void AFlareHUD::RemoveTarget(AFlareSpacecraft* Spacecraft)
-{
-	for (int32 Index = 0; Index < ScreenTargets.Num(); Index++)
-	{
-		if (ScreenTargets[Index].Spacecraft == Spacecraft)
-		{
-			ScreenTargets.RemoveAt(Index);
-			return;
-		}
-	}
-}
-
-void AFlareHUD::RemoveAllTargets()
-{
-	ScreenTargets.Empty();
-}
-
 void AFlareHUD::SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType)
 {
 	PlayerHitSpacecraft = HitSpacecraft;
@@ -776,12 +759,6 @@ void AFlareHUD::UpdateContextMenu(AFlareSpacecraft* PlayerShip)
 					float Size = (ApparentAngle / PC->PlayerCameraManager->GetFOVAngle()) * CurrentViewportSize.X;
 					FVector2D ObjectSize = FMath::Min(0.66f * Size, 300.0f) * FVector2D(1, 1);
 
-					// Add to targets
-					FFlareScreenTarget TargetData;
-					TargetData.Spacecraft = Spacecraft;
-					TargetData.DistanceFromScreenCenter = (ScreenPosition - CurrentViewportSize / 2).Size();
-					ScreenTargets.Add(TargetData);
-
 					// Check if the mouse is there
 					int ToleranceRange = 3;
 					FVector2D MousePos = PC->GetMousePosition();
@@ -849,11 +826,6 @@ FLinearColor AFlareHUD::GetHealthColor(float Current)
 /*----------------------------------------------------
 	HUD drawing
 ----------------------------------------------------*/
-
-inline static bool IsCloserToCenter(const FFlareScreenTarget& TargetA, const FFlareScreenTarget& TargetB)
-{
-	return (TargetA.DistanceFromScreenCenter < TargetB.DistanceFromScreenCenter);
-}
 
 bool AFlareHUD::ShouldDrawHUD() const
 {
@@ -928,8 +900,6 @@ void AFlareHUD::DrawHUDInternal()
 	}
 
 	// Iterate on all 'other' ships to show designators, markings, etc
-	ScreenTargets.Empty();
-	ScreenTargetsOwner = PlayerShip->GetParent()->GetImmatriculation();
 	for (int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex ++)
 	{
 		AFlareSpacecraft* Spacecraft = ActiveSector->GetSpacecrafts()[SpacecraftIndex];
@@ -1097,9 +1067,6 @@ void AFlareHUD::DrawHUDInternal()
 			}
 		}
 	}
-
-	// Sort screen targets
-	ScreenTargets.Sort(&IsCloserToCenter);
 }
 
 void AFlareHUD::DrawDebugGrid(FLinearColor Color)
@@ -1219,12 +1186,6 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 		float Size = (ApparentAngle / PC->PlayerCameraManager->GetFOVAngle()) * CurrentViewportSize.X;
 		FVector2D ObjectSize = FMath::Min(0.66f * Size, 300.0f) * FVector2D(1, 1);
 
-		// Add to targets
-		FFlareScreenTarget TargetData;
-		TargetData.Spacecraft = Spacecraft;
-		TargetData.DistanceFromScreenCenter = (ScreenPosition - CurrentViewportSize / 2).Size();
-		ScreenTargets.Add(TargetData);
-		
 		// Draw the HUD designator
 		if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 		{
