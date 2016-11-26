@@ -640,7 +640,10 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	}
 
 	// Exit avoidance
-	if (!PilotTargetShip || !PilotTargetShip->GetParent()->GetDamageSystem()->IsUncontrollable())
+	if (!PilotTargetShip
+			||
+			(!PilotTargetShip->GetParent()->GetDamageSystem()->IsUncontrollable()
+			&& PilotTargetShip != Ship->GetGame()->GetPC()->GetShipPawn()))
 	{
 		LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.8);
 	}
@@ -1014,7 +1017,10 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 	AlignToTargetVelocityWithThrust(DeltaSeconds);
 
 	// Exit avoidance
-	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.5);
+	if(!PilotTargetShip || PilotTargetShip != Ship->GetGame()->GetPC()->GetShipPawn())
+	{
+		LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.5);
+	}
 
 
 	// Anticollision
