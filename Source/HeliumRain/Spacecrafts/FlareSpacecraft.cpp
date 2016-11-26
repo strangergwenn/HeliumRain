@@ -1584,12 +1584,12 @@ void AFlareSpacecraft::FindTarget()
 	TargetPreferences.MaxDistance = 2000000;
 	TargetPreferences.DistanceWeight = 0.5;
 	TargetPreferences.AttackTarget = this;
-	TargetPreferences.AttackTargetWeight = 1;
+	TargetPreferences.AttackTargetWeight = 10;
 	TargetPreferences.LastTarget = CurrentTarget;
 	TargetPreferences.LastTargetWeight = -10; // Avoid current target
 	TargetPreferences.PreferredDirection = GetFrontVector();
 	TargetPreferences.MinAlignement = -1;
-	TargetPreferences.AlignementWeight = 0.1;
+	TargetPreferences.AlignementWeight = 0.2;
 	TargetPreferences.BaseLocation = GetActorLocation();
 
 	GetWeaponsSystem()->GetTargetPreference(
