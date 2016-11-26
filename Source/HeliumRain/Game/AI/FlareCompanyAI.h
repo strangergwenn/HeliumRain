@@ -249,6 +249,8 @@ protected:
 	/** Get a list of idle military */
 	TArray<UFlareSimulatedSpacecraft*> FindIdleMilitaryShips() const;
 
+	float GetShipyardUsageRatio() const;
+
 	/** Generate a score for ranking construction projects, version 2 */
 	float ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station) const;
 

@@ -26,6 +26,7 @@
 
 //#define DEBUG_AI_WAR_MILITARY_MOVEMENT
 //#define DEBUG_AI_BATTLE_STATES
+//#define DEBUG_AI_BUDGET
 
 /*----------------------------------------------------
 	Public API
@@ -1197,8 +1198,6 @@ void UFlareCompanyAI::FindResourcesForStationConstruction()
 	Budget
 ----------------------------------------------------*/
 
-//#define DEBUG_AI_BUDGET
-
 void UFlareCompanyAI::SpendBudget(EFlareBudget::Type Type, int64 Amount)
 {
 	// A project spend money, dispatch available money for others projects
@@ -1419,6 +1418,7 @@ void UFlareCompanyAI::ProcessBudgetTrade(int64 BudgetAmount, bool& Lock, bool& I
 
 void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool& Lock, bool& Idle)
 {
+	Idle = false;
 	// Prepare resources for station-building analysis
 	float BestScore = 0;
 	float CurrentConstructionScore = 0;
@@ -3552,6 +3552,46 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleMilitaryShips() cons
 	return IdleMilitaryShips;
 }
 
+float UFlareCompanyAI::GetShipyardUsageRatio() const
+{
+	float LargeSum = 0;
+	float LargeCount = 0;
+	float SmallSum = 0;
+	float SmallCount = 0;
+
+	for (UFlareSimulatedSpacecraft* Shipyard: Shipyards)
+	{
+		for(UFlareFactory* Factory : Shipyard->GetFactories())
+		{
+			if(Factory->IsLargeShipyard())
+			{
+				LargeCount++;
+			}
+			else
+			{
+				SmallCount++;
+			}
+
+			if(Factory->GetTargetShipCompany() != NAME_None)
+			{
+				if(Factory->IsLargeShipyard())
+				{
+					LargeSum++;
+				}
+				else
+				{
+					SmallSum++;
+				}
+			}
+		}
+	}
+
+	float LargeRatio = (LargeCount > 0 ? LargeSum / LargeCount : 1.f);
+	float SmallRatio = (SmallCount > 0 ? SmallSum / SmallCount : 1.f);
+
+	return FMath::Max(LargeRatio, SmallRatio);
+}
+
 float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station) const
 {
 	// The score is a number between 0 and infinity. A classical score is 1. If 0, the company don't want to build this station
@@ -3671,8 +3711,36 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 	else if (FactoryDescription && FactoryDescription->IsShipyard())
 	{
 		Score *= Behavior->ShipyardAffility;
-		Score *= 0;
-		// TODO
+
+		Score *= GetShipyardUsageRatio() * 0.5;
+
+		// Underflow malus
+		for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num(); ResourceIndex++)
+		{
+			const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
+
+			float MaxVolume = FMath::Max(WorldStats[&Resource->Resource->Data].Production, WorldStats[&Resource->Resource->Data].Consumption);
+			if(MaxVolume > 0)
+			{
+				float UnderflowRatio = WorldStats[&Resource->Resource->Data].Balance / MaxVolume;
+				if(UnderflowRatio < 0)
+				{
+					float UnderflowMalus = FMath::Clamp((UnderflowRatio * 100)  / 20.f + 1.f, 0.f, 1.f);
+					Score *= UnderflowMalus;
+					//FLOGV("    MaxVolume %f", MaxVolume);
+					//FLOGV("    UnderflowRatio %f", UnderflowRatio);
+					//FLOGV("    UnderflowMalus %f", UnderflowMalus);
+				}
+			}
+			else
+			{
+				// No input production, ignore this station
+				return 0;
+			}
+		}
+
+		//FLOGV("Score=%f for %s in %s", Score, *StationDescription->Identifier.ToString(), *Sector->GetIdentifier().ToString());
+
 	}
 	else if (FactoryDescription)
 	{
