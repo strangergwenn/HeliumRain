@@ -102,7 +102,7 @@ bool UFlareFleet::CanTravel(FText& OutInfo)
 
 	if (GetImmobilizedShipCount() == FleetShips.Num())
 	{
-		OutInfo = LOCTEXT("Travelling", "Some ships are trading or stranded");
+		OutInfo = LOCTEXT("Travelling", "Some ships are trading, stranded or intercepted");
 		return false;
 	}
 
@@ -235,6 +235,33 @@ void UFlareFleet::RemoveImmobilizedShips()
 	{
 		RemoveShip(ShipToRemove[ShipIndex]);
 	}
+}
+
+int32 UFlareFleet::InterceptShips()
+{
+	// Intercept half of ships at maximum and min 1
+	int32 MaxInterseptedShipCount = FMath::Max(1,FleetShips.Num() / 2);
+	int32 InterseptedShipCount = 0;
+	for (UFlareSimulatedSpacecraft* Ship : FleetShips)
+	{
+		if(InterseptedShipCount >=MaxInterseptedShipCount)
+		{
+			break;
+		}
+
+		if (Ship == Game->GetPC()->GetPlayerShip())
+		{
+			// Never intercept the player ship
+			continue;
+		}
+
+		if(FMath::FRand() < 0.1)
+		{
+			Ship->SetIntercepted(true);
+			InterseptedShipCount++;
+		}
+	}
+	return InterseptedShipCount;
 }
 
 void UFlareFleet::AddShip(UFlareSimulatedSpacecraft* Ship)

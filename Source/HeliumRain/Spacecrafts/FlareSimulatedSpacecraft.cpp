@@ -140,7 +140,7 @@ bool UFlareSimulatedSpacecraft::CanFight() const
 
 bool UFlareSimulatedSpacecraft::CanTravel() const
 {
-	return !IsTrading() && GetDamageSystem()->IsAlive() && !GetDamageSystem()->IsStranded();
+	return !IsTrading() && !IsIntercepted() && GetDamageSystem()->IsAlive() && !GetDamageSystem()->IsStranded();
 }
 
 FName UFlareSimulatedSpacecraft::GetImmatriculation() const
@@ -416,6 +416,11 @@ void UFlareSimulatedSpacecraft::SetTrading(bool Trading)
 	}
 
 	SpacecraftData.IsTrading = Trading;
+}
+
+void UFlareSimulatedSpacecraft::SetIntercepted(bool Intercepted)
+{
+	SpacecraftData.IsIntercepted = Intercepted;
 }
 
 void UFlareSimulatedSpacecraft::SetRefilling(bool Refilling)

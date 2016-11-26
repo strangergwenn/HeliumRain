@@ -264,6 +264,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	SaveFloat(JsonObject,"DynamicComponentStateProgress", Data->DynamicComponentStateProgress);
 	JsonObject->SetStringField("Level", FormatInt32(Data->Level));
 	JsonObject->SetBoolField("IsTrading", Data->IsTrading);
+	JsonObject->SetBoolField("IsIntercepted", Data->IsIntercepted);
 	JsonObject->SetBoolField("IsRefilling", Data->IsRefilling);
 	JsonObject->SetBoolField("IsRepairing", Data->IsRepairing);
 	JsonObject->SetBoolField("IsReserve", Data->IsReserve);

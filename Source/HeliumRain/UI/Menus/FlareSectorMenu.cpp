@@ -502,13 +502,24 @@ FText SFlareSectorMenu::GetTravelText() const
 		{
 			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(MenuManager->GetGame()->GetGameWorld(), SelectedFleet->GetCurrentSector(), TargetSector);
 
-			if(TravelDuration == 1)
+			FText TravelWord;
+
+			if(SelectedFleet->GetCurrentSector()->GetSectorBattleState(SelectedFleet->GetFleetCompany()).HasDanger)
 			{
-				return LOCTEXT("ShortTravelFormat", "Travel (1 day)");
+				TravelWord = LOCTEXT("EscapeWord", "Escape");
 			}
 			else
 			{
-				return FText::Format(LOCTEXT("TravelFormat", "Travel ({0} days)"), FText::AsNumber(TravelDuration));
+				TravelWord = LOCTEXT("TravelWord", "Travel");
+			}
+
+			if(TravelDuration == 1)
+			{
+				return FText::Format(LOCTEXT("ShortTravelFormat", "{0} (1 day)"), TravelWord);
+			}
+			else
+			{
+				return FText::Format(LOCTEXT("TravelFormat", "{0} ({1} days)"), TravelWord, FText::AsNumber(TravelDuration));
 			}
 		}
 	}
@@ -902,19 +913,47 @@ void SFlareSectorMenu::OnTravelHereClicked()
 	UFlareFleet* SelectedFleet = FleetSelector->GetSelectedItem();
 	if (SelectedFleet)
 	{
-		if (SelectedFleet->GetImmobilizedShipCount() == 0)
+		bool Escape = SelectedFleet->GetCurrentSector()->GetSectorBattleState(SelectedFleet->GetFleetCompany()).HasDanger
+				&& (SelectedFleet != MenuManager->GetPC()->GetPlayerFleet()  || SelectedFleet->GetShipCount() > 1);
+		bool Abandon = SelectedFleet->GetImmobilizedShipCount() != 0;
+
+		if (!Abandon && !Escape)
 		{
 			OnStartTravelConfirmed(SelectedFleet);
 		}
+
 		else
 		{
-			FText ShipText = LOCTEXT("ConfirmTravelSingular", "{0} ship is too damaged to travel. Do you really want to leave it in this sector ?");
-			FText ShipsText = LOCTEXT("ConfirmTravelPlural", "{0} ships are too damaged to travel. Do you really want to leave them in this sector ?");
+			FText TitleText;
+			FText ConfirmText;
+			if(Escape)
+			{
+				TitleText = LOCTEXT("ConfirmTravelEscapeTitle", "ESCAPE ?");
+				if (Abandon)
+				{
+					FText ShipText = LOCTEXT("ConfirmEscapeTravelSingular", "Some ships could be intercepted during the escape attempt. Also, {0} ship is too damaged to travel. Do you really want to leave it in this sector ?");
+					FText ShipsText = LOCTEXT("ConfirmEscapeTravelPlural", "Some ships could be intercepted during the escape attempt. Also, {0} ships are too damaged to travel. Do you really want to leave them in this sector ?");
 
-			FText ConfirmText = FText::Format(SelectedFleet->GetImmobilizedShipCount() != 1 ? ShipsText : ShipText,
-											  FText::AsNumber(SelectedFleet->GetImmobilizedShipCount()));
+					ConfirmText = FText::Format(SelectedFleet->GetImmobilizedShipCount() != 1 ? ShipsText : ShipText,
+													  FText::AsNumber(SelectedFleet->GetImmobilizedShipCount()));
+				}
+				else
+				{
+					ConfirmText = LOCTEXT("ConfirmEscapeTravel", "Some ships could be intercepted during the escape attempt. Do you really want to leave them in this sector ?");
+				}
+			}
+			else
+			{
+				TitleText = LOCTEXT("ConfirmTravelAbadonTitle", "ABANDON SHIPS ?");
 
-			MenuManager->Confirm(LOCTEXT("ConfirmTravelTitle", "ABANDON SHIPS ?"),
+				FText ShipText = LOCTEXT("ConfirmTravelSingular", "{0} ship is too damaged to travel. Do you really want to leave it in this sector ?");
+				FText ShipsText = LOCTEXT("ConfirmTravelPlural", "{0} ships are too damaged to travel. Do you really want to leave them in this sector ?");
+
+				ConfirmText = FText::Format(SelectedFleet->GetImmobilizedShipCount() != 1 ? ShipsText : ShipText,
+												  FText::AsNumber(SelectedFleet->GetImmobilizedShipCount()));
+			}
+
+			MenuManager->Confirm(TitleText,
 								 ConfirmText,
 								 FSimpleDelegate::CreateSP(this, &SFlareSectorMenu::OnStartTravelConfirmed, SelectedFleet));
 		}

@@ -312,11 +312,13 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 
 	// LEGACY alpha 3
 	Data->IsTrading = false;
+	Data->IsIntercepted = false;
 	Data->IsRepairing = false;
 	Data->IsRefilling = false;
 	Data->IsReserve = false;
 
 	Object->TryGetBoolField(TEXT("IsTrading"), Data->IsTrading);
+	Object->TryGetBoolField(TEXT("IsIntercepted"), Data->IsIntercepted);
 	Object->TryGetBoolField(TEXT("IsRepairing"), Data->IsRepairing);
 	Object->TryGetBoolField(TEXT("IsRefilling"), Data->IsRefilling);
 	Object->TryGetBoolField(TEXT("IsReserve"), Data->IsReserve);

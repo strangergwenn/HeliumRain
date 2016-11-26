@@ -97,6 +97,8 @@ public:
 
 	void SetTrading(bool Trading);
 
+	void SetIntercepted(bool Intercept);
+
 	void SetRepairing(bool Repairing);
 
 	void SetRefilling(bool Refilling);
@@ -244,6 +246,12 @@ public:
 	{
 		return SpacecraftData.IsTrading;
 	}
+
+	inline bool IsIntercepted() const
+	{
+		return SpacecraftData.IsIntercepted;
+	}
+
 
 	inline bool IsRepairing() const
 	{

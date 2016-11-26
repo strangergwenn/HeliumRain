@@ -410,6 +410,9 @@ struct FFlareSpacecraftSave
 	/** Is a trade in progress */
 	bool IsTrading;
 
+	/** Is ship intercepted */
+	bool IsIntercepted;
+
 	/** Is a repair in progress */
 	bool IsRepairing;
 

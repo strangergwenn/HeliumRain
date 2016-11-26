@@ -211,6 +211,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	ShipData.DynamicComponentStateIdentifier = NAME_None;
 	ShipData.DynamicComponentStateProgress = 0.f;
 	ShipData.IsTrading = false;
+	ShipData.IsIntercepted = false;
 	ShipData.IsRepairing = false;
 	ShipData.IsRefilling = false;
 	ShipData.IsReserve = false;

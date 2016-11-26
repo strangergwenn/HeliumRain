@@ -508,7 +508,7 @@ void UFlareWorld::Simulate()
 	WorldData.FleetSupplyConsumptionStats.Append(WorldData.DailyFleetSupplyConsumption);
 	WorldData.DailyFleetSupplyConsumption = 0;
 
-	// End trade, repair and refill, operations
+	// End trade, intercept, repair and refill, operations
 	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
 	{
 		UFlareCompany* Company = Companies[CompanyIndex];
@@ -519,6 +519,7 @@ void UFlareWorld::Simulate()
 			if (!Spacecraft->IsStation())
 			{
 				Spacecraft->SetTrading(false);
+				Spacecraft->SetIntercepted(false);
 			}
 			Spacecraft->SetRepairing(false);
 			Spacecraft->SetRefilling(false);
@@ -1027,11 +1028,41 @@ UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimul
 	}
 	else
 	{
+		UFlareSimulatedSector* OriginSector = TravelingFleet->GetCurrentSector();
+
+
+		// Remove intercepted ships
+		if(OriginSector->GetSectorBattleState(TravelingFleet->GetFleetCompany()).HasDanger)
+		{
+			int32 InterceptedShips = TravelingFleet->InterceptShips();
+
+			if (InterceptedShips > 0)
+			{
+				FFlareMenuParameterData Data;
+				Data.Sector = OriginSector;
+				GetGame()->GetPC()->Notify(LOCTEXT("ShipsIntercepted", "Ships intercepted"),
+					FText::Format(LOCTEXT("ShipCapturedFormat", "{0} ships have been intercepted trying to escape from {1}."),
+								  FText::AsNumber(InterceptedShips),
+								  FText::FromString(OriginSector->GetSectorName().ToString())),
+					FName("ships-intersepted"),
+					EFlareNotification::NT_Military,
+					false,
+					EFlareMenu::MENU_Sector,
+					Data);
+				if(InterceptedShips == TravelingFleet->GetShipCount())
+				{
+					// All ships intercepted
+					return NULL;
+				}
+			}
+		}
+
 		// Remove immobilized ships
 		TravelingFleet->RemoveImmobilizedShips();
 
+
 		// Make the fleet exit the sector
-		UFlareSimulatedSector* OriginSector = TravelingFleet->GetCurrentSector();
+
 		OriginSector->RetireFleet(TravelingFleet);
 
 		// Create the travel
