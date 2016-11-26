@@ -1206,9 +1206,12 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
 	FVector TargetLocation = Spacecraft->GetActorLocation();
+	bool ScreenPositionValid = false;
 
 	if (ProjectWorldLocationToCockpit(TargetLocation, ScreenPosition) && Spacecraft != ContextMenuSpacecraft)
 	{
+		ScreenPositionValid = true;
+
 		// Compute apparent size in screenspace
 		float ShipSize = 2 * Spacecraft->GetMeshScale();
 		float Distance = (TargetLocation - PlayerLocation).Size();
@@ -1257,86 +1260,95 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 				StatusPos.Y -= (IconSize + 0.5 * CornerSize);
 				DrawHUDDesignatorStatus(StatusPos, IconSize, Spacecraft);
 			}
-			
-			// Combat helper
-			if (Spacecraft == PlayerShip->GetCurrentTarget()
-			 && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
+		}
+	}
+
+	if (Spacecraft != ContextMenuSpacecraft && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+	{
+		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
+		float Distance = (TargetLocation - PlayerLocation).Size();
+
+		// Combat helper
+		if (Spacecraft == PlayerShip->GetCurrentTarget()
+		 && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
+		{
+			FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+			if (WeaponGroup)
 			{
-				FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
-				if (WeaponGroup)
+				FVector2D HelperScreenPosition;
+				FVector AmmoIntersectionLocation;
+				float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
+				float Range = 100 * WeaponGroup->Weapons[0]->GetDescription()->WeaponCharacteristics.GunCharacteristics.AmmoRange;
+				float InterceptTime = Spacecraft->GetAimPosition(PlayerShip, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
+
+				if (InterceptTime > 0 && ProjectWorldLocationToCockpit(AmmoIntersectionLocation, HelperScreenPosition) && Distance < Range)
 				{
-					FVector2D HelperScreenPosition;
-					FVector AmmoIntersectionLocation;
-					float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
-					float Range = 100 * WeaponGroup->Weapons[0]->GetDescription()->WeaponCharacteristics.GunCharacteristics.AmmoRange;
-					float InterceptTime = Spacecraft->GetAimPosition(PlayerShip, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
-
-					if (InterceptTime > 0 && ProjectWorldLocationToCockpit(AmmoIntersectionLocation, HelperScreenPosition) && Distance < Range)
+					// Draw
+					FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Spacecraft);
+					DrawHUDIcon(HelperScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
+					if(ScreenPositionValid)
 					{
-						// Draw
-						FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Spacecraft);
-						DrawHUDIcon(HelperScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
 						FlareDrawLine(ScreenPosition, HelperScreenPosition, HUDAimHelperColor);
+					}
 
 
-						// Snip helpers
-						float ZoomAlpha = PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha();
-						if(Spacecraft->GetSize() == EFlarePartSize::L && ZoomAlpha > 0)
+					// Snip helpers
+					float ZoomAlpha = PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha();
+					if(ScreenPositionValid && Spacecraft->GetSize() == EFlarePartSize::L && ZoomAlpha > 0)
+					{
+						FVector2D AimOffset = ScreenPosition - HelperScreenPosition;
+						UTexture2D* NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
+
+						FLinearColor AimOffsetColor = HudColorFriendly;
+						AimOffsetColor.A = ZoomAlpha * 0.5;
+
+						DrawHUDIcon(AimOffset + CurrentViewportSize / 2, IconSize *0.75 , NoseIcon, AimOffsetColor, true);
+						FlareDrawLine(CurrentViewportSize / 2, AimOffset + CurrentViewportSize / 2, AimOffsetColor);
+
+						// Draw component outline
+						/*TArray<UActorComponent*> Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+						for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 						{
-							FVector2D AimOffset = ScreenPosition - HelperScreenPosition;
-							UTexture2D* NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
+							UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
 
-							FLinearColor AimOffsetColor = HudColorFriendly;
-							AimOffsetColor.A = ZoomAlpha * 0.5;
-
-							DrawHUDIcon(AimOffset + CurrentViewportSize / 2, IconSize *0.75 , NoseIcon, AimOffsetColor, true);
-							FlareDrawLine(CurrentViewportSize / 2, AimOffset + CurrentViewportSize / 2, AimOffsetColor);
-
-							// Draw component outline
-							/*TArray<UActorComponent*> Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-							for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+							if (!Component->GetDescription() || Component->IsBroken() )
 							{
-								UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+								continue;
+							}
 
-								if (!Component->GetDescription() || Component->IsBroken() )
-								{
-									continue;
-								}
+							if (Component->GetDescription()->Type != EFlarePartType::OrbitalEngine &&
+									Component->GetDescription()->Type != EFlarePartType::RCS &&
+									Component->GetDescription()->Type != EFlarePartType::Weapon)
+							{
+								continue;
+							}
 
-								if (Component->GetDescription()->Type != EFlarePartType::OrbitalEngine &&
-										Component->GetDescription()->Type != EFlarePartType::RCS &&
-										Component->GetDescription()->Type != EFlarePartType::Weapon)
-								{
-									continue;
-								}
+							FVector2D ComponentScreenPosition;
 
-								FVector2D ComponentScreenPosition;
+							FVector ComponentLocation;
+							float ComponentRadius;
+							Component->GetBoundingSphere(ComponentLocation, ComponentRadius);
+							if (!ProjectWorldLocationToCockpit(Component->GetComponentLocation(), ComponentScreenPosition))
+							{
+								continue;
+							}
 
-								FVector ComponentLocation;
-								float ComponentRadius;
-								Component->GetBoundingSphere(ComponentLocation, ComponentRadius);
-								if (!ProjectWorldLocationToCockpit(Component->GetComponentLocation(), ComponentScreenPosition))
-								{
-									continue;
-								}
+							FLinearColor AimComponentColor = Color;
+							AimComponentColor.A = ZoomAlpha;
 
-								FLinearColor AimComponentColor = Color;
-								AimComponentColor.A = ZoomAlpha;
-
-								DrawHUDIcon(ComponentScreenPosition, IconSize , HUDNoseIcon, AimComponentColor, true);
-							}*/
-						}
+							DrawHUDIcon(ComponentScreenPosition, IconSize , HUDNoseIcon, AimComponentColor, true);
+						}*/
+					}
 
 
-						// Bomber UI
-						EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
-						if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
-						{
-							// Time display
-							FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");
-							FVector2D TimePosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(42,0);
-							FlareDrawText(TimeText, TimePosition, HUDAimHelperColor);
-						}
+					// Bomber UI
+					EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
+					if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
+					{
+						// Time display
+						FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");
+						FVector2D TimePosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(42,0);
+						FlareDrawText(TimeText, TimePosition, HUDAimHelperColor);
 					}
 				}
 			}
