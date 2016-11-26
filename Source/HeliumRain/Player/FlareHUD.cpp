@@ -1278,6 +1278,56 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 						DrawHUDIcon(HelperScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
 						FlareDrawLine(ScreenPosition, HelperScreenPosition, HUDAimHelperColor);
 
+
+						// Snip helpers
+						float ZoomAlpha = PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha();
+						if(Spacecraft->GetSize() == EFlarePartSize::L && ZoomAlpha > 0)
+						{
+							FVector2D AimOffset = ScreenPosition - HelperScreenPosition;
+							UTexture2D* NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
+
+							FLinearColor AimOffsetColor = HudColorFriendly;
+							AimOffsetColor.A = ZoomAlpha * 0.5;
+
+							DrawHUDIcon(AimOffset + CurrentViewportSize / 2, IconSize *0.75 , NoseIcon, AimOffsetColor, true);
+							FlareDrawLine(CurrentViewportSize / 2, AimOffset + CurrentViewportSize / 2, AimOffsetColor);
+
+							// Draw component outline
+							/*TArray<UActorComponent*> Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+							for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+							{
+								UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+
+								if (!Component->GetDescription() || Component->IsBroken() )
+								{
+									continue;
+								}
+
+								if (Component->GetDescription()->Type != EFlarePartType::OrbitalEngine &&
+										Component->GetDescription()->Type != EFlarePartType::RCS &&
+										Component->GetDescription()->Type != EFlarePartType::Weapon)
+								{
+									continue;
+								}
+
+								FVector2D ComponentScreenPosition;
+
+								FVector ComponentLocation;
+								float ComponentRadius;
+								Component->GetBoundingSphere(ComponentLocation, ComponentRadius);
+								if (!ProjectWorldLocationToCockpit(Component->GetComponentLocation(), ComponentScreenPosition))
+								{
+									continue;
+								}
+
+								FLinearColor AimComponentColor = Color;
+								AimComponentColor.A = ZoomAlpha;
+
+								DrawHUDIcon(ComponentScreenPosition, IconSize , HUDNoseIcon, AimComponentColor, true);
+							}*/
+						}
+
+
 						// Bomber UI
 						EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
 						if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
