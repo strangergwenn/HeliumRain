@@ -916,7 +916,9 @@ void AFlareHUD::DrawHUDInternal()
 			}
 
 			// Draw search markers
-			if (!IsExternalCamera && ShouldDrawSearchMarker && !Spacecraft->IsStation() && Spacecraft->GetCompany()->GetPlayerWarState() != EFlareHostility::Owned)
+			if (!IsExternalCamera && ShouldDrawSearchMarker && 
+				(Highlighted || (!Spacecraft->IsStation() && Spacecraft->GetCompany()->GetPlayerWarState() != EFlareHostility::Owned))
+			)
 			{
 				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), Highlighted, FocusDistance);
 			}
