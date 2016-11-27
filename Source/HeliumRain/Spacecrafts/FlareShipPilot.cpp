@@ -136,7 +136,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 	bool Idle = true;
 
-	TimeUntilNextComponentSwitch-=ReactionTime;
+	TimeUntilNextComponentSwitch-=DeltaSeconds;
 
 
 	if (Ship->GetSize() == EFlarePartSize::S && PilotTargetShip && SelectedWeaponGroupIndex >= 0)
@@ -330,6 +330,8 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 	float AmmoVelocity = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0]->GetAmmoVelocity() * 100;
 
+	FVector BaseLocation = Ship->GetCamera()->GetComponentLocation();
+
 	bool DangerousTarget = PilotHelper::IsShipDangerous(PilotTargetShip);
 
 	//float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 2.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
@@ -339,7 +341,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	// The pilot have a target, track and kill it
 
 	FVector LocalNose = FVector(1.f, 0.f, 0.f);
-	FVector DeltaLocation = (PilotTargetComponent->GetComponentLocation() - Ship->GetActorLocation()) / 100.f;
+	FVector DeltaLocation = (PilotTargetComponent->GetComponentLocation() - BaseLocation) / 100.f;
 	float Distance = DeltaLocation.Size(); // Distance in meters
 	float TargetSize = PilotTargetShip->GetMeshScale() / 100.f; // Radius in meters
 	FVector TargetAxis = DeltaLocation.GetUnsafeNormal();
@@ -347,8 +349,8 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	FVector PilotTargetShipVelocity = 100 * PilotTargetShip->GetLinearVelocity();
 
 	// Use position prediction
-	float PredictionDelay = ReactionTime - DeltaSeconds;
-	FVector PredictedShipLocation = Ship->GetActorLocation() + ShipVelocity * PredictionDelay;
+	float PredictionDelay = DeltaSeconds;
+	FVector PredictedShipLocation = BaseLocation + ShipVelocity * PredictionDelay;
 	FVector PredictedPilotTargetShipLocation = PilotTargetComponent->GetComponentLocation() + PilotTargetShipVelocity * PredictionDelay;
 	FVector PredictedDeltaLocation = (PredictedPilotTargetShipLocation - PredictedShipLocation) / 100.f;
 	FVector PredictedTargetAxis = PredictedDeltaLocation.GetUnsafeNormal();
@@ -360,11 +362,11 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	FVector FireTargetAxis;
 	if (AmmoIntersectionTime > 0)
 	{
-		FireTargetAxis = (AmmoIntersectionLocation - Ship->GetActorLocation()).GetUnsafeNormal();
+		FireTargetAxis = (AmmoIntersectionLocation - BaseLocation).GetUnsafeNormal();
 	}
 	else
 	{
-		FireTargetAxis = (PilotTargetComponent->GetComponentLocation() - Ship->GetActorLocation()).GetUnsafeNormal();
+		FireTargetAxis = (PilotTargetComponent->GetComponentLocation() - BaseLocation).GetUnsafeNormal();
 	}
 
 
@@ -581,7 +583,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 					/*FLOGV("Gun %d FireAxis=%s", GunIndex, *FireAxis.ToString());
 					FLOGV("Gun %d GunFireTargetAxis=%s", GunIndex, *GunFireTargetAxis.ToString());
 		*/
-					float AngularPrecisionDot = FVector::DotProduct(GunFireTargetAxis, FireAxis);
+					float AngularPrecisionDot = FVector::DotProduct(GunFireTargetAxis, Weapon->ComputeParallaxCorrection(GunIndex));
 					float AngularPrecision = FMath::Acos(AngularPrecisionDot);
 					float AngularSize = FMath::Atan(TargetSize / Distance);
 
@@ -1409,7 +1411,7 @@ FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FV
 	    TimeToFinalVelocity = (DeltaVelocity.Size() / AccelerationInAngleAxis);
 	}
 
-	float AngleToStop = (DeltaVelocity.Size() / 2) * (FMath::Max(TimeToFinalVelocity,ReactionTime));
+	float AngleToStop = (DeltaVelocity.Size() / 2) * (FMath::Max(TimeToFinalVelocity,DeltaSeconds));
 
 	FVector RelativeResultSpeed;
 
@@ -1418,7 +1420,7 @@ FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FV
 	}
 	else
 	{
-		float MaxPreciseSpeed = FMath::Min((angle - AngleToStop) / (ReactionTime * 0.75f), Ship->GetNavigationSystem()->GetAngularMaxVelocity());
+		float MaxPreciseSpeed = FMath::Min((angle - AngleToStop) / (DeltaSeconds * 0.75f), Ship->GetNavigationSystem()->GetAngularMaxVelocity());
 
 		RelativeResultSpeed = RotationDirection;
 		RelativeResultSpeed *= MaxPreciseSpeed;
