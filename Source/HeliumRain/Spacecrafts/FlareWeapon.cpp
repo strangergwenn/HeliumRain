@@ -5,6 +5,7 @@
 #include "FlareSpacecraft.h"
 #include "FlareShell.h"
 #include "FlareBomb.h"
+#include "../Player/FlarePlayerController.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareWeapon Firing"), STAT_Weapon_Firing, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareWeapon FireGun"), STAT_Weapon_FireGun, STATGROUP_Flare);
