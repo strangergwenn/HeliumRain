@@ -86,7 +86,7 @@ void AFlareShell::Tick(float DeltaSeconds)
 	// 1 at 100m or less
 	float Scale = 1;
 	float BaseDistance = 10000.f;
-	float MinScale= 0.2f;
+	float MinScale = 0.1f;
 	if(PC->GetShipPawn())
 	{
 		float LifeRatio = GetLifeSpan() / InitialLifeSpan;
