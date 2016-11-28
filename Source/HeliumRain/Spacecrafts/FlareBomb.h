@@ -130,7 +130,8 @@ protected:
 	UPROPERTY()
 	UMaterialInterface*                      ExplosionEffectMaterial;
 
-
+	float                                    ExplosionEffectScale;
+	
 	const FFlareSpacecraftComponentDescription*    WeaponDescription;
 
 	FFlareBombSave                          BombData;

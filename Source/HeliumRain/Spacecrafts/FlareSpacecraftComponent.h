@@ -242,8 +242,14 @@ struct FFlareSpacecraftComponentWeaponCharacteristics
 	/** Effect shown with a shell explode */
 	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* ExplosionEffect;
 
+	/** Scale for effect shown with a shell explode */
+	UPROPERTY(EditAnywhere, Category = Content) float ExplosionEffectScale;
+
 	/** Effect shown with a shell or a fragment impact a target */
 	UPROPERTY(EditAnywhere, Category = Content) UParticleSystem* ImpactEffect;
+
+	/** Scale for effect shown with a shell or a fragment impact a target */
+	UPROPERTY(EditAnywhere, Category = Content) float ImpactEffectScale;
 
 	/** Gun characteristic structure */
 	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentGunCharacteristics GunCharacteristics;

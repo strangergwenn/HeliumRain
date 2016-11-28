@@ -43,6 +43,8 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftCompone
 
 	ExplosionEffectTemplate = Description->WeaponCharacteristics.ExplosionEffect;
 	ImpactEffectTemplate = Description->WeaponCharacteristics.ImpactEffect;
+	ExplosionEffectScale = Description->WeaponCharacteristics.ExplosionEffectScale;
+	ImpactEffectScale = Description->WeaponCharacteristics.ImpactEffectScale;
 	FlightEffectsTemplate = Description->WeaponCharacteristics.GunCharacteristics.TracerEffect;
 
 	ExplosionEffectMaterial = Description->WeaponCharacteristics.GunCharacteristics.ExplosionMaterial;
@@ -319,7 +321,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 					true);
 				if (PSC)
 				{
-					PSC->SetWorldScale3D(FVector(1, 1, 1));
+					PSC->SetWorldScale3D(ExplosionEffectScale * FVector(1, 1, 1));
 				}
 			}
 
@@ -560,7 +562,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 			true);
 		if (PSC)
 		{
-			PSC->SetWorldScale3D(FVector(1, 1, 1));
+			PSC->SetWorldScale3D(ImpactEffectScale * FVector(1, 1, 1));
 		}
 	}
 

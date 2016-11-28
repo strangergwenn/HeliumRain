@@ -76,6 +76,9 @@ protected:
 	UPROPERTY()
 	UMaterialInterface*                      ExplosionEffectMaterial;
 
+	float                                    ExplosionEffectScale;
+	float                                    ImpactEffectScale;
+
 	// Shell data
 	FVector                                  ShellVelocity;
 	const FFlareSpacecraftComponentDescription*    ShellDescription;

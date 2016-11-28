@@ -58,6 +58,7 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 		DamageSound = WeaponDescription->WeaponCharacteristics.DamageSound;
 
 		ExplosionEffectTemplate = WeaponDescription->WeaponCharacteristics.ExplosionEffect;
+		ExplosionEffectScale = WeaponDescription->WeaponCharacteristics.ExplosionEffectScale;
 		ExplosionEffectMaterial = WeaponDescription->WeaponCharacteristics.GunCharacteristics.ExplosionMaterial;
 
 	}
@@ -184,7 +185,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 			true);
 		if (PSC)
 		{
-			PSC->SetWorldScale3D(FVector(1, 1, 1));
+			PSC->SetWorldScale3D(ExplosionEffectScale * FVector(1, 1, 1));
 		}
 	}
 
