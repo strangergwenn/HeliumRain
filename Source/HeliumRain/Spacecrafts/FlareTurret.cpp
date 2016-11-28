@@ -129,6 +129,8 @@ void UFlareTurret::SetupComponentMesh()
 			Spacecraft->AddOwnedComponent(BarrelComponent);
 		}
 	}
+
+	SetStaticMesh(NULL);
 }
 
 void UFlareTurret::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
