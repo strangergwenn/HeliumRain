@@ -186,11 +186,11 @@ public:
 		return OldQuests;
 	}
 
-	bool IsQuestActive(FName QuestIdentifier);
+	bool IsQuestActive(UFlareQuest* Quest);
 
-	bool IsQuestSuccesfull(FName QuestIdentifier);
+	bool IsQuestSuccesfull(UFlareQuest* Quest);
 
-	bool IsQuestFailed(FName QuestIdentifier);
+	bool IsQuestFailed(UFlareQuest* Quest);
 
 
 };

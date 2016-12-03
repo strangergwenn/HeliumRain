@@ -3,6 +3,9 @@
 #include "../Game/FlareGame.h"
 #include "../Player/FlarePlayerController.h"
 #include "FlareQuest.h"
+#include "FlareQuestStep.h"
+#include "FlareQuestCondition.h"
+#include "FlareQuestAction.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuest"
 
@@ -23,13 +26,13 @@ UFlareQuest::UFlareQuest(const FObjectInitializer& ObjectInitializer)
 ----------------------------------------------------*/
 
 
-void UFlareQuest::Load(const FFlareQuestDescription* Description)
+/*void UFlareQuest::Load(const FFlareQuestDescription* Description)
 {
 	QuestManager = Cast<UFlareQuestManager>(GetOuter());
 	QuestDescription = Description;
 	QuestData.QuestIdentifier = QuestDescription->Identifier;
 	QuestStatus = EFlareQuestStatus::AVAILABLE;
-}
+}*/
 
 void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 {
@@ -37,11 +40,11 @@ void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 	QuestStatus = EFlareQuestStatus::ACTIVE;
 
 	// Init current step
-	for (int StepIndex = 0; StepIndex < QuestDescription->Steps.Num(); StepIndex++)
+	for(UFlareQuestStep* Step : Steps)
 	{
-		if (!QuestData.SuccessfullSteps.Contains(QuestDescription->Steps[StepIndex].Identifier))
+		if (!SuccessfullSteps.Contains(Step))
 		{
-			CurrentStepDescription = &QuestDescription->Steps[StepIndex];
+			CurrentStep = Step;
 			break;
 		}
 	}
@@ -69,7 +72,7 @@ void UFlareQuest::UpdateState()
 	{
 		case EFlareQuestStatus::AVAILABLE:
 		{
-			bool ConditionsStatus = CheckConditions(QuestDescription->Triggers, true);
+			bool ConditionsStatus = UFlareQuestCondition::CheckConditions(TriggerConditions, true);
 			if (ConditionsStatus)
 			{
 				Activate();
@@ -78,50 +81,34 @@ void UFlareQuest::UpdateState()
 		}
 		case EFlareQuestStatus::ACTIVE:
 		{
-			const FFlareQuestStepDescription* StepDescription = GetCurrentStepDescription();
-			if (StepDescription)
+			CurrentStep->UpdateState();
+
+			if (CurrentStep->IsFailed())
 			{
-				bool StepEnabled = CheckConditions(StepDescription->EnabledConditions, true);
-				if (StepEnabled)
-				{
-					bool StepFailed = CheckConditions(StepDescription->FailConditions, false);
-					if (StepFailed)
-					{
-						Fail();
-					}
-					else
-					{
-						bool StepBlocked = CheckConditions(StepDescription->BlockConditions, false);
-						if (!StepBlocked)
-						{
-							bool StepEnded = CheckConditions(StepDescription->EndConditions, true);
-							if (StepEnded){
-								// This step ended go to next step
-								EndStep();
-							}
-						}
-					}
-				}
-				UpdateObjectiveTracker();
+				Fail();
 			}
+			else if (CurrentStep->IsCompleted())
+			{
+				EndStep();
+			}
+
+			UpdateObjectiveTracker();
 			break;
 		}
-
 	}
 }
 
 void UFlareQuest::EndStep()
 {
-	const FFlareQuestStepDescription* StepDescription = GetCurrentStepDescription();
-	QuestData.SuccessfullSteps.Add(StepDescription->Identifier);
-	FLOGV("Quest %s step %s end", *GetIdentifier().ToString(), *StepDescription->Identifier.ToString());
+	SuccessfullSteps.Add(CurrentStep);
+	FLOGV("Quest %s step %s end", *GetIdentifier().ToString(), *CurrentStep->GetIdentifier().ToString());
 
 	//FText DoneText = LOCTEXT("DoneFormat", "{0} : Done");
 	//SendQuestNotification(FText::Format(DoneText, StepDescription->Description), NAME_None);
 
-	PerformActions(StepDescription->EndActions);
+	CurrentStep->PerformEndActions();
 
-	CurrentStepDescription = NULL;
+	CurrentStep = NULL;
 	if (TrackObjectives)
 	{
 		QuestManager->GetGame()->GetPC()->CompleteObjective();
@@ -134,28 +121,30 @@ void UFlareQuest::EndStep()
 void UFlareQuest::NextStep()
 {
 	// Clear step progress
-	CurrentStepDescription = NULL;
+	CurrentStep = NULL;
 	QuestData.CurrentStepProgress.Empty();
 
-	if (QuestDescription->Steps.Num() == 0)
+	if (Steps.Num() == 0)
 	{
 		FLOGV("WARNING: The quest %s have no step", *GetIdentifier().ToString());
 		return;
 	}
 
-	// Find first not done step
-	for (int StepIndex = 0; StepIndex < QuestDescription->Steps.Num(); StepIndex++)
+	for(UFlareQuestStep* Step : Steps)
 	{
-		if (!QuestData.SuccessfullSteps.Contains(QuestDescription->Steps[StepIndex].Identifier))
+		if (!SuccessfullSteps.Contains(Step))
 		{
-			CurrentStepDescription = &QuestDescription->Steps[StepIndex];
-			FLOGV("Quest %s step %s begin", *GetIdentifier().ToString(), *CurrentStepDescription->Identifier.ToString());
-			PerformActions(CurrentStepDescription->InitActions);
+			CurrentStep = Step;
+
+			FLOGV("Quest %s step %s begin", *GetIdentifier().ToString(), *Step->GetIdentifier().ToString());
+			Step->Init();
+			Step->PerformInitActions();
+
 
 			// Notify message only when it's different than previous step
-			if (StepIndex == 0 || QuestDescription->Steps[StepIndex - 1].StepDescription.ToString() != CurrentStepDescription->StepDescription.ToString())
+			if (Step != CurrentStep)
 			{
-				FText MessageText = FormatTags(CurrentStepDescription->StepDescription);
+				FText MessageText = FormatTags(Step->GetStepDescription());
 				SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
 			}
 
@@ -172,14 +161,14 @@ void UFlareQuest::NextStep()
 void UFlareQuest::Success()
 {
 	SetStatus(EFlareQuestStatus::SUCCESSFUL);
-	PerformActions(QuestDescription->SuccessActions);
+	UFlareQuestAction::PerformActions(SuccessActions);
 	QuestManager->OnQuestSuccess(this);
 }
 
 void UFlareQuest::Fail()
 {
 	SetStatus(EFlareQuestStatus::FAILED);
-	PerformActions(QuestDescription->FailActions);
+	UFlareQuestAction::PerformActions(FailActions);
 	QuestManager->OnQuestFail(this);
 }
 
@@ -191,24 +180,7 @@ void UFlareQuest::Activate()
 	QuestManager->OnQuestActivation(this);
 }
 
-bool UFlareQuest::CheckConditions(const TArray<FFlareQuestConditionDescription>& Conditions, bool EmptyResult)
-{
-	if (Conditions.Num() == 0)
-	{
-		return EmptyResult;
-	}
-
-	for (int ConditionIndex = 0; ConditionIndex < Conditions.Num(); ConditionIndex++)
-	{
-		if (!CheckCondition(&Conditions[ConditionIndex], EmptyResult))
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
+/*
 bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Condition, bool EmptyResult)
 {
 	bool Status = false;
@@ -431,16 +403,6 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 	return Status;
 }
 
-
-void UFlareQuest::PerformActions(const TArray<FFlareQuestActionDescription>& Actions)
-{
-	for (int ActionIndex = 0; ActionIndex < Actions.Num(); ActionIndex++)
-	{
-		PerformAction(&Actions[ActionIndex]);
-	}
-
-}
-
 void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 {
 	switch (Action->Type) {
@@ -485,7 +447,7 @@ void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 	}
 
 }
-
+*/
 FText UFlareQuest::FormatTags(FText Message)
 {
 	// Replace input tags
@@ -628,22 +590,20 @@ void UFlareQuest::UpdateObjectiveTracker()
 	}
 
 	FFlarePlayerObjectiveData Objective;
-	if (GetCurrentStepDescription())
+	if (CurrentStep)
 	{
-		Objective.StepsDone = QuestData.SuccessfullSteps.Num();
-		Objective.StepsCount = GetQuestDescription()->Steps.Num();
-		Objective.Description = GetQuestDescription()->QuestDescription;
+		Objective.StepsDone = GetSuccessfullStepCount();
+		Objective.StepsCount = GetStepCount();
+		Objective.Description = GetQuestDescription();
 		Objective.Name = GetQuestName();
-	}
 
-	if (GetCurrentStepDescription())
-	{
-		AddConditionObjectives(&Objective, GetCurrentStepDescription()->EndConditions);
+		CurrentStep->AddEndConditionObjectives(&Objective);
 	}
 
 	QuestManager->GetGame()->GetPC()->StartObjective(Objective.Name, Objective);
 }
 
+/*
 void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData, const TArray<FFlareQuestConditionDescription>& Conditions)
 {
 	AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
@@ -903,7 +863,8 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 		}
 	}
 }
-
+*/
+/*
 void UFlareQuest::GenerateConditionCollinearityObjective(FFlarePlayerObjectiveData* ObjectiveData, EFlareQuestCondition::Type ConditionType, float TargetCollinearity)
 {
 	if (QuestManager->GetGame()->GetPC()->GetShipPawn())
@@ -955,7 +916,7 @@ void UFlareQuest::GenerateConditionCollinearityObjective(FFlarePlayerObjectiveDa
 		ObjectiveData->ConditionList.Add(ObjectiveCondition);
 	}
 }
-
+*/
 
 /*----------------------------------------------------
 	Callback
@@ -971,7 +932,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 	{
 		case EFlareQuestStatus::AVAILABLE:
 			// Use trigger conditions
-			AddConditionCallbacks(Callbacks, QuestDescription->Triggers);
+			UFlareQuestCondition::AddConditionCallbacks(Callbacks, TriggerConditions);
 
 			if (Callbacks.Contains(EFlareQuestCallback::TICK_FLYING))
 			{
@@ -981,13 +942,12 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 		case EFlareQuestStatus::ACTIVE:
 		 {
 			// Use current step conditions
-			const FFlareQuestStepDescription* StepDescription = GetCurrentStepDescription();
-			if (StepDescription)
+			if (CurrentStep)
 			{
-				AddConditionCallbacks(Callbacks, StepDescription->EnabledConditions);
-				AddConditionCallbacks(Callbacks, StepDescription->EndConditions);
-				AddConditionCallbacks(Callbacks, StepDescription->FailConditions);
-				AddConditionCallbacks(Callbacks, StepDescription->BlockConditions);
+				UFlareQuestCondition::AddConditionCallbacks(Callbacks, CurrentStep->GetEnableConditions());
+				UFlareQuestCondition::AddConditionCallbacks(Callbacks, CurrentStep->GetEndConditions());
+				UFlareQuestCondition::AddConditionCallbacks(Callbacks, CurrentStep->GetFailConditions());
+				UFlareQuestCondition::AddConditionCallbacks(Callbacks, CurrentStep->GetBlockConditions());
 			}
 			else
 			{
@@ -1003,18 +963,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 	return Callbacks;
 }
 
-void UFlareQuest::AddConditionCallbacks(TArray<EFlareQuestCallback::Type>& Callbacks, const TArray<FFlareQuestConditionDescription>& Conditions)
-{
-	for (int ConditionIndex = 0; ConditionIndex < Conditions.Num(); ConditionIndex++)
-	{
-		TArray<EFlareQuestCallback::Type> ConditionCallbacks = GetConditionCallbacks(&Conditions[ConditionIndex]);
-		for (int CallbackIndex = 0; CallbackIndex < ConditionCallbacks.Num(); CallbackIndex++)
-		{
-			Callbacks.AddUnique(ConditionCallbacks[CallbackIndex]);
-		}
-	}
-}
-
+/*
 TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlareQuestConditionDescription* Condition)
 {
 
@@ -1064,6 +1013,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlar
 
 	return Callbacks;
 }
+*/
 
 void UFlareQuest::OnTick(float DeltaSeconds)
 {
@@ -1110,21 +1060,8 @@ FText UFlareQuest::GetStatusText() const
 	}
 }
 
-const FFlareSharedQuestCondition* UFlareQuest::FindSharedCondition(FName SharedConditionIdentifier)
-{
-	for (int SharedConditionIndex = 0; SharedConditionIndex < QuestDescription->SharedConditions.Num(); SharedConditionIndex++)
-	{
-		if (QuestDescription->SharedConditions[SharedConditionIndex].Identifier == SharedConditionIdentifier)
-		{
-			return &QuestDescription->SharedConditions[SharedConditionIndex];
-		}
-	}
 
-	FLOGV("ERROR: The quest %s doesn't have shared condition named %s", *GetIdentifier().ToString(), *SharedConditionIdentifier.ToString());
-
-	return NULL;
-}
-
+/*
 FFlareQuestStepProgressSave* UFlareQuest::GetCurrentStepProgressSave(const FFlareQuestConditionDescription* Condition)
 {
 	// TODO check double condition
@@ -1147,8 +1084,8 @@ FFlareQuestStepProgressSave* UFlareQuest::GetCurrentStepProgressSave(const FFlar
 
 
 	return NULL;
-}
-
+}*/
+/*
 FFlareQuestStepProgressSave* UFlareQuest::CreateStepProgressSave(const FFlareQuestConditionDescription* Condition)
 {
 	FName SaveId = FName(*FString::FromInt(Condition->Type + 0));
@@ -1164,5 +1101,5 @@ FFlareQuestStepProgressSave* UFlareQuest::CreateStepProgressSave(const FFlareQue
 	QuestData.CurrentStepProgress.Add(NewSave);
 	return &QuestData.CurrentStepProgress.Last();
 }
-
+*/
 #undef LOCTEXT_NAMESPACE

@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 
 class UFlareQuest;
+class UFlareQuestStep;
 class AFlareMenuManager;
 
 
@@ -54,7 +55,7 @@ protected:
 	void FillQuestDetails();
 
 	/** Add a quest detail line */
-	TSharedPtr<SVerticalBox> AddQuestDetail(int32 QuestStepIndex);
+	TSharedPtr<SVerticalBox> AddQuestDetail(UFlareQuestStep* QuestStep);
 
 
 	/*----------------------------------------------------
@@ -65,10 +66,10 @@ protected:
 	FText GetSelectedQuestTitle() const;
 
 	/** Get the active quest description */
-	FText GetQuestStepDescription(int32 QuestStepIndex) const;
+	FText GetQuestStepDescription(UFlareQuestStep* QuestStep) const;
 
 	/** Is this quest step visible */
-	EVisibility GetQuestStepDescriptionVisibility(int32 QuestStepIndex) const;
+	EVisibility GetQuestStepDescriptionVisibility(UFlareQuestStep* QuestStep) const;
 
 	/** Is the "select" button disabled */
 	bool IsSelectQuestButtonDisabled(UFlareQuest*  Quest) const;
@@ -88,7 +89,7 @@ protected:
 	void OnQuestSelected(UFlareQuest* Quest);
 
 	/** A new quest step is selected for more details */
-	FReply OnQuestStepSelected(int32 QuestStepIndex);
+	FReply OnQuestStepSelected(UFlareQuestStep* QuestStep);
 
 
 protected:
@@ -107,7 +108,7 @@ protected:
 
 	// Data
 	UFlareQuest*                                    SelectedQuest;
-	int32                                           CurrentQuestStepIndex;
+	UFlareQuestStep*                                CurrentQuestStep;
 
 
 };

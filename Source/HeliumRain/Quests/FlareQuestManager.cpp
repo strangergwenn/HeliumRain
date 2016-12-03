@@ -35,8 +35,8 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 		ActiveQuestIdentifiers.Add(Data.QuestProgresses[QuestProgressIndex].QuestIdentifier);
 	}
 
-	// Load quests
-	for (int QuestIndex = 0; QuestIndex <Game->GetQuestCatalog()->Quests.Num(); QuestIndex++)
+	// Load catalog quests
+	/*for (int QuestIndex = 0; QuestIndex <Game->GetQuestCatalog()->Quests.Num(); QuestIndex++)
 	{
 		FFlareQuestDescription* QuestDescription = &(Game->GetQuestCatalog()->Quests[QuestIndex]->Data);
 		
@@ -92,7 +92,7 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 		LoadCallbacks(Quest);
 		Quest->UpdateState();
 	}
-
+*/
 	if (!SelectedQuest)
 	{
 		AutoSelectQuest();
@@ -145,7 +145,7 @@ FFlareQuestSave* UFlareQuestManager::Save()
 void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)
 {
 	FLOGV("Select quest %s", *Quest->GetIdentifier().ToString());
-	if (!IsQuestActive(Quest->GetIdentifier()))
+	if (!IsQuestActive(Quest))
 	{
 		FLOGV("ERROR: Fail to select quest %s. The quest to select must be active", *Quest->GetIdentifier().ToString());
 		return;
@@ -271,7 +271,7 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 	OldQuests.Add(Quest);
 
 	// Quest successful notification
-	if (Quest->GetQuestDescription()->Category != EFlareQuestCategory::TUTORIAL)
+	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
 	{
 		FText Text = LOCTEXT("Quest successful", "Quest successful");
 		FText Info = Quest->GetQuestName();
@@ -294,7 +294,7 @@ void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 	OldQuests.Add(Quest);
 
 	// Quest failed notification
-	if (Quest->GetQuestDescription()->Category != EFlareQuestCategory::TUTORIAL)
+	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
 	{
 		FText Text = LOCTEXT("Quest failed", "Quest failed");
 		FText Info = Quest->GetQuestName();
@@ -315,7 +315,7 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 	ActiveQuests.Add(Quest);
 
 	// New quest notification
-	if (Quest->GetQuestDescription()->Category != EFlareQuestCategory::TUTORIAL)
+	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
 	{
 		FText Text = LOCTEXT("New quest", "New quest started");
 		FText Info = Quest->GetQuestName();
@@ -334,12 +334,11 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 	Getters
 ----------------------------------------------------*/
 
-bool UFlareQuestManager::IsQuestActive(FName QuestIdentifier)
+bool UFlareQuestManager::IsQuestActive(UFlareQuest* Quest)
 {
-	for (int QuestIndex = 0; QuestIndex < ActiveQuests.Num(); QuestIndex++)
+	for(UFlareQuest* ActiveQuest: ActiveQuests)
 	{
-		UFlareQuest* Quest = ActiveQuests[QuestIndex];
-		if (Quest->GetIdentifier() == QuestIdentifier)
+		if (Quest == ActiveQuest)
 		{
 			return true;
 		}
@@ -347,12 +346,11 @@ bool UFlareQuestManager::IsQuestActive(FName QuestIdentifier)
 	return false;
 }
 
-bool UFlareQuestManager::IsQuestSuccesfull(FName QuestIdentifier)
+bool UFlareQuestManager::IsQuestSuccesfull(UFlareQuest* Quest)
 {
-	for (int QuestIndex = 0; QuestIndex < OldQuests.Num(); QuestIndex++)
+	for(UFlareQuest* OldQuest: OldQuests)
 	{
-		UFlareQuest* Quest = OldQuests[QuestIndex];
-		if (Quest->GetIdentifier() == QuestIdentifier)
+		if (OldQuest == Quest)
 		{
 			if (Quest->GetStatus() == EFlareQuestStatus::SUCCESSFUL)
 			{
@@ -367,12 +365,11 @@ bool UFlareQuestManager::IsQuestSuccesfull(FName QuestIdentifier)
 	return false;
 }
 
-bool UFlareQuestManager::IsQuestFailed(FName QuestIdentifier)
+bool UFlareQuestManager::IsQuestFailed(UFlareQuest* Quest)
 {
-	for (int QuestIndex = 0; QuestIndex < OldQuests.Num(); QuestIndex++)
+	for(UFlareQuest* OldQuest: OldQuests)
 	{
-		UFlareQuest* Quest = OldQuests[QuestIndex];
-		if (Quest->GetIdentifier() == QuestIdentifier)
+		if (OldQuest == Quest)
 		{
 			if (Quest->GetStatus() == EFlareQuestStatus::FAILED)
 			{
