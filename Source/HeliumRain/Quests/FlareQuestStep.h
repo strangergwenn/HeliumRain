@@ -30,6 +30,9 @@ class HELIUMRAIN_API UFlareQuestStep: public UObject
 public:
 	void Init();
 
+	/** Restore the quest step status from a save file */
+	virtual void Restore(const TArray<FFlareQuestStepProgressSave>& Data);
+
 	void UpdateState();
 
 	void PerformInitActions();
@@ -117,4 +120,5 @@ public:
 	{
 		return Status == EFlareQuestStepStatus::COMPLETED;
 	}
+
 };

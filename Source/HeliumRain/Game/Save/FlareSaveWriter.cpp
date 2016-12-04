@@ -115,9 +115,10 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuestStepProgress(FFlareQuestStepP
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
 	JsonObject->SetStringField("ConditionIdentifier", Data->ConditionIdentifier.ToString());
-	JsonObject->SetStringField("CurrentProgression", FormatInt32(Data->CurrentProgression));
+	/*JsonObject->SetStringField("CurrentProgression", FormatInt32(Data->CurrentProgression));
 	JsonObject->SetStringField("InitialTransform", FormatTransform(Data->InitialTransform));
-	SaveFloat(JsonObject,"InitialVelocity", Data->InitialVelocity);
+	SaveFloat(JsonObject,"InitialVelocity", Data->InitialVelocity);*/
+	JsonObject->SetObjectField("Data", SaveBundle(&Data->Data));
 
 	return JsonObject;
 }
@@ -696,6 +697,22 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveFloatBuffer(FFlareFloatBuffer* Dat
 	return JsonObject;
 }
 
+TSharedRef<FJsonObject> UFlareSaveWriter::SaveBundle(FFlareBundle* Data)
+{
+	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+
+	if(Data->FloatValues.Num() > 0)
+	{
+		TSharedRef<FJsonObject> FloatObject = MakeShareable(new FJsonObject());
+		for (auto& Pair : Data->FloatValues)
+		{
+			FloatObject->SetNumberField(Pair.Key.ToString(), FixFloat(Pair.Value));
+		}
+		JsonObject->SetObjectField("FloatValues", FloatObject);
+	}
+
+	return JsonObject;
+}
 
 TSharedRef<FJsonObject> UFlareSaveWriter::SaveTravel(FFlareTravelSave* Data)
 {

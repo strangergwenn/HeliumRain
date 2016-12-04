@@ -135,9 +135,9 @@ void UFlareSaveReaderV1::LoadQuestProgress(const TSharedPtr<FJsonObject> Object,
 void UFlareSaveReaderV1::LoadQuestStepProgress(const TSharedPtr<FJsonObject> Object, FFlareQuestStepProgressSave* Data)
 {
 	LoadFName(Object, "ConditionIdentifier", &Data->ConditionIdentifier);
-	LoadInt32(Object, "CurrentProgression", &Data->CurrentProgression);
-	LoadTransform(Object, "InitialTransform", &Data->InitialTransform);
-	LoadFloat(Object, "InitialVelocity", &Data->InitialVelocity);
+	LoadBundle(Object, "Data", &Data->Data);
+
+
 }
 
 
@@ -986,4 +986,35 @@ void UFlareSaveReaderV1::LoadFloatBuffer(TSharedPtr< FJsonObject > Object, FStri
 		FLOGV("WARNING: Fail to load float key '%s'. Save corrupted", *Key);
 		Data->Init(1);
 	}
+}
+
+
+void UFlareSaveReaderV1::LoadBundle(const TSharedPtr<FJsonObject> Object, FString Key, FFlareBundle* Data)
+{
+	Data->Clear();
+	const TSharedPtr< FJsonObject >* Bundle;
+	if(Object->TryGetObjectField(Key, Bundle))
+	{
+		const TSharedPtr< FJsonObject >* FloatValues;
+		if ((*Bundle)->TryGetObjectField("FloatValues", FloatValues))
+		{
+			for(auto& Pair : (*FloatValues)->Values)
+			{
+				FName FloatKey = FName(*Pair.Key);
+				float FloatValue = Pair.Value->AsNumber();
+				Data->FloatValues.Add(FloatKey, FloatValue);
+			}
+		}
+	}
+	else
+	{
+		FLOGV("WARNING: Fail to load bundle key '%s'. Save corrupted", *Key);
+	}
+
+	/*FFlareBundle Data;
+
+LoadInt32(Object, "CurrentProgression", &Data->CurrentProgression);
+LoadTransform(Object, "InitialTransform", &Data->InitialTransform);
+LoadFloat(Object, "InitialVelocity", &Data->InitialVelocity);*/
+
 }

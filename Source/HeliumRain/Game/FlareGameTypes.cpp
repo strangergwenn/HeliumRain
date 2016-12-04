@@ -160,5 +160,27 @@ float FFlareFloatBuffer::GetMean(int32 StartAge, int32 EndAge)
 	return Sum/Count;
 }
 
+bool FFlareBundle::HasFloat(FName Key) const
+{
+	return FloatValues.Contains(Key);
+}
+
+float FFlareBundle::GetFloat(FName Key, float Default) const
+{
+	if(FloatValues.Contains(Key))
+	{
+		return FloatValues[Key];
+	}
+	return Default;
+}
+
+
+
+void FFlareBundle::Clear()
+{
+	FloatValues.Empty();
+}
+
+
 
 #undef LOCTEXT_NAMESPACE

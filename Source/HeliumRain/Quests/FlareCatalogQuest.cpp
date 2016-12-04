@@ -108,10 +108,10 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 			break;
 		}
 		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
-			Conditions.Add(UFlareQuestConditionMinCollinearVelocity::Create(this, ConditionDescription.FloatParam1));
+			Conditions.Add(UFlareQuestConditionMinCollinearVelocity::Create(this, ConditionDescription.ConditionIdentifier, ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MAX_COLLINEAR_VELOCITY:
-			Conditions.Add(UFlareQuestConditionMaxCollinearVelocity::Create(this, ConditionDescription.FloatParam1));
+			Conditions.Add(UFlareQuestConditionMaxCollinearVelocity::Create(this, ConditionDescription.ConditionIdentifier, ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MIN_COLLINEARITY:
 			Conditions.Add(UFlareQuestConditionMinCollinear::Create(this, ConditionDescription.FloatParam1));
@@ -119,7 +119,7 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 		case EFlareQuestCondition::SHIP_MAX_COLLINEARITY:
 			Conditions.Add(UFlareQuestConditionMaxCollinear::Create(this, ConditionDescription.FloatParam1));
 			break;
-		case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
+		/*case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
 			Conditions.Add(UFlareQuestConditionMinRotationVelocity::Create(this, FVector(0,1,0), ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MAX_PITCH_VELOCITY:
@@ -141,7 +141,7 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 			Conditions.Add(UFlareQuestConditionFollowRelativeWaypoints::Create(this, FVector(1,0,0), ConditionDescription.VectorListParam));
 			break;
 		case EFlareQuestCondition::SHIP_ALIVE:
-			FLOG("SHIP_ALIVE condition deprecated")
+			Conditions.Add(UFlareQuestConditionShipAlive::Create(this, ConditionDescription.Identifier1));
 			break;
 		case EFlareQuestCondition::QUEST_SUCCESSFUL:
 		{
@@ -174,7 +174,7 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 			}
 
 			break;
-		}
+		}*/
 		default:
 			FLOGV("ERROR: CheckCondition not implemented for condition type %d", (int)(ConditionDescription.Type +0));
 			break;

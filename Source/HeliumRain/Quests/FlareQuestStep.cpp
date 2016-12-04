@@ -80,6 +80,29 @@ void UFlareQuestStep::Init()
 	}
 }
 
+void UFlareQuestStep::Restore(const TArray<FFlareQuestStepProgressSave>& Data)
+{
+	for (UFlareQuestCondition* Condition: EnableConditions)
+	{
+		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data));
+	}
+
+	for (UFlareQuestCondition* Condition: BlockConditions)
+	{
+		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data));
+	}
+
+	for (UFlareQuestCondition* Condition: FailConditions)
+	{
+		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data));
+	}
+
+	for (UFlareQuestCondition* Condition: EndConditions)
+	{
+		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data));
+	}
+}
+
 void UFlareQuestStep::PerformInitActions()
 {
 	UFlareQuestAction::PerformActions(InitActions);

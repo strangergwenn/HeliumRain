@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FlareQuestManager.h"
 #include "FlareQuestCondition.generated.h"
 
 class UFlareQuest;
@@ -7,6 +8,7 @@ class AFlarePlayerController;
 class AFlareGame;
 class UFlareSimulatedSector;
 struct FFlarePlayerObjectiveData;
+struct FFlareBundle;
 
 /** A quest Step condition */
 UCLASS(abstract)
@@ -14,10 +16,16 @@ class HELIUMRAIN_API UFlareQuestCondition: public UObject
 {
 	GENERATED_UCLASS_BODY()
 
+public:
+	virtual void Restore(const FFlareBundle* Bundle)
+	{
+	}
+
 protected:
 
-	  void LoadInternal(UFlareQuest* ParentQuest)
+	  void LoadInternal(UFlareQuest* ParentQuest, FName ConditionIdentifier = NAME_None)
 	  {
+		  Identifier = ConditionIdentifier;
 		  Quest = ParentQuest;
 	  }
 
@@ -27,6 +35,7 @@ protected:
 	int32                                   ConditionIndex;
 	FText                       InitialLabel;
 	FText						TerminalLabel;
+	FName                       Identifier;
 	TArray<EFlareQuestCallback::Type> Callbacks;
 
 	UFlareQuest* Quest;
@@ -64,12 +73,19 @@ public:
 
 	static void AddConditionCallbacks(TArray<EFlareQuestCallback::Type>& Callbacks, const TArray<UFlareQuestCondition*>& Conditions);
 
+	static const FFlareBundle* GetStepConditionBundle(UFlareQuestCondition* Condition, const TArray<FFlareQuestStepProgressSave>& Data);
+
+	FName GetIdentifier()
+	{
+		return Identifier;
+	}
+
 	AFlareGame* GetGame();
 	AFlarePlayerController* GetPC();
 
 };
 
-
+//////////////////////////////////////////////////////
 UCLASS()
 class HELIUMRAIN_API UFlareQuestConditionFlyingShipClass: public UFlareQuestCondition
 {
@@ -89,6 +105,7 @@ protected:
 	FName ShipClass;
 };
 
+//////////////////////////////////////////////////////
 UCLASS()
 class HELIUMRAIN_API UFlareQuestConditionSectorActive: public UFlareQuestCondition
 {
@@ -108,6 +125,7 @@ protected:
 	UFlareSimulatedSector* Sector;
 };
 
+//////////////////////////////////////////////////////
 UCLASS()
 class HELIUMRAIN_API UFlareQuestConditionSectorVisited: public UFlareQuestCondition
 {
@@ -125,4 +143,100 @@ public:
 protected:
 
 	UFlareSimulatedSector* Sector;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionMinCollinearVelocity: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionMinCollinearVelocity* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam);
+	virtual void Restore(const FFlareBundle* Bundle);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+	float GetCollinearVelocity();
+
+
+protected:
+
+	float VelocityLimit;
+	bool HasInitialVelocity;
+	float InitialVelocity;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionMaxCollinearVelocity: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionMaxCollinearVelocity* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam);
+	virtual void Restore(const FFlareBundle* Bundle);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+	float GetCollinearVelocity();
+
+
+protected:
+
+	float VelocityLimit;
+	bool HasInitialVelocity;
+	float InitialVelocity;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionMinCollinear: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionMinCollinear* Create(UFlareQuest* ParentQuest, float CollinearLimitParam);
+	void Load(UFlareQuest* ParentQuest, float CollinearLimitParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+	float GetCollinear();
+
+protected:
+
+	float CollinearLimit;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionMaxCollinear: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionMaxCollinear* Create(UFlareQuest* ParentQuest, float CollinearLimitParam);
+	void Load(UFlareQuest* ParentQuest, float CollinearLimitParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+	float GetCollinear();
+
+protected:
+
+	float CollinearLimit;
 };

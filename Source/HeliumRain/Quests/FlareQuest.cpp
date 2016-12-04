@@ -37,14 +37,28 @@ void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 	QuestData = Data;
 	QuestStatus = EFlareQuestStatus::ACTIVE;
 
+
+	for (UFlareQuestCondition* Condition: TriggerConditions)
+	{
+		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data.TriggerConditionsSave));
+	}
+
+	CurrentStep = NULL;
+
 	// Init current step
 	for(UFlareQuestStep* Step : Steps)
 	{
-		if (!SuccessfullSteps.Contains(Step))
+		if(Data.SuccessfullSteps.Contains(Identifier))
+		{
+			SuccessfullSteps.Add(Step);
+
+		}
+		else if(CurrentStep == NULL)
 		{
 			CurrentStep = Step;
-			break;
+			Step->Restore(Data.CurrentStepProgress);
 		}
+
 	}
 }
 
@@ -196,68 +210,6 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 		}
 
 
-		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				float CollinearVelocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector());
-
-				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
-				if (!ProgressSave)
-				{
-					ProgressSave = CreateStepProgressSave(Condition);
-					ProgressSave->CurrentProgression = 0;
-					ProgressSave->InitialVelocity = CollinearVelocity;
-				}
-
-				Status = CollinearVelocity > Condition->FloatParam1;
-			}
-			break;
-		case EFlareQuestCondition::SHIP_MAX_COLLINEAR_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				float CollinearVelocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector());
-
-				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
-				if (!ProgressSave)
-				{
-					ProgressSave = CreateStepProgressSave(Condition);
-					ProgressSave->CurrentProgression = 0;
-					ProgressSave->InitialVelocity = CollinearVelocity;
-				}
-
-				Status = CollinearVelocity < Condition->FloatParam1;
-			}
-			break;
-		case EFlareQuestCondition::SHIP_MIN_COLLINEARITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				if (Spacecraft->GetLinearVelocity().IsNearlyZero())
-				{
-					Status = false;
-				}
-				else
-				{
-					Status = (FVector::DotProduct(Spacecraft->GetLinearVelocity().GetUnsafeNormal(), Spacecraft->GetFrontVector()) > Condition->FloatParam1);
-				}
-			}
-			break;
-		case EFlareQuestCondition::SHIP_MAX_COLLINEARITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				if (Spacecraft->GetLinearVelocity().IsNearlyZero())
-				{
-					Status = false;
-				}
-				else
-				{
-					Status = (FVector::DotProduct(Spacecraft->GetLinearVelocity().GetUnsafeNormal(), Spacecraft->GetFrontVector()) < Condition->FloatParam1);
-				}
-			}
-			break;
 		case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
 			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
 			{
@@ -613,73 +565,8 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			break;
 		}
-		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
-		{
-			float Velocity = Spacecraft ? FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) : 0;
 
-			FText ReachSpeedText = LOCTEXT("ReachMinSpeedFormat", "Reach at least {0} m/s forward");
-			FText ReachSpeedShortText = LOCTEXT("ReachMinSpeedShortFormat", "{0} m/s");
 
-			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(Condition->FloatParam1)));
-			ObjectiveCondition.TerminalLabel = FText::Format(ReachSpeedShortText, FText::AsNumber((int)(Velocity)));
-			ObjectiveCondition.Counter = 0;
-			ObjectiveCondition.MaxCounter = 0;
-
-			FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
-			if (ProgressSave) // TODO #402 : investigate why this can be NULL
-			{
-				ObjectiveCondition.MaxProgress = FMath::Abs(ProgressSave->InitialVelocity - Condition->FloatParam1);
-				ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress - FMath::Abs(Velocity - Condition->FloatParam1);
-			}
-			else
-			{
-				ObjectiveCondition.MaxProgress = FMath::Abs(Condition->FloatParam1);
-				ObjectiveCondition.Progress = Velocity;
-			}
-
-			if (Velocity > Condition->FloatParam1)
-			{
-				ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress;
-			}
-
-			ObjectiveData->ConditionList.Add(ObjectiveCondition);
-
-			break;
-		}
-		case EFlareQuestCondition::SHIP_MAX_COLLINEAR_VELOCITY:
-		{
-			float Velocity = Spacecraft ? FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) : 0;
-
-			FText ReachSpeedText = LOCTEXT("ReachMaxSpeedFormat", "Reach at least {0} m/s backward");
-			FText ReachSpeedShortText = LOCTEXT("ReachMaxSpeedShortFormat", "{0} m/s");
-
-			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(-Condition->FloatParam1)));
-			ObjectiveCondition.TerminalLabel = FText::Format(ReachSpeedShortText, FText::AsNumber((int)(Velocity)));
-			ObjectiveCondition.Counter = 0;
-			ObjectiveCondition.MaxCounter = 0;
-
-			FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
-			if (ProgressSave) // TODO #402 : investigate why this can be NULL
-			{
-				ObjectiveCondition.MaxProgress = FMath::Abs(ProgressSave->InitialVelocity - Condition->FloatParam1);
-				ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress - FMath::Abs(Velocity - Condition->FloatParam1);
-			}
-			else
-			{
-				ObjectiveCondition.MaxProgress = Condition->FloatParam1;
-				ObjectiveCondition.Progress = Velocity;
-			}
-
-			if (Velocity < Condition->FloatParam1)
-			{
-				ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress;
-			}
-
-			ObjectiveData->ConditionList.Add(ObjectiveCondition);
-			break;
-		}
 		case EFlareQuestCondition::SHIP_MAX_PITCH_VELOCITY:
 		case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
 		{
@@ -734,12 +621,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
 			break;
 		}
-		case EFlareQuestCondition::SHIP_MAX_COLLINEARITY:
-			GenerateConditionCollinearityObjective(ObjectiveData, EFlareQuestCondition::SHIP_MAX_COLLINEARITY, Condition->FloatParam1);
-			break;
-		case EFlareQuestCondition::SHIP_MIN_COLLINEARITY:
-			GenerateConditionCollinearityObjective(ObjectiveData, EFlareQuestCondition::SHIP_MIN_COLLINEARITY, Condition->FloatParam1);
-			break;
+
 		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
 		{
 			FFlarePlayerObjectiveCondition ObjectiveCondition;
@@ -788,59 +670,6 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			FLOGV("ERROR: UpdateObjectiveTracker not implemented for condition type %d", (int)(Condition->Type +0));
 			break;
 		}
-	}
-}
-*/
-/*
-void UFlareQuest::GenerateConditionCollinearityObjective(FFlarePlayerObjectiveData* ObjectiveData, EFlareQuestCondition::Type ConditionType, float TargetCollinearity)
-{
-	if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-	{
-		AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-		float Alignment = 1;
-		if (!Spacecraft->GetLinearVelocity().IsNearlyZero())
-		{
-			Alignment = FVector::DotProduct(Spacecraft->GetLinearVelocity().GetUnsafeNormal(), Spacecraft->GetFrontVector());
-		}
-
-		float AlignmentAngle = FMath::RadiansToDegrees(FMath::Acos(Alignment));
-		float TargetAlignmentAngle = FMath::RadiansToDegrees(FMath::Acos(TargetCollinearity));
-
-		FFlarePlayerObjectiveCondition ObjectiveCondition;
-		ObjectiveCondition.MaxProgress = 1.0f;
-		FText MostOrLeast;
-		if (ConditionType == EFlareQuestCondition::SHIP_MAX_COLLINEARITY)
-		{
-			MostOrLeast = LOCTEXT("Least", "least");
-			if (AlignmentAngle > TargetAlignmentAngle)
-			{
-				ObjectiveCondition.Progress = 1.0;
-			}
-			else
-			{
-				ObjectiveCondition.Progress = AlignmentAngle/TargetAlignmentAngle;
-			}
-		}
-		else
-		{
-			MostOrLeast = LOCTEXT("Most", "most");
-			if (AlignmentAngle < TargetAlignmentAngle)
-			{
-				ObjectiveCondition.Progress = 1.0;
-			}
-			else
-			{
-				ObjectiveCondition.Progress = (180 - AlignmentAngle) / (180 - TargetAlignmentAngle);
-			}
-		}
-		
-		ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("MisAlignFormat", "Put at {0} {1}\u00B0 between your nose and your prograde vector"),
-			MostOrLeast, FText::AsNumber((int)(TargetAlignmentAngle)));
-		ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("MisAlignShortFormat", "{0}\u00B0"),
-			FText::AsNumber((int)(AlignmentAngle)));
-		ObjectiveCondition.Counter = 0;
-		ObjectiveCondition.MaxCounter = 0;
-		ObjectiveData->ConditionList.Add(ObjectiveCondition);
 	}
 }
 */
@@ -907,10 +736,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlar
 			break;
 		}
 
-		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
-		case EFlareQuestCondition::SHIP_MAX_COLLINEAR_VELOCITY:
-		case EFlareQuestCondition::SHIP_MIN_COLLINEARITY:
-		case EFlareQuestCondition::SHIP_MAX_COLLINEARITY:
+
 		case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
 		case EFlareQuestCondition::SHIP_MAX_PITCH_VELOCITY:
 		case EFlareQuestCondition::SHIP_MIN_YAW_VELOCITY:
@@ -979,31 +805,6 @@ FText UFlareQuest::GetStatusText() const
 	}
 }
 
-
-/*
-FFlareQuestStepProgressSave* UFlareQuest::GetCurrentStepProgressSave(const FFlareQuestConditionDescription* Condition)
-{
-	// TODO check double condition
-	if (Condition)
-	{
-		FName SaveId = FName(*FString::FromInt(Condition->Type + 0));
-		if (Condition->ConditionIdentifier != NAME_None)
-		{
-			SaveId = Condition->ConditionIdentifier;
-		}
-		for (int ProgressIndex = 0; ProgressIndex < QuestData.CurrentStepProgress.Num(); ProgressIndex++)
-		{
-			if (QuestData.CurrentStepProgress[ProgressIndex].ConditionIdentifier == SaveId)
-			{
-				return &QuestData.CurrentStepProgress[ProgressIndex];
-			}
-		}
-
-	}
-
-
-	return NULL;
-}*/
 /*
 FFlareQuestStepProgressSave* UFlareQuest::CreateStepProgressSave(const FFlareQuestConditionDescription* Condition)
 {

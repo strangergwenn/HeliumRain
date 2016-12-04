@@ -81,6 +81,8 @@ public:
 	void LoadVector(TSharedPtr< FJsonObject > Object, FString Key, FVector* Data);
 	void LoadRotator(TSharedPtr< FJsonObject > Object, FString Key, FRotator* Data);
 	void LoadFloatBuffer(TSharedPtr< FJsonObject > Object, FString Key, FFlareFloatBuffer* Data);
+	void LoadBundle(const TSharedPtr<FJsonObject> Object, FString Key, FFlareBundle* Data);
+
 
 
 

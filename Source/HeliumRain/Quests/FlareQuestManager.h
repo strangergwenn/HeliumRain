@@ -31,10 +31,11 @@ struct FFlareQuestStepProgressSave
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	FName ConditionIdentifier;
 
-	int32 CurrentProgression;
+	FFlareBundle Data;
+	/*int32 CurrentProgression;
 
 	FTransform InitialTransform;
-	float      InitialVelocity;
+	float      InitialVelocity;*/
 };
 
 /** Quest progress status save data */
@@ -51,6 +52,9 @@ struct FFlareQuestProgressSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareQuestStepProgressSave> CurrentStepProgress;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFlareQuestStepProgressSave> TriggerConditionsSave;
 };
 
 /** Quest status save data */
