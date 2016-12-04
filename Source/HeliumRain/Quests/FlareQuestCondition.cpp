@@ -554,5 +554,178 @@ void UFlareQuestConditionMaxCollinear::AddConditionObjectives(FFlarePlayerObject
 }
 
 
+// Helper
+void GenerateMaxRotationVelocityConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData, FVector LocalAxis, float Velocity, float AngularVelocityLimit)
+{
+	FText Direction;
+	FText ReachSpeedText;
+
+	if(LocalAxis.Y > 0)
+	{
+		Direction = (AngularVelocityLimit > 0) ? LOCTEXT("Down", "down") : LOCTEXT("Up", "up");
+		ReachSpeedText = LOCTEXT("ReachPitchFormat", "Reach a pitch rate of {0}\u00B0/s {1}");
+	}
+	else if(LocalAxis.Z > 0)
+	{
+		Direction = (AngularVelocityLimit > 0) ? LOCTEXT("Right", "right") : LOCTEXT("Left", "left");
+		ReachSpeedText = LOCTEXT("ReachYawFormat", "Reach a yaw rate of {0} \u00B0/s {1}");
+	}
+	else if(LocalAxis.X > 0)
+	{
+		Direction = (AngularVelocityLimit < 0) ? LOCTEXT("Right", "right") : LOCTEXT("Left", "left");
+		ReachSpeedText = LOCTEXT("ReachRollFormat", "Reach a roll rate of {0} \u00B0/s {1}");
+	}
+
+	FText ReachSpeedShortText = LOCTEXT("ReachPitchShortFormat", "{0}\u00B0/s");
+	float Sign = FMath::Sign(AngularVelocityLimit);
+
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(Sign * AngularVelocityLimit)), Direction);
+	ObjectiveCondition.TerminalLabel = FText::Format(ReachSpeedShortText, FText::AsNumber((int)(Sign * Velocity)));
+	ObjectiveCondition.Counter = 0;
+	ObjectiveCondition.MaxCounter = 0;
+
+	ObjectiveCondition.Progress = FMath::Clamp(Velocity * Sign , 0.0f, AngularVelocityLimit * Sign);
+	ObjectiveCondition.MaxProgress = AngularVelocityLimit * Sign;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+	Min rotation velocity condition
+----------------------------------------------------*/
+UFlareQuestConditionMinRotationVelocity::UFlareQuestConditionMinRotationVelocity(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionMinRotationVelocity* UFlareQuestConditionMinRotationVelocity::Create(UFlareQuest* ParentQuest, FVector LocalAxisParam, float AngularVelocityLimitParam)
+{
+	UFlareQuestConditionMinRotationVelocity*Condition = NewObject<UFlareQuestConditionMinRotationVelocity>(ParentQuest, UFlareQuestConditionMinRotationVelocity::StaticClass());
+	Condition->Load(ParentQuest, LocalAxisParam, AngularVelocityLimitParam);
+	return Condition;
+}
+
+void UFlareQuestConditionMinRotationVelocity::Load(UFlareQuest* ParentQuest, FVector LocalAxisParam, float AngularVelocityLimitParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::FLY_SHIP);
+	AngularVelocityLimit = AngularVelocityLimitParam;
+	LocalAxis = LocalAxisParam;
+}
+
+float UFlareQuestConditionMinRotationVelocity::GetVelocityInAxis()
+{
+	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
+	if (Spacecraft)
+	{
+		FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+		FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
+		return FVector::DotProduct(LocalAngularVelocity, LocalAxis);
+	}
+
+	return 0;
+}
+
+bool UFlareQuestConditionMinRotationVelocity::IsCompleted()
+{
+	return GetVelocityInAxis() > AngularVelocityLimit;
+}
+
+void UFlareQuestConditionMinRotationVelocity::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	GenerateMaxRotationVelocityConditionObjectives(ObjectiveData, LocalAxis, GetVelocityInAxis(), AngularVelocityLimit);
+}
+
+/*----------------------------------------------------
+	Max rotation velocity condition
+----------------------------------------------------*/
+UFlareQuestConditionMaxRotationVelocity::UFlareQuestConditionMaxRotationVelocity(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionMaxRotationVelocity* UFlareQuestConditionMaxRotationVelocity::Create(UFlareQuest* ParentQuest, FVector LocalAxisParam, float AngularVelocityLimitParam)
+{
+	UFlareQuestConditionMaxRotationVelocity*Condition = NewObject<UFlareQuestConditionMaxRotationVelocity>(ParentQuest, UFlareQuestConditionMaxRotationVelocity::StaticClass());
+	Condition->Load(ParentQuest, LocalAxisParam, AngularVelocityLimitParam);
+	return Condition;
+}
+
+void UFlareQuestConditionMaxRotationVelocity::Load(UFlareQuest* ParentQuest, FVector LocalAxisParam, float AngularVelocityLimitParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::FLY_SHIP);
+	AngularVelocityLimit = AngularVelocityLimitParam;
+	LocalAxis = LocalAxisParam;
+}
+
+float UFlareQuestConditionMaxRotationVelocity::GetVelocityInAxis()
+{
+	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
+	if (Spacecraft)
+	{
+		FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+		FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
+		return FVector::DotProduct(LocalAngularVelocity, LocalAxis);
+	}
+
+	return 0;
+}
+
+bool UFlareQuestConditionMaxRotationVelocity::IsCompleted()
+{
+	return GetVelocityInAxis() < AngularVelocityLimit;
+}
+
+void UFlareQuestConditionMaxRotationVelocity::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	GenerateMaxRotationVelocityConditionObjectives(ObjectiveData, LocalAxis, GetVelocityInAxis(), AngularVelocityLimit);
+}
+
+/*----------------------------------------------------
+	Ship alive condition
+----------------------------------------------------*/
+UFlareQuestConditionShipAlive::UFlareQuestConditionShipAlive(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionShipAlive* UFlareQuestConditionShipAlive::Create(UFlareQuest* ParentQuest, FName ShipIdentifierParam)
+{
+	UFlareQuestConditionShipAlive*Condition = NewObject<UFlareQuestConditionShipAlive>(ParentQuest, UFlareQuestConditionShipAlive::StaticClass());
+	Condition->Load(ParentQuest, ShipIdentifierParam);
+	return Condition;
+}
+
+void UFlareQuestConditionShipAlive::Load(UFlareQuest* ParentQuest, FName ShipIdentifierParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::FLY_SHIP);
+	ShipIdentifier = ShipIdentifierParam;
+}
+
+bool UFlareQuestConditionShipAlive::IsShipAlive()
+{
+	UFlareSimulatedSpacecraft* TargetSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(ShipIdentifier);
+	return TargetSpacecraft && TargetSpacecraft->GetDamageSystem()->IsAlive();
+}
+
+bool UFlareQuestConditionShipAlive::IsCompleted()
+{
+	return IsShipAlive();
+}
+
+void UFlareQuestConditionShipAlive::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("ShipAliveFormat", "{0} must stay alive"), FText::FromName(ShipIdentifier));
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = IsShipAlive() ? 1 : 0;
+	ObjectiveCondition.MaxCounter = 1;
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
 
 #undef LOCTEXT_NAMESPACE

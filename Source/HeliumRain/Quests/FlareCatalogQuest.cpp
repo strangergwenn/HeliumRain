@@ -119,7 +119,7 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 		case EFlareQuestCondition::SHIP_MAX_COLLINEARITY:
 			Conditions.Add(UFlareQuestConditionMaxCollinear::Create(this, ConditionDescription.FloatParam1));
 			break;
-		/*case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
+		case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
 			Conditions.Add(UFlareQuestConditionMinRotationVelocity::Create(this, FVector(0,1,0), ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MAX_PITCH_VELOCITY:
@@ -137,12 +137,14 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 		case EFlareQuestCondition::SHIP_MAX_ROLL_VELOCITY:
 			Conditions.Add(UFlareQuestConditionMaxRotationVelocity::Create(this, FVector(1,0,0), ConditionDescription.FloatParam1));
 			break;
-		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
+		/*case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
 			Conditions.Add(UFlareQuestConditionFollowRelativeWaypoints::Create(this, FVector(1,0,0), ConditionDescription.VectorListParam));
 			break;
+		*/
 		case EFlareQuestCondition::SHIP_ALIVE:
 			Conditions.Add(UFlareQuestConditionShipAlive::Create(this, ConditionDescription.Identifier1));
 			break;
+			/*
 		case EFlareQuestCondition::QUEST_SUCCESSFUL:
 		{
 			UFlareQuest* Quest = QuestManager->FindQuest(ConditionDescription.Identifier1);

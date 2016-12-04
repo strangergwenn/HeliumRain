@@ -240,3 +240,73 @@ protected:
 
 	float CollinearLimit;
 };
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionMinRotationVelocity: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionMinRotationVelocity* Create(UFlareQuest* ParentQuest, FVector LocalAxisParam, float AngularVelocityLimitParam);
+	void Load(UFlareQuest* ParentQuest, FVector LocalAxisParam, float AngularVelocityLimitParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+	float GetVelocityInAxis();
+
+protected:
+
+	FVector LocalAxis;
+	float AngularVelocityLimit;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionMaxRotationVelocity: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionMaxRotationVelocity* Create(UFlareQuest* ParentQuest, FVector LocalAxisParam, float AngularVelocityLimitParam);
+	void Load(UFlareQuest* ParentQuest, FVector LocalAxisParam, float AngularVelocityLimitParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+	float GetVelocityInAxis();
+
+protected:
+
+	FVector LocalAxis;
+	float AngularVelocityLimit;
+};
+
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionShipAlive: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionShipAlive* Create(UFlareQuest* ParentQuest, FName ShipIdentifierParam);
+	void Load(UFlareQuest* ParentQuest, FName ShipIdentifierParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+	bool IsShipAlive();
+
+protected:
+
+	FName ShipIdentifier;
+};
+

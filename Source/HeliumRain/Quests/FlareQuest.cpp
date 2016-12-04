@@ -210,60 +210,7 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 		}
 
 
-		case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
-				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
-				Status = (LocalAngularVelocity.Y > Condition->FloatParam1);
-			}
-			break;
-		case EFlareQuestCondition::SHIP_MAX_PITCH_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
-				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
-				Status = (LocalAngularVelocity.Y < Condition->FloatParam1);
-			}
-			break;
-		case EFlareQuestCondition::SHIP_MIN_YAW_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
-				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
-				Status = (LocalAngularVelocity.Z > Condition->FloatParam1);
-			}
-			break;
-		case EFlareQuestCondition::SHIP_MAX_YAW_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
-				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
-				Status = (LocalAngularVelocity.Z < Condition->FloatParam1);
-			}
-			break;
-		case EFlareQuestCondition::SHIP_MIN_ROLL_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
-				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
-				Status = (LocalAngularVelocity.X > Condition->FloatParam1);
-			}
-			break;
-		case EFlareQuestCondition::SHIP_MAX_ROLL_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
-				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
-				Status = (LocalAngularVelocity.X < Condition->FloatParam1);
-			}
-			break;
+
 		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
 			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
 			{
@@ -308,12 +255,7 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 				}
 			}
 			break;
-		case EFlareQuestCondition::SHIP_ALIVE:
-			if (QuestManager->GetGame()->GetPC()->GetPlayerShip())
-			{
-				Status = QuestManager->GetGame()->GetPC()->GetPlayerShip()->GetDamageSystem()->IsAlive();
-			}
-			break;
+
 		case EFlareQuestCondition::QUEST_SUCCESSFUL:
 			Status = QuestManager->IsQuestSuccesfull(Condition->Identifier1);
 			break;
@@ -550,77 +492,6 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			break;
 		}
 
-		case EFlareQuestCondition::SHIP_ALIVE:
-		{
-			UFlareSimulatedSpacecraft* TargetSpacecraft = QuestManager->GetGame()->GetGameWorld()->FindSpacecraft(Condition->Identifier1);
-
-			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("ShipAliveFormat", "{0} must stay alive"), FText::FromName(Condition->Identifier1));
-			ObjectiveCondition.TerminalLabel = FText();
-			ObjectiveCondition.Progress = 0;
-			ObjectiveCondition.MaxProgress = 0;
-			ObjectiveCondition.Counter = (TargetSpacecraft && TargetSpacecraft->GetDamageSystem()->IsAlive()) ? 1 : 0;
-			ObjectiveCondition.MaxCounter = 1;
-
-			ObjectiveData->ConditionList.Add(ObjectiveCondition);
-			break;
-		}
-
-
-		case EFlareQuestCondition::SHIP_MAX_PITCH_VELOCITY:
-		case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
-		{
-			FText Direction = (Condition->FloatParam1 > 0) ? LOCTEXT("Down", "down") : LOCTEXT("Up", "up");
-			FText ReachSpeedText = LOCTEXT("ReachPitchFormat", "Reach a pitch rate of {0}\u00B0/s {1}");
-			FText ReachSpeedShortText = LOCTEXT("ReachPitchShortFormat", "{0}\u00B0/s");
-
-			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)), Direction);
-			ObjectiveCondition.TerminalLabel = FText::Format(ReachSpeedShortText, FText::AsNumber((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.Y)));
-			ObjectiveCondition.Counter = 0;
-			ObjectiveCondition.MaxCounter = 0;
-
-			ObjectiveCondition.Progress = FMath::Clamp(LocalAngularVelocity.Y * FMath::Sign(Condition->FloatParam1) , 0.0f, Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1));
-			ObjectiveCondition.MaxProgress = Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1) ;
-			ObjectiveData->ConditionList.Add(ObjectiveCondition);
-			break;
-		}
-		case EFlareQuestCondition::SHIP_MAX_YAW_VELOCITY:
-		case EFlareQuestCondition::SHIP_MIN_YAW_VELOCITY:
-		{
-			FText Direction = (Condition->FloatParam1 > 0) ? LOCTEXT("Right", "right") : LOCTEXT("Left", "left");
-			FText ReachYawText = LOCTEXT("ReachYawFormat", "Reach a yaw rate of {0} \u00B0/s {1}");
-			FText ReachYawShortText = LOCTEXT("ReachYawShortFormat", "{0} \u00B0/s");
-
-			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = FText::Format(ReachYawText, FText::AsNumber((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)), Direction);
-			ObjectiveCondition.TerminalLabel = FText::Format(ReachYawShortText, FText::AsNumber((int)(FMath::Sign(Condition->FloatParam1) * LocalAngularVelocity.Z)));
-			ObjectiveCondition.Counter = 0;
-			ObjectiveCondition.MaxCounter = 0;
-
-			ObjectiveCondition.Progress = FMath::Clamp(LocalAngularVelocity.Z * FMath::Sign(Condition->FloatParam1) , 0.0f, Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1));
-			ObjectiveCondition.MaxProgress = Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1) ;
-			ObjectiveData->ConditionList.Add(ObjectiveCondition);
-			break;
-		}
-		case EFlareQuestCondition::SHIP_MAX_ROLL_VELOCITY:
-		case EFlareQuestCondition::SHIP_MIN_ROLL_VELOCITY:
-		{
-			FText Direction = (Condition->FloatParam1 < 0) ? LOCTEXT("Right", "right") : LOCTEXT("Left", "left");
-			FText ReachRollText = LOCTEXT("ReachRollFormat", "Reach a roll rate of {0} \u00B0/s {1}");
-			FText ReachRollShortText = LOCTEXT("ReachRollShortFormat", "{0} \u00B0/s");
-
-			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = FText::Format(ReachRollText, FText::AsNumber((int)(FMath::Sign(Condition->FloatParam1) * Condition->FloatParam1)), Direction);
-			ObjectiveCondition.TerminalLabel = FText::Format(ReachRollShortText, FText::AsNumber((int)(FMath::Sign(Condition->FloatParam1) *LocalAngularVelocity.X)));
-			ObjectiveCondition.Counter = 0;
-			ObjectiveCondition.MaxCounter = 0;
-
-			ObjectiveCondition.Progress = FMath::Clamp(LocalAngularVelocity.X * FMath::Sign(Condition->FloatParam1) , 0.0f, Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1));
-			ObjectiveCondition.MaxProgress = Condition->FloatParam1 * FMath::Sign(Condition->FloatParam1) ;
-			ObjectiveData->ConditionList.Add(ObjectiveCondition);
-			break;
-		}
 
 		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
 		{
@@ -737,14 +608,10 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlar
 		}
 
 
-		case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
-		case EFlareQuestCondition::SHIP_MAX_PITCH_VELOCITY:
-		case EFlareQuestCondition::SHIP_MIN_YAW_VELOCITY:
-		case EFlareQuestCondition::SHIP_MAX_YAW_VELOCITY:
-		case EFlareQuestCondition::SHIP_MIN_ROLL_VELOCITY:
-		case EFlareQuestCondition::SHIP_MAX_ROLL_VELOCITY:
+
+
 		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
-		case EFlareQuestCondition::SHIP_ALIVE:
+
 			Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 			break;
 		case EFlareQuestCondition::QUEST_SUCCESSFUL:
