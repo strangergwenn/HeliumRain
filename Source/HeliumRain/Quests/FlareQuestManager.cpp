@@ -5,6 +5,7 @@
 #include "../Data/FlareQuestCatalogEntry.h"
 #include "../Player/FlarePlayerController.h"
 #include "FlareQuestManager.h"
+#include "FlareCatalogQuest.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestManager"
 
@@ -29,75 +30,100 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 
 	QuestData = Data;
 
-	TArray<FName> ActiveQuestIdentifiers;
+	ActiveQuestIdentifiers.Empty();
 	for (int QuestProgressIndex = 0; QuestProgressIndex <Data.QuestProgresses.Num(); QuestProgressIndex++)
 	{
 		ActiveQuestIdentifiers.Add(Data.QuestProgresses[QuestProgressIndex].QuestIdentifier);
 	}
 
-	// Load catalog quests
-	/*for (int QuestIndex = 0; QuestIndex <Game->GetQuestCatalog()->Quests.Num(); QuestIndex++)
-	{
-		FFlareQuestDescription* QuestDescription = &(Game->GetQuestCatalog()->Quests[QuestIndex]->Data);
-		
-		// Create the quest
-		UFlareQuest* Quest = NewObject<UFlareQuest>(this, UFlareQuest::StaticClass());
-		Quest->Load(QuestDescription);
-		int QuestProgressIndex = ActiveQuestIdentifiers.IndexOfByKey(QuestDescription->Identifier);
+	LoadBuildinQuest();
 
-		// Skip tutorial quests.
-		if (QuestDescription->Category == EFlareQuestCategory::TUTORIAL && !QuestData.PlayTutorial)
-		{
-			FLOGV("Found skipped tutorial quest %s", *Quest->GetIdentifier().ToString());
-			OldQuests.Add(Quest);
-			Quest->SetStatus(EFlareQuestStatus::ABANDONNED);
-		}
-		else if (QuestProgressIndex != INDEX_NONE)
-		{
-			FLOGV("Found active quest %s", *Quest->GetIdentifier().ToString());
+	LoadCatalogQuests();
 
-			// Current quests
-			ActiveQuests.Add(Quest);
-			Quest->Restore(Data.QuestProgresses[QuestProgressIndex]);
-			if (Data.SelectedQuest == QuestDescription->Identifier)
-			{
-				SelectQuest(Quest);
-			}
-		}
-		else if (Data.SuccessfulQuests.Contains(QuestDescription->Identifier))
-		{
-			FLOGV("Found completed quest %s", *Quest->GetIdentifier().ToString());
-			OldQuests.Add(Quest);
-			Quest->SetStatus(EFlareQuestStatus::SUCCESSFUL);
-		}
-		else if (Data.AbandonnedQuests.Contains(QuestDescription->Identifier))
-		{
-			FLOGV("Found abandonned quest %s", *Quest->GetIdentifier().ToString());
-			OldQuests.Add(Quest);
-			Quest->SetStatus(EFlareQuestStatus::ABANDONNED);
-		}
-		else if (Data.FailedQuests.Contains(QuestDescription->Identifier))
-		{
-			FLOGV("Found failed quest %s", *Quest->GetIdentifier().ToString());
-			OldQuests.Add(Quest);
-			Quest->SetStatus(EFlareQuestStatus::FAILED);
-		}
-		else
-		{
-			FLOGV("Found available quest %s", *Quest->GetIdentifier().ToString());
-			AvailableQuests.Add(Quest);
-			Quest->SetStatus(EFlareQuestStatus::AVAILABLE);
-		}
+	LoadDynamicQuests();
 
-		LoadCallbacks(Quest);
-		Quest->UpdateState();
-	}
-*/
 	if (!SelectedQuest)
 	{
 		AutoSelectQuest();
 	}
 }
+
+void UFlareQuestManager::LoadBuildinQuest()
+{
+	// TODO
+}
+
+void UFlareQuestManager::LoadCatalogQuests()
+{
+	for (int QuestIndex = 0; QuestIndex <Game->GetQuestCatalog()->Quests.Num(); QuestIndex++)
+	{
+		FFlareQuestDescription* QuestDescription = &(Game->GetQuestCatalog()->Quests[QuestIndex]->Data);
+
+		// Create the quest
+		UFlareCatalogQuest* Quest = NewObject<UFlareCatalogQuest>(this, UFlareCatalogQuest::StaticClass());
+		Quest->Load(this, QuestDescription);
+
+		AddQuest(Quest);
+	}
+}
+
+void UFlareQuestManager::LoadDynamicQuests()
+{
+	// TODO
+}
+
+void UFlareQuestManager::AddQuest(UFlareQuest* Quest)
+{
+	int QuestProgressIndex = ActiveQuestIdentifiers.IndexOfByKey(Quest->GetIdentifier());
+
+	// Skip tutorial quests.
+	if (Quest->GetQuestCategory() == EFlareQuestCategory::TUTORIAL && !QuestData.PlayTutorial)
+	{
+		FLOGV("Found skipped tutorial quest %s", *Quest->GetIdentifier().ToString());
+		OldQuests.Add(Quest);
+		Quest->SetStatus(EFlareQuestStatus::ABANDONNED);
+	}
+	else if (QuestProgressIndex != INDEX_NONE)
+	{
+		FLOGV("Found active quest %s", *Quest->GetIdentifier().ToString());
+
+		// Current quests
+		ActiveQuests.Add(Quest);
+		Quest->Restore(QuestData.QuestProgresses[QuestProgressIndex]);
+		if (QuestData.SelectedQuest == Quest->GetIdentifier())
+		{
+			SelectQuest(Quest);
+		}
+	}
+	else if (QuestData.SuccessfulQuests.Contains(Quest->GetIdentifier()))
+	{
+		FLOGV("Found completed quest %s", *Quest->GetIdentifier().ToString());
+		OldQuests.Add(Quest);
+		Quest->SetStatus(EFlareQuestStatus::SUCCESSFUL);
+	}
+	else if (QuestData.AbandonnedQuests.Contains(Quest->GetIdentifier()))
+	{
+		FLOGV("Found abandonned quest %s", *Quest->GetIdentifier().ToString());
+		OldQuests.Add(Quest);
+		Quest->SetStatus(EFlareQuestStatus::ABANDONNED);
+	}
+	else if (QuestData.FailedQuests.Contains(Quest->GetIdentifier()))
+	{
+		FLOGV("Found failed quest %s", *Quest->GetIdentifier().ToString());
+		OldQuests.Add(Quest);
+		Quest->SetStatus(EFlareQuestStatus::FAILED);
+	}
+	else
+	{
+		FLOGV("Found available quest %s", *Quest->GetIdentifier().ToString());
+		AvailableQuests.Add(Quest);
+		Quest->SetStatus(EFlareQuestStatus::AVAILABLE);
+	}
+
+	LoadCallbacks(Quest);
+	Quest->UpdateState();
+}
+
 
 FFlareQuestSave* UFlareQuestManager::Save()
 {

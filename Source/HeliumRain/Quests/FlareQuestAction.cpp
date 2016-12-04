@@ -38,7 +38,7 @@ UFlareQuestActionDiscoverSector::UFlareQuestActionDiscoverSector(const FObjectIn
 
 void UFlareQuestActionDiscoverSector::Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam)
 {
-	PrivateLoad(ParentQuest);
+	LoadInternal(ParentQuest);
 	Sector = SectorParam;
 }
 

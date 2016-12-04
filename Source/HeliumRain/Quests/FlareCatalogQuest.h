@@ -22,13 +22,20 @@ public:
 	----------------------------------------------------*/
 
 	/** Load the quest from description file */
-	virtual void Load(const FFlareQuestDescription* Description);
+	virtual void Load(UFlareQuestManager* Parent, const FFlareQuestDescription* Description);
 
 protected:
 
 	/*----------------------------------------------------
 		Internal
 	----------------------------------------------------*/
+
+	TArray<UFlareQuestCondition*> GenerateCatalogCondition(const FFlareQuestConditionDescription& ConditionDescription);
+
+	UFlareQuestAction* GenerateCatalogAction(const FFlareQuestActionDescription& ActionDescription);
+
+	UFlareQuestStep* GenerateCatalogStep(const FFlareQuestStepDescription& StepDescription);
+
 
 	//virtual FFlareQuestStepProgressSave* CreateStepProgressSave(const FFlareQuestConditionDescription* Condition);
 
@@ -51,16 +58,11 @@ protected:
 }*/
 
 
-	 const FFlareQuestDescription*			QuestDescription;
-	 const FFlareQuestStepDescription*		CurrentStepDescription;
+	 const FFlareQuestDescription*			CatalogDescription;
 
 	 /*----------------------------------------------------
 		 Internal getters
 	 ----------------------------------------------------*/
-	 inline const FFlareQuestDescription* GetQuestDescription() const
-	 {
-		 return QuestDescription;
-	 }
 
 
 	 const FFlareSharedQuestCondition* FindSharedCondition(FName SharedConditionIdentifier);

@@ -22,7 +22,7 @@ public:
 	static void PerformActions(const TArray<UFlareQuestAction*>& Actions);
 protected:
 
-	void PrivateLoad(UFlareQuest* ParentQuest)
+	void LoadInternal(UFlareQuest* ParentQuest)
 	{
 		Quest = ParentQuest;
 	}
@@ -44,8 +44,7 @@ public:
 };
 
 
-
-UCLASS(abstract)
+UCLASS()
 class HELIUMRAIN_API UFlareQuestActionDiscoverSector: public UFlareQuestAction
 {
 	GENERATED_UCLASS_BODY()

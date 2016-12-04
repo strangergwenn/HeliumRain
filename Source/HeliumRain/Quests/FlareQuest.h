@@ -48,6 +48,9 @@ class HELIUMRAIN_API UFlareQuest: public UObject
 
 public:
 
+	 /** Load */
+	 virtual void LoadInternal(UFlareQuestManager* Parent);
+
 	/** Restore the quest status from a save file */
 	virtual void Restore(const FFlareQuestProgressSave& Data);
 
@@ -198,6 +201,11 @@ public:
 	int32 GetStepCount()
 	{
 		return Steps.Num();
+	}
+
+	UFlareQuestManager*	GetQuestManager()
+	{
+		return QuestManager;
 	}
 
 	//FFlareQuestStepProgressSave* GetCurrentStepProgressSave(const FFlareQuestConditionDescription* Condition);

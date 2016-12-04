@@ -2,6 +2,9 @@
 
 #include "FlareQuestCondition.generated.h"
 
+class UFlareQuest;
+class AFlarePlayerController;
+class AFlareGame;
 struct FFlarePlayerObjectiveData;
 
 /** A quest Step condition */
@@ -12,6 +15,11 @@ class HELIUMRAIN_API UFlareQuestCondition: public UObject
 
 protected:
 
+	  void LoadInternal(UFlareQuest* ParentQuest)
+	  {
+		  Quest = ParentQuest;
+	  }
+
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
@@ -20,13 +28,14 @@ protected:
 	FText						TerminalLabel;
 	TArray<EFlareQuestCallback::Type> Callbacks;
 
+	UFlareQuest* Quest;
 public:
 
 	/*----------------------------------------------------
 	 Getters
 	----------------------------------------------------*/
 
-	virtual bool IsCompleted(bool EmptyResult);
+	virtual bool IsCompleted();
 
 	int32 GetConditionIndex()
 	{
@@ -54,5 +63,34 @@ public:
 
 	static void AddConditionCallbacks(TArray<EFlareQuestCallback::Type>& Callbacks, const TArray<UFlareQuestCondition*>& Conditions);
 
+	AFlareGame* GetGame();
+	AFlarePlayerController* GetPC();
 
+};
+
+
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionFlyingShipClass: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+	/*----------------------------------------------------
+		Gameplay
+	----------------------------------------------------*/
+
+	static UFlareQuestConditionFlyingShipClass* Create(UFlareQuest* ParentQuest, FName ShipClassParam);
+	void Load(UFlareQuest* ParentQuest, FName ShipClassParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	/*----------------------------------------------------
+		Protected data
+	----------------------------------------------------*/
+
+	FName ShipClass;
 };

@@ -107,6 +107,13 @@ public:
 	/** Auto select a quest */
 	void AutoSelectQuest();
 
+	void LoadBuildinQuest();
+
+	void LoadCatalogQuests();
+
+	void LoadDynamicQuests();
+
+	void AddQuest(UFlareQuest* Quest);
 
    /*----------------------------------------------------
 	   Callback
@@ -159,6 +166,8 @@ protected:
 	FFlareQuestSave			                 QuestData;
 
 	AFlareGame*                              Game;
+
+	TArray<FName>							 ActiveQuestIdentifiers;
 
 public:
 

@@ -26,13 +26,11 @@ UFlareQuest::UFlareQuest(const FObjectInitializer& ObjectInitializer)
 ----------------------------------------------------*/
 
 
-/*void UFlareQuest::Load(const FFlareQuestDescription* Description)
+void UFlareQuest::LoadInternal(UFlareQuestManager* Parent)
 {
-	QuestManager = Cast<UFlareQuestManager>(GetOuter());
-	QuestDescription = Description;
-	QuestData.QuestIdentifier = QuestDescription->Identifier;
+	QuestManager = Parent;
 	QuestStatus = EFlareQuestStatus::AVAILABLE;
-}*/
+}
 
 void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 {
@@ -196,21 +194,7 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 			}
 			break;
 		}
-		case EFlareQuestCondition::FLYING_SHIP:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				if (Condition->Identifier1 == NAME_None)
-				{
-					// No specific ship required
-					Status = true;
-				}
-				else if (Condition->Identifier1 == QuestManager->GetGame()->GetPC()->GetPlayerShip()->GetDescription()->Identifier)
-				{
-					// The flyed ship is the right kind of ship
-					Status = true;
-				}
-			}
-			break;
+
 		case EFlareQuestCondition::SECTOR_ACTIVE:
 			if (QuestManager->GetGame()->GetActiveSector() && QuestManager->GetGame()->GetActiveSector()->GetSimulatedSector()->GetIdentifier() == Condition->Identifier1)
 			{
@@ -625,22 +609,6 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			break;
 		}
 
-		case EFlareQuestCondition::FLYING_SHIP:
-		{
-			FFlareSpacecraftDescription* SpacecraftDesc = QuestManager->GetGame()->GetSpacecraftCatalog()->Get(Condition->Identifier1);
-			FCHECK(SpacecraftDesc);
-
-			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("FlyShipFormat", "Fly a {0}-class ship"), SpacecraftDesc->Name);
-			ObjectiveCondition.TerminalLabel = FText();
-			ObjectiveCondition.Progress = 0;
-			ObjectiveCondition.MaxProgress = 0;
-			ObjectiveCondition.Counter = (Spacecraft && Spacecraft->GetDescription()->Identifier == Condition->Identifier1) ? 1 : 0;
-			ObjectiveCondition.MaxCounter = 1;
-
-			ObjectiveData->ConditionList.Add(ObjectiveCondition);
-			break;
-		}
 		case EFlareQuestCondition::SHIP_ALIVE:
 		{
 			UFlareSimulatedSpacecraft* TargetSpacecraft = QuestManager->GetGame()->GetGameWorld()->FindSpacecraft(Condition->Identifier1);
@@ -979,9 +947,6 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlar
 			}
 			break;
 		}
-		case EFlareQuestCondition::FLYING_SHIP:
-			Callbacks.AddUnique(EFlareQuestCallback::FLY_SHIP);
-			break;
 		case EFlareQuestCondition::SECTOR_VISITED:
 			Callbacks.AddUnique(EFlareQuestCallback::SECTOR_VISITED);
 			break;
