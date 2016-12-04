@@ -5,6 +5,7 @@
 class UFlareQuest;
 class AFlarePlayerController;
 class AFlareGame;
+class UFlareSimulatedSector;
 struct FFlarePlayerObjectiveData;
 
 /** A quest Step condition */
@@ -76,9 +77,6 @@ class HELIUMRAIN_API UFlareQuestConditionFlyingShipClass: public UFlareQuestCond
 
 
 public:
-	/*----------------------------------------------------
-		Gameplay
-	----------------------------------------------------*/
 
 	static UFlareQuestConditionFlyingShipClass* Create(UFlareQuest* ParentQuest, FName ShipClassParam);
 	void Load(UFlareQuest* ParentQuest, FName ShipClassParam);
@@ -88,9 +86,43 @@ public:
 
 protected:
 
-	/*----------------------------------------------------
-		Protected data
-	----------------------------------------------------*/
-
 	FName ShipClass;
+};
+
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionSectorActive: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionSectorActive* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	UFlareSimulatedSector* Sector;
+};
+
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionSectorVisited: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionSectorVisited* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	UFlareSimulatedSector* Sector;
 };

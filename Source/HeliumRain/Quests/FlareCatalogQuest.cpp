@@ -77,190 +77,104 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 		case EFlareQuestCondition::FLYING_SHIP:
 			Conditions.Add(UFlareQuestConditionFlyingShipClass::Create(this, ConditionDescription.Identifier1));
 			break;
-		/*case EFlareQuestCondition::SECTOR_ACTIVE:
-			if (QuestManager->GetGame()->GetActiveSector() && QuestManager->GetGame()->GetActiveSector()->GetSimulatedSector()->GetIdentifier() == Condition->Identifier1)
+		case EFlareQuestCondition::SECTOR_ACTIVE:
+		{
+			UFlareSimulatedSector* Sector = QuestManager->GetGame()->GetGameWorld()->FindSector(ConditionDescription.Identifier1);
+			if(Sector)
 			{
-					Status = true;
+				Conditions.Add(UFlareQuestConditionSectorActive::Create(this, Sector));
+			}
+			else
+			{
+				FLOGV("ERROR: GenerateCatalogCondition fail to find sector '%s' for quest '%s'",
+					  *ConditionDescription.Identifier1.ToString(),
+					  *Identifier.ToString());
 			}
 			break;
+		}
 		case EFlareQuestCondition::SECTOR_VISITED:
-			if (QuestManager->GetGame()->GetPC()->GetCompany()->HasVisitedSector(QuestManager->GetGame()->GetGameWorld()->FindSector(Condition->Identifier1)))
+		{
+			UFlareSimulatedSector* Sector = QuestManager->GetGame()->GetGameWorld()->FindSector(ConditionDescription.Identifier1);
+			if(Sector)
 			{
-					Status = true;
+				Conditions.Add(UFlareQuestConditionSectorVisited::Create(this, Sector));
+			}
+			else
+			{
+				FLOGV("ERROR: GenerateCatalogCondition fail to find sector '%s' for quest '%s'",
+					  *ConditionDescription.Identifier1.ToString(),
+					  *Identifier.ToString());
 			}
 			break;
+		}
 		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				float CollinearVelocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector());
-
-				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
-				if (!ProgressSave)
-				{
-					ProgressSave = CreateStepProgressSave(Condition);
-					ProgressSave->CurrentProgression = 0;
-					ProgressSave->InitialVelocity = CollinearVelocity;
-				}
-
-				Status = CollinearVelocity > Condition->FloatParam1;
-			}
+			Conditions.Add(UFlareQuestConditionMinCollinearVelocity::Create(this, ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MAX_COLLINEAR_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				float CollinearVelocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector());
-
-				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
-				if (!ProgressSave)
-				{
-					ProgressSave = CreateStepProgressSave(Condition);
-					ProgressSave->CurrentProgression = 0;
-					ProgressSave->InitialVelocity = CollinearVelocity;
-				}
-
-				Status = CollinearVelocity < Condition->FloatParam1;
-			}
+			Conditions.Add(UFlareQuestConditionMaxCollinearVelocity::Create(this, ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MIN_COLLINEARITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				if (Spacecraft->GetLinearVelocity().IsNearlyZero())
-				{
-					Status = false;
-				}
-				else
-				{
-					Status = (FVector::DotProduct(Spacecraft->GetLinearVelocity().GetUnsafeNormal(), Spacecraft->GetFrontVector()) > Condition->FloatParam1);
-				}
-			}
+			Conditions.Add(UFlareQuestConditionMinCollinear::Create(this, ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MAX_COLLINEARITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				if (Spacecraft->GetLinearVelocity().IsNearlyZero())
-				{
-					Status = false;
-				}
-				else
-				{
-					Status = (FVector::DotProduct(Spacecraft->GetLinearVelocity().GetUnsafeNormal(), Spacecraft->GetFrontVector()) < Condition->FloatParam1);
-				}
-			}
+			Conditions.Add(UFlareQuestConditionMaxCollinear::Create(this, ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MIN_PITCH_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
-				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
-				Status = (LocalAngularVelocity.Y > Condition->FloatParam1);
-			}
+			Conditions.Add(UFlareQuestConditionMinRotationVelocity::Create(this, FVector(0,1,0), ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MAX_PITCH_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
-				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
-				Status = (LocalAngularVelocity.Y < Condition->FloatParam1);
-			}
+			Conditions.Add(UFlareQuestConditionMaxRotationVelocity::Create(this, FVector(0,1,0), ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MIN_YAW_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
-				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
-				Status = (LocalAngularVelocity.Z > Condition->FloatParam1);
-			}
+			Conditions.Add(UFlareQuestConditionMinRotationVelocity::Create(this, FVector(0,0,1), ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MAX_YAW_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
-				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
-				Status = (LocalAngularVelocity.Z < Condition->FloatParam1);
-			}
+			Conditions.Add(UFlareQuestConditionMaxRotationVelocity::Create(this, FVector(0,0,1), ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MIN_ROLL_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
-				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
-				Status = (LocalAngularVelocity.X > Condition->FloatParam1);
-			}
+			Conditions.Add(UFlareQuestConditionMinRotationVelocity::Create(this, FVector(1,0,0), ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_MAX_ROLL_VELOCITY:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-				FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
-				FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
-				Status = (LocalAngularVelocity.X < Condition->FloatParam1);
-			}
+			Conditions.Add(UFlareQuestConditionMaxRotationVelocity::Create(this, FVector(1,0,0), ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-
-				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
-
-				if (!ProgressSave)
-				{
-					ProgressSave = CreateStepProgressSave(Condition);
-					ProgressSave->CurrentProgression = 0;
-					ProgressSave->InitialTransform = Spacecraft->Airframe->GetComponentTransform();
-				}
-
-				FVector InitialLocation = ProgressSave->InitialTransform.GetTranslation();
-				FVector RelativeTargetLocation = Condition->VectorListParam[ProgressSave->CurrentProgression] * 100;
-				FVector WorldTargetLocation = InitialLocation + ProgressSave->InitialTransform.GetRotation().RotateVector(RelativeTargetLocation);
-
-
-				float MaxDistance = Condition->FloatListParam[ProgressSave->CurrentProgression] * 100;
-
-
-				if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
-				{
-					// Nearing the target
-					if (ProgressSave->CurrentProgression + 2 <= Condition->VectorListParam.Num())
-					{
-						// Progress.
-						ProgressSave->CurrentProgression++;
-
-						FText WaypointText = LOCTEXT("WaypointProgress", "Waypoint reached, {0} left");
-
-						SendQuestNotification(FText::Format(WaypointText, FText::AsNumber(Condition->VectorListParam.Num() - ProgressSave->CurrentProgression)),
-											  FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")));
-					}
-					else
-					{
-						// All waypoint reach
-						Status = true;
-					}
-
-				}
-			}
+			Conditions.Add(UFlareQuestConditionFollowRelativeWaypoints::Create(this, FVector(1,0,0), ConditionDescription.VectorListParam));
 			break;
 		case EFlareQuestCondition::SHIP_ALIVE:
-			if (QuestManager->GetGame()->GetPC()->GetPlayerShip())
-			{
-				Status = QuestManager->GetGame()->GetPC()->GetPlayerShip()->GetDamageSystem()->IsAlive();
-			}
+			FLOG("SHIP_ALIVE condition deprecated")
 			break;
 		case EFlareQuestCondition::QUEST_SUCCESSFUL:
-			Status = QuestManager->IsQuestSuccesfull(Condition->Identifier1);
+		{
+			UFlareQuest* Quest = QuestManager->FindQuest(ConditionDescription.Identifier1);
+			if(Quest)
+			{
+				Conditions.Add(UFlareQuestConditionQuestSuccessful::Create(this, Quest));
+			}
+			else
+			{
+				FLOGV("ERROR: GenerateCatalogCondition fail to find quest '%s' for quest '%s'",
+					  *ConditionDescription.Identifier1.ToString(),
+					  *Identifier.ToString());
+			}
+
 			break;
+		}
 		case EFlareQuestCondition::QUEST_FAILED:
-			Status = QuestManager->IsQuestFailed(Condition->Identifier1);
-			break;*/
+		{
+			UFlareQuest* Quest = QuestManager->FindQuest(ConditionDescription.Identifier1);
+			if(Quest)
+			{
+				Conditions.Add(UFlareQuestConditionQuestFailed::Create(this, Quest));
+			}
+			else
+			{
+				FLOGV("ERROR: GenerateCatalogCondition fail to find quest '%s' for quest '%s'",
+					  *ConditionDescription.Identifier1.ToString(),
+					  *Identifier.ToString());
+			}
+
+			break;
+		}
 		default:
 			FLOGV("ERROR: CheckCondition not implemented for condition type %d", (int)(ConditionDescription.Type +0));
 			break;

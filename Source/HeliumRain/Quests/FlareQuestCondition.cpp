@@ -129,4 +129,93 @@ void UFlareQuestConditionFlyingShipClass::AddConditionObjectives(FFlarePlayerObj
 	}
 }
 
+/*----------------------------------------------------
+	Sector active condition
+----------------------------------------------------*/
+UFlareQuestConditionSectorActive::UFlareQuestConditionSectorActive(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionSectorActive* UFlareQuestConditionSectorActive::Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam)
+{
+	UFlareQuestConditionSectorActive*Condition = NewObject<UFlareQuestConditionSectorActive>(ParentQuest, UFlareQuestConditionSectorActive::StaticClass());
+	Condition->Load(ParentQuest, SectorParam);
+	return Condition;
+}
+
+void UFlareQuestConditionSectorActive::Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::SECTOR_ACTIVE);
+	Sector = SectorParam;
+}
+
+bool UFlareQuestConditionSectorActive::IsCompleted()
+{
+	return GetGame()->GetActiveSector()  == Sector;
+}
+
+void UFlareQuestConditionSectorActive::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlareSpacecraftDescription* SpacecraftDesc = GetGame()->GetSpacecraftCatalog()->Get(ShipClass);
+	if (SpacecraftDesc)
+	{
+		FFlarePlayerObjectiveCondition ObjectiveCondition;
+		ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("BeInSectorFormat", "Fly in the sector \"{0}\""), Sector->GetSectorName());
+		ObjectiveCondition.TerminalLabel = FText();
+		ObjectiveCondition.Progress = 0;
+		ObjectiveCondition.MaxProgress = 0;
+		ObjectiveCondition.Counter = (IsCompleted()) ? 1 : 0;
+		ObjectiveCondition.MaxCounter = 1;
+
+		ObjectiveData->ConditionList.Add(ObjectiveCondition);
+	}
+}
+
+/*----------------------------------------------------
+	Sector visited condition
+----------------------------------------------------*/
+UFlareQuestConditionSectorVisited::UFlareQuestConditionSectorVisited(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionSectorVisited* UFlareQuestConditionSectorVisited::Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam)
+{
+	UFlareQuestConditionSectorVisited*Condition = NewObject<UFlareQuestConditionSectorVisited>(ParentQuest, UFlareQuestConditionSectorVisited::StaticClass());
+	Condition->Load(ParentQuest, SectorParam);
+	return Condition;
+}
+
+void UFlareQuestConditionSectorVisited::Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::SECTOR_VISITED);
+	Sector = SectorParam;
+}
+
+bool UFlareQuestConditionSectorVisited::IsCompleted()
+{
+	return GetPC()->GetCompany()->HasVisitedSector(Sector);
+}
+
+void UFlareQuestConditionSectorVisited::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlareSpacecraftDescription* SpacecraftDesc = GetGame()->GetSpacecraftCatalog()->Get(ShipClass);
+	if (SpacecraftDesc)
+	{
+		FFlarePlayerObjectiveCondition ObjectiveCondition;
+		ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("VisitSectorFormat", "Visit the sector \"{0}\""), TargetSector->GetSectorName());
+		ObjectiveCondition.TerminalLabel = FText();
+		ObjectiveCondition.Progress = 0;
+		ObjectiveCondition.MaxProgress = 0;
+		ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+		ObjectiveCondition.MaxCounter = 0;
+
+		ObjectiveData->ConditionList.Add(ObjectiveCondition);
+	}
+}
+
+
 #undef LOCTEXT_NAMESPACE

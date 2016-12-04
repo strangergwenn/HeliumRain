@@ -195,18 +195,7 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 			break;
 		}
 
-		case EFlareQuestCondition::SECTOR_ACTIVE:
-			if (QuestManager->GetGame()->GetActiveSector() && QuestManager->GetGame()->GetActiveSector()->GetSimulatedSector()->GetIdentifier() == Condition->Identifier1)
-			{
-					Status = true;
-			}
-			break;
-		case EFlareQuestCondition::SECTOR_VISITED:
-			if (QuestManager->GetGame()->GetPC()->GetCompany()->HasVisitedSector(QuestManager->GetGame()->GetGameWorld()->FindSector(Condition->Identifier1)))
-			{
-					Status = true;
-			}
-			break;
+
 		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
 			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
 			{
@@ -793,37 +782,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 			break;
 		}
 
-		case EFlareQuestCondition::SECTOR_VISITED:
-		{
-			UFlareSimulatedSector* TargetSector = QuestManager->GetGame()->GetGameWorld()->FindSector(Condition->Identifier1);
 
-			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("VisitSectorFormat", "Visit the sector \"{0}\""), TargetSector->GetSectorName());
-			ObjectiveCondition.TerminalLabel = FText();
-			ObjectiveCondition.Progress = 0;
-			ObjectiveCondition.MaxProgress = 0;
-			ObjectiveCondition.Counter = QuestManager->GetGame()->GetPC()->GetCompany()->HasVisitedSector(TargetSector) ? 1 : 0;
-			ObjectiveCondition.MaxCounter = 0;
-			
-			ObjectiveData->ConditionList.Add(ObjectiveCondition);
-			break;
-		}
-
-		case EFlareQuestCondition::SECTOR_ACTIVE:
-		{
-			UFlareSimulatedSector* TargetSector = QuestManager->GetGame()->GetGameWorld()->FindSector(Condition->Identifier1);
-
-			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("BeInSectorFormat", "Fly in the sector \"{0}\""), TargetSector->GetSectorName());
-			ObjectiveCondition.TerminalLabel = FText();
-			ObjectiveCondition.Progress = 0;
-			ObjectiveCondition.MaxProgress = 0;
-			ObjectiveCondition.Counter = (TargetSector && Spacecraft && TargetSector == Spacecraft->GetParent()->GetCurrentSector()) ? 1 : 0;
-			ObjectiveCondition.MaxCounter = 1;
-
-			ObjectiveData->ConditionList.Add(ObjectiveCondition);
-			break;
-		}
 
 		default:
 			FLOGV("ERROR: UpdateObjectiveTracker not implemented for condition type %d", (int)(Condition->Type +0));
@@ -947,12 +906,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlar
 			}
 			break;
 		}
-		case EFlareQuestCondition::SECTOR_VISITED:
-			Callbacks.AddUnique(EFlareQuestCallback::SECTOR_VISITED);
-			break;
-		case EFlareQuestCondition::SECTOR_ACTIVE:
-			Callbacks.AddUnique(EFlareQuestCallback::SECTOR_ACTIVE);
-			break;
+
 		case EFlareQuestCondition::SHIP_MIN_COLLINEAR_VELOCITY:
 		case EFlareQuestCondition::SHIP_MAX_COLLINEAR_VELOCITY:
 		case EFlareQuestCondition::SHIP_MIN_COLLINEARITY:
