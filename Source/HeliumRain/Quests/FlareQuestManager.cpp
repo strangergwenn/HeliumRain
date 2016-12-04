@@ -372,7 +372,7 @@ bool UFlareQuestManager::IsQuestActive(UFlareQuest* Quest)
 	return false;
 }
 
-bool UFlareQuestManager::IsQuestSuccesfull(UFlareQuest* Quest)
+bool UFlareQuestManager::IsQuestSuccessfull(UFlareQuest* Quest)
 {
 	for(UFlareQuest* OldQuest: OldQuests)
 	{
@@ -408,6 +408,35 @@ bool UFlareQuestManager::IsQuestFailed(UFlareQuest* Quest)
 		}
 	}
 	return false;
+}
+
+UFlareQuest* UFlareQuestManager::FindQuest(FName QuestIdentifier)
+{
+	for(UFlareQuest* Quest: ActiveQuests)
+	{
+		if (Quest->GetIdentifier() == QuestIdentifier)
+		{
+			return Quest;
+		}
+	}
+
+	for(UFlareQuest* Quest: OldQuests)
+	{
+		if (Quest->GetIdentifier() == QuestIdentifier)
+		{
+			return Quest;
+		}
+	}
+
+	for(UFlareQuest* Quest: AvailableQuests)
+	{
+		if (Quest->GetIdentifier() == QuestIdentifier)
+		{
+			return Quest;
+		}
+	}
+
+	return NULL;
 }
 
 

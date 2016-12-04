@@ -256,12 +256,7 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 			}
 			break;
 
-		case EFlareQuestCondition::QUEST_SUCCESSFUL:
-			Status = QuestManager->IsQuestSuccesfull(Condition->Identifier1);
-			break;
-		case EFlareQuestCondition::QUEST_FAILED:
-			Status = QuestManager->IsQuestFailed(Condition->Identifier1);
-			break;
+
 		default:
 			FLOGV("ERROR: CheckCondition not implemented for condition type %d", (int)(Condition->Type +0));
 			break;
@@ -614,10 +609,8 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlar
 
 			Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 			break;
-		case EFlareQuestCondition::QUEST_SUCCESSFUL:
-		case EFlareQuestCondition::QUEST_FAILED:
-			Callbacks.AddUnique(EFlareQuestCallback::QUEST);
-			break;
+
+
 		default:
 			FLOGV("ERROR: GetConditionCallbacks not implemented for condition type %d", (int)(Condition->Type +0));
 			break;

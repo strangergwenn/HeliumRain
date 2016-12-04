@@ -728,4 +728,66 @@ void UFlareQuestConditionShipAlive::AddConditionObjectives(FFlarePlayerObjective
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
 
+/*----------------------------------------------------
+	Quest succesfull condition
+----------------------------------------------------*/
+UFlareQuestConditionQuestSuccessful::UFlareQuestConditionQuestSuccessful(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionQuestSuccessful* UFlareQuestConditionQuestSuccessful::Create(UFlareQuest* ParentQuest, UFlareQuest* QuestParam)
+{
+	UFlareQuestConditionQuestSuccessful*Condition = NewObject<UFlareQuestConditionQuestSuccessful>(ParentQuest, UFlareQuestConditionQuestSuccessful::StaticClass());
+	Condition->Load(ParentQuest, QuestParam);
+	return Condition;
+}
+
+void UFlareQuestConditionQuestSuccessful::Load(UFlareQuest* ParentQuest, UFlareQuest* QuestParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST);
+	TargetQuest = QuestParam;
+}
+
+bool UFlareQuestConditionQuestSuccessful::IsCompleted()
+{
+	return Quest->GetQuestManager()->IsQuestSuccessfull(TargetQuest);
+}
+
+void UFlareQuestConditionQuestSuccessful::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+}
+
+/*----------------------------------------------------
+	Quest failed condition
+----------------------------------------------------*/
+UFlareQuestConditionQuestFailed::UFlareQuestConditionQuestFailed(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionQuestFailed* UFlareQuestConditionQuestFailed::Create(UFlareQuest* ParentQuest, UFlareQuest* QuestParam)
+{
+	UFlareQuestConditionQuestFailed*Condition = NewObject<UFlareQuestConditionQuestFailed>(ParentQuest, UFlareQuestConditionQuestFailed::StaticClass());
+	Condition->Load(ParentQuest, QuestParam);
+	return Condition;
+}
+
+void UFlareQuestConditionQuestFailed::Load(UFlareQuest* ParentQuest, UFlareQuest* QuestParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST);
+	TargetQuest = QuestParam;
+}
+
+bool UFlareQuestConditionQuestFailed::IsCompleted()
+{
+	return Quest->GetQuestManager()->IsQuestFailed(TargetQuest);
+}
+
+void UFlareQuestConditionQuestFailed::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+}
+
 #undef LOCTEXT_NAMESPACE

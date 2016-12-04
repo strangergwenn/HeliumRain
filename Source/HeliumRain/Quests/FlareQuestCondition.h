@@ -310,3 +310,42 @@ protected:
 	FName ShipIdentifier;
 };
 
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionQuestSuccessful: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionQuestSuccessful* Create(UFlareQuest* ParentQuest, UFlareQuest* QuestParam);
+	void Load(UFlareQuest* ParentQuest, UFlareQuest* QuestParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	UFlareQuest* TargetQuest;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionQuestFailed: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionQuestFailed* Create(UFlareQuest* ParentQuest, UFlareQuest* QuestParam);
+	void Load(UFlareQuest* ParentQuest, UFlareQuest* QuestParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	UFlareQuest* TargetQuest;
+};

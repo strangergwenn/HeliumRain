@@ -144,7 +144,6 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 		case EFlareQuestCondition::SHIP_ALIVE:
 			Conditions.Add(UFlareQuestConditionShipAlive::Create(this, ConditionDescription.Identifier1));
 			break;
-			/*
 		case EFlareQuestCondition::QUEST_SUCCESSFUL:
 		{
 			UFlareQuest* Quest = QuestManager->FindQuest(ConditionDescription.Identifier1);
@@ -176,7 +175,7 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 			}
 
 			break;
-		}*/
+		}
 		default:
 			FLOGV("ERROR: CheckCondition not implemented for condition type %d", (int)(ConditionDescription.Type +0));
 			break;

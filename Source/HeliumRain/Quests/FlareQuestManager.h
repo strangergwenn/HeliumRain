@@ -201,9 +201,10 @@ public:
 
 	bool IsQuestActive(UFlareQuest* Quest);
 
-	bool IsQuestSuccesfull(UFlareQuest* Quest);
+	bool IsQuestSuccessfull(UFlareQuest* Quest);
 
 	bool IsQuestFailed(UFlareQuest* Quest);
 
+	UFlareQuest* FindQuest(FName QuestIdentifier);
 
 };
