@@ -228,7 +228,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("DONT-TRANSLATE-Sound-Info", "Helium Rain uses sound from http://www.freesfx.co.uk ."))
+					.Text(LOCTEXT("DONT-TRANSLATE-Sound-Info", "Helium Rain uses some sound resources from FreeSFX (http://www.freesfx.co.uk)."))
 					.Font(SecondaryFont)
 					.WrapTextAt(TextWidth)
 				]
@@ -238,7 +238,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("DONT-TRANSLATE-Assets-Info", "Helium Rain uses asteroids and rocks by 'Gargore', and Danny Kauer. Skybox reference sourced from work by NASA/Goddard Space Flight Center Scientific Visualization Studio."))
+					.Text(LOCTEXT("DONT-TRANSLATE-Assets-Info", "Helium Rain uses some third-party assets created by CGMontreal, Poleshift Games, W3 Studios and 'Gargore'."))
 					.Font(SecondaryFont)
 					.WrapTextAt(TextWidth)
 				]
