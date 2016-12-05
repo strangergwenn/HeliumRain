@@ -349,3 +349,30 @@ protected:
 
 	UFlareQuest* TargetQuest;
 };
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionFollowRelativeWaypoints: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionFollowRelativeWaypoints* Create(UFlareQuest* ParentQuest, TArray<FVector> VectorListParam);
+	void Load(UFlareQuest* ParentQuest, TArray<FVector> VectorListParam);
+	virtual void Restore(const FFlareBundle* Bundle);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	void Init();
+
+	TArray<FVector> VectorList;
+
+	bool IsInit;
+	int32 CurrentProgression;
+	FTransform InitialTransform;
+};

@@ -792,12 +792,18 @@ void UFlareSaveReaderV1::LoadTravel(const TSharedPtr<FJsonObject> Object, FFlare
 	Getters
 ----------------------------------------------------*/
 
+static bool ParseInt32(const FString& DataString, int32* Data)
+{
+	*Data = FCString::Atoi(*DataString);
+	return true;
+}
+
 void UFlareSaveReaderV1::LoadInt32(TSharedPtr< FJsonObject > Object, FString Key, int32* Data)
 {
 	FString DataString;
 	if(Object->TryGetStringField(Key, DataString))
 	{
-		*Data = FCString::Atoi(*DataString);
+		ParseInt32(DataString, Data);
 	}
 	else
 	{
@@ -887,31 +893,39 @@ void UFlareSaveReaderV1::LoadFloatArray(TSharedPtr< FJsonObject > Object, FStrin
 	}
 }
 
+static bool ParseTransform(const FString& DataString, FTransform* Data)
+{
+	TArray<FString> Values;
+	if (DataString.ParseIntoArray(Values, TEXT(",")) == 10)
+	{
+		*Data = FTransform(
+					FQuat(
+				FCString::Atof(*Values[0]),
+				FCString::Atof(*Values[1]),
+				FCString::Atof(*Values[2]),
+				FCString::Atof(*Values[3])),
+					FVector(
+				FCString::Atof(*Values[4]),
+				FCString::Atof(*Values[5]),
+				FCString::Atof(*Values[6])),
+					FVector(
+				FCString::Atof(*Values[7]),
+				FCString::Atof(*Values[8]),
+				FCString::Atof(*Values[9])));
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 void UFlareSaveReaderV1::LoadTransform(TSharedPtr< FJsonObject > Object, FString Key, FTransform* Data)
 {
 	FString DataString;
 	if(Object->TryGetStringField(Key, DataString))
 	{
-		TArray<FString> Values;
-		if (DataString.ParseIntoArray(Values, TEXT(",")) == 10)
-		{
-			*Data = FTransform(
-						FQuat(
-					FCString::Atof(*Values[0]),
-					FCString::Atof(*Values[1]),
-					FCString::Atof(*Values[2]),
-					FCString::Atof(*Values[3])),
-						FVector(
-					FCString::Atof(*Values[4]),
-					FCString::Atof(*Values[5]),
-					FCString::Atof(*Values[6])),
-						FVector(
-					FCString::Atof(*Values[7]),
-					FCString::Atof(*Values[8]),
-					FCString::Atof(*Values[9])));
-		}
-		else
+		if (!ParseTransform(DataString, Data))
 		{
 			FLOGV("WARNING: Fail to load FTransform key '%s'. No 10 values in '%s'. Save corrupted", *Key, *DataString);
 		}
@@ -1003,6 +1017,30 @@ void UFlareSaveReaderV1::LoadBundle(const TSharedPtr<FJsonObject> Object, FStrin
 				FName FloatKey = FName(*Pair.Key);
 				float FloatValue = Pair.Value->AsNumber();
 				Data->FloatValues.Add(FloatKey, FloatValue);
+			}
+		}
+
+		const TSharedPtr< FJsonObject >* Int32Values;
+		if ((*Bundle)->TryGetObjectField("Int32Values", Int32Values))
+		{
+			for(auto& Pair : (*Int32Values)->Values)
+			{
+				FName Int32Key = FName(*Pair.Key);
+				int32 Int32Value;
+				ParseInt32(Pair.Value->AsString(), &Int32Value);
+				Data->Int32Values.Add(Int32Key, Int32Value);
+			}
+		}
+
+		const TSharedPtr< FJsonObject >* TransformValues;
+		if ((*Bundle)->TryGetObjectField("TransformValues", TransformValues))
+		{
+			for(auto& Pair : (*TransformValues)->Values)
+			{
+				FName TransformKey = FName(*Pair.Key);
+				FTransform TransformValue;
+				ParseTransform(Pair.Value->AsString(), &TransformValue);
+				Data->TransformValues.Add(TransformKey, TransformValue);
 			}
 		}
 	}

@@ -211,51 +211,6 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 
 
 
-		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
-			if (QuestManager->GetGame()->GetPC()->GetShipPawn())
-			{
-				AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-
-				FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
-
-				if (!ProgressSave)
-				{
-					ProgressSave = CreateStepProgressSave(Condition);
-					ProgressSave->CurrentProgression = 0;
-					ProgressSave->InitialTransform = Spacecraft->Airframe->GetComponentTransform();
-				}
-
-				FVector InitialLocation = ProgressSave->InitialTransform.GetTranslation();
-				FVector RelativeTargetLocation = Condition->VectorListParam[ProgressSave->CurrentProgression] * 100;
-				FVector WorldTargetLocation = InitialLocation + ProgressSave->InitialTransform.GetRotation().RotateVector(RelativeTargetLocation);
-
-
-				float MaxDistance = Condition->FloatListParam[ProgressSave->CurrentProgression] * 100;
-
-
-				if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
-				{
-					// Nearing the target
-					if (ProgressSave->CurrentProgression + 2 <= Condition->VectorListParam.Num())
-					{
-						// Progress.
-						ProgressSave->CurrentProgression++;
-
-						FText WaypointText = LOCTEXT("WaypointProgress", "Waypoint reached, {0} left");
-
-						SendQuestNotification(FText::Format(WaypointText, FText::AsNumber(Condition->VectorListParam.Num() - ProgressSave->CurrentProgression)),
-											  FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")));
-					}
-					else
-					{
-						// All waypoint reach
-						Status = true;
-					}
-
-				}
-			}
-			break;
-
 
 		default:
 			FLOGV("ERROR: CheckCondition not implemented for condition type %d", (int)(Condition->Type +0));
@@ -488,47 +443,7 @@ void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveDat
 		}
 
 
-		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
-		{
-			FFlarePlayerObjectiveCondition ObjectiveCondition;
-			ObjectiveCondition.InitialLabel = LOCTEXT("FollowWaypoints", "Fly to waypoints");
-			ObjectiveCondition.TerminalLabel = FText::GetEmpty();
-			ObjectiveCondition.Counter = 0;
-			ObjectiveCondition.MaxCounter = Condition->VectorListParam.Num();
-			ObjectiveCondition.Progress = 0;
-			ObjectiveCondition.MaxProgress = Condition->VectorListParam.Num();
 
-			// It need navigation point. Get current point coordinate.
-			FFlareQuestStepProgressSave* ProgressSave = GetCurrentStepProgressSave(Condition);
-
-			if (ProgressSave)
-			{
-				ObjectiveCondition.Counter = ProgressSave->CurrentProgression;
-				ObjectiveCondition.Progress = ProgressSave->CurrentProgression;
-				for (int TargetIndex = 0; TargetIndex < Condition->VectorListParam.Num(); TargetIndex++)
-				{
-					if (TargetIndex < ProgressSave->CurrentProgression)
-					{
-						// Don't show old target
-						continue;
-					}
-					FFlarePlayerObjectiveTarget ObjectiveTarget;
-					ObjectiveTarget.Actor = NULL;
-					ObjectiveTarget.Active = (ProgressSave->CurrentProgression == TargetIndex);
-					ObjectiveTarget.Radius = Condition->FloatListParam[TargetIndex];
-
-					FVector InitialLocation = ProgressSave->InitialTransform.GetTranslation();
-					FVector RelativeTargetLocation = Condition->VectorListParam[TargetIndex] * 100; // In cm
-					FVector WorldTargetLocation = InitialLocation + ProgressSave->InitialTransform.GetRotation().RotateVector(RelativeTargetLocation);
-
-					ObjectiveTarget.Location = WorldTargetLocation;
-					ObjectiveData->TargetList.Add(ObjectiveTarget);
-				}
-			}
-
-			ObjectiveData->ConditionList.Add(ObjectiveCondition);
-			break;
-		}
 
 
 
@@ -604,11 +519,6 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlar
 
 
 
-
-		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
-
-			Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
-			break;
 
 
 		default:

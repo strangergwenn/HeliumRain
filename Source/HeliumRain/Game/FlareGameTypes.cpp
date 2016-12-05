@@ -165,6 +165,16 @@ bool FFlareBundle::HasFloat(FName Key) const
 	return FloatValues.Contains(Key);
 }
 
+bool FFlareBundle::HasInt32(FName Key) const
+{
+	return Int32Values.Contains(Key);
+}
+
+bool FFlareBundle::HasTransform(FName Key) const
+{
+	return TransformValues.Contains(Key);
+}
+
 float FFlareBundle::GetFloat(FName Key, float Default) const
 {
 	if(FloatValues.Contains(Key))
@@ -174,7 +184,23 @@ float FFlareBundle::GetFloat(FName Key, float Default) const
 	return Default;
 }
 
+int32 FFlareBundle::GetInt32(FName Key, int32 Default) const
+{
+	if(Int32Values.Contains(Key))
+	{
+		return Int32Values[Key];
+	}
+	return Default;
+}
 
+FTransform FFlareBundle::GetTransform(FName Key, const FTransform Default) const
+{
+	if(TransformValues.Contains(Key))
+	{
+		return TransformValues[Key];
+	}
+	return Default;
+}
 
 void FFlareBundle::Clear()
 {

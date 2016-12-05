@@ -326,9 +326,20 @@ struct FFlareBundle
 	UPROPERTY(EditAnywhere, Category = Save)
 	TMap<FName, float> FloatValues;
 
+	UPROPERTY(EditAnywhere, Category = Save)
+	TMap<FName, int32> Int32Values;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	TMap<FName, FTransform> TransformValues;
+
 	bool HasFloat(FName Key) const;
+	bool HasInt32(FName Key) const;
+	bool HasTransform(FName Key) const;
+
 
 	float GetFloat(FName Key, float Default = 0.f) const;
+	int32 GetInt32(FName Key, int32 Default = 0) const;
+	FTransform GetTransform(FName Key, const FTransform Default = FTransform::Identity) const;
 
 	void Clear();
 };

@@ -711,6 +711,26 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveBundle(FFlareBundle* Data)
 		JsonObject->SetObjectField("FloatValues", FloatObject);
 	}
 
+	if(Data->Int32Values.Num() > 0)
+	{
+		TSharedRef<FJsonObject> Int32Object = MakeShareable(new FJsonObject());
+		for (auto& Pair : Data->Int32Values)
+		{
+			Int32Object->SetStringField(Pair.Key.ToString(), FormatInt32(Pair.Value));
+		}
+		JsonObject->SetObjectField("Int32Values", Int32Object);
+	}
+
+	if(Data->TransformValues.Num() > 0)
+	{
+		TSharedRef<FJsonObject> TransformObject = MakeShareable(new FJsonObject());
+		for (auto& Pair : Data->TransformValues)
+		{
+			TransformObject->SetStringField(Pair.Key.ToString(), FormatTransform(Pair.Value));
+		}
+		JsonObject->SetObjectField("TransformValues", TransformObject);
+	}
+
 	return JsonObject;
 }
 

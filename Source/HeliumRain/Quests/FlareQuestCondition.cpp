@@ -6,6 +6,8 @@
 #define LOCTEXT_NAMESPACE "FlareQuestCondition"
 
 static FName INITIAL_VELOCITY_TAG("initial-velocity");
+static FName CURRENT_PROGRESSION_TAG("current-progression");
+static FName INITIAL_TRANSFORM_TAG("initial-transform");
 
 /*----------------------------------------------------
 	Constructor
@@ -789,5 +791,127 @@ bool UFlareQuestConditionQuestFailed::IsCompleted()
 void UFlareQuestConditionQuestFailed::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
 }
+
+/*----------------------------------------------------
+	Follow relative waypoints condition
+----------------------------------------------------*/
+UFlareQuestConditionFollowRelativeWaypoints::UFlareQuestConditionFollowRelativeWaypoints(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionFollowRelativeWaypoints* UFlareQuestConditionFollowRelativeWaypoints::Create(UFlareQuest* ParentQuest, TArray<FVector> VectorListParam)
+{
+	UFlareQuestConditionFollowRelativeWaypoints*Condition = NewObject<UFlareQuestConditionFollowRelativeWaypoints>(ParentQuest, UFlareQuestConditionFollowRelativeWaypoints::StaticClass());
+	Condition->Load(ParentQuest, VectorListParam);
+	return Condition;
+}
+
+void UFlareQuestConditionFollowRelativeWaypoints::Load(UFlareQuest* ParentQuest, TArray<FVector> VectorListParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+	VectorList = VectorListParam;
+}
+
+void UFlareQuestConditionFollowRelativeWaypoints::Restore(const FFlareBundle* Bundle)
+{
+	bool HasSave = true;
+	HasSave &= Bundle->HasInt32(CURRENT_PROGRESSION_TAG);
+	HasSave &= Bundle->HasTransform(INITIAL_TRANSFORM_TAG);
+
+	if(HasSave)
+	{
+		IsInit = true;
+		CurrentProgression = Bundle->GetInt32(CURRENT_PROGRESSION_TAG);
+		InitialTransform = Bundle->GetTransform(INITIAL_TRANSFORM_TAG);
+	}
+
+}
+
+void UFlareQuestConditionFollowRelativeWaypoints::Init()
+{
+	if(IsInit)
+	{
+		return;
+	}
+
+	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
+
+	IsInit = true;
+	CurrentProgression = 0;
+	InitialTransform = Spacecraft->Airframe->GetComponentTransform();
+}
+
+bool UFlareQuestConditionFollowRelativeWaypoints::IsCompleted()
+{
+	Init();
+	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
+
+	if (Spacecraft)
+	{
+		FVector InitialLocation = InitialTransform.GetTranslation();
+		FVector RelativeTargetLocation = VectorList[CurrentProgression] * 100;
+		FVector WorldTargetLocation = InitialLocation + InitialTransform.GetRotation().RotateVector(RelativeTargetLocation);
+
+		float MaxDistance = 100;
+
+		if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
+		{
+			// Nearing the target
+			if (CurrentProgression + 2 <= VectorList.Num())
+			{
+				// Progress.
+				CurrentProgression++;
+
+				FText WaypointText = LOCTEXT("WaypointProgress", "Waypoint reached, {0} left");
+
+				Quest->SendQuestNotification(FText::Format(WaypointText, FText::AsNumber(VectorList.Num() - CurrentProgression)),
+									  FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")));
+			}
+			else
+			{
+				// All waypoint reach
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void UFlareQuestConditionFollowRelativeWaypoints::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	Init();
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = LOCTEXT("FollowWaypoints", "Fly to waypoints");
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.Counter = 0;
+	ObjectiveCondition.MaxCounter = VectorList.Num();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = VectorList.Num();
+	ObjectiveCondition.Counter = CurrentProgression;
+	ObjectiveCondition.Progress = CurrentProgression;
+	for (int TargetIndex = 0; TargetIndex < VectorList.Num(); TargetIndex++)
+	{
+		if (TargetIndex < CurrentProgression)
+		{
+			// Don't show old target
+			continue;
+		}
+		FFlarePlayerObjectiveTarget ObjectiveTarget;
+		ObjectiveTarget.Actor = NULL;
+		ObjectiveTarget.Active = (CurrentProgression == TargetIndex);
+		ObjectiveTarget.Radius = 100;
+
+		FVector InitialLocation = InitialTransform.GetTranslation();
+		FVector RelativeTargetLocation = VectorList[TargetIndex] * 100; // In cm
+		FVector WorldTargetLocation = InitialLocation + InitialTransform.GetRotation().RotateVector(RelativeTargetLocation);
+
+		ObjectiveTarget.Location = WorldTargetLocation;
+		ObjectiveData->TargetList.Add(ObjectiveTarget);
+	}
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
 
 #undef LOCTEXT_NAMESPACE
