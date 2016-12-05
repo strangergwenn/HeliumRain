@@ -321,20 +321,20 @@ void UFlareScenarioTools::SetupWorld()
 
 void UFlareScenarioTools::SetupAsteroids()
 {
-	CreateAsteroids(FirstLight, 15, FVector(15, 5, 5));
-	CreateAsteroids(MinersHome, 40, FVector(55, 7, 13));
+	CreateAsteroids(FirstLight, 31, FVector(30, 7, 9));
+	CreateAsteroids(MinersHome, 60, FVector(75, 15, 13));
 	CreateAsteroids(TheDepths, 39, FVector(35, 5, 10));
 
-	CreateAsteroids(Outpost, 27, FVector(29, 6, 8));
-	CreateAsteroids(TheForge, 12, FVector(31, 7, 9));
-	CreateAsteroids(TheDig, 32, FVector(27, 13, 20));
+	CreateAsteroids(Outpost, 47, FVector(49, 16, 8));
+	CreateAsteroids(TheForge, 32, FVector(51, 12, 9));
+	CreateAsteroids(TheDig, 42, FVector(47, 13, 20));
 
-	CreateAsteroids(ShoreOfIce, 32, FVector(35, 9, 17));
-	CreateAsteroids(Ruins, 35, FVector(28, 7, 9));
+	CreateAsteroids(ShoreOfIce, 42, FVector(55, 9, 17));
+	CreateAsteroids(Ruins, 45, FVector(38, 7, 9));
 
-	CreateAsteroids(Boneyard, 28, FVector(27, 8, 7));
+	CreateAsteroids(Boneyard, 38, FVector(37, 18, 7));
 
-	CreateAsteroids(Serenity, 17, FVector(22, 9, 7));
+	CreateAsteroids(Serenity, 27, FVector(42, 9, 7));
 }
 void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 {
@@ -418,7 +418,7 @@ void UFlareScenarioTools::CreateAsteroids(UFlareSimulatedSector* Sector, int32 C
 						if (CanSpawn)
 						{
 							FString AsteroidName = FString("asteroid") + FString::FromInt(AsteroidCount);
-							Sector->CreateAsteroid(FMath::RandRange(0, 5), FName(*AsteroidName), AsteroidLocation);
+							Sector->CreateAsteroid(FMath::RandRange(0, 6), FName(*AsteroidName), AsteroidLocation);
 							AsteroidCount++;
 						}
 						else

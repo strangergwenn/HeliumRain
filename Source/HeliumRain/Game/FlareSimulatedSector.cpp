@@ -382,8 +382,8 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 void UFlareSimulatedSector::CreateAsteroid(int32 ID, FName Name, FVector Location)
 {
 	// Compute size
-	float MinSize = 0.6;
-	float MinMaxSize = 0.9;
+	float MinSize = 0.5;
+	float MinMaxSize = 0.75;
 	float MaxMaxSize = 1.1;
 	float MaxSize = FMath::Lerp(MinMaxSize, MaxMaxSize, FMath::Clamp(Location.Size() / 100000.0f, 0.0f, 1.0f));
 	float Size = FMath::FRandRange(MinSize, MaxSize);

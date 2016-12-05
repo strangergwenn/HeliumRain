@@ -58,8 +58,10 @@ void UFlareAsteroidComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 	FCHECK(PC);
 	AFlareSpacecraft* ShipPawn = PC->GetShipPawn();
 
-	// Update if close to player
-	if (ShipPawn && (ShipPawn->GetActorLocation() - GetComponentLocation()).Size() < 200000)
+	// Update if close to player and visible
+	if (ShipPawn
+	 && (ShipPawn->GetActorLocation() - GetComponentLocation()).Size() < 200000
+	 && (GetWorld()->TimeSeconds - LastRenderTime) < 0.2)
 	{
 		if (EffectsUpdateTimer > EffectsUpdatePeriod)
 		{
