@@ -418,7 +418,8 @@ void UFlareScenarioTools::CreateAsteroids(UFlareSimulatedSector* Sector, int32 C
 						if (CanSpawn)
 						{
 							FString AsteroidName = FString("asteroid") + FString::FromInt(AsteroidCount);
-							Sector->CreateAsteroid(FMath::RandRange(0, 6), FName(*AsteroidName), AsteroidLocation);
+							int32 AsteroidCatalogCount = Game->GetAsteroidCatalog() ? Game->GetAsteroidCatalog()->Asteroids.Num() : 0;
+							Sector->CreateAsteroid(FMath::RandRange(0, AsteroidCatalogCount - 1), FName(*AsteroidName), AsteroidLocation);
 							AsteroidCount++;
 						}
 						else
