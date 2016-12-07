@@ -4,8 +4,8 @@
 
 class UFlareCompany;
 class UFlareSector;
+class UFlareSpacecraftComponent;
 class AFlareSpacecraft;
-
 
 struct PilotHelper
 {
