@@ -17,6 +17,18 @@ UFlareQuestStep::UFlareQuestStep(const FObjectInitializer& ObjectInitializer)
 {
 }
 
+
+
+UFlareQuestStep* UFlareQuestStep::Create(UFlareQuest* Parent, FName Identifier, FText Description)
+{
+	UFlareQuestStep* Step = NewObject<UFlareQuestStep>(Parent, UFlareQuestStep::StaticClass());
+	Step->Identifier = Identifier;
+	Step->StepDescription = Description;
+
+	return Step;
+}
+
+
 void UFlareQuestStep::UpdateState()
 {
 	if(Status == EFlareQuestStepStatus::PENDING || Status == EFlareQuestStepStatus::FAILED || Status == EFlareQuestStepStatus::COMPLETED)

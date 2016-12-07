@@ -43,7 +43,7 @@ public:
 
 };
 
-
+//////////////////////////////////////////////////////
 UCLASS()
 class HELIUMRAIN_API UFlareQuestActionDiscoverSector: public UFlareQuestAction
 {
@@ -54,7 +54,7 @@ public:
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
-
+	static UFlareQuestActionDiscoverSector* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam);
 	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam);
 
 	virtual void Perform();
@@ -66,4 +66,54 @@ protected:
 	----------------------------------------------------*/
 
 	UFlareSimulatedSector* Sector;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestActionVisitSector: public UFlareQuestAction
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+	/*----------------------------------------------------
+		Gameplay
+	----------------------------------------------------*/
+	static UFlareQuestActionVisitSector* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam);
+
+	virtual void Perform();
+
+protected:
+
+	/*----------------------------------------------------
+		Protected data
+	----------------------------------------------------*/
+
+	UFlareSimulatedSector* Sector;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestActionPrintMessage: public UFlareQuestAction
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+	/*----------------------------------------------------
+		Gameplay
+	----------------------------------------------------*/
+	static UFlareQuestActionPrintMessage* Create(UFlareQuest* ParentQuest, FText MessageParam);
+	void Load(UFlareQuest* ParentQuest, FText MessageParam);
+
+	virtual void Perform();
+
+protected:
+
+	/*----------------------------------------------------
+		Protected data
+	----------------------------------------------------*/
+
+	FText Message;
 };

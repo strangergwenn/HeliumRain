@@ -110,9 +110,6 @@ public:
 
 	virtual void OnQuestStatusChanged(UFlareQuest* Quest);
 
-
-
-
 protected:
 
 	/*----------------------------------------------------

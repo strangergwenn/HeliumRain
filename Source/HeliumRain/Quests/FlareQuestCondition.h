@@ -319,15 +319,15 @@ class HELIUMRAIN_API UFlareQuestConditionQuestSuccessful: public UFlareQuestCond
 
 public:
 
-	static UFlareQuestConditionQuestSuccessful* Create(UFlareQuest* ParentQuest, UFlareQuest* QuestParam);
-	void Load(UFlareQuest* ParentQuest, UFlareQuest* QuestParam);
+	static UFlareQuestConditionQuestSuccessful* Create(UFlareQuest* ParentQuest, FName QuestParam);
+	void Load(UFlareQuest* ParentQuest, FName QuestParam);
 
 	virtual bool IsCompleted();
 	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
 
 protected:
 
-	UFlareQuest* TargetQuest;
+	FName TargetQuest;
 };
 
 //////////////////////////////////////////////////////
@@ -339,15 +339,15 @@ class HELIUMRAIN_API UFlareQuestConditionQuestFailed: public UFlareQuestConditio
 
 public:
 
-	static UFlareQuestConditionQuestFailed* Create(UFlareQuest* ParentQuest, UFlareQuest* QuestParam);
-	void Load(UFlareQuest* ParentQuest, UFlareQuest* QuestParam);
+	static UFlareQuestConditionQuestFailed* Create(UFlareQuest* ParentQuest, FName QuestParam);
+	void Load(UFlareQuest* ParentQuest, FName QuestParam);
 
 	virtual bool IsCompleted();
 	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
 
 protected:
 
-	UFlareQuest* TargetQuest;
+	FName TargetQuest;
 };
 
 //////////////////////////////////////////////////////

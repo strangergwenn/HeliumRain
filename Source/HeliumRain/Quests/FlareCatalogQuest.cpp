@@ -3,6 +3,9 @@
 #include "../Game/FlareGame.h"
 #include "FlareCatalogQuest.h"
 #include "FlareQuestCondition.h"
+#include "FlareQuestAction.h"
+#include "FlareQuestStep.h"
+#include "../Data/FlareQuestCatalogEntry.h"
 
 #define LOCTEXT_NAMESPACE "FlareCatalogQuest"
 
@@ -145,34 +148,12 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 			break;
 		case EFlareQuestCondition::QUEST_SUCCESSFUL:
 		{
-			UFlareQuest* Quest = QuestManager->FindQuest(ConditionDescription.Identifier1);
-			if(Quest)
-			{
-				Conditions.Add(UFlareQuestConditionQuestSuccessful::Create(this, Quest));
-			}
-			else
-			{
-				FLOGV("ERROR: GenerateCatalogCondition fail to find quest '%s' for quest '%s'",
-					  *ConditionDescription.Identifier1.ToString(),
-					  *Identifier.ToString());
-			}
-
+			Conditions.Add(UFlareQuestConditionQuestSuccessful::Create(this, ConditionDescription.Identifier1));
 			break;
 		}
 		case EFlareQuestCondition::QUEST_FAILED:
 		{
-			UFlareQuest* Quest = QuestManager->FindQuest(ConditionDescription.Identifier1);
-			if(Quest)
-			{
-				Conditions.Add(UFlareQuestConditionQuestFailed::Create(this, Quest));
-			}
-			else
-			{
-				FLOGV("ERROR: GenerateCatalogCondition fail to find quest '%s' for quest '%s'",
-					  *ConditionDescription.Identifier1.ToString(),
-					  *Identifier.ToString());
-			}
-
+			Conditions.Add(UFlareQuestConditionQuestFailed::Create(this, ConditionDescription.Identifier1));
 			break;
 		}
 		default:
@@ -185,15 +166,86 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 
 UFlareQuestAction* UFlareCatalogQuest::GenerateCatalogAction(const FFlareQuestActionDescription& ActionDescription)
 {
-	// TODO
+	switch (ActionDescription.Type) {
+	case EFlareQuestAction::DISCOVER_SECTOR:
+	{
+		UFlareSimulatedSector* Sector = QuestManager->GetGame()->GetGameWorld()->FindSector(ActionDescription.Identifier1);
+		if(Sector)
+		{
+			return UFlareQuestActionDiscoverSector::Create(this, Sector);
+		}
+		else
+		{
+			FLOGV("ERROR: GenerateCatalogAction fail to find sector '%s' for quest '%s'",
+				  *ActionDescription.Identifier1.ToString(),
+				  *Identifier.ToString());
+		}
+		break;
+	}
+	case EFlareQuestAction::VISIT_SECTOR:
+	{
+		UFlareSimulatedSector* Sector = QuestManager->GetGame()->GetGameWorld()->FindSector(ActionDescription.Identifier1);
+		if(Sector)
+		{
+			return UFlareQuestActionVisitSector::Create(this, Sector);
+		}
+		else
+		{
+			FLOGV("ERROR: GenerateCatalogAction fail to find sector '%s' for quest '%s'",
+				  *ActionDescription.Identifier1.ToString(),
+				  *Identifier.ToString());
+		}
+		break;
+	}
+	case EFlareQuestAction::PRINT_MESSAGE:
+	{
+		return UFlareQuestActionPrintMessage::Create(this, ActionDescription.MessagesParameter);
+		break;
+	}
+	default:
+		FLOGV("ERROR: GenerateCatalogAction not implemented for action type %d", (int)(ActionDescription.Type +0));
+		break;
+	}
+
 	return NULL;
 }
 
 
 UFlareQuestStep* UFlareCatalogQuest::GenerateCatalogStep(const FFlareQuestStepDescription& StepDescription)
 {
-	// TODO
-	return NULL;
+	UFlareQuestStep* Step = UFlareQuestStep::Create(this, Identifier, StepDescription.StepDescription);
+
+	for(const FFlareQuestConditionDescription& ConditionDescription : StepDescription.EndConditions)
+	{
+		Step->GetEndConditions().Append(GenerateCatalogCondition(ConditionDescription));
+	}
+
+	for(const FFlareQuestConditionDescription& ConditionDescription : StepDescription.EnabledConditions)
+	{
+		Step->GetEnableConditions().Append(GenerateCatalogCondition(ConditionDescription));
+	}
+
+	for(const FFlareQuestConditionDescription& ConditionDescription : StepDescription.BlockConditions)
+	{
+		Step->GetBlockConditions().Append(GenerateCatalogCondition(ConditionDescription));
+	}
+
+	for(const FFlareQuestConditionDescription& ConditionDescription : StepDescription.FailConditions)
+	{
+		Step->GetFailConditions().Append(GenerateCatalogCondition(ConditionDescription));
+	}
+
+	for(const FFlareQuestActionDescription& ActionDescription : StepDescription.InitActions)
+	{
+		Step->GetInitActions().Add(GenerateCatalogAction(ActionDescription));
+	}
+
+	for(const FFlareQuestActionDescription& ActionDescription : StepDescription.EndActions)
+	{
+		Step->GetEndActions().Add(GenerateCatalogAction(ActionDescription));
+	}
+
+	return Step;
 }
 
 

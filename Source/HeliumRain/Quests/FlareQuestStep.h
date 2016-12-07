@@ -28,6 +28,10 @@ class HELIUMRAIN_API UFlareQuestStep: public UObject
 	GENERATED_UCLASS_BODY()
 
 public:
+
+	static UFlareQuestStep* Create(UFlareQuest* Parent, FName Identifier, FText Description);
+
+
 	void Init();
 
 	/** Restore the quest step status from a save file */
@@ -104,6 +108,16 @@ public:
 	TArray<UFlareQuestCondition*>& GetEndConditions()
 	{
 		return EndConditions;
+	}
+
+	TArray<UFlareQuestAction*>& GetInitActions()
+	{
+		return InitActions;
+	}
+
+	TArray<UFlareQuestAction*>& GetEndActions()
+	{
+		return EndActions;
 	}
 
 	EFlareQuestStepStatus::Type GetStatus()

@@ -20,7 +20,6 @@ UFlareQuest::UFlareQuest(const FObjectInitializer& ObjectInitializer)
 {
 }
 
-
 /*----------------------------------------------------
 	Save
 ----------------------------------------------------*/
@@ -223,44 +222,8 @@ bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Conditio
 void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
 {
 	switch (Action->Type) {
-	case EFlareQuestAction::DISCOVER_SECTOR:
-	{
-		UFlareSimulatedSector* Sector = QuestManager->GetGame()->GetGameWorld()->FindSector(Action->Identifier1);
-		if (Sector)
-		{
-			QuestManager->GetGame()->GetPC()->GetCompany()->DiscoverSector(Sector);
-		}
-		else
-		{
-			FLOGV("ERROR in PerformAction : unknown sector to discover %s for quest %s", *Action->Identifier1.ToString(), *GetIdentifier().ToString());
-		}
-		break;
-	}
-	case EFlareQuestAction::VISIT_SECTOR:
-	{
-		UFlareSimulatedSector* Sector = QuestManager->GetGame()->GetGameWorld()->FindSector(Action->Identifier1);
-		if (Sector)
-		{
-			QuestManager->GetGame()->GetPC()->GetCompany()->VisitSector(Sector);
-		}
-		else
-		{
-			FLOGV("ERROR in PerformAction : unknown sector to visit %s for quest %s", *Action->Identifier1.ToString(), *GetIdentifier().ToString());
-		}
-		break;
-	}
-	case EFlareQuestAction::PRINT_MESSAGE:
 
-		// Replace tags in quests text
-		{
-			FText MessageText = FormatTags(Action->MessagesParameter);
-			SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
-		}
-		break;
 
-	default:
-		FLOGV("ERROR: PerformAction not implemented for action type %d", (int)(Action->Type +0));
-		break;
 	}
 
 }

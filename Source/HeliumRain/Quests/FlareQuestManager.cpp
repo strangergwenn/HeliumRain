@@ -42,6 +42,13 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 
 	LoadDynamicQuests();
 
+
+	for(UFlareQuest* Quest: Quests)
+	{
+		LoadCallbacks(Quest);
+		Quest->UpdateState();
+	}
+
 	if (!SelectedQuest)
 	{
 		AutoSelectQuest();
@@ -120,8 +127,7 @@ void UFlareQuestManager::AddQuest(UFlareQuest* Quest)
 		Quest->SetStatus(EFlareQuestStatus::AVAILABLE);
 	}
 
-	LoadCallbacks(Quest);
-	Quest->UpdateState();
+	Quests.Add(Quest);
 }
 
 

@@ -738,14 +738,18 @@ UFlareQuestConditionQuestSuccessful::UFlareQuestConditionQuestSuccessful(const F
 {
 }
 
-UFlareQuestConditionQuestSuccessful* UFlareQuestConditionQuestSuccessful::Create(UFlareQuest* ParentQuest, UFlareQuest* QuestParam)
+UFlareQuestConditionQuestSuccessful* UFlareQuestConditionQuestSuccessful::Create(UFlareQuest* ParentQuest, FName
+
+
+
+																				 QuestParam)
 {
 	UFlareQuestConditionQuestSuccessful*Condition = NewObject<UFlareQuestConditionQuestSuccessful>(ParentQuest, UFlareQuestConditionQuestSuccessful::StaticClass());
 	Condition->Load(ParentQuest, QuestParam);
 	return Condition;
 }
 
-void UFlareQuestConditionQuestSuccessful::Load(UFlareQuest* ParentQuest, UFlareQuest* QuestParam)
+void UFlareQuestConditionQuestSuccessful::Load(UFlareQuest* ParentQuest, FName QuestParam)
 {
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::QUEST);
@@ -754,7 +758,19 @@ void UFlareQuestConditionQuestSuccessful::Load(UFlareQuest* ParentQuest, UFlareQ
 
 bool UFlareQuestConditionQuestSuccessful::IsCompleted()
 {
-	return Quest->GetQuestManager()->IsQuestSuccessfull(TargetQuest);
+	UFlareQuest* Target = Quest->GetQuestManager()->FindQuest(TargetQuest);
+
+	if (Target)
+	{
+		return Quest->GetQuestManager()->IsQuestSuccessfull(Target);
+	}
+	else
+	{
+			FLOGV("ERROR: UFlareQuestConditionQuestSuccessful fail to find quest '%s' for quest '%s'",
+				  *TargetQuest.ToString(),
+				  *Quest->GetIdentifier().ToString());
+		return true;
+	}
 }
 
 void UFlareQuestConditionQuestSuccessful::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
@@ -769,14 +785,14 @@ UFlareQuestConditionQuestFailed::UFlareQuestConditionQuestFailed(const FObjectIn
 {
 }
 
-UFlareQuestConditionQuestFailed* UFlareQuestConditionQuestFailed::Create(UFlareQuest* ParentQuest, UFlareQuest* QuestParam)
+UFlareQuestConditionQuestFailed* UFlareQuestConditionQuestFailed::Create(UFlareQuest* ParentQuest, FName QuestParam)
 {
 	UFlareQuestConditionQuestFailed*Condition = NewObject<UFlareQuestConditionQuestFailed>(ParentQuest, UFlareQuestConditionQuestFailed::StaticClass());
 	Condition->Load(ParentQuest, QuestParam);
 	return Condition;
 }
 
-void UFlareQuestConditionQuestFailed::Load(UFlareQuest* ParentQuest, UFlareQuest* QuestParam)
+void UFlareQuestConditionQuestFailed::Load(UFlareQuest* ParentQuest, FName QuestParam)
 {
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::QUEST);
@@ -785,7 +801,19 @@ void UFlareQuestConditionQuestFailed::Load(UFlareQuest* ParentQuest, UFlareQuest
 
 bool UFlareQuestConditionQuestFailed::IsCompleted()
 {
-	return Quest->GetQuestManager()->IsQuestFailed(TargetQuest);
+	UFlareQuest* Target = Quest->GetQuestManager()->FindQuest(TargetQuest);
+
+	if (Target)
+	{
+		return Quest->GetQuestManager()->IsQuestFailed(Target);
+	}
+	else
+	{
+			FLOGV("ERROR: UFlareQuestConditionQuestSuccessful fail to find quest '%s' for quest '%s'",
+				  *TargetQuest.ToString(),
+				  *Quest->GetIdentifier().ToString());
+		return true;
+	}
 }
 
 void UFlareQuestConditionQuestFailed::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)

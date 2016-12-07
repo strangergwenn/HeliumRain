@@ -158,6 +158,9 @@ protected:
 
 	UPROPERTY()
 	TArray<UFlareQuest*>	                 OldQuests;
+
+	UPROPERTY()
+	TArray<UFlareQuest*>	                 Quests;
 	
 	UFlareQuest*			                 SelectedQuest;
 	// TODO Use map structure
