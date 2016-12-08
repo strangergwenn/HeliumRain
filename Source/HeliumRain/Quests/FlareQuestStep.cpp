@@ -77,7 +77,7 @@ void UFlareQuestStep::UpdateState()
 
 			if (UFlareQuestCondition::CheckConditions(EndConditions, false))
 			{
-				Status = EFlareQuestStepStatus::ENABLED;
+				Status = EFlareQuestStepStatus::COMPLETED;
 				return;
 			}
 		}
