@@ -31,6 +31,7 @@ UFlareQuestStep* UFlareQuestStep::Create(UFlareQuest* Parent, FName Identifier, 
 
 void UFlareQuestStep::UpdateState()
 {
+	FLOGV("Update step state %s Status=%d", *Identifier.ToString(), (Status+0));
 	if(Status == EFlareQuestStepStatus::PENDING || Status == EFlareQuestStepStatus::FAILED || Status == EFlareQuestStepStatus::COMPLETED)
 	{
 		// Permanent state
@@ -41,6 +42,7 @@ void UFlareQuestStep::UpdateState()
 	{
 		if (UFlareQuestCondition::CheckConditions(EnableConditions, true))
 		{
+			FLOG("Failed condition ko");
 			Status = EFlareQuestStepStatus::ENABLED;
 			UpdateState();
 			return;
@@ -51,6 +53,7 @@ void UFlareQuestStep::UpdateState()
 		// Enabled or blocked, check failed
 		if (UFlareQuestCondition::CheckConditions(FailConditions, false))
 		{
+			FLOG("Failed condition ko");
 			Status = EFlareQuestStepStatus::FAILED;
 			return;
 		}
@@ -59,6 +62,7 @@ void UFlareQuestStep::UpdateState()
 		{
 			if (!UFlareQuestCondition::CheckConditions(BlockConditions, false))
 			{
+				FLOG("Enable condition ok");
 				Status = EFlareQuestStepStatus::ENABLED;
 				UpdateState();
 				return;
@@ -70,6 +74,7 @@ void UFlareQuestStep::UpdateState()
 		{
 			if (UFlareQuestCondition::CheckConditions(BlockConditions, false))
 			{
+				FLOG("Block condition ko");
 				Status = EFlareQuestStepStatus::BLOCKED;
 				UpdateState();
 				return;
@@ -77,6 +82,7 @@ void UFlareQuestStep::UpdateState()
 
 			if (UFlareQuestCondition::CheckConditions(EndConditions, false))
 			{
+				FLOG("End condition ok");
 				Status = EFlareQuestStepStatus::COMPLETED;
 				return;
 			}

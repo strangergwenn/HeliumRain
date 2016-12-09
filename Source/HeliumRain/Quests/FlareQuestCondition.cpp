@@ -610,7 +610,7 @@ UFlareQuestConditionMinRotationVelocity* UFlareQuestConditionMinRotationVelocity
 void UFlareQuestConditionMinRotationVelocity::Load(UFlareQuest* ParentQuest, FVector LocalAxisParam, float AngularVelocityLimitParam)
 {
 	LoadInternal(ParentQuest);
-	Callbacks.AddUnique(EFlareQuestCallback::FLY_SHIP);
+	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	AngularVelocityLimit = AngularVelocityLimitParam;
 	LocalAxis = LocalAxisParam;
 }
@@ -656,7 +656,7 @@ UFlareQuestConditionMaxRotationVelocity* UFlareQuestConditionMaxRotationVelocity
 void UFlareQuestConditionMaxRotationVelocity::Load(UFlareQuest* ParentQuest, FVector LocalAxisParam, float AngularVelocityLimitParam)
 {
 	LoadInternal(ParentQuest);
-	Callbacks.AddUnique(EFlareQuestCallback::FLY_SHIP);
+	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	AngularVelocityLimit = AngularVelocityLimitParam;
 	LocalAxis = LocalAxisParam;
 }
@@ -823,6 +823,9 @@ void UFlareQuestConditionQuestFailed::AddConditionObjectives(FFlarePlayerObjecti
 /*----------------------------------------------------
 	Follow relative waypoints condition
 ----------------------------------------------------*/
+
+#define WAYPOINTS_RADIUS 1000
+
 UFlareQuestConditionFollowRelativeWaypoints::UFlareQuestConditionFollowRelativeWaypoints(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -882,7 +885,7 @@ bool UFlareQuestConditionFollowRelativeWaypoints::IsCompleted()
 		FVector RelativeTargetLocation = VectorList[CurrentProgression] * 100;
 		FVector WorldTargetLocation = InitialLocation + InitialTransform.GetRotation().RotateVector(RelativeTargetLocation);
 
-		float MaxDistance = 100;
+		float MaxDistance = WAYPOINTS_RADIUS;
 
 		if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
 		{
@@ -929,7 +932,7 @@ void UFlareQuestConditionFollowRelativeWaypoints::AddConditionObjectives(FFlareP
 		FFlarePlayerObjectiveTarget ObjectiveTarget;
 		ObjectiveTarget.Actor = NULL;
 		ObjectiveTarget.Active = (CurrentProgression == TargetIndex);
-		ObjectiveTarget.Radius = 100;
+		ObjectiveTarget.Radius = WAYPOINTS_RADIUS;
 
 		FVector InitialLocation = InitialTransform.GetTranslation();
 		FVector RelativeTargetLocation = VectorList[TargetIndex] * 100; // In cm

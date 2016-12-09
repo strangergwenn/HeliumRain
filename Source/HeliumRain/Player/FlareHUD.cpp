@@ -950,7 +950,7 @@ void AFlareHUD::DrawHUDInternal()
 					// Draw icon
 					DrawHUDIcon(ScreenPosition, IconSize, HUDObjectiveIcon, (Target->Active ? HudColorNeutral : InactiveColor), true);
 
-					float Distance = (ObjectiveLocation - PlayerShip->GetActorLocation()).Size() / 100;
+					float Distance = FMath::Max(0.f, ((ObjectiveLocation - PlayerShip->GetActorLocation()).Size() - Target->Radius) / 100);
 					FString ObjectiveText = FormatDistance(Distance);
 
 					// Draw distance
