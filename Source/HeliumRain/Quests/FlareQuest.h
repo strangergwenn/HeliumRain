@@ -204,7 +204,4 @@ public:
 	{
 		return QuestManager;
 	}
-
-	//FFlareQuestStepProgressSave* GetCurrentStepProgressSave(const FFlareQuestConditionDescription* Condition);
-
 };

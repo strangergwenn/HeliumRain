@@ -341,6 +341,10 @@ struct FFlareBundle
 	int32 GetInt32(FName Key, int32 Default = 0) const;
 	FTransform GetTransform(FName Key, const FTransform Default = FTransform::Identity) const;
 
+	void PutFloat(FName Key, float Value);
+	void PutInt32(FName Key, int32 Value);
+	void PutTransform(FName Key, const FTransform Value);
+
 	void Clear();
 };
 

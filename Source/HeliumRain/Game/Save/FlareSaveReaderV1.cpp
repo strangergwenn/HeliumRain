@@ -124,7 +124,7 @@ void UFlareSaveReaderV1::LoadQuestProgress(const TSharedPtr<FJsonObject> Object,
 	{
 		for (TSharedPtr<FJsonValue> Item : *CurrentStepProgress)
 		{
-			FFlareQuestStepProgressSave ChildData;
+			FFlareQuestConditionSave ChildData;
 			LoadQuestStepProgress(Item->AsObject(), &ChildData);
 			Data->CurrentStepProgress.Add(ChildData);
 		}
@@ -132,12 +132,10 @@ void UFlareSaveReaderV1::LoadQuestProgress(const TSharedPtr<FJsonObject> Object,
 }
 
 
-void UFlareSaveReaderV1::LoadQuestStepProgress(const TSharedPtr<FJsonObject> Object, FFlareQuestStepProgressSave* Data)
+void UFlareSaveReaderV1::LoadQuestStepProgress(const TSharedPtr<FJsonObject> Object, FFlareQuestConditionSave* Data)
 {
 	LoadFName(Object, "ConditionIdentifier", &Data->ConditionIdentifier);
 	LoadBundle(Object, "Data", &Data->Data);
-
-
 }
 
 

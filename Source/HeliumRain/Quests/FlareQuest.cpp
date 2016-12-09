@@ -47,10 +47,9 @@ void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 	// Init current step
 	for(UFlareQuestStep* Step : Steps)
 	{
-		if(Data.SuccessfullSteps.Contains(Identifier))
+		if(Data.SuccessfullSteps.Contains(Step->GetIdentifier()))
 		{
 			SuccessfullSteps.Add(Step);
-
 		}
 		else if(CurrentStep == NULL)
 		{
@@ -59,11 +58,32 @@ void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 		}
 
 	}
+
+	NextStep();
 }
 
 FFlareQuestProgressSave* UFlareQuest::Save()
 {
-	// TODO Save
+	QuestData.SuccessfullSteps.Empty();
+	QuestData.CurrentStepProgress.Empty();
+	QuestData.TriggerConditionsSave.Empty();
+
+	QuestData.QuestIdentifier = GetIdentifier();
+
+	for(UFlareQuestStep* Step : SuccessfullSteps)
+	{
+		QuestData.SuccessfullSteps.Add(Step->GetIdentifier());
+	}
+
+	for (UFlareQuestCondition* Condition: TriggerConditions)
+	{
+		Condition->AddSave(QuestData.TriggerConditionsSave);
+	}
+
+	if(CurrentStep)
+	{
+		CurrentStep->Save(QuestData.CurrentStepProgress);
+	}
 	return &QuestData;
 }
 
@@ -92,6 +112,12 @@ void UFlareQuest::UpdateState()
 		}
 		case EFlareQuestStatus::ACTIVE:
 		{
+			if(!CurrentStep)
+			{
+				FLOGV("ERROR: Active quest '%s'without current Step", *Identifier.ToString());
+				return;
+			}
+
 			CurrentStep->UpdateState();
 
 			if (CurrentStep->IsFailed())
@@ -133,35 +159,35 @@ void UFlareQuest::NextStep()
 {
 	// Clear step progress
 	CurrentStep = NULL;
-	QuestData.CurrentStepProgress.Empty();
 
 	if (Steps.Num() == 0)
 	{
 		FLOGV("WARNING: The quest %s have no step", *GetIdentifier().ToString());
-		return;
 	}
-
-	for(UFlareQuestStep* Step : Steps)
+	else
 	{
-		if (!SuccessfullSteps.Contains(Step))
+		for(UFlareQuestStep* Step : Steps)
 		{
-			CurrentStep = Step;
-
-			FLOGV("Quest %s step %s begin", *GetIdentifier().ToString(), *Step->GetIdentifier().ToString());
-			Step->Init();
-			Step->PerformInitActions();
-
-
-			// Notify message only when it's different than previous step
-			if (Step != CurrentStep)
+			if (!SuccessfullSteps.Contains(Step))
 			{
-				FText MessageText = FormatTags(Step->GetStepDescription());
-				SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
-			}
+				CurrentStep = Step;
 
-			QuestManager->LoadCallbacks(this);
-			UpdateState();
-			return;
+				FLOGV("Quest %s step %s begin", *GetIdentifier().ToString(), *Step->GetIdentifier().ToString());
+				Step->Init();
+				Step->PerformInitActions();
+
+
+				// Notify message only when it's different than previous step
+				if (Step != CurrentStep)
+				{
+					FText MessageText = FormatTags(Step->GetStepDescription());
+					SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
+				}
+
+				QuestManager->LoadCallbacks(this);
+				UpdateState();
+				return;
+			}
 		}
 	}
 
@@ -191,43 +217,6 @@ void UFlareQuest::Activate()
 	QuestManager->OnQuestActivation(this);
 }
 
-/*
-bool UFlareQuest::CheckCondition(const FFlareQuestConditionDescription* Condition, bool EmptyResult)
-{
-	bool Status = false;
-
-	switch(Condition->Type)
-	{
-		case EFlareQuestCondition::SHARED_CONDITION:
-		{
-			const FFlareSharedQuestCondition* SharedCondition = FindSharedCondition(Condition->Identifier1);
-			if (SharedCondition)
-			{
-				Status = CheckConditions(SharedCondition->Conditions, EmptyResult);
-			}
-			break;
-		}
-
-
-
-
-		default:
-			FLOGV("ERROR: CheckCondition not implemented for condition type %d", (int)(Condition->Type +0));
-			break;
-	}
-
-	return Status;
-}
-
-void UFlareQuest::PerformAction(const FFlareQuestActionDescription* Action)
-{
-	switch (Action->Type) {
-
-
-	}
-
-}
-*/
 FText UFlareQuest::FormatTags(FText Message)
 {
 	// Replace input tags
@@ -383,41 +372,6 @@ void UFlareQuest::UpdateObjectiveTracker()
 	QuestManager->GetGame()->GetPC()->StartObjective(Objective.Name, Objective);
 }
 
-/*
-void UFlareQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData, const TArray<FFlareQuestConditionDescription>& Conditions)
-{
-	AFlareSpacecraft* Spacecraft = QuestManager->GetGame()->GetPC()->GetShipPawn();
-	FVector WorldAngularVelocity = Spacecraft ? Spacecraft->Airframe->GetPhysicsAngularVelocity() : FVector(0, 0, 0);
-	FVector LocalAngularVelocity = Spacecraft ? Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity) : FVector(0, 0, 0);
-
-	for (int ConditionIndex = 0; ConditionIndex < Conditions.Num(); ConditionIndex++)
-	{
-		const FFlareQuestConditionDescription* Condition = &Conditions[ConditionIndex];
-
-		switch (Condition->Type) {
-		case EFlareQuestCondition::SHARED_CONDITION:
-		{
-			const FFlareSharedQuestCondition* SharedCondition = FindSharedCondition(Condition->Identifier1);
-			if (SharedCondition)
-			{
-				AddConditionObjectives(ObjectiveData, SharedCondition->Conditions);
-			}
-			break;
-		}
-
-
-
-
-
-
-		default:
-			FLOGV("ERROR: UpdateObjectiveTracker not implemented for condition type %d", (int)(Condition->Type +0));
-			break;
-		}
-	}
-}
-*/
-
 /*----------------------------------------------------
 	Callback
 ----------------------------------------------------*/
@@ -462,36 +416,6 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 
 	return Callbacks;
 }
-
-/*
-TArray<EFlareQuestCallback::Type> UFlareQuest::GetConditionCallbacks(const FFlareQuestConditionDescription* Condition)
-{
-
-	TArray<EFlareQuestCallback::Type> Callbacks;
-	switch(Condition->Type)
-	{
-		case EFlareQuestCondition::SHARED_CONDITION:
-		{
-			const FFlareSharedQuestCondition* SharedCondition = FindSharedCondition(Condition->Identifier1);
-			if (SharedCondition)
-			{
-				AddConditionCallbacks(Callbacks, SharedCondition->Conditions);
-			}
-			break;
-		}
-
-
-
-
-
-		default:
-			FLOGV("ERROR: GetConditionCallbacks not implemented for condition type %d", (int)(Condition->Type +0));
-			break;
-	}
-
-	return Callbacks;
-}
-*/
 
 void UFlareQuest::OnTick(float DeltaSeconds)
 {
@@ -538,21 +462,4 @@ FText UFlareQuest::GetStatusText() const
 	}
 }
 
-/*
-FFlareQuestStepProgressSave* UFlareQuest::CreateStepProgressSave(const FFlareQuestConditionDescription* Condition)
-{
-	FName SaveId = FName(*FString::FromInt(Condition->Type + 0));
-	if (Condition->ConditionIdentifier != NAME_None)
-	{
-		SaveId = Condition->ConditionIdentifier;
-	}
-
-	FFlareQuestStepProgressSave NewSave;
-	NewSave.ConditionIdentifier = SaveId;
-	NewSave.CurrentProgression = 0;
-	NewSave.InitialTransform = FTransform::Identity;
-	QuestData.CurrentStepProgress.Add(NewSave);
-	return &QuestData.CurrentStepProgress.Last();
-}
-*/
 #undef LOCTEXT_NAMESPACE

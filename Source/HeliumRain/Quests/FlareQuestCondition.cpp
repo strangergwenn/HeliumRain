@@ -19,6 +19,18 @@ UFlareQuestCondition::UFlareQuestCondition(const FObjectInitializer& ObjectIniti
 {
 }
 
+void UFlareQuestCondition::AddSave(TArray<FFlareQuestConditionSave>& Data)
+{
+	if(Identifier != NAME_None)
+	{
+		FFlareQuestConditionSave ConditionData;
+		ConditionData.ConditionIdentifier = GetIdentifier();
+		Save(&ConditionData.Data);
+		Data.Add(ConditionData);
+	}
+}
+
+
 
 bool UFlareQuestCondition::CheckConditions(TArray<UFlareQuestCondition*>& Conditions, bool EmptyResult)
 {
@@ -39,11 +51,11 @@ bool UFlareQuestCondition::CheckConditions(TArray<UFlareQuestCondition*>& Condit
 }
 
 
-const FFlareBundle* UFlareQuestCondition::GetStepConditionBundle(UFlareQuestCondition* Condition, const TArray<FFlareQuestStepProgressSave>& Data)
+const FFlareBundle* UFlareQuestCondition::GetStepConditionBundle(UFlareQuestCondition* Condition, const TArray<FFlareQuestConditionSave>& Data)
 {
 	if (Condition && Condition->GetIdentifier() != NAME_None)
 	{
-		for (const FFlareQuestStepProgressSave& ConditionSave : Data)
+		for (const FFlareQuestConditionSave& ConditionSave : Data)
 		{
 			if (ConditionSave.ConditionIdentifier == Condition->GetIdentifier())
 			{
@@ -252,6 +264,10 @@ UFlareQuestConditionMinCollinearVelocity* UFlareQuestConditionMinCollinearVeloci
 
 void UFlareQuestConditionMinCollinearVelocity::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam)
 {
+	if (ConditionIdentifier == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionMinCollinearVelocity need identifier for state saving");
+	}
 	LoadInternal(ParentQuest, ConditionIdentifier);
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	VelocityLimit = VelocityLimitParam;
@@ -259,9 +275,25 @@ void UFlareQuestConditionMinCollinearVelocity::Load(UFlareQuest* ParentQuest, FN
 
 void UFlareQuestConditionMinCollinearVelocity::Restore(const FFlareBundle* Bundle)
 {
-	HasInitialVelocity = Bundle->HasFloat(INITIAL_VELOCITY_TAG);
-	InitialVelocity = Bundle->GetFloat(INITIAL_VELOCITY_TAG);
+	if (Bundle)
+	{
+		HasInitialVelocity = Bundle->HasFloat(INITIAL_VELOCITY_TAG);
+		InitialVelocity = Bundle->GetFloat(INITIAL_VELOCITY_TAG);
+	}
+	else
+	{
+		HasInitialVelocity = false;
+	}
 }
+
+void UFlareQuestConditionMinCollinearVelocity::Save(FFlareBundle* Bundle)
+{
+	if (HasInitialVelocity)
+	{
+		Bundle->PutFloat(INITIAL_VELOCITY_TAG, InitialVelocity);
+	}
+}
+
 
 float UFlareQuestConditionMinCollinearVelocity::GetCollinearVelocity()
 {
@@ -335,6 +367,10 @@ UFlareQuestConditionMaxCollinearVelocity* UFlareQuestConditionMaxCollinearVeloci
 
 void UFlareQuestConditionMaxCollinearVelocity::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam)
 {
+	if (ConditionIdentifier == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionMaxCollinearVelocity need identifier for state saving");
+	}
 	LoadInternal(ParentQuest, ConditionIdentifier);
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	VelocityLimit = VelocityLimitParam;
@@ -342,8 +378,23 @@ void UFlareQuestConditionMaxCollinearVelocity::Load(UFlareQuest* ParentQuest, FN
 
 void UFlareQuestConditionMaxCollinearVelocity::Restore(const FFlareBundle* Bundle)
 {
-	HasInitialVelocity = Bundle->HasFloat(INITIAL_VELOCITY_TAG);
-	InitialVelocity = Bundle->GetFloat(INITIAL_VELOCITY_TAG);
+	if (Bundle)
+	{
+		HasInitialVelocity = Bundle->HasFloat(INITIAL_VELOCITY_TAG);
+		InitialVelocity = Bundle->GetFloat(INITIAL_VELOCITY_TAG);
+	}
+	else
+	{
+		HasInitialVelocity = false;
+	}
+}
+
+void UFlareQuestConditionMaxCollinearVelocity::Save(FFlareBundle* Bundle)
+{
+	if (HasInitialVelocity)
+	{
+		Bundle->PutFloat(INITIAL_VELOCITY_TAG, InitialVelocity);
+	}
 }
 
 float UFlareQuestConditionMaxCollinearVelocity::GetCollinearVelocity()
@@ -831,16 +882,20 @@ UFlareQuestConditionFollowRelativeWaypoints::UFlareQuestConditionFollowRelativeW
 {
 }
 
-UFlareQuestConditionFollowRelativeWaypoints* UFlareQuestConditionFollowRelativeWaypoints::Create(UFlareQuest* ParentQuest, TArray<FVector> VectorListParam)
+UFlareQuestConditionFollowRelativeWaypoints* UFlareQuestConditionFollowRelativeWaypoints::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, TArray<FVector> VectorListParam)
 {
 	UFlareQuestConditionFollowRelativeWaypoints*Condition = NewObject<UFlareQuestConditionFollowRelativeWaypoints>(ParentQuest, UFlareQuestConditionFollowRelativeWaypoints::StaticClass());
-	Condition->Load(ParentQuest, VectorListParam);
+	Condition->Load(ParentQuest, ConditionIdentifier, VectorListParam);
 	return Condition;
 }
 
-void UFlareQuestConditionFollowRelativeWaypoints::Load(UFlareQuest* ParentQuest, TArray<FVector> VectorListParam)
+void UFlareQuestConditionFollowRelativeWaypoints::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, TArray<FVector> VectorListParam)
 {
-	LoadInternal(ParentQuest);
+	if (ConditionIdentifier == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionFollowRelativeWaypoints need identifier for state saving");
+	}
+	LoadInternal(ParentQuest, ConditionIdentifier);
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	VectorList = VectorListParam;
 }
@@ -848,8 +903,15 @@ void UFlareQuestConditionFollowRelativeWaypoints::Load(UFlareQuest* ParentQuest,
 void UFlareQuestConditionFollowRelativeWaypoints::Restore(const FFlareBundle* Bundle)
 {
 	bool HasSave = true;
-	HasSave &= Bundle->HasInt32(CURRENT_PROGRESSION_TAG);
-	HasSave &= Bundle->HasTransform(INITIAL_TRANSFORM_TAG);
+	if(Bundle)
+	{
+		HasSave &= Bundle->HasInt32(CURRENT_PROGRESSION_TAG);
+		HasSave &= Bundle->HasTransform(INITIAL_TRANSFORM_TAG);
+	}
+	else
+	{
+		HasSave = false;
+	}
 
 	if(HasSave)
 	{
@@ -857,7 +919,20 @@ void UFlareQuestConditionFollowRelativeWaypoints::Restore(const FFlareBundle* Bu
 		CurrentProgression = Bundle->GetInt32(CURRENT_PROGRESSION_TAG);
 		InitialTransform = Bundle->GetTransform(INITIAL_TRANSFORM_TAG);
 	}
+	else
+	{
+		IsInit = false;
+	}
 
+}
+
+void UFlareQuestConditionFollowRelativeWaypoints::Save(FFlareBundle* Bundle)
+{
+	if (IsInit)
+	{
+		Bundle->PutInt32(CURRENT_PROGRESSION_TAG, CurrentProgression);
+		Bundle->PutTransform(INITIAL_TRANSFORM_TAG, InitialTransform);
+	}
 }
 
 void UFlareQuestConditionFollowRelativeWaypoints::Init()
@@ -869,18 +944,21 @@ void UFlareQuestConditionFollowRelativeWaypoints::Init()
 
 	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
 
-	IsInit = true;
-	CurrentProgression = 0;
-	InitialTransform = Spacecraft->Airframe->GetComponentTransform();
+	if (Spacecraft)
+	{
+		IsInit = true;
+		CurrentProgression = 0;
+		InitialTransform = Spacecraft->Airframe->GetComponentTransform();
+	}
 }
 
 bool UFlareQuestConditionFollowRelativeWaypoints::IsCompleted()
 {
-	Init();
 	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
 
 	if (Spacecraft)
 	{
+		Init();
 		FVector InitialLocation = InitialTransform.GetTranslation();
 		FVector RelativeTargetLocation = VectorList[CurrentProgression] * 100;
 		FVector WorldTargetLocation = InitialLocation + InitialTransform.GetRotation().RotateVector(RelativeTargetLocation);

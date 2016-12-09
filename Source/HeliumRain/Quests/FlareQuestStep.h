@@ -35,7 +35,10 @@ public:
 	void Init();
 
 	/** Restore the quest step status from a save file */
-	virtual void Restore(const TArray<FFlareQuestStepProgressSave>& Data);
+	virtual void Restore(const TArray<FFlareQuestConditionSave>& Data);
+
+	/** Save the quest step status to a save file */
+	virtual void Save(TArray<FFlareQuestConditionSave>& Data);
 
 	void UpdateState();
 

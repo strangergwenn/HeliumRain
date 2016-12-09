@@ -98,7 +98,7 @@ void UFlareQuestStep::Init()
 	}
 }
 
-void UFlareQuestStep::Restore(const TArray<FFlareQuestStepProgressSave>& Data)
+void UFlareQuestStep::Restore(const TArray<FFlareQuestConditionSave>& Data)
 {
 	for (UFlareQuestCondition* Condition: EnableConditions)
 	{
@@ -118,6 +118,29 @@ void UFlareQuestStep::Restore(const TArray<FFlareQuestStepProgressSave>& Data)
 	for (UFlareQuestCondition* Condition: EndConditions)
 	{
 		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data));
+	}
+}
+
+void UFlareQuestStep::Save(TArray<FFlareQuestConditionSave>& Data)
+{
+	for (UFlareQuestCondition* Condition: EnableConditions)
+	{
+		Condition->AddSave(Data);
+	}
+
+	for (UFlareQuestCondition* Condition: BlockConditions)
+	{
+		Condition->AddSave(Data);
+	}
+
+	for (UFlareQuestCondition* Condition: FailConditions)
+	{
+		Condition->AddSave(Data);
+	}
+
+	for (UFlareQuestCondition* Condition: EndConditions)
+	{
+		Condition->AddSave(Data);
 	}
 }
 

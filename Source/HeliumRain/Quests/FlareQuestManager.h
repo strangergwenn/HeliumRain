@@ -24,7 +24,7 @@ namespace EFlareQuestCallback
 
 /** Quest current step status save data */
 USTRUCT()
-struct FFlareQuestStepProgressSave
+struct FFlareQuestConditionSave
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -32,10 +32,6 @@ struct FFlareQuestStepProgressSave
 	FName ConditionIdentifier;
 
 	FFlareBundle Data;
-	/*int32 CurrentProgression;
-
-	FTransform InitialTransform;
-	float      InitialVelocity;*/
 };
 
 /** Quest progress status save data */
@@ -51,10 +47,10 @@ struct FFlareQuestProgressSave
 	TArray<FName> SuccessfullSteps;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFlareQuestStepProgressSave> CurrentStepProgress;
+	TArray<FFlareQuestConditionSave> CurrentStepProgress;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFlareQuestStepProgressSave> TriggerConditionsSave;
+	TArray<FFlareQuestConditionSave> TriggerConditionsSave;
 };
 
 /** Quest status save data */

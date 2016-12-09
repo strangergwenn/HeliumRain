@@ -107,17 +107,21 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuestProgress(FFlareQuestProgressS
 	}
 	JsonObject->SetArrayField("CurrentStepProgress", CurrentStepProgress);
 
+	TArray< TSharedPtr<FJsonValue> > TriggerConditionsSave;
+	for(int i = 0; i < Data->TriggerConditionsSave.Num(); i++)
+	{
+		TriggerConditionsSave.Add(MakeShareable(new FJsonValueObject(SaveQuestStepProgress(&Data->TriggerConditionsSave[i]))));
+	}
+	JsonObject->SetArrayField("TriggerConditionsSave", TriggerConditionsSave);
+
 	return JsonObject;
 }
 
-TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuestStepProgress(FFlareQuestStepProgressSave* Data)
+TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuestStepProgress(FFlareQuestConditionSave* Data)
 {
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
 	JsonObject->SetStringField("ConditionIdentifier", Data->ConditionIdentifier.ToString());
-	/*JsonObject->SetStringField("CurrentProgression", FormatInt32(Data->CurrentProgression));
-	JsonObject->SetStringField("InitialTransform", FormatTransform(Data->InitialTransform));
-	SaveFloat(JsonObject,"InitialVelocity", Data->InitialVelocity);*/
 	JsonObject->SetObjectField("Data", SaveBundle(&Data->Data));
 
 	return JsonObject;

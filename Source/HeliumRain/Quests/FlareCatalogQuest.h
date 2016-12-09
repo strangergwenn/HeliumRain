@@ -36,27 +36,9 @@ protected:
 
 	UFlareQuestStep* GenerateCatalogStep(const FFlareQuestStepDescription& StepDescription);
 
-
-	//virtual FFlareQuestStepProgressSave* CreateStepProgressSave(const FFlareQuestConditionDescription* Condition);
-
-	//virtual void GenerateConditionCollinearityObjective(FFlarePlayerObjectiveData* ObjectiveData, EFlareQuestCondition::Type ConditionType, float TargetCollinearity);
-
-
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
-// TODO
-
-/*inline FName GetIdentifier() const
-{
-	return QuestDescription->Identifier;
-}*/
-
-/*inline FText GetQuestName() const
-{
-	return QuestDescription->QuestName;
-}*/
-
 
 	 const FFlareQuestDescription*			CatalogDescription;
 

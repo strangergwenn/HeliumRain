@@ -21,6 +21,12 @@ public:
 	{
 	}
 
+	virtual void Save(FFlareBundle* Bundle)
+	{
+	}
+
+	virtual void AddSave(TArray<FFlareQuestConditionSave>& Data);
+
 protected:
 
 	  void LoadInternal(UFlareQuest* ParentQuest, FName ConditionIdentifier = NAME_None)
@@ -73,7 +79,7 @@ public:
 
 	static void AddConditionCallbacks(TArray<EFlareQuestCallback::Type>& Callbacks, const TArray<UFlareQuestCondition*>& Conditions);
 
-	static const FFlareBundle* GetStepConditionBundle(UFlareQuestCondition* Condition, const TArray<FFlareQuestStepProgressSave>& Data);
+	static const FFlareBundle* GetStepConditionBundle(UFlareQuestCondition* Condition, const TArray<FFlareQuestConditionSave>& Data);
 
 	FName GetIdentifier()
 	{
@@ -157,6 +163,7 @@ public:
 	static UFlareQuestConditionMinCollinearVelocity* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam);
 	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam);
 	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
 
 	virtual bool IsCompleted();
 	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
@@ -183,6 +190,7 @@ public:
 	static UFlareQuestConditionMaxCollinearVelocity* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam);
 	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam);
 	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
 
 	virtual bool IsCompleted();
 	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
@@ -359,9 +367,10 @@ class HELIUMRAIN_API UFlareQuestConditionFollowRelativeWaypoints: public UFlareQ
 
 public:
 
-	static UFlareQuestConditionFollowRelativeWaypoints* Create(UFlareQuest* ParentQuest, TArray<FVector> VectorListParam);
-	void Load(UFlareQuest* ParentQuest, TArray<FVector> VectorListParam);
+	static UFlareQuestConditionFollowRelativeWaypoints* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, TArray<FVector> VectorListParam);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, TArray<FVector> VectorListParam);
 	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
 
 	virtual bool IsCompleted();
 	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);

@@ -202,6 +202,21 @@ FTransform FFlareBundle::GetTransform(FName Key, const FTransform Default) const
 	return Default;
 }
 
+void FFlareBundle::PutFloat(FName Key, float Value)
+{
+	FloatValues.Add(Key, Value);
+}
+
+void FFlareBundle::PutInt32(FName Key, int32 Value)
+{
+	Int32Values.Add(Key, Value);
+}
+
+void FFlareBundle::PutTransform(FName Key, const FTransform Value)
+{
+	TransformValues.Add(Key, Value);
+}
+
 void FFlareBundle::Clear()
 {
 	FloatValues.Empty();

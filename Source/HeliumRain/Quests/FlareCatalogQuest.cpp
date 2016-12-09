@@ -141,7 +141,7 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 			Conditions.Add(UFlareQuestConditionMaxRotationVelocity::Create(this, FVector(1,0,0), ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
-			Conditions.Add(UFlareQuestConditionFollowRelativeWaypoints::Create(this, ConditionDescription.VectorListParam));
+			Conditions.Add(UFlareQuestConditionFollowRelativeWaypoints::Create(this, ConditionDescription.ConditionIdentifier, ConditionDescription.VectorListParam));
 			break;
 		case EFlareQuestCondition::SHIP_ALIVE:
 			Conditions.Add(UFlareQuestConditionShipAlive::Create(this, ConditionDescription.Identifier1));
@@ -213,7 +213,7 @@ UFlareQuestAction* UFlareCatalogQuest::GenerateCatalogAction(const FFlareQuestAc
 
 UFlareQuestStep* UFlareCatalogQuest::GenerateCatalogStep(const FFlareQuestStepDescription& StepDescription)
 {
-	UFlareQuestStep* Step = UFlareQuestStep::Create(this, Identifier, StepDescription.StepDescription);
+	UFlareQuestStep* Step = UFlareQuestStep::Create(this, StepDescription.Identifier, StepDescription.StepDescription);
 
 	for(const FFlareQuestConditionDescription& ConditionDescription : StepDescription.EndConditions)
 	{
