@@ -3,7 +3,7 @@
 #include "../../Flare.h"
 #include "../Components/FlarePlanetaryBox.h"
 #include "../../Game/FlareSimulatedSector.h"
-
+#include "../Components/FlareButton.h"
 
 class AFlareMenuManager;
 

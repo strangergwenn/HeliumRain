@@ -24,7 +24,7 @@ protected:
 	void LoadPlayer(const TSharedPtr<FJsonObject> Object, FFlarePlayerSave* Data);
 	void LoadQuest(const TSharedPtr<FJsonObject> Object, FFlareQuestSave* Data);
 	void LoadQuestProgress(const TSharedPtr<FJsonObject> Object, FFlareQuestProgressSave* Data);
-	void LoadQuestStepProgress(const TSharedPtr<FJsonObject> Object, FFlareQuestStepProgressSave* Data);
+	void LoadQuestStepProgress(const TSharedPtr<FJsonObject> Object, FFlareQuestConditionSave* Data);
 
 	void LoadCompanyDescription(const TSharedPtr<FJsonObject> Object, FFlareCompanyDescription* Data);
 	void LoadWorld(const TSharedPtr<FJsonObject> Object, FFlareWorldSave* Data);
@@ -81,6 +81,8 @@ public:
 	void LoadVector(TSharedPtr< FJsonObject > Object, FString Key, FVector* Data);
 	void LoadRotator(TSharedPtr< FJsonObject > Object, FString Key, FRotator* Data);
 	void LoadFloatBuffer(TSharedPtr< FJsonObject > Object, FString Key, FFlareFloatBuffer* Data);
+	void LoadBundle(const TSharedPtr<FJsonObject> Object, FString Key, FFlareBundle* Data);
+
 
 
 

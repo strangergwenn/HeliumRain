@@ -24,17 +24,14 @@ namespace EFlareQuestCallback
 
 /** Quest current step status save data */
 USTRUCT()
-struct FFlareQuestStepProgressSave
+struct FFlareQuestConditionSave
 {
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	FName ConditionIdentifier;
 
-	int32 CurrentProgression;
-
-	FTransform InitialTransform;
-	float      InitialVelocity;
+	FFlareBundle Data;
 };
 
 /** Quest progress status save data */
@@ -50,7 +47,10 @@ struct FFlareQuestProgressSave
 	TArray<FName> SuccessfullSteps;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFlareQuestStepProgressSave> CurrentStepProgress;
+	TArray<FFlareQuestConditionSave> CurrentStepProgress;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFlareQuestConditionSave> TriggerConditionsSave;
 };
 
 /** Quest status save data */
@@ -107,6 +107,13 @@ public:
 	/** Auto select a quest */
 	void AutoSelectQuest();
 
+	void LoadBuildinQuest();
+
+	void LoadCatalogQuests();
+
+	void LoadDynamicQuests();
+
+	void AddQuest(UFlareQuest* Quest);
 
    /*----------------------------------------------------
 	   Callback
@@ -147,6 +154,9 @@ protected:
 
 	UPROPERTY()
 	TArray<UFlareQuest*>	                 OldQuests;
+
+	UPROPERTY()
+	TArray<UFlareQuest*>	                 Quests;
 	
 	UFlareQuest*			                 SelectedQuest;
 	// TODO Use map structure
@@ -159,6 +169,8 @@ protected:
 	FFlareQuestSave			                 QuestData;
 
 	AFlareGame*                              Game;
+
+	TArray<FName>							 ActiveQuestIdentifiers;
 
 public:
 
@@ -186,11 +198,12 @@ public:
 		return OldQuests;
 	}
 
-	bool IsQuestActive(FName QuestIdentifier);
+	bool IsQuestActive(UFlareQuest* Quest);
 
-	bool IsQuestSuccesfull(FName QuestIdentifier);
+	bool IsQuestSuccessfull(UFlareQuest* Quest);
 
-	bool IsQuestFailed(FName QuestIdentifier);
+	bool IsQuestFailed(UFlareQuest* Quest);
 
+	UFlareQuest* FindQuest(FName QuestIdentifier);
 
 };

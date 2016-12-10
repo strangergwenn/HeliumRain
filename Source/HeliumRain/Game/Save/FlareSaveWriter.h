@@ -8,7 +8,7 @@
 struct FFlarePlayerSave;
 struct FFlareQuestSave;
 struct FFlareQuestProgressSave;
-struct FFlareQuestStepProgressSave;
+struct FFlareQuestConditionSave;
 
 struct FFlareCompanyDescription;
 struct FFlareWorldSave;
@@ -59,7 +59,7 @@ protected:
 	TSharedRef<FJsonObject> SavePlayer(FFlarePlayerSave* Data);
 	TSharedRef<FJsonObject> SaveQuest(FFlareQuestSave* Data);
 	TSharedRef<FJsonObject> SaveQuestProgress(FFlareQuestProgressSave* Data);
-	TSharedRef<FJsonObject> SaveQuestStepProgress(FFlareQuestStepProgressSave* Data);
+	TSharedRef<FJsonObject> SaveQuestStepProgress(FFlareQuestConditionSave* Data);
 
 	TSharedRef<FJsonObject> SaveCompanyDescription(FFlareCompanyDescription* Data);
 	TSharedRef<FJsonObject> SaveWorld(FFlareWorldSave* Data);
@@ -92,6 +92,8 @@ protected:
 	TSharedRef<FJsonObject> SaveBomb(FFlareBombSave* Data);
 	TSharedRef<FJsonObject> SaveResourcePrice(FFFlareResourcePrice* Data);
 	TSharedRef<FJsonObject> SaveFloatBuffer(FFlareFloatBuffer* Data);
+	TSharedRef<FJsonObject> SaveBundle(FFlareBundle* Data);
+
 	TSharedRef<FJsonObject> SaveTravel(FFlareTravelSave* Data);
 
 	void SaveFloat(TSharedPtr< FJsonObject > Object, FString Key, float Data);

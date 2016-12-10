@@ -4,6 +4,8 @@
 
 #include "../../Game/FlareGame.h"
 #include "../../Quests/FlareQuest.h"
+#include "../../Quests/FlareQuestStep.h"
+#include "../../Quests/FlareQuestCondition.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
@@ -195,8 +197,6 @@ void SFlareQuestMenu::FillActiveQuestList()
 	for (int32 QuestIndex = 0; QuestIndex < ActiveQuests.Num(); QuestIndex++)
 	{
 		UFlareQuest* Quest = ActiveQuests[QuestIndex];
-		FFlareQuestProgressSave* QuestProgress = Quest->Save();
-		const FFlareQuestDescription* QuestDescription = Quest->GetQuestDescription();
 
 		ActiveQuestList->AddSlot()
 		.Padding(Theme.SmallContentPadding)
@@ -214,8 +214,8 @@ void SFlareQuestMenu::FillActiveQuestList()
 				.Width(8.4)
 				.Text(FText::Format(LOCTEXT("ActiveQuestTitleFormat", "{0} ({1} / {2})"),
 					Quest->GetQuestName(),
-					FText::AsNumber(QuestProgress->SuccessfullSteps.Num() + 1),
-					FText::AsNumber(QuestDescription->Steps.Num())))
+					FText::AsNumber(Quest->GetSuccessfullStepCount() + 1),
+					FText::AsNumber(Quest->GetStepCount())))
 				.HelpText(LOCTEXT("SelectActiveQuestInfo", "Take a closer look at this quest"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestSelected, Quest)
 				.IsDisabled(this, &SFlareQuestMenu::IsSelectQuestButtonDisabled, Quest)
@@ -261,9 +261,7 @@ void SFlareQuestMenu::FillPreviousQuestList()
 	for (int32 QuestIndex = 0; QuestIndex < PreviousQuests.Num(); QuestIndex++)
 	{
 		UFlareQuest* Quest = PreviousQuests[QuestIndex];
-		FFlareQuestProgressSave* QuestProgress = Quest->Save();
-		const FFlareQuestDescription* QuestDescription = Quest->GetQuestDescription();
-		
+
 		PreviousQuestList->AddSlot()
 		.Padding(Theme.SmallContentPadding)
 		.HAlign(HAlign_Left)
@@ -304,14 +302,13 @@ void SFlareQuestMenu::FillQuestDetails()
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	FCHECK(QuestManager);
 
-	CurrentQuestStepIndex = 0;
+	CurrentQuestStep = NULL;
 	QuestDetails->ClearChildren();
 
 	// Get active quest
 	if (SelectedQuest)
 	{
-		const FFlareQuestDescription* SelectedQuestDescription = SelectedQuest->GetQuestDescription();
-		bool IsActiveQuest = (QuestManager->IsQuestActive(SelectedQuestDescription->Identifier));
+		bool IsActiveQuest = (QuestManager->IsQuestActive(SelectedQuest));
 
 		// Header
 		QuestDetails->AddSlot()
@@ -319,35 +316,29 @@ void SFlareQuestMenu::FillQuestDetails()
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
-			.Text(SelectedQuestDescription->QuestDescription)
+			.Text(SelectedQuest->GetQuestDescription())
 		];
 
 		// Get progress info
-		FFlareQuestProgressSave* SelectedQuestProgress = SelectedQuest->Save();
-		int32 CompletedSteps = IsActiveQuest ? SelectedQuestProgress->SuccessfullSteps.Num() : SelectedQuestDescription->Steps.Num();
-		CurrentQuestStepIndex = CompletedSteps;
+		CurrentQuestStep = SelectedQuest->GetCurrentStep();
 
 		// List all quest steps
-		for (int32 QuestStepIndex = 0; QuestStepIndex < SelectedQuestDescription->Steps.Num(); QuestStepIndex++)
+		for(UFlareQuestStep* QuestStep : SelectedQuest->GetSteps())
 		{
-			const FFlareQuestStepDescription& QuestStep = SelectedQuestDescription->Steps[QuestStepIndex];
-			FFlarePlayerObjectiveData QuestStepData;
-			SelectedQuest->AddConditionObjectives(&QuestStepData, QuestStep.EndConditions);
-
 			// Generate condition text
 			FText StepConditionsText;
-			for (int ConditionIndex = 0; ConditionIndex < QuestStepData.ConditionList.Num(); ConditionIndex++)
+			for(UFlareQuestCondition* Condition : QuestStep->GetEndConditions())
 			{
 				StepConditionsText = FText::Format(LOCTEXT("StepConditionFormat", "{0}{1}{2}"),
 					StepConditionsText,
-					(ConditionIndex > 0 ? FText::FromString("\n") : FText()),
-					QuestStepData.ConditionList[ConditionIndex].InitialLabel);
+					(Condition->GetConditionIndex() > 0 ? FText::FromString("\n") : FText()),
+					Condition->GetInitialLabel());
 			}
 
 			// Completed step
-			if (QuestStepIndex < CompletedSteps)
+			if (QuestStep->IsCompleted())
 			{
-				TSharedPtr<SVerticalBox> DetailBox = AddQuestDetail(QuestStepIndex);
+				TSharedPtr<SVerticalBox> DetailBox = AddQuestDetail(QuestStep);
 
 				// Description
 				DetailBox->AddSlot()
@@ -383,15 +374,15 @@ void SFlareQuestMenu::FillQuestDetails()
 					SNew(STextBlock)
 					.WrapTextAt(0.5 * Theme.ContentWidth)
 					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStepIndex)
-					.Visibility(this, &SFlareQuestMenu::GetQuestStepDescriptionVisibility, QuestStepIndex)
+					.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStep)
+					.Visibility(this, &SFlareQuestMenu::GetQuestStepDescriptionVisibility, QuestStep)
 				];
 			}
 
 			// Current step
-			else if (QuestStepIndex == CompletedSteps)
+			else if (QuestStep == CurrentQuestStep)
 			{
-				TSharedPtr<SVerticalBox> DetailBox = AddQuestDetail(QuestStepIndex);
+				TSharedPtr<SVerticalBox> DetailBox = AddQuestDetail(QuestStep);
 				
 				// Description
 				DetailBox->AddSlot()
@@ -412,7 +403,7 @@ void SFlareQuestMenu::FillQuestDetails()
 					SNew(STextBlock)
 					.WrapTextAt(0.5 * Theme.ContentWidth)
 					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStepIndex)
+					.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStep)
 				];
 			}
 		}
@@ -430,7 +421,7 @@ void SFlareQuestMenu::FillQuestDetails()
 	}
 }
 
-TSharedPtr<SVerticalBox> SFlareQuestMenu::AddQuestDetail(int32 QuestStepIndex)
+TSharedPtr<SVerticalBox> SFlareQuestMenu::AddQuestDetail(UFlareQuestStep* QuestStep)
 {
 	TSharedPtr<SVerticalBox> Temp;
 
@@ -445,7 +436,7 @@ TSharedPtr<SVerticalBox> SFlareQuestMenu::AddQuestDetail(int32 QuestStepIndex)
 		SNew(SButton)
 		.ContentPadding(FMargin(0))
 		.ButtonStyle(FCoreStyle::Get(), "NoBorder")
-		.OnClicked(this, &SFlareQuestMenu::OnQuestStepSelected, QuestStepIndex)
+		.OnClicked(this, &SFlareQuestMenu::OnQuestStepSelected, QuestStep)
 		[
 			SNew(SHorizontalBox)
 
@@ -464,7 +455,7 @@ TSharedPtr<SVerticalBox> SFlareQuestMenu::AddQuestDetail(int32 QuestStepIndex)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.NameFont)
-						.Text(FText::AsNumber(QuestStepIndex + 1))
+						.Text(FText::AsNumber(QuestStep->GetStepIndex() + 1))
 					]
 				]
 			]
@@ -496,18 +487,14 @@ FText SFlareQuestMenu::GetSelectedQuestTitle() const
 	FCHECK(QuestManager);
 
 	// Get selected quest
-	if (SelectedQuest && SelectedQuest->GetCurrentStepDescription())
+	if (SelectedQuest && SelectedQuest->GetCurrentStep())
 	{
-		const FFlareQuestDescription* SelectedQuestDescription = SelectedQuest->GetQuestDescription();
-
-		if (QuestManager->IsQuestActive(SelectedQuestDescription->Identifier))
+		if (QuestManager->IsQuestActive(SelectedQuest))
 		{
-			FFlareQuestProgressSave* SelectedQuestProgress = SelectedQuest->Save();
-
 			return FText::Format(LOCTEXT("SelectedActiveQuestTitleFormat", "Selected quest : {0} ({1} / {2})"),
 				SelectedQuest->GetQuestName(),
-				FText::AsNumber(SelectedQuestProgress->SuccessfullSteps.Num() + 1),
-				FText::AsNumber(SelectedQuestDescription->Steps.Num()));
+				FText::AsNumber(SelectedQuest->GetSuccessfullStepCount() + 1),
+				FText::AsNumber(SelectedQuest->GetStepCount()));
 		}
 		else
 		{
@@ -523,28 +510,23 @@ FText SFlareQuestMenu::GetSelectedQuestTitle() const
 	return FText();
 }
 
-FText SFlareQuestMenu::GetQuestStepDescription(int32 QuestStepIndex) const
+FText SFlareQuestMenu::GetQuestStepDescription(UFlareQuestStep* QuestStep) const
 {
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	FCHECK(QuestManager);
 
 	// Only show this for the currently selected quest step
-	if (SelectedQuest && CurrentQuestStepIndex == QuestStepIndex)
+	if (SelectedQuest && CurrentQuestStep == QuestStep)
 	{
-		const FFlareQuestDescription* CurrentQuestDescription = SelectedQuest->GetQuestDescription();
-		FCHECK(CurrentQuestDescription);
-		FCHECK(QuestStepIndex >= 0 && QuestStepIndex < CurrentQuestDescription->Steps.Num());
-				
-		const FFlareQuestStepDescription& QuestStep = CurrentQuestDescription->Steps[QuestStepIndex];
-		return SelectedQuest->FormatTags(QuestStep.StepDescription);
+		return SelectedQuest->FormatTags(QuestStep->GetStepDescription());
 	}
 
 	return FText();
 }
 
-EVisibility SFlareQuestMenu::GetQuestStepDescriptionVisibility(int32 QuestStepIndex) const
+EVisibility SFlareQuestMenu::GetQuestStepDescriptionVisibility(UFlareQuestStep* QuestStep) const
 {
-	return (CurrentQuestStepIndex == QuestStepIndex ? EVisibility::Visible : EVisibility::Collapsed);
+	return (CurrentQuestStep == QuestStep ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 bool SFlareQuestMenu::IsTrackQuestButtonDisabled(UFlareQuest* Quest) const
@@ -580,9 +562,9 @@ void SFlareQuestMenu::OnQuestSelected(UFlareQuest* Quest)
 	FillQuestDetails();
 }
 
-FReply SFlareQuestMenu::OnQuestStepSelected(int32 QuestStepIndex)
+FReply SFlareQuestMenu::OnQuestStepSelected(UFlareQuestStep* QuestStep)
 {
-	CurrentQuestStepIndex = QuestStepIndex;
+	CurrentQuestStep = QuestStep;
 	return FReply::Handled();
 }
 

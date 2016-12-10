@@ -5,7 +5,6 @@
 #include "FlareTradeRoute.h"
 #include "FlareGameTypes.generated.h"
 
-
 /** Possible menu targets */
 UENUM()
 namespace EFlareMenu
@@ -315,6 +314,38 @@ struct FFlareFloatBuffer
 	float GetValue(int32 Age);
 
 	float GetMean(int32 StartAge, int32 EndAge);
+};
+
+
+/** Generic storage system */
+USTRUCT()
+struct FFlareBundle
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	TMap<FName, float> FloatValues;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	TMap<FName, int32> Int32Values;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	TMap<FName, FTransform> TransformValues;
+
+	bool HasFloat(FName Key) const;
+	bool HasInt32(FName Key) const;
+	bool HasTransform(FName Key) const;
+
+
+	float GetFloat(FName Key, float Default = 0.f) const;
+	int32 GetInt32(FName Key, int32 Default = 0) const;
+	FTransform GetTransform(FName Key, const FTransform Default = FTransform::Identity) const;
+
+	void PutFloat(FName Key, float Value);
+	void PutInt32(FName Key, int32 Value);
+	void PutTransform(FName Key, const FTransform Value);
+
+	void Clear();
 };
 
 /** Incoming event description */
