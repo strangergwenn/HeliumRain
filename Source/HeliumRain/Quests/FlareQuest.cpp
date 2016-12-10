@@ -158,6 +158,7 @@ void UFlareQuest::EndStep()
 void UFlareQuest::NextStep()
 {
 	// Clear step progress
+
 	CurrentStep = NULL;
 
 	if (Steps.Num() == 0)
@@ -176,13 +177,8 @@ void UFlareQuest::NextStep()
 				Step->Init();
 				Step->PerformInitActions();
 
-
-				// Notify message only when it's different than previous step
-				if (Step != CurrentStep)
-				{
-					FText MessageText = FormatTags(Step->GetStepDescription());
-					SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
-				}
+				FText MessageText = FormatTags(Step->GetStepDescription());
+				SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
 
 				QuestManager->LoadCallbacks(this);
 				UpdateState();
