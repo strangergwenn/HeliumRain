@@ -385,3 +385,35 @@ protected:
 	int32 CurrentProgression;
 	FTransform InitialTransform;
 };
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionFollowRandomWaypoints: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionFollowRandomWaypoints* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier);
+	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	void Init();
+
+	void GenerateWaypointSegments(TArray<FVector>& WaypointList, float& Distance, float MaxDistance, float StepDistance,
+								  FVector& BaseDirection, FVector& BaseLocation, FVector TargetLocation,
+								  float TargetMaxTurnDistance);
+
+
+
+	bool IsInit;
+	TArray<FVector> Waypoints;
+	int32 CurrentProgression;
+};

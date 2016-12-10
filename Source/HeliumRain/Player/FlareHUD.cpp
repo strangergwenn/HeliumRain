@@ -950,12 +950,15 @@ void AFlareHUD::DrawHUDInternal()
 					// Draw icon
 					DrawHUDIcon(ScreenPosition, IconSize, HUDObjectiveIcon, (Target->Active ? HudColorNeutral : InactiveColor), true);
 
-					float Distance = FMath::Max(0.f, ((ObjectiveLocation - PlayerShip->GetActorLocation()).Size() - Target->Radius) / 100);
-					FString ObjectiveText = FormatDistance(Distance);
+					if(Target->Active)
+					{
+						float Distance = FMath::Max(0.f, ((ObjectiveLocation - PlayerShip->GetActorLocation()).Size() - Target->Radius) / 100);
+						FString ObjectiveText = FormatDistance(Distance);
 
-					// Draw distance
-					FVector2D CenterScreenPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(0, IconSize);
-					FlareDrawText(ObjectiveText, CenterScreenPosition, (Target->Active ? HudColorObjective : HudColorNeutral));
+						// Draw distance
+						FVector2D CenterScreenPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(0, IconSize);
+						FlareDrawText(ObjectiveText, CenterScreenPosition, (Target->Active ? HudColorObjective : HudColorNeutral));
+					}
 				}
 
 				// Tell the HUD to draw the search marker only if we are outside this

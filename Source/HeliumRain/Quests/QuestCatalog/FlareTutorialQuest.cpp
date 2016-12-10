@@ -140,22 +140,20 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 
 	{
 		#undef QUEST_STEP_TAG
-		#define QUEST_STEP_TAG QUEST_TAG"FollowPath"
+		#define QUEST_STEP_TAG QUEST_TAG"FollowAdvancedPath"
 		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can use the prograde vector to follow a path. Keep a constant velocity and just aim your target, your ship's engine controller will automatically align yout velicity with your ship orientation.");
-		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "follow-path", Description);
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "follow-advanced-path", Description);
 
-		TArray<FVector> Waypoints;
-		Waypoints.Add(FVector(2000, 50, 150));
-		Waypoints.Add(FVector(2500, 200, 150));
-		Waypoints.Add(FVector(3000, 200, 0));
-		Waypoints.Add(FVector(3500, 250, 100));
-		Waypoints.Add(FVector(4000, 400, 200));
+
+		// TODO force first light
+
 
 		Step->GetEnableConditions().Add(FlyShip);
-		Step->GetEndConditions().Add(UFlareQuestConditionFollowRelativeWaypoints::Create(this, QUEST_TAG"cond1", Waypoints));
+		Step->GetEndConditions().Add(UFlareQuestConditionFollowRandomWaypoints::Create(this, QUEST_TAG"cond1"));
 		Steps.Add(Step);
 	}
 }
+
 
 /*----------------------------------------------------
 	Tutorial Navigation

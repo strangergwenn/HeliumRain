@@ -735,6 +735,22 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveBundle(FFlareBundle* Data)
 		JsonObject->SetObjectField("TransformValues", TransformObject);
 	}
 
+	if(Data->VectorArrayValues.Num() > 0)
+	{
+		TSharedRef<FJsonObject> TransformObject = MakeShareable(new FJsonObject());
+		for (auto& Pair : Data->VectorArrayValues)
+		{
+			TArray< TSharedPtr<FJsonValue> > VectorArray;
+			for(FVector Vector: Pair.Value.Entries)
+			{
+				VectorArray.Add(MakeShareable(new FJsonValueString(FormatVector(Vector))));
+			}
+
+			TransformObject->SetArrayField(Pair.Key.ToString(), VectorArray);
+		}
+		JsonObject->SetObjectField("VectorArrayValues", TransformObject);
+	}
+
 	return JsonObject;
 }
 

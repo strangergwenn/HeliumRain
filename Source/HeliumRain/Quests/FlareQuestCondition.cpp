@@ -8,6 +8,7 @@
 static FName INITIAL_VELOCITY_TAG("initial-velocity");
 static FName CURRENT_PROGRESSION_TAG("current-progression");
 static FName INITIAL_TRANSFORM_TAG("initial-transform");
+static FName WAYPOINTS_TAG("waypoints");
 
 /*----------------------------------------------------
 	Constructor
@@ -875,7 +876,7 @@ void UFlareQuestConditionQuestFailed::AddConditionObjectives(FFlarePlayerObjecti
 	Follow relative waypoints condition
 ----------------------------------------------------*/
 
-#define WAYPOINTS_RADIUS 1000
+#define WAYPOINTS_RADIUS 5000
 
 UFlareQuestConditionFollowRelativeWaypoints::UFlareQuestConditionFollowRelativeWaypoints(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -1022,6 +1023,215 @@ void UFlareQuestConditionFollowRelativeWaypoints::AddConditionObjectives(FFlareP
 	}
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
+
+/*----------------------------------------------------
+	Follow random waypoints condition
+----------------------------------------------------*/
+
+UFlareQuestConditionFollowRandomWaypoints::UFlareQuestConditionFollowRandomWaypoints(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionFollowRandomWaypoints* UFlareQuestConditionFollowRandomWaypoints::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier)
+{
+	UFlareQuestConditionFollowRandomWaypoints*Condition = NewObject<UFlareQuestConditionFollowRandomWaypoints>(ParentQuest, UFlareQuestConditionFollowRandomWaypoints::StaticClass());
+	Condition->Load(ParentQuest, ConditionIdentifier);
+	return Condition;
+}
+
+void UFlareQuestConditionFollowRandomWaypoints::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier)
+{
+	if (ConditionIdentifier == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionFollowWaypoints need identifier for state saving");
+	}
+	LoadInternal(ParentQuest, ConditionIdentifier);
+	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+}
+
+void UFlareQuestConditionFollowRandomWaypoints::Restore(const FFlareBundle* Bundle)
+{
+	bool HasSave = true;
+	if(Bundle)
+	{
+		HasSave &= Bundle->HasInt32(CURRENT_PROGRESSION_TAG);
+		HasSave &= Bundle->HasVectorArray(WAYPOINTS_TAG);
+	}
+	else
+	{
+		HasSave = false;
+	}
+
+	if(HasSave)
+	{
+		IsInit = true;
+		CurrentProgression = Bundle->GetInt32(CURRENT_PROGRESSION_TAG);
+		Waypoints = Bundle->GetVectorArray(WAYPOINTS_TAG);
+	}
+	else
+	{
+		IsInit = false;
+	}
+
+}
+
+void UFlareQuestConditionFollowRandomWaypoints::Save(FFlareBundle* Bundle)
+{
+	if (IsInit)
+	{
+		Bundle->PutInt32(CURRENT_PROGRESSION_TAG, CurrentProgression);
+		Bundle->PutVectorArray(WAYPOINTS_TAG, Waypoints);
+	}
+}
+
+void UFlareQuestConditionFollowRandomWaypoints::Init()
+{
+	if(IsInit)
+	{
+		return;
+	}
+
+	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
+
+	if (Spacecraft)
+	{
+		IsInit = true;
+		CurrentProgression = 0;
+		Waypoints.Empty();
+
+		FVector CurrentLocation = Spacecraft->GetActorLocation();
+		FVector CurrentDirection= Spacecraft->GetFrontVector();
+
+		FVector BaseDirection= CurrentDirection;
+		FVector BaseLocation = (CurrentLocation / 100) + CurrentDirection * 200;
+		float Distance = 0;
+		float MaxDistance = 10000;
+		float StepDistance = 100;
+
+		while(Distance < MaxDistance)
+		{
+			FVector TargetLocation = BaseLocation + FMath::VRand() * FMath::FRandRange(1000, 2000);
+			float TargetMaxTurnDistance = 20000;
+
+			GenerateWaypointSegments(Waypoints, Distance, MaxDistance, StepDistance, BaseDirection, BaseLocation, TargetLocation, TargetMaxTurnDistance);
+		}
+	}
+}
+
+bool UFlareQuestConditionFollowRandomWaypoints::IsCompleted()
+{
+	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
+
+	if (Spacecraft)
+	{
+		Init();
+		if(Waypoints.Num() == 0)
+		{
+			return true;
+		}
+
+		FVector WorldTargetLocation = Waypoints[CurrentProgression] * 100;
+
+		float MaxDistance = WAYPOINTS_RADIUS;
+
+		if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
+		{
+			// Nearing the target
+			if (CurrentProgression + 2 <= Waypoints.Num())
+			{
+				// Progress.
+				CurrentProgression++;
+
+				FText WaypointText = LOCTEXT("WaypointProgress", "Waypoint reached, {0} left");
+
+				Quest->SendQuestNotification(FText::Format(WaypointText, FText::AsNumber(Waypoints.Num() - CurrentProgression)),
+									  FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")),
+											 false);
+			}
+			else
+			{
+				// All waypoint reach
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void UFlareQuestConditionFollowRandomWaypoints::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	Init();
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = LOCTEXT("FollowWaypoints", "Fly to waypoints");
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.Counter = 0;
+	ObjectiveCondition.MaxCounter = Waypoints.Num();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = Waypoints.Num();
+	ObjectiveCondition.Counter = CurrentProgression;
+	ObjectiveCondition.Progress = CurrentProgression;
+	for (int TargetIndex = 0; TargetIndex < Waypoints.Num(); TargetIndex++)
+	{
+		if (TargetIndex < CurrentProgression)
+		{
+			// Don't show old target
+			continue;
+		}
+		FFlarePlayerObjectiveTarget ObjectiveTarget;
+		ObjectiveTarget.Actor = NULL;
+		ObjectiveTarget.Active = (CurrentProgression == TargetIndex);
+		ObjectiveTarget.Radius = WAYPOINTS_RADIUS;
+
+		FVector WorldTargetLocation = Waypoints[TargetIndex] * 100; // In cm
+
+		ObjectiveTarget.Location = WorldTargetLocation;
+		ObjectiveData->TargetList.Add(ObjectiveTarget);
+	}
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+void UFlareQuestConditionFollowRandomWaypoints::GenerateWaypointSegments(TArray<FVector>& WaypointList, float& Distance, float MaxDistance, float StepDistance,
+														 FVector& BaseDirection, FVector& BaseLocation, FVector TargetLocation,
+														 float TargetMaxTurnDistance)
+{
+	// Compute circle insertion point and direction
+	float TotalDistance = (TargetLocation - BaseLocation).Size();
+	float TurnDistance = FMath::Min(TargetMaxTurnDistance, TotalDistance);
+	int32 MaxTurnStep = TurnDistance / StepDistance;
+	FRotator InitialDirection = BaseDirection.Rotation();
+	int32 StepIndex = 1;
+
+	FLOGV("TotalDistance %f", TotalDistance);
+	FLOGV("TurnDistance %f", TurnDistance);
+	FLOGV("MaxTurnStep %d", MaxTurnStep);
+
+
+	while (Distance < MaxDistance){
+		float Alpha = FMath::Min(1.f, (float) StepIndex / (float) MaxTurnStep);
+
+		FLOGV("%d Alpha %f", StepIndex, Alpha);
+
+
+		FRotator TargetDirection = (TargetLocation - BaseLocation).Rotation();
+
+		BaseDirection = FMath::Lerp(InitialDirection, TargetDirection, Alpha).RotateVector(FVector(1,0,0));
+		BaseDirection.GetUnsafeNormal();
+		BaseLocation += BaseDirection * StepDistance;
+		Distance+= StepDistance;
+		StepIndex++;
+
+		WaypointList.Add(BaseLocation);
+
+
+		float RemainingDistance = (TargetLocation - BaseLocation).Size();
+		if(RemainingDistance < StepDistance)
+		{
+			break;
+		}
+	}
+}
+
 
 
 #undef LOCTEXT_NAMESPACE

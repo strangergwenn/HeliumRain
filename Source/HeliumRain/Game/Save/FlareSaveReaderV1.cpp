@@ -934,21 +934,30 @@ void UFlareSaveReaderV1::LoadTransform(TSharedPtr< FJsonObject > Object, FString
 	}
 }
 
+static bool ParseVector(const FString& DataString, FVector* Data)
+{
+	TArray<FString> Values;
+	if (DataString.ParseIntoArray(Values, TEXT(",")) == 3)
+	{
+		*Data = FVector(
+				FCString::Atof(*Values[0]),
+				FCString::Atof(*Values[1]),
+				FCString::Atof(*Values[2]));
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 
 void UFlareSaveReaderV1::LoadVector(TSharedPtr< FJsonObject > Object, FString Key, FVector* Data)
 {
 	FString DataString;
 	if(Object->TryGetStringField(Key, DataString))
 	{
-		TArray<FString> Values;
-		if (DataString.ParseIntoArray(Values, TEXT(",")) == 3)
-		{
-			*Data = FVector(
-					FCString::Atof(*Values[0]),
-					FCString::Atof(*Values[1]),
-					FCString::Atof(*Values[2]));
-		}
-		else
+		if (!ParseVector(DataString, Data))
 		{
 			FLOGV("WARNING: Fail to load FVector key '%s'. No 3 values in '%s'. Save corrupted", *Key, *DataString);
 		}
@@ -1039,6 +1048,31 @@ void UFlareSaveReaderV1::LoadBundle(const TSharedPtr<FJsonObject> Object, FStrin
 				FTransform TransformValue;
 				ParseTransform(Pair.Value->AsString(), &TransformValue);
 				Data->TransformValues.Add(TransformKey, TransformValue);
+			}
+		}
+
+		const TSharedPtr< FJsonObject >* VectorArrayValues;
+		if ((*Bundle)->TryGetObjectField("VectorArrayValues", VectorArrayValues))
+		{
+			for(auto& Pair : (*VectorArrayValues)->Values)
+			{
+				FName TransformKey = FName(*Pair.Key);
+
+
+
+				const TArray< TSharedPtr<FJsonValue> >& Array = Pair.Value->AsArray();
+				TArray<FVector>	VectorArray;
+
+				for (TSharedPtr<FJsonValue> Item : Array)
+				{
+					FVector Vector;
+					if(ParseVector(Item->AsString(), &Vector))
+					{
+						VectorArray.Add(Vector);
+					}
+				}
+
+				Data->PutVectorArray(TransformKey, VectorArray);
 			}
 		}
 	}
