@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../../Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 #include "../../Spacecrafts/FlareSpacecraftComponent.h"
 
 

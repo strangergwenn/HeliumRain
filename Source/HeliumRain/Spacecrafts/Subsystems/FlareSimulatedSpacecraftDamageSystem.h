@@ -1,4 +1,5 @@
 #pragma once
+#include "../../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareSimulatedSpacecraftDamageSystem.generated.h"
 
 const float BROKEN_RATIO = 0.5f;
@@ -20,6 +21,14 @@ namespace EFlareSubsystem
 		SYS_WeaponAndAmmo
 	};
 }
+
+struct FFlareSpacecraftSave;
+struct FFlareSpacecraftComponentSave;
+struct FFlareSpacecraftComponentDescription;
+
+class UFlareCompany;
+class UFlareSimulatedSpacecraft;
+
 
 /** Spacecraft damage system class */
 UCLASS()
@@ -161,14 +170,6 @@ public:
 	/** Get a subsystem's name */
 	static FText GetSubsystemName(EFlareSubsystem::Type SubsystemType);
 
-	static float GetArmor(FFlareSpacecraftComponentDescription* ComponentDescription)
-	{
-		if (ComponentDescription)
-		{
-			return ComponentDescription->Armor / 100.f;
-		}
-
-		return 1;
-	}
+	static float GetArmor(FFlareSpacecraftComponentDescription* ComponentDescription);
 
 };

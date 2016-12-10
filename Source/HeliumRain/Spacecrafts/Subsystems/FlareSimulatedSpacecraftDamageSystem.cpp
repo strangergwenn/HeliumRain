@@ -711,5 +711,14 @@ FText UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName(EFlareSubsystem::T
 	return Text;
 }
 
+float UFlareSimulatedSpacecraftDamageSystem::GetArmor(FFlareSpacecraftComponentDescription* ComponentDescription)
+{
+	if (ComponentDescription)
+	{
+		return ComponentDescription->Armor / 100.f;
+	}
+
+	return 1;
+}
 
 #undef LOCTEXT_NAMESPACE
