@@ -76,7 +76,7 @@ public:
 
 	virtual void Activate();
 
-	virtual void SendQuestNotification(FText Message, FName Tag);
+	virtual void SendQuestNotification(FText Message, FName Tag, bool Pinned = true);
 
 	virtual FText FormatTags(FText Message);
 

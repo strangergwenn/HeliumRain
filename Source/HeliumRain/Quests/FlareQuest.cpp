@@ -305,11 +305,11 @@ FText UFlareQuest::FormatTags(FText Message)
 	return FText::FromString(MessageString);
 }
 
-void UFlareQuest::SendQuestNotification(FText Message, FName Tag)
+void UFlareQuest::SendQuestNotification(FText Message, FName Tag, bool Pinned)
 {
 	FText Text = GetQuestName();
 	FLOGV("UFlareQuest::SendQuestNotification : %s", *Message.ToString());
-	QuestManager->GetGame()->GetPC()->Notify(Text, Message, Tag, EFlareNotification::NT_Quest, true);
+	QuestManager->GetGame()->GetPC()->Notify(Text, Message, Tag, EFlareNotification::NT_Quest, Pinned);
 }
 
 

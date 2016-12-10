@@ -976,7 +976,8 @@ bool UFlareQuestConditionFollowRelativeWaypoints::IsCompleted()
 				FText WaypointText = LOCTEXT("WaypointProgress", "Waypoint reached, {0} left");
 
 				Quest->SendQuestNotification(FText::Format(WaypointText, FText::AsNumber(VectorList.Num() - CurrentProgression)),
-									  FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")));
+									  FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")),
+											 false);
 			}
 			else
 			{
