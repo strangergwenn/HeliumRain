@@ -6,6 +6,7 @@
 #include "../Player/FlarePlayerController.h"
 #include "FlareQuestManager.h"
 #include "FlareCatalogQuest.h"
+#include "QuestCatalog/FlareTutorialQuest.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestManager"
 
@@ -57,7 +58,7 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 
 void UFlareQuestManager::LoadBuildinQuest()
 {
-	// TODO
+	AddQuest(UFlareQuestTutorialFlying::Create(this));
 }
 
 void UFlareQuestManager::LoadCatalogQuests()

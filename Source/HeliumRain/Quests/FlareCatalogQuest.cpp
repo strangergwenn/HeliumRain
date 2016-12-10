@@ -30,7 +30,6 @@ void UFlareCatalogQuest::Load(UFlareQuestManager* Parent, const FFlareQuestDescr
 	QuestName = Description->QuestName;
 	QuestDescription = Description->QuestDescription;
 	QuestCategory = Description->Category;
-	QuestDescription = Description->QuestDescription;
 
 	for(const FFlareQuestConditionDescription& ConditionDescription : Description->Triggers)
 	{
