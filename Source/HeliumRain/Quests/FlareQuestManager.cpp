@@ -59,6 +59,7 @@ void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 void UFlareQuestManager::LoadBuildinQuest()
 {
 	AddQuest(UFlareQuestTutorialFlying::Create(this));
+	AddQuest(UFlareQuestTutorialNavigation::Create(this));
 }
 
 void UFlareQuestManager::LoadCatalogQuests()

@@ -204,4 +204,6 @@ public:
 	{
 		return QuestManager;
 	}
+
+	UFlareSimulatedSector* FindSector(FName SectorIdentifier);
 };

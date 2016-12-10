@@ -317,6 +317,21 @@ void UFlareQuest::SendQuestNotification(FText Message, FName Tag, bool Pinned)
 	QuestManager->GetGame()->GetPC()->Notify(Text, Message, Tag, EFlareNotification::NT_Quest, Pinned);
 }
 
+UFlareSimulatedSector* UFlareQuest::FindSector(FName SectorIdentifier)
+{
+	UFlareSimulatedSector* Sector = QuestManager->GetGame()->GetGameWorld()->FindSector(SectorIdentifier);
+
+	if(!Sector)
+	{
+		FLOGV("ERROR: Fail to find sector '%s' for quest '%s'",
+		  *SectorIdentifier.ToString(),
+		  *GetIdentifier().ToString());
+	}
+	return Sector;
+}
+
+
+
 
 /*----------------------------------------------------
 	Objective tracking

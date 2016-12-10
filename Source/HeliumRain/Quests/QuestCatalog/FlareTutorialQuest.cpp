@@ -157,5 +157,60 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	}
 }
 
+/*----------------------------------------------------
+	Tutorial Navigation
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "TutorialNavigation"
+UFlareQuestTutorialNavigation::UFlareQuestTutorialNavigation(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuest* UFlareQuestTutorialNavigation::Create(UFlareQuestManager* Parent)
+{
+	UFlareQuestTutorialNavigation* Quest = NewObject<UFlareQuestTutorialNavigation>(Parent, UFlareQuestTutorialNavigation::StaticClass());
+	Quest->Load(Parent);
+	return Quest;
+}
+
+void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
+{
+	LoadInternal(Parent);
+
+	Identifier = "tutorial-navigation";
+	QuestName = LOCTEXT(QUEST_TAG"Name","Orbital navigation tutorial");
+	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to travel from one sector to another.");
+	QuestCategory = EFlareQuestCategory::TUTORIAL;
+
+	TriggerConditions.Add(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-flying"));
+
+
+	UFlareSimulatedSector* Sector = FindSector("the-depths");
+	if (!Sector)
+	{
+		return;
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"Travel"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","To start a travel, open the orbital map, select the \"The Depths\" and click \"Travel\".<br>Then, use the \"Fast Forward\" button to complete the travel.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "travel", Description);
+
+		Step->GetEndConditions().Add(UFlareQuestConditionSectorVisited::Create(this, Sector));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"Activate"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your ship arrived at destination. Close this menu to fly it !");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "activate", Description);
+
+		Step->GetEndConditions().Add(UFlareQuestConditionSectorActive::Create(this, Sector));
+		Steps.Add(Step);
+	}
+}
 
 #undef LOCTEXT_NAMESPACE
