@@ -123,11 +123,16 @@ AStaticMeshActor* UFlareDebrisField::AddDebris(UFlareSimulatedSector* Sector, US
 			DebrisComponent->SetSimulatePhysics(true);
 			DebrisComponent->SetCollisionProfileName("BlockAllDynamic");
 
+			int32 LODCOunt = DebrisComponent->GetStaticMesh()->GetNumLODs();
+
 			// Set material
 			UMaterialInstanceDynamic* DebrisMaterial = UMaterialInstanceDynamic::Create(DebrisComponent->GetMaterial(0), DebrisComponent->GetWorld());
 			if (DebrisMaterial)
 			{
-				DebrisComponent->SetMaterial(0, DebrisMaterial);
+				for (int32 i = 0; i < LODCOunt; i++)
+				{
+					DebrisComponent->SetMaterial(i, DebrisMaterial);
+				}
 				DebrisMaterial->SetScalarParameterValue("IceMask", Sector->GetDescription()->IsIcy);
 			}
 			else
