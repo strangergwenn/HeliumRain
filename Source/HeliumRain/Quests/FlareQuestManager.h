@@ -44,6 +44,9 @@ struct FFlareQuestProgressSave
 	FName QuestIdentifier;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
+	bool Accepted;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FName> SuccessfullSteps;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
@@ -73,6 +76,9 @@ struct FFlareQuestSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FName> FailedQuests;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FName> AvailableQuests;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	bool PlayTutorial;
@@ -139,12 +145,17 @@ public:
 
 	virtual void OnQuestActivation(UFlareQuest* Quest);
 
+	virtual void OnQuestAvailable(UFlareQuest* Quest);
+
 
 protected:
 
    /*----------------------------------------------------
 	   Protected data
    ----------------------------------------------------*/
+
+	UPROPERTY()
+	TArray<UFlareQuest*>	                 PendingQuests;
 
 	UPROPERTY()
 	TArray<UFlareQuest*>	                 AvailableQuests;

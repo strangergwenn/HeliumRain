@@ -14,11 +14,12 @@ namespace EFlareQuestStatus
 {
 	enum Type
 	{
-		AVAILABLE,
-		ACTIVE,
+		PENDING, // Wait available condition
+		AVAILABLE, // Wait acceptation
+		ACTIVE, // In progress
 		SUCCESSFUL,
-		ABANDONNED, // Use ReferenceIdentifier as sector identifier
-		FAILED // Use ReferenceIdentifier as sector identifier
+		ABANDONNED,
+		FAILED
 	};
 }
 
@@ -73,6 +74,8 @@ public:
 	virtual void Success();
 
 	virtual void Fail();
+
+	virtual void MakeAvailable();
 
 	virtual void Activate();
 
@@ -199,6 +202,13 @@ public:
 	{
 		return Steps.Num();
 	}
+
+	bool IsAccepted()
+	{
+		return QuestData.Accepted;
+	}
+
+	bool HasAutoAccept();
 
 	UFlareQuestManager*	GetQuestManager()
 	{

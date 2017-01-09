@@ -122,11 +122,17 @@ void UFlareQuestManager::AddQuest(UFlareQuest* Quest)
 		OldQuests.Add(Quest);
 		Quest->SetStatus(EFlareQuestStatus::FAILED);
 	}
-	else
+	else if (QuestData.AvailableQuests.Contains(Quest->GetIdentifier()))
 	{
 		FLOGV("Found available quest %s", *Quest->GetIdentifier().ToString());
 		AvailableQuests.Add(Quest);
 		Quest->SetStatus(EFlareQuestStatus::AVAILABLE);
+	}
+	else
+	{
+		FLOGV("Found pending quest %s", *Quest->GetIdentifier().ToString());
+		PendingQuests.Add(Quest);
+		Quest->SetStatus(EFlareQuestStatus::PENDING);
 	}
 
 	Quests.Add(Quest);
@@ -339,6 +345,23 @@ void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 	{
 		AutoSelectQuest();
 	}
+	OnQuestStatusChanged(Quest);
+}
+
+void UFlareQuestManager::OnQuestAvailable(UFlareQuest* Quest)
+{
+	FLOGV("Quest %s is now available", *Quest->GetIdentifier().ToString())
+	PendingQuests.Remove(Quest);
+	AvailableQuests.Add(Quest);
+
+	// New quest notification
+	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
+	{
+		FText Text = LOCTEXT("New quest", "New quest available");
+		FText Info = Quest->GetQuestName();
+		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status"), EFlareNotification::NT_Quest));
+	}
+
 	OnQuestStatusChanged(Quest);
 }
 

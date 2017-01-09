@@ -77,6 +77,13 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuest(FFlareQuestSave* Data)
 	}
 	JsonObject->SetArrayField("AbandonnedQuests", AbandonnedQuests);
 
+	TArray< TSharedPtr<FJsonValue> > AvailableQuests;
+	for(int i = 0; i < Data->AvailableQuests.Num(); i++)
+	{
+		AvailableQuests.Add(MakeShareable(new FJsonValueString(Data->AvailableQuests[i].ToString())));
+	}
+	JsonObject->SetArrayField("AvailableQuests", AvailableQuests);
+
 	TArray< TSharedPtr<FJsonValue> > FailedQuests;
 	for(int i = 0; i < Data->FailedQuests.Num(); i++)
 	{
@@ -92,6 +99,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuestProgress(FFlareQuestProgressS
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
 	JsonObject->SetStringField("QuestIdentifier", Data->QuestIdentifier.ToString());
+	JsonObject->SetBoolField("Accepted", Data->Accepted);
 
 	TArray< TSharedPtr<FJsonValue> > SuccessfullSteps;
 	for(int i = 0; i < Data->SuccessfullSteps.Num(); i++)

@@ -28,7 +28,7 @@ UFlareQuest::UFlareQuest(const FObjectInitializer& ObjectInitializer)
 void UFlareQuest::LoadInternal(UFlareQuestManager* Parent)
 {
 	QuestManager = Parent;
-	QuestStatus = EFlareQuestStatus::AVAILABLE;
+	QuestStatus = EFlareQuestStatus::PENDING;
 }
 
 void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
@@ -101,12 +101,22 @@ void UFlareQuest::UpdateState()
 {
 	switch(QuestStatus)
 	{
-		case EFlareQuestStatus::AVAILABLE:
+		case EFlareQuestStatus::PENDING:
 		{
 			bool ConditionsStatus = UFlareQuestCondition::CheckConditions(TriggerConditions, true);
 			if (ConditionsStatus)
 			{
+				MakeAvailable();
+				UpdateState();
+			}
+			break;
+		}
+		case EFlareQuestStatus::AVAILABLE:
+		{
+			if (IsAccepted() || HasAutoAccept())
+			{
 				Activate();
+				UpdateState();
 			}
 			break;
 		}
@@ -203,6 +213,17 @@ void UFlareQuest::Fail()
 	SetStatus(EFlareQuestStatus::FAILED);
 	UFlareQuestAction::PerformActions(FailActions);
 	QuestManager->OnQuestFail(this);
+}
+
+void UFlareQuest::MakeAvailable()
+{
+	SetStatus(EFlareQuestStatus::AVAILABLE);
+
+	// Don't notify activation if quest is not active after first NextStep
+	if (QuestStatus == EFlareQuestStatus::AVAILABLE)
+	{
+		QuestManager->OnQuestActivation(this);
+	}
 }
 
 void UFlareQuest::Activate()
@@ -317,6 +338,11 @@ void UFlareQuest::SendQuestNotification(FText Message, FName Tag, bool Pinned)
 	QuestManager->GetGame()->GetPC()->Notify(Text, Message, Tag, EFlareNotification::NT_Quest, Pinned);
 }
 
+bool UFlareQuest::HasAutoAccept()
+{
+	return GetQuestCategory() == EFlareQuestCategory::TUTORIAL;
+}
+
 UFlareSimulatedSector* UFlareQuest::FindSector(FName SectorIdentifier)
 {
 	UFlareSimulatedSector* Sector = QuestManager->GetGame()->GetGameWorld()->FindSector(SectorIdentifier);
@@ -400,7 +426,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 	// TODO Cache and return reference
 	switch(QuestStatus)
 	{
-		case EFlareQuestStatus::AVAILABLE:
+		case EFlareQuestStatus::PENDING:
 			// Use trigger conditions
 			UFlareQuestCondition::AddConditionCallbacks(Callbacks, TriggerConditions);
 
@@ -469,6 +495,7 @@ FText UFlareQuest::GetStatusText() const
 {
 	switch (QuestStatus)
 	{
+		case EFlareQuestStatus::PENDING:    return LOCTEXT("QuestPending", "Pending");   break;
 		case EFlareQuestStatus::AVAILABLE:    return LOCTEXT("QuestAvailable", "Available");   break;
 		case EFlareQuestStatus::ACTIVE:       return LOCTEXT("QuestActive", "Active");         break;
 		case EFlareQuestStatus::SUCCESSFUL:   return LOCTEXT("QuestCompleted", "Completed");   break;
