@@ -77,6 +77,8 @@ public:
 
 	virtual void MakeAvailable();
 
+	virtual void Accept();
+
 	virtual void Activate();
 
 	virtual void SendQuestNotification(FText Message, FName Tag, bool Pinned = true);

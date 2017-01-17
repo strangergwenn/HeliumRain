@@ -45,6 +45,9 @@ protected:
 		Internal methods
 	----------------------------------------------------*/
 
+	/** Fill the quest list for all available quests */
+	void FillAvailableQuestList();
+
 	/** Fill the quest list for all active quests */
 	void FillActiveQuestList();
 
@@ -82,6 +85,9 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** A new quest is accepted */
+	void OnQuestAccepted(UFlareQuest* Quest);
+
 	/** A new quest is tracked */
 	void OnQuestTracked(UFlareQuest* Quest);
 
@@ -102,6 +108,7 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
 
 	// Slate widgets
+	TSharedPtr<SVerticalBox>                        AvailableQuestList;
 	TSharedPtr<SVerticalBox>                        ActiveQuestList;
 	TSharedPtr<SVerticalBox>                        PreviousQuestList;
 	TSharedPtr<SVerticalBox>                        QuestDetails;

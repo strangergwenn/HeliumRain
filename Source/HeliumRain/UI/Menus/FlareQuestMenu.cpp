@@ -75,6 +75,22 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
+							.Text(LOCTEXT("AvailableQuestsTitle", "Available quests"))
+						]
+
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(AvailableQuestList, SVerticalBox)
+						]
+
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.TitlePadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.SubTitleFont)
 							.Text(LOCTEXT("PreviousQuestsTitle", "Previous quests"))
 						]
 
@@ -160,6 +176,7 @@ void SFlareQuestMenu::Enter(UFlareQuest* TargetQuest)
 		FLOG("SFlareQuestMenu::Enter : no quest");
 	}
 
+	FillAvailableQuestList();
 	FillActiveQuestList();
 	FillPreviousQuestList();
 	FillQuestDetails();
@@ -183,6 +200,63 @@ void SFlareQuestMenu::Exit()
 /*----------------------------------------------------
 	Internal methods
 ----------------------------------------------------*/
+
+void SFlareQuestMenu::FillAvailableQuestList()
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
+	FCHECK(QuestManager);
+
+	AvailableQuestList->ClearChildren();
+	TArray<UFlareQuest*>& AvailableQuests = QuestManager->GetAvailableQuests();
+
+	// Get list of active quests
+	for (int32 QuestIndex = 0; QuestIndex < AvailableQuests.Num(); QuestIndex++)
+	{
+		UFlareQuest* Quest = AvailableQuests[QuestIndex];
+
+		AvailableQuestList->AddSlot()
+		.Padding(Theme.SmallContentPadding)
+		.HAlign(HAlign_Left)
+		[
+			SNew(SHorizontalBox)
+
+			// Title
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.VAlign(VAlign_Center)
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(STextBlock)
+				.Text(Quest->GetQuestName())
+				.TextStyle(&Theme.TextFont)
+			]
+
+			// Accept button
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SFlareButton)
+				.Width(2.5)
+				.Icon(FFlareStyleSet::GetIcon("OK"))
+				.Text(LOCTEXT("AcceptQuest", "Accept"))
+				.HelpText(LOCTEXT("AcceptQuestInfo", "Accept this quest"))
+				.OnClicked(this, &SFlareQuestMenu::OnQuestAccepted, Quest)
+			]
+		];
+	}
+
+	// No active quest
+	if (AvailableQuests.Num() == 0)
+	{
+		AvailableQuestList->AddSlot()
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.TextFont)
+			.Text(LOCTEXT("NoAvailableQuest", "No available quest."))
+		];
+	}
+}
 
 void SFlareQuestMenu::FillActiveQuestList()
 {
@@ -372,7 +446,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(STextBlock)
-					.WrapTextAt(0.5 * Theme.ContentWidth)
+					.WrapTextAt(0.9 * Theme.ContentWidth)
 					.TextStyle(&Theme.TextFont)
 					.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStep)
 					.Visibility(this, &SFlareQuestMenu::GetQuestStepDescriptionVisibility, QuestStep)
@@ -390,7 +464,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(STextBlock)
-					.WrapTextAt(0.5 * Theme.ContentWidth)
+					.WrapTextAt(0.9 * Theme.ContentWidth)
 					.TextStyle(&Theme.NameFont)
 					.Text(StepConditionsText)
 				];
@@ -401,7 +475,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(STextBlock)
-					.WrapTextAt(0.5 * Theme.ContentWidth)
+					.WrapTextAt(0.9 * Theme.ContentWidth)
 					.TextStyle(&Theme.TextFont)
 					.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStep)
 				];
@@ -546,6 +620,13 @@ bool SFlareQuestMenu::IsSelectQuestButtonDisabled(UFlareQuest* Quest) const
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+void SFlareQuestMenu::OnQuestAccepted(UFlareQuest* Quest)
+{
+	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
+	FCHECK(QuestManager);
+	QuestManager->AcceptQuest(Quest);
+}
 
 void SFlareQuestMenu::OnQuestTracked(UFlareQuest* Quest)
 {

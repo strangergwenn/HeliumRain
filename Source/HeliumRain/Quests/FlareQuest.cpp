@@ -226,6 +226,12 @@ void UFlareQuest::MakeAvailable()
 	}
 }
 
+void UFlareQuest::Accept()
+{
+	QuestData.Accepted = true;
+	UpdateState();
+}
+
 void UFlareQuest::Activate()
 {
 	SetStatus(EFlareQuestStatus::ACTIVE);

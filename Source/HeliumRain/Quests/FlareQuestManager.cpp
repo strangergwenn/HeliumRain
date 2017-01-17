@@ -182,6 +182,13 @@ FFlareQuestSave* UFlareQuestManager::Save()
 	Quest management
 ----------------------------------------------------*/
 
+void UFlareQuestManager::AcceptQuest(UFlareQuest* Quest)
+{
+	FLOGV("Select quest %s", *Quest->GetIdentifier().ToString());
+
+	Quest->Accept();
+}
+
 void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)
 {
 	FLOGV("Select quest %s", *Quest->GetIdentifier().ToString());

@@ -107,6 +107,9 @@ public:
 		Quest management
 	----------------------------------------------------*/
 		
+	/** Accept this quest */
+	void AcceptQuest(UFlareQuest* Quest);
+
 	/** Select this quest */
 	void SelectQuest(UFlareQuest* Quest);
 
@@ -197,6 +200,11 @@ public:
 	inline UFlareQuest* GetSelectedQuest()
 	{
 		return SelectedQuest;
+	}
+
+	inline TArray<UFlareQuest*>& GetAvailableQuests()
+	{
+		return AvailableQuests;
 	}
 
 	inline TArray<UFlareQuest*>& GetActiveQuests()
