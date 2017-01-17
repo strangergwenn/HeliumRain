@@ -331,19 +331,10 @@ void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 	}
 	else
 	{
-		Spacecraft->SetCameraDistance(0);
+		FVector CameraOffset = Spacecraft->WorldToLocal(Spacecraft->Airframe->GetSocketLocation(FName("Camera")) - Spacecraft->GetActorLocation());
 
-#if FLARE_USE_COCKPIT_RENDERTARGET
-		if (PC && PC->UseCockpit)
-		{
-			Spacecraft->SetCameraLocalPosition(FVector::ZeroVector);
-		}
-		else
-#endif
-		{
-			FVector CameraOffset = Spacecraft->WorldToLocal(Spacecraft->Airframe->GetSocketLocation(FName("Camera")) - Spacecraft->GetActorLocation());
-			Spacecraft->SetCameraLocalPosition(CameraOffset);
-		}
+		Spacecraft->SetCameraDistance(0);
+		Spacecraft->SetCameraLocalPosition(CameraOffset);
 	}
 
 	// Notify cockpit

@@ -496,7 +496,7 @@ void UFlareCompanyAI::RepairAndRefill()
 	}
 }
 
-//#define DEBUG_AI_CONSTRUCTION
+#define DEBUG_AI_CONSTRUCTION 0
 
 void UFlareCompanyAI::UpdateBestScore(float Score,
 									  UFlareSimulatedSector* Sector,

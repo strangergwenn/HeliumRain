@@ -358,10 +358,10 @@ void AFlareGame::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+	// This should never fail
 	for (FConstPawnIterator Iterator = GetWorld()->GetPawnIterator(); Iterator; ++Iterator)
 	{
-		// This should never fail
-		APawn* Pawn = *Iterator;
+		APawn* Pawn = Iterator->Get();
 		FCHECK(Pawn);
 	}
 
@@ -370,7 +370,7 @@ void AFlareGame::Tick(float DeltaSeconds)
 		QuestManager->OnTick(DeltaSeconds);
 	}
 
-	if(GetActiveSector() != NULL)
+	if (GetActiveSector() != NULL)
 	{
 		for (int CompanyIndex = 0; CompanyIndex < GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
 		{
