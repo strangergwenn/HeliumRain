@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareMainOverlay.h"
 
+#include "../Components/FlareObjectiveInfo.h"
 #include "../../Game/FlareGameUserSettings.h"
 #include "../../Player/FlareHUD.h"
 #include "../../Player/FlareMenuManager.h"
@@ -89,6 +90,16 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 							]
 						]
 					]
+				]
+
+				// Objective
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				[
+					SNew(SFlareObjectiveInfo)
+					.PC(MenuManager->GetPC())
+					.Visibility(EVisibility::SelfHitTestInvisible)
 				]
 			]
 
