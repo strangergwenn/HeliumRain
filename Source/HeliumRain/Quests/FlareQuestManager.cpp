@@ -90,7 +90,7 @@ void UFlareQuestManager::AddQuest(UFlareQuest* Quest)
 	{
 		FLOGV("Found skipped tutorial quest %s", *Quest->GetIdentifier().ToString());
 		OldQuests.Add(Quest);
-		Quest->SetStatus(EFlareQuestStatus::ABANDONNED);
+		Quest->SetStatus(EFlareQuestStatus::SUCCESSFUL);
 	}
 	else if (QuestProgressIndex != INDEX_NONE)
 	{
