@@ -35,7 +35,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 			[
 				SNew(SFlareObjectiveInfo)
 				.PC(MenuManager->GetPC())
-				.Visibility(this, &SFlareNotifier::GetObjectiveVisibility)
+				.Visibility(EVisibility::SelfHitTestInvisible)
 			]
 
 			// Notifications
@@ -136,18 +136,6 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 	if (NotificationCount == 0)
 	{
 		NotificationData.Empty();
-	}
-}
-
-EVisibility SFlareNotifier::GetObjectiveVisibility() const
-{
-	if (MenuManager->IsUIOpen())
-	{
-		return EVisibility::Collapsed;
-	}
-	else
-	{
-		return EVisibility::SelfHitTestInvisible;
 	}
 }
 
