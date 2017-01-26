@@ -47,6 +47,16 @@ public:
 
 	void AddEndConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
 
+	void SetStepIndex(int32 Index)
+	{
+		StepIndex = Index;
+	}
+
+	void SetStatus(EFlareQuestStepStatus::Type NewStatus)
+	{
+		Status = NewStatus;
+	}
+
 protected:
 
 	/*----------------------------------------------------

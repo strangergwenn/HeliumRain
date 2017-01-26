@@ -45,11 +45,15 @@ void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 	CurrentStep = NULL;
 
 	// Init current step
+	int32 StepIndex = 0;
 	for(UFlareQuestStep* Step : Steps)
 	{
+		Step->SetStepIndex(StepIndex++);
+
 		if(Data.SuccessfullSteps.Contains(Step->GetIdentifier()))
 		{
 			SuccessfullSteps.Add(Step);
+			Step->SetStatus(EFlareQuestStepStatus::COMPLETED);
 		}
 		else if(CurrentStep == NULL)
 		{
