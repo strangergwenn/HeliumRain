@@ -116,7 +116,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	Super::PlayerTick(DeltaSeconds);
 	AFlareHUD* HUD = GetNavHUD();
 	TimeSinceWeaponSwitch += DeltaSeconds;
-
+	
 	// Check recovery
 	if (RecoveryActive)
 	{
@@ -993,6 +993,21 @@ bool AFlarePlayerController::IsSelectingWeapon() const
 	return (TimeSinceWeaponSwitch < WeaponSwitchTime);
 }
 
+bool AFlarePlayerController::IsTyping() const
+{
+	const auto& App = FSlateApplication::Get();
+	TSharedPtr<SWidget> Widget = App.GetUserFocusedWidget(0);
+
+	if (Widget.IsValid() && Widget.Get()->GetTypeAsString() == "SEditableText")
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSpacecraft* Target)
 {
 	if (Success)
@@ -1186,7 +1201,7 @@ void AFlarePlayerController::MousePositionInput(FVector2D Val)
 
 void AFlarePlayerController::ToggleCamera()
 {
-	if (ShipPawn && ShipPawn->GetParent()->GetDamageSystem()->IsAlive() && !MenuManager->IsMenuOpen())
+	if (ShipPawn && ShipPawn->GetParent()->GetDamageSystem()->IsAlive() && !MenuManager->IsMenuOpen() && !IsTyping())
 	{
 		SetExternalCamera(!ShipPawn->GetStateManager()->IsExternalCamera());
 	}
@@ -1194,7 +1209,7 @@ void AFlarePlayerController::ToggleCamera()
 
 void AFlarePlayerController::ToggleMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && ShipPawn && GetGame()->GetActiveSector())
+	if (GetGame()->IsLoadedOrCreated() && ShipPawn && GetGame()->GetActiveSector() && !IsTyping())
 	{
 		if (MenuManager->IsMenuOpen())
 		{
@@ -1214,7 +1229,7 @@ void AFlarePlayerController::ToggleMenu()
 
 void AFlarePlayerController::ToggleOverlay()
 {
-	if (GetGame()->IsLoadedOrCreated() && ShipPawn && GetGame()->GetActiveSector() && !MenuManager->IsMenuOpen())
+	if (GetGame()->IsLoadedOrCreated() && ShipPawn && GetGame()->GetActiveSector() && !MenuManager->IsMenuOpen() && !IsTyping())
 	{
 		// Close mouse menu
 		if (GetNavHUD()->IsWheelMenuOpen())
@@ -1236,30 +1251,33 @@ void AFlarePlayerController::ToggleOverlay()
 
 void AFlarePlayerController::BackMenu()
 {
-	FLOG("AFlarePlayerController::BackMenu");
-	if (IsInMenu())
+	if (!IsTyping())
 	{
-		if (MenuManager->HasPreviousMenu())
+		FLOG("AFlarePlayerController::BackMenu");
+		if (IsInMenu())
 		{
-			FLOG("AFlarePlayerController::BackMenu Back");
-			MenuManager->Back();
+			if (MenuManager->HasPreviousMenu())
+			{
+				FLOG("AFlarePlayerController::BackMenu Back");
+				MenuManager->Back();
+			}
+			else
+			{
+				FLOG("AFlarePlayerController::BackMenu Close");
+				MenuManager->CloseMenu();
+			}
 		}
 		else
 		{
-			FLOG("AFlarePlayerController::BackMenu Close");
-			MenuManager->CloseMenu();
+			FLOG("AFlarePlayerController::BackMenu Toggle");
+			ToggleOverlay();
 		}
-	}
-	else
-	{
-		FLOG("AFlarePlayerController::BackMenu Toggle");
-		ToggleOverlay();
 	}
 }
 
 void AFlarePlayerController::Simulate()
 {
-	if (GetGame()->IsLoadedOrCreated() && !GetNavHUD()->IsWheelMenuOpen())
+	if (GetGame()->IsLoadedOrCreated() && !GetNavHUD()->IsWheelMenuOpen() && !IsTyping())
 	{
 		FLOG("AFlarePlayerController::Simulate");
 		bool CanGoAhead = ConfirmFastForward(FSimpleDelegate::CreateUObject(this, &AFlarePlayerController::SimulateConfirmed));
@@ -1304,7 +1322,7 @@ void AFlarePlayerController::TogglePerformance()
 
 void AFlarePlayerController::ShipMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Ship)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Ship)
 	{
 		FLOG("AFlarePlayerController::ShipMenu");
 		MenuManager->OpenMenu(EFlareMenu::MENU_Ship);
@@ -1313,7 +1331,7 @@ void AFlarePlayerController::ShipMenu()
 
 void AFlarePlayerController::SectorMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Sector)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Sector)
 	{
 		FLOG("AFlarePlayerController::SectorMenu");
 		MenuManager->OpenMenu(EFlareMenu::MENU_Sector);
@@ -1322,7 +1340,7 @@ void AFlarePlayerController::SectorMenu()
 
 void AFlarePlayerController::OrbitMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Orbit)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Orbit)
 	{
 		FLOG("AFlarePlayerController::OrbitMenu");
 		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
@@ -1331,7 +1349,7 @@ void AFlarePlayerController::OrbitMenu()
 
 void AFlarePlayerController::LeaderboardMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Leaderboard)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Leaderboard)
 	{
 		FLOG("AFlarePlayerController::LeaderboardMenu");
 		MenuManager->OpenMenu(EFlareMenu::MENU_Leaderboard);
@@ -1340,7 +1358,7 @@ void AFlarePlayerController::LeaderboardMenu()
 
 void AFlarePlayerController::CompanyMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Company)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Company)
 	{
 		FLOG("AFlarePlayerController::CompanyMenu");
 		MenuManager->OpenMenu(EFlareMenu::MENU_Company);
@@ -1349,7 +1367,7 @@ void AFlarePlayerController::CompanyMenu()
 
 void AFlarePlayerController::FleetMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Fleet)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Fleet)
 	{
 		FLOG("AFlarePlayerController::FleetMenu");
 		MenuManager->OpenMenu(EFlareMenu::MENU_Fleet);
@@ -1358,7 +1376,7 @@ void AFlarePlayerController::FleetMenu()
 
 void AFlarePlayerController::QuestMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Quest)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Quest)
 	{
 		FLOG("AFlarePlayerController::QuestMenu");
 		MenuManager->OpenMenu(EFlareMenu::MENU_Quest);
@@ -1367,7 +1385,7 @@ void AFlarePlayerController::QuestMenu()
 
 void AFlarePlayerController::MainMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Main)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Main)
 	{
 		FLOG("AFlarePlayerController::MainMenu");
 		MenuManager->OpenMenu(EFlareMenu::MENU_Main);
@@ -1376,7 +1394,7 @@ void AFlarePlayerController::MainMenu()
 
 void AFlarePlayerController::SettingsMenu()
 {
-	if (MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Settings)
+	if (!IsTyping() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Settings)
 	{
 		FLOG("AFlarePlayerController::SettingsMenu");
 		MenuManager->OpenMenu(EFlareMenu::MENU_Settings);
@@ -1385,7 +1403,7 @@ void AFlarePlayerController::SettingsMenu()
 
 void AFlarePlayerController::ToggleCombat()
 {
-	if (ShipPawn && ShipPawn->GetParent()->IsMilitary() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
+	if (ShipPawn && ShipPawn->GetParent()->IsMilitary() && !IsTyping() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
 	{
 		FLOG("AFlarePlayerController::ToggleCombat");
 		ShipPawn->GetWeaponsSystem()->ToogleWeaponActivation();
@@ -1398,14 +1416,17 @@ void AFlarePlayerController::ToggleCombat()
 
 void AFlarePlayerController::TogglePilot()
 {
-	bool NewState = !ShipPawn->GetStateManager()->IsPilotMode();
-	FLOGV("AFlarePlayerController::TooglePilot : new state is %d", NewState);
-	ShipPawn->GetStateManager()->EnablePilot(NewState, true);
+	if (!IsTyping())
+	{
+		bool NewState = !ShipPawn->GetStateManager()->IsPilotMode();
+		FLOGV("AFlarePlayerController::TooglePilot : new state is %d", NewState);
+		ShipPawn->GetStateManager()->EnablePilot(NewState, true);
+	}
 }
 
 void AFlarePlayerController::ToggleHUD()
 {
-	if (!IsInMenu())
+	if (!IsInMenu() && !IsTyping())
 	{
 		FLOG("AFlarePlayerController::ToggleHUD");
 		GetNavHUD()->ToggleHUD();
@@ -1418,7 +1439,7 @@ void AFlarePlayerController::ToggleHUD()
 
 void AFlarePlayerController::QuickSwitch()
 {
-	if (!MenuManager->IsMenuOpen())
+	if (!MenuManager->IsMenuOpen() && !IsTyping())
 	{
 		SwitchToNextShip(false);
 	}

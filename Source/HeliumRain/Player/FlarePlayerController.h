@@ -144,6 +144,9 @@ public:
 	/** id we select a weapon recently ? */
 	bool IsSelectingWeapon() const;
 
+	/** Is the player typing ? */
+	bool IsTyping() const;
+
 	/** Show a notification explaining if we succeeded in docking */
 	void NotifyDockingResult(bool Success, UFlareSimulatedSpacecraft* Target);
 
