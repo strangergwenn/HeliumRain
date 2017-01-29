@@ -50,6 +50,12 @@ public:
 	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
 	UFlareAsteroidComponent*                Asteroid;
 
+	// Effects count
+	UPROPERTY(EditAnywhere, Category = Mesh)
+	int32                                   EffectsMultiplier;
+
+protected:
+
 	// Data
 	FVector                                 SpawnLocation;
 	FFlareAsteroidSave                      AsteroidData;

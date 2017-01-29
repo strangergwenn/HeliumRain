@@ -60,8 +60,8 @@ void UFlareAsteroidComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 
 	// Update if close to player and visible
 	if (ShipPawn
-	 && (ShipPawn->GetActorLocation() - GetComponentLocation()).Size() < 200000
-	 && (GetWorld()->TimeSeconds - LastRenderTime) < 0.2)
+	 && (ShipPawn->GetActorLocation() - GetComponentLocation()).Size() < 500000
+	 && (GetWorld()->TimeSeconds - LastRenderTime) < 0.5)
 	{
 		if (EffectsUpdateTimer > EffectsUpdatePeriod)
 		{
@@ -123,8 +123,11 @@ void UFlareAsteroidComponent::SetupEffects(bool Icy)
 	Effects.Empty();
 	EffectsKernels.Empty();
 
+	AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(GetOwner());
+	int32 Multiplier = Asteroid ? Asteroid->EffectsMultiplier : 1;
+
 	// Create random effects
-	for (int32 Index = 0; Index < EffectsCount; Index++)
+	for (int32 Index = 0; Index < Multiplier * EffectsCount; Index++)
 	{
 		EffectsKernels.Add(FMath::VRand());
 

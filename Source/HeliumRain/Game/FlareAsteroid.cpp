@@ -27,6 +27,7 @@ AFlareAsteroid::AFlareAsteroid(const class FObjectInitializer& PCIP) : Super(PCI
 	PrimaryActorTick.bCanEverTick = true;
 	RootComponent->SetMobility(EComponentMobility::Movable);
 	Paused = false;
+	EffectsMultiplier = 1;
 }
 
 
