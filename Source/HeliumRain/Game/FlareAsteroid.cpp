@@ -39,7 +39,7 @@ void AFlareAsteroid::BeginPlay()
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	if (Game && Game->GetActiveSector())
 	{
-		Asteroid->SetIcy(Game->GetActiveSector()->GetSimulatedSector()->GetDescription()->IsIcy);
+		Asteroid->SetupEffects(Game->GetActiveSector()->GetSimulatedSector()->GetDescription()->IsIcy);
 	}
 
 	Super::BeginPlay();

@@ -71,7 +71,7 @@ void UFlareAsteroidComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 			SunDirection.Normalize();
 	
 			// Compute new FX locations
-			for (int32 Index = 0; Index < EffectsKernels.Num(); Index++)
+			for (int32 Index = 0; Index < Effects.Num(); Index++)
 			{
 				FVector RandomDirection = FVector::CrossProduct(SunDirection, EffectsKernels[Index]);
 				RandomDirection.Normalize();
@@ -110,17 +110,18 @@ void UFlareAsteroidComponent::TickComponent(float DeltaTime, enum ELevelTick Tic
 	// Disable all
 	else
 	{
-		for (int32 Index = 0; Index < EffectsKernels.Num(); Index++)
+		for (int32 Index = 0; Index < Effects.Num(); Index++)
 		{
 			Effects[Index]->Deactivate();
 		}
 	}
 }
 
-void UFlareAsteroidComponent::SetIcy(bool Icy)
+void UFlareAsteroidComponent::SetupEffects(bool Icy)
 {
 	IsIcyAsteroid = Icy;
 	Effects.Empty();
+	EffectsKernels.Empty();
 
 	// Create random effects
 	for (int32 Index = 0; Index < EffectsCount; Index++)

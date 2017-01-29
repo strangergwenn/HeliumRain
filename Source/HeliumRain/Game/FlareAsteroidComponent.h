@@ -25,7 +25,8 @@ public:
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
-	virtual void SetIcy(bool Icy);
+	virtual void SetupEffects(bool Icy);
+
 
 protected:
 

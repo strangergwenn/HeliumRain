@@ -104,7 +104,7 @@ void AFlareSpacecraft::BeginPlay()
 				}
 			}
 
-			AsteroidComponent->SetIcy(IsIcy);
+			AsteroidComponent->SetupEffects(IsIcy);
 		}
 	}
 

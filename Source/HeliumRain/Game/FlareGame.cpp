@@ -809,7 +809,6 @@ void AFlareGame::UnloadGame()
 	{
 		if (ActorList[Index]->IsA(AFlareBomb::StaticClass())
 		 || ActorList[Index]->IsA(AFlareShell::StaticClass())
-		 || ActorList[Index]->IsA(AFlareAsteroid::StaticClass())
 		 || ActorList[Index]->IsA(AFlareSpacecraft::StaticClass()))
 		{
 			ActorCount++;

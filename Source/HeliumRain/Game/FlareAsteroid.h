@@ -40,7 +40,7 @@ public:
 	static void SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data, bool IsIcy);
 
 
-protected:
+public:
 
 	/*----------------------------------------------------
 		Protected data
