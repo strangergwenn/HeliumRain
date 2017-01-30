@@ -579,9 +579,13 @@ FText SFlareQuestMenu::GetSelectedQuestTitle() const
 			FText::AsNumber(SelectedQuest->GetSuccessfullStepCount()),
 			FText::AsNumber(SelectedQuest->GetStepCount()));
 	}
-	else
+	else if (SelectedQuest)
 	{
 		return SelectedQuest->GetQuestName();
+	}
+	else
+	{
+		return FText();
 	}
 }
 
