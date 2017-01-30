@@ -207,6 +207,12 @@ void UFlareQuest::NextStep()
 
 void UFlareQuest::Success()
 {
+	if (QuestStatus == EFlareQuestStatus::SUCCESSFUL)
+	{
+		// Already successful
+		return;
+	}
+
 	SetStatus(EFlareQuestStatus::SUCCESSFUL);
 	UFlareQuestAction::PerformActions(SuccessActions);
 	QuestManager->OnQuestSuccess(this);
@@ -214,6 +220,12 @@ void UFlareQuest::Success()
 
 void UFlareQuest::Fail()
 {
+	if (QuestStatus == EFlareQuestStatus::FAILED)
+	{
+		// Already failed
+		return;
+	}
+
 	SetStatus(EFlareQuestStatus::FAILED);
 	UFlareQuestAction::PerformActions(FailActions);
 	QuestManager->OnQuestFail(this);
@@ -221,12 +233,18 @@ void UFlareQuest::Fail()
 
 void UFlareQuest::MakeAvailable()
 {
-	SetStatus(EFlareQuestStatus::AVAILABLE);
-
-	// Don't notify activation if quest is not active after first NextStep
 	if (QuestStatus == EFlareQuestStatus::AVAILABLE)
 	{
-		QuestManager->OnQuestActivation(this);
+		// Already available
+		return;
+	}
+
+	SetStatus(EFlareQuestStatus::AVAILABLE);
+
+	// Don't notify avaibility if quest is not active after first NextStep
+	if (QuestStatus == EFlareQuestStatus::AVAILABLE)
+	{
+		QuestManager->OnQuestAvailable(this);
 	}
 }
 
@@ -238,6 +256,12 @@ void UFlareQuest::Accept()
 
 void UFlareQuest::Activate()
 {
+	if (QuestStatus == EFlareQuestStatus::ACTIVE)
+	{
+		// Already active
+		return;
+	}
+
 	SetStatus(EFlareQuestStatus::ACTIVE);
 	// Activate next step
 	NextStep();

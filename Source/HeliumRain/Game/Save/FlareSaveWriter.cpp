@@ -55,6 +55,8 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuest(FFlareQuestSave* Data)
 
 	JsonObject->SetStringField("SelectedQuest", Data->SelectedQuest.ToString());
 	JsonObject->SetBoolField("PlayTutorial", Data->PlayTutorial);
+	JsonObject->SetStringField("NextGeneratedQuestIndex", FormatInt64(Data->NextGeneratedQuestIndex));
+
 
 	TArray< TSharedPtr<FJsonValue> > QuestProgresses;
 	for(int i = 0; i < Data->QuestProgresses.Num(); i++)
@@ -91,6 +93,13 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuest(FFlareQuestSave* Data)
 	}
 	JsonObject->SetArrayField("FailedQuests", FailedQuests);
 
+	TArray< TSharedPtr<FJsonValue> > GeneratedQuests;
+	for(int i = 0; i < Data->GeneratedQuests.Num(); i++)
+	{
+		GeneratedQuests.Add(MakeShareable(new FJsonValueObject(SaveGeneratedQuest(&Data->GeneratedQuests[i]))));
+	}
+	JsonObject->SetArrayField("GeneratedQuests", GeneratedQuests);
+
 	return JsonObject;
 }
 
@@ -121,6 +130,16 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuestProgress(FFlareQuestProgressS
 		TriggerConditionsSave.Add(MakeShareable(new FJsonValueObject(SaveQuestStepProgress(&Data->TriggerConditionsSave[i]))));
 	}
 	JsonObject->SetArrayField("TriggerConditionsSave", TriggerConditionsSave);
+
+	return JsonObject;
+}
+
+TSharedRef<FJsonObject> UFlareSaveWriter::SaveGeneratedQuest(FFlareGeneratedQuestSave* Data)
+{
+	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+
+	JsonObject->SetStringField("QuestClass", Data->QuestClass.ToString());
+	JsonObject->SetObjectField("Data", SaveBundle(&Data->Data));
 
 	return JsonObject;
 }
@@ -758,6 +777,17 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveBundle(FFlareBundle* Data)
 		}
 		JsonObject->SetObjectField("VectorArrayValues", TransformObject);
 	}
+
+	if(Data->NameValues.Num() > 0)
+	{
+		TSharedRef<FJsonObject> Int32Object = MakeShareable(new FJsonObject());
+		for (auto& Pair : Data->NameValues)
+		{
+			Int32Object->SetStringField(Pair.Key.ToString(), Pair.Value.ToString());
+		}
+		JsonObject->SetObjectField("NameValues", Int32Object);
+	}
+
 
 	return JsonObject;
 }

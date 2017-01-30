@@ -24,6 +24,8 @@ protected:
 	void LoadPlayer(const TSharedPtr<FJsonObject> Object, FFlarePlayerSave* Data);
 	void LoadQuest(const TSharedPtr<FJsonObject> Object, FFlareQuestSave* Data);
 	void LoadQuestProgress(const TSharedPtr<FJsonObject> Object, FFlareQuestProgressSave* Data);
+	void LoadGeneratedQuest(const TSharedPtr<FJsonObject> Object, FFlareGeneratedQuestSave* Data);
+
 	void LoadQuestStepProgress(const TSharedPtr<FJsonObject> Object, FFlareQuestConditionSave* Data);
 
 	void LoadCompanyDescription(const TSharedPtr<FJsonObject> Object, FFlareCompanyDescription* Data);

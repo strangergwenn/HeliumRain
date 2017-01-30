@@ -93,6 +93,8 @@ void UFlareSaveReaderV1::LoadQuest(const TSharedPtr<FJsonObject> Object, FFlareQ
 
 	LoadFName(Object, "SelectedQuest", &Data->SelectedQuest);
 	Object->TryGetBoolField(TEXT("PlayTutorial"), Data->PlayTutorial);
+	LoadInt64(Object, "NextGeneratedQuestIndex", &Data->NextGeneratedQuestIndex);
+
 
 
 	const TArray<TSharedPtr<FJsonValue>>* QuestProgresses;
@@ -103,6 +105,17 @@ void UFlareSaveReaderV1::LoadQuest(const TSharedPtr<FJsonObject> Object, FFlareQ
 			FFlareQuestProgressSave ChildData;
 			LoadQuestProgress(Item->AsObject(), &ChildData);
 			Data->QuestProgresses.Add(ChildData);
+		}
+	}
+
+	const TArray<TSharedPtr<FJsonValue>>* GeneratedQuests;
+	if(Object->TryGetArrayField("GeneratedQuests", GeneratedQuests))
+	{
+		for (TSharedPtr<FJsonValue> Item : *GeneratedQuests)
+		{
+			FFlareGeneratedQuestSave ChildData;
+			LoadGeneratedQuest(Item->AsObject(), &ChildData);
+			Data->GeneratedQuests.Add(ChildData);
 		}
 	}
 
@@ -133,6 +146,11 @@ void UFlareSaveReaderV1::LoadQuestProgress(const TSharedPtr<FJsonObject> Object,
 	}
 }
 
+void UFlareSaveReaderV1::LoadGeneratedQuest(const TSharedPtr<FJsonObject> Object, FFlareGeneratedQuestSave* Data)
+{
+	LoadFName(Object, "QuestClass", &Data->QuestClass);
+	LoadBundle(Object, "Data", &Data->Data);
+}
 
 void UFlareSaveReaderV1::LoadQuestStepProgress(const TSharedPtr<FJsonObject> Object, FFlareQuestConditionSave* Data)
 {
@@ -1075,6 +1093,17 @@ void UFlareSaveReaderV1::LoadBundle(const TSharedPtr<FJsonObject> Object, FStrin
 				}
 
 				Data->PutVectorArray(TransformKey, VectorArray);
+			}
+		}
+
+		const TSharedPtr< FJsonObject >* NameValues;
+		if ((*Bundle)->TryGetObjectField("NameValues", NameValues))
+		{
+			for(auto& Pair : (*NameValues)->Values)
+			{
+				FName NameKey = FName(*Pair.Key);
+				FName NameValue = FName(*Pair.Value->AsString());
+				Data->NameValues.Add(NameKey, NameValue);
 			}
 		}
 	}

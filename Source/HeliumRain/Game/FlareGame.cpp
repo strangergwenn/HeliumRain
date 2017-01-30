@@ -569,6 +569,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 	PlayerData.UUID = FName(*FGuid::NewGuid().ToString());
 	PlayerData.ScenarioId = ScenarioIndex;
 	PlayerData.QuestData.PlayTutorial = PlayTutorial;
+	PlayerData.QuestData.NextGeneratedQuestIndex = 0;
 	PC->SetCompany(PlayerCompany);
 	
 	// Create world tools

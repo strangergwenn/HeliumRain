@@ -176,6 +176,12 @@ void UFlareTravel::EndTravel()
 			EFlareMenu::MENU_Sector,
 			Data);
 	}
+
+	if (Game->GetQuestManager())
+	{
+		Game->GetQuestManager()->OnTravelEnded(Fleet);
+	}
+
 }
 
 int64 UFlareTravel::GetElapsedTime()

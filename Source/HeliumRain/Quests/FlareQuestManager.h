@@ -5,6 +5,7 @@
 class UFlareQuest;
 class AFlareGame;
 class AFlareSpacecraft;
+class UFlareQuestGenerator;
 struct FFlareQuestDescription;
 
 
@@ -56,6 +57,17 @@ struct FFlareQuestProgressSave
 	TArray<FFlareQuestConditionSave> TriggerConditionsSave;
 };
 
+/** Quest generated quest save */
+USTRUCT()
+struct FFlareGeneratedQuestSave
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	FName QuestClass;
+	FFlareBundle Data;
+};
+
 /** Quest status save data */
 USTRUCT()
 struct FFlareQuestSave
@@ -82,6 +94,12 @@ struct FFlareQuestSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	bool PlayTutorial;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFlareGeneratedQuestSave> GeneratedQuests;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	int64 NextGeneratedQuestIndex;
 };
 
 
@@ -140,6 +158,8 @@ public:
 
 	virtual void OnTick(float DeltaSeconds);
 
+	virtual void OnTravelEnded(UFlareFleet* Fleet);
+
 	virtual void OnQuestStatusChanged(UFlareQuest* Quest);
 
 	virtual void OnQuestSuccess(UFlareQuest* Quest);
@@ -149,7 +169,6 @@ public:
 	virtual void OnQuestActivation(UFlareQuest* Quest);
 
 	virtual void OnQuestAvailable(UFlareQuest* Quest);
-
 
 protected:
 
@@ -185,6 +204,9 @@ protected:
 	AFlareGame*                              Game;
 
 	TArray<FName>							 ActiveQuestIdentifiers;
+
+	UPROPERTY()
+	UFlareQuestGenerator*					 QuestGenerator;
 
 public:
 

@@ -180,6 +180,11 @@ bool FFlareBundle::HasVectorArray(FName Key) const
 	return VectorArrayValues.Contains(Key);
 }
 
+bool FFlareBundle::HasName(FName Key) const
+{
+	return NameValues.Contains(Key);
+}
+
 float FFlareBundle::GetFloat(FName Key, float Default) const
 {
 	if(FloatValues.Contains(Key))
@@ -216,6 +221,16 @@ TArray<FVector> FFlareBundle::GetVectorArray(FName Key) const
 	return TArray<FVector>();
 }
 
+
+FName FFlareBundle::GetName(FName Key) const
+{
+	if(NameValues.Contains(Key))
+	{
+		return NameValues[Key];
+	}
+	return "";
+}
+
 void FFlareBundle::PutFloat(FName Key, float Value)
 {
 	FloatValues.Add(Key, Value);
@@ -238,12 +253,18 @@ void FFlareBundle::PutVectorArray(FName Key, const TArray<FVector> Value)
 	VectorArrayValues.Add(Key, Array);
 }
 
+void FFlareBundle::PutName(FName Key, FName Value)
+{
+	NameValues.Add(Key, Value);
+}
+
 void FFlareBundle::Clear()
 {
 	FloatValues.Empty();
 	Int32Values.Empty();
 	TransformValues.Empty();
 	VectorArrayValues.Empty();
+	NameValues.Empty();
 }
 
 

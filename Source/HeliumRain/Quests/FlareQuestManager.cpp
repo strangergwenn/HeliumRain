@@ -4,6 +4,7 @@
 #include "../Data/FlareQuestCatalog.h"
 #include "../Data/FlareQuestCatalogEntry.h"
 #include "../Player/FlarePlayerController.h"
+#include "FlareQuestGenerator.h"
 #include "FlareQuestManager.h"
 #include "FlareCatalogQuest.h"
 #include "QuestCatalog/FlareTutorialQuest.h"
@@ -28,6 +29,10 @@ UFlareQuestManager::UFlareQuestManager(const FObjectInitializer& ObjectInitializ
 void UFlareQuestManager::Load(const FFlareQuestSave& Data)
 {
 	Game = Cast<AFlareGame>(GetOuter());
+
+	// Init the quest manager
+	QuestGenerator = NewObject<UFlareQuestGenerator>(this, UFlareQuestGenerator::StaticClass());
+	QuestGenerator->Load(this, Data);
 
 	QuestData = Data;
 
@@ -78,7 +83,7 @@ void UFlareQuestManager::LoadCatalogQuests()
 
 void UFlareQuestManager::LoadDynamicQuests()
 {
-	// TODO
+	QuestGenerator->LoadQuests(QuestData);
 }
 
 void UFlareQuestManager::AddQuest(UFlareQuest* Quest)
@@ -174,6 +179,8 @@ FFlareQuestSave* UFlareQuestManager::Save()
 		}
 	}
 
+	QuestGenerator->Save(QuestData);
+
 	return &QuestData;
 }
 
@@ -184,7 +191,7 @@ FFlareQuestSave* UFlareQuestManager::Save()
 
 void UFlareQuestManager::AcceptQuest(UFlareQuest* Quest)
 {
-	FLOGV("Select quest %s", *Quest->GetIdentifier().ToString());
+	FLOGV("Accept quest %s", *Quest->GetIdentifier().ToString());
 
 	Quest->Accept();
 }
@@ -301,6 +308,16 @@ void UFlareQuestManager::OnSectorVisited(UFlareSimulatedSector* Sector)
 	}
 }
 
+
+void UFlareQuestManager::OnTravelEnded(UFlareFleet* Fleet)
+{
+	if (Fleet == Game->GetPC()->GetPlayerFleet())
+	{
+		// Player end travel, try to generate a quest in the destination sector
+		QuestGenerator->GenerateSectorQuest(Fleet->GetCurrentSector());
+	}
+}
+
 void UFlareQuestManager::OnQuestStatusChanged(UFlareQuest* Quest)
 {
 	LoadCallbacks(Quest);
@@ -375,7 +392,7 @@ void UFlareQuestManager::OnQuestAvailable(UFlareQuest* Quest)
 void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 {
 	FLOGV("Quest %s is now active", *Quest->GetIdentifier().ToString())
-		AvailableQuests.Remove(Quest);
+	AvailableQuests.Remove(Quest);
 	ActiveQuests.Add(Quest);
 
 	// New quest notification

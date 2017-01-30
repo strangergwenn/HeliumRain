@@ -8,6 +8,7 @@
 struct FFlarePlayerSave;
 struct FFlareQuestSave;
 struct FFlareQuestProgressSave;
+struct FFlareGeneratedQuestSave;
 struct FFlareQuestConditionSave;
 
 struct FFlareCompanyDescription;
@@ -42,6 +43,7 @@ struct FFlareTravelSave;
 struct FFlareFloatBuffer;
 
 
+
 UCLASS()
 class HELIUMRAIN_API UFlareSaveWriter: public UObject
 {
@@ -59,6 +61,7 @@ protected:
 	TSharedRef<FJsonObject> SavePlayer(FFlarePlayerSave* Data);
 	TSharedRef<FJsonObject> SaveQuest(FFlareQuestSave* Data);
 	TSharedRef<FJsonObject> SaveQuestProgress(FFlareQuestProgressSave* Data);
+	TSharedRef<FJsonObject> SaveGeneratedQuest(FFlareGeneratedQuestSave* Data);
 	TSharedRef<FJsonObject> SaveQuestStepProgress(FFlareQuestConditionSave* Data);
 
 	TSharedRef<FJsonObject> SaveCompanyDescription(FFlareCompanyDescription* Data);
