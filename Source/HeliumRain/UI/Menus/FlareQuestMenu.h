@@ -74,11 +74,11 @@ protected:
 	/** Is this quest step visible */
 	EVisibility GetQuestStepDescriptionVisibility(UFlareQuestStep* QuestStep) const;
 
-	/** Is the "select" button disabled */
-	bool IsSelectQuestButtonDisabled(UFlareQuest*  Quest) const;
+	/** Get the quest color */
+	FSlateColor GetQuestColor(UFlareQuest* Quest) const;
 
 	/** Is the "track" button disabled */
-	bool IsTrackQuestButtonDisabled(UFlareQuest*  Quest) const;
+	EVisibility GetTrackButtonVisibility(UFlareQuest* Quest) const;
 	
 
 	/*----------------------------------------------------

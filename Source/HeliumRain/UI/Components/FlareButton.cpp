@@ -73,7 +73,6 @@ void SFlareButton::Construct(const FArguments& InArgs)
 						SNew(SBorder)
 						.Padding(FMargin(0))
 						.BorderImage(this, &SFlareButton::GetBackgroundBrush)
-						.BorderBackgroundColor(this, &SFlareButton::GetMainColor)
 						[
 							SNew(SHorizontalBox)
 
@@ -142,6 +141,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 				.TextStyle(&Theme.TextFont)
 				.Font(this, &SFlareButton::GetTextStyle)
 				.Text(InArgs._Text)
+				.ColorAndOpacity(this, &SFlareButton::GetMainColor)
 			]
 		);
 
