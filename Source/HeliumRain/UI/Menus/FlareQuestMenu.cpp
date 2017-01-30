@@ -293,7 +293,7 @@ void SFlareQuestMenu::FillActiveQuestList()
 				.Width(10)
 				.Text(FText::Format(LOCTEXT("ActiveQuestTitleFormat", "{0} ({1} / {2}{3})"),
 					Quest->GetQuestName(),
-					FText::AsNumber(Quest->GetSuccessfullStepCount() + 1),
+					FText::AsNumber(Quest->GetSuccessfullStepCount()),
 					FText::AsNumber(Quest->GetStepCount()),
 					TrackedQuest))
 				.HelpText(LOCTEXT("SelectActiveQuestInfo", "Take a closer look at this quest"))
@@ -388,8 +388,6 @@ void SFlareQuestMenu::FillQuestDetails()
 	// Get active quest
 	if (SelectedQuest)
 	{
-		bool IsActiveQuest = (QuestManager->IsQuestActive(SelectedQuest));
-
 		// Header
 		QuestDetails->AddSlot()
 		.Padding(FMargin(0, 0, 0, 20))
@@ -403,7 +401,7 @@ void SFlareQuestMenu::FillQuestDetails()
 		CurrentQuestStep = SelectedQuest->GetCurrentStep();
 
 		// List all quest steps
-		for(UFlareQuestStep* QuestStep : SelectedQuest->GetSteps())
+		for (UFlareQuestStep* QuestStep : SelectedQuest->GetSteps())
 		{
 			// Generate condition text
 			FText StepConditionsText;
@@ -419,6 +417,7 @@ void SFlareQuestMenu::FillQuestDetails()
 			if (QuestStep->IsCompleted())
 			{
 				TSharedPtr<SVerticalBox> DetailBox = AddQuestDetail(QuestStep);
+				bool IsActiveQuest = (QuestManager->IsQuestActive(SelectedQuest));
 
 				// Description
 				DetailBox->AddSlot()
@@ -459,8 +458,8 @@ void SFlareQuestMenu::FillQuestDetails()
 				];
 			}
 
-			// Current step
-			else if (QuestStep == CurrentQuestStep)
+			// Current step, or steps to a pending / completed quest
+			else
 			{
 				TSharedPtr<SVerticalBox> DetailBox = AddQuestDetail(QuestStep);
 				
@@ -485,6 +484,12 @@ void SFlareQuestMenu::FillQuestDetails()
 					.TextStyle(&Theme.TextFont)
 					.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStep)
 				];
+
+				// Stop listing steps at this point if it's an active or pending quest
+				if (QuestManager->IsQuestActive(SelectedQuest) || QuestManager->IsQuestAvailable(SelectedQuest))
+				{
+					break;
+				}
 			}
 		}
 	}
@@ -569,15 +574,14 @@ FText SFlareQuestMenu::GetSelectedQuestTitle() const
 	// Get selected quest
 	if (QuestManager->IsQuestActive(SelectedQuest))
 	{
-		return FText::Format(LOCTEXT("SelectedActiveQuestTitleFormat", "Selected quest : {0} ({1} / {2})"),
+		return FText::Format(LOCTEXT("SelectedActiveQuestTitleFormat", "{0} ({1} / {2})"),
 			SelectedQuest->GetQuestName(),
-			FText::AsNumber(SelectedQuest->GetSuccessfullStepCount() + 1),
+			FText::AsNumber(SelectedQuest->GetSuccessfullStepCount()),
 			FText::AsNumber(SelectedQuest->GetStepCount()));
 	}
 	else
 	{
-		return FText::Format(LOCTEXT("SelectedQuestTitleFormat", "Selected quest : {0}"),
-			SelectedQuest->GetQuestName());
+		return SelectedQuest->GetQuestName();
 	}
 }
 
@@ -586,18 +590,31 @@ FText SFlareQuestMenu::GetQuestStepDescription(UFlareQuestStep* QuestStep) const
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	FCHECK(QuestManager);
 
-	// Only show this for the currently selected quest step
-	if (SelectedQuest && CurrentQuestStep == QuestStep)
+	// Hide this for completed quests
+	if (SelectedQuest && (CurrentQuestStep == QuestStep || !QuestManager->IsQuestActive(SelectedQuest)))
 	{
 		return SelectedQuest->FormatTags(QuestStep->GetStepDescription());
 	}
-
-	return FText();
+	else
+	{
+		return FText();
+	}
 }
 
 EVisibility SFlareQuestMenu::GetQuestStepDescriptionVisibility(UFlareQuestStep* QuestStep) const
 {
-	return (CurrentQuestStep == QuestStep ? EVisibility::Visible : EVisibility::Collapsed);
+	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
+	FCHECK(QuestManager);
+
+	// Hide this for completed quests
+	if (SelectedQuest && (CurrentQuestStep == QuestStep || !QuestManager->IsQuestActive(SelectedQuest)))
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
 }
 
 EVisibility SFlareQuestMenu::GetTrackButtonVisibility(UFlareQuest* Quest) const
@@ -657,8 +674,6 @@ void SFlareQuestMenu::OnQuestTracked(UFlareQuest* Quest)
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	FCHECK(QuestManager);
 	QuestManager->SelectQuest(Quest);
-
-	OnQuestSelected(Quest);
 }
 
 void SFlareQuestMenu::OnQuestSelected(UFlareQuest* Quest)

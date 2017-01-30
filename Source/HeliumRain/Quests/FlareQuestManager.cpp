@@ -427,6 +427,23 @@ bool UFlareQuestManager::IsQuestActive(UFlareQuest* Quest)
 	return false;
 }
 
+bool UFlareQuestManager::IsOldQuest(UFlareQuest* Quest)
+{
+	return IsQuestSuccessfull(Quest) || IsQuestFailed(Quest);
+}
+
+bool UFlareQuestManager::IsQuestAvailable(UFlareQuest* Quest)
+{
+	for (UFlareQuest* AvailableQuest : AvailableQuests)
+	{
+		if (AvailableQuest == Quest)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool UFlareQuestManager::IsQuestSuccessfull(UFlareQuest* Quest)
 {
 	for(UFlareQuest* OldQuest: OldQuests)

@@ -241,6 +241,10 @@ public:
 
 	bool IsQuestActive(UFlareQuest* Quest);
 
+	bool IsOldQuest(UFlareQuest* Quest);
+
+	bool IsQuestAvailable(UFlareQuest* Quest);
+
 	bool IsQuestSuccessfull(UFlareQuest* Quest);
 
 	bool IsQuestFailed(UFlareQuest* Quest);
