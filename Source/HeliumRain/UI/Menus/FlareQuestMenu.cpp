@@ -227,9 +227,12 @@ void SFlareQuestMenu::FillAvailableQuestList()
 			.VAlign(VAlign_Center)
 			.Padding(Theme.SmallContentPadding)
 			[
-				SNew(STextBlock)
+				SNew(SFlareButton)
+				.Width(9.4)
 				.Text(Quest->GetQuestName())
-				.TextStyle(&Theme.TextFont)
+				.HelpText(LOCTEXT("SelectActiveQuestInfo", "Take a closer look at this quest"))
+				.OnClicked(this, &SFlareQuestMenu::OnQuestSelected, Quest)
+				.IsDisabled(this, &SFlareQuestMenu::IsSelectQuestButtonDisabled, Quest)
 			]
 
 			// Accept button
@@ -285,7 +288,7 @@ void SFlareQuestMenu::FillActiveQuestList()
 			.Padding(Theme.SmallContentPadding)
 			[
 				SNew(SFlareButton)
-				.Width(8.4)
+				.Width(9.4)
 				.Text(FText::Format(LOCTEXT("ActiveQuestTitleFormat", "{0} ({1} / {2})"),
 					Quest->GetQuestName(),
 					FText::AsNumber(Quest->GetSuccessfullStepCount() + 1),
