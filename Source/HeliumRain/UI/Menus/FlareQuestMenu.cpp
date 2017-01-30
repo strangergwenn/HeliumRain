@@ -626,6 +626,9 @@ void SFlareQuestMenu::OnQuestAccepted(UFlareQuest* Quest)
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	FCHECK(QuestManager);
 	QuestManager->AcceptQuest(Quest);
+
+	FillAvailableQuestList();
+	FillActiveQuestList();
 }
 
 void SFlareQuestMenu::OnQuestTracked(UFlareQuest* Quest)
