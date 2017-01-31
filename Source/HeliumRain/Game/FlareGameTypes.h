@@ -347,11 +347,15 @@ struct FFlareBundle
 	UPROPERTY(EditAnywhere, Category = Save)
 	TMap<FName, FName> NameValues;
 
+	UPROPERTY(EditAnywhere, Category = Save)
+	TMap<FName, FString> StringValues;
+
 	bool HasFloat(FName Key) const;
 	bool HasInt32(FName Key) const;
 	bool HasTransform(FName Key) const;
 	bool HasVectorArray(FName Key) const;
 	bool HasName(FName Key) const;
+	bool HasString(FName Key) const;
 
 
 	float GetFloat(FName Key, float Default = 0.f) const;
@@ -359,12 +363,14 @@ struct FFlareBundle
 	FTransform GetTransform(FName Key, const FTransform Default = FTransform::Identity) const;
 	TArray<FVector> GetVectorArray(FName Key) const;
 	FName GetName(FName Key) const;
+	FString GetString(FName Key) const;
 
 	void PutFloat(FName Key, float Value);
 	void PutInt32(FName Key, int32 Value);
 	void PutTransform(FName Key, const FTransform Value);
 	void PutVectorArray(FName Key, const TArray<FVector> Value);
 	void PutName(FName Key, FName Value);
+	void PutString(FName Key, FString Value);
 
 	void Clear();
 };

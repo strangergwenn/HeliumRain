@@ -1106,6 +1106,17 @@ void UFlareSaveReaderV1::LoadBundle(const TSharedPtr<FJsonObject> Object, FStrin
 				Data->NameValues.Add(NameKey, NameValue);
 			}
 		}
+
+		const TSharedPtr< FJsonObject >* StringValues;
+		if ((*Bundle)->TryGetObjectField("StringValues", StringValues))
+		{
+			for (auto& Pair : (*StringValues)->Values)
+			{
+				FName NameKey = FName(*Pair.Key);
+				FString StringValue = *Pair.Value->AsString();
+				Data->StringValues.Add(NameKey, StringValue);
+			}
+		}
 	}
 	else
 	{
