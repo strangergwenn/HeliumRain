@@ -262,24 +262,25 @@ void UFlareScenarioTools::SetupWorld()
 
 	// Create Night's Home capital station
 	{
+		float StationRadius = 22480;
 		FVector UpVector(0, 0, 1);
-		FVector BaseLocation = FVector(0, 0, -100000.0f - 53600.0f);
+		FVector BaseLocation = FVector(-3740, 0, -153600);
 		FFlareStationSpawnParameters StationParams;
 		StationParams.AttachActorName = FName("NightsHomeCore");
 
-		// NH Shipyard
-		StationParams.Location = BaseLocation + FVector(-7170.0f, 19570.0f, 0);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 100));
-		CreateStations("station-nh-shipyard", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
-
 		// NH Arsenal
-		StationParams.Location = BaseLocation + FVector(-24749.0f, -2248.0f, 0);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -170));
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(-135, UpVector);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -135));
 		CreateStations("station-nh-arsenal", AxisSupplies, NightsHome, 1, 2, StationParams);
 
+		// NH Shipyard
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(180, UpVector);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 180));
+		CreateStations("station-nh-shipyard", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
+
 		// NH Habitation
-		StationParams.Location = BaseLocation + FVector(-20463.0f, 11421.0f, 0);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 150));
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(135, UpVector);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 135));
 		CreateStations("station-nh-habitation", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
 	}
 	
