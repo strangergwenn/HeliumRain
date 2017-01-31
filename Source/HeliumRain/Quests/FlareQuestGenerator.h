@@ -26,6 +26,9 @@ public:
 	/*----------------------------------------------------
 		Quest generation
 	----------------------------------------------------*/
+
+	static FText GeneratePersonName();
+
 	void GenerateIdentifer(FName QuestClass, FFlareBundle& Data);
 
 	UFlareQuest* GenerateSectorQuest(UFlareSimulatedSector* Sector);

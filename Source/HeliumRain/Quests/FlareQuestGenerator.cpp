@@ -61,6 +61,40 @@ void UFlareQuestGenerator::Save(FFlareQuestSave& Data)
 	Quest generation
 ----------------------------------------------------*/
 
+FText UFlareQuestGenerator::GeneratePersonName()
+{
+	TArray<FText> Names;
+	
+	Names.Add(FText::FromString("Arya"));
+	Names.Add(FText::FromString("Bob"));
+	Names.Add(FText::FromString("Curtis"));
+	Names.Add(FText::FromString("David"));
+	Names.Add(FText::FromString("Elisa"));
+	Names.Add(FText::FromString("France"));
+	Names.Add(FText::FromString("Gaius"));
+	Names.Add(FText::FromString("Hans"));
+	Names.Add(FText::FromString("Ivy"));
+	Names.Add(FText::FromString("Jebediah"));
+	Names.Add(FText::FromString("Katia"));
+	Names.Add(FText::FromString("Lucy"));
+	Names.Add(FText::FromString("Mary"));
+	Names.Add(FText::FromString("Nate"));
+	Names.Add(FText::FromString("Olly"));
+	Names.Add(FText::FromString("Paula"));
+	Names.Add(FText::FromString("Quinn"));
+	Names.Add(FText::FromString("Robb"));
+	Names.Add(FText::FromString("Saul"));
+	Names.Add(FText::FromString("Tilda"));
+	Names.Add(FText::FromString("Ulysse"));
+	Names.Add(FText::FromString("Viktor"));
+	Names.Add(FText::FromString("Walter"));
+	Names.Add(FText::FromString("Xavier"));
+	Names.Add(FText::FromString("Yann"));
+	Names.Add(FText::FromString("Zoe"));
+
+	return Names[FMath::RandHelper(Names.Num() - 1)];
+}
+
 void UFlareQuestGenerator::GenerateIdentifer(FName QuestClass, FFlareBundle& Data)
 {
 	FName Identifier = FName(*(QuestClass.ToString() + "-" + FString::FromInt(NextQuestIndex++)));
@@ -107,19 +141,26 @@ UFlareQuestGeneratedVipTransport::UFlareQuestGeneratedVipTransport(const FObject
 UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenerator* Parent)
 {
 	UFlareQuestGeneratedVipTransport* Quest = NewObject<UFlareQuestGeneratedVipTransport>(Parent, UFlareQuestGeneratedVipTransport::StaticClass());
+
 	FFlareBundle Data;
 	Parent->GenerateIdentifer(UFlareQuestGeneratedVipTransport::GetClass(), Data);
+	Data.PutString("vip-name", UFlareQuestGenerator::GeneratePersonName().ToString());
+
 	Quest->Load(Parent, Data);
+
 	return Quest;
 }
 
 void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
+
+	FText VIPName = FText::FromString(Data.GetString("vip-name"));
+
 	QuestClass = UFlareQuestGeneratedVipTransport::GetClass();
 	Identifier = InitData.GetName("identifier");
-	QuestName = LOCTEXT(QUEST_TAG"Name","VIP transport");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","Transport a VIP from %s to %s");
+	QuestName = FText::Format(LOCTEXT(QUEST_TAG"Name","VIP transport : {0}"), VIPName);
+	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionFormat","Transport {0} from %s to %s"), VIPName);
 	QuestCategory = EFlareQuestCategory::SECONDARY;
 
 	// TODO remove, placeholder
