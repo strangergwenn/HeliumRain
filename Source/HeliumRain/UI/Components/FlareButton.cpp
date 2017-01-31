@@ -329,6 +329,12 @@ FReply SFlareButton::OnButtonClicked()
 			IsPressed = !IsPressed;
 		}
 
+		AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+		if (MenuManager)
+		{
+			MenuManager->HideTooltip(this);
+		}
+
 		if (OnClicked.IsBound() == true)
 		{
 			OnClicked.Execute();
