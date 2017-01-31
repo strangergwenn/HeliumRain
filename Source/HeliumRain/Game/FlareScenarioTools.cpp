@@ -261,12 +261,30 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationHabitation, Sunwatch, TheForge, 1);
 
 	// Create Night's Home capital station
-	// TODO
+	{
+		FVector UpVector(0, 0, 1);
+		FVector BaseLocation = FVector(0, 0, -100000.0f - 53600.0f);
+		FFlareStationSpawnParameters StationParams;
+		StationParams.AttachActorName = FName("NightsHomeCore");
+
+		// NH Shipyard
+		StationParams.Location = BaseLocation + FVector(-7170.0f, 19570.0f, 0);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 100));
+		CreateStations("station-nh-shipyard", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
+
+		// NH Arsenal
+		StationParams.Location = BaseLocation + FVector(-24749.0f, -2248.0f, 0);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -170));
+		CreateStations("station-nh-arsenal", AxisSupplies, NightsHome, 1, 2, StationParams);
+
+		// NH Habitation
+		StationParams.Location = BaseLocation + FVector(-20463.0f, 11421.0f, 0);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 150));
+		CreateStations("station-nh-habitation", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
+	}
 	
 	// Hela secondary economy
-	CreateStations(StationArsenal, AxisSupplies, FrozenRealm, 2, 2);
-	CreateStations(StationShipyard, GhostWorksShipyards, FrozenRealm, 1);
-	CreateStations(StationHabitation, GhostWorksShipyards, FrozenRealm, 1);
+	CreateStations(StationArsenal, AxisSupplies, FrozenRealm, 1, 2);
 	CreateStations(StationFarm, GhostWorksShipyards, FrozenRealm, 1);
 	CreateStations(StationSolarPlant, GhostWorksShipyards, FrozenRealm, 1, 2);
 	CreateStations(StationIceMine, GhostWorksShipyards, ShoreOfIce, 2);
