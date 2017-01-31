@@ -401,10 +401,13 @@ void SFlareQuestMenu::FillQuestDetails()
 		// List all quest steps
 		for (UFlareQuestStep* QuestStep : SelectedQuest->GetSteps())
 		{
+			FLOGV ("QuestStep end condition count %d", QuestStep->GetEndConditions().Num());
+
 			// Generate condition text
 			FText StepConditionsText;
 			for(UFlareQuestCondition* Condition : QuestStep->GetEndConditions())
 			{
+				FLOGV ("condition %s", *Condition->GetInitialLabel().ToString());
 				StepConditionsText = FText::Format(LOCTEXT("StepConditionFormat", "{0}{1}{2}"),
 					StepConditionsText,
 					(Condition->GetConditionIndex() > 0 ? FText::FromString("\n") : FText()),

@@ -123,6 +123,12 @@ void UFlareQuestConditionFlyingShipClass::Load(UFlareQuest* ParentQuest, FName S
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::FLY_SHIP);
 	ShipClass = ShipClassParam;
+
+	FFlareSpacecraftDescription* SpacecraftDesc = GetGame()->GetSpacecraftCatalog()->Get(ShipClass);
+	if (SpacecraftDesc)
+	{
+		InitialLabel = FText::Format(LOCTEXT("FlyShipFormat", "Fly a {0}-class ship"), SpacecraftDesc->Name);
+	}
 }
 
 bool UFlareQuestConditionFlyingShipClass::IsCompleted()
@@ -151,7 +157,7 @@ void UFlareQuestConditionFlyingShipClass::AddConditionObjectives(FFlarePlayerObj
 		AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
 
 		FFlarePlayerObjectiveCondition ObjectiveCondition;
-		ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("FlyShipFormat", "Fly a {0}-class ship"), SpacecraftDesc->Name);
+		ObjectiveCondition.InitialLabel = InitialLabel;
 		ObjectiveCondition.TerminalLabel = FText();
 		ObjectiveCondition.Progress = 0;
 		ObjectiveCondition.MaxProgress = 0;
@@ -182,6 +188,10 @@ void UFlareQuestConditionSectorActive::Load(UFlareQuest* ParentQuest, UFlareSimu
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::SECTOR_ACTIVE);
 	Sector = SectorParam;
+	if (Sector)
+	{
+		InitialLabel = FText::Format(LOCTEXT("BeInSectorFormat", "Fly in the sector \"{0}\""), Sector->GetSectorName());
+	}
 }
 
 bool UFlareQuestConditionSectorActive::IsCompleted()
@@ -194,7 +204,7 @@ void UFlareQuestConditionSectorActive::AddConditionObjectives(FFlarePlayerObject
 	if (Sector)
 	{
 		FFlarePlayerObjectiveCondition ObjectiveCondition;
-		ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("BeInSectorFormat", "Fly in the sector \"{0}\""), Sector->GetSectorName());
+		ObjectiveCondition.InitialLabel = InitialLabel;
 		ObjectiveCondition.TerminalLabel = FText();
 		ObjectiveCondition.Progress = 0;
 		ObjectiveCondition.MaxProgress = 0;
@@ -225,6 +235,10 @@ void UFlareQuestConditionSectorVisited::Load(UFlareQuest* ParentQuest, UFlareSim
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::SECTOR_VISITED);
 	Sector = SectorParam;
+	if (Sector)
+	{
+		InitialLabel = FText::Format(LOCTEXT("VisitSectorFormat", "Visit the sector \"{0}\""), Sector->GetSectorName());
+	}
 }
 
 bool UFlareQuestConditionSectorVisited::IsCompleted()
@@ -237,7 +251,7 @@ void UFlareQuestConditionSectorVisited::AddConditionObjectives(FFlarePlayerObjec
 	if (Sector)
 	{
 		FFlarePlayerObjectiveCondition ObjectiveCondition;
-		ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("VisitSectorFormat", "Visit the sector \"{0}\""), Sector->GetSectorName());
+		ObjectiveCondition.InitialLabel = InitialLabel;
 		ObjectiveCondition.TerminalLabel = FText();
 		ObjectiveCondition.Progress = 0;
 		ObjectiveCondition.MaxProgress = 0;
@@ -272,6 +286,9 @@ void UFlareQuestConditionMinCollinearVelocity::Load(UFlareQuest* ParentQuest, FN
 	LoadInternal(ParentQuest, ConditionIdentifier);
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	VelocityLimit = VelocityLimitParam;
+
+	FText ReachSpeedText = LOCTEXT("ReachMinSpeedFormat", "Reach at least {0} m/s forward");
+	InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(VelocityLimit)));
 }
 
 void UFlareQuestConditionMinCollinearVelocity::Restore(const FFlareBundle* Bundle)
@@ -331,11 +348,10 @@ void UFlareQuestConditionMinCollinearVelocity::AddConditionObjectives(FFlarePlay
 	{
 		float Velocity = GetCollinearVelocity();
 
-		FText ReachSpeedText = LOCTEXT("ReachMinSpeedFormat", "Reach at least {0} m/s forward");
 		FText ReachSpeedShortText = LOCTEXT("ReachMinSpeedShortFormat", "{0} m/s");
 
 		FFlarePlayerObjectiveCondition ObjectiveCondition;
-		ObjectiveCondition.InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(VelocityLimit)));
+		ObjectiveCondition.InitialLabel = InitialLabel;
 		ObjectiveCondition.TerminalLabel = FText::Format(ReachSpeedShortText, FText::AsNumber((int)(Velocity)));
 		ObjectiveCondition.Counter = 0;
 		ObjectiveCondition.MaxCounter = 0;
@@ -375,6 +391,9 @@ void UFlareQuestConditionMaxCollinearVelocity::Load(UFlareQuest* ParentQuest, FN
 	LoadInternal(ParentQuest, ConditionIdentifier);
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	VelocityLimit = VelocityLimitParam;
+
+	FText ReachSpeedText = LOCTEXT("ReachMinSpeedFormat", "Reach at least {0} m/s backward");
+	InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(-VelocityLimit)));
 }
 
 void UFlareQuestConditionMaxCollinearVelocity::Restore(const FFlareBundle* Bundle)
@@ -433,11 +452,10 @@ void UFlareQuestConditionMaxCollinearVelocity::AddConditionObjectives(FFlarePlay
 	{
 		float Velocity = GetCollinearVelocity();
 
-		FText ReachSpeedText = LOCTEXT("ReachMinSpeedFormat", "Reach at least {0} m/s backward");
 		FText ReachSpeedShortText = LOCTEXT("ReachMinSpeedShortFormat", "{0} m/s");
 
 		FFlarePlayerObjectiveCondition ObjectiveCondition;
-		ObjectiveCondition.InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(-VelocityLimit)));
+		ObjectiveCondition.InitialLabel = InitialLabel;
 		ObjectiveCondition.TerminalLabel = FText::Format(ReachSpeedShortText, FText::AsNumber((int)(Velocity)));
 		ObjectiveCondition.Counter = 0;
 		ObjectiveCondition.MaxCounter = 0;
@@ -454,7 +472,25 @@ void UFlareQuestConditionMaxCollinearVelocity::AddConditionObjectives(FFlarePlay
 }
 
 // Static helper
-static void GenerateConditionCollinearityObjective(AFlareSpacecraft* Spacecraft, FFlarePlayerObjectiveData* ObjectiveData, bool MaxLimit, float TargetCollinearity)
+static FText GenerateConditionCollinearityInitialLabel(bool MaxLimit, float TargetCollinearity)
+{
+	float TargetAlignmentAngle = FMath::RadiansToDegrees(FMath::Acos(TargetCollinearity));
+
+	FText MostOrLeast;
+	if (MaxLimit)
+	{
+		MostOrLeast = LOCTEXT("Least", "least");
+	}
+	else
+	{
+		MostOrLeast = LOCTEXT("Most", "most");
+	}
+
+	return FText::Format(LOCTEXT("MisAlignFormat", "Put at {0} {1}\u00B0 between your nose and your prograde vector"),
+		MostOrLeast, FText::AsNumber((int)(TargetAlignmentAngle)));
+}
+
+static void GenerateConditionCollinearityObjective(UFlareQuestCondition* Condition, AFlareSpacecraft* Spacecraft, FFlarePlayerObjectiveData* ObjectiveData, bool MaxLimit, float TargetCollinearity)
 {
 	if (Spacecraft)
 	{
@@ -469,10 +505,8 @@ static void GenerateConditionCollinearityObjective(AFlareSpacecraft* Spacecraft,
 
 		FFlarePlayerObjectiveCondition ObjectiveCondition;
 		ObjectiveCondition.MaxProgress = 1.0f;
-		FText MostOrLeast;
 		if (MaxLimit)
 		{
-			MostOrLeast = LOCTEXT("Least", "least");
 			if (AlignmentAngle > TargetAlignmentAngle)
 			{
 				ObjectiveCondition.Progress = 1.0;
@@ -484,7 +518,6 @@ static void GenerateConditionCollinearityObjective(AFlareSpacecraft* Spacecraft,
 		}
 		else
 		{
-			MostOrLeast = LOCTEXT("Most", "most");
 			if (AlignmentAngle < TargetAlignmentAngle)
 			{
 				ObjectiveCondition.Progress = 1.0;
@@ -495,8 +528,7 @@ static void GenerateConditionCollinearityObjective(AFlareSpacecraft* Spacecraft,
 			}
 		}
 
-		ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("MisAlignFormat", "Put at {0} {1}\u00B0 between your nose and your prograde vector"),
-			MostOrLeast, FText::AsNumber((int)(TargetAlignmentAngle)));
+		ObjectiveCondition.InitialLabel = Condition->GetInitialLabel();
 		ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("MisAlignShortFormat", "{0}\u00B0"),
 			FText::AsNumber((int)(AlignmentAngle)));
 		ObjectiveCondition.Counter = 0;
@@ -525,6 +557,8 @@ void UFlareQuestConditionMinCollinear::Load(UFlareQuest* ParentQuest, float Coll
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::FLY_SHIP);
 	CollinearLimit = CollinearLimitParam;
+
+	InitialLabel = GenerateConditionCollinearityInitialLabel(false, CollinearLimit);
 }
 
 float UFlareQuestConditionMinCollinear::GetCollinear()
@@ -553,7 +587,7 @@ bool UFlareQuestConditionMinCollinear::IsCompleted()
 void UFlareQuestConditionMinCollinear::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
 	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
-	GenerateConditionCollinearityObjective(Spacecraft, ObjectiveData, false, CollinearLimit);
+	GenerateConditionCollinearityObjective(this, Spacecraft, ObjectiveData, false, CollinearLimit);
 }
 
 /*----------------------------------------------------
@@ -576,6 +610,7 @@ void UFlareQuestConditionMaxCollinear::Load(UFlareQuest* ParentQuest, float Coll
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::FLY_SHIP);
 	CollinearLimit = CollinearLimitParam;
+	InitialLabel = GenerateConditionCollinearityInitialLabel(true, CollinearLimit);
 }
 
 float UFlareQuestConditionMaxCollinear::GetCollinear()
@@ -604,15 +639,15 @@ bool UFlareQuestConditionMaxCollinear::IsCompleted()
 void UFlareQuestConditionMaxCollinear::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
 	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
-	GenerateConditionCollinearityObjective(Spacecraft, ObjectiveData, true, CollinearLimit);
+	GenerateConditionCollinearityObjective(this, Spacecraft, ObjectiveData, true, CollinearLimit);
 }
 
-
 // Helper
-void GenerateMaxRotationVelocityConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData, FVector LocalAxis, float Velocity, float AngularVelocityLimit)
+static FText GenerateMaxRotationVelocityConditionInitialLabel(FVector LocalAxis, float AngularVelocityLimit)
 {
 	FText Direction;
 	FText ReachSpeedText;
+	float Sign = FMath::Sign(AngularVelocityLimit);
 
 	if(LocalAxis.Y > 0)
 	{
@@ -630,11 +665,17 @@ void GenerateMaxRotationVelocityConditionObjectives(FFlarePlayerObjectiveData* O
 		ReachSpeedText = LOCTEXT("ReachRollFormat", "Reach a roll rate of {0} \u00B0/s {1}");
 	}
 
+	return FText::Format(ReachSpeedText, FText::AsNumber((int)(Sign * AngularVelocityLimit)), Direction);
+}
+
+// Helper
+static void GenerateMaxRotationVelocityConditionObjectives(UFlareQuestCondition* Condition, FFlarePlayerObjectiveData* ObjectiveData, float Velocity, float AngularVelocityLimit)
+{
 	FText ReachSpeedShortText = LOCTEXT("ReachPitchShortFormat", "{0}\u00B0/s");
 	float Sign = FMath::Sign(AngularVelocityLimit);
 
 	FFlarePlayerObjectiveCondition ObjectiveCondition;
-	ObjectiveCondition.InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(Sign * AngularVelocityLimit)), Direction);
+	ObjectiveCondition.InitialLabel = Condition->GetInitialLabel();
 	ObjectiveCondition.TerminalLabel = FText::Format(ReachSpeedShortText, FText::AsNumber((int)(Sign * Velocity)));
 	ObjectiveCondition.Counter = 0;
 	ObjectiveCondition.MaxCounter = 0;
@@ -665,6 +706,7 @@ void UFlareQuestConditionMinRotationVelocity::Load(UFlareQuest* ParentQuest, FVe
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	AngularVelocityLimit = AngularVelocityLimitParam;
 	LocalAxis = LocalAxisParam;
+	InitialLabel = GenerateMaxRotationVelocityConditionInitialLabel (LocalAxis, AngularVelocityLimit);
 }
 
 float UFlareQuestConditionMinRotationVelocity::GetVelocityInAxis()
@@ -687,7 +729,7 @@ bool UFlareQuestConditionMinRotationVelocity::IsCompleted()
 
 void UFlareQuestConditionMinRotationVelocity::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
-	GenerateMaxRotationVelocityConditionObjectives(ObjectiveData, LocalAxis, GetVelocityInAxis(), AngularVelocityLimit);
+	GenerateMaxRotationVelocityConditionObjectives(this, ObjectiveData, GetVelocityInAxis(), AngularVelocityLimit);
 }
 
 /*----------------------------------------------------
@@ -711,6 +753,7 @@ void UFlareQuestConditionMaxRotationVelocity::Load(UFlareQuest* ParentQuest, FVe
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	AngularVelocityLimit = AngularVelocityLimitParam;
 	LocalAxis = LocalAxisParam;
+	InitialLabel = GenerateMaxRotationVelocityConditionInitialLabel (LocalAxis, AngularVelocityLimit);
 }
 
 float UFlareQuestConditionMaxRotationVelocity::GetVelocityInAxis()
@@ -733,7 +776,7 @@ bool UFlareQuestConditionMaxRotationVelocity::IsCompleted()
 
 void UFlareQuestConditionMaxRotationVelocity::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
-	GenerateMaxRotationVelocityConditionObjectives(ObjectiveData, LocalAxis, GetVelocityInAxis(), AngularVelocityLimit);
+	GenerateMaxRotationVelocityConditionObjectives(this, ObjectiveData, GetVelocityInAxis(), AngularVelocityLimit);
 }
 
 /*----------------------------------------------------
@@ -756,6 +799,7 @@ void UFlareQuestConditionShipAlive::Load(UFlareQuest* ParentQuest, FName ShipIde
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::FLY_SHIP);
 	ShipIdentifier = ShipIdentifierParam;
+	InitialLabel = FText::Format(LOCTEXT("ShipAliveFormat", "{0} must stay alive"), FText::FromName(ShipIdentifier));
 }
 
 bool UFlareQuestConditionShipAlive::IsShipAlive()
@@ -772,7 +816,7 @@ bool UFlareQuestConditionShipAlive::IsCompleted()
 void UFlareQuestConditionShipAlive::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
 	FFlarePlayerObjectiveCondition ObjectiveCondition;
-	ObjectiveCondition.InitialLabel = FText::Format(LOCTEXT("ShipAliveFormat", "{0} must stay alive"), FText::FromName(ShipIdentifier));
+	ObjectiveCondition.InitialLabel = InitialLabel;
 	ObjectiveCondition.TerminalLabel = FText();
 	ObjectiveCondition.Progress = 0;
 	ObjectiveCondition.MaxProgress = 0;
