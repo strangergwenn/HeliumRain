@@ -275,7 +275,7 @@ void SFlareQuestMenu::FillActiveQuestList()
 	{
 		UFlareQuest* Quest = ActiveQuests[QuestIndex];
 
-		FText TrackedQuest = (Quest == QuestManager->GetSelectedQuest()) ? LOCTEXT("TrackedQuest", ", tracked") : FText();
+		FText TrackedQuest = (Quest == QuestManager->GetSelectedQuest()) ? LOCTEXT("TrackedQuest", "(Tracked)") : FText();
 
 		ActiveQuestList->AddSlot()
 		.Padding(Theme.SmallContentPadding)
@@ -291,10 +291,8 @@ void SFlareQuestMenu::FillActiveQuestList()
 			[
 				SNew(SFlareButton)
 				.Width(10)
-				.Text(FText::Format(LOCTEXT("ActiveQuestTitleFormat", "{0} ({1} / {2}{3})"),
+				.Text(FText::Format(LOCTEXT("ActiveQuestTitleFormat", "{0} {1}"),
 					Quest->GetQuestName(),
-					FText::AsNumber(Quest->GetSuccessfullStepCount()),
-					FText::AsNumber(Quest->GetStepCount()),
 					TrackedQuest))
 				.HelpText(LOCTEXT("SelectActiveQuestInfo", "Take a closer look at this quest"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestSelected, Quest)
@@ -572,14 +570,7 @@ FText SFlareQuestMenu::GetSelectedQuestTitle() const
 	FCHECK(QuestManager);
 
 	// Get selected quest
-	if (QuestManager->IsQuestActive(SelectedQuest))
-	{
-		return FText::Format(LOCTEXT("SelectedActiveQuestTitleFormat", "{0} ({1} / {2})"),
-			SelectedQuest->GetQuestName(),
-			FText::AsNumber(SelectedQuest->GetSuccessfullStepCount()),
-			FText::AsNumber(SelectedQuest->GetStepCount()));
-	}
-	else if (SelectedQuest)
+	if (SelectedQuest)
 	{
 		return SelectedQuest->GetQuestName();
 	}
@@ -678,6 +669,8 @@ void SFlareQuestMenu::OnQuestTracked(UFlareQuest* Quest)
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	FCHECK(QuestManager);
 	QuestManager->SelectQuest(Quest);
+
+	FillActiveQuestList();
 }
 
 void SFlareQuestMenu::OnQuestSelected(UFlareQuest* Quest)

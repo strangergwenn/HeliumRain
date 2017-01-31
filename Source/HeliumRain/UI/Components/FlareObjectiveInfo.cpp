@@ -210,8 +210,7 @@ FText SFlareObjectiveInfo::GetName() const
 
 	if (Objective)
 	{
-		return FText::Format(LOCTEXT("ObjectiveTextFormat", "{0} ({1}/{2})"),
-			Objective->Data.Name, FText::AsNumber(Objective->Data.StepsDone + 1), FText::AsNumber(Objective->Data.StepsCount));
+		return Objective->Data.Name;
 	}
 	else
 	{
