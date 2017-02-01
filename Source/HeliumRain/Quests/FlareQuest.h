@@ -69,7 +69,7 @@ public:
 
 	virtual void EndStep();
 
-	virtual void NextStep();
+	virtual void NextStep(bool Silent = false);
 
 	virtual void Success();
 

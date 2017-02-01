@@ -63,7 +63,7 @@ void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 
 	}
 
-	NextStep();
+	NextStep(true);
 }
 
 FFlareQuestProgressSave* UFlareQuest::Save()
@@ -169,7 +169,7 @@ void UFlareQuest::EndStep()
 	NextStep();
 }
 
-void UFlareQuest::NextStep()
+void UFlareQuest::NextStep(bool Silent)
 {
 	// Clear step progress
 
@@ -191,8 +191,11 @@ void UFlareQuest::NextStep()
 				Step->Init();
 				Step->PerformInitActions();
 
-				FText MessageText = FormatTags(Step->GetStepDescription());
-				SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
+				if (!Silent)
+				{
+					FText MessageText = FormatTags(Step->GetStepDescription());
+					SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
+				}
 
 				QuestManager->LoadCallbacks(this);
 				UpdateState();
@@ -423,6 +426,9 @@ void UFlareQuest::StartObjectiveTracking()
 	TrackObjectives = true;
 	QuestManager->GetGame()->GetPC()->CompleteObjective();
 	UpdateObjectiveTracker();
+
+	FText MessageText = FormatTags(CurrentStep->GetStepDescription());
+	SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
 }
 
 void UFlareQuest::StopObjectiveTracking()
