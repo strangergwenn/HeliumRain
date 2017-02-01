@@ -346,7 +346,12 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 	{
 		FText Text = LOCTEXT("Quest successful", "Contract successful");
 		FText Info = Quest->GetQuestName();
-		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status"), EFlareNotification::NT_Quest));
+
+		FFlareMenuParameterData Data;
+		Data.Quest = Quest;
+
+		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status")),
+			EFlareNotification::NT_Quest, false, EFlareMenu::MENU_Quest, Data);
 	}
 
 	if (Quest == SelectedQuest)
@@ -369,7 +374,12 @@ void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 	{
 		FText Text = LOCTEXT("Quest failed", "Contract failed");
 		FText Info = Quest->GetQuestName();
-		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status"), EFlareNotification::NT_Quest));
+
+		FFlareMenuParameterData Data;
+		Data.Quest = Quest;
+
+		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status")),
+			EFlareNotification::NT_Quest, false, EFlareMenu::MENU_Quest, Data);
 	}
 
 	if (Quest == SelectedQuest)
@@ -390,7 +400,12 @@ void UFlareQuestManager::OnQuestAvailable(UFlareQuest* Quest)
 	{
 		FText Text = LOCTEXT("New quest", "New contract available");
 		FText Info = Quest->GetQuestName();
-		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status"), EFlareNotification::NT_Quest));
+
+		FFlareMenuParameterData Data;
+		Data.Quest = Quest;
+
+		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status")),
+			EFlareNotification::NT_Quest, false, EFlareMenu::MENU_Quest, Data);
 	}
 
 	OnQuestStatusChanged(Quest);
@@ -407,7 +422,12 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 	{
 		FText Text = LOCTEXT("New quest", "New contract started");
 		FText Info = Quest->GetQuestName();
-		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status"), EFlareNotification::NT_Quest));
+
+		FFlareMenuParameterData Data;
+		Data.Quest = Quest;
+
+		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status")),
+			EFlareNotification::NT_Quest, false, EFlareMenu::MENU_Quest, Data);
 	}
 
 	if (!SelectedQuest)
