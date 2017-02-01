@@ -64,10 +64,7 @@ protected:
 	/*----------------------------------------------------
 		Content callbacks
 	----------------------------------------------------*/
-
-	/** Get the selected quest title */
-	FText GetSelectedQuestTitle() const;
-
+	
 	/** Get the active quest description */
 	FText GetQuestStepDescription(UFlareQuestStep* QuestStep) const;
 

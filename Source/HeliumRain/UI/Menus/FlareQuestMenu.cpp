@@ -118,23 +118,7 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 					SNew(SBox)
 					.WidthOverride(Theme.ContentWidth)
 					[
-						SNew(SVerticalBox)
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.TitlePadding)
-						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.SubTitleFont)
-							.Text(this, &SFlareQuestMenu::GetSelectedQuestTitle)
-						]
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						[
-							SAssignNew(QuestDetails, SVerticalBox)
-						]
+						SAssignNew(QuestDetails, SVerticalBox)
 					]
 				]
 			]
@@ -415,13 +399,57 @@ void SFlareQuestMenu::FillQuestDetails()
 	// Get active quest
 	if (SelectedQuest)
 	{
+		UFlareCompany* ClientCompany = MenuManager->GetGame()->GetGameWorld()->FindCompanyByShortName("HFR");
+
 		// Header
 		QuestDetails->AddSlot()
-		.Padding(FMargin(0, 0, 0, 20))
+		.HAlign(HAlign_Fill)
 		[
-			SNew(STextBlock)
-			.TextStyle(&Theme.TextFont)
-			.Text(SelectedQuest->GetQuestDescription())
+			SNew(SHorizontalBox)
+
+			+ SHorizontalBox::Slot()
+			[
+				SNew(SVerticalBox)
+
+				// Title
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(SelectedQuest->GetQuestName())
+				]
+
+				// Description
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(SelectedQuest->GetQuestDescription())
+				]
+
+				// Client info
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(FText::Format(LOCTEXT("QuestInfoFormat", "This contract is offered by {0}."), ClientCompany->GetCompanyName()))
+				]
+			]
+
+			// Emblem
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(SImage)
+				.Image(ClientCompany->GetEmblem())
+			]
 		];
 
 		// Get progress info
@@ -595,22 +623,6 @@ TSharedPtr<SVerticalBox> SFlareQuestMenu::AddQuestDetail(UFlareQuestStep* QuestS
 /*----------------------------------------------------
 	Content callbacks
 ----------------------------------------------------*/
-
-FText SFlareQuestMenu::GetSelectedQuestTitle() const
-{
-	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
-	FCHECK(QuestManager);
-
-	// Get selected quest
-	if (SelectedQuest)
-	{
-		return SelectedQuest->GetQuestName();
-	}
-	else
-	{
-		return FText();
-	}
-}
 
 FText SFlareQuestMenu::GetQuestStepDescription(UFlareQuestStep* QuestStep) const
 {
