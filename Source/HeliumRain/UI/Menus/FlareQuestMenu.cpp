@@ -324,7 +324,7 @@ void SFlareQuestMenu::FillActiveQuestList()
 				.Text(LOCTEXT("SelectQuest", "Track"))
 				.HelpText(LOCTEXT("SelectQuestInfo", "Activate this quest and track its progress"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestTracked, Quest)
-				.Visibility(this, &SFlareQuestMenu::GetTrackButtonVisibility, Quest)
+				.IsDisabled(this, &SFlareQuestMenu::IsTrackButtonDisabled, Quest)
 			]
 
 			// Abandon
@@ -644,12 +644,12 @@ EVisibility SFlareQuestMenu::GetQuestStepDescriptionVisibility(UFlareQuestStep* 
 	}
 }
 
-EVisibility SFlareQuestMenu::GetTrackButtonVisibility(UFlareQuest* Quest) const
+bool SFlareQuestMenu::IsTrackButtonDisabled(UFlareQuest* Quest) const
 {
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	FCHECK(QuestManager);
 
-	return (Quest == QuestManager->GetSelectedQuest()) ? EVisibility::Hidden : EVisibility::Visible;
+	return (Quest == QuestManager->GetSelectedQuest());
 }
 
 FSlateColor SFlareQuestMenu::GetQuestColor(UFlareQuest* Quest) const

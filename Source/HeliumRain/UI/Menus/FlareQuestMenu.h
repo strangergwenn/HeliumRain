@@ -78,7 +78,7 @@ protected:
 	FSlateColor GetQuestColor(UFlareQuest* Quest) const;
 
 	/** Is the "track" button disabled */
-	EVisibility GetTrackButtonVisibility(UFlareQuest* Quest) const;
+	bool IsTrackButtonDisabled(UFlareQuest* Quest) const;
 	
 
 	/*----------------------------------------------------
