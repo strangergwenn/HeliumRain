@@ -35,6 +35,7 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 		// Content block
 		+ SVerticalBox::Slot()
 		.VAlign(VAlign_Top)
+		.Padding(Theme.ContentPadding)
 		[
 			SNew(SHorizontalBox)
 
@@ -246,6 +247,20 @@ void SFlareQuestMenu::FillAvailableQuestList()
 				.HelpText(LOCTEXT("AcceptQuestInfo", "Accept this quest"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestAccepted, Quest)
 			]
+			/*
+			// Reject
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(FMargin(0))
+			[
+				SNew(SFlareButton)
+				.Transparent(true)
+				.Text(FText())
+				.HelpText(LOCTEXT("RejectQuestInfo", "Reject this quest"))
+				.Icon(FFlareStyleSet::GetIcon("Stop"))
+				.OnClicked(this, &SFlareQuestMenu::OnQuestRejected, Quest)
+				.Width(1)
+			]*/
 		];
 	}
 
@@ -310,6 +325,20 @@ void SFlareQuestMenu::FillActiveQuestList()
 				.HelpText(LOCTEXT("SelectQuestInfo", "Activate this quest and track its progress"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestTracked, Quest)
 				.Visibility(this, &SFlareQuestMenu::GetTrackButtonVisibility, Quest)
+			]
+
+			// Abandon
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(FMargin(0))
+			[
+				SNew(SFlareButton)
+				.Transparent(true)
+				.Text(FText())
+				.HelpText(LOCTEXT("AbandonQuestInfo", "Abandon this quest"))
+				.Icon(FFlareStyleSet::GetIcon("Stop"))
+				.OnClicked(this, &SFlareQuestMenu::OnQuestAbandoned, Quest)
+				.Width(1)
 			]
 		];
 	}
@@ -645,7 +674,7 @@ FSlateColor SFlareQuestMenu::GetQuestColor(UFlareQuest* Quest) const
 			case EFlareQuestStatus::AVAILABLE:
 			case EFlareQuestStatus::ACTIVE:
 			case EFlareQuestStatus::SUCCESSFUL:  return Theme.NeutralColor;
-			case EFlareQuestStatus::ABANDONNED:  
+			case EFlareQuestStatus::ABANDONED:  
 			case EFlareQuestStatus::FAILED:
 			default:                             return Theme.EnemyColor;
 		}
@@ -665,6 +694,16 @@ void SFlareQuestMenu::OnQuestAccepted(UFlareQuest* Quest)
 
 	FillAvailableQuestList();
 	FillActiveQuestList();
+}
+
+void SFlareQuestMenu::OnQuestAbandoned(UFlareQuest* Quest)
+{
+	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
+	FCHECK(QuestManager);
+	QuestManager->AbandonQuest(Quest);
+
+	FillActiveQuestList();
+	FillPreviousQuestList();
 }
 
 void SFlareQuestMenu::OnQuestTracked(UFlareQuest* Quest)

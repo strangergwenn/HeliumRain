@@ -84,7 +84,7 @@ struct FFlareQuestSave
 	TArray<FName> SuccessfulQuests;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FName> AbandonnedQuests;
+	TArray<FName> AbandonedQuests;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FName> FailedQuests;
@@ -128,6 +128,9 @@ public:
 	/** Accept this quest */
 	void AcceptQuest(UFlareQuest* Quest);
 
+	/** Abandon this quest */
+	void AbandonQuest(UFlareQuest* Quest);
+		
 	/** Select this quest */
 	void SelectQuest(UFlareQuest* Quest);
 

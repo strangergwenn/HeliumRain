@@ -115,11 +115,11 @@ void UFlareQuestManager::AddQuest(UFlareQuest* Quest)
 		OldQuests.Add(Quest);
 		Quest->SetStatus(EFlareQuestStatus::SUCCESSFUL);
 	}
-	else if (QuestData.AbandonnedQuests.Contains(Quest->GetIdentifier()))
+	else if (QuestData.AbandonedQuests.Contains(Quest->GetIdentifier()))
 	{
-		FLOGV("Found abandonned quest %s", *Quest->GetIdentifier().ToString());
+		FLOGV("Found abandoned quest %s", *Quest->GetIdentifier().ToString());
 		OldQuests.Add(Quest);
-		Quest->SetStatus(EFlareQuestStatus::ABANDONNED);
+		Quest->SetStatus(EFlareQuestStatus::ABANDONED);
 	}
 	else if (QuestData.FailedQuests.Contains(Quest->GetIdentifier()))
 	{
@@ -148,7 +148,7 @@ FFlareQuestSave* UFlareQuestManager::Save()
 {
 	QuestData.QuestProgresses.Empty();
 	QuestData.SuccessfulQuests.Empty();
-	QuestData.AbandonnedQuests.Empty();
+	QuestData.AbandonedQuests.Empty();
 	QuestData.FailedQuests.Empty();
 
 	QuestData.SelectedQuest = (SelectedQuest ? SelectedQuest->GetIdentifier() : NAME_None);
@@ -168,8 +168,8 @@ FFlareQuestSave* UFlareQuestManager::Save()
 			case EFlareQuestStatus::SUCCESSFUL:
 				QuestData.SuccessfulQuests.Add(Quest->GetIdentifier());
 				break;
-			case EFlareQuestStatus::ABANDONNED:
-				QuestData.AbandonnedQuests.Add(Quest->GetIdentifier());
+			case EFlareQuestStatus::ABANDONED:
+				QuestData.AbandonedQuests.Add(Quest->GetIdentifier());
 				break;
 			case EFlareQuestStatus::FAILED:
 				QuestData.FailedQuests.Add(Quest->GetIdentifier());
@@ -194,6 +194,13 @@ void UFlareQuestManager::AcceptQuest(UFlareQuest* Quest)
 	FLOGV("Accept quest %s", *Quest->GetIdentifier().ToString());
 
 	Quest->Accept();
+}
+
+void UFlareQuestManager::AbandonQuest(UFlareQuest* Quest)
+{
+	FLOGV("Abandon quest %s", *Quest->GetIdentifier().ToString());
+
+	Quest->Abandon();
 }
 
 void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)

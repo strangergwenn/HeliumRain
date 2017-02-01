@@ -18,7 +18,7 @@ namespace EFlareQuestStatus
 		AVAILABLE, // Wait acceptation
 		ACTIVE, // In progress
 		SUCCESSFUL,
-		ABANDONNED,
+		ABANDONED,
 		FAILED
 	};
 }
@@ -72,6 +72,8 @@ public:
 	virtual void NextStep();
 
 	virtual void Success();
+
+	virtual void Abandon();
 
 	virtual void Fail();
 

@@ -231,6 +231,19 @@ void UFlareQuest::Fail()
 	QuestManager->OnQuestFail(this);
 }
 
+void UFlareQuest::Abandon()
+{
+	if (QuestStatus == EFlareQuestStatus::ABANDONED)
+	{
+		// Already abandoned
+		return;
+	}
+
+	SetStatus(EFlareQuestStatus::ABANDONED);
+	UFlareQuestAction::PerformActions(FailActions);
+	QuestManager->OnQuestFail(this);
+}
+
 void UFlareQuest::MakeAvailable()
 {
 	if (QuestStatus == EFlareQuestStatus::AVAILABLE)
@@ -529,11 +542,11 @@ FText UFlareQuest::GetStatusText() const
 {
 	switch (QuestStatus)
 	{
-		case EFlareQuestStatus::PENDING:    return LOCTEXT("QuestPending", "Pending");   break;
+		case EFlareQuestStatus::PENDING:      return LOCTEXT("QuestPending", "Pending");       break;
 		case EFlareQuestStatus::AVAILABLE:    return LOCTEXT("QuestAvailable", "Available");   break;
 		case EFlareQuestStatus::ACTIVE:       return LOCTEXT("QuestActive", "Active");         break;
 		case EFlareQuestStatus::SUCCESSFUL:   return LOCTEXT("QuestCompleted", "Completed");   break;
-		case EFlareQuestStatus::ABANDONNED:   return LOCTEXT("QuestAbandonned", "Abandonned"); break;
+		case EFlareQuestStatus::ABANDONED:    return LOCTEXT("QuestAbandoned", "Abandoned");   break;
 		case EFlareQuestStatus::FAILED:       return LOCTEXT("QuestFailed", "Failed");         break;
 		default:                              return LOCTEXT("QuestUnknown", "Unknown");       break;
 	}

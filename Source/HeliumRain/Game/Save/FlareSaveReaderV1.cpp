@@ -120,7 +120,7 @@ void UFlareSaveReaderV1::LoadQuest(const TSharedPtr<FJsonObject> Object, FFlareQ
 	}
 
 	LoadFNameArray(Object, "SuccessfulQuests", &Data->SuccessfulQuests);
-	LoadFNameArray(Object, "AbandonnedQuests", &Data->AbandonnedQuests);
+	LoadFNameArray(Object, "AbandonedQuests", &Data->AbandonedQuests);
 	LoadFNameArray(Object, "FailedQuests", &Data->FailedQuests);
 	LoadFNameArray(Object, "AvailableQuests", &Data->AvailableQuests);
 }
