@@ -60,7 +60,7 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
-							.Text(LOCTEXT("ActiveQuestsTitle", "Active quests"))
+							.Text(LOCTEXT("ActiveQuestsTitle", "Active contracts"))
 						]
 
 						+ SVerticalBox::Slot()
@@ -76,7 +76,7 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
-							.Text(LOCTEXT("AvailableQuestsTitle", "Available quests"))
+							.Text(LOCTEXT("AvailableQuestsTitle", "Available contracts"))
 						]
 
 						+ SVerticalBox::Slot()
@@ -92,7 +92,7 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
-							.Text(LOCTEXT("PreviousQuestsTitle", "Previous quests"))
+							.Text(LOCTEXT("PreviousQuestsTitle", "Previous contracts"))
 						]
 
 						+ SVerticalBox::Slot()
@@ -231,7 +231,7 @@ void SFlareQuestMenu::FillAvailableQuestList()
 				SNew(SFlareButton)
 				.Width(10)
 				.Text(Quest->GetQuestName())
-				.HelpText(LOCTEXT("SelectActiveQuestInfo", "Take a closer look at this quest"))
+				.HelpText(LOCTEXT("SelectActiveQuestInfo", "Take a closer look at this contract"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestSelected, Quest)
 				.Color(this, &SFlareQuestMenu::GetQuestColor, Quest)
 			]
@@ -244,7 +244,7 @@ void SFlareQuestMenu::FillAvailableQuestList()
 				.Width(2.5)
 				.Icon(FFlareStyleSet::GetIcon("OK"))
 				.Text(LOCTEXT("AcceptQuest", "Accept"))
-				.HelpText(LOCTEXT("AcceptQuestInfo", "Accept this quest"))
+				.HelpText(LOCTEXT("AcceptQuestInfo", "Accept this contract"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestAccepted, Quest)
 			]
 			/*
@@ -271,7 +271,7 @@ void SFlareQuestMenu::FillAvailableQuestList()
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
-			.Text(LOCTEXT("NoAvailableQuest", "No available quest."))
+			.Text(LOCTEXT("NoAvailableQuest", "No available contract."))
 		];
 	}
 }
@@ -309,7 +309,7 @@ void SFlareQuestMenu::FillActiveQuestList()
 				.Text(FText::Format(LOCTEXT("ActiveQuestTitleFormat", "{0} {1}"),
 					Quest->GetQuestName(),
 					TrackedQuest))
-				.HelpText(LOCTEXT("SelectActiveQuestInfo", "Take a closer look at this quest"))
+				.HelpText(LOCTEXT("SelectActiveQuestInfo", "Take a closer look at this contract"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestSelected, Quest)
 				.Color(this, &SFlareQuestMenu::GetQuestColor, Quest)
 			]
@@ -322,7 +322,7 @@ void SFlareQuestMenu::FillActiveQuestList()
 				.Width(2.5)
 				.Icon(FFlareStyleSet::GetIcon("Travel"))
 				.Text(LOCTEXT("SelectQuest", "Track"))
-				.HelpText(LOCTEXT("SelectQuestInfo", "Activate this quest and track its progress"))
+				.HelpText(LOCTEXT("SelectQuestInfo", "Activate this contract and track its progress"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestTracked, Quest)
 				.IsDisabled(this, &SFlareQuestMenu::IsTrackButtonDisabled, Quest)
 			]
@@ -335,7 +335,7 @@ void SFlareQuestMenu::FillActiveQuestList()
 				SNew(SFlareButton)
 				.Transparent(true)
 				.Text(FText())
-				.HelpText(LOCTEXT("AbandonQuestInfo", "Abandon this quest"))
+				.HelpText(LOCTEXT("AbandonQuestInfo", "Abandon this contract"))
 				.Icon(FFlareStyleSet::GetIcon("Stop"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestAbandoned, Quest)
 				.Width(1)
@@ -350,7 +350,7 @@ void SFlareQuestMenu::FillActiveQuestList()
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
-			.Text(LOCTEXT("NoActiveQuest", "No active quest."))
+			.Text(LOCTEXT("NoActiveQuest", "No active contract."))
 		];
 	}
 }
@@ -384,7 +384,7 @@ void SFlareQuestMenu::FillPreviousQuestList()
 				.Text(FText::Format(LOCTEXT("SelectPreviousQuestFormat", "{0} ({1})"),
 					Quest->GetQuestName(),
 					Quest->GetStatusText()))
-				.HelpText(LOCTEXT("SelectPreviousQuestInfo", "Take a closer look at this quest"))
+				.HelpText(LOCTEXT("SelectPreviousQuestInfo", "Take a closer look at this contract"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestSelected, Quest)
 				.Color(this, &SFlareQuestMenu::GetQuestColor, Quest)
 			]
@@ -398,7 +398,7 @@ void SFlareQuestMenu::FillPreviousQuestList()
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
-			.Text(LOCTEXT("NoPreviousQuest", "No previous quest."))
+			.Text(LOCTEXT("NoPreviousQuest", "No previous contract."))
 		];
 	}
 }
@@ -531,7 +531,7 @@ void SFlareQuestMenu::FillQuestDetails()
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
-			.Text(LOCTEXT("NoSelectedQuest", "No quest selected."))
+			.Text(LOCTEXT("NoSelectedQuest", "No contract selected."))
 		];
 	}
 }

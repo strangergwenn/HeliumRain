@@ -344,7 +344,7 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 	// Quest successful notification
 	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
 	{
-		FText Text = LOCTEXT("Quest successful", "Quest successful");
+		FText Text = LOCTEXT("Quest successful", "Contract successful");
 		FText Info = Quest->GetQuestName();
 		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status"), EFlareNotification::NT_Quest));
 	}
@@ -367,7 +367,7 @@ void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 	// Quest failed notification
 	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
 	{
-		FText Text = LOCTEXT("Quest failed", "Quest failed");
+		FText Text = LOCTEXT("Quest failed", "Contract failed");
 		FText Info = Quest->GetQuestName();
 		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status"), EFlareNotification::NT_Quest));
 	}
@@ -388,7 +388,7 @@ void UFlareQuestManager::OnQuestAvailable(UFlareQuest* Quest)
 	// New quest notification
 	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
 	{
-		FText Text = LOCTEXT("New quest", "New quest available");
+		FText Text = LOCTEXT("New quest", "New contract available");
 		FText Info = Quest->GetQuestName();
 		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status"), EFlareNotification::NT_Quest));
 	}
@@ -405,7 +405,7 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 	// New quest notification
 	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
 	{
-		FText Text = LOCTEXT("New quest", "New quest started");
+		FText Text = LOCTEXT("New quest", "New contract started");
 		FText Info = Quest->GetQuestName();
 		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status"), EFlareNotification::NT_Quest));
 	}
