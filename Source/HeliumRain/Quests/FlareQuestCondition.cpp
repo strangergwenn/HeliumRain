@@ -943,6 +943,7 @@ void UFlareQuestConditionFollowRelativeWaypoints::Load(UFlareQuest* ParentQuest,
 	LoadInternal(ParentQuest, ConditionIdentifier);
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	VectorList = VectorListParam;
+	InitialLabel = LOCTEXT("FollowWaypoints", "Fly to waypoints");
 }
 
 void UFlareQuestConditionFollowRelativeWaypoints::Restore(const FFlareBundle* Bundle)
@@ -1038,7 +1039,7 @@ void UFlareQuestConditionFollowRelativeWaypoints::AddConditionObjectives(FFlareP
 {
 	Init();
 	FFlarePlayerObjectiveCondition ObjectiveCondition;
-	ObjectiveCondition.InitialLabel = LOCTEXT("FollowWaypoints", "Fly to waypoints");
+	ObjectiveCondition.InitialLabel = InitialLabel;
 	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
 	ObjectiveCondition.Counter = 0;
 	ObjectiveCondition.MaxCounter = VectorList.Num();
@@ -1092,6 +1093,7 @@ void UFlareQuestConditionFollowRandomWaypoints::Load(UFlareQuest* ParentQuest, F
 	}
 	LoadInternal(ParentQuest, ConditionIdentifier);
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+	InitialLabel = LOCTEXT("FollowWaypoints", "Fly to waypoints");
 }
 
 void UFlareQuestConditionFollowRandomWaypoints::Restore(const FFlareBundle* Bundle)
@@ -1207,7 +1209,7 @@ void UFlareQuestConditionFollowRandomWaypoints::AddConditionObjectives(FFlarePla
 {
 	Init();
 	FFlarePlayerObjectiveCondition ObjectiveCondition;
-	ObjectiveCondition.InitialLabel = LOCTEXT("FollowWaypoints", "Fly to waypoints");
+	ObjectiveCondition.InitialLabel = InitialLabel;
 	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
 	ObjectiveCondition.Counter = 0;
 	ObjectiveCondition.MaxCounter = Waypoints.Num();
