@@ -109,10 +109,13 @@ void UFlareQuestGenerator::GenerateIdentifer(FName QuestClass, FFlareBundle& Dat
 UFlareQuest* UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 {
 	UFlareQuestGenerated* Quest = UFlareQuestGeneratedVipTransport::Create(this, Sector);
-	QuestManager->AddQuest(Quest);
-	GeneratedQuests.Add(Quest);
-	QuestManager->LoadCallbacks(Quest);
-	Quest->UpdateState();
+	if (Quest)
+	{
+		QuestManager->AddQuest(Quest);
+		GeneratedQuests.Add(Quest);
+		QuestManager->LoadCallbacks(Quest);
+		Quest->UpdateState();
+	}
 	return Quest;
 }
 
@@ -283,15 +286,6 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 	QuestCategory = EFlareQuestCategory::SECONDARY;
 
 
-	// Select a source station (in the given sector)
-
-	// Dock with a S or L Cargo
-
-	// Save the docked ship
-
-	// Dock the ship to station 2
-
-
 	FName PickUpShipId = "pick-up-ship-id";
 
 	{
@@ -305,6 +299,7 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 
 		Step->GetEndConditions().Add(Condition);
 		Step->GetFailConditions().Add(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station1));
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector1));
 		Steps.Add(Step);
 	}
 
@@ -319,6 +314,8 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 		Step->GetEndConditions().Add(Condition);
 
 		Step->GetFailConditions().Add(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, NULL, PickUpShipId));
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector2));
+
 		Steps.Add(Step);
 	}
 

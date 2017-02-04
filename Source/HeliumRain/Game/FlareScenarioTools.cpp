@@ -181,8 +181,10 @@ void UFlareScenarioTools::SetupWorld()
 	// Setup common stuff
 	SetupAsteroids();
 
+	// Setup player sector knwoleage
+	PlayerCompany->DiscoverSector(TheDepths);
+
 	// Discover public sectors
-	SetupKnownSectors(PlayerCompany);
 	SetupKnownSectors(MiningSyndicate);
 	SetupKnownSectors(HelixFoundries);
 	SetupKnownSectors(Sunwatch);
