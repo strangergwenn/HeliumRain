@@ -132,7 +132,7 @@ void UFlareSaveReaderV1::LoadQuestProgress(const TSharedPtr<FJsonObject> Object,
 	Object->TryGetBoolField(TEXT("Accepted"), Data->Accepted);
 
 	LoadFNameArray(Object, "SuccessfullSteps", &Data->SuccessfullSteps);
-
+	LoadBundle(Object, "Data", &Data->Data);
 
 	const TArray<TSharedPtr<FJsonValue>>* CurrentStepProgress;
 	if(Object->TryGetArrayField("CurrentStepProgress", CurrentStepProgress))
@@ -142,6 +142,17 @@ void UFlareSaveReaderV1::LoadQuestProgress(const TSharedPtr<FJsonObject> Object,
 			FFlareQuestConditionSave ChildData;
 			LoadQuestStepProgress(Item->AsObject(), &ChildData);
 			Data->CurrentStepProgress.Add(ChildData);
+		}
+	}
+
+	const TArray<TSharedPtr<FJsonValue>>* TriggerConditionsSave;
+	if(Object->TryGetArrayField("TriggerConditionsSave", TriggerConditionsSave))
+	{
+		for (TSharedPtr<FJsonValue> Item : *TriggerConditionsSave)
+		{
+			FFlareQuestConditionSave ChildData;
+			LoadQuestStepProgress(Item->AsObject(), &ChildData);
+			Data->TriggerConditionsSave.Add(ChildData);
 		}
 	}
 }
@@ -258,6 +269,16 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 		}
 	}
 
+	const TArray<TSharedPtr<FJsonValue>>* DestroyedSpacecrafts;
+	if(Object->TryGetArrayField("DestroyedSpacecrafts", DestroyedSpacecrafts))
+	{
+		for (TSharedPtr<FJsonValue> Item : *DestroyedSpacecrafts)
+		{
+			FFlareSpacecraftSave ChildData;
+			LoadSpacecraft(Item->AsObject(), &ChildData);
+			Data->DestroyedSpacecraftData.Add(ChildData);
+		}
+	}
 
 	const TArray<TSharedPtr<FJsonValue>>* Fleets;
 	if(Object->TryGetArrayField("Fleets", Fleets))
@@ -309,6 +330,7 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 
 void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FFlareSpacecraftSave* Data)
 {
+	Object->TryGetBoolField(TEXT("IsDestroyed"), Data->IsDestroyed);
 	LoadFName(Object, "Immatriculation", &Data->Immatriculation);
 	LoadFText(Object, "NickName", &Data->NickName);
 	LoadFName(Object, "Identifier", &Data->Identifier);

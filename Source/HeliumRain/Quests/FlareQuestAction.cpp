@@ -2,6 +2,7 @@
 #include "Flare.h"
 #include "FlareQuestAction.h"
 #include "../Game/FlareSimulatedSector.h"
+#include "../Game/FlareCompany.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestAction"
 
@@ -120,5 +121,64 @@ void UFlareQuestActionPrintMessage::Perform()
 	FText MessageText = Quest->FormatTags(Message);
 	Quest->SendQuestNotification(MessageText, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-message")));
 }
+
+/*----------------------------------------------------
+	Give money action
+----------------------------------------------------*/
+UFlareQuestActionGiveMoney::UFlareQuestActionGiveMoney(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestActionGiveMoney* UFlareQuestActionGiveMoney::Create(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam)
+{
+	UFlareQuestActionGiveMoney* Action = NewObject<UFlareQuestActionGiveMoney>(ParentQuest, UFlareQuestActionGiveMoney::StaticClass());
+	Action->Load(ParentQuest, FromCompanyParam, ToCompanyParam, AmountParam);
+	return Action;
+}
+
+void UFlareQuestActionGiveMoney::Load(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam)
+{
+	LoadInternal(ParentQuest);
+	FromCompany = FromCompanyParam;
+	ToCompany = ToCompanyParam;
+	Amount = AmountParam;
+}
+
+void UFlareQuestActionGiveMoney::Perform()
+{
+	FromCompany->TakeMoney(Amount, true);
+	ToCompany->GiveMoney(Amount);
+}
+
+
+/*----------------------------------------------------
+	Reputation change action
+----------------------------------------------------*/
+UFlareQuestActionReputationChange::UFlareQuestActionReputationChange(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestActionReputationChange* UFlareQuestActionReputationChange::Create(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam)
+{
+	UFlareQuestActionReputationChange* Action = NewObject<UFlareQuestActionReputationChange>(ParentQuest, UFlareQuestActionReputationChange::StaticClass());
+	Action->Load(ParentQuest, FromCompanyParam, ToCompanyParam, AmountParam);
+	return Action;
+}
+
+void UFlareQuestActionReputationChange::Load(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam)
+{
+	LoadInternal(ParentQuest);
+	FromCompany = FromCompanyParam;
+	ToCompany = ToCompanyParam;
+	Amount = AmountParam;
+}
+
+void UFlareQuestActionReputationChange::Perform()
+{
+	FromCompany->GiveReputation(ToCompany, Amount, true);
+}
+
 
 #undef LOCTEXT_NAMESPACE

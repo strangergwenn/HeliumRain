@@ -257,7 +257,9 @@ void UFlareQuestManager::LoadCallbacks(UFlareQuest* Quest)
 
 	for (int i = 0; i < Callbacks.Num(); i++)
 	{
-		switch (Callbacks[i])
+		CallbacksMap.FindOrAdd(Callbacks[i]).Add(Quest);
+
+		/*switch (Callbacks[i])
 		{
 		case EFlareQuestCallback::FLY_SHIP:
 			FlyShipCallback.Add(Quest);
@@ -271,19 +273,36 @@ void UFlareQuestManager::LoadCallbacks(UFlareQuest* Quest)
 		case EFlareQuestCallback::SECTOR_ACTIVE:
 			SectorActiveCallback.Add(Quest);
 			break;
+		case EFlareQuestCallback::SHIP_DOCKED:
+			ShipDockedCallback.Add(Quest);
+			break;
 		case EFlareQuestCallback::QUEST:
 			QuestCallback.Add(Quest);
 			break;
 		default:
 			FLOGV("Bad callback type %d for quest %s", (int)(Callbacks[i] + 0), *Quest->GetIdentifier().ToString());
-		}
+		}*/
 	}
 }
 
 void UFlareQuestManager::ClearCallbacks(UFlareQuest* Quest)
 {
-	TickFlyingCallback.Remove(Quest);
-	FlyShipCallback.Remove(Quest);
+	for (auto& Elem : CallbacksMap)
+	{
+		Elem.Value.Remove(Quest);
+	}
+}
+
+void UFlareQuestManager::OnCallbackEvent(EFlareQuestCallback::Type EventType)
+{
+	if (CallbacksMap.Contains(EventType))
+	{
+		TArray<UFlareQuest*> Callbacks = CallbacksMap[EventType];
+		for (UFlareQuest* Quest: Callbacks)
+		{
+			Quest->UpdateState();
+		}
+	}
 }
 
 void UFlareQuestManager::OnTick(float DeltaSeconds)
@@ -291,37 +310,39 @@ void UFlareQuestManager::OnTick(float DeltaSeconds)
 	if (GetGame()->GetActiveSector())
 	{
 		// Tick TickFlying callback only if there is an active sector
-		for (int i = 0; i < TickFlyingCallback.Num(); i++)
-		{
-			TickFlyingCallback[i]->OnTick(DeltaSeconds);
-		}
+		OnCallbackEvent(EFlareQuestCallback::TICK_FLYING);
 	}
 }
 
 void UFlareQuestManager::OnFlyShip(AFlareSpacecraft* Ship)
 {
-	for (int i = 0; i < FlyShipCallback.Num(); i++)
-	{
-		FlyShipCallback[i]->OnFlyShip(Ship);
-	}
+	OnCallbackEvent(EFlareQuestCallback::FLY_SHIP);
 }
 
 void UFlareQuestManager::OnSectorActivation(UFlareSimulatedSector* Sector)
 {
-	for (int i = 0; i < SectorActiveCallback.Num(); i++)
-	{
-		SectorActiveCallback[i]->OnSectorActivation(Sector);
-	}
+	OnCallbackEvent(EFlareQuestCallback::SECTOR_ACTIVE);
 }
 
 void UFlareQuestManager::OnSectorVisited(UFlareSimulatedSector* Sector)
 {
-	for (int i = 0; i < SectorVisitedCallback.Num(); i++)
-	{
-		SectorVisitedCallback[i]->OnSectorVisited(Sector);
-	}
+	OnCallbackEvent(EFlareQuestCallback::SECTOR_VISITED);
 }
 
+void UFlareQuestManager::OnShipDocked(UFlareSimulatedSpacecraft* Station, UFlareSimulatedSpacecraft* Ship)
+{
+	OnCallbackEvent(EFlareQuestCallback::SHIP_DOCKED);
+}
+
+void UFlareQuestManager::OnWarStateChanged(UFlareCompany* Company1, UFlareCompany* Company2)
+{
+	OnCallbackEvent(EFlareQuestCallback::WAR_STATE_CHANGED);
+}
+
+void UFlareQuestManager::OnSpacecraftDestroyed(UFlareSimulatedSpacecraft* Spacecraft)
+{
+	OnCallbackEvent(EFlareQuestCallback::SPACECRAFT_DESTROYED);
+}
 
 void UFlareQuestManager::OnTravelEnded(UFlareFleet* Fleet)
 {
@@ -336,10 +357,7 @@ void UFlareQuestManager::OnQuestStatusChanged(UFlareQuest* Quest)
 {
 	LoadCallbacks(Quest);
 
-	for (int i = 0; i < QuestCallback.Num(); i++)
-	{
-		QuestCallback[i]->OnQuestStatusChanged(Quest);
-	}
+	OnCallbackEvent(EFlareQuestCallback::QUEST_CHANGED);
 }
 
 void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)

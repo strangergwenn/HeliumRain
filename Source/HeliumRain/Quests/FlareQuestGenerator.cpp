@@ -2,9 +2,13 @@
 #include "Flare.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSimulatedSector.h"
+#include "../Player/FlarePlayerController.h"
 #include "FlareQuestGenerator.h"
 #include "FlareQuestManager.h"
+#include "FlareQuestCondition.h"
 #include "FlareQuest.h"
+#include "FlareQuestStep.h"
+#include "FlareQuestAction.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestGenerator"
 
@@ -38,6 +42,7 @@ void UFlareQuestGenerator::LoadQuests(const FFlareQuestSave& Data)
 		{
 			continue;
 		}
+
 		Quest->Load(this, QuestData.Data);
 		QuestManager->AddQuest(Quest);
 		GeneratedQuests.Add(Quest);
@@ -103,7 +108,7 @@ void UFlareQuestGenerator::GenerateIdentifer(FName QuestClass, FFlareBundle& Dat
 
 UFlareQuest* UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 {
-	UFlareQuestGenerated* Quest = UFlareQuestGeneratedVipTransport::Create(this);
+	UFlareQuestGenerated* Quest = UFlareQuestGeneratedVipTransport::Create(this, Sector);
 	QuestManager->AddQuest(Quest);
 	GeneratedQuests.Add(Quest);
 	QuestManager->LoadCallbacks(Quest);
@@ -127,6 +132,47 @@ void UFlareQuestGenerated::Load(UFlareQuestGenerator* Parent, const FFlareBundle
 	InitData = Data;
 }
 
+void UFlareQuestGenerated::CreateGenericReward(FFlareBundle& Data, int64 QuestValue)
+{
+	// TODO more reward
+	Data.PutInt32("reward-money", QuestValue);
+
+	// Reputation penalty
+	Data.PutInt32("penalty-reputation", -FMath::Sqrt(QuestValue / 1000));
+}
+
+void UFlareQuestGenerated::AddGlobalFailCondition(UFlareQuestCondition* Condition)
+{
+	for(UFlareQuestStep* Step : GetSteps())
+	{
+		Step->GetFailConditions().Add(Condition);
+	}
+}
+
+void UFlareQuestGenerated::SetupQuestGiver(UFlareCompany* Company, bool AddWarCondition)
+{
+	Client = Company;
+	if (AddWarCondition)
+	{
+		AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, Company));
+	}
+}
+
+void UFlareQuestGenerated::SetupGenericReward(const FFlareBundle& Data)
+{
+
+	if (Data.HasInt32("reward-money"))
+	{
+		int64 Amount = Data.GetInt32("reward-money");
+		GetSuccessActions().Add(UFlareQuestActionGiveMoney::Create(this, Client, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Amount));
+	}
+
+	if (Data.HasInt32("penalty-reputation"))
+	{
+		int64 Amount = Data.GetInt32("penalty-reputation");
+		GetFailActions().Add(UFlareQuestActionReputationChange::Create(this, Client, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Amount));
+	}
+}
 
 /*----------------------------------------------------
 	Generated VIP transport quest
@@ -138,13 +184,80 @@ UFlareQuestGeneratedVipTransport::UFlareQuestGeneratedVipTransport(const FObject
 {
 }
 
-UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenerator* Parent)
+UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector)
 {
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	// Find a random friendly station in sector
+	TArray<UFlareSimulatedSpacecraft*> CandidateStations;
+	for (UFlareSimulatedSpacecraft* CandidateStation : Sector->GetSectorStations())
+	{
+		// Check friendlyness
+		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
+		{
+			// Me or at war company
+			continue;
+		}
+
+		// Check if there is another distant station
+		bool HasDistantSector = false;
+		for(UFlareSimulatedSpacecraft* CompanyStation : CandidateStation->GetCompany()->GetCompanyStations())
+		{
+			if(CompanyStation->GetCurrentSector() != Sector)
+			{
+				HasDistantSector = true;
+				break;
+			}
+		}
+
+		if (!HasDistantSector)
+		{
+			continue;
+		}
+
+		// It's a good
+		CandidateStations.Add(CandidateStation);
+	}
+
+	if(CandidateStations.Num() == 0)
+	{
+		// No candidate, don't create any quest
+		return NULL;
+	}
+
+	// Pick a candidate
+	int32 CandidateIndex = FMath::RandRange(0, CandidateStations.Num()-1);
+	UFlareSimulatedSpacecraft* Station1 = CandidateStations[CandidateIndex];
+
+	// Find second station candidate
+	TArray<UFlareSimulatedSpacecraft*> CandidateStations2;
+	for(UFlareSimulatedSpacecraft* CompanyStation : Station1->GetCompany()->GetCompanyStations())
+	{
+		if(CompanyStation->GetCurrentSector() != Sector)
+		{
+			CandidateStations2.Add(CompanyStation);
+		}
+	}
+
+	int32 Candidate2Index = FMath::RandRange(0, CandidateStations2.Num()-1);
+	UFlareSimulatedSpacecraft* Station2 = CandidateStations2[Candidate2Index];
+
+	// Setup reward
+	int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Parent->GetGame()->GetGameWorld(), Station1->GetCurrentSector(), Station2->GetCurrentSector());
+	int64 QuestValue = 20000 * TravelDuration;
+
+	// Create the quest
 	UFlareQuestGeneratedVipTransport* Quest = NewObject<UFlareQuestGeneratedVipTransport>(Parent, UFlareQuestGeneratedVipTransport::StaticClass());
 
 	FFlareBundle Data;
 	Parent->GenerateIdentifer(UFlareQuestGeneratedVipTransport::GetClass(), Data);
 	Data.PutString("vip-name", UFlareQuestGenerator::GeneratePersonName().ToString());
+	Data.PutName("station-1", Station1->GetImmatriculation());
+	Data.PutName("station-2", Station2->GetImmatriculation());
+	Data.PutName("sector-1", Station1->GetCurrentSector()->GetIdentifier());
+	Data.PutName("sector-2", Station2->GetCurrentSector()->GetIdentifier());
+	Data.PutName("client", Station1->GetCompany()->GetIdentifier());
+	CreateGenericReward(Data, QuestValue);
 
 	Quest->Load(Parent, Data);
 
@@ -155,40 +268,64 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
+	UFlareSimulatedSector* Sector1 = Parent->GetGame()->GetGameWorld()->FindSector(InitData.GetName("sector-1"));
+	UFlareSimulatedSector* Sector2 = Parent->GetGame()->GetGameWorld()->FindSector(InitData.GetName("sector-2"));
+	UFlareSimulatedSpacecraft* Station1 = Parent->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station-1"));
+	UFlareSimulatedSpacecraft* Station2 = Parent->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station-2"));
+
+
 	FText VIPName = FText::FromString(Data.GetString("vip-name"));
 
 	QuestClass = UFlareQuestGeneratedVipTransport::GetClass();
 	Identifier = InitData.GetName("identifier");
 	QuestName = FText::Format(LOCTEXT(QUEST_TAG"Name","VIP transport : {0}"), VIPName);
-	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionFormat","Transport {0} from %s to %s"), VIPName);
+	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionFormat","Transport {0} from {1} to {2}"), VIPName, Sector1->GetSectorName(), Sector2->GetSectorName());
 	QuestCategory = EFlareQuestCategory::SECONDARY;
 
-	// TODO remove, placeholder
-	UFlareQuestCondition* FlyShip = UFlareQuestConditionFlyingShipClass::Create(this, NAME_None);
+
+	// Select a source station (in the given sector)
+
+	// Dock with a S or L Cargo
+
+	// Save the docked ship
+
+	// Dock the ship to station 2
+
+
+	FName PickUpShipId = "pick-up-ship-id";
+
 	{
 		#undef QUEST_STEP_TAG
-		#define QUEST_STEP_TAG QUEST_TAG"GoForward"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Spaceships have a lot of small engines that make up the RCS (Reaction Control System), allowing them to move around. To go forward press <input-axis:NormalThrustInput,1.0> slightly. You can modify the key binding in the settings menu (<input-action:SettingsMenu>).");
-		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "go-forward", Description);
+		#define QUEST_STEP_TAG QUEST_TAG"PickUp"
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Pick-up {0} at {1} in {2}"), VIPName, FText::FromString(Station1->GetImmatriculation().ToString()), FText::FromString(Sector1->GetSectorName().ToString()));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pick-up", Description);
 
-		Step->GetEnableConditions().Add(FlyShip);
-		Step->GetEndConditions().Add(UFlareQuestConditionMinCollinearVelocity::Create(this, QUEST_TAG"cond1", 30));
+		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station1);
+		Condition->TargetShipSaveId = PickUpShipId;
+
+		Step->GetEndConditions().Add(Condition);
+		Step->GetFailConditions().Add(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station1));
 		Steps.Add(Step);
 	}
 
 	{
 		#undef QUEST_STEP_TAG
-		#define QUEST_STEP_TAG QUEST_TAG"GoBackward"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","There is no air to brake in space. Your ship will keep its velocity and direction if you don't use your engines. Braking will use as much energy as accelerating, so it can take a long time if you're going fast.<br>Press <input-axis:NormalThrustInput,-1.0> to brake.");
-		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "go-backward", Description);
+		#define QUEST_STEP_TAG QUEST_TAG"Drop-off"
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Drop-off {0} at {1} in {2}"), VIPName, FText::FromString(Station2->GetImmatriculation().ToString()), FText::FromString(Sector2->GetSectorName().ToString()));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "drop-off", Description);
 
-		Step->GetEnableConditions().Add(FlyShip);
-		Step->GetEndConditions().Add(UFlareQuestConditionMaxCollinearVelocity::Create(this, QUEST_TAG"cond1", -20));
+		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station2);
+		Condition->TargetShipMatchId = PickUpShipId;
+		Step->GetEndConditions().Add(Condition);
+
+		Step->GetFailConditions().Add(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, NULL, PickUpShipId));
 		Steps.Add(Step);
 	}
 
+	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station2));
+
+	SetupQuestGiver(Station1->GetCompany(), true);
+	SetupGenericReward(Data);
 }
-
-
 
 #undef LOCTEXT_NAMESPACE

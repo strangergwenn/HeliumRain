@@ -4,6 +4,7 @@
 
 class UFlareSimulatedSector;
 class UFlareQuest;
+class UFlareCompany;
 
 /** A quest Step action */
 UCLASS(abstract)
@@ -116,4 +117,58 @@ protected:
 	----------------------------------------------------*/
 
 	FText Message;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestActionGiveMoney: public UFlareQuestAction
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+	/*----------------------------------------------------
+		Gameplay
+	----------------------------------------------------*/
+	static UFlareQuestActionGiveMoney* Create(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam);
+	void Load(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam);
+
+	virtual void Perform();
+
+protected:
+
+	/*----------------------------------------------------
+		Protected data
+	----------------------------------------------------*/
+
+	UFlareCompany* FromCompany;
+	UFlareCompany* ToCompany;
+	int64 Amount;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestActionReputationChange: public UFlareQuestAction
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+	/*----------------------------------------------------
+		Gameplay
+	----------------------------------------------------*/
+	static UFlareQuestActionReputationChange* Create(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam);
+	void Load(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam);
+
+	virtual void Perform();
+
+protected:
+
+	/*----------------------------------------------------
+		Protected data
+	----------------------------------------------------*/
+
+	UFlareCompany* FromCompany;
+	UFlareCompany* ToCompany;
+	int64 Amount;
 };

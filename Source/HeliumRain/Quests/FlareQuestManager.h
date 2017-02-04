@@ -7,6 +7,7 @@ class AFlareGame;
 class AFlareSpacecraft;
 class UFlareQuestGenerator;
 struct FFlareQuestDescription;
+class UFlareSimulatedSpacecraft;
 
 
 /** Quest callback type */
@@ -19,7 +20,10 @@ namespace EFlareQuestCallback
 		SECTOR_VISITED, // Trig when a sector is visited
 		SECTOR_ACTIVE, // Trig when a sector is activated
 		FLY_SHIP, // Trig the quest when a ship is flyed
-		QUEST // Trig when a quest status change
+		QUEST_CHANGED, // Trig when a quest status change
+		SHIP_DOCKED, // Trig a ship is docked
+		WAR_STATE_CHANGED, // Trig when a war state changed
+		SPACECRAFT_DESTROYED, // Trig when a spacecraft is destroyed
 	};
 }
 
@@ -55,6 +59,9 @@ struct FFlareQuestProgressSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareQuestConditionSave> TriggerConditionsSave;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	FFlareBundle Data;
 };
 
 /** Quest generated quest save */
@@ -153,11 +160,17 @@ public:
 
 	virtual void ClearCallbacks(UFlareQuest* Quest);
 
+	void OnCallbackEvent(EFlareQuestCallback::Type EventType);
+
 	virtual void OnFlyShip(AFlareSpacecraft* Ship);
 
 	virtual void OnSectorActivation(UFlareSimulatedSector* Sector);
 
 	virtual void OnSectorVisited(UFlareSimulatedSector* Sector);
+
+	virtual void OnShipDocked(UFlareSimulatedSpacecraft* Station, UFlareSimulatedSpacecraft* Ship);
+
+	virtual void OnWarStateChanged(UFlareCompany* Company1, UFlareCompany* Company2);
 
 	virtual void OnTick(float DeltaSeconds);
 
@@ -172,6 +185,9 @@ public:
 	virtual void OnQuestActivation(UFlareQuest* Quest);
 
 	virtual void OnQuestAvailable(UFlareQuest* Quest);
+
+	virtual void OnSpacecraftDestroyed(UFlareSimulatedSpacecraft* Spacecraft);
+
 
 protected:
 
@@ -195,12 +211,8 @@ protected:
 	TArray<UFlareQuest*>	                 Quests;
 	
 	UFlareQuest*			                 SelectedQuest;
-	// TODO Use map structure
-	TArray<UFlareQuest*>	                 FlyShipCallback;
-	TArray<UFlareQuest*>	                 SectorVisitedCallback;
-	TArray<UFlareQuest*>	                 SectorActiveCallback;
-	TArray<UFlareQuest*>	                 TickFlyingCallback;
-	TArray<UFlareQuest*>	                 QuestCallback;
+
+	TMap<EFlareQuestCallback::Type, TArray<UFlareQuest*>> CallbacksMap;
 
 	FFlareQuestSave			                 QuestData;
 

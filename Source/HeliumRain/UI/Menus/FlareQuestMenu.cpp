@@ -399,7 +399,7 @@ void SFlareQuestMenu::FillQuestDetails()
 	// Get active quest
 	if (SelectedQuest)
 	{
-		UFlareCompany* ClientCompany = MenuManager->GetGame()->GetGameWorld()->FindCompanyByShortName("HFR");
+		UFlareCompany* ClientCompany =SelectedQuest->GetClient();
 
 		// Header
 		QuestDetails->AddSlot()
@@ -438,7 +438,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(FText::Format(LOCTEXT("QuestInfoFormat", "This contract is offered by {0}."), ClientCompany->GetCompanyName()))
+					.Text((ClientCompany ? FText::Format(LOCTEXT("QuestInfoFormat", "This contract is offered by {0}."), ClientCompany->GetCompanyName()):FText()))
 				]
 			]
 
@@ -448,7 +448,7 @@ void SFlareQuestMenu::FillQuestDetails()
 			.Padding(Theme.ContentPadding)
 			[
 				SNew(SImage)
-				.Image(ClientCompany->GetEmblem())
+				.Image(ClientCompany ? ClientCompany->GetEmblem() : NULL)
 			]
 		];
 

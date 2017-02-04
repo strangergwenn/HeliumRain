@@ -121,7 +121,7 @@ uint32 UFlareFleet::GetImmobilizedShipCount()
 
 	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
 	{
-		if (!FleetShips[ShipIndex]->CanTravel())
+		if (!FleetShips[ShipIndex]->CanTravel() && FleetShips[ShipIndex]->GetDamageSystem()->IsAlive())
 		{
 			ImmobilizedShip++;
 		}

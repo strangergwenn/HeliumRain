@@ -66,6 +66,12 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 		LoadSpacecraft(CompanyData.StationData[i]);
 	}
 
+	// Load destroyed spacecraft
+	for (int i = 0 ; i < CompanyData.DestroyedSpacecraftData.Num(); i++)
+	{
+		LoadSpacecraft(CompanyData.DestroyedSpacecraftData[i]);
+	}
+
 	// Load all fleets
 	for (int32 i = 0; i < CompanyData.Fleets.Num(); i++)
 	{
@@ -120,6 +126,7 @@ FFlareCompanySave* UFlareCompany::Save()
 	CompanyData.TradeRoutes.Empty();
 	CompanyData.ShipData.Empty();
 	CompanyData.StationData.Empty();
+	CompanyData.DestroyedSpacecraftData.Empty();
 	CompanyData.SectorsKnowledge.Empty();
 
 	for (int i = 0 ; i < CompanyFleets.Num(); i++)
@@ -140,6 +147,11 @@ FFlareCompanySave* UFlareCompany::Save()
 	for (int i = 0 ; i < CompanyStations.Num(); i++)
 	{
 		CompanyData.StationData.Add(*CompanyStations[i]->Save());
+	}
+
+	for (int i = 0 ; i < CompanyDestroyedSpacecrafts.Num(); i++)
+	{
+		CompanyData.DestroyedSpacecraftData.Add(*CompanyDestroyedSpacecrafts[i]->Save());
 	}
 
 	for (int i = 0 ; i < VisitedSectors.Num(); i++)
@@ -303,6 +315,8 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 
 				TargetCompany->SetLastWarDate();
 			}
+
+			Game->GetQuestManager()->OnWarStateChanged(this, TargetCompany);
 		}
 		else if(!Hostile && WasHostile)
 		{
@@ -342,6 +356,7 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 
 				ClearLastWarDate();
 			}
+			Game->GetQuestManager()->OnWarStateChanged(this, TargetCompany);
 		}
 	}
 }
@@ -501,17 +516,23 @@ UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftS
 			Spacecraft->Load(SpacecraftData);
 		}
 
-
-		if ((Spacecraft)->IsStation())
+		if(Spacecraft->IsDestroyed())
 		{
-			CompanyStations.AddUnique((Spacecraft));
+			CompanyDestroyedSpacecrafts.AddUnique(Spacecraft);
 		}
 		else
 		{
-			CompanyShips.AddUnique((Spacecraft));
-		}
+			if (Spacecraft->IsStation())
+			{
+				CompanyStations.AddUnique((Spacecraft));
+			}
+			else
+			{
+				CompanyShips.AddUnique((Spacecraft));
+			}
 
-		CompanySpacecrafts.AddUnique((Spacecraft));
+			CompanySpacecrafts.AddUnique((Spacecraft));
+		}
 	}
 	else
 	{
@@ -539,6 +560,11 @@ void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 	}
 	GetGame()->GetGameWorld()->ClearFactories(Spacecraft);
 	CompanyAI->DestroySpacecraft(Spacecraft);
+	Spacecraft->SetDestroyed(true);
+
+	CompanyDestroyedSpacecrafts.Add(Spacecraft);
+	GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft);
+
 }
 
 void UFlareCompany::DiscoverSector(UFlareSimulatedSector* Sector)
@@ -1176,13 +1202,26 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 	return Value;
 }
 
-UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraft(FName ShipImmatriculation)
+UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraft(FName ShipImmatriculation, bool Destroyed)
 {
-	for (int i = 0; i < CompanySpacecrafts.Num(); i++)
+	if(!Destroyed )
 	{
-		if (CompanySpacecrafts[i]->GetImmatriculation() == ShipImmatriculation)
+		for (UFlareSimulatedSpacecraft* Spacecraft : CompanySpacecrafts)
 		{
-			return CompanySpacecrafts[i];
+			if (Spacecraft->GetImmatriculation() == ShipImmatriculation)
+			{
+				return Spacecraft;
+			}
+		}
+	}
+	else
+	{
+		for (UFlareSimulatedSpacecraft* Spacecraft : CompanyDestroyedSpacecrafts)
+		{
+			if (Spacecraft->GetImmatriculation() == ShipImmatriculation)
+			{
+				return Spacecraft;
+			}
 		}
 	}
 

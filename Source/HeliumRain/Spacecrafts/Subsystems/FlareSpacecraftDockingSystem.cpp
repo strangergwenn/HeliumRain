@@ -4,6 +4,8 @@
 #include "FlareSpacecraftDockingSystem.h"
 #include "../FlareStationDock.h"
 #include "../FlareSpacecraft.h"
+#include "../../Game/FlareGame.h"
+#include "../../Quests/FlareQuestManager.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareDockingSystem Tick"), STAT_FlareDockingSystem_Tick, STATGROUP_Flare);
 
@@ -175,6 +177,8 @@ void UFlareSpacecraftDockingSystem::Dock(AFlareSpacecraft* Ship, int32 DockId)
 	DockingSlots[DockId].Granted = true;
 	DockingSlots[DockId].Occupied = true;
 	DockingSlots[DockId].Ship = Ship;
+
+	Spacecraft->GetGame()->GetQuestManager()->OnShipDocked(Spacecraft->GetParent(), Ship->GetParent());
 }
 
 TArray<AFlareSpacecraft*> UFlareSpacecraftDockingSystem::GetDockedShips()

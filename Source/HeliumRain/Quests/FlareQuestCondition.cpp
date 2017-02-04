@@ -31,7 +31,23 @@ void UFlareQuestCondition::AddSave(TArray<FFlareQuestConditionSave>& Data)
 	}
 }
 
+bool UFlareQuestCondition::CheckFailConditions(TArray<UFlareQuestCondition*>& Conditions, bool EmptyResult)
+{
+	if (Conditions.Num() == 0)
+	{
+		return EmptyResult;
+	}
 
+	for(UFlareQuestCondition* Condition: Conditions)
+	{
+		if(Condition->IsCompleted())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
 
 bool UFlareQuestCondition::CheckConditions(TArray<UFlareQuestCondition*>& Conditions, bool EmptyResult)
 {
@@ -848,7 +864,7 @@ UFlareQuestConditionQuestSuccessful* UFlareQuestConditionQuestSuccessful::Create
 void UFlareQuestConditionQuestSuccessful::Load(UFlareQuest* ParentQuest, FName QuestParam)
 {
 	LoadInternal(ParentQuest);
-	Callbacks.AddUnique(EFlareQuestCallback::QUEST);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_CHANGED);
 	TargetQuest = QuestParam;
 }
 
@@ -891,7 +907,7 @@ UFlareQuestConditionQuestFailed* UFlareQuestConditionQuestFailed::Create(UFlareQ
 void UFlareQuestConditionQuestFailed::Load(UFlareQuest* ParentQuest, FName QuestParam)
 {
 	LoadInternal(ParentQuest);
-	Callbacks.AddUnique(EFlareQuestCallback::QUEST);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_CHANGED);
 	TargetQuest = QuestParam;
 }
 
@@ -1278,6 +1294,193 @@ void UFlareQuestConditionFollowRandomWaypoints::GenerateWaypointSegments(TArray<
 	}
 }
 
+/*----------------------------------------------------
+	Quest dock at condition
+----------------------------------------------------*/
+UFlareQuestConditionDockAt::UFlareQuestConditionDockAt(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
 
+UFlareQuestConditionDockAt* UFlareQuestConditionDockAt::Create(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* Station)
+{
+	UFlareQuestConditionDockAt* Condition = NewObject<UFlareQuestConditionDockAt>(ParentQuest, UFlareQuestConditionDockAt::StaticClass());
+	Condition->Load(ParentQuest, Station);
+	return Condition;
+}
+
+void UFlareQuestConditionDockAt::Load(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* Station)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::SHIP_DOCKED);
+	TargetStation = Station;
+	TargetShipMatchId = NAME_None;
+	TargetShipSaveId = NAME_None;
+	Completed = false;
+}
+
+bool UFlareQuestConditionDockAt::IsCompleted()
+{
+	if (Completed)
+	{
+		return true;
+	}
+
+	if (!TargetStation->GetActive())
+	{
+		return false;
+	}
+
+	for (AFlareSpacecraft* Ship : TargetStation->GetActive()->GetDockingSystem()->GetDockedShips())
+	{
+		if (Ship->GetCompany() != GetGame()->GetPC()->GetCompany())
+		{
+			continue;
+		}
+
+		// 2 cases:
+		// - no ship restriction
+		// - restricted to a given ship id
+		bool ValidShip = false;
+		if (TargetShipMatchId == NAME_None)
+		{
+			// No restriction
+			ValidShip = true;
+		}
+		else
+		{
+			FName ShipName = Quest->GetSaveBundle().GetName(TargetShipMatchId);
+			UFlareSimulatedSpacecraft* TargetShip = GetGame()->GetGameWorld()->FindSpacecraft(ShipName);
+			if(TargetShip == Ship->GetParent())
+			{
+				ValidShip = true;
+			}
+		}
+
+		if(ValidShip)
+		{
+			Completed = true;
+			if (TargetShipSaveId != NAME_None)
+			{
+				// Save docked ship
+				Quest->GetSaveBundle().PutName(TargetShipSaveId, Ship->GetImmatriculation());
+			}
+			return true;
+		}
+	}
+
+	return false;
+}
+
+FText UFlareQuestConditionDockAt::GetInitialLabel()
+{
+	if (TargetShipMatchId != NAME_None)
+	{
+		FName ShipName = Quest->GetSaveBundle().GetName(TargetShipMatchId);
+		UFlareSimulatedSpacecraft* TargetShip = GetGame()->GetGameWorld()->FindSpacecraft(ShipName);
+
+		if (TargetShip)
+		{
+			return FText::Format(LOCTEXT("DockShipAtFormat", "Dock at {0} in {1} with a the ship {2}"),
+															FText::FromName(TargetStation->GetImmatriculation()),
+															TargetStation->GetCurrentSector()->GetSectorName(),
+															FText::FromName(TargetShip->GetImmatriculation()));
+		}
+	}
+	return FText::Format(LOCTEXT("DockAtFormat", "Dock at {0} in {1} with a ship"),
+													FText::FromName(TargetStation->GetImmatriculation()),
+													TargetStation->GetCurrentSector()->GetSectorName());
+}
+
+
+void UFlareQuestConditionDockAt::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Counter = 0;
+	ObjectiveCondition.MaxCounter = 0;
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+
+/*----------------------------------------------------
+	At war condition
+----------------------------------------------------*/
+UFlareQuestConditionAtWar::UFlareQuestConditionAtWar(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionAtWar* UFlareQuestConditionAtWar::Create(UFlareQuest* ParentQuest, UFlareCompany* Company)
+{
+	UFlareQuestConditionAtWar* Condition = NewObject<UFlareQuestConditionAtWar>(ParentQuest, UFlareQuestConditionAtWar::StaticClass());
+	Condition->Load(ParentQuest, Company);
+	return Condition;
+}
+
+void UFlareQuestConditionAtWar::Load(UFlareQuest* ParentQuest, UFlareCompany* Company)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::WAR_STATE_CHANGED);
+	TargetCompany = Company;
+}
+
+bool UFlareQuestConditionAtWar::IsCompleted()
+{
+	return GetGame()->GetPC()->GetCompany()->GetWarState(TargetCompany) == EFlareHostility::Hostile;
+}
+
+void UFlareQuestConditionAtWar::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+}
+
+
+/*----------------------------------------------------
+	Spacecraft no more exist condition
+----------------------------------------------------*/
+UFlareQuestConditionSpacecraftNoMoreExist::UFlareQuestConditionSpacecraftNoMoreExist(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionSpacecraftNoMoreExist* UFlareQuestConditionSpacecraftNoMoreExist::Create(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* TargetSpacecraftParam, FName TargetSpacecraftIdParam)
+{
+	UFlareQuestConditionSpacecraftNoMoreExist* Condition = NewObject<UFlareQuestConditionSpacecraftNoMoreExist>(ParentQuest, UFlareQuestConditionSpacecraftNoMoreExist::StaticClass());
+	Condition->Load(ParentQuest, TargetSpacecraftParam, TargetSpacecraftIdParam);
+	return Condition;
+}
+
+void UFlareQuestConditionSpacecraftNoMoreExist::Load(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* TargetSpacecraftParam, FName TargetSpacecraftIdParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::SPACECRAFT_DESTROYED);
+	TargetSpacecraft = TargetSpacecraftParam;
+	TargetSpacecraftId = TargetSpacecraftIdParam;
+}
+
+bool UFlareQuestConditionSpacecraftNoMoreExist::IsCompleted()
+{
+	if(TargetSpacecraftId != NAME_None)
+	{
+		FName SpacecraftName = Quest->GetSaveBundle().GetName(TargetSpacecraftId);
+		TargetSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(SpacecraftName);
+	}
+
+	if (TargetSpacecraft)
+	{
+		return TargetSpacecraft->IsDestroyed() || !TargetSpacecraft->GetDamageSystem()->IsAlive();
+	}
+	else
+	{
+		return true;
+	}
+}
+
+void UFlareQuestConditionSpacecraftNoMoreExist::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+}
 
 #undef LOCTEXT_NAMESPACE

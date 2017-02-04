@@ -243,6 +243,9 @@ struct FFlareCompanySave
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareSpacecraftSave> StationData;
 
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFlareSpacecraftSave> DestroyedSpacecraftData;
+
 	/** Company fleets */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareFleetSave> Fleets;

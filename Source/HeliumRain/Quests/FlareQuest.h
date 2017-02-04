@@ -7,6 +7,7 @@
 class UFlareQuestCondition;
 class UFlareQuestStep;
 class UFlareQuestAction;
+class UFlareCompany;
 
 /** Quest action type */
 UENUM()
@@ -97,25 +98,11 @@ public:
 
 	virtual void UpdateObjectiveTracker();
 
-	//virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData, const TArray<FFlareQuestConditionDescription>& Conditions);
-
 	/*----------------------------------------------------
 		Callback
 	----------------------------------------------------*/
 
 	virtual TArray<EFlareQuestCallback::Type> GetCurrentCallbacks();
-
-	//  UFlareQuestCondition->GetCallbacks();
-
-	virtual void OnFlyShip(AFlareSpacecraft* Ship);
-
-	virtual void OnSectorActivation(UFlareSimulatedSector* Sector);
-
-	virtual void OnSectorVisited(UFlareSimulatedSector* Sector);
-
-	virtual void OnTick(float DeltaSeconds);
-
-	virtual void OnQuestStatusChanged(UFlareQuest* Quest);
 
 protected:
 
@@ -153,6 +140,7 @@ protected:
 	FText									QuestName;
 	FText                                   QuestDescription;
 	EFlareQuestCategory::Type               QuestCategory;
+	UFlareCompany*							Client;
 
 public:
 
@@ -197,6 +185,16 @@ public:
 		return Steps;
 	}
 
+	TArray<UFlareQuestAction*>&	GetSuccessActions()
+	{
+		return SuccessActions;
+	}
+
+	TArray<UFlareQuestAction*>&	GetFailActions()
+	{
+		return FailActions;
+	}
+
 	int32 GetSuccessfullStepCount()
 	{
 		return SuccessfullSteps.Num();
@@ -217,6 +215,16 @@ public:
 	UFlareQuestManager*	GetQuestManager()
 	{
 		return QuestManager;
+	}
+
+	FFlareBundle& GetSaveBundle()
+	{
+		return QuestData.Data;
+	}
+
+	UFlareCompany* GetClient()
+	{
+		return Client;
 	}
 
 	UFlareSimulatedSector* FindSector(FName SectorIdentifier);

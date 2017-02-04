@@ -198,6 +198,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 
 	// Default data
 	FFlareSpacecraftSave ShipData;
+	ShipData.IsDestroyed = false;
 	ShipData.Location = TargetPosition;
 	ShipData.Rotation = TargetRotation;
 	ShipData.LinearVelocity = FVector::ZeroVector;

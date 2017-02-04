@@ -76,6 +76,12 @@ class HELIUMRAIN_API UFlareQuestGenerated: public UFlareQuest
 public:
 	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 
+	void AddGlobalFailCondition(UFlareQuestCondition* Condition);
+	void SetupQuestGiver(UFlareCompany* Company, bool AddWarCondition);
+	void SetupGenericReward(const FFlareBundle& Data);
+
+	static void CreateGenericReward(FFlareBundle& Data, int64 QuestValue);
+
 	FFlareBundle* GetInitData() {
 		return &InitData;
 	}
@@ -101,5 +107,5 @@ public:
 
 	/** Load the quest from description file */
 	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
-	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent);
+	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector);
 };

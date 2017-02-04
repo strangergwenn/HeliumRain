@@ -244,6 +244,8 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 				EFlareNotification::NT_Military);
 		}
 	}
+
+	Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft->GetParent());
 }
 
 void UFlareSpacecraftDamageSystem::OnControlLost()

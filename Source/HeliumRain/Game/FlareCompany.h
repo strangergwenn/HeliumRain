@@ -234,6 +234,9 @@ protected:
 	TArray<UFlareSimulatedSpacecraft*>      CompanySpacecrafts;
 
 	UPROPERTY()
+	TArray<UFlareSimulatedSpacecraft*>      CompanyDestroyedSpacecrafts;
+
+	UPROPERTY()
 	TArray<UFlareFleet*>                    CompanyFleets;
 
 	UPROPERTY()
@@ -385,7 +388,7 @@ public:
 		return NULL;
 	}
 
-	UFlareSimulatedSpacecraft* FindSpacecraft(FName ShipImmatriculation);
+	UFlareSimulatedSpacecraft* FindSpacecraft(FName ShipImmatriculation, bool Destroyed = false);
 
 	bool HasVisitedSector(const UFlareSimulatedSector* Sector) const;
 

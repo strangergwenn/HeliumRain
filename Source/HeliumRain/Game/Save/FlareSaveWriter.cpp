@@ -109,6 +109,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuestProgress(FFlareQuestProgressS
 
 	JsonObject->SetStringField("QuestIdentifier", Data->QuestIdentifier.ToString());
 	JsonObject->SetBoolField("Accepted", Data->Accepted);
+	JsonObject->SetObjectField("Data", SaveBundle(&Data->Data));
 
 	TArray< TSharedPtr<FJsonValue> > SuccessfullSteps;
 	for(int i = 0; i < Data->SuccessfullSteps.Num(); i++)
@@ -242,6 +243,13 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompany(FFlareCompanySave* Data)
 	}
 	JsonObject->SetArrayField("Stations", Stations);
 
+	TArray< TSharedPtr<FJsonValue> > DestroyedSpacecrafts;
+	for(int i = 0; i < Data->DestroyedSpacecraftData.Num(); i++)
+	{
+		DestroyedSpacecrafts.Add(MakeShareable(new FJsonValueObject(SaveSpacecraft(&Data->DestroyedSpacecraftData[i]))));
+	}
+	JsonObject->SetArrayField("DestroyedSpacecrafts", DestroyedSpacecrafts);
+
 	TArray< TSharedPtr<FJsonValue> > Fleets;
 	for(int i = 0; i < Data->Fleets.Num(); i++)
 	{
@@ -278,6 +286,8 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 {
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 
+	// TODO light save if destroyed
+	JsonObject->SetBoolField("IsDestroyed", Data->IsDestroyed);
 	JsonObject->SetStringField("Immatriculation", Data->Immatriculation.ToString());
 	JsonObject->SetStringField("NickName", Data->NickName.ToString());
 	JsonObject->SetStringField("Identifier", Data->Identifier.ToString());

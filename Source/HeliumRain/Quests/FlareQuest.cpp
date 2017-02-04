@@ -16,7 +16,8 @@
 
 UFlareQuest::UFlareQuest(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer),
-	  TrackObjectives(false)
+	  TrackObjectives(false),
+	  Client(NULL)
 {
 }
 
@@ -512,34 +513,6 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 
 	return Callbacks;
 }
-
-void UFlareQuest::OnTick(float DeltaSeconds)
-{
-	UpdateState();
-}
-
-void UFlareQuest::OnFlyShip(AFlareSpacecraft* Ship)
-{
-	UpdateState();
-}
-
-
-void UFlareQuest::OnQuestStatusChanged(UFlareQuest* Quest)
-{
-	UpdateState();
-}
-
-void UFlareQuest::OnSectorActivation(UFlareSimulatedSector* Sector)
-{
-	UpdateState();
-}
-
-void UFlareQuest::OnSectorVisited(UFlareSimulatedSector* Sector)
-{
-	UpdateState();
-}
-
-
 
 /*----------------------------------------------------
 	Getters

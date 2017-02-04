@@ -113,6 +113,11 @@ public:
 		return SpacecraftData.HarpoonCompany != NAME_None;
 	}
 
+	void SetDestroyed(bool Destroyed)
+	{
+		SpacecraftData.IsDestroyed = Destroyed;
+	}
+
 	UFlareCompany* GetHarpoonCompany();
 
 	void ResetCapture(UFlareCompany* Company = NULL);
@@ -292,4 +297,9 @@ public:
 	float GetStationEfficiency();
 
 	int64 ComputeCombatValue();
+
+	bool IsDestroyed()
+	{
+		return SpacecraftData.IsDestroyed;
+	}
 };

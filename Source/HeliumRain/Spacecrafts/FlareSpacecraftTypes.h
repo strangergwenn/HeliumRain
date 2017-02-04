@@ -316,6 +316,10 @@ struct FFlareSpacecraftSave
 {
 	GENERATED_USTRUCT_BODY()
 
+	/** Destroyed state */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool IsDestroyed;
+
 	/** Ship location */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FVector Location;

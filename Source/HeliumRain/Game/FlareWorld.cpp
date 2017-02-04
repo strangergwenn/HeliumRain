@@ -1182,15 +1182,25 @@ UFlareTradeRoute* UFlareWorld::FindTradeRoute(FName Identifier) const
 
 UFlareSimulatedSpacecraft* UFlareWorld::FindSpacecraft(FName ShipImmatriculation)
 {
-	for (int i = 0; i < Companies.Num(); i++)
+	for (UFlareCompany* Company : Companies)
 	{
-		UFlareCompany* Company = Companies[i];
 		UFlareSimulatedSpacecraft* Spacecraft = Company->FindSpacecraft(ShipImmatriculation);
 		if (Spacecraft)
 		{
 			return Spacecraft;
 		}
 	}
+
+	// Now check destroyed ships
+	for (UFlareCompany* Company : Companies)
+	{
+		UFlareSimulatedSpacecraft* Spacecraft = Company->FindSpacecraft(ShipImmatriculation, true);
+		if (Spacecraft)
+		{
+			return Spacecraft;
+		}
+	}
+
 	return NULL;
 }
 

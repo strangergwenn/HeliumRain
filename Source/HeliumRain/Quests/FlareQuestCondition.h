@@ -6,7 +6,9 @@
 class UFlareQuest;
 class AFlarePlayerController;
 class AFlareGame;
+class UFlareCompany;
 class UFlareSimulatedSector;
+class UFlareSimulatedSpacecraft;
 struct FFlarePlayerObjectiveData;
 struct FFlareBundle;
 
@@ -58,7 +60,7 @@ public:
 		return ConditionIndex;
 	}
 
-	FText GetInitialLabel()
+	virtual FText GetInitialLabel()
 	{
 		return InitialLabel;
 	}
@@ -76,6 +78,8 @@ public:
 	}
 
 	static bool CheckConditions(TArray<UFlareQuestCondition*>& Conditions, bool EmptyResult);
+
+	static bool CheckFailConditions(TArray<UFlareQuestCondition*>& Conditions, bool EmptyResult);
 
 	static void AddConditionCallbacks(TArray<EFlareQuestCallback::Type>& Callbacks, const TArray<UFlareQuestCondition*>& Conditions);
 
@@ -416,4 +420,68 @@ protected:
 	bool IsInit;
 	TArray<FVector> Waypoints;
 	int32 CurrentProgression;
+};
+
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionDockAt: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	static UFlareQuestConditionDockAt* Create(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* Station);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* Station);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual FText GetInitialLabel();
+
+	FName TargetShipMatchId;
+	FName TargetShipSaveId;
+
+protected:
+
+	UFlareSimulatedSpacecraft* TargetStation;
+	bool Completed;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionAtWar: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionAtWar* Create(UFlareQuest* ParentQuest, UFlareCompany* Company);
+	void Load(UFlareQuest* ParentQuest, UFlareCompany* Company);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	UFlareCompany* TargetCompany;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionSpacecraftNoMoreExist: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionSpacecraftNoMoreExist* Create(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* TargetSpacecraftParam, FName TargetSpacecraftIdParam = NAME_None);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* TargetSpacecraftParam, FName TargetSpacecraftIdParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	UFlareSimulatedSpacecraft* TargetSpacecraft;
+	FName TargetSpacecraftId;
 };

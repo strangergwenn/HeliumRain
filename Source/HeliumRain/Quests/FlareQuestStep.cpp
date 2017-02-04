@@ -49,7 +49,7 @@ void UFlareQuestStep::UpdateState()
 	else
 	{
 		// Enabled or blocked, check failed
-		if (UFlareQuestCondition::CheckConditions(FailConditions, false))
+		if (UFlareQuestCondition::CheckFailConditions(FailConditions, false))
 		{
 			Status = EFlareQuestStepStatus::FAILED;
 			return;
