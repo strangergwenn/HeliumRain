@@ -39,6 +39,10 @@ void UFlareQuestGenerator::LoadQuests(const FFlareQuestSave& Data)
 		{
 			Quest = NewObject<UFlareQuestGeneratedVipTransport>(this, UFlareQuestGeneratedVipTransport::StaticClass());
 		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedResourceSale::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedResourceSale>(this, UFlareQuestGeneratedResourceSale::StaticClass());
+		}
 		else
 		{
 			continue;
