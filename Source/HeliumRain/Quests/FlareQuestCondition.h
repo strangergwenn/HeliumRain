@@ -514,3 +514,29 @@ protected:
 	int32 Quantity;
 	int32 CurrentProgression;
 };
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionSellAtStation: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	static UFlareQuestConditionSellAtStation* Create(UFlareQuest* ParentQuest, FName ConditionIdentifierParam, UFlareSimulatedSpacecraft* StationParam, FFlareResourceDescription* ResourceParam, int32 QuantityParam);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifierParam, UFlareSimulatedSpacecraft* StationParam, FFlareResourceDescription* ResourceParam, int32 QuantityParam);
+
+	virtual bool IsCompleted();
+	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
+
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual void OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* TradeResource, int32 TradeQuantity);
+
+protected:
+
+	UFlareSimulatedSpacecraft* TargetStation;
+	FFlareResourceDescription* Resource;
+	int32 Quantity;
+	int32 CurrentProgression;
+};

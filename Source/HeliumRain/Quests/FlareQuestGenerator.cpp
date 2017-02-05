@@ -43,6 +43,10 @@ void UFlareQuestGenerator::LoadQuests(const FFlareQuestSave& Data)
 		{
 			Quest = NewObject<UFlareQuestGeneratedResourceSale>(this, UFlareQuestGeneratedResourceSale::StaticClass());
 		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedResourcePurchase::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedResourcePurchase>(this, UFlareQuestGeneratedResourcePurchase::StaticClass());
+		}
 		else
 		{
 			continue;
@@ -123,6 +127,15 @@ UFlareQuest* UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Se
 	}
 
 	Quest = UFlareQuestGeneratedResourceSale::Create(this, Sector);
+	if (Quest)
+	{
+		QuestManager->AddQuest(Quest);
+		GeneratedQuests.Add(Quest);
+		QuestManager->LoadCallbacks(Quest);
+		Quest->UpdateState();
+	}
+
+	Quest = UFlareQuestGeneratedResourcePurchase::Create(this, Sector);
 	if (Quest)
 	{
 		QuestManager->AddQuest(Quest);
@@ -473,6 +486,150 @@ void UFlareQuestGeneratedResourceSale::Load(UFlareQuestGenerator* Parent, const 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "buy", Description);
 
 		UFlareQuestConditionBuyAtStation* Condition = UFlareQuestConditionBuyAtStation::Create(this, QUEST_TAG"cond1", Station, Resource, Quantity);
+
+		Step->GetEndConditions().Add(Condition);
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
+		Steps.Add(Step);
+	}
+
+	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station));
+
+	SetupQuestGiver(Station->GetCompany(), true);
+	SetupGenericReward(Data);
+}
+
+/*----------------------------------------------------
+	Generated resource purchase quest
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "GeneratedResourcePurchase"
+UFlareQuestGeneratedResourcePurchase::UFlareQuestGeneratedResourcePurchase(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector)
+{
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	// Find a random friendly station in sector
+	TArray<UFlareSimulatedSpacecraft*> CandidateStations;
+	for (UFlareSimulatedSpacecraft* CandidateStation : Sector->GetSectorStations())
+	{
+		// Check friendlyness
+		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
+		{
+			// Me or at war company
+			continue;
+		}
+
+		// Check if have too low stock there is another distant station
+
+		for (FFlareCargo& Slot : CandidateStation->GetCargoBay()->GetSlots())
+		{
+			if (Slot.Lock != EFlareResourceLock::Input)
+			{
+				// Not an input resource
+				continue;
+			}
+
+			if (Slot.Quantity >= CandidateStation->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO)
+			{
+				// Enought resources
+				continue;
+			}
+
+			// It's a good candidate
+			CandidateStations.Add(CandidateStation);
+		}
+	}
+
+	if(CandidateStations.Num() == 0)
+	{
+		// No candidate, don't create any quest
+		return NULL;
+	}
+
+	// Pick a candidate
+	int32 CandidateIndex = FMath::RandRange(0, CandidateStations.Num()-1);
+	UFlareSimulatedSpacecraft* Station = CandidateStations[CandidateIndex];
+
+	// Find a resource
+
+	int32 BestResourceQuantity = 0;
+	FFlareResourceDescription* BestResource = NULL;
+
+	for (FFlareCargo& Slot : Station->GetCargoBay()->GetSlots())
+	{
+		if (Slot.Lock != EFlareResourceLock::Input)
+		{
+			// Not an input resource
+			continue;
+		}
+
+
+		int32 MissingResourceQuantity = Station->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO - Slot.Quantity;
+
+		if (MissingResourceQuantity <= 0)
+		{
+			// Enought resources
+			continue;
+		}
+
+		if (MissingResourceQuantity > BestResourceQuantity)
+		{
+			BestResourceQuantity = MissingResourceQuantity;
+			BestResource = Slot.Resource;
+		}
+
+
+	}
+
+	// Setup reward
+	int64 QuestValue = 1000 * BestResourceQuantity;
+
+	// Create the quest
+	UFlareQuestGeneratedResourcePurchase* Quest = NewObject<UFlareQuestGeneratedResourcePurchase>(Parent, UFlareQuestGeneratedResourcePurchase::StaticClass());
+
+	FFlareBundle Data;
+	Parent->GenerateIdentifer(UFlareQuestGeneratedResourcePurchase::GetClass(), Data);
+
+	Data.PutName("station", Station->GetImmatriculation());
+	Data.PutName("sector", Station->GetCurrentSector()->GetIdentifier());
+	Data.PutName("resource", BestResource->Identifier);
+	Data.PutInt32("quantity", BestResourceQuantity);
+	Data.PutName("client", Station->GetCompany()->GetIdentifier());
+	CreateGenericReward(Data, QuestValue);
+
+	Quest->Load(Parent, Data);
+
+	return Quest;
+}
+
+void UFlareQuestGeneratedResourcePurchase::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+{
+	UFlareQuestGenerated::Load(Parent, Data);
+
+	UFlareSimulatedSector* Sector = Parent->GetGame()->GetGameWorld()->FindSector(InitData.GetName("sector"));
+	UFlareSimulatedSpacecraft* Station = Parent->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station"));
+	FFlareResourceDescription* Resource = Parent->GetGame()->GetResourceCatalog()->Get(InitData.GetName("resource"));
+	int32 Quantity = InitData.GetInt32("quantity");
+
+	QuestClass = UFlareQuestGeneratedResourcePurchase::GetClass();
+	Identifier = InitData.GetName("identifier");
+	QuestName = FText::Format(LOCTEXT(QUEST_TAG"Name","{0} purchase in {1}"), Resource->Name, Sector->GetSectorName());
+	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionFormat","Sell {0} {1} to {2} at {3}"),
+									 FText::AsNumber(Quantity), Resource->Name, FText::FromName(Station->GetImmatriculation()), Sector->GetSectorName());
+	QuestCategory = EFlareQuestCategory::SECONDARY;
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"BuyResource"
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Sell {0} {1} to {2} at {3}"),
+										  FText::AsNumber(Quantity), Resource->Name, FText::FromName(Station->GetImmatriculation()), Sector->GetSectorName());
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "sell", Description);
+
+		UFlareQuestConditionSellAtStation* Condition = UFlareQuestConditionSellAtStation::Create(this, QUEST_TAG"cond1", Station, Resource, Quantity);
 
 		Step->GetEndConditions().Add(Condition);
 		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
