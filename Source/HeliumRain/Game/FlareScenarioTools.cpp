@@ -183,6 +183,9 @@ void UFlareScenarioTools::SetupWorld()
 
 	// Setup player sector knwoleage
 	PlayerCompany->DiscoverSector(TheDepths);
+	PlayerCompany->DiscoverSector(BlueHeart);
+	PlayerCompany->DiscoverSector(TheSpire);
+	PlayerCompany->DiscoverSector(Outpost);
 
 	// Discover public sectors
 	SetupKnownSectors(MiningSyndicate);
