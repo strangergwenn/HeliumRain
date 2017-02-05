@@ -8,6 +8,7 @@
 #include "../Player/FlareMenuManager.h"
 #include "../Player/FlareHUD.h"
 #include "FlareShipPilot.h"
+#include "FlarePilotHelper.h"
 #include "FlareSpacecraft.h"
 #include "FlareShipPilot.h"
 
