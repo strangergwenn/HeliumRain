@@ -96,7 +96,7 @@ protected:
 	UFlareQuestGenerator* QuestGenerator;
 };
 
-
+//////////////////////////////////////////////////////
 UCLASS()
 class HELIUMRAIN_API UFlareQuestGeneratedVipTransport: public UFlareQuestGenerated
 {
@@ -104,6 +104,20 @@ class HELIUMRAIN_API UFlareQuestGeneratedVipTransport: public UFlareQuestGenerat
 
 public:
 	static FName GetClass() { return "vip-transport"; }
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector);
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestGeneratedResourceSale: public UFlareQuestGenerated
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static FName GetClass() { return "resource-sale"; }
 
 	/** Load the quest from description file */
 	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);

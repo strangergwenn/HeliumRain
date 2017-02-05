@@ -472,7 +472,39 @@ void UFlareQuest::UpdateObjectiveTracker()
 /*----------------------------------------------------
 	Callback
 ----------------------------------------------------*/
+TArray<UFlareQuestCondition*> UFlareQuest::GetCurrentConditions()
+{
+	TArray<UFlareQuestCondition*> Conditions;
 
+	switch(QuestStatus)
+	{
+		case EFlareQuestStatus::PENDING:
+			// Use trigger conditions
+			Conditions += TriggerConditions;
+			break;
+		case EFlareQuestStatus::ACTIVE:
+		 {
+			// Use current step conditions
+			if (CurrentStep)
+			{
+				Conditions += CurrentStep->GetEnableConditions();
+				Conditions += CurrentStep->GetEndConditions();
+				Conditions += CurrentStep->GetFailConditions();
+				Conditions += CurrentStep->GetBlockConditions();
+			}
+			else
+			{
+				FLOGV("WARNING: The quest %s have no step", *GetIdentifier().ToString());
+			}
+			break;
+		}
+		default:
+			// Don't add callback in others cases
+			break;
+	}
+
+	return Conditions;
+}
 
 TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 {
@@ -512,6 +544,14 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 	}
 
 	return Callbacks;
+}
+
+void UFlareQuest::OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 Quantity)
+{
+	for (UFlareQuestCondition* Condition : GetCurrentConditions())
+	{
+		Condition->OnTradeDone(SourceSpacecraft, DestinationSpacecraft, Resource, Quantity);
+	}
 }
 
 /*----------------------------------------------------

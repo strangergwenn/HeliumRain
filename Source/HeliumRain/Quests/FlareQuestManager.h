@@ -24,6 +24,7 @@ namespace EFlareQuestCallback
 		SHIP_DOCKED, // Trig a ship is docked
 		WAR_STATE_CHANGED, // Trig when a war state changed
 		SPACECRAFT_DESTROYED, // Trig when a spacecraft is destroyed
+		TRADE_DONE, // Trig when a trade is done
 	};
 }
 
@@ -187,6 +188,8 @@ public:
 	virtual void OnQuestAvailable(UFlareQuest* Quest);
 
 	virtual void OnSpacecraftDestroyed(UFlareSimulatedSpacecraft* Spacecraft);
+
+	virtual void OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 Quantity);
 
 
 protected:

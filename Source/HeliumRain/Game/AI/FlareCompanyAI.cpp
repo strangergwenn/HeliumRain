@@ -12,8 +12,7 @@
 
 
 #define STATION_CONSTRUCTION_PRICE_BONUS 1.2
-// TODO, make it depend on player CA
-#define AI_NERF_RATIO 0.5
+
 // TODO, make it depend on company's nature
 #define AI_CARGO_DIVERSITY_THRESOLD 10
 #define AI_CARGO_SIZE_DIVERSITY_THRESOLD 15

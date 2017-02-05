@@ -102,7 +102,11 @@ public:
 		Callback
 	----------------------------------------------------*/
 
+	virtual TArray<UFlareQuestCondition*> GetCurrentConditions();
+
 	virtual TArray<EFlareQuestCallback::Type> GetCurrentCallbacks();
+
+	virtual void OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 Quantity);
 
 protected:
 

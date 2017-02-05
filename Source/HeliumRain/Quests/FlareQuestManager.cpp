@@ -344,6 +344,21 @@ void UFlareQuestManager::OnSpacecraftDestroyed(UFlareSimulatedSpacecraft* Spacec
 	OnCallbackEvent(EFlareQuestCallback::SPACECRAFT_DESTROYED);
 }
 
+void UFlareQuestManager::OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 Quantity)
+{
+	if (CallbacksMap.Contains(EFlareQuestCallback::TRADE_DONE))
+	{
+		TArray<UFlareQuest*> Callbacks = CallbacksMap[EFlareQuestCallback::TRADE_DONE];
+		for (UFlareQuest* Quest: Callbacks)
+		{
+			Quest->OnTradeDone(SourceSpacecraft, DestinationSpacecraft, Resource, Quantity);
+			Quest->UpdateState();
+		}
+	}
+
+	OnCallbackEvent(EFlareQuestCallback::TRADE_DONE);
+}
+
 void UFlareQuestManager::OnTravelEnded(UFlareFleet* Fleet)
 {
 	if (Fleet == Game->GetPC()->GetPlayerFleet())

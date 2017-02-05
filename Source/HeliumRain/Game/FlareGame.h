@@ -1,6 +1,10 @@
 #pragma once
 
+
 #include "GameFramework/GameMode.h"
+
+// TODO, make it depend on player CA
+#define AI_NERF_RATIO 0.5
 
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareBomb.h"

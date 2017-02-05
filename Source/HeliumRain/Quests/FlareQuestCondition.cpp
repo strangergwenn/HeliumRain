@@ -1483,4 +1483,106 @@ void UFlareQuestConditionSpacecraftNoMoreExist::AddConditionObjectives(FFlarePla
 {
 }
 
+/*----------------------------------------------------
+	Buy at station condition
+----------------------------------------------------*/
+
+UFlareQuestConditionBuyAtStation::UFlareQuestConditionBuyAtStation(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionBuyAtStation* UFlareQuestConditionBuyAtStation::Create(UFlareQuest* ParentQuest, FName ConditionIdentifierParam, UFlareSimulatedSpacecraft* StationParam, FFlareResourceDescription* ResourceParam, int32 QuantityParam)
+{
+	UFlareQuestConditionBuyAtStation*Condition = NewObject<UFlareQuestConditionBuyAtStation>(ParentQuest, UFlareQuestConditionBuyAtStation::StaticClass());
+	Condition->Load(ParentQuest, ConditionIdentifierParam, StationParam, ResourceParam, QuantityParam);
+	return Condition;
+}
+
+void UFlareQuestConditionBuyAtStation::Load(UFlareQuest* ParentQuest, FName ConditionIdentifierParam, UFlareSimulatedSpacecraft* StationParam, FFlareResourceDescription* ResourceParam, int32 QuantityParam)
+{
+	if (ConditionIdentifierParam == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionBuyAtStation need identifier for state saving");
+	}
+	LoadInternal(ParentQuest, ConditionIdentifierParam);
+	Callbacks.AddUnique(EFlareQuestCallback::TRADE_DONE);
+	TargetStation = StationParam;
+	Resource = ResourceParam;
+	Quantity = QuantityParam;
+
+	InitialLabel = FText::Format(LOCTEXT("BuyAtStation", "Buy {0} {1} from {2} at {3}"),
+								 FText::AsNumber(Quantity), Resource->Name, FText::FromName(TargetStation->GetImmatriculation()), TargetStation->GetCurrentSector()->GetSectorName());
+}
+
+void UFlareQuestConditionBuyAtStation::Restore(const FFlareBundle* Bundle)
+{
+	bool HasSave = true;
+	if(Bundle)
+	{
+		HasSave &= Bundle->HasInt32(CURRENT_PROGRESSION_TAG);
+	}
+	else
+	{
+		HasSave = false;
+	}
+
+	if(HasSave)
+	{
+		CurrentProgression = Bundle->GetInt32(CURRENT_PROGRESSION_TAG);
+	}
+	else
+	{
+		CurrentProgression = 0;
+	}
+
+}
+
+void UFlareQuestConditionBuyAtStation::Save(FFlareBundle* Bundle)
+{
+	Bundle->PutInt32(CURRENT_PROGRESSION_TAG, CurrentProgression);
+}
+
+
+bool UFlareQuestConditionBuyAtStation::IsCompleted()
+{
+	return CurrentProgression >= Quantity;
+}
+
+void UFlareQuestConditionBuyAtStation::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = Quantity;
+	ObjectiveCondition.MaxProgress = Quantity;
+	ObjectiveCondition.Counter = CurrentProgression;
+	ObjectiveCondition.Progress = CurrentProgression;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+void UFlareQuestConditionBuyAtStation::OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* TradeResource, int32 TradeQuantity)
+{
+	if(SourceSpacecraft != TargetStation)
+	{
+		return;
+	}
+
+	if(DestinationSpacecraft->GetCompany() != GetGame()->GetPC()->GetCompany())
+	{
+		return;
+	}
+
+	if(Resource != TradeResource)
+	{
+		return;
+	}
+
+	CurrentProgression+=TradeQuantity;
+	if (CurrentProgression >= Quantity)
+	{
+		CurrentProgression = Quantity;
+	}
+}
+
 #undef LOCTEXT_NAMESPACE

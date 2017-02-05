@@ -11,6 +11,7 @@ class UFlareSimulatedSector;
 class UFlareSimulatedSpacecraft;
 struct FFlarePlayerObjectiveData;
 struct FFlareBundle;
+struct FFlareResourceDescription;
 
 /** A quest Step condition */
 UCLASS(abstract)
@@ -28,6 +29,8 @@ public:
 	}
 
 	virtual void AddSave(TArray<FFlareQuestConditionSave>& Data);
+
+	virtual void OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 Quantity) {}
 
 protected:
 
@@ -484,4 +487,30 @@ protected:
 
 	UFlareSimulatedSpacecraft* TargetSpacecraft;
 	FName TargetSpacecraftId;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionBuyAtStation: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	static UFlareQuestConditionBuyAtStation* Create(UFlareQuest* ParentQuest, FName ConditionIdentifierParam, UFlareSimulatedSpacecraft* StationParam, FFlareResourceDescription* ResourceParam, int32 QuantityParam);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifierParam, UFlareSimulatedSpacecraft* StationParam, FFlareResourceDescription* ResourceParam, int32 QuantityParam);
+
+	virtual bool IsCompleted();
+	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
+
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual void OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* TradeResource, int32 TradeQuantity);
+
+protected:
+
+	UFlareSimulatedSpacecraft* TargetStation;
+	FFlareResourceDescription* Resource;
+	int32 Quantity;
+	int32 CurrentProgression;
 };
