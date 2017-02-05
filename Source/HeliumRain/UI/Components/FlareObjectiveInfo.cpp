@@ -317,7 +317,7 @@ TOptional<float> SFlareObjectiveInfo::GetProgress(int32 ConditionIndex) const
 	}
 	else
 	{
-		return Condition->Counter / Condition->MaxCounter;
+		return (float) Condition->Counter / (float) Condition->MaxCounter;
 	}
 }
 
