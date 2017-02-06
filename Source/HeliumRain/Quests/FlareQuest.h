@@ -59,6 +59,7 @@ public:
 	/** Save the quest status to a save file */
 	virtual FFlareQuestProgressSave* Save();
 
+	void SetupIndexes();
 
 	/*----------------------------------------------------
 		Gameplay

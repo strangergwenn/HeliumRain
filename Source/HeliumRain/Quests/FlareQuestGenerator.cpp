@@ -47,6 +47,10 @@ void UFlareQuestGenerator::LoadQuests(const FFlareQuestSave& Data)
 		{
 			Quest = NewObject<UFlareQuestGeneratedResourcePurchase>(this, UFlareQuestGeneratedResourcePurchase::StaticClass());
 		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedResourceTrade::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedResourceTrade>(this, UFlareQuestGeneratedResourceTrade::StaticClass());
+		}
 		else
 		{
 			continue;
@@ -144,6 +148,17 @@ UFlareQuest* UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Se
 		Quest->UpdateState();
 	}
 
+	for (UFlareCompany* Company : QuestManager->GetGame()->GetGameWorld()->GetCompanies())
+	{
+		Quest = UFlareQuestGeneratedResourceTrade::Create(this, Sector, Company);
+		if (Quest)
+		{
+			QuestManager->AddQuest(Quest);
+			GeneratedQuests.Add(Quest);
+			QuestManager->LoadCallbacks(Quest);
+			Quest->UpdateState();
+		}
+	}
 
 	return Quest;
 }
@@ -641,5 +656,229 @@ void UFlareQuestGeneratedResourcePurchase::Load(UFlareQuestGenerator* Parent, co
 	SetupQuestGiver(Station->GetCompany(), true);
 	SetupGenericReward(Data);
 }
+
+/*----------------------------------------------------
+	Generated resource trade quest
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "GeneratedResourceTrade"
+UFlareQuestGeneratedResourceTrade::UFlareQuestGeneratedResourceTrade(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company)
+{
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	FLOGV("Create quest UFlareQuestGeneratedResourceTrade for %s in %s ", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString());
+
+	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	{
+		return NULL;
+	}
+
+	// Find a best friendly station in sector
+	TMap<FFlareResourceDescription*, int32> BestQuantityToBuyPerResource;
+	TMap<FFlareResourceDescription*, UFlareSimulatedSpacecraft*> BestStationToBuyPerResource;
+	TMap<FFlareResourceDescription*, int32> BestQuantityToSellPerResource;
+	TMap<FFlareResourceDescription*, UFlareSimulatedSpacecraft*> BestStationToSellPerResource;
+
+	for (UFlareSimulatedSpacecraft* CandidateStation : Sector->GetSectorStations())
+	{
+		// Check friendlyness
+		if (CandidateStation->GetCompany()->GetWarState(Company) != EFlareHostility::Owned)
+		{
+			continue;
+		}
+
+		// Check if have too much stock there is another distant station
+
+		for (FFlareCargo& Slot : CandidateStation->GetCargoBay()->GetSlots())
+		{
+			if (Slot.Lock != EFlareResourceLock::Output)
+			{
+				// Not an output resource
+				continue;
+			}
+
+			int32 AvailableResourceQuantity = Slot.Quantity - CandidateStation->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO;
+
+			if (AvailableResourceQuantity <= 0)
+			{
+				// Not enought resources
+				continue;
+			}
+
+			// It's a good candidate
+			if(!BestQuantityToBuyPerResource.Contains(Slot.Resource) || BestQuantityToBuyPerResource[Slot.Resource] > AvailableResourceQuantity)
+			{
+				// Best candidate
+				BestQuantityToBuyPerResource.Add(Slot.Resource, AvailableResourceQuantity);
+				BestStationToBuyPerResource.Add(Slot.Resource, CandidateStation);
+
+				FLOGV("add station 1 candidate %s for resource %s and quantity %d",
+					  *CandidateStation->GetImmatriculation().ToString(), *Slot.Resource->Acronym.ToString(), AvailableResourceQuantity);
+			}
+		}
+	}
+
+	for(UFlareCompany* Company2: Parent->GetGame()->GetGameWorld()->GetCompanies())
+	{
+		if (Company2 == PlayerCompany || Company2->GetWarState(Company) == EFlareHostility::Hostile)
+		{
+			continue;
+		}
+
+		for (UFlareSimulatedSpacecraft* CandidateStation : Company2->GetCompanyStations())
+		{
+
+			// Check if have too much stock there is another distant station
+
+			for (FFlareCargo& Slot : CandidateStation->GetCargoBay()->GetSlots())
+			{
+				if (Slot.Lock != EFlareResourceLock::Input)
+				{
+					// Not an input resource
+					continue;
+				}
+
+
+				int32 MissingResourceQuantity = CandidateStation->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO - Slot.Quantity;
+
+				if (MissingResourceQuantity <= 0)
+				{
+					// Enought resources
+					continue;
+				}
+
+				// It's a good candidate
+				if(!BestQuantityToSellPerResource.Contains(Slot.Resource) || BestQuantityToSellPerResource[Slot.Resource] > MissingResourceQuantity)
+				{
+					// Best candidate
+					BestQuantityToSellPerResource.Add(Slot.Resource, MissingResourceQuantity);
+					BestStationToSellPerResource.Add(Slot.Resource, CandidateStation);
+					FLOGV("add station 2 candidate %s for resource %s and quantity %d",
+						  *CandidateStation->GetImmatriculation().ToString(), *Slot.Resource->Acronym.ToString(), MissingResourceQuantity);
+				}
+			}
+		}
+	}
+
+
+	// All maps are full, now, pick the best candidate
+	int32 BestResourceQuantity = 0;
+	FFlareResourceDescription* BestResource = NULL;
+	UFlareSimulatedSpacecraft* Station1 = NULL;
+	UFlareSimulatedSpacecraft* Station2 = NULL;
+
+	for (UFlareResourceCatalogEntry* ResourcePointer : Parent->GetGame()->GetResourceCatalog()->GetResourceList())
+	{
+		FFlareResourceDescription* Resource = &ResourcePointer->Data;
+
+		if (BestQuantityToBuyPerResource.Contains(Resource) && BestQuantityToSellPerResource.Contains(Resource))
+		{
+			int32 MinQuantity = FMath::Min(BestQuantityToBuyPerResource[Resource], BestQuantityToSellPerResource[Resource]);
+			if(MinQuantity > BestResourceQuantity)
+			{
+				BestResourceQuantity = MinQuantity;
+				BestResource = Resource;
+			}
+		}
+	}
+	if(BestResource == NULL)
+	{
+		return NULL;
+	}
+	Station1 = BestStationToBuyPerResource[BestResource];
+	Station2 = BestStationToSellPerResource[BestResource];
+
+	// Setup reward
+	int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Parent->GetGame()->GetGameWorld(), Station1->GetCurrentSector(), Station2->GetCurrentSector());
+	int64 QuestValue = 2000 * BestResourceQuantity * TravelDuration;
+
+	// Create the quest
+	UFlareQuestGeneratedResourceTrade* Quest = NewObject<UFlareQuestGeneratedResourceTrade>(Parent, UFlareQuestGeneratedResourceTrade::StaticClass());
+
+	FFlareBundle Data;
+	Parent->GenerateIdentifer(UFlareQuestGeneratedResourceTrade::GetClass(), Data);
+
+	Data.PutName("station1", Station1->GetImmatriculation());
+	Data.PutName("sector1", Station1->GetCurrentSector()->GetIdentifier());
+	Data.PutName("station2", Station2->GetImmatriculation());
+	Data.PutName("sector2", Station2->GetCurrentSector()->GetIdentifier());
+	Data.PutName("resource", BestResource->Identifier);
+	Data.PutInt32("quantity", BestResourceQuantity);
+	Data.PutName("client", Station1->GetCompany()->GetIdentifier());
+	CreateGenericReward(Data, QuestValue);
+
+	Quest->Load(Parent, Data);
+
+	return Quest;
+}
+
+void UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+{
+	UFlareQuestGenerated::Load(Parent, Data);
+
+	UFlareSimulatedSector* Sector1 = Parent->GetGame()->GetGameWorld()->FindSector(InitData.GetName("sector1"));
+	UFlareSimulatedSector* Sector2 = Parent->GetGame()->GetGameWorld()->FindSector(InitData.GetName("sector2"));
+	UFlareSimulatedSpacecraft* Station1 = Parent->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station1"));
+	UFlareSimulatedSpacecraft* Station2 = Parent->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station2"));
+	FFlareResourceDescription* Resource = Parent->GetGame()->GetResourceCatalog()->Get(InitData.GetName("resource"));
+	int32 Quantity = InitData.GetInt32("quantity");
+
+	QuestClass = UFlareQuestGeneratedResourceTrade::GetClass();
+	Identifier = InitData.GetName("identifier");
+	if(Sector1 == Sector2)
+	{
+		QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","{0} trade in {1}"), Resource->Name, Sector1->GetSectorName());
+		QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat","Trade {0} {1} in {2}"),
+									 FText::AsNumber(Quantity), Resource->Name, Sector1->GetSectorName());
+	}
+	else
+	{
+		QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameDistant","{0} trade form {1} to {2}"), Resource->Name,
+								  Sector1->GetSectorName(), Sector2->GetSectorName());
+		QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionDistantFormat","Trade {0} {1} from {2} to {3}"),
+									 FText::AsNumber(Quantity), Resource->Name,
+										 Sector1->GetSectorName(), Sector2->GetSectorName());
+	}
+	QuestCategory = EFlareQuestCategory::SECONDARY;
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"TradeResource"
+		FText Description;
+		if(Sector1 == Sector2)
+		{
+			Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionLocal", "Trade {0} {1} in {2}"),
+										  FText::AsNumber(Quantity), Resource->Name, Sector1->GetSectorName());
+		}
+		else
+		{
+			Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDistant", "Trade {0} {1} from {2} to {3}"),
+										  FText::AsNumber(Quantity), Resource->Name, Sector1->GetSectorName(), Sector2->GetSectorName());
+		}
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "trade", Description);
+
+		UFlareQuestConditionBuyAtStation* Condition1 = UFlareQuestConditionBuyAtStation::Create(this, QUEST_TAG"cond1", Station1, Resource, Quantity);
+		Step->GetEndConditions().Add(Condition1);
+		UFlareQuestConditionSellAtStation* Condition2 = UFlareQuestConditionSellAtStation::Create(this, QUEST_TAG"cond2", Station2, Resource, Quantity);
+		Step->GetEndConditions().Add(Condition2);
+
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector1));
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector2));
+		Steps.Add(Step);
+	}
+
+	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station1));
+	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station2));
+	AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, Station2->GetCompany()));
+
+	SetupQuestGiver(Station1->GetCompany(), true);
+	SetupGenericReward(Data);
+}
+
 
 #undef LOCTEXT_NAMESPACE

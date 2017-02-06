@@ -156,4 +156,35 @@ void UFlareQuestStep::AddEndConditionObjectives(FFlarePlayerObjectiveData* Objec
 	}
 }
 
+void UFlareQuestStep::SetupStepIndexes(int32 Index)
+{
+	StepIndex = Index;
+
+	int32 ConditionIndex;
+
+	ConditionIndex = 0;
+	for (UFlareQuestCondition* Condition: EnableConditions)
+	{
+		Condition->SetConditionIndex(ConditionIndex++);
+	}
+
+	ConditionIndex = 0;
+	for (UFlareQuestCondition* Condition: BlockConditions)
+	{
+		Condition->SetConditionIndex(ConditionIndex++);
+	}
+
+	ConditionIndex = 0;
+	for (UFlareQuestCondition* Condition: FailConditions)
+	{
+		Condition->SetConditionIndex(ConditionIndex++);
+	}
+
+	ConditionIndex = 0;
+	for (UFlareQuestCondition* Condition: EndConditions)
+	{
+		Condition->SetConditionIndex(ConditionIndex++);
+	}
+}
+
 #undef LOCTEXT_NAMESPACE

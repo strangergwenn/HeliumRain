@@ -32,6 +32,11 @@ public:
 
 	virtual void OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 Quantity) {}
 
+	void SetConditionIndex(int32 Index)
+	{
+		ConditionIndex = Index;
+	}
+
 protected:
 
 	  void LoadInternal(UFlareQuest* ParentQuest, FName ConditionIdentifier = NAME_None)

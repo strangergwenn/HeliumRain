@@ -132,7 +132,7 @@ public:
 	/*----------------------------------------------------
 		Quest management
 	----------------------------------------------------*/
-		
+
 	/** Accept this quest */
 	void AcceptQuest(UFlareQuest* Quest);
 

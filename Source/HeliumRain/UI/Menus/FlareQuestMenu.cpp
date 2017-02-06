@@ -464,7 +464,7 @@ void SFlareQuestMenu::FillQuestDetails()
 			FText StepConditionsText;
 			for(UFlareQuestCondition* Condition : QuestStep->GetEndConditions())
 			{
-				FLOGV ("condition %s", *Condition->GetInitialLabel().ToString());
+				FLOGV ("condition %s (%d)", *Condition->GetInitialLabel().ToString(), Condition->GetConditionIndex());
 				StepConditionsText = FText::Format(LOCTEXT("StepConditionFormat", "{0}{1}{2}"),
 					StepConditionsText,
 					(Condition->GetConditionIndex() > 0 ? FText::FromString("\n") : FText()),

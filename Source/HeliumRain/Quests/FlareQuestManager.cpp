@@ -91,11 +91,7 @@ void UFlareQuestManager::AddQuest(UFlareQuest* Quest)
 	int QuestProgressIndex = ActiveQuestIdentifiers.IndexOfByKey(Quest->GetIdentifier());
 
 	// Setup quest index
-	int32 StepIndex = 0;
-	for(UFlareQuestStep* Step : Quest->GetSteps())
-	{
-		Step->SetStepIndex(StepIndex++);
-	}
+	Quest->SetupIndexes();
 
 	// Skip tutorial quests.
 	if (Quest->GetQuestCategory() == EFlareQuestCategory::TUTORIAL && !QuestData.PlayTutorial)

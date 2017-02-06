@@ -124,7 +124,6 @@ public:
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector);
 };
 
-
 //////////////////////////////////////////////////////
 UCLASS()
 class HELIUMRAIN_API UFlareQuestGeneratedResourcePurchase: public UFlareQuestGenerated
@@ -139,3 +138,16 @@ public:
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector);
 };
 
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestGeneratedResourceTrade: public UFlareQuestGenerated
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static FName GetClass() { return "resource-trade"; }
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company);
+};

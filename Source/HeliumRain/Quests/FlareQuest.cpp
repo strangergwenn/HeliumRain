@@ -89,6 +89,21 @@ FFlareQuestProgressSave* UFlareQuest::Save()
 	return &QuestData;
 }
 
+void UFlareQuest::SetupIndexes()
+{
+	int32 StepIndex = 0;
+	for(UFlareQuestStep* Step : GetSteps())
+	{
+		Step->SetupStepIndexes(StepIndex++);
+	}
+
+	// Setup condition indexes
+	int32 ConditionIndex = 0;
+	for (UFlareQuestCondition* Condition: TriggerConditions)
+	{
+		Condition->SetConditionIndex(ConditionIndex++);
+	}
+}
 
 /*----------------------------------------------------
 	Gameplay
