@@ -294,7 +294,7 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 				UMaterialInterface* BaseMaterial = GetMaterial(Element.MaterialIndex);
 
 				// Base material
-				if (ElementIndex == 0)
+				if (Element.MaterialIndex == 0)
 				{
 					// Generate MIDs from LOD 0 only, apply generated materials at each LOD
 					if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
@@ -308,7 +308,7 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 				}
 
 				// Effect material
-				else if (ElementIndex == 1)
+				else if (Element.MaterialIndex == 1)
 				{
 					// Generate MIDs from LOD 0 only, apply generated materials at each LOD
 					if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
