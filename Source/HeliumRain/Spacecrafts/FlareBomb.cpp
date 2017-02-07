@@ -28,7 +28,6 @@ AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 	RootComponent = BombComp;
 
 	// Settings
-	SetActorEnableCollision(false);
 	PrimaryActorTick.bCanEverTick = true;
 	Paused = false;
 }
@@ -78,12 +77,7 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 		BombData.Identifier = Weapon->GetSpacecraft()->GetGame()->GenerateIdentifier(TEXT("bomb"));
 	}
 
-	if (BombData.Activated)
-	{
-		SetActorEnableCollision(true);
-	}
-
-
+	SetActorEnableCollision(BombData.Activated);
 
 	if (BombData.AttachTarget != NAME_None)
 	{
