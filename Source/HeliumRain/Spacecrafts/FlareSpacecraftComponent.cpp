@@ -273,6 +273,7 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 	{
 		SetStaticMesh(Mesh);
 		SetMaterial(0, Mesh->GetMaterial(0));
+		SetMaterial(1, Mesh->GetMaterial(1));
 	}
 	else if (ComponentDescription && !Mesh)
 	{
@@ -283,44 +284,20 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 
 	if (GetStaticMesh())
 	{
-		// Parse all LODs levels, then all elements
-		for (int32 LODIndex = 0; LODIndex < GetStaticMesh()->RenderData->LODResources.Num(); LODIndex++)
+		// Base material
+		int ComponentMaterialIndex = GetMaterialIndex("Base");
+		if (ComponentMaterialIndex >= 0)
 		{
-			FStaticMeshLODResources& LOD = GetStaticMesh()->RenderData->LODResources[LODIndex];
-			for (int32 ElementIndex = 0; ElementIndex < LOD.Sections.Num(); ElementIndex++)
-			{
-				// Get base material from LOD element
-				const FStaticMeshSection& Element = LOD.Sections[ElementIndex];
-				UMaterialInterface* BaseMaterial = GetMaterial(Element.MaterialIndex);
+			ComponentMaterial = UMaterialInstanceDynamic::Create(GetMaterial(ComponentMaterialIndex), GetWorld());
+			SetMaterialByName("Base", ComponentMaterial);
+		}
 
-				// Base material
-				if (Element.MaterialIndex == 0)
-				{
-					// Generate MIDs from LOD 0 only, apply generated materials at each LOD
-					if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
-					{
-						ComponentMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
-					}
-					if (ComponentMaterial)
-					{
-						SetMaterial(Element.MaterialIndex, ComponentMaterial);
-					}
-				}
-
-				// Effect material
-				else if (Element.MaterialIndex == 1)
-				{
-					// Generate MIDs from LOD 0 only, apply generated materials at each LOD
-					if (LODIndex == 0 && BaseMaterial && !BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
-					{
-						EffectMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
-					}
-					if (EffectMaterial)
-					{
-						SetMaterial(Element.MaterialIndex, EffectMaterial);
-					}
-				}
-			}
+		// Exhaust material
+		int EffectMaterialIndex = GetMaterialIndex("Exhaust");
+		if (EffectMaterialIndex >= 0)
+		{
+			EffectMaterial = UMaterialInstanceDynamic::Create(GetMaterial(EffectMaterialIndex), GetWorld());
+			SetMaterialByName("Exhaust", EffectMaterial);
 		}
 	}
 }
