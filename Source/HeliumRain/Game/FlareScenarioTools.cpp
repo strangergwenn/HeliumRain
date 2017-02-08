@@ -286,7 +286,7 @@ void UFlareScenarioTools::SetupWorld()
 
 		// NH Habitation
 		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(135, UpVector);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(90, 0, 135));
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(-90, 0, 135));
 		CreateStations("station-nh-habitation", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
 	}
 	
