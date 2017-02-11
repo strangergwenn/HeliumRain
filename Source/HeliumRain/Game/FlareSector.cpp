@@ -149,16 +149,24 @@ AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidDat
 
 AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* ParentSpacecraft)
 {
-	AFlareSpacecraft* Spacecraft = NULL;
-	/*FLOGV("UFlareSector::LoadSpacecraft : Start loading ('%s')", *ParentSpacecraft->GetImmatriculation().ToString());*/
+	FCHECK(ParentSpacecraft);
+	FCHECK(ParentSpacecraft);
+	FCHECK(ParentSpacecraft->GetDescription());
+	FCHECK(ParentSpacecraft->GetDescription()->Template);
 
+	FLOGV("UFlareSector::LoadSpacecraft : Start loading '%s' (template '%s' at %x)",
+		*ParentSpacecraft->GetImmatriculation().ToString(),
+		*ParentSpacecraft->GetDescription()->Template->GetName(),
+		ParentSpacecraft->GetDescription()->Template);
+	
 	// Spawn parameters
 	FActorSpawnParameters Params;
 	Params.bNoFail = true;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	auto SpacecraftClass = ParentSpacecraft->GetDescription()->Template->GeneratedClass;
 
 	// Create and configure the ship
-	Spacecraft = GetGame()->GetWorld()->SpawnActor<AFlareSpacecraft>(ParentSpacecraft->GetDescription()->Template->GeneratedClass, ParentSpacecraft->GetData().Location, ParentSpacecraft->GetData().Rotation, Params);
+	AFlareSpacecraft* Spacecraft = GetGame()->GetWorld()->SpawnActor<AFlareSpacecraft>(SpacecraftClass, ParentSpacecraft->GetData().Location, ParentSpacecraft->GetData().Rotation, Params);
 	if (Spacecraft && !Spacecraft->IsPendingKillPending())
 	{
 		Spacecraft->Load(ParentSpacecraft);
