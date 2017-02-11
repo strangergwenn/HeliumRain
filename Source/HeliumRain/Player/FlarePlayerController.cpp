@@ -627,9 +627,18 @@ void AFlarePlayerController::SetupMenu()
 	// Save the default pawn
 	APawn* DefaultPawn = GetPawn();
 
-	// Spawn the menu pawn at an arbitrarily large location
+	// Get the menu pawn
+	TArray<AActor*> MenuPawnCandidates;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFlareMenuPawn::StaticClass(), MenuPawnCandidates);
+	if (MenuPawnCandidates.Num())
+	{
+		MenuPawn = Cast<AFlareMenuPawn>(MenuPawnCandidates.Last());
+	}
+	FCHECK(MenuPawn);
+
+	// Put the menu pawn at an arbitrarily large location
 	FVector ActorSpawnLocation(1000000 * FVector(-1, -1, -1));
-	MenuPawn = GetWorld()->SpawnActor<AFlareMenuPawn>(GetGame()->GetMenuPawnClass(), ActorSpawnLocation, FRotator::ZeroRotator);
+	MenuPawn->SetActorLocation(ActorSpawnLocation);
 	Possess(MenuPawn);
 	
 	// Spawn the menu manager

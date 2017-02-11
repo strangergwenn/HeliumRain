@@ -44,21 +44,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	// Default asteroid
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultAsteroidObj(TEXT("/Game/Master/Default/SM_Asteroid_Default.SM_Asteroid_Default"));
 	DefaultAsteroid = DefaultAsteroidObj.Object;
-
-	// Menu pawn
-	static ConstructorHelpers::FObjectFinder<UBlueprint> MenuPawnBPClass(TEXT("/Game/Gameplay/Menu/BP_MenuPawn.BP_MenuPawn"));
-	if (MenuPawnBPClass.Object != NULL)
-	{
-		MenuPawnClass = (UClass*)MenuPawnBPClass.Object->GeneratedClass;
-	}
-
-	// Planetary system
-	static ConstructorHelpers::FObjectFinder<UBlueprint> PlanetariumBPClass(TEXT("/Game/Environment/BP_Planetarium.BP_Planetarium"));
-	if (PlanetariumBPClass.Object != NULL)
-	{
-		PlanetariumClass = (UClass*)PlanetariumBPClass.Object->GeneratedClass;
-	}
-
+	
 	// Data catalogs
 	struct FConstructorStatics
 	{
@@ -145,15 +131,12 @@ void AFlareGame::StartPlay()
 
 	// Spawn planetarium if it's not in the level
 	TArray<AActor*> PlanetariumCandidates;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), PlanetariumClass, PlanetariumCandidates);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFlarePlanetarium::StaticClass(), PlanetariumCandidates);
 	if (PlanetariumCandidates.Num())
 	{
 		Planetarium = Cast<AFlarePlanetarium>(PlanetariumCandidates.Last());
 	}
-	else
-	{
-		Planetarium = GetWorld()->SpawnActor<AFlarePlanetarium>(PlanetariumClass, FVector::ZeroVector, FRotator::ZeroRotator);
-	}
+	FCHECK(Planetarium);
 
 	// Spawn debris field system
 	DebrisFieldSystem = NewObject<UFlareDebrisField>(this, UFlareDebrisField::StaticClass());

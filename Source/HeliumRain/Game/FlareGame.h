@@ -178,15 +178,7 @@ protected:
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
-
-	/** The default pawn class used by players. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameMode)
-	TSubclassOf<class AFlareMenuPawn>          MenuPawnClass;
-
-	/** Planetary system class */
-	UPROPERTY(EditAnywhere, Category = GameMode)
-	TSubclassOf<class AFlarePlanetarium>       PlanetariumClass;
-
+		
 	/** Planetary system */
 	UPROPERTY()
 	AFlarePlanetarium*                         Planetarium;
@@ -358,11 +350,6 @@ public:
 	inline const int32 GetCompanyCatalogCount() const
 	{
 		return (CompanyCatalog ? CompanyCatalog->Companies.Num() : 0);
-	}
-
-	inline UClass* GetMenuPawnClass() const
-	{
-		return MenuPawnClass;
 	}
 
 	inline UFlareSpacecraftCatalog* GetSpacecraftCatalog() const
