@@ -1398,8 +1398,8 @@ FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float Desig
 
 void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 {
-	int32 DockingIconSize = 128;
-	int32 DockingRoolIconSize = 32;
+	int32 DockingIconSize = 64;
+	int32 DockingRoolIconSize = 16;
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
@@ -1472,7 +1472,7 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 			{
 				FVector2D DockAxis = (CameraTargetScreenPosition - CameraTargetDockDirectionScreenPosition).GetSafeNormal();
 
-				FVector2D TopPosition = CameraTargetScreenPosition + DockAxis * 52;
+				FVector2D TopPosition = CameraTargetScreenPosition + DockAxis * 26;
 				float Rotation = -FMath::RadiansToDegrees(FMath::Atan2(DockAxis.X, DockAxis.Y)) - 90;
 
 				DrawHUDIconRotated(TopPosition, DockingRoolIconSize, HUDCombatMouseIcon, HelperColor, Rotation);
