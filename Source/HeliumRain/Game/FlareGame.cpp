@@ -42,18 +42,18 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	DefaultTurretIdentifier = FName("weapon-artemis");
 
 	// Default asteroid
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultAsteroidObj(TEXT("/Game/Master/Default/SM_Asteroid_Default"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> DefaultAsteroidObj(TEXT("/Game/Master/Default/SM_Asteroid_Default.SM_Asteroid_Default"));
 	DefaultAsteroid = DefaultAsteroidObj.Object;
 
 	// Menu pawn
-	static ConstructorHelpers::FObjectFinder<UBlueprint> MenuPawnBPClass(TEXT("/Game/Gameplay/Menu/BP_MenuPawn"));
+	static ConstructorHelpers::FObjectFinder<UBlueprint> MenuPawnBPClass(TEXT("/Game/Gameplay/Menu/BP_MenuPawn.BP_MenuPawn"));
 	if (MenuPawnBPClass.Object != NULL)
 	{
 		MenuPawnClass = (UClass*)MenuPawnBPClass.Object->GeneratedClass;
 	}
 
 	// Planetary system
-	static ConstructorHelpers::FObjectFinder<UBlueprint> PlanetariumBPClass(TEXT("/Game/Environment/BP_Planetarium"));
+	static ConstructorHelpers::FObjectFinder<UBlueprint> PlanetariumBPClass(TEXT("/Game/Environment/BP_Planetarium.BP_Planetarium"));
 	if (PlanetariumBPClass.Object != NULL)
 	{
 		PlanetariumClass = (UClass*)PlanetariumBPClass.Object->GeneratedClass;
@@ -68,10 +68,10 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 		ConstructorHelpers::FObjectFinder<UFlareOrbitalMap> OrbitalBodies;
 
 		FConstructorStatics()
-			: CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog"))
-			, AsteroidCatalog(TEXT("/Game/ThirdParty/Asteroids/AsteroidCatalog"))
-			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog"))
-			, OrbitalBodies(TEXT("/Game/Gameplay/Catalog/OrbitalMap"))
+			: CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog.CustomizationCatalog"))
+			, AsteroidCatalog(TEXT("/Game/ThirdParty/Asteroids/AsteroidCatalog.AsteroidCatalog"))
+			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog.CompanyCatalog"))
+			, OrbitalBodies(TEXT("/Game/Gameplay/Catalog/OrbitalMap.OrbitalMap"))
 		{}
 	};
 	static FConstructorStatics ConstructorStatics;
