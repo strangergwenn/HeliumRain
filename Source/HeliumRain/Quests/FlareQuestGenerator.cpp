@@ -121,6 +121,28 @@ void UFlareQuestGenerator::GenerateIdentifer(FName QuestClass, FFlareBundle& Dat
 
 UFlareQuest* UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 {
+	// For each company
+
+		// Propability to give a quest is :
+		// 100 % if quest count = 0
+		// 0 % if quest count = MAX_QUEST
+		// With early quick drop
+		// So pow(1-questCount/MAX_QUEST, 2)
+		//
+		// Then make proba variable with the reputation :
+		// if rep > 0 : 100 %
+		// if rep < 0 : 100 % + rep (negative, so 0% at 0)
+
+		// Then try to create a trade quest,
+		// if not, try to create a Purchase quest
+		// if not, try to create a Sell quest
+
+
+		// Add the quest
+
+
+
+
 	UFlareQuestGenerated* Quest = UFlareQuestGeneratedVipTransport::Create(this, Sector);
 	if (Quest)
 	{
