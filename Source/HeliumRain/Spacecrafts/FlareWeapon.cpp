@@ -259,7 +259,7 @@ bool UFlareWeapon::FireBomb()
 	AFlareBomb* Bomb = Bombs.Pop();
 	if (Bomb)
 	{
-		Bomb->OnLaunched();
+		Bomb->OnLaunched(Spacecraft->GetCurrentTarget());
 		ShipComponentData->Weapon.FiredAmmo++;
 		Spacecraft->GetParent()->GetDamageSystem()->SetAmmoDirty();
 	}

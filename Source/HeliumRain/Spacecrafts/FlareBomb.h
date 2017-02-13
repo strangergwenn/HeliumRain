@@ -79,7 +79,7 @@ public:
 	void Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon);
 
 	/** Launch the weapon */
-	virtual void OnLaunched();
+	virtual void OnLaunched(AFlareSpacecraft* Target);
 
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -139,6 +139,8 @@ protected:
 	bool                                    Paused;
 
 	FRotator								LastTickRotation;
+
+	AFlareSpacecraft*  TargetSpacecraft;
 
 public:
 

@@ -18,6 +18,8 @@
 
 AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 {
+	TargetSpacecraft = NULL;
+
 	// Mesh data
 	BombComp = PCIP.CreateDefaultSubobject<UFlareBombComponent>(this, TEXT("Root"));
 	BombComp->bTraceComplexOnMove = true;
@@ -86,7 +88,7 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 	}
 }
 
-void AFlareBomb::OnLaunched()
+void AFlareBomb::OnLaunched(AFlareSpacecraft* Target)
 {
 	FLOG("AFlareBomb::OnLaunched");
 
@@ -103,6 +105,7 @@ void AFlareBomb::OnLaunched()
 	BombData.DropParentDistance = GetParentDistance();
 	BombData.Dropped = true;
 	BombData.LifeTime = 0;
+	TargetSpacecraft = Target;
 }
 
 void AFlareBomb::Tick(float DeltaSeconds)
@@ -147,6 +150,110 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		}
 	}
 
+	if (TargetSpacecraft)
+	{
+		FVector TargetDelta = TargetSpacecraft->GetActorLocation() - GetActorLocation();
+		FVector TargetDirection = TargetDelta.GetUnsafeNormal();
+		FVector TargetVelocity = TargetSpacecraft->GetVelocity();
+		FVector BombVelocity = BombComp->GetPhysicsLinearVelocity();
+		FVector BombVelocityDirection = BombVelocity.GetUnsafeNormal();
+		float DeltaVelocity = (BombVelocity - TargetVelocity).Size();
+
+
+		float TimeToImpact = TargetDelta.Size() / DeltaVelocity;
+		if(TimeToImpact < 0 || TimeToImpact > 2)
+		{
+			TimeToImpact = DeltaSeconds;
+		}
+		FVector AimDelta = (TargetSpacecraft->GetActorLocation() + TimeToImpact * TargetVelocity)  - GetActorLocation();
+		FVector AimDirection = AimDelta.GetUnsafeNormal();
+
+
+		FVector DirectionDelta = TargetDirection - BombVelocityDirection;
+
+		FVector DeltaV;
+		FVector AccelerationDirection;
+		FVector DirectionCorrectionDirection = AimDirection;
+
+		if (!DirectionDelta.IsNearlyZero())
+		{
+			DirectionCorrectionDirection = (AimDirection - BombVelocityDirection).GetUnsafeNormal();
+
+		}
+
+		float MaxAcceleration = 5000; // in m.s-2
+		float DirectionCorrectionThresold = 0.999;
+		float NominalVelocity = 10000; // In cm/s
+
+		float NeededAcceleration;
+		float Dot = FVector::DotProduct(BombVelocityDirection, AimDirection);
+		FLOGV("Dot %f", Dot);
+
+		FLOGV("TimeToImpact %f", TimeToImpact);
+		FLOGV("DeltaSeconds %f", DeltaSeconds);
+
+		if (Dot < DirectionCorrectionThresold)
+		{
+
+
+
+			DeltaV = (AimDirection * BombVelocity.Size() - BombVelocity).GetClampedToSize(0, MaxAcceleration * DeltaSeconds);
+
+			FLOGV("Direction DeltaVelocity %s", *(AimDirection * BombVelocity.Size() - BombVelocity).ToString());
+			FLOGV("Direction DeltaVelocity  size %f", (AimDirection * BombVelocity.Size() - BombVelocity).Size());
+
+			AccelerationDirection = DirectionCorrectionDirection;
+			NeededAcceleration = 1; // Max correction
+		}
+		else
+		{
+			float Alpha = (1 - Dot) / (1 - DirectionCorrectionThresold);
+
+			FLOGV("Alpha %f", Alpha);
+
+			NeededAcceleration = Alpha; // Direction correction Need
+
+
+
+
+			FLOGV("DeltaVelocity %f", DeltaVelocity);
+
+			if(DeltaVelocity < NominalVelocity)
+			{
+				NeededAcceleration = 1;
+				AccelerationDirection = DirectionCorrectionDirection * Alpha + AimDirection * (1 - Alpha);
+			}
+			else
+			{
+				AccelerationDirection = DirectionCorrectionDirection;
+			}
+
+			DeltaV = MaxAcceleration * DeltaSeconds * NeededAcceleration * AccelerationDirection;
+		}
+
+
+		//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + BombVelocity  * 1, FColor::White, true);
+		//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + AimDirection  * 500, FColor::Yellow, true);
+		//DrawDebugLine(GetWorld(), GetActorLocation(), TargetSpacecraft->GetActorLocation(), FColor::Red, true);
+
+		//Acceleration = MaxAcceleration * NeededAcceleration * AccelerationDirection;
+
+		if (Dot < DirectionCorrectionThresold)
+		{
+		//	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + DeltaV  * 1, FColor::Blue, true);
+		}
+		else
+		{
+		//	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + DeltaV  * 1, FColor::Green, true);
+		}
+
+		FLOGV("DeltaV %s", *DeltaV.ToString());
+		FLOGV("AccelerationDirection %s", *AccelerationDirection.ToString());
+		FLOGV("NeededAcceleration %f", NeededAcceleration);
+
+		BombComp->SetPhysicsLinearVelocity(DeltaV, true); // Multiply by 100 because UE4 works in cm
+		FRotator(FQuat::FastLerp(BombComp->RelativeRotation.Quaternion(), BombVelocityDirection.Rotation().Quaternion(), DeltaSeconds));
+	}
 
 }
 
