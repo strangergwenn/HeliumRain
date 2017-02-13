@@ -161,11 +161,12 @@ void AFlareBomb::Tick(float DeltaSeconds)
 
 
 	float ActivationTime = 1.5;
-	float MaxAcceleration = 10000; // in m.s-2
+	float MaxAcceleration = 5000; // in m.s-2
 	float DirectionCorrectionThresold = 0.999;
 	float NominalVelocity = 20000; // In cm/s
+	float MaxBurnDuration = 30; // In cm/s
 
-	if (TargetSpacecraft && BombData.LifeTime > ActivationTime)
+	if (TargetSpacecraft && BombData.LifeTime > ActivationTime && BombData.BurnDuration < MaxBurnDuration)
 	{
 		FVector TargetDelta = TargetSpacecraft->GetActorLocation() - GetActorLocation();
 		float TargetDistance = TargetDelta.Size();
@@ -229,7 +230,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		FLOGV("TargetDistance %f", TargetDistance);*/
 
 		BombComp->SetPhysicsLinearVelocity(DeltaV, true); // Multiply by 100 because UE4 works in cm
-		FRotator(FQuat::FastLerp(BombComp->RelativeRotation.Quaternion(), BombVelocityDirection.Rotation().Quaternion(), DeltaSeconds));
+		BombComp->SetRelativeRotation(FRotator(FQuat::FastLerp(BombComp->RelativeRotation.Quaternion(), BombVelocityDirection.Rotation().Quaternion(), DeltaSeconds)));
 		BombComp->SetPhysicsAngularVelocity(FVector::ZeroVector);
 
 		BombData.BurnDuration+=NeededAcceleration * DeltaSeconds;
