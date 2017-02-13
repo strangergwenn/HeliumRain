@@ -18,6 +18,16 @@ UFlareBombComponent::UFlareBombComponent(const class FObjectInitializer& PCIP)
 	Gameplay
 ----------------------------------------------------*/
 
+void UFlareBombComponent::UpdateEffects(float Alpha)
+{
+	// Apply the glow value
+	if (EffectMaterial && IsComponentVisible())
+	{
+		EffectMaterial->SetScalarParameterValue(TEXT("Opacity"), Alpha);
+	}
+}
+
+
 UStaticMesh* UFlareBombComponent::GetMesh(bool PresentationMode) const
 {
 	if (ComponentDescription)

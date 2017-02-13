@@ -19,6 +19,11 @@ public:
 	virtual UStaticMesh* GetMesh(bool PresentationMode) const override;
 
 	virtual float GetDamageRatio() const override;
+
+	/** Update the exhaust special effect */
+	virtual void UpdateEffects(float Alpha);
+
+
 public:
 
 	/*----------------------------------------------------

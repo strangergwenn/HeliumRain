@@ -157,7 +157,15 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		}
 	}
 
-	if (TargetSpacecraft)
+	float NeededAcceleration = 0;
+
+
+	float ActivationTime = 1.5;
+	float MaxAcceleration = 10000; // in m.s-2
+	float DirectionCorrectionThresold = 0.999;
+	float NominalVelocity = 20000; // In cm/s
+
+	if (TargetSpacecraft && BombData.LifeTime > ActivationTime)
 	{
 		FVector TargetDelta = TargetSpacecraft->GetActorLocation() - GetActorLocation();
 		float TargetDistance = TargetDelta.Size();
@@ -184,11 +192,9 @@ void AFlareBomb::Tick(float DeltaSeconds)
 
 		}
 
-		float MaxAcceleration = 10000; // in m.s-2
-		float DirectionCorrectionThresold = 0.999;
-		float NominalVelocity = 20000; // In cm/s
 
-		float NeededAcceleration;
+
+
 		float Dot = FVector::DotProduct(BombVelocityDirection, AimDirection);
 
 		if (Dot < DirectionCorrectionThresold)
@@ -228,6 +234,8 @@ void AFlareBomb::Tick(float DeltaSeconds)
 
 		BombData.BurnDuration+=NeededAcceleration * DeltaSeconds;
 	}
+
+	BombComp->UpdateEffects(NeededAcceleration);
 
 }
 
