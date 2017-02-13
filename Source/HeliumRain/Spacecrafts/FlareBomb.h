@@ -63,6 +63,11 @@ struct FFlareBombSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	float BurnDuration;
 
+	/** Guided bomb target spacecraft */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName AimTargetSpacecraft;
+
+
 };
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))

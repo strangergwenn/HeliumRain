@@ -86,6 +86,11 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 		AFlareSpacecraft* AttachTarget = ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->FindSpacecraft(BombData.AttachTarget);
 		AttachBomb(AttachTarget);
 	}
+	if (BombData.AimTargetSpacecraft != NAME_None)
+	{
+		TargetSpacecraft = ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->FindSpacecraft(BombData.AimTargetSpacecraft);
+	}
+
 	BombComp->BodyInstance.bUseCCD = true;
 }
 
@@ -404,6 +409,12 @@ FFlareBombSave* AFlareBomb::Save()
 		BombData.ParentSpacecraft = ParentWeapon->GetSpacecraft()->GetImmatriculation();
 		BombData.WeaponSlotIdentifier = ParentWeapon->SlotIdentifier;
 	}
+
+	if(TargetSpacecraft)
+	{
+		BombData.AimTargetSpacecraft = TargetSpacecraft->GetImmatriculation();
+	}
+
 
 	return &BombData;
 }

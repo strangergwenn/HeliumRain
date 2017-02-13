@@ -697,6 +697,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveBomb(FFlareBombSave* Data)
 	JsonObject->SetStringField("LinearVelocity", FormatVector(Data->LinearVelocity));
 	JsonObject->SetStringField("AngularVelocity", FormatVector(Data->AngularVelocity));
 	JsonObject->SetStringField("WeaponSlotIdentifier", Data->WeaponSlotIdentifier.ToString());
+	JsonObject->SetStringField("AimTargetSpacecraft", Data->AimTargetSpacecraft.ToString());
 	JsonObject->SetStringField("ParentSpacecraft", Data->ParentSpacecraft.ToString());
 	JsonObject->SetStringField("AttachTarget", Data->AttachTarget.ToString());
 	JsonObject->SetBoolField("Activated", Data->Activated);

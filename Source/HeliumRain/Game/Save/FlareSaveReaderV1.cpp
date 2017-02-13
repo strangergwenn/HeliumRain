@@ -799,6 +799,7 @@ void UFlareSaveReaderV1::LoadBomb(const TSharedPtr<FJsonObject> Object, FFlareBo
 	LoadFloat(Object, "DropParentDistance", &Data->DropParentDistance);
 	LoadFloat(Object, "LifeTime", &Data->LifeTime);
 	LoadFloat(Object, "BurnDuration", &Data->BurnDuration);
+	LoadFName(Object, "AimTargetSpacecraft", &Data->AimTargetSpacecraft);
 }
 
 
