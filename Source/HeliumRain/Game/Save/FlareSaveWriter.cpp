@@ -703,6 +703,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveBomb(FFlareBombSave* Data)
 	JsonObject->SetBoolField("Dropped", Data->Dropped);
 	SaveFloat(JsonObject,"DropParentDistance", Data->DropParentDistance);
 	SaveFloat(JsonObject,"LifeTime", Data->LifeTime);
+	SaveFloat(JsonObject,"BurnDuration", Data->BurnDuration);
 
 	return JsonObject;
 }

@@ -58,6 +58,11 @@ struct FFlareBombSave
 	/** Distance to parent on drop */
 	UPROPERTY(EditAnywhere, Category = Save)
 	float LifeTime;
+
+	/** Guided bomb burn duration */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float BurnDuration;
+
 };
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
@@ -141,7 +146,6 @@ protected:
 	FRotator								LastTickRotation;
 
 	AFlareSpacecraft*  TargetSpacecraft;
-
 public:
 
 	/*----------------------------------------------------
