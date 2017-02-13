@@ -1511,8 +1511,17 @@ void UFlareQuestConditionBuyAtStation::Load(UFlareQuest* ParentQuest, FName Cond
 	Resource = ResourceParam;
 	Quantity = QuantityParam;
 
-	InitialLabel = FText::Format(LOCTEXT("BuyAtStation", "Buy {0} {1} from {2} at {3}"),
+
+	if (TargetStation->IsDestroyed())
+	{
+		InitialLabel = FText::Format(LOCTEXT("BuyAtStationDestroyed", "Buy {0} {1} from {2} (destroyed)"),
+								 FText::AsNumber(Quantity), Resource->Name, FText::FromName(TargetStation->GetImmatriculation()));
+	}
+	else
+	{
+		InitialLabel = FText::Format(LOCTEXT("BuyAtStation", "Buy {0} {1} from {2} at {3}"),
 								 FText::AsNumber(Quantity), Resource->Name, FText::FromName(TargetStation->GetImmatriculation()), TargetStation->GetCurrentSector()->GetSectorName());
+	}
 }
 
 void UFlareQuestConditionBuyAtStation::Restore(const FFlareBundle* Bundle)
@@ -1613,8 +1622,16 @@ void UFlareQuestConditionSellAtStation::Load(UFlareQuest* ParentQuest, FName Con
 	Resource = ResourceParam;
 	Quantity = QuantityParam;
 
-	InitialLabel = FText::Format(LOCTEXT("SellAtStation", "Sell {0} {1} to {2} at {3}"),
+	if (TargetStation->IsDestroyed())
+	{
+		InitialLabel = FText::Format(LOCTEXT("SellAtStationDestroyed", "Sell {0} {1} to {2} (destroyed)"),
+								 FText::AsNumber(Quantity), Resource->Name, FText::FromName(TargetStation->GetImmatriculation()));
+	}
+	else
+	{
+		InitialLabel = FText::Format(LOCTEXT("SellAtStation", "Sell {0} {1} to {2} at {3}"),
 								 FText::AsNumber(Quantity), Resource->Name, FText::FromName(TargetStation->GetImmatriculation()), TargetStation->GetCurrentSector()->GetSectorName());
+	}
 }
 
 void UFlareQuestConditionSellAtStation::Restore(const FFlareBundle* Bundle)
