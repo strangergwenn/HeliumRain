@@ -487,7 +487,7 @@ struct FFlareSpacecraftDynamicComponentStateDescription
 
 	/** Dynamic component state templates */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UBlueprint*> StateTemplates;
+	TArray<UClass*> StateTemplates;
 
 };
 
@@ -698,9 +698,9 @@ struct FFlareSpacecraftDescription
 
 	/** Heat capacity un KJ/K */
 	UPROPERTY(EditAnywhere, Category = Content) float HeatCapacity;
-
-	/** Spacecraft mesh name */
-	UPROPERTY(EditAnywhere, Category = Content) UBlueprint* Template;
+	
+	/** Spacecraft mesh */
+	UPROPERTY(EditAnywhere, Category = Content) UClass* SpacecraftTemplate;
 
 	/** Spacecraft mesh preview image */
 	UPROPERTY(EditAnywhere, Category = Content) FSlateBrush MeshPreviewBrush;

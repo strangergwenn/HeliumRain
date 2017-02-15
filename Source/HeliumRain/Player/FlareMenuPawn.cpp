@@ -123,7 +123,7 @@ void AFlareMenuPawn::ShowShip(UFlareSimulatedSpacecraft* Spacecraft)
 
 	// Spawn and setup the ship
 	FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, false);
-	CurrentSpacecraft = GetWorld()->SpawnActor<AFlareSpacecraft>(Spacecraft->GetDescription()->Template->GeneratedClass, Params);
+	CurrentSpacecraft = GetWorld()->SpawnActor<AFlareSpacecraft>(Spacecraft->GetDescription()->SpacecraftTemplate, Params);
 	CurrentSpacecraft->AttachToActor(this, AttachRules, NAME_None);
 
 	// Setup rotation and scale

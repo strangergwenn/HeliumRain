@@ -931,7 +931,7 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 		}
 		else
 		{
-			Component->SetChildActorClass(*(CurrentState->StateTemplates[TemplateIndex]->GeneratedClass));
+			Component->SetChildActorClass(CurrentState->StateTemplates[TemplateIndex]);
 
 			if (Component->GetChildActor())
 			{
