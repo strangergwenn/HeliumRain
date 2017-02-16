@@ -83,7 +83,7 @@ void AFlarePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	EnableCheats();
-
+	
 	// Get settings
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	FCHECK(MyGameSettings);
@@ -167,20 +167,22 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		NewShowMouseCursor = false;
 	}
 
+	// Set the mouse status
 	if (NewShowMouseCursor != bShowMouseCursor)
 	{
-		// Set the mouse status
 		FLOGV("AFlarePlayerController::PlayerTick : New mouse cursor state is %d", NewShowMouseCursor);
+
 		bShowMouseCursor = NewShowMouseCursor;
-		
-		// Force focus to UI
-		FInputModeGameAndUI InputMode;
-		SetInputMode(InputMode);
 
-		if (!NewShowMouseCursor)
+		// Fix focus issues
+		if (bShowMouseCursor)
 		{
-			ULocalPlayer* LocalPlayer = Cast< ULocalPlayer >( Player );
-
+			auto& App = FSlateApplication::Get();
+			App.ReleaseMouseCapture();
+		}
+		else
+		{
+			ULocalPlayer* LocalPlayer = Cast< ULocalPlayer >(Player);
 			UGameViewportClient* GameViewportClient = GetWorld()->GetGameViewport();
 			TSharedPtr<SViewport> ViewportWidget = GameViewportClient->GetGameViewportWidget();
 			if (ViewportWidget.IsValid())
