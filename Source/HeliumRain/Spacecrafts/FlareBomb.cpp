@@ -136,10 +136,10 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		LastTickRotation = GetActorRotation();
 	}
 
-	float ActivationTime = 1.5; // ins
+	float ActivationTime = 2.0; // ins
 	float MaxAcceleration = 5000; // in m.s-2
 	float DirectionCorrectionThresold = 0.999; // In dot
-	float NominalVelocity = 20000; // In cm/s
+	float NominalVelocity = 10000; // In cm/s
 	float MaxBurnDuration = 30; // In s
 
 
