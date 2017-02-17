@@ -151,6 +151,10 @@ protected:
 	FRotator								LastTickRotation;
 
 	AFlareSpacecraft*  TargetSpacecraft;
+
+	FVector LastLocation;
+	FVector LastTargetLocation;
+
 public:
 
 	/*----------------------------------------------------
