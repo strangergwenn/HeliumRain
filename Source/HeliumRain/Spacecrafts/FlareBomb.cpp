@@ -31,6 +31,7 @@ AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.TickGroup = TG_PrePhysics;
 	Paused = false;
 }
 
@@ -173,6 +174,8 @@ void AFlareBomb::Tick(float DeltaSeconds)
 	{
 		//v2
 		FVector TargetDeltaLocation = TargetSpacecraft->GetActorLocation() - GetActorLocation();
+		FVector TargetPredictedLocation = TargetSpacecraft->GetActorLocation();
+		FVector TargetDeltaLocation = TargetPredictedLocation - GetActorLocation();
 		FVector TargetDirection = TargetDeltaLocation.GetUnsafeNormal();
 
 
