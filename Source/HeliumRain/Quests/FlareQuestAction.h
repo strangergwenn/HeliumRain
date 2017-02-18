@@ -52,6 +52,7 @@ class HELIUMRAIN_API UFlareQuestActionDiscoverSector: public UFlareQuestAction
 
 
 public:
+
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
@@ -59,6 +60,11 @@ public:
 	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam);
 
 	virtual void Perform();
+
+	inline UFlareSimulatedSector* GetSector() const
+	{
+		return Sector;
+	}
 
 protected:
 
@@ -77,6 +83,7 @@ class HELIUMRAIN_API UFlareQuestActionVisitSector: public UFlareQuestAction
 
 
 public:
+
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
@@ -102,6 +109,7 @@ class HELIUMRAIN_API UFlareQuestActionPrintMessage: public UFlareQuestAction
 
 
 public:
+
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
@@ -127,6 +135,7 @@ class HELIUMRAIN_API UFlareQuestActionGiveMoney: public UFlareQuestAction
 
 
 public:
+
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
@@ -134,6 +143,11 @@ public:
 	void Load(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam);
 
 	virtual void Perform();
+
+	inline int64 GetAmount() const
+	{
+		return Amount;
+	}
 
 protected:
 
@@ -154,6 +168,7 @@ class HELIUMRAIN_API UFlareQuestActionReputationChange: public UFlareQuestAction
 
 
 public:
+
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
@@ -161,6 +176,11 @@ public:
 	void Load(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam);
 
 	virtual void Perform();
+
+	inline int64 GetAmount() const
+	{
+		return Amount;
+	}
 
 protected:
 

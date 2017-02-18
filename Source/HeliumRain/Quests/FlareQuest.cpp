@@ -569,9 +569,74 @@ void UFlareQuest::OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlar
 	}
 }
 
+
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
+
+FText UFlareQuest::GetQuestReward()
+{
+	TArray<UFlareQuestAction*> Actions = GetSuccessActions();
+
+	FString Result;
+
+	for (auto Action : Actions)
+	{
+		UFlareQuestActionGiveMoney* MoneyAction = Cast<UFlareQuestActionGiveMoney>(Action);
+		if (MoneyAction)
+		{
+			Result += FText::Format(LOCTEXT("QuestRewardMoneyFormat", "Payment of {0} credits\n"), FText::AsNumber(MoneyAction->GetAmount())).ToString();
+		}
+
+		UFlareQuestActionDiscoverSector* SectorAction = Cast<UFlareQuestActionDiscoverSector>(Action);
+		if (SectorAction)
+		{
+			Result += FText::Format(LOCTEXT("QuestRewardSectorFormat", "Coordinates to sector {0}\n"), SectorAction->GetSector()->GetSectorName()).ToString();
+		}
+
+		UFlareQuestActionReputationChange* ReputationAction = Cast<UFlareQuestActionReputationChange>(Action);
+		if (ReputationAction)
+		{
+			Result += FText::Format(LOCTEXT("QuestRewardReputationFormat", "Gain of {0} reputation\n"), FText::AsNumber(ReputationAction->GetAmount())).ToString();
+		}
+	}
+
+	if (Result.Len() == 0)
+	{
+		return LOCTEXT("QuestRewardUnknown", "Unknown");
+	}
+
+	return FText::FromString(Result);
+}
+
+FText UFlareQuest::GetQuestPenalty()
+{
+	TArray<UFlareQuestAction*> Actions = GetFailActions();
+
+	FString Result;
+
+	for (auto Action : Actions)
+	{
+		UFlareQuestActionGiveMoney* MoneyAction = Cast<UFlareQuestActionGiveMoney>(Action);
+		if (MoneyAction)
+		{
+			Result += FText::Format(LOCTEXT("QuestPenaltyMoneyFormat", "Fine of {0} credits\n"), FText::AsNumber(-MoneyAction->GetAmount())).ToString();
+		}
+
+		UFlareQuestActionReputationChange* ReputationAction = Cast<UFlareQuestActionReputationChange>(Action);
+		if (ReputationAction)
+		{
+			Result += FText::Format(LOCTEXT("QuestPenaltyReputationFormat", "Loss of {0} reputation\n"), FText::AsNumber(-ReputationAction->GetAmount())).ToString();
+		}
+	}
+
+	if (Result.Len() == 0)
+	{
+		return LOCTEXT("QuestPenaltyUnknown", "Unknown");
+	}
+
+	return FText::FromString(Result);
+}
 
 FText UFlareQuest::GetStatusText() const
 {

@@ -550,6 +550,91 @@ void SFlareQuestMenu::FillQuestDetails()
 				}
 			}
 		}
+				
+		// Reward & penalty
+		QuestDetails->AddSlot()
+		.AutoHeight()
+		[
+			SNew(SHorizontalBox)
+
+			// Reward
+			+ SHorizontalBox::Slot()
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.TitlePadding)
+				[
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("OK"))
+					]
+
+					+ SHorizontalBox::Slot()
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SubTitleFont)
+						.Text(LOCTEXT("RewardTitle", "Rewards on success"))
+					]
+				]
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.WrapTextAt(0.9 * Theme.ContentWidth)
+					.TextStyle(&Theme.TextFont)
+					.Text(SelectedQuest->GetQuestReward())
+				]
+			]
+
+			// Penalty
+			+ SHorizontalBox::Slot()
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.TitlePadding)
+				[
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("Delete"))
+					]
+
+					+ SHorizontalBox::Slot()
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SubTitleFont)
+						.Text(LOCTEXT("PenaltyTitle", "Penalties on failure"))
+					]
+				]
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.WrapTextAt(0.9 * Theme.ContentWidth)
+					.TextStyle(&Theme.TextFont)
+					.Text(SelectedQuest->GetQuestPenalty())
+				]
+			]
+		];
 	}
 
 	// No active quest ?

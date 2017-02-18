@@ -6,6 +6,7 @@
 #include "FlareRCS.h"
 #include "FlareWeapon.h"
 #include "FlareShipPilot.h"
+#include "FlarePilotHelper.h"
 #include "FlareInternalComponent.h"
 
 #include "Particles/ParticleSystemComponent.h"

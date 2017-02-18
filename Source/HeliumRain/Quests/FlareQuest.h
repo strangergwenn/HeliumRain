@@ -168,6 +168,10 @@ public:
 		return QuestDescription;
 	}
 
+	FText GetQuestReward();
+
+	FText GetQuestPenalty();
+
 	inline EFlareQuestCategory::Type GetQuestCategory() const
 	{
 		return QuestCategory;
@@ -200,17 +204,17 @@ public:
 		return FailActions;
 	}
 
-	int32 GetSuccessfullStepCount()
+	int32 GetSuccessfullStepCount() const
 	{
 		return SuccessfullSteps.Num();
 	}
 
-	int32 GetStepCount()
+	int32 GetStepCount() const
 	{
 		return Steps.Num();
 	}
 
-	bool IsAccepted()
+	bool IsAccepted() const
 	{
 		return QuestData.Accepted;
 	}
