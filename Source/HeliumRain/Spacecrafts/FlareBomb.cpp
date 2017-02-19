@@ -173,7 +173,6 @@ void AFlareBomb::Tick(float DeltaSeconds)
 	if (TargetSpacecraft && BombData.LifeTime > ActivationTime && BombData.BurnDuration < MaxBurnDuration)
 	{
 		//v2
-		FVector TargetDeltaLocation = TargetSpacecraft->GetActorLocation() - GetActorLocation();
 		FVector TargetPredictedLocation = TargetSpacecraft->GetActorLocation();
 		FVector TargetDeltaLocation = TargetPredictedLocation - GetActorLocation();
 		FVector TargetDirection = TargetDeltaLocation.GetUnsafeNormal();
