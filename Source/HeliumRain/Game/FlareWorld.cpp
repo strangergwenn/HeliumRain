@@ -1106,6 +1106,8 @@ UFlareCompany* UFlareWorld::FindCompany(FName Identifier) const
 			return Company;
 		}
 	}
+
+	FCHECK(false);
 	return NULL;
 }
 
@@ -1120,6 +1122,8 @@ UFlareCompany* UFlareWorld::FindCompanyByShortName(FName CompanyShortName) const
 			return Company;
 		}
 	}
+
+	FCHECK(false);
 	return NULL;
 }
 
@@ -1133,6 +1137,8 @@ UFlareSimulatedSector* UFlareWorld::FindSector(FName Identifier) const
 			return Sector;
 		}
 	}
+
+	FCHECK(false);
 	return NULL;
 }
 

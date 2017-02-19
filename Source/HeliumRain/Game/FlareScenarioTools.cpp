@@ -408,6 +408,7 @@ UFlareSimulatedSpacecraft* UFlareScenarioTools::CreatePlayerShip(UFlareSimulated
 void UFlareScenarioTools::CreateAsteroids(UFlareSimulatedSector* Sector, int32 Count, FVector DistributionShape)
 {
 	FLOGV("UFlareScenarioTools::CreateAsteroids : Trying to spawn %d asteroids", Count);
+	FCHECK(Sector);
 
 	// Compute parameters
 	float MaxAsteroidDistance = 15000;
