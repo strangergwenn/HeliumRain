@@ -175,29 +175,25 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 
 		FInputModeGameAndUI InputMode;
 		InputMode.SetHideCursorDuringCapture(true);
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
 		bShowMouseCursor = NewShowMouseCursor;
 
-		// Setup mouse focus
 		if (bShowMouseCursor)
 		{
 			FSlateApplication::Get().ReleaseMouseCapture();
-
-			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 			InputMode.SetWidgetToFocus(MenuManager->GetMainOverlay());
 		}
 		else
 		{
-			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
-
-			ULocalPlayer* LocalPlayer = Cast< ULocalPlayer >(Player);
-			UGameViewportClient* GameViewportClient = GetWorld()->GetGameViewport();
-			TSharedPtr<SViewport> ViewportWidget = GameViewportClient->GetGameViewportWidget();
+			TSharedPtr<SViewport> ViewportWidget = GetWorld()->GetGameViewport()->GetGameViewportWidget();
 			if (ViewportWidget.IsValid())
 			{
 				TSharedRef<SViewport> ViewportWidgetRef = ViewportWidget.ToSharedRef();
-				LocalPlayer->GetSlateOperations().UseHighPrecisionMouseMovement(ViewportWidgetRef);
+				Cast<ULocalPlayer>(Player)->GetSlateOperations().UseHighPrecisionMouseMovement(ViewportWidgetRef);
 			}
 		}
+
+		ResetMousePosition();
 	}
 	
 	// Update speed effects
@@ -289,6 +285,16 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	{
 		CheckSectorStateChanges(GetPlayerShip()->GetCurrentSector());
 	}
+}
+
+void AFlarePlayerController::ResetMousePosition()
+{
+	auto& App = FSlateApplication::Get();
+	FVector2D CursorPos = App.GetCursorPos();
+	App.SetCursorPos(CursorPos + FVector2D(0, 1));
+	App.OnMouseMove();
+	App.SetCursorPos(CursorPos);
+	App.OnMouseMove();
 }
 
 float AFlarePlayerController::GetCurrentFOV()
