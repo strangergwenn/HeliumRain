@@ -796,6 +796,7 @@ void UFlareSaveReaderV1::LoadBomb(const TSharedPtr<FJsonObject> Object, FFlareBo
 	LoadFName(Object, "AttachTarget", &Data->AttachTarget);
 	Object->TryGetBoolField(TEXT("Activated"), Data->Activated);
 	Object->TryGetBoolField(TEXT("Dropped"), Data->Dropped);
+	Object->TryGetBoolField(TEXT("Locked"), Data->Locked);
 	LoadFloat(Object, "DropParentDistance", &Data->DropParentDistance);
 	LoadFloat(Object, "LifeTime", &Data->LifeTime);
 	LoadFloat(Object, "BurnDuration", &Data->BurnDuration);

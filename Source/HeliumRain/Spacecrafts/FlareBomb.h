@@ -51,6 +51,10 @@ struct FFlareBombSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	bool Dropped;
 
+	/** Activated */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool Locked;
+
 	/** Distance to parent on drop */
 	UPROPERTY(EditAnywhere, Category = Save)
 	float DropParentDistance;
@@ -114,6 +118,7 @@ public:
 	/** Get the distance from the parent ship */
 	virtual float GetParentDistance() const;
 
+	FVector GetAngularVelocityToAlignAxis(FVector TargetAxis, float AngularAcceleration, float DeltaSeconds) const;
 
 protected:
 
