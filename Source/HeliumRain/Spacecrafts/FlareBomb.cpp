@@ -138,13 +138,9 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		LastTickRotation = GetActorRotation();
 	}
 
-	float ActivationTime = 1.0; // ins
-	float MaxAcceleration = 5000; // in m.s-2
-	float DirectionCorrectionThresold = 0.999; // In dot
-	float NominalVelocity = 20000; // In cm/s
-	float MaxBurnDuration = 30; // In s
 	float GimbalRangeDot = 0.90;
-	float AngularAcceleration = 15; // degree.s-2
+	float DirectionCorrectionThresold = 0.999; // In dot
+
 
 	// Auto-destroy
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
@@ -155,7 +151,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		{
 			// no fuel and 5 km and 30s auto-destroy
 			float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
-			if (BombData.BurnDuration >= MaxBurnDuration && Distance > 500000 && BombData.LifeTime > 30)
+			if (BombData.BurnDuration >= WeaponDescription->WeaponCharacteristics.BombCharacteristics.MaxBurnDuration && Distance > 500000 && BombData.LifeTime > 30)
 			{
 				OnBombDetonated(NULL, NULL, FVector(), FVector());
 			}
@@ -172,7 +168,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 
 
 	
-	if (TargetSpacecraft && BombData.LifeTime > ActivationTime && BombData.BurnDuration < MaxBurnDuration)
+	if (TargetSpacecraft && BombData.LifeTime > WeaponDescription->WeaponCharacteristics.BombCharacteristics.ActivationTime && BombData.BurnDuration < WeaponDescription->WeaponCharacteristics.BombCharacteristics.MaxBurnDuration)
 	{
 		//ProcessGuidance(DeltaSeconds);
 		//v2
@@ -187,11 +183,11 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		FVector BombVelocityDirectionRefTarget = BombVelocityRefTarget.GetUnsafeNormal();
 
 
-		FVector AimVelocityRefTarget = TargetDirection * NominalVelocity;
+		FVector AimVelocityRefTarget = TargetDirection * WeaponDescription->WeaponCharacteristics.BombCharacteristics.NominalVelocity;
 
 
 	
-		float MaxDeltaV = MaxAcceleration * DeltaSeconds;
+		float MaxDeltaV = WeaponDescription->WeaponCharacteristics.BombCharacteristics.MaxAcceleration * DeltaSeconds;
 
 		float Dot = FVector::DotProduct(BombVelocityDirectionRefTarget, TargetDirection);
 		FVector EffectiveDeltaVelocity = FVector::ZeroVector;
@@ -212,7 +208,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		if (!BombVelocityRefTarget.IsNearlyZero())
 		{
 
-			float ConvergenceSpeed = FMath::Max(NominalVelocity /50.f, FVector::DotProduct(TargetDirection, BombVelocityRefTarget));
+			float ConvergenceSpeed = FMath::Max(WeaponDescription->WeaponCharacteristics.BombCharacteristics.NominalVelocity /50.f, FVector::DotProduct(TargetDirection, BombVelocityRefTarget));
 			//FLOGV("ConvergenceSpeed %f", ConvergenceSpeed);
 
 			if(Dot < DirectionCorrectionThresold)
@@ -222,7 +218,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 			}
 			else
 			{
-				FineAimVelocityRefTarget = TargetDirection * FMath::Max(ConvergenceSpeed, NominalVelocity);
+				FineAimVelocityRefTarget = TargetDirection * FMath::Max(ConvergenceSpeed, WeaponDescription->WeaponCharacteristics.BombCharacteristics.NominalVelocity);
 			}
 		}
 		
@@ -240,7 +236,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 			FVector DeltaVelocityDirection = DeltaVelocity.GetUnsafeNormal();
 			FVector WorldBombAxis = BombComp->GetComponentToWorld().GetRotation().RotateVector(FVector::ForwardVector);
 
-			FLOGV("GimbalRangeDot %f", FVector::DotProduct(DeltaVelocityDirection, WorldBombAxis));
+			//FLOGV("GimbalRangeDot %f", FVector::DotProduct(DeltaVelocityDirection, WorldBombAxis));
 
 			if (!BombData.Locked && FVector::DotProduct(DeltaVelocityDirection, WorldBombAxis) > GimbalRangeDot)
 			{
@@ -248,7 +244,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 			}
 
 			// Bomb orientation
-			AngularVelocityTarget = GetAngularVelocityToAlignAxis(DeltaVelocityDirection, AngularAcceleration, DeltaSeconds);
+			AngularVelocityTarget = GetAngularVelocityToAlignAxis(DeltaVelocityDirection,WeaponDescription->WeaponCharacteristics.BombCharacteristics.AngularAcceleration, DeltaSeconds);
 
 			//DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + DeltaVelocityDirection * 100, FColor::Green, false);
 		}
@@ -272,21 +268,14 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		if (!DeltaAngularV.IsNearlyZero())
 		{
 			FVector DeltaAngularVAxis = DeltaAngularV.GetUnsafeNormal();
-			FVector Acceleration = DeltaAngularVAxis * AngularAcceleration * DeltaSeconds;
+			FVector Acceleration = DeltaAngularVAxis * WeaponDescription->WeaponCharacteristics.BombCharacteristics.AngularAcceleration * DeltaSeconds;
 			FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaAngularV.Size());
-
-			FLOGV("DeltaAngularV %s", *DeltaAngularV.ToString());
-			FLOGV("DeltaAngularVAxis %s", *DeltaAngularVAxis.ToString());
-			FLOGV("Acceleration %s", *Acceleration.ToString());
-			FLOGV("ClampedAcceleration %s", *ClampedAcceleration.ToString());
-
-
 			BombComp->SetPhysicsAngularVelocity(ClampedAcceleration, true);
 		}
 
 
-		float TargetDistance = TargetDeltaLocation.Size();
-		/*
+		/*float TargetDistance = TargetDeltaLocation.Size();
+
 		FLOGV("FineAimVelocityRefTarget %s", *FineAimVelocityRefTarget.ToString());
 
 		FLOGV("DeltaVelocity %s", *DeltaVelocity.ToString());

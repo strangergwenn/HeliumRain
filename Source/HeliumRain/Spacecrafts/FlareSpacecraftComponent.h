@@ -99,6 +99,21 @@ struct FFlareSpacecraftComponentBombCharacteristics
 
 	/** Bomb angular velocity in °/s */
 	UPROPERTY(EditAnywhere, Category = Content) float DropAngularVelocity;
+
+	/** Bomb angular velocity in °/s */
+	UPROPERTY(EditAnywhere, Category = Content) float ActivationTime; // in s
+
+	/** Bomb angular velocity in °/s */
+	UPROPERTY(EditAnywhere, Category = Content) float MaxAcceleration;// in cm.s-2
+
+	/** Bomb angular velocity in °/s */
+	UPROPERTY(EditAnywhere, Category = Content) float NominalVelocity; // In cm/s
+
+	/** Bomb angular velocity in °/s */
+	UPROPERTY(EditAnywhere, Category = Content) float MaxBurnDuration; // In s
+
+	/** Bomb angular velocity in °/s */
+	UPROPERTY(EditAnywhere, Category = Content) float AngularAcceleration; // degree.s-2
 };
 
 /** Gun characteristic */
