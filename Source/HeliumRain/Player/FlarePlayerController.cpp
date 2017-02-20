@@ -68,6 +68,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	IsTest2 = false;
 	LastBattleState.Init();
 	RecoveryActive = false;
+	bShowMouseCursor = false;
 
 	// Setup
 	ShipPawn = NULL;
@@ -160,28 +161,34 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	}
 	PlayerCameraManager->SetFOV(FOV);
 
-	// Mouse cursor
+	// Get mouse cursor state
 	bool NewShowMouseCursor = true;
 	if (!MenuManager->IsUIOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
 	{
 		NewShowMouseCursor = false;
 	}
 
-	// Set the mouse status
+	// Set mouse cursor state
 	if (NewShowMouseCursor != bShowMouseCursor)
 	{
 		FLOGV("AFlarePlayerController::PlayerTick : New mouse cursor state is %d", NewShowMouseCursor);
 
+		FInputModeGameAndUI InputMode;
+		InputMode.SetHideCursorDuringCapture(true);
 		bShowMouseCursor = NewShowMouseCursor;
 
-		// Fix focus issues
+		// Setup mouse focus
 		if (bShowMouseCursor)
 		{
-			auto& App = FSlateApplication::Get();
-			App.ReleaseMouseCapture();
+			FSlateApplication::Get().ReleaseMouseCapture();
+
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+			InputMode.SetWidgetToFocus(MenuManager->GetMainOverlay());
 		}
 		else
 		{
+			InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
+
 			ULocalPlayer* LocalPlayer = Cast< ULocalPlayer >(Player);
 			UGameViewportClient* GameViewportClient = GetWorld()->GetGameViewport();
 			TSharedPtr<SViewport> ViewportWidget = GameViewportClient->GetGameViewportWidget();

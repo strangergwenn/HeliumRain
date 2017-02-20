@@ -274,6 +274,12 @@ public:
 		return FadeDuration;
 	}
 
+	/** Get the main overlay */
+	TSharedPtr<SFlareMainOverlay> GetMainOverlay()
+	{
+		return MainOverlay;
+	}
+
 	/** Get the height of the main overlay */
 	static int32 GetMainOverlayHeight();
 
