@@ -106,20 +106,6 @@ void AFlareGame::StartPlay()
 	{
 		PostProcessVolume = Cast<APostProcessVolume>(PostProcessCandidates.Last());
 		FCHECK(PostProcessVolume);
-
-		FWeightedBlendable Blendable = PostProcessVolume->Settings.WeightedBlendables.Array.Last();
-		UMaterial* MasterMaterial = Cast<UMaterial>(Blendable.Object);
-		if (MasterMaterial)
-		{
-			BlurMaterial = UMaterialInstanceDynamic::Create(MasterMaterial, GetWorld());
-			FCHECK(BlurMaterial);
-			PostProcessVolume->Settings.RemoveBlendable(MasterMaterial);
-			FLOG("AFlareGame::StartPlay : blur material ready");
-		}
-		else
-		{
-			FLOG("AFlareGame::StartPlay : no usable material found for blur");
-		}
 	}
 	else
 	{

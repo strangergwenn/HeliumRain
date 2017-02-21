@@ -29,76 +29,85 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Fill)
 	[
-		SAssignNew(Background, SBorder)
+		SAssignNew(Background, SBackgroundBlur)
+		.BlurRadius(30)
+		.BlurStrength(1)
 		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Fill)
 		.Padding(FMargin(0))
-		.BorderImage(FCoreStyle::Get().GetBrush("NoBrush"))
 		[
-			SNew(SVerticalBox)
-
-			+ SVerticalBox::Slot()
-			.AutoHeight()
+			SNew(SBorder)
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
+			.Padding(FMargin(0))
+			.BorderImage(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Black"))
+			.BorderBackgroundColor(FLinearColor(1, 1, 1, 0.7f))
 			[
-				SAssignNew(MenuList, SHorizontalBox)
+				SNew(SVerticalBox)
 
-				// Title
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Fill)
 				[
-					SNew(SBox)
-					.HAlign(HAlign_Fill)
-					.WidthOverride(0.625 * Theme.ContentWidth)
+					SAssignNew(MenuList, SHorizontalBox)
+
+					// Title
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
 					[
-						SNew(SHorizontalBox)
-
-						// Title icon
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.VAlign(VAlign_Center)
+						SNew(SBox)
+						.HAlign(HAlign_Fill)
+						.WidthOverride(0.625 * Theme.ContentWidth)
 						[
-							SNew(SImage)
-							.Image(this, &SFlareMainOverlay::GetCurrentMenuIcon)
-						]
+							SNew(SHorizontalBox)
 
-						// Title text
-						+ SHorizontalBox::Slot()
-						.VAlign(VAlign_Center)
-						.AutoWidth()
-						[
-							SNew(SVerticalBox)
-
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
+							// Title icon
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.VAlign(VAlign_Center)
 							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.TitleFont)
-								.Text(this, &SFlareMainOverlay::GetCurrentMenuName)
+								SNew(SImage)
+								.Image(this, &SFlareMainOverlay::GetCurrentMenuIcon)
 							]
 
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
+							// Title text
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.AutoWidth()
 							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(this, &SFlareMainOverlay::GetPlayerInfo)
+								SNew(SVerticalBox)
+
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(Theme.SmallContentPadding)
+								[
+									SNew(STextBlock)
+									.TextStyle(&Theme.TitleFont)
+									.Text(this, &SFlareMainOverlay::GetCurrentMenuName)
+								]
+
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(Theme.SmallContentPadding)
+								[
+									SNew(STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(this, &SFlareMainOverlay::GetPlayerInfo)
+								]
 							]
 						]
 					]
 				]
-			]
 
-			// Bottom border
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Fill)
-			[
-				SAssignNew(Border, SImage)
-				.Image(&Theme.NearInvisibleBrush)
+				// Bottom border
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Fill)
+				[
+					SAssignNew(Border, SImage)
+					.Image(&Theme.NearInvisibleBrush)
+				]
 			]
 		]
 	];
@@ -292,20 +301,13 @@ bool SFlareMainOverlay::IsOpen() const
 void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
-
-	// Get post-processing actors
-	APostProcessVolume* PostProcessVolume = MenuManager->GetGame()->GetPostProcessVolume();
-	UMaterialInstanceDynamic* BlurMaterial = MenuManager->GetGame()->GetBlurMaterial();
-	FCHECK(PostProcessVolume);
-	FCHECK(BlurMaterial);
-
+	
 	// Get 2D position
 	FVector2D MousePosition = MenuManager->GetPC()->GetMousePosition();
 	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
 
 	// Visibility check
-	float Width = ViewportSize.X + 2.0f;
 	float Height = AFlareMenuManager::GetMainOverlayHeight() + 2.0f;
 	if (!IsOverlayVisible || (MousePosition.Y / ViewportScale) > Height)
 	{
@@ -315,22 +317,6 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 	{
 		SetVisibility(EVisibility::Visible);
 	}
-
-	// Update blur material with appropriate values
-	if (IsOpen())
-	{
-		UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-		float ScreenScale = MyGameSettings->ScreenPercentage / 100.0f;
-		BlurMaterial->SetVectorParameterValue("PanelPosition", FVector(0.0, 0.0, 0));
-		BlurMaterial->SetVectorParameterValue("PanelSize", FVector(ScreenScale * Width, ViewportScale * ScreenScale * Height, 0));
-	}
-	else
-	{
-		BlurMaterial->SetVectorParameterValue("PanelSize", FVector(0.0, 0.0, 0));
-	}
-
-	// Apply with weight depending on whether it's used
-	PostProcessVolume->Settings.AddBlendable(BlurMaterial, IsOpen() ? 1.0f : 0.0f);
 }
 
 EVisibility SFlareMainOverlay::GetGameButtonVisibility() const

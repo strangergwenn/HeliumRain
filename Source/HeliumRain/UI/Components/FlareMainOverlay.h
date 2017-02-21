@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../../Game/FlareGameTypes.h"
+#include "SBackgroundBlur.h"
 
 
 class AFlareMenuManager;
@@ -105,7 +106,7 @@ protected:
 	float                                           TitleButtonHeight;
 
 	// Slate data
-	TSharedPtr<SBorder>                             Background;
+	TSharedPtr<SBackgroundBlur>                     Background;
 	TSharedPtr<SImage>                              Border;
 	TSharedPtr<SHorizontalBox>                      MenuList;
 

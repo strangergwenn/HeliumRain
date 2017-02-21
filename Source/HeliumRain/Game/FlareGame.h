@@ -218,11 +218,7 @@ protected:
 	// Post process volume
 	UPROPERTY()
 	APostProcessVolume*                        PostProcessVolume;
-
-	// Blur material
-	UPROPERTY()
-	UMaterialInstanceDynamic*                  BlurMaterial;
-
+	
 
 	/*----------------------------------------------------
 		Catalogs
@@ -312,12 +308,6 @@ public:
 	APostProcessVolume* GetPostProcessVolume() const
 	{
 		return PostProcessVolume;
-	}
-
-	UFUNCTION(BlueprintCallable, Category = "Flare")
-	UMaterialInstanceDynamic* GetBlurMaterial() const
-	{
-		return BlurMaterial;
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "Flare")
