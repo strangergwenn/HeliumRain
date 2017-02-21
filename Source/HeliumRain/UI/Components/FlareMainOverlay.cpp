@@ -31,7 +31,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	[
 		SAssignNew(Background, SBackgroundBlur)
 		.BlurRadius(30)
-		.BlurStrength(1)
+		.BlurStrength(10)
 		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Fill)
 		.Padding(FMargin(0))
