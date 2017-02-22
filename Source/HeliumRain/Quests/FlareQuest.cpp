@@ -603,7 +603,14 @@ FText UFlareQuest::GetQuestReward()
 
 	if (Result.Len() == 0)
 	{
-		return LOCTEXT("QuestRewardUnknown", "Unknown");
+		if (Actions.Num() == 0)
+		{
+			return LOCTEXT("QuestRewardNone", "None");
+		}
+		else
+		{
+			return LOCTEXT("QuestRewardUnknown", "Unknown");
+		}
 	}
 
 	return FText::FromString(Result);
@@ -632,7 +639,14 @@ FText UFlareQuest::GetQuestPenalty()
 
 	if (Result.Len() == 0)
 	{
-		return LOCTEXT("QuestPenaltyUnknown", "Unknown");
+		if (Actions.Num() == 0)
+		{
+			return LOCTEXT("QuestPenaltyNone", "None");
+		}
+		else
+		{
+			return LOCTEXT("QuestPenaltyUnknown", "Unknown");
+		}
 	}
 
 	return FText::FromString(Result);
