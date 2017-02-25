@@ -13,6 +13,8 @@
 
 #define LOCTEXT_NAMESPACE "FlareQuestGenerator"
 
+#define MAX_QUEST_COUNT 15
+#define MAX_QUEST_PER_COMPANY_COUNT 5
 
 /*----------------------------------------------------
 	Constructor
@@ -119,60 +121,92 @@ void UFlareQuestGenerator::GenerateIdentifer(FName QuestClass, FFlareBundle& Dat
 	Data.PutName("identifier", Identifier);
 }
 
-UFlareQuest* UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
+void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 {
-	// For each company
+	TArray<UFlareCompany*> CompaniesToProcess =  Game->GetGameWorld()->GetCompanies();
+	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+
+	// For each company in random order
+	while (CompaniesToProcess.Num() > 0)
+	{
+		int CompanyIndex = FMath::RandRange(0, CompaniesToProcess.Num()-1);
+		UFlareCompany* Company = CompaniesToProcess[CompanyIndex];
+		CompaniesToProcess.Remove(Company);
+
+		if(Company == PlayerCompany)
+		{
+			continue;
+		}
+
+		FLOGV("GenerateSectorQuest for %s", *Company->GetCompanyName().ToString());
 
 		// Propability to give a quest is :
 		// 100 % if quest count = 0
-		// 0 % if quest count = MAX_QUEST
+		// 0 % if quest count = MAX_QUEST_COUNT
 		// With early quick drop
-		// So pow(1-questCount/MAX_QUEST, 2)
-		//
+		// So pow(1-questCount/MAX_QUEST_COUNT, 2)
+		float CompanyQuestProbability = FMath::Pow (1.f - (float) QuestManager->GetVisibleQuestCount(Company)/ (float) MAX_QUEST_PER_COMPANY_COUNT, 2);
+		float GlobalQuestProbability = FMath::Pow (1.f - (float) QuestManager->GetVisibleQuestCount()/ (float) MAX_QUEST_COUNT, 2);
+
+		float QuestProbability = GlobalQuestProbability * CompanyQuestProbability;
+
+
+		FLOGV("CompanyQuestProbability %f", CompanyQuestProbability);
+		FLOGV("GlobalQuestProbability %f", GlobalQuestProbability);
+		FLOGV("QuestProbability before rep %f", QuestProbability);
+
+
 		// Then make proba variable with the reputation :
 		// if rep > 0 : 100 %
 		// if rep < 0 : 100 % + rep (negative, so 0% at 0)
 
-		// Then try to create a trade quest,
+		if(Company->GetReputation(PlayerCompany) < 0)
+		{
+			QuestProbability += Company->GetReputation(PlayerCompany) / 100.f;
+		}
+
+		FLOGV("QuestProbability %f", QuestProbability);
+
+		// Rand
+		if (FMath::FRand() > QuestProbability)
+		{
+			// No luck, no quest this time
+			FLOG("No luck");
+
+			continue;
+		}
+
+		// Generate a quest
+		UFlareQuestGenerated* Quest = NULL;
+		if (FMath::FRand() < 0.15)
+		{
+			FLOG("VIP");
+			Quest = UFlareQuestGeneratedVipTransport::Create(this, Sector, Company);
+		}
+
+		// Trade quest
+		// Try to create a trade quest,
 		// if not, try to create a Purchase quest
 		// if not, try to create a Sell quest
+		if (!Quest)
+		{
+			FLOG("Trade");
+			Quest = UFlareQuestGeneratedResourceTrade::Create(this, Sector, Company);
+		}
 
+		if (!Quest)
+		{
+			FLOG("Purchase");
+			Quest = UFlareQuestGeneratedResourcePurchase::Create(this, Sector, Company);
+		}
 
-		// Add the quest
+		if (!Quest)
+		{
+			FLOG("Sale");
+			Quest = UFlareQuestGeneratedResourceSale::Create(this, Sector, Company);
+		}
 
-
-
-
-	UFlareQuestGenerated* Quest = UFlareQuestGeneratedVipTransport::Create(this, Sector);
-	if (Quest)
-	{
-		QuestManager->AddQuest(Quest);
-		GeneratedQuests.Add(Quest);
-		QuestManager->LoadCallbacks(Quest);
-		Quest->UpdateState();
-	}
-
-	Quest = UFlareQuestGeneratedResourceSale::Create(this, Sector);
-	if (Quest)
-	{
-		QuestManager->AddQuest(Quest);
-		GeneratedQuests.Add(Quest);
-		QuestManager->LoadCallbacks(Quest);
-		Quest->UpdateState();
-	}
-
-	Quest = UFlareQuestGeneratedResourcePurchase::Create(this, Sector);
-	if (Quest)
-	{
-		QuestManager->AddQuest(Quest);
-		GeneratedQuests.Add(Quest);
-		QuestManager->LoadCallbacks(Quest);
-		Quest->UpdateState();
-	}
-
-	for (UFlareCompany* Company : QuestManager->GetGame()->GetGameWorld()->GetCompanies())
-	{
-		Quest = UFlareQuestGeneratedResourceTrade::Create(this, Sector, Company);
+		// Register quest
 		if (Quest)
 		{
 			QuestManager->AddQuest(Quest);
@@ -180,9 +214,8 @@ UFlareQuest* UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Se
 			QuestManager->LoadCallbacks(Quest);
 			Quest->UpdateState();
 		}
-	}
 
-	return Quest;
+	}
 }
 
 /*----------------------------------------------------
@@ -253,7 +286,7 @@ UFlareQuestGeneratedVipTransport::UFlareQuestGeneratedVipTransport(const FObject
 {
 }
 
-UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector)
+UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company)
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
 
@@ -261,6 +294,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenera
 	TArray<UFlareSimulatedSpacecraft*> CandidateStations;
 	for (UFlareSimulatedSpacecraft* CandidateStation : Sector->GetSectorStations())
 	{
+		if (CandidateStation->GetCompany() != Company)
+		{
+			continue;
+		}
+
 		// Check friendlyness
 		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
 		{
@@ -401,7 +439,7 @@ UFlareQuestGeneratedResourceSale::UFlareQuestGeneratedResourceSale(const FObject
 {
 }
 
-UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector)
+UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company)
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
 
@@ -409,6 +447,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 	TArray<UFlareSimulatedSpacecraft*> CandidateStations;
 	for (UFlareSimulatedSpacecraft* CandidateStation : Sector->GetSectorStations())
 	{
+		if (CandidateStation->GetCompany() != Company)
+		{
+			continue;
+		}
+
 		// Check friendlyness
 		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
 		{
@@ -545,7 +588,7 @@ UFlareQuestGeneratedResourcePurchase::UFlareQuestGeneratedResourcePurchase(const
 {
 }
 
-UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector)
+UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company)
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
 
@@ -553,6 +596,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 	TArray<UFlareSimulatedSpacecraft*> CandidateStations;
 	for (UFlareSimulatedSpacecraft* CandidateStation : Sector->GetSectorStations())
 	{
+		if (CandidateStation->GetCompany() != Company)
+		{
+			continue;
+		}
+
 		// Check friendlyness
 		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
 		{
@@ -738,9 +786,6 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 				// Best candidate
 				BestQuantityToBuyPerResource.Add(Slot.Resource, AvailableResourceQuantity);
 				BestStationToBuyPerResource.Add(Slot.Resource, CandidateStation);
-
-				FLOGV("add station 1 candidate %s for resource %s and quantity %d",
-					  *CandidateStation->GetImmatriculation().ToString(), *Slot.Resource->Acronym.ToString(), AvailableResourceQuantity);
 			}
 		}
 	}
@@ -780,8 +825,6 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 					// Best candidate
 					BestQuantityToSellPerResource.Add(Slot.Resource, MissingResourceQuantity);
 					BestStationToSellPerResource.Add(Slot.Resource, CandidateStation);
-					FLOGV("add station 2 candidate %s for resource %s and quantity %d",
-						  *CandidateStation->GetImmatriculation().ToString(), *Slot.Resource->Acronym.ToString(), MissingResourceQuantity);
 				}
 			}
 		}

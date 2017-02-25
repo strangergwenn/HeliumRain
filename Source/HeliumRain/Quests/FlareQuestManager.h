@@ -269,4 +269,7 @@ public:
 
 	UFlareQuest* FindQuest(FName QuestIdentifier);
 
+	int32 GetVisibleQuestCount();
+
+	int32 GetVisibleQuestCount(UFlareCompany* Client);
 };

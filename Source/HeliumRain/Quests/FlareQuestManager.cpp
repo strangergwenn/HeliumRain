@@ -574,5 +574,33 @@ UFlareQuest* UFlareQuestManager::FindQuest(FName QuestIdentifier)
 	return NULL;
 }
 
+int32 UFlareQuestManager::GetVisibleQuestCount()
+{
+	return AvailableQuests.Num() + ActiveQuests.Num();
+}
+
+int32 UFlareQuestManager::GetVisibleQuestCount(UFlareCompany* Client)
+{
+	int32 QuestCount = 0;
+
+	for(UFlareQuest* Quest: AvailableQuests)
+	{
+		if (Quest->GetClient() == Client)
+		{
+			QuestCount++;
+		}
+	}
+
+	for(UFlareQuest* Quest: ActiveQuests)
+	{
+		if (Quest->GetClient() == Client)
+		{
+			QuestCount++;
+		}
+	}
+
+	return QuestCount;
+}
+
 
 #undef LOCTEXT_NAMESPACE

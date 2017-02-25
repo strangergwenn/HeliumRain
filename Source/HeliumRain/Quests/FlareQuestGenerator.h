@@ -31,7 +31,7 @@ public:
 
 	void GenerateIdentifer(FName QuestClass, FFlareBundle& Data);
 
-	UFlareQuest* GenerateSectorQuest(UFlareSimulatedSector* Sector);
+	void GenerateSectorQuest(UFlareSimulatedSector* Sector);
 
 
 
@@ -107,7 +107,7 @@ public:
 
 	/** Load the quest from description file */
 	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
-	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector);
+	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company);
 };
 
 //////////////////////////////////////////////////////
@@ -121,7 +121,7 @@ public:
 
 	/** Load the quest from description file */
 	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
-	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector);
+	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company);
 };
 
 //////////////////////////////////////////////////////
@@ -135,7 +135,7 @@ public:
 
 	/** Load the quest from description file */
 	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
-	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector);
+	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company);
 };
 
 //////////////////////////////////////////////////////
