@@ -872,6 +872,19 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 				}
 			}
 		}
+
+		if(!IsFiredUpon)
+		{
+			for (AFlareBomb* Bomb : GetGame()->GetActiveSector()->GetBombs())
+			{
+				if (Bomb->GetTargetSpacecraft() == GetShipPawn() && Bomb->IsActive())
+				{
+					IsFiredUpon = true;
+					break;
+				}
+			}
+
+		}
 	}
 }
 

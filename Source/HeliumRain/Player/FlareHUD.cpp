@@ -644,10 +644,18 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		// Fired on ?
 		if (FiredUpon)
 		{
-			FText WarningText = FText::Format(LOCTEXT("ThreatFiredUponFormat", "UNDER FIRE FROM {0} ({1})"),
-				FText::FromString(Threat->GetImmatriculation().ToString()),
-				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
-			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+			if(Threat)
+			{
+				FText WarningText = FText::Format(LOCTEXT("ThreatFiredUponFormat", "UNDER FIRE FROM {0} ({1})"),
+					FText::FromString(Threat->GetImmatriculation().ToString()),
+					FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
+				FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+			}
+			else
+			{
+				FText WarningText = FText(LOCTEXT("ThreatFiredUponMissileFormat", "INCOMING MISSILE !"));
+				FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+			}
 		}
 
 		// Targeted ?
