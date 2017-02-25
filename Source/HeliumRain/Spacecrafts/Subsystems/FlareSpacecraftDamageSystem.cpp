@@ -348,6 +348,11 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 		return;
 	}
 
+	AFlareBomb* OtherBomb = Cast<AFlareBomb>(Other);
+	if (OtherBomb)
+	{
+		return;
+	}
 	// No primitive component, ignore
 	UPrimitiveComponent* OtherRoot = Cast<UPrimitiveComponent>(Other->GetRootComponent());
 	if (!OtherRoot)

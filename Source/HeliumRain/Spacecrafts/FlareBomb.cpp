@@ -33,6 +33,7 @@ AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
 	Paused = false;
+	BombLockedInCollision = 0;
 }
 
 
@@ -95,6 +96,7 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 
 	BombComp->BodyInstance.bUseCCD = true;
 
+	ParentWeapon->MoveIgnoreActors.Add(this);
 }
 
 void AFlareBomb::OnLaunched(AFlareSpacecraft* Target)
@@ -121,6 +123,11 @@ void AFlareBomb::OnLaunched(AFlareSpacecraft* Target)
 void AFlareBomb::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	if(BombLockedInCollision > 0)
+	{
+		BombLockedInCollision -= 0.5;
+	}
 
 	// Activate after few centimeters
 	if (BombData.Dropped && !BombData.Activated)
@@ -367,6 +374,15 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 	if (!Other || !OtherComp || !ParentWeapon || Other == ParentWeapon->GetSpacecraft() || BombCandidate || (BombData.AttachTarget != NAME_None))
 	{
 		FLOG("AFlareBomb::NotifyHit : invalid hit");
+		if(Other == ParentWeapon->GetSpacecraft())
+		{
+			BombLockedInCollision += 1;
+			// Random 1m move
+			if (BombLockedInCollision > 1)
+			{
+				SetActorLocation(GetActorLocation() + FMath::VRand() * 100);
+			}
+		}
 		return;
 	}
 

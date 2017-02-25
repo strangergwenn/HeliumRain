@@ -159,7 +159,7 @@ protected:
 
 	FVector LastLocation;
 	FVector LastTargetLocation;
-
+	float BombLockedInCollision;
 public:
 
 	/*----------------------------------------------------
