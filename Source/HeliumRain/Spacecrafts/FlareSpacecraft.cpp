@@ -559,6 +559,10 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 
 	float Delta = FMath::Square(B) - 4 * A * C;
 
+	if (Delta < 0)
+	{
+		return -1;
+	}
 	float InterceptTime1 = (- B - FMath::Sqrt(Delta)) / (2 * A);
 	float InterceptTime2 = (- B + FMath::Sqrt(Delta)) / (2 * A);
 
