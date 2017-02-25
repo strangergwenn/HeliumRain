@@ -585,7 +585,7 @@ FText UFlareQuest::GetQuestReward()
 		UFlareQuestActionGiveMoney* MoneyAction = Cast<UFlareQuestActionGiveMoney>(Action);
 		if (MoneyAction)
 		{
-			Result += FText::Format(LOCTEXT("QuestRewardMoneyFormat", "Payment of {0} credits\n"), FText::AsNumber(MoneyAction->GetAmount())).ToString();
+			Result += FText::Format(LOCTEXT("QuestRewardMoneyFormat", "Payment of {0} credits\n"), FText::AsNumber(UFlareGameTools::DisplayMoney(MoneyAction->GetAmount()))).ToString();
 		}
 
 		UFlareQuestActionDiscoverSector* SectorAction = Cast<UFlareQuestActionDiscoverSector>(Action);
@@ -627,7 +627,7 @@ FText UFlareQuest::GetQuestPenalty()
 		UFlareQuestActionGiveMoney* MoneyAction = Cast<UFlareQuestActionGiveMoney>(Action);
 		if (MoneyAction)
 		{
-			Result += FText::Format(LOCTEXT("QuestPenaltyMoneyFormat", "Fine of {0} credits\n"), FText::AsNumber(-MoneyAction->GetAmount())).ToString();
+			Result += FText::Format(LOCTEXT("QuestPenaltyMoneyFormat", "Fine of {0} credits\n"), FText::AsNumber(UFlareGameTools::DisplayMoney(-MoneyAction->GetAmount()))).ToString();
 		}
 
 		UFlareQuestActionReputationChange* ReputationAction = Cast<UFlareQuestActionReputationChange>(Action);
