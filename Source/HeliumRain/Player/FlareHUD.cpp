@@ -653,7 +653,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 			}
 			else
 			{
-				FText WarningText = FText(LOCTEXT("ThreatFiredUponMissileFormat", "INCOMING MISSILE !"));
+				FText WarningText = FText(LOCTEXT("ThreatFiredUponMissile", "INCOMING MISSILE"));
 				FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
 			}
 		}
