@@ -126,6 +126,7 @@ void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 
 		// Bombs are like guns, without fire stopping
 		case EFlareWeaponGroupType::WG_BOMB:
+		case EFlareWeaponGroupType::WG_MISSILE:
 			if (Armed && WantFire)
 			{
 				Armed = false;
@@ -194,7 +195,14 @@ void UFlareSpacecraftWeaponsSystem::Start()
 			}
 			else if (WeaponGroup->Description->WeaponCharacteristics.BombCharacteristics.IsBomb)
 			{
-				WeaponGroup->Type = EFlareWeaponGroupType::WG_BOMB;
+				if(WeaponGroup->Description->WeaponCharacteristics.BombCharacteristics.MaxBurnDuration > 0)
+				{
+					WeaponGroup->Type = EFlareWeaponGroupType::WG_MISSILE;
+				}
+				else
+				{
+					WeaponGroup->Type = EFlareWeaponGroupType::WG_BOMB;
+				}
 			}
 			else
 			{

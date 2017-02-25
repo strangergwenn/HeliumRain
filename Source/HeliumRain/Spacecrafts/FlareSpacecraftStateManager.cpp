@@ -103,7 +103,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	}
 
 	// Axis input mode start, reset mouse offset
-	if (LastWeaponType == EFlareWeaponGroupType::WG_NONE && (CurrentWeaponType == EFlareWeaponGroupType::WG_GUN || CurrentWeaponType == EFlareWeaponGroupType::WG_BOMB ))
+	if (LastWeaponType == EFlareWeaponGroupType::WG_NONE && (CurrentWeaponType == EFlareWeaponGroupType::WG_GUN || CurrentWeaponType == EFlareWeaponGroupType::WG_BOMB || CurrentWeaponType == EFlareWeaponGroupType::WG_MISSILE ))
 	{
 		PlayerAim = FVector2D::ZeroVector;
 	}

@@ -12,7 +12,8 @@ namespace EFlareWeaponGroupType
 		WG_NONE,
 		WG_GUN,
 		WG_BOMB,
-		WG_TURRET
+		WG_TURRET,
+		WG_MISSILE
 	};
 }
 

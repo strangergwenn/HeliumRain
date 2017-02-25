@@ -19,6 +19,7 @@ DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Military"), STAT_FlareShipPilot_Military
 DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Cargo"), STAT_FlareShipPilot_Cargo, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Fighter"), STAT_FlareShipPilot_Fighter, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Bomber"), STAT_FlareShipPilot_Bomber, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Missile"), STAT_FlareShipPilot_Missile, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Idle"), STAT_FlareShipPilot_Idle, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareShipPilot Flagship"), STAT_FlareShipPilot_Flagship, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareShipPilot FindBestHostileTarget"), STAT_FlareShipPilot_FindBestHostileTarget, STATGROUP_Flare);
@@ -176,8 +177,11 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 				BomberPilot(DeltaSeconds);
 				Idle = false;
 			}
-
-
+			else if (WeaponType == EFlareWeaponGroupType::WG_MISSILE)
+			{
+				MissilePilot(DeltaSeconds);
+				Idle = false;
+			}
 		}
 		else
 		{
@@ -847,6 +851,75 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		PilotTargetShip = NULL;
 	}
 }
+
+void UFlareShipPilot::MissilePilot(float DeltaSeconds)
+{
+	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_Missile);
+
+	// Weapon info
+	UFlareWeapon* CurrentWeapon = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons[0];
+	bool IsSalvage = CurrentWeapon->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage
+		|| CurrentWeapon->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage;
+
+	// Get speed and location data
+	LinearTargetVelocity = FVector::ZeroVector;
+	FVector DeltaLocation = (PilotTargetComponent->GetComponentLocation() - Ship->GetActorLocation()) / 100.f;
+	FVector TargetAxis = DeltaLocation.GetUnsafeNormal();
+	float Distance = DeltaLocation.Size(); // Distance in meters
+
+	// Attack Phases
+	// 0 - Prepare attack : change velocity to approch the target
+	// 1 - Attacking : target is approching with boost
+	// 3 - Drop : Drop util its not safe to stay
+	// 2 - Withdraw : target is passed, wait a security distance to attack again
+
+	// Get mass coefficient for use as a reference
+	float WeigthCoef = FMath::Sqrt(Ship->GetSpacecraftMass()) / FMath::Sqrt(5425.f) * (2-Ship->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS)) ; // 1 for ghoul at 100%
+	float PreferedVelocity = FMath::Max(PilotTargetShip->GetLinearVelocity().Size() * 3.0f, Ship->GetNavigationSystem()->GetLinearMaxVelocity());
+	TimeUntilNextReaction /= 5;
+
+	// Compute distances and reaction times
+	float ApproachDistance = 500000; // 5 km
+	float TimeBetweenDrop = (IsSalvage ? 5.0 : 0.5) * WeigthCoef;
+
+	// Setup behaviour flags
+	UseOrbitalBoost = false;
+
+	if (Distance < ApproachDistance)
+	{
+		LinearTargetVelocity = -TargetAxis * PreferedVelocity * 0.2;
+	}
+	else
+	{
+		LinearTargetVelocity = TargetAxis * PreferedVelocity;
+	}
+
+	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), TargetAxis, FVector::ZeroVector, DeltaSeconds);
+	UseOrbitalBoost = true;
+	FVector FrontVector = Ship->GetFrontVector();
+
+	if (Distance < ApproachDistance && FVector::DotProduct(FrontVector, TargetAxis) > 0.8)
+	{
+		// Attack
+		if (TimeBeforeNextDrop > 0)
+		{
+			TimeBeforeNextDrop -= DeltaSeconds;
+		}
+		else
+		{
+			WantFire = !LastWantFire;
+			LastWantFire = WantFire;
+			if (WantFire)
+			{
+				TimeBeforeNextDrop = TimeBetweenDrop;
+			}
+		}
+	}
+
+	// Anticollision
+	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, PilotTargetShip);
+}
+
 
 void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 {

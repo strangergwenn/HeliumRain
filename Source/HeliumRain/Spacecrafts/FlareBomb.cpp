@@ -151,7 +151,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		{
 			// no fuel and 5 km and 30s auto-destroy
 			float Distance = (GetActorLocation() - PlayerShip->GetActorLocation()).Size();
-			if (BombData.BurnDuration >= WeaponDescription->WeaponCharacteristics.BombCharacteristics.MaxBurnDuration && Distance > 500000 && BombData.LifeTime > 30)
+			if (!IsActive() && Distance > 500000 && BombData.LifeTime > 30)
 			{
 				OnBombDetonated(NULL, NULL, FVector(), FVector());
 			}
@@ -578,5 +578,9 @@ float AFlareBomb::GetParentDistance() const
 	return (ParentWeapon->GetComponentLocation() - GetActorLocation()).Size();
 }
 
+bool AFlareBomb::IsActive() const
+{
+	return BombData.BurnDuration < WeaponDescription->WeaponCharacteristics.BombCharacteristics.MaxBurnDuration;
+}
 
 #undef LOCTEXT_NAMESPACE

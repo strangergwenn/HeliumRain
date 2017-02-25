@@ -35,6 +35,7 @@ FText IFlareSpacecraftWeaponsSystemInterface::GetWeaponModeInfo() const
 			break;
 
 		case EFlareWeaponGroupType::WG_BOMB:
+		case EFlareWeaponGroupType::WG_MISSILE:
 			ModeText = LOCTEXT("WeaponBomberMode", "Bombing");
 			break;
 

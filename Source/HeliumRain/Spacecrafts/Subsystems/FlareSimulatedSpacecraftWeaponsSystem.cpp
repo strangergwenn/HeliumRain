@@ -74,7 +74,14 @@ void UFlareSimulatedSpacecraftWeaponsSystem::Initialize(UFlareSimulatedSpacecraf
 			}
 			else if (WeaponGroup->Description->WeaponCharacteristics.BombCharacteristics.IsBomb)
 			{
-				WeaponGroup->Type = EFlareWeaponGroupType::WG_BOMB;
+				if(WeaponGroup->Description->WeaponCharacteristics.BombCharacteristics.MaxBurnDuration > 0)
+				{
+					WeaponGroup->Type = EFlareWeaponGroupType::WG_MISSILE;
+				}
+				else
+				{
+					WeaponGroup->Type = EFlareWeaponGroupType::WG_BOMB;
+				}
 			}
 			else
 			{

@@ -298,6 +298,33 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 			StateScore *= Preferences.IsNotUncontrollable;
 		}
 
+		int BombCount = 0;
+		// Divise by 25 the stateScore per current incoming missile
+		for (AFlareBomb* Bomb : Ship->GetGame()->GetActiveSector()->GetBombs())
+		{
+			if (Bomb->GetTargetSpacecraft() == ShipCandidate && Bomb->IsActive())
+			{
+				BombCount++;
+				StateScore /= 25;
+			}
+		}
+
+		if (IsShipDangerous(ShipCandidate))
+		{
+			if(BombCount > 1)
+			{
+				continue;
+			}
+		}
+		else
+		{
+			if(BombCount > 0)
+			{
+				continue;
+			}
+		}
+
+
 		if(ShipCandidate->GetParent()->IsHarpooned()) {
 			if(ShipCandidate->GetParent()->GetDamageSystem()->IsUncontrollable())
 			{

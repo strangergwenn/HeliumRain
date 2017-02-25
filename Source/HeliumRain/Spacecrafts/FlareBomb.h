@@ -181,6 +181,11 @@ public:
 		return BombData.Identifier;
 	}
 
+	AFlareSpacecraft* GetTargetSpacecraft()
+	{
+		return TargetSpacecraft;
+	}
+
 	inline UFlareWeapon* GetFiringWeapon() const
 	{
 		FCHECK(ParentWeapon);
@@ -202,4 +207,6 @@ public:
 	{
 		return Paused;
 	}
+
+	bool IsActive() const;
 };
