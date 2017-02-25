@@ -108,27 +108,14 @@ bool UFlareSimulatedSpacecraftWeaponsSystem::HasAntiLargeShipWeapon()
 {
 	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
 	{
-		EFlareShellDamageType::Type DamageType = WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.DamageType;
-
 		if (Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, true) <= 0)
 		{
 			continue;
 		}
 
-		if (WeaponGroupList[GroupIndex]->Type == EFlareWeaponGroupType::WG_BOMB)
+		if(WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiLargeShipValue > 0.5)
 		{
-			if(DamageType == EFlareShellDamageType::HEAT)
-			{
-				return true;
-			}
-		}
-		else
-		{
-			if (DamageType == EFlareShellDamageType::HEAT)
-			{
-				return true;
-			}
-
+			return true;
 		}
 	}
 	return false;
@@ -138,24 +125,14 @@ bool UFlareSimulatedSpacecraftWeaponsSystem::HasAntiSmallShipWeapon()
 {
 	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
 	{
-		EFlareShellDamageType::Type DamageType = WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.DamageType;
-
 		if (Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, true) <= 0)
 		{
 			continue;
 		}
 
-		if (WeaponGroupList[GroupIndex]->Type == EFlareWeaponGroupType::WG_BOMB)
+		if(WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiSmallShipValue > 0.5)
 		{
-			// Ignore bombs
-		}
-		else
-		{
-			if (DamageType != EFlareShellDamageType::HEAT)
-			{
-				return true;
-			}
-
+			return true;
 		}
 	}
 	return false;
@@ -182,50 +159,23 @@ void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall,
 			continue;
 		}
 
-		if (WeaponGroupList[GroupIndex]->Type == EFlareWeaponGroupType::WG_BOMB)
+		if(DamageType == EFlareShellDamageType::LightSalvage || DamageType == EFlareShellDamageType::HeavySalvage)
 		{
-			if(DamageType == EFlareShellDamageType::HEAT)
-			{
-				LargePool += 1.0;
-				StationPool += 0.1;
-				NotUncontrollablePool += 1.0;
-				UncontrollableMilitaryPool += 0.01;
-			}
-			else if(DamageType == EFlareShellDamageType::LightSalvage)
-			{
-				SmallPool += 1.0;
-				UncontrollableCivilPool += 1.0;
-				UncontrollableMilitaryPool += 1.0;
-
-			}
-			else if(DamageType == EFlareShellDamageType::HeavySalvage)
-			{
-				LargePool += 1.0;
-				UncontrollableCivilPool += 1.0;
-				UncontrollableMilitaryPool += 1.0;
-			}
+			UncontrollableCivilPool += 1.0;
+			UncontrollableMilitaryPool += 1.0;
 		}
 		else
 		{
-			if (DamageType == EFlareShellDamageType::HEAT)
-			{
-				LargePool += 1.0;
-				SmallPool += 0.1;
-				StationPool = 0.1;
-				NotUncontrollablePool += 1.0;
-				UncontrollableMilitaryPool += 0.01;
-				HarpoonedPool += 1.0;
-			}
-			else
-			{
-				LargePool += 0.01;
-				SmallPool += 1.0;
-				NotUncontrollablePool += 1.0;
-				UncontrollableMilitaryPool += 0.01;
-				HarpoonedPool += 1.0;
-			}
+			NotUncontrollablePool += 1.0;
+			UncontrollableMilitaryPool += 0.01;
+			HarpoonedPool += 1.0;
 		}
+
+		SmallPool += WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiSmallShipValue;
+		LargePool += WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiLargeShipValue;
+		StationPool += WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiStationValue;
 	}
+
 
 	if(LargePool > 0 || SmallPool > 0)
 	{
@@ -271,58 +221,31 @@ int32 UFlareSimulatedSpacecraftWeaponsSystem::FindBestWeaponGroup(UFlareSimulate
 		EFlareShellDamageType::Type DamageType = WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.DamageType;
 
 
-		if (WeaponGroupList[GroupIndex]->Type == EFlareWeaponGroupType::WG_BOMB)
+
+		if (SmallTarget)
 		{
-			if(DamageType == EFlareShellDamageType::HEAT)
-			{
-				Score *= (LargeTarget ? 1.f : 0.f);
-				if(Target->IsMilitary())
-				{
-					Score *= (UncontrollableTarget ? 0.01f : 1.f);
-				}
-				else
-				{
-					Score *= (UncontrollableTarget ? 0.f : 1.f);
-				}
-			}
-			else if(DamageType == EFlareShellDamageType::LightSalvage)
-			{
-				Score *= (SmallTarget ? 1.f : 0.f);
-				Score *= (UncontrollableTarget ? 1.f : 0.f);
-				Score *= (Target->IsHarpooned() ? 0.f: 1.f);
-			}
-			else if(DamageType == EFlareShellDamageType::HeavySalvage)
-			{
-				Score *= (LargeTarget ? 1.f : 0.f);
-				Score *= (UncontrollableTarget ? 1.f : 0.f);
-				Score *= (Target->IsHarpooned() ? 0.f: 1.f);
-			}
+			Score *= WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiSmallShipValue;
+		}
+
+		if (LargeTarget)
+		{
+			Score *= WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiLargeShipValue;
+		}
+
+		if(DamageType == EFlareShellDamageType::LightSalvage || DamageType == EFlareShellDamageType::HeavySalvage)
+		{
+			Score *= (UncontrollableTarget ? 1.f : 0.f);
+			Score *= (Target->IsHarpooned() ? 0.f: 1.f);
 		}
 		else
 		{
-			if (DamageType == EFlareShellDamageType::HEAT)
+			if(Target->IsMilitary())
 			{
-				Score *= (LargeTarget ? 1.f : 0.1f);
-				if(Target->IsMilitary())
-				{
-					Score *= (UncontrollableTarget ? 0.01f : 1.f);
-				}
-				else
-				{
-					Score *= (UncontrollableTarget ? 0.f : 1.f);
-				}
+				Score *= (UncontrollableTarget ? 0.01f : 1.f);
 			}
 			else
 			{
-				Score *= (SmallTarget ? 1.f : 0.01f);
-				if(Target->IsMilitary())
-				{
-					Score *= (UncontrollableTarget ? 0.01f : 1.f);
-				}
-				else
-				{
-					Score *= (UncontrollableTarget ? 0.f : 1.f);
-				}
+				Score *= (UncontrollableTarget ? 0.f : 1.f);
 			}
 		}
 

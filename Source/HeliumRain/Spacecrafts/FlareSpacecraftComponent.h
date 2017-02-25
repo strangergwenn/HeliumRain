@@ -275,6 +275,10 @@ struct FFlareSpacecraftComponentWeaponCharacteristics
 	/** Bomb characteristic structure */
 	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentBombCharacteristics BombCharacteristics;
 
+	/** Weapon target affility */
+	UPROPERTY(EditAnywhere, Category = Content) float AntiSmallShipValue;
+	UPROPERTY(EditAnywhere, Category = Content) float AntiLargeShipValue;
+	UPROPERTY(EditAnywhere, Category = Content) float AntiStationValue;
 };
 
 /** Base description of a ship component */
@@ -327,7 +331,6 @@ struct FFlareSpacecraftComponentDescription
 
 	/** Weapon characteristic structure */
 	UPROPERTY(EditAnywhere, Category = Content) FFlareSpacecraftComponentWeaponCharacteristics WeaponCharacteristics;
-
 };
 
 

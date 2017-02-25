@@ -275,16 +275,9 @@ bool UFlareBattle::SimulateLargeShipTurn(UFlareSimulatedSpacecraft* Ship)
 		TargetPreferences.IsHarpooned = 0;
 		TargetPreferences.TargetStateWeight = 1;
 
-		if (ComponentDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
-		{
-			TargetPreferences.IsLarge = 1.0f;
-			TargetPreferences.IsSmall = 0.0f;
-		}
-		else
-		{
-			TargetPreferences.IsLarge = 0.0f;
-			TargetPreferences.IsSmall = 1.0f;
-		}
+		TargetPreferences.IsLarge = ComponentDescription->WeaponCharacteristics.AntiLargeShipValue;
+		TargetPreferences.IsSmall = ComponentDescription->WeaponCharacteristics.AntiSmallShipValue;
+		TargetPreferences.IsStation = ComponentDescription->WeaponCharacteristics.AntiStationValue;
 
 
 		Target = GetBestTarget(Ship, TargetPreferences);

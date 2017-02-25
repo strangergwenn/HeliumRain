@@ -270,19 +270,6 @@ void UFlareTurretPilot::ProcessTurretTargetSelection()
 
 	AFlareSpacecraft* OldPilotTargetShip = PilotTargetShip;
 
-	EFlarePartSize::Type PreferredShipSize;
-	EFlarePartSize::Type SecondaryShipSize;
-	if (Turret->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
-	{
-		PreferredShipSize = EFlarePartSize::L;
-		SecondaryShipSize = EFlarePartSize::S;
-	}
-	else
-	{
-		PreferredShipSize = EFlarePartSize::S;
-		SecondaryShipSize = EFlarePartSize::L;
-	}
-
 	EFlareCombatTactic::Type Tactic = Turret->GetSpacecraft()->GetParent()->GetCompany()->GetTacticManager()->GetCurrentTacticForShipGroup(EFlareCombatGroup::Capitals);
 
 	PilotTargetShip = GetNearestHostileShip(true, Tactic);
@@ -364,22 +351,14 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, E
 	TargetPreferences.AlignementWeight = 1.0;
 	TargetPreferences.BaseLocation = PilotLocation;
 
+	TargetPreferences.IsLarge = Turret->GetDescription()->WeaponCharacteristics.AntiLargeShipValue;
+	TargetPreferences.IsSmall = Turret->GetDescription()->WeaponCharacteristics.AntiSmallShipValue;
+	TargetPreferences.IsStation = Turret->GetDescription()->WeaponCharacteristics.AntiStationValue;
 
-
-	if (Turret->GetDescription()->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
-	{
-		TargetPreferences.IsLarge = 1.0f;
-		TargetPreferences.IsSmall = 0.1f;
-	}
-	else
-	{
-		TargetPreferences.IsLarge = 0.1f;
-		TargetPreferences.IsSmall = 1.0f;
-	}
 
 	if (Tactic == EFlareCombatTactic::AttackStations)
 	{
-		TargetPreferences.IsStation = 10;
+		TargetPreferences.IsStation *= 10;
 	}
 	else if (Tactic == EFlareCombatTactic::AttackMilitary)
 	{

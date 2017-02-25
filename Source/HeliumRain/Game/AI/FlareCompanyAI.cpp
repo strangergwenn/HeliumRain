@@ -2577,41 +2577,24 @@ bool UFlareCompanyAI::UpgradeShip(UFlareSimulatedSpacecraft* Ship, EFlarePartSiz
 				continue;
 			}
 
-			if(WeaponTargetSize == EFlarePartSize::L)
+			if(WeaponTargetSize == EFlarePartSize::L && Part->WeaponCharacteristics.AntiLargeShipValue < 0.5)
 			{
-				if(Part->WeaponCharacteristics.BombCharacteristics.IsBomb && FMath::FRand() < 0.8)
-				{
-					continue;
-				}
-
-				if (Part->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
-				{
-					// Compatible target
-					bool HasChance = FMath::FRand() < 0.7;
-					if(!BestWeapon || (BestWeapon->Cost < Part->Cost && HasChance))
-					{
-						BestWeapon = Part;
-					}
-				}
+				continue;
 			}
-			else
+
+			if(WeaponTargetSize == EFlarePartSize::S && Part->WeaponCharacteristics.AntiSmallShipValue < 0.5)
 			{
-				if(Part->WeaponCharacteristics.BombCharacteristics.IsBomb)
-				{
-					continue;
-				}
-
-				if (Part->WeaponCharacteristics.DamageType != EFlareShellDamageType::HEAT)
-				{
-					// Compatible target
-					bool HasChance = FMath::RandBool();
-					if(!BestWeapon || (BestWeapon->Cost < Part->Cost && HasChance))
-					{
-						BestWeapon = Part;
-					}
-				}
-
+				continue;
 			}
+
+
+			// Compatible target
+			bool HasChance = FMath::FRand() < 0.7;
+			if(!BestWeapon || (BestWeapon->Cost < Part->Cost && HasChance))
+			{
+				BestWeapon = Part;
+			}
+
 		}
 
 		if(BestWeapon)
