@@ -454,6 +454,7 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
 	// Apply damage
+	HitSpacecraft->GetDamageSystem()->SetLastDamageCauser(Cast<AFlareSpacecraft>(ParentWeapon->GetOwner()));
 	HitSpacecraft->GetDamageSystem()->ApplyDamage(WeaponDescription->WeaponCharacteristics.ExplosionPower,
 		WeaponDescription->WeaponCharacteristics.AmmoDamageRadius,
 		HitLocation,
