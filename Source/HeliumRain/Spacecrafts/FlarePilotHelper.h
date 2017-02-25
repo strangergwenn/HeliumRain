@@ -42,7 +42,7 @@ struct PilotHelper
 	static bool CheckFriendlyFire(UFlareSector* Sector, UFlareCompany* MyCompany, FVector FireBaseLocation, FVector FireBaseVelocity , float AmmoVelocity, FVector FireAxis, float MaxDelay, float AimRadius);
 
 	/** Correct trajectory to avoid incoming ships */
-	static FVector AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, AFlareSpacecraft* SpacecraftToIgnore = NULL);
+	static FVector AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, AFlareSpacecraft* SpacecraftToIgnore = NULL, float PreventionDuration = 5.f);
 
 	static AFlareSpacecraft* GetBestTarget(AFlareSpacecraft* Ship, struct TargetPreferences Preferences);
 

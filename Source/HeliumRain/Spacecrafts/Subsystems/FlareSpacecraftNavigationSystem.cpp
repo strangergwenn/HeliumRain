@@ -351,7 +351,7 @@ void UFlareSpacecraftNavigationSystem::CheckCollisionDocking(AFlareSpacecraft* D
 
 static const float DockingDockToDockDistanceLimit = 20; // 20 cm of linear distance to dock
 static const float FinalApproachDockToDockDistanceLimit = 100; // 1 m of linear distance
-static const float ApproachDockToDockDistanceLimit = 40000; // 400 m approch distance
+static const float ApproachDockToDockDistanceLimit = 20000; // 200 m approch distance
 
 static const float FinalApproachDockToDockLateralDistanceLimit = 100; // 50 cm of linear lateral distance
 
@@ -633,6 +633,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 	FVector AxisTarget = -DockingParameters.StationDockAxis;
 	AFlareSpacecraft* AnticollisionDockStation = DockStation;
 	bool Anticollision = false;
+	float AnticollisionDuration = 3.f;
 	FVector VelocityTarget = DockingParameters.LinearVelocityAtShipDistance - DockingParameters.ShipDockSelfRotationInductedLinearVelocity;
 
 	switch (DockingParameters.DockingPhase)
@@ -646,6 +647,8 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 			{
 				AxisTarget = LocationTarget - DockingParameters.ShipDockLocation;
 				AngularVelocityTarget = FVector::ZeroVector;
+
+				AnticollisionDuration = 1.f;
 			}
 
 			//FLOGV("Anticollision test ignore FVector::DotProduct(DockToDockDeltaLocation.GetUnsafeNormal(), StationDockAxis)=%f", FVector::DotProduct(DockToDockDeltaLocation.GetUnsafeNormal(), StationDockAxis));
@@ -687,7 +690,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 		//FLOGV("Docking Anticollision ignore=%p", AnticollisionDockStation);
 
 		// During docking, lets the others avoid me
-		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, AnticollisionDockStation);
+		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, AnticollisionDockStation, AnticollisionDuration);
 	}
 }
 
