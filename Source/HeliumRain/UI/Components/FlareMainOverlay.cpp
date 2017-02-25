@@ -120,12 +120,30 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	AddMenuLink(EFlareMenu::MENU_Company);
 	AddMenuLink(EFlareMenu::MENU_Fleet);
 	AddMenuLink(EFlareMenu::MENU_Quest);
-	AddMenuLink(EFlareMenu::MENU_Main);
+	
+	// Main
+	TSharedPtr<SFlareButton> MainButton;
+	MenuList->AddSlot()
+	.HAlign(HAlign_Right)
+	[
+		SAssignNew(MainButton, SFlareButton)
+		.Width(TitleButtonWidth)
+		.Height(TitleButtonHeight)
+		.Transparent(true)
+		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, EFlareMenu::MENU_Main)
+		.Visibility(this, &SFlareMainOverlay::GetGameButtonVisibility)
+	];
+	SetupMenuLink(MainButton,
+		AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main),
+		AFlareMenuManager::GetMenuName(EFlareMenu::MENU_Main),
+		AFlareMenuManager::GetMenuKey(EFlareMenu::MENU_Main),
+		false);
 	
 	// Settings
 	TSharedPtr<SFlareButton> SettingsButton;
 	MenuList->AddSlot()
 	.HAlign(HAlign_Right)
+	.AutoWidth()
 	[
 		SAssignNew(SettingsButton, SFlareButton)
 		.Width(TitleButtonWidth)
