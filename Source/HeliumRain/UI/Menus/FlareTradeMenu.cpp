@@ -298,11 +298,14 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 	TargetSector = ParentSector;
 	TargetLeftSpacecraft = LeftSpacecraft;
 	ShipList->Reset();
+	WasActiveSector = false;
 
 	// First-person trading override
 	AFlareSpacecraft* PhysicalSpacecraft = TargetLeftSpacecraft->GetActive();
+
 	if (TargetLeftSpacecraft->IsActive())
 	{
+		WasActiveSector = true;
 		if (PhysicalSpacecraft->GetNavigationSystem()->IsDocked())
 		{
 			TargetRightSpacecraft = PhysicalSpacecraft->GetNavigationSystem()->GetDockStation()->GetParent();
@@ -463,6 +466,18 @@ void SFlareTradeMenu::Exit()
 	SetVisibility(EVisibility::Collapsed);
 }
 
+void SFlareTradeMenu::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
+{
+	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+
+	if (IsEnabled() && !WasActiveSector)
+	{
+		if (TargetLeftSpacecraft->IsActive())
+		{
+			Enter(TargetSector, TargetLeftSpacecraft, TargetRightSpacecraft);
+		}
+	}
+}
 
 /*----------------------------------------------------
 	Callbacks

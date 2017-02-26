@@ -44,6 +44,7 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+	virtual void Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime ) override;
 
 protected:
 
@@ -135,4 +136,5 @@ protected:
 	FFlareResourceDescription*                      TransactionResource;
 	uint32                                          TransactionQuantity;
 
+	bool											WasActiveSector;
 };
