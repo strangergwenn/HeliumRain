@@ -200,7 +200,7 @@ void UFlareScenarioTools::SetupWorld()
 	SetupKnownSectors(Pirates);
 	
 	// Company setup
-	PlayerCompany->GiveMoney(5000000);
+	PlayerCompany->GiveMoney(500000);
 	MiningSyndicate->GiveMoney(100000000);
 	HelixFoundries->GiveMoney(100000000);
 	Sunwatch->GiveMoney(100000000);
