@@ -175,6 +175,8 @@ public:
 		return QuestStatus;
 	}
 
+	FName GetQuestNotificationTag() const;
+
 	FText GetStatusText() const;
 
 	inline UFlareQuestStep* GetCurrentStep() const

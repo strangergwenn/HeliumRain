@@ -90,6 +90,9 @@ public:
 	/** Show a notification to the user */
 	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, bool Pinned = false, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, FFlareMenuParameterData TargetInfo = FFlareMenuParameterData());
 
+	/** Remove all notifications with the given tag */
+	void ClearNotifications(FName Tag);
+
 	/** Remove all notifications from the screen */
 	void FlushNotifications();
 

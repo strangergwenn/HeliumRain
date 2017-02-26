@@ -324,6 +324,14 @@ void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotifica
 	}
 }
 
+void AFlareMenuManager::ClearNotifications(FName Tag)
+{
+	if (MainOverlay.IsValid())
+	{
+		Notifier->ClearNotifications(Tag, false);
+	}
+}
+
 void AFlareMenuManager::FlushNotifications()
 {
 	if (MainOverlay.IsValid())

@@ -237,7 +237,7 @@ void UFlareQuest::NextStep(bool Silent)
 				if (!Silent)
 				{
 					FText MessageText = FormatTags(Step->GetStepDescription());
-					SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
+					SendQuestNotification(MessageText, GetQuestNotificationTag());
 				}
 
 				QuestManager->LoadCallbacks(this);
@@ -259,6 +259,7 @@ void UFlareQuest::Success()
 		return;
 	}
 
+	QuestManager->GetGame()->GetPC()->GetMenuManager()->ClearNotifications(GetQuestNotificationTag());
 	SetStatus(EFlareQuestStatus::SUCCESSFUL);
 	UFlareQuestAction::PerformActions(SuccessActions);
 	QuestManager->OnQuestSuccess(this);
@@ -272,6 +273,8 @@ void UFlareQuest::Fail()
 		return;
 	}
 
+	QuestManager->GetGame()->GetPC()->GetMenuManager()->ClearNotifications(GetQuestNotificationTag());
+
 	SetStatus(EFlareQuestStatus::FAILED);
 	UFlareQuestAction::PerformActions(FailActions);
 	QuestManager->OnQuestFail(this);
@@ -284,6 +287,8 @@ void UFlareQuest::Abandon()
 		// Already abandoned
 		return;
 	}
+
+	QuestManager->GetGame()->GetPC()->GetMenuManager()->ClearNotifications(GetQuestNotificationTag());
 
 	SetStatus(EFlareQuestStatus::ABANDONED);
 	UFlareQuestAction::PerformActions(FailActions);
@@ -481,7 +486,7 @@ void UFlareQuest::StartObjectiveTracking()
 	UpdateObjectiveTracker();
 
 	FText MessageText = FormatTags(CurrentStep->GetStepDescription());
-	SendQuestNotification(MessageText, FName(*(FString("quest-") + GetIdentifier().ToString() + "-message")));
+	SendQuestNotification(MessageText, GetQuestNotificationTag());
 }
 
 void UFlareQuest::StopObjectiveTracking()
@@ -704,6 +709,12 @@ FText UFlareQuest::GetQuestExpiration()
 	}
 
 	return FText::FromString(Result);
+}
+
+
+FName UFlareQuest::GetQuestNotificationTag() const
+{
+	return FName(*(FString("quest-") + GetIdentifier().ToString() + "-message"));
 }
 
 FText UFlareQuest::GetStatusText() const
