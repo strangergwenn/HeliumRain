@@ -31,6 +31,8 @@ public:
 
 	virtual void SetVisibleInUpgrade(bool Visible) override;
 
+	virtual void UpdateCustomization() override;
+
 	/** Start firing */
 	virtual void StartFire();
 

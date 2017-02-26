@@ -32,10 +32,8 @@ UStaticMesh* UFlareBombComponent::GetMesh(bool PresentationMode) const
 {
 	if (ComponentDescription)
 	{
-		//FLOGV("UFlareBombComponent::GetMesh OK %s", *this->GetReadableName());
 		return ComponentDescription->Mesh;
 	}
-	//FLOG("UFlareBombComponent::GetMesh KO");
 
 	return Super::GetMesh(PresentationMode);
 }

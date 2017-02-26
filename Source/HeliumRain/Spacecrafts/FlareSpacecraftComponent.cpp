@@ -288,7 +288,15 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 		int ComponentMaterialIndex = GetMaterialIndex("Base");
 		if (ComponentMaterialIndex >= 0)
 		{
-			ComponentMaterial = UMaterialInstanceDynamic::Create(GetMaterial(ComponentMaterialIndex), GetWorld());
+			UMaterialInterface* BaseMaterial = GetMaterial(ComponentMaterialIndex);
+			if (BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
+			{
+				ComponentMaterial = Cast<UMaterialInstanceDynamic>(BaseMaterial);
+			}
+			else
+			{
+				ComponentMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
+			}
 			SetMaterialByName("Base", ComponentMaterial);
 		}
 
@@ -296,7 +304,15 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 		int EffectMaterialIndex = GetMaterialIndex("Exhaust");
 		if (EffectMaterialIndex >= 0)
 		{
-			EffectMaterial = UMaterialInstanceDynamic::Create(GetMaterial(EffectMaterialIndex), GetWorld());
+			UMaterialInterface* BaseMaterial = GetMaterial(EffectMaterialIndex);
+			if (BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
+			{
+				EffectMaterial = Cast<UMaterialInstanceDynamic>(BaseMaterial);
+			}
+			else
+			{
+				EffectMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
+			}
 			SetMaterialByName("Exhaust", EffectMaterial);
 		}
 	}

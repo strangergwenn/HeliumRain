@@ -98,6 +98,16 @@ void UFlareWeapon::SetupFiringEffects()
 	}
 }
 
+void UFlareWeapon::UpdateCustomization()
+{
+	Super::UpdateCustomization();
+
+	for (auto Bomb : Bombs)
+	{
+		Bomb->Initialize(NULL, this);
+	}
+}
+
 FFlareSpacecraftComponentSave* UFlareWeapon::Save()
 {
 	return Super::Save();
