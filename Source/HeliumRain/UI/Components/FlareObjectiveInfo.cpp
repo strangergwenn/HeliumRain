@@ -36,7 +36,7 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 		.AutoWidth()
 		[
 			SNew(SBox)
-			.WidthOverride(10)
+			.WidthOverride(2)
 			[
 				SNew(SImage)
 				.Image(&Theme.InvertedBrush)
@@ -49,49 +49,57 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
 		[
-			SNew(SBorder)
-			.BorderImage(&Theme.BackgroundBrush)
-			.Padding(FMargin(1))
+			SNew(SBackgroundBlur)
+			.BlurRadius(30)
+			.BlurStrength(10)
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			.Padding(FMargin(0))
 			[
-				SNew(SBox)
-				.WidthOverride(ObjectiveInfoWidth)
-				.Visibility(this, &SFlareObjectiveInfo::GetVisibility)
-				.Padding(Theme.SmallContentPadding)
+				SNew(SBorder)
+				.BorderImage(&Theme.BackgroundBrush)
+				.Padding(FMargin(1))
 				[
-					SNew(SVerticalBox)
-
-					// Header
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+					SNew(SBox)
+					.WidthOverride(ObjectiveInfoWidth)
+					.Visibility(this, &SFlareObjectiveInfo::GetVisibility)
 					.Padding(Theme.SmallContentPadding)
 					[
-						SNew(STextBlock)
-						.Text(this, &SFlareObjectiveInfo::GetName)
-						.WrapTextAt(ObjectiveInfoTextWidth)
-						.TextStyle(&Theme.NameFont)
-						.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
-						.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
-					]
+						SNew(SVerticalBox)
 
-					// Description
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(STextBlock)
-						.Text(this, &SFlareObjectiveInfo::GetDescription)
-						.WrapTextAt(ObjectiveInfoTextWidth)
-						.TextStyle(&Theme.TextFont)
-						.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
-						.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
-					]
+						// Header
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareObjectiveInfo::GetName)
+							.WrapTextAt(ObjectiveInfoTextWidth)
+							.TextStyle(&Theme.NameFont)
+							.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
+							.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
+						]
 
-					// Conditions
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SAssignNew(ConditionBox, SVerticalBox)
+						// Description
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareObjectiveInfo::GetDescription)
+							.WrapTextAt(ObjectiveInfoTextWidth)
+							.TextStyle(&Theme.TextFont)
+							.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
+							.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
+						]
+
+						// Conditions
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(ConditionBox, SVerticalBox)
+						]
 					]
 				]
 			]

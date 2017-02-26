@@ -62,7 +62,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 					.AutoWidth()
 					[
 						SNew(SBox)
-						.WidthOverride(10)
+						.WidthOverride(2)
 						[
 							SNew(SImage)
 							.Image(&Theme.InvertedBrush)
@@ -77,94 +77,104 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 						SNew(SBox)
 						.WidthOverride(NotificatioNWidth)
 						[
-							SNew(SBorder)
-							.BorderImage(&Theme.BackgroundBrush)
-							.BorderBackgroundColor(this, &SFlareNotification::GetNotificationBackgroundColor)
-							.Padding(Theme.SmallContentPadding)
+							SNew(SBackgroundBlur)
+							.BlurRadius(30)
+							.BlurStrength(10)
+							.BlurRadius(this, &SFlareNotification::GetNotificationBlurRadius)
+							.BlurStrength(this, &SFlareNotification::GetNotificationBlurStrength)
+							.HAlign(HAlign_Fill)
+							.VAlign(VAlign_Fill)
+							.Padding(FMargin(0))
 							[
-								SNew(SVerticalBox)
-
-								// Header
-								+ SVerticalBox::Slot()
-								.AutoHeight()
+								SNew(SBorder)
+								.BorderImage(&Theme.BackgroundBrush)
+								.BorderBackgroundColor(this, &SFlareNotification::GetNotificationBackgroundColor)
+								.Padding(Theme.SmallContentPadding)
 								[
-									SNew(SHorizontalBox)
+									SNew(SVerticalBox)
 
-									// Title
-									+ SHorizontalBox::Slot()
-									.HAlign(HAlign_Fill)
+									// Header
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									[
+										SNew(SHorizontalBox)
+
+										// Title
+										+ SHorizontalBox::Slot()
+										.HAlign(HAlign_Fill)
+										.Padding(Theme.SmallContentPadding)
+										[
+											SNew(STextBlock)
+											.Text(InArgs._Text)
+											.WrapTextAt(NotificationTextWidth)
+											.TextStyle(&Theme.NameFont)
+											.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
+											.ShadowColorAndOpacity(ShadowColor)
+										]
+
+										// Close button
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.HAlign(HAlign_Right)
+										[
+											SNew(SFlareButton)
+											.Width(1)
+											.Transparent(true)
+											.Text(FText())
+											.HelpText(LOCTEXT("DismissInfo", "Dismiss this notification"))
+											.Icon(FFlareStyleSet::GetIcon("Delete"))
+											.OnClicked(this, &SFlareNotification::OnNotificationDismissed)
+										]
+									]
+
+									// Info
+									+ SVerticalBox::Slot()
+									.AutoHeight()
 									.Padding(Theme.SmallContentPadding)
 									[
 										SNew(STextBlock)
-										.Text(InArgs._Text)
+										.Text(InArgs._Info)
 										.WrapTextAt(NotificationTextWidth)
-										.TextStyle(&Theme.NameFont)
+										.TextStyle(&Theme.TextFont)
 										.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
 										.ShadowColorAndOpacity(ShadowColor)
 									]
 
-									// Close button
-									+ SHorizontalBox::Slot()
-									.AutoWidth()
-									.HAlign(HAlign_Right)
-									[
-										SNew(SFlareButton)
-										.Width(1)
-										.Transparent(true)
-										.Text(FText())
-										.HelpText(LOCTEXT("DismissInfo", "Dismiss this notification"))
-										.Icon(FFlareStyleSet::GetIcon("Delete"))
-										.OnClicked(this, &SFlareNotification::OnNotificationDismissed)
-									]
-								]
-
-								// Info
-								+ SVerticalBox::Slot()
-								.AutoHeight()
-								.Padding(Theme.SmallContentPadding)
-								[
-									SNew(STextBlock)
-									.Text(InArgs._Info)
-									.WrapTextAt(NotificationTextWidth)
-									.TextStyle(&Theme.TextFont)
-									.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
-									.ShadowColorAndOpacity(ShadowColor)
-								]
-
-								// Icons
-								+ SVerticalBox::Slot()
-								.AutoHeight()
-								.HAlign(HAlign_Left)
-								.VAlign(VAlign_Center)
-								.Padding(NotificatioNWidth - 55, Theme.SmallContentPadding.Top, Theme.SmallContentPadding.Right, Theme.SmallContentPadding.Bottom)
-								[
-									SNew(SHorizontalBox)
-
-									// Clickable
-									+ SHorizontalBox::Slot()
-									.AutoWidth()
-									[
-										SNew(SImage)
-										.Image(FFlareStyleSet::GetIcon("Clickable"))
-										.Visibility(this, &SFlareNotification::GetClickableIconVisibility)
-										.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
-									]
-
-									// Lifetime
-									+ SHorizontalBox::Slot()
-									.HAlign(HAlign_Center)
+									// Icons
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									.HAlign(HAlign_Left)
 									.VAlign(VAlign_Center)
+									.Padding(NotificatioNWidth - 55, Theme.SmallContentPadding.Top, Theme.SmallContentPadding.Right, Theme.SmallContentPadding.Bottom)
 									[
-										SNew(SBox)
-										.WidthOverride(this, &SFlareNotification::GetLifetimeSize)
-										.HeightOverride(this, &SFlareNotification::GetLifetimeSize)
-										.Visibility(this, &SFlareNotification::GetLifetimeIconVisibility)
-										.HAlign(HAlign_Fill)
-										.VAlign(VAlign_Fill)
+										SNew(SHorizontalBox)
+
+										// Clickable
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
 										[
 											SNew(SImage)
-											.Image(FFlareStyleSet::GetIcon("Lifetime"))
+											.Image(FFlareStyleSet::GetIcon("Clickable"))
+											.Visibility(this, &SFlareNotification::GetClickableIconVisibility)
 											.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
+										]
+
+										// Lifetime
+										+ SHorizontalBox::Slot()
+										.HAlign(HAlign_Center)
+										.VAlign(VAlign_Center)
+										[
+											SNew(SBox)
+											.WidthOverride(this, &SFlareNotification::GetLifetimeSize)
+											.HeightOverride(this, &SFlareNotification::GetLifetimeSize)
+											.Visibility(this, &SFlareNotification::GetLifetimeIconVisibility)
+											.HAlign(HAlign_Fill)
+											.VAlign(VAlign_Fill)
+											[
+												SNew(SImage)
+												.Image(FFlareStyleSet::GetIcon("Lifetime"))
+												.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
+											]
 										]
 									]
 								]
@@ -249,6 +259,16 @@ void SFlareNotification::Tick(const FGeometry& AllottedGeometry, const double In
 		CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, FMath::Clamp(TimeToFade / AnimationTime, 0.0f, 1.0f), Ease);
 		CurrentMargin = LastHeight * FMath::InterpEaseOut(0.0f, 1.0f, FMath::Clamp(TimeToRemove / AnimationTime, 0.0f, 1.0f), Ease);
 	}
+}
+
+TOptional<int32> SFlareNotification::GetNotificationBlurRadius() const
+{
+	return 30 * CurrentAlpha;
+}
+
+float SFlareNotification::GetNotificationBlurStrength() const
+{
+	return 10.0f * CurrentAlpha;
 }
 
 FSlateColor SFlareNotification::GetNotificationColor(EFlareNotification::Type Type) const

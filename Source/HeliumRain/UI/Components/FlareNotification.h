@@ -70,7 +70,13 @@ public:
 	----------------------------------------------------*/
 	
 	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
-	
+
+	/** Blur intensity */
+	TOptional<int32> GetNotificationBlurRadius() const;
+
+	/** Blur intensity */
+	float GetNotificationBlurStrength() const;
+
 	/** Get the current color */
 	FSlateColor GetNotificationColor(EFlareNotification::Type Type) const;
 

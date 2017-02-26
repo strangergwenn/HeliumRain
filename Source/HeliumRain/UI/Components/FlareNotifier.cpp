@@ -141,7 +141,7 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 
 EVisibility SFlareNotifier::GetObjectiveVisibility() const
 {
-	if (MenuManager->IsUIOpen())
+	if (MenuManager->IsMenuOpen())
 	{
 		return EVisibility::Collapsed;
 	}
