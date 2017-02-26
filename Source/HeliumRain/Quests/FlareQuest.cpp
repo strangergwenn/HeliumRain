@@ -24,6 +24,7 @@ UFlareQuest::UFlareQuest(const FObjectInitializer& ObjectInitializer)
 	QuestData.AcceptationDate = 0;
 }
 
+
 /*----------------------------------------------------
 	Save
 ----------------------------------------------------*/
@@ -519,9 +520,11 @@ void UFlareQuest::UpdateObjectiveTracker()
 	QuestManager->GetGame()->GetPC()->StartObjective(Objective.Name, Objective);
 }
 
+
 /*----------------------------------------------------
-	Callback
+	Callbacks
 ----------------------------------------------------*/
+
 TArray<UFlareQuestCondition*> UFlareQuest::GetCurrentConditions()
 {
 	TArray<UFlareQuestCondition*> Conditions;
@@ -686,6 +689,18 @@ FText UFlareQuest::GetQuestPenalty()
 		{
 			return LOCTEXT("QuestPenaltyUnknown", "Unknown");
 		}
+	}
+
+	return FText::FromString(Result);
+}
+
+FText UFlareQuest::GetQuestExpiration()
+{
+	FString Result;
+
+	for (auto Condition : ExpirationConditions)
+	{
+		Result += Condition->GetInitialLabel().ToString();
 	}
 
 	return FText::FromString(Result);

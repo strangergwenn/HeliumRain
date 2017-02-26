@@ -163,6 +163,8 @@ public:
 
 	FText GetQuestPenalty();
 
+	FText GetQuestExpiration();
+
 	inline EFlareQuestCategory::Type GetQuestCategory() const
 	{
 		return QuestCategory;

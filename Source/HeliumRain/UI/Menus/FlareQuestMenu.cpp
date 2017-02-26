@@ -353,6 +353,12 @@ void SFlareQuestMenu::FillPreviousQuestList()
 	{
 		UFlareQuest* Quest = PreviousQuests[QuestIndex];
 
+		// Don't show expired quests
+		if (Quest->Save()->AcceptationDate == 0)
+		{
+			continue;
+		}
+
 		PreviousQuestList->AddSlot()
 		.Padding(Theme.SmallContentPadding)
 		.HAlign(HAlign_Left)
@@ -376,7 +382,7 @@ void SFlareQuestMenu::FillPreviousQuestList()
 	}
 
 	// No previous quest
-	if (PreviousQuests.Num() == 0)
+	if (PreviousQuestList->NumSlots() == 0)
 	{
 		PreviousQuestList->AddSlot()
 		[
@@ -399,7 +405,7 @@ void SFlareQuestMenu::FillQuestDetails()
 	// Get selected quest
 	if (SelectedQuest)
 	{
-		UFlareCompany* ClientCompany =SelectedQuest->GetClient();
+		UFlareCompany* ClientCompany = SelectedQuest->GetClient();
 
 		// Header
 		QuestDetails->AddSlot()
@@ -550,6 +556,29 @@ void SFlareQuestMenu::FillQuestDetails()
 				}
 			}
 		}
+
+		// Expiration warning
+		if (SelectedQuest->GetStatus() == EFlareQuestStatus::AVAILABLE)
+		{
+			QuestDetails->AddSlot()
+			.AutoHeight()
+			.Padding(Theme.TitlePadding)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.SubTitleFont)
+				.Text(LOCTEXT("ExpirationTitle", "Contract expiration"))
+			];
+
+			QuestDetails->AddSlot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(STextBlock)
+				.WrapTextAt(0.9 * Theme.ContentWidth)
+				.TextStyle(&Theme.TextFont)
+				.Text(SelectedQuest->GetQuestExpiration())
+			];
+		}
 				
 		// Reward & penalty
 		QuestDetails->AddSlot()
@@ -590,7 +619,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.WrapTextAt(0.9 * Theme.ContentWidth)
+					.WrapTextAt(0.4 * Theme.ContentWidth)
 					.TextStyle(&Theme.TextFont)
 					.Text(SelectedQuest->GetQuestReward())
 				]
@@ -629,7 +658,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.WrapTextAt(0.9 * Theme.ContentWidth)
+					.WrapTextAt(0.4 * Theme.ContentWidth)
 					.TextStyle(&Theme.TextFont)
 					.Text(SelectedQuest->GetQuestPenalty())
 				]
