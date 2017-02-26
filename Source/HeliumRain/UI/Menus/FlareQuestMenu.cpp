@@ -354,7 +354,7 @@ void SFlareQuestMenu::FillPreviousQuestList()
 		UFlareQuest* Quest = PreviousQuests[QuestIndex];
 
 		// Don't show expired quests
-		if (Quest->Save()->AcceptationDate == 0)
+		if (Quest->GetStatus() == EFlareQuestStatus::ABANDONED)
 		{
 			continue;
 		}

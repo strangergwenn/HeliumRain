@@ -156,7 +156,7 @@ void UFlareQuest::UpdateState()
 			bool ConditionsStatus = UFlareQuestCondition::CheckConditions(ExpirationConditions, false);
 			if (ConditionsStatus)
 			{
-				Fail();
+				Abandon();
 				break;
 			}
 
