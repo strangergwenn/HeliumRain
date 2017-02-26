@@ -330,21 +330,47 @@ uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource,
 	uint32 RemainingQuantity = Quantity;
 
 
-
-	for (int32 StationIndex = 0; StationIndex < Stations.Num(); StationIndex++)
+	while(RemainingQuantity > 0)
 	{
-		UFlareSimulatedSpacecraft* Station = Stations[StationIndex];
+		// Always buy in the station with the highter fill ratio
+		UFlareSimulatedSpacecraft* BestStation = NULL;
+		float BestStationFullRatio = 0;
 
-		if(Station->GetCompany() != Company)
+		for (UFlareSimulatedSpacecraft* Station : Stations)
 		{
-			continue;
+			if(Station->GetCompany() != Company)
+			{
+				continue;
+			}
+
+			uint32 StationFreeSpace = Station->GetCargoBay()->GetFreeSpaceForResource(Resource, Company);
+			uint32 StationResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
+
+			if (StationFreeSpace == 0 && StationResourceQuantity == 0)
+			{
+				continue;
+			}
+
+			float FullRatio =  (float) StationResourceQuantity / (float) (StationResourceQuantity + StationFreeSpace);
+
+			if(FullRatio > BestStationFullRatio)
+			{
+				BestStation = Station;
+				BestStationFullRatio = FullRatio;
+			}
 		}
 
-		uint32 TakenQuantity = Station->GetCargoBay()->TakeResources(Resource, RemainingQuantity, NULL);
+		if(!BestStation)
+		{
+			break;
+		}
+
+		uint32 TakenQuantity = BestStation->GetCargoBay()->TakeResources(Resource, RemainingQuantity, NULL);
 		RemainingQuantity -= TakenQuantity;
 		uint32 Price = (uint32) (Parent->GetResourcePrice(Resource, EFlareResourcePriceContext::ConsumerConsumption)) * TakenQuantity;
 		PeopleData.Money -= Price;
 		Company->GiveMoney(Price);
+
 	}
 
 	return Quantity - RemainingQuantity;
