@@ -9,20 +9,7 @@ class UFlareQuestStep;
 class UFlareQuestAction;
 class UFlareCompany;
 
-/** Quest action type */
-UENUM()
-namespace EFlareQuestStatus
-{
-	enum Type
-	{
-		PENDING, // Wait available condition
-		AVAILABLE, // Wait acceptation
-		ACTIVE, // In progress
-		SUCCESSFUL,
-		ABANDONED,
-		FAILED
-	};
-}
+
 
 
 
@@ -83,7 +70,7 @@ public:
 
 	virtual void Accept();
 
-	virtual void Activate();
+	virtual void MakeOngoing();
 
 	virtual void SendQuestNotification(FText Message, FName Tag, bool Pinned = true);
 
@@ -146,6 +133,7 @@ protected:
 	FText                                   QuestDescription;
 	EFlareQuestCategory::Type               QuestCategory;
 	UFlareCompany*							Client;
+	bool									Accepted;
 
 public:
 
@@ -216,7 +204,7 @@ public:
 
 	bool IsAccepted() const
 	{
-		return QuestData.Accepted;
+		return Accepted;
 	}
 
 	bool HasAutoAccept();
@@ -240,6 +228,8 @@ public:
 	{
 		return Client;
 	}
+
+	bool IsActive();
 
 	UFlareSimulatedSector* FindSector(FName SectorIdentifier);
 };

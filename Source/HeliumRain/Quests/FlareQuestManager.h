@@ -9,6 +9,20 @@ class UFlareQuestGenerator;
 struct FFlareQuestDescription;
 class UFlareSimulatedSpacecraft;
 
+/** Quest action type */
+UENUM()
+namespace EFlareQuestStatus
+{
+	enum Type
+	{
+		PENDING, // Wait available condition // ACTIVE
+		AVAILABLE, // Wait acceptation       // ACTIVE  // VISIBLE
+		ONGOING, // In progress               // ACTIVE  // VISIBLE
+		SUCCESSFUL,
+		ABANDONED,
+		FAILED
+	};
+}
 
 /** Quest callback type */
 UENUM()
@@ -51,7 +65,8 @@ struct FFlareQuestProgressSave
 	FName QuestIdentifier;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
-	bool Accepted;
+	TEnumAsByte<EFlareQuestStatus::Type> Status;
+
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64 AvailableDate;
 
@@ -102,9 +117,6 @@ struct FFlareQuestSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FName> FailedQuests;
-
-	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FName> AvailableQuests;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	bool PlayTutorial;
@@ -191,7 +203,7 @@ public:
 
 	virtual void OnQuestFail(UFlareQuest* Quest);
 
-	virtual void OnQuestActivation(UFlareQuest* Quest);
+	virtual void OnQuestOngoing(UFlareQuest* Quest);
 
 	virtual void OnQuestAvailable(UFlareQuest* Quest);
 
@@ -213,7 +225,7 @@ protected:
 	TArray<UFlareQuest*>	                 AvailableQuests;
 
 	UPROPERTY()
-	TArray<UFlareQuest*>	                 ActiveQuests;
+	TArray<UFlareQuest*>	                 OngoingQuests;
 
 	UPROPERTY()
 	TArray<UFlareQuest*>	                 OldQuests;
@@ -255,9 +267,9 @@ public:
 		return AvailableQuests;
 	}
 
-	inline TArray<UFlareQuest*>& GetActiveQuests()
+	inline TArray<UFlareQuest*>& GetOngoingQuests()
 	{
-		return ActiveQuests;
+		return OngoingQuests;
 	}
 
 	inline TArray<UFlareQuest*>& GetPreviousQuests()
@@ -265,7 +277,7 @@ public:
 		return OldQuests;
 	}
 
-	bool IsQuestActive(UFlareQuest* Quest);
+	bool IsQuestOngoing(UFlareQuest* Quest);
 
 	bool IsOldQuest(UFlareQuest* Quest);
 

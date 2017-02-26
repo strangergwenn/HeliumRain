@@ -122,14 +122,14 @@ void UFlareSaveReaderV1::LoadQuest(const TSharedPtr<FJsonObject> Object, FFlareQ
 	LoadFNameArray(Object, "SuccessfulQuests", &Data->SuccessfulQuests);
 	LoadFNameArray(Object, "AbandonedQuests", &Data->AbandonedQuests);
 	LoadFNameArray(Object, "FailedQuests", &Data->FailedQuests);
-	LoadFNameArray(Object, "AvailableQuests", &Data->AvailableQuests);
 }
 
 
 void UFlareSaveReaderV1::LoadQuestProgress(const TSharedPtr<FJsonObject> Object, FFlareQuestProgressSave* Data)
 {
 	LoadFName(Object, "QuestIdentifier", &Data->QuestIdentifier);
-	Object->TryGetBoolField(TEXT("Accepted"), Data->Accepted);
+	Data->Status = LoadEnum<EFlareQuestStatus::Type>(Object, "Status", "EFlareQuestStatus");
+
 	LoadInt64(Object, "AvailableDate", &Data->AvailableDate);
 	LoadInt64(Object, "AcceptationDate", &Data->AcceptationDate);
 

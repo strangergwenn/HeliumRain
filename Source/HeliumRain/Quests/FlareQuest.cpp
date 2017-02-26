@@ -19,6 +19,7 @@ UFlareQuest::UFlareQuest(const FObjectInitializer& ObjectInitializer)
 	  TrackObjectives(false),
 	  Client(NULL)
 {
+	Accepted = false;
 	QuestData.AvailableDate = 0;
 	QuestData.AcceptationDate = 0;
 }
@@ -37,7 +38,7 @@ void UFlareQuest::LoadInternal(UFlareQuestManager* Parent)
 void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 {
 	QuestData = Data;
-	QuestStatus = EFlareQuestStatus::ACTIVE;
+	QuestStatus = Data.Status;
 
 
 	for (UFlareQuestCondition* Condition: TriggerConditions)
@@ -73,6 +74,7 @@ FFlareQuestProgressSave* UFlareQuest::Save()
 	QuestData.TriggerConditionsSave.Empty();
 
 	QuestData.QuestIdentifier = GetIdentifier();
+	QuestData.Status = QuestStatus;
 
 	for(UFlareQuestStep* Step : SuccessfullSteps)
 	{
@@ -134,16 +136,16 @@ void UFlareQuest::UpdateState()
 		{
 			if (IsAccepted() || HasAutoAccept())
 			{
-				Activate();
+				MakeOngoing();
 				UpdateState();
 			}
 			break;
 		}
-		case EFlareQuestStatus::ACTIVE:
+		case EFlareQuestStatus::ONGOING:
 		{
 			if(!CurrentStep)
 			{
-				FLOGV("ERROR: Active quest '%s'without current Step", *Identifier.ToString());
+				FLOGV("ERROR: Ongoing quest '%s'without current Step", *Identifier.ToString());
 				return;
 			}
 
@@ -281,27 +283,27 @@ void UFlareQuest::MakeAvailable()
 
 void UFlareQuest::Accept()
 {
-	QuestData.Accepted = true;
+	Accepted = true;
 	UpdateState();
 }
 
-void UFlareQuest::Activate()
+void UFlareQuest::MakeOngoing()
 {
-	if (QuestStatus == EFlareQuestStatus::ACTIVE)
+	if (QuestStatus == EFlareQuestStatus::ONGOING)
 	{
-		// Already active
+		// Already ongoing
 		return;
 	}
 
 	QuestData.AcceptationDate = QuestManager->GetGame()->GetGameWorld()->GetDate();
-	SetStatus(EFlareQuestStatus::ACTIVE);
+	SetStatus(EFlareQuestStatus::ONGOING);
 	// Activate next step
 	NextStep();
 
-	// Don't notify activation if quest is not active after first NextStep
-	if (QuestStatus == EFlareQuestStatus::ACTIVE)
+	// Don't notify ongoing if quest is not ongoing after first NextStep
+	if (QuestStatus == EFlareQuestStatus::ONGOING)
 	{
-		QuestManager->OnQuestActivation(this);
+		QuestManager->OnQuestOngoing(this);
 	}
 }
 
@@ -413,6 +415,11 @@ bool UFlareQuest::HasAutoAccept()
 	return GetQuestCategory() == EFlareQuestCategory::TUTORIAL;
 }
 
+bool UFlareQuest::IsActive()
+{
+	return QuestStatus == EFlareQuestStatus::PENDING || QuestStatus == EFlareQuestStatus::AVAILABLE || QuestStatus == EFlareQuestStatus::ONGOING;
+}
+
 UFlareSimulatedSector* UFlareQuest::FindSector(FName SectorIdentifier)
 {
 	UFlareSimulatedSector* Sector = QuestManager->GetGame()->GetGameWorld()->FindSector(SectorIdentifier);
@@ -500,7 +507,7 @@ TArray<UFlareQuestCondition*> UFlareQuest::GetCurrentConditions()
 			// Use trigger conditions
 			Conditions += TriggerConditions;
 			break;
-		case EFlareQuestStatus::ACTIVE:
+		case EFlareQuestStatus::ONGOING:
 		 {
 			// Use current step conditions
 			if (CurrentStep)
@@ -540,7 +547,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 				FLOGV("WARNING: The quest %s need a TICK_FLYING callback as trigger", *GetIdentifier().ToString());
 			}
 			break;
-		case EFlareQuestStatus::ACTIVE:
+		case EFlareQuestStatus::ONGOING:
 		 {
 			// Use current step conditions
 			if (CurrentStep)
@@ -661,7 +668,7 @@ FText UFlareQuest::GetStatusText() const
 	{
 		case EFlareQuestStatus::PENDING:      return LOCTEXT("QuestPending", "Pending");       break;
 		case EFlareQuestStatus::AVAILABLE:    return LOCTEXT("QuestAvailable", "Available");   break;
-		case EFlareQuestStatus::ACTIVE:       return LOCTEXT("QuestActive", "Active");         break;
+		case EFlareQuestStatus::ONGOING:       return LOCTEXT("QuestOngoing", "Ongoing");         break;
 		case EFlareQuestStatus::SUCCESSFUL:   return LOCTEXT("QuestCompleted", "Completed");   break;
 		case EFlareQuestStatus::ABANDONED:    return LOCTEXT("QuestAbandoned", "Abandoned");   break;
 		case EFlareQuestStatus::FAILED:       return LOCTEXT("QuestFailed", "Failed");         break;

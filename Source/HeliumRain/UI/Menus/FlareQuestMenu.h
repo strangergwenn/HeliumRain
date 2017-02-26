@@ -48,8 +48,8 @@ protected:
 	/** Fill the quest list for all available quests */
 	void FillAvailableQuestList();
 
-	/** Fill the quest list for all active quests */
-	void FillActiveQuestList();
+	/** Fill the quest list for all ongoing quests */
+	void FillOngoingQuestList();
 
 	/** Fill the quest list for all previous quests */
 	void FillPreviousQuestList();
@@ -109,7 +109,7 @@ protected:
 
 	// Slate widgets
 	TSharedPtr<SVerticalBox>                        AvailableQuestList;
-	TSharedPtr<SVerticalBox>                        ActiveQuestList;
+	TSharedPtr<SVerticalBox>                        OngoingQuestList;
 	TSharedPtr<SVerticalBox>                        PreviousQuestList;
 	TSharedPtr<SVerticalBox>                        QuestDetails;
 

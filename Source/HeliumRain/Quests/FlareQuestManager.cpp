@@ -102,14 +102,28 @@ void UFlareQuestManager::AddQuest(UFlareQuest* Quest)
 	}
 	else if (QuestProgressIndex != INDEX_NONE)
 	{
-		FLOGV("Found active quest %s", *Quest->GetIdentifier().ToString());
-
-		// Current quests
-		ActiveQuests.Add(Quest);
+		// Active quests
 		Quest->Restore(QuestData.QuestProgresses[QuestProgressIndex]);
-		if (QuestData.SelectedQuest == Quest->GetIdentifier())
+
+		if (Quest->GetStatus() == EFlareQuestStatus::PENDING)
 		{
-			SelectQuest(Quest);
+			FLOGV("Found pending quest %s", *Quest->GetIdentifier().ToString());
+			PendingQuests.Add(Quest);
+		}
+		else if (Quest->GetStatus() == EFlareQuestStatus::AVAILABLE)
+		{
+			FLOGV("Found available quest %s", *Quest->GetIdentifier().ToString());
+			AvailableQuests.Add(Quest);
+		}
+		else if(Quest->GetStatus() == EFlareQuestStatus::ONGOING)
+		{
+			FLOGV("Found ongoing quest %s", *Quest->GetIdentifier().ToString());
+			OngoingQuests.Add(Quest);
+
+			if (QuestData.SelectedQuest == Quest->GetIdentifier())
+			{
+				SelectQuest(Quest);
+			}
 		}
 	}
 	else if (QuestData.SuccessfulQuests.Contains(Quest->GetIdentifier()))
@@ -130,15 +144,9 @@ void UFlareQuestManager::AddQuest(UFlareQuest* Quest)
 		OldQuests.Add(Quest);
 		Quest->SetStatus(EFlareQuestStatus::FAILED);
 	}
-	else if (QuestData.AvailableQuests.Contains(Quest->GetIdentifier()))
-	{
-		FLOGV("Found available quest %s", *Quest->GetIdentifier().ToString());
-		AvailableQuests.Add(Quest);
-		Quest->SetStatus(EFlareQuestStatus::AVAILABLE);
-	}
 	else
 	{
-		FLOGV("Found pending quest %s", *Quest->GetIdentifier().ToString());
+		FLOGV("Found new pending quest %s", *Quest->GetIdentifier().ToString());
 		PendingQuests.Add(Quest);
 		Quest->SetStatus(EFlareQuestStatus::PENDING);
 	}
@@ -156,9 +164,13 @@ FFlareQuestSave* UFlareQuestManager::Save()
 
 	QuestData.SelectedQuest = (SelectedQuest ? SelectedQuest->GetIdentifier() : NAME_None);
 
-	for (int QuestIndex = 0; QuestIndex < ActiveQuests.Num(); QuestIndex++)
+	for (UFlareQuest* Quest: Quests)
 	{
-		UFlareQuest* Quest = ActiveQuests[QuestIndex];
+		if(!Quest->IsActive())
+		{
+			continue;
+		}
+
 		FFlareQuestProgressSave* QuestProgressSave = Quest->Save();
 		QuestData.QuestProgresses.Add(*QuestProgressSave);
 	}
@@ -209,9 +221,9 @@ void UFlareQuestManager::AbandonQuest(UFlareQuest* Quest)
 void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)
 {
 	FLOGV("Select quest %s", *Quest->GetIdentifier().ToString());
-	if (!IsQuestActive(Quest))
+	if (!IsQuestOngoing(Quest))
 	{
-		FLOGV("ERROR: Fail to select quest %s. The quest to select must be active", *Quest->GetIdentifier().ToString());
+		FLOGV("ERROR: Fail to select quest %s. The quest to select must be ongoing", *Quest->GetIdentifier().ToString());
 		return;
 	}
 
@@ -226,9 +238,9 @@ void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)
 
 void UFlareQuestManager::AutoSelectQuest()
 {
-	if (ActiveQuests.Num()> 1)
+	if (OngoingQuests.Num()> 1)
 	{
-		SelectQuest(ActiveQuests[0]);
+		SelectQuest(OngoingQuests[0]);
 	}
 	else
 	{
@@ -379,7 +391,7 @@ void UFlareQuestManager::OnQuestStatusChanged(UFlareQuest* Quest)
 void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 {
 	FLOGV("Quest %s is now successful", *Quest->GetIdentifier().ToString())
-		ActiveQuests.Remove(Quest);
+		OngoingQuests.Remove(Quest);
 	OldQuests.Add(Quest);
 
 	// Quest successful notification
@@ -407,7 +419,9 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 {
 	FLOGV("Quest %s is now failed", *Quest->GetIdentifier().ToString())
-		ActiveQuests.Remove(Quest);
+	OngoingQuests.Remove(Quest);
+	AvailableQuests.Remove(Quest);
+	PendingQuests.Remove(Quest);
 	OldQuests.Add(Quest);
 
 	// Quest failed notification
@@ -452,11 +466,11 @@ void UFlareQuestManager::OnQuestAvailable(UFlareQuest* Quest)
 	OnQuestStatusChanged(Quest);
 }
 
-void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
+void UFlareQuestManager::OnQuestOngoing(UFlareQuest* Quest)
 {
-	FLOGV("Quest %s is now active", *Quest->GetIdentifier().ToString())
+	FLOGV("Quest %s is now ongoing", *Quest->GetIdentifier().ToString())
 	AvailableQuests.Remove(Quest);
-	ActiveQuests.Add(Quest);
+	OngoingQuests.Add(Quest);
 
 	// New quest notification
 	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
@@ -483,16 +497,9 @@ void UFlareQuestManager::OnQuestActivation(UFlareQuest* Quest)
 	Getters
 ----------------------------------------------------*/
 
-bool UFlareQuestManager::IsQuestActive(UFlareQuest* Quest)
+bool UFlareQuestManager::IsQuestOngoing(UFlareQuest* Quest)
 {
-	for(UFlareQuest* ActiveQuest: ActiveQuests)
-	{
-		if (Quest == ActiveQuest)
-		{
-			return true;
-		}
-	}
-	return false;
+	return OngoingQuests.Contains(Quest);
 }
 
 bool UFlareQuestManager::IsOldQuest(UFlareQuest* Quest)
@@ -502,14 +509,7 @@ bool UFlareQuestManager::IsOldQuest(UFlareQuest* Quest)
 
 bool UFlareQuestManager::IsQuestAvailable(UFlareQuest* Quest)
 {
-	for (UFlareQuest* AvailableQuest : AvailableQuests)
-	{
-		if (AvailableQuest == Quest)
-		{
-			return true;
-		}
-	}
-	return false;
+	return AvailableQuests.Contains(Quest);
 }
 
 bool UFlareQuestManager::IsQuestSuccessfull(UFlareQuest* Quest)
@@ -552,7 +552,7 @@ bool UFlareQuestManager::IsQuestFailed(UFlareQuest* Quest)
 
 UFlareQuest* UFlareQuestManager::FindQuest(FName QuestIdentifier)
 {
-	for(UFlareQuest* Quest: ActiveQuests)
+	for(UFlareQuest* Quest: OngoingQuests)
 	{
 		if (Quest->GetIdentifier() == QuestIdentifier)
 		{
@@ -581,7 +581,7 @@ UFlareQuest* UFlareQuestManager::FindQuest(FName QuestIdentifier)
 
 int32 UFlareQuestManager::GetVisibleQuestCount()
 {
-	return AvailableQuests.Num() + ActiveQuests.Num();
+	return AvailableQuests.Num() + OngoingQuests.Num();
 }
 
 int32 UFlareQuestManager::GetVisibleQuestCount(UFlareCompany* Client)
@@ -596,7 +596,7 @@ int32 UFlareQuestManager::GetVisibleQuestCount(UFlareCompany* Client)
 		}
 	}
 
-	for(UFlareQuest* Quest: ActiveQuests)
+	for(UFlareQuest* Quest: OngoingQuests)
 	{
 		if (Quest->GetClient() == Client)
 		{

@@ -223,7 +223,7 @@ bool UFlareQuestGenerator::FindUniqueTag(FName Tag)
 	for(UFlareQuestGenerated* Quest : GeneratedQuests)
 	{
 		EFlareQuestStatus::Type Status = Quest->GetStatus();
-		if (Status == EFlareQuestStatus::AVAILABLE || Status == EFlareQuestStatus::ACTIVE)
+		if (Status == EFlareQuestStatus::AVAILABLE || Status == EFlareQuestStatus::ONGOING)
 		{
 			if (Quest->GetInitData()->HasTag(Tag))
 			{

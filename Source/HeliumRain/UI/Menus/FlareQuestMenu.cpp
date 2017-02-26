@@ -60,14 +60,14 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
-							.Text(LOCTEXT("ActiveQuestsTitle", "Active contracts"))
+							.Text(LOCTEXT("OngoingQuestsTitle", "Ongoing contracts"))
 						]
 
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.Padding(Theme.ContentPadding)
 						[
-							SAssignNew(ActiveQuestList, SVerticalBox)
+							SAssignNew(OngoingQuestList, SVerticalBox)
 						]
 
 						+ SVerticalBox::Slot()
@@ -162,7 +162,7 @@ void SFlareQuestMenu::Enter(UFlareQuest* TargetQuest)
 	}
 
 	FillAvailableQuestList();
-	FillActiveQuestList();
+	FillOngoingQuestList();
 	FillPreviousQuestList();
 	FillQuestDetails();
 
@@ -174,7 +174,7 @@ void SFlareQuestMenu::Exit()
 	SetEnabled(false);
 	SetVisibility(EVisibility::Collapsed);
 
-	ActiveQuestList->ClearChildren();
+	OngoingQuestList->ClearChildren();
 	PreviousQuestList->ClearChildren();
 	QuestDetails->ClearChildren();
 
@@ -195,7 +195,7 @@ void SFlareQuestMenu::FillAvailableQuestList()
 	AvailableQuestList->ClearChildren();
 	TArray<UFlareQuest*>& AvailableQuests = QuestManager->GetAvailableQuests();
 
-	// Get list of active quests
+	// Get list of availabed quests
 	for (int32 QuestIndex = 0; QuestIndex < AvailableQuests.Num(); QuestIndex++)
 	{
 		UFlareQuest* Quest = AvailableQuests[QuestIndex];
@@ -215,7 +215,7 @@ void SFlareQuestMenu::FillAvailableQuestList()
 				SNew(SFlareButton)
 				.Width(10)
 				.Text(Quest->GetQuestName())
-				.HelpText(LOCTEXT("SelectActiveQuestInfo", "Take a closer look at this contract"))
+				.HelpText(LOCTEXT("SelectAvailableQuestInfo", "Take a closer look at this contract"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestSelected, Quest)
 				.Color(this, &SFlareQuestMenu::GetQuestColor, Quest)
 			]
@@ -248,7 +248,7 @@ void SFlareQuestMenu::FillAvailableQuestList()
 		];
 	}
 
-	// No active quest
+	// No available quest
 	if (AvailableQuests.Num() == 0)
 	{
 		AvailableQuestList->AddSlot()
@@ -260,23 +260,23 @@ void SFlareQuestMenu::FillAvailableQuestList()
 	}
 }
 
-void SFlareQuestMenu::FillActiveQuestList()
+void SFlareQuestMenu::FillOngoingQuestList()
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	FCHECK(QuestManager);
 
-	ActiveQuestList->ClearChildren();
-	TArray<UFlareQuest*>& ActiveQuests = QuestManager->GetActiveQuests();
+	OngoingQuestList->ClearChildren();
+	TArray<UFlareQuest*>& OngoingQuests = QuestManager->GetOngoingQuests();
 
-	// Get list of active quests
-	for (int32 QuestIndex = 0; QuestIndex < ActiveQuests.Num(); QuestIndex++)
+	// Get list of ongoing quests
+	for (int32 QuestIndex = 0; QuestIndex < OngoingQuests.Num(); QuestIndex++)
 	{
-		UFlareQuest* Quest = ActiveQuests[QuestIndex];
+		UFlareQuest* Quest = OngoingQuests[QuestIndex];
 
 		FText TrackedQuest = (Quest == QuestManager->GetSelectedQuest()) ? LOCTEXT("TrackedQuest", "(Tracked)") : FText();
 
-		ActiveQuestList->AddSlot()
+		OngoingQuestList->AddSlot()
 		.Padding(Theme.SmallContentPadding)
 		.HAlign(HAlign_Left)
 		[
@@ -290,10 +290,10 @@ void SFlareQuestMenu::FillActiveQuestList()
 			[
 				SNew(SFlareButton)
 				.Width(10)
-				.Text(FText::Format(LOCTEXT("ActiveQuestTitleFormat", "{0} {1}"),
+				.Text(FText::Format(LOCTEXT("OngoingQuestTitleFormat", "{0} {1}"),
 					Quest->GetQuestName(),
 					TrackedQuest))
-				.HelpText(LOCTEXT("SelectActiveQuestInfo", "Take a closer look at this contract"))
+				.HelpText(LOCTEXT("SelectOngoingQuestInfo", "Take a closer look at this contract"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestSelected, Quest)
 				.Color(this, &SFlareQuestMenu::GetQuestColor, Quest)
 			]
@@ -306,7 +306,7 @@ void SFlareQuestMenu::FillActiveQuestList()
 				.Width(2.5)
 				.Icon(FFlareStyleSet::GetIcon("Travel"))
 				.Text(LOCTEXT("SelectQuest", "Track"))
-				.HelpText(LOCTEXT("SelectQuestInfo", "Activate this contract and track its progress"))
+				.HelpText(LOCTEXT("SelectQuestInfo", "Select this contract and track its progress"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestTracked, Quest)
 				.IsDisabled(this, &SFlareQuestMenu::IsTrackButtonDisabled, Quest)
 			]
@@ -327,14 +327,14 @@ void SFlareQuestMenu::FillActiveQuestList()
 		];
 	}
 
-	// No active quest
-	if (ActiveQuests.Num() == 0)
+	// No ongoing quest
+	if (OngoingQuests.Num() == 0)
 	{
-		ActiveQuestList->AddSlot()
+		OngoingQuestList->AddSlot()
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
-			.Text(LOCTEXT("NoActiveQuest", "No active contract."))
+			.Text(LOCTEXT("NoOngoingQuest", "No ongoing contract."))
 		];
 	}
 }
@@ -396,7 +396,7 @@ void SFlareQuestMenu::FillQuestDetails()
 	CurrentQuestStep = NULL;
 	QuestDetails->ClearChildren();
 
-	// Get active quest
+	// Get selected quest
 	if (SelectedQuest)
 	{
 		UFlareCompany* ClientCompany =SelectedQuest->GetClient();
@@ -475,7 +475,7 @@ void SFlareQuestMenu::FillQuestDetails()
 			if (QuestStep->IsCompleted())
 			{
 				TSharedPtr<SVerticalBox> DetailBox = AddQuestDetail(QuestStep);
-				bool IsActiveQuest = (QuestManager->IsQuestActive(SelectedQuest));
+				bool IsOngoingQuest = (QuestManager->IsQuestOngoing(SelectedQuest));
 
 				// Description
 				DetailBox->AddSlot()
@@ -499,7 +499,7 @@ void SFlareQuestMenu::FillQuestDetails()
 					[
 						SNew(SImage)
 						.Image(FFlareStyleSet::GetIcon("OK"))
-						.Visibility(IsActiveQuest ? EVisibility::Visible : EVisibility::Hidden)
+						.Visibility(IsOngoingQuest ? EVisibility::Visible : EVisibility::Hidden)
 					]
 				];
 				
@@ -543,8 +543,8 @@ void SFlareQuestMenu::FillQuestDetails()
 					.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStep)
 				];
 
-				// Stop listing steps at this point if it's an active or pending quest
-				if (QuestManager->IsQuestActive(SelectedQuest) || QuestManager->IsQuestAvailable(SelectedQuest))
+				// Stop listing steps at this point if it's an ongoing or pending quest
+				if (QuestManager->IsQuestOngoing(SelectedQuest) || QuestManager->IsQuestAvailable(SelectedQuest))
 				{
 					break;
 				}
@@ -637,7 +637,7 @@ void SFlareQuestMenu::FillQuestDetails()
 		];
 	}
 
-	// No active quest ?
+	// No selected quest ?
 	else
 	{
 		QuestDetails->AddSlot()
@@ -715,7 +715,7 @@ FText SFlareQuestMenu::GetQuestStepDescription(UFlareQuestStep* QuestStep) const
 	FCHECK(QuestManager);
 
 	// Hide this for completed quests
-	if (SelectedQuest && (CurrentQuestStep == QuestStep || !QuestManager->IsQuestActive(SelectedQuest)))
+	if (SelectedQuest && (CurrentQuestStep == QuestStep || !QuestManager->IsQuestOngoing(SelectedQuest)))
 	{
 		return SelectedQuest->FormatTags(QuestStep->GetStepDescription());
 	}
@@ -731,7 +731,7 @@ EVisibility SFlareQuestMenu::GetQuestStepDescriptionVisibility(UFlareQuestStep* 
 	FCHECK(QuestManager);
 
 	// Hide this for completed quests
-	if (SelectedQuest && (CurrentQuestStep == QuestStep || !QuestManager->IsQuestActive(SelectedQuest)))
+	if (SelectedQuest && (CurrentQuestStep == QuestStep || !QuestManager->IsQuestOngoing(SelectedQuest)))
 	{
 		return EVisibility::Visible;
 	}
@@ -769,7 +769,7 @@ FSlateColor SFlareQuestMenu::GetQuestColor(UFlareQuest* Quest) const
 		switch (Quest->GetStatus())
 		{
 			case EFlareQuestStatus::AVAILABLE:
-			case EFlareQuestStatus::ACTIVE:
+			case EFlareQuestStatus::ONGOING:
 			case EFlareQuestStatus::SUCCESSFUL:  return Theme.NeutralColor;
 			case EFlareQuestStatus::ABANDONED:  
 			case EFlareQuestStatus::FAILED:
@@ -790,7 +790,7 @@ void SFlareQuestMenu::OnQuestAccepted(UFlareQuest* Quest)
 	QuestManager->AcceptQuest(Quest);
 
 	FillAvailableQuestList();
-	FillActiveQuestList();
+	FillOngoingQuestList();
 }
 
 void SFlareQuestMenu::OnQuestAbandoned(UFlareQuest* Quest)
@@ -799,7 +799,7 @@ void SFlareQuestMenu::OnQuestAbandoned(UFlareQuest* Quest)
 	FCHECK(QuestManager);
 	QuestManager->AbandonQuest(Quest);
 
-	FillActiveQuestList();
+	FillOngoingQuestList();
 	FillPreviousQuestList();
 }
 
@@ -809,7 +809,7 @@ void SFlareQuestMenu::OnQuestTracked(UFlareQuest* Quest)
 	FCHECK(QuestManager);
 	QuestManager->SelectQuest(Quest);
 
-	FillActiveQuestList();
+	FillOngoingQuestList();
 }
 
 void SFlareQuestMenu::OnQuestSelected(UFlareQuest* Quest)
