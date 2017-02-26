@@ -380,7 +380,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 			// Random 1m move
 			if (BombLockedInCollision > 1)
 			{
-				SetActorLocation(GetActorLocation() + FMath::VRand() * 100);
+				SetActorLocation(GetActorLocation() + FMath::VRand() * 10);
 			}
 		}
 		return;
