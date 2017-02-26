@@ -460,6 +460,8 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station2));
 
+	ExpirationConditions.Add(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+
 	SetupQuestGiver(Station1->GetCompany(), true);
 	SetupGenericReward(Data);
 }
@@ -616,6 +618,8 @@ void UFlareQuestGeneratedResourceSale::Load(UFlareQuestGenerator* Parent, const 
 
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station));
 
+	ExpirationConditions.Add(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+
 	SetupQuestGiver(Station->GetCompany(), true);
 	SetupGenericReward(Data);
 }
@@ -770,6 +774,8 @@ void UFlareQuestGeneratedResourcePurchase::Load(UFlareQuestGenerator* Parent, co
 	}
 
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station));
+
+	ExpirationConditions.Add(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
 
 	SetupQuestGiver(Station->GetCompany(), true);
 	SetupGenericReward(Data);
@@ -1002,6 +1008,8 @@ void UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station1));
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station2));
 	AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, Station2->GetCompany()));
+
+	ExpirationConditions.Add(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
 
 	SetupQuestGiver(Station1->GetCompany(), true);
 	SetupGenericReward(Data);
