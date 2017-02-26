@@ -157,6 +157,17 @@ void UFlareSaveReaderV1::LoadQuestProgress(const TSharedPtr<FJsonObject> Object,
 			Data->TriggerConditionsSave.Add(ChildData);
 		}
 	}
+
+	const TArray<TSharedPtr<FJsonValue>>* ExpirationConditionsSave;
+	if(Object->TryGetArrayField("ExpirationConditionsSave", ExpirationConditionsSave))
+	{
+		for (TSharedPtr<FJsonValue> Item : *ExpirationConditionsSave)
+		{
+			FFlareQuestConditionSave ChildData;
+			LoadQuestStepProgress(Item->AsObject(), &ChildData);
+			Data->ExpirationConditionsSave.Add(ChildData);
+		}
+	}
 }
 
 void UFlareSaveReaderV1::LoadGeneratedQuest(const TSharedPtr<FJsonObject> Object, FFlareGeneratedQuestSave* Data)

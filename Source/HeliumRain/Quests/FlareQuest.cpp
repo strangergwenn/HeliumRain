@@ -46,6 +46,11 @@ void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data.TriggerConditionsSave));
 	}
 
+	for (UFlareQuestCondition* Condition: ExpirationConditions)
+	{
+		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data.ExpirationConditionsSave));
+	}
+
 	CurrentStep = NULL;
 
 	// Init current step
@@ -72,6 +77,7 @@ FFlareQuestProgressSave* UFlareQuest::Save()
 	QuestData.SuccessfullSteps.Empty();
 	QuestData.CurrentStepProgress.Empty();
 	QuestData.TriggerConditionsSave.Empty();
+	QuestData.ExpirationConditionsSave.Empty();
 
 	QuestData.QuestIdentifier = GetIdentifier();
 	QuestData.Status = QuestStatus;
@@ -84,6 +90,11 @@ FFlareQuestProgressSave* UFlareQuest::Save()
 	for (UFlareQuestCondition* Condition: TriggerConditions)
 	{
 		Condition->AddSave(QuestData.TriggerConditionsSave);
+	}
+
+	for (UFlareQuestCondition* Condition: ExpirationConditions)
+	{
+		Condition->AddSave(QuestData.ExpirationConditionsSave);
 	}
 
 	if(CurrentStep)
@@ -104,6 +115,13 @@ void UFlareQuest::SetupIndexes()
 	// Setup condition indexes
 	int32 ConditionIndex = 0;
 	for (UFlareQuestCondition* Condition: TriggerConditions)
+	{
+		Condition->SetConditionIndex(ConditionIndex++);
+	}
+
+	// Setup condition indexes
+	ConditionIndex = 0;
+	for (UFlareQuestCondition* Condition: ExpirationConditions)
 	{
 		Condition->SetConditionIndex(ConditionIndex++);
 	}
@@ -134,6 +152,13 @@ void UFlareQuest::UpdateState()
 		}
 		case EFlareQuestStatus::AVAILABLE:
 		{
+			bool ConditionsStatus = UFlareQuestCondition::CheckConditions(ExpirationConditions, false);
+			if (ConditionsStatus)
+			{
+				Fail();
+				break;
+			}
+
 			if (IsAccepted() || HasAutoAccept())
 			{
 				MakeOngoing();
@@ -546,6 +571,10 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 			{
 				FLOGV("WARNING: The quest %s need a TICK_FLYING callback as trigger", *GetIdentifier().ToString());
 			}
+			break;
+		case EFlareQuestStatus::AVAILABLE:
+			// Use expiration conditions
+			UFlareQuestCondition::AddConditionCallbacks(Callbacks, ExpirationConditions);
 			break;
 		case EFlareQuestStatus::ONGOING:
 		 {

@@ -129,6 +129,13 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuestProgress(FFlareQuestProgressS
 	}
 	JsonObject->SetArrayField("TriggerConditionsSave", TriggerConditionsSave);
 
+	TArray< TSharedPtr<FJsonValue> > ExpirationConditionsSave;
+	for(int i = 0; i < Data->ExpirationConditionsSave.Num(); i++)
+	{
+		ExpirationConditionsSave.Add(MakeShareable(new FJsonValueObject(SaveQuestStepProgress(&Data->ExpirationConditionsSave[i]))));
+	}
+	JsonObject->SetArrayField("ExpirationConditionsSave", ExpirationConditionsSave);
+
 	return JsonObject;
 }
 

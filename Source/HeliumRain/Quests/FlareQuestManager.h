@@ -83,6 +83,9 @@ struct FFlareQuestProgressSave
 	TArray<FFlareQuestConditionSave> TriggerConditionsSave;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFlareQuestConditionSave> ExpirationConditionsSave;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
 	FFlareBundle Data;
 };
 

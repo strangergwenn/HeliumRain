@@ -123,6 +123,9 @@ protected:
 	TArray<UFlareQuestCondition*>           TriggerConditions;
 
 	UPROPERTY()
+	TArray<UFlareQuestCondition*>           ExpirationConditions;
+
+	UPROPERTY()
 	TArray<UFlareQuestAction*>				SuccessActions;
 	UPROPERTY()
 	TArray<UFlareQuestAction*>				FailActions;
