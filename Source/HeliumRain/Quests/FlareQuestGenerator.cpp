@@ -218,6 +218,34 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 	}
 }
 
+bool UFlareQuestGenerator::FindUniqueTag(FName Tag)
+{
+	for(UFlareQuestGenerated* Quest : GeneratedQuests)
+	{
+		EFlareQuestStatus::Type Status = Quest->GetStatus();
+		if (Status == EFlareQuestStatus::AVAILABLE || Status == EFlareQuestStatus::ACTIVE)
+		{
+			if (Quest->GetInitData()->HasTag(Tag))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+FName UFlareQuestGenerator::GenerateVipTag(UFlareSimulatedSpacecraft* SourceSpacecraft)
+{
+	return FName(*(FString("vip-")+SourceSpacecraft->GetImmatriculation().ToString()));
+
+}
+
+FName UFlareQuestGenerator::GenerateTradeTag(UFlareSimulatedSpacecraft* SourceSpacecraft, FFlareResourceDescription* Resource)
+{
+	return FName(*(FString("trade-")+SourceSpacecraft->GetImmatriculation().ToString()+"-"+Resource->Identifier.ToString()));
+}
+
 /*----------------------------------------------------
 	Generated quest
 ----------------------------------------------------*/
@@ -322,6 +350,12 @@ UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenera
 			continue;
 		}
 
+		// Check unicity
+		if (Parent->FindUniqueTag(Parent->GenerateVipTag(CandidateStation)))
+		{
+			continue;
+		}
+
 		// It's a good
 		CandidateStations.Add(CandidateStation);
 	}
@@ -364,6 +398,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenera
 	Data.PutName("sector-1", Station1->GetCurrentSector()->GetIdentifier());
 	Data.PutName("sector-2", Station2->GetCurrentSector()->GetIdentifier());
 	Data.PutName("client", Station1->GetCompany()->GetIdentifier());
+	Data.PutTag(Parent->GenerateVipTag(Station1));
 	CreateGenericReward(Data, QuestValue);
 
 	Quest->Load(Parent, Data);
@@ -475,6 +510,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 				continue;
 			}
 
+			// Check unicity
+			if (Parent->FindUniqueTag(Parent->GenerateTradeTag(CandidateStation, Slot.Resource)))
+			{
+				continue;
+			}
 			// It's a good candidate
 			CandidateStations.Add(CandidateStation);
 		}
@@ -535,6 +575,8 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 	Data.PutName("resource", BestResource->Identifier);
 	Data.PutInt32("quantity", BestResourceQuantity);
 	Data.PutName("client", Station->GetCompany()->GetIdentifier());
+	Data.PutTag(Parent->GenerateTradeTag(Station, BestResource));
+
 	CreateGenericReward(Data, QuestValue);
 
 	Quest->Load(Parent, Data);
@@ -624,6 +666,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 				continue;
 			}
 
+			// Check unicity
+			if (Parent->FindUniqueTag(Parent->GenerateTradeTag(CandidateStation, Slot.Resource)))
+			{
+				continue;
+			}
 			// It's a good candidate
 			CandidateStations.Add(CandidateStation);
 		}
@@ -684,6 +731,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 	Data.PutName("resource", BestResource->Identifier);
 	Data.PutInt32("quantity", BestResourceQuantity);
 	Data.PutName("client", Station->GetCompany()->GetIdentifier());
+	Data.PutTag(Parent->GenerateTradeTag(Station, BestResource));
 	CreateGenericReward(Data, QuestValue);
 
 	Quest->Load(Parent, Data);
@@ -780,6 +828,12 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 				continue;
 			}
 
+			// Check unicity
+			if (Parent->FindUniqueTag(Parent->GenerateTradeTag(CandidateStation, Slot.Resource)))
+			{
+				continue;
+			}
+
 			// It's a good candidate
 			if(!BestQuantityToBuyPerResource.Contains(Slot.Resource) || BestQuantityToBuyPerResource[Slot.Resource] > AvailableResourceQuantity)
 			{
@@ -816,6 +870,12 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 				if (MissingResourceQuantity <= 0)
 				{
 					// Enought resources
+					continue;
+				}
+
+				// Check unicity
+				if (Parent->FindUniqueTag(Parent->GenerateTradeTag(CandidateStation, Slot.Resource)))
+				{
 					continue;
 				}
 
@@ -875,6 +935,8 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	Data.PutName("resource", BestResource->Identifier);
 	Data.PutInt32("quantity", BestResourceQuantity);
 	Data.PutName("client", Station1->GetCompany()->GetIdentifier());
+	Data.PutTag(Parent->GenerateTradeTag(Station1, BestResource));
+	Data.PutTag(Parent->GenerateTradeTag(Station2, BestResource));
 	CreateGenericReward(Data, QuestValue);
 
 	Quest->Load(Parent, Data);

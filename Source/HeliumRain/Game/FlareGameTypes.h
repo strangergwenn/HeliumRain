@@ -353,12 +353,16 @@ struct FFlareBundle
 	UPROPERTY(EditAnywhere, Category = Save)
 	TMap<FName, FString> StringValues;
 
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FName> Tags;
+
 	bool HasFloat(FName Key) const;
 	bool HasInt32(FName Key) const;
 	bool HasTransform(FName Key) const;
 	bool HasVectorArray(FName Key) const;
 	bool HasName(FName Key) const;
 	bool HasString(FName Key) const;
+	bool HasTag(FName Tag) const;
 
 
 	float GetFloat(FName Key, float Default = 0.f) const;
@@ -374,6 +378,7 @@ struct FFlareBundle
 	void PutVectorArray(FName Key, const TArray<FVector> Value);
 	void PutName(FName Key, FName Value);
 	void PutString(FName Key, FString Value);
+	void PutTag(FName Tag);
 
 	void Clear();
 };

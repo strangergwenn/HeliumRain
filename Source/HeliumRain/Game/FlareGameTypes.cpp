@@ -190,6 +190,12 @@ bool FFlareBundle::HasString(FName Key) const
 	return StringValues.Contains(Key);
 }
 
+bool FFlareBundle::HasTag(FName Tag) const
+{
+	return Tags.Contains(Tag);
+}
+
+
 float FFlareBundle::GetFloat(FName Key, float Default) const
 {
 	if(FloatValues.Contains(Key))
@@ -276,6 +282,11 @@ void FFlareBundle::PutString(FName Key, FString Value)
 	StringValues.Add(Key, Value);
 }
 
+void FFlareBundle::PutTag(FName Tag)
+{
+	Tags.Add(Tag);
+}
+
 void FFlareBundle::Clear()
 {
 	FloatValues.Empty();
@@ -284,6 +295,7 @@ void FFlareBundle::Clear()
 	VectorArrayValues.Empty();
 	NameValues.Empty();
 	StringValues.Empty();
+	Tags.Empty();
 }
 
 

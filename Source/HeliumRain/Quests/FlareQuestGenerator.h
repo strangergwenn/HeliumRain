@@ -33,7 +33,11 @@ public:
 
 	void GenerateSectorQuest(UFlareSimulatedSector* Sector);
 
+	bool FindUniqueTag(FName Tag);
 
+	FName GenerateVipTag(UFlareSimulatedSpacecraft* SourceSpacecraft);
+
+	FName GenerateTradeTag(UFlareSimulatedSpacecraft* SourceSpacecraft, FFlareResourceDescription* Resource);
 
 protected:
 

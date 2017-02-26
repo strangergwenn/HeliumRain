@@ -1142,6 +1142,8 @@ void UFlareSaveReaderV1::LoadBundle(const TSharedPtr<FJsonObject> Object, FStrin
 				Data->StringValues.Add(NameKey, StringValue);
 			}
 		}
+
+		LoadFNameArray(*Bundle, "Tags", &Data->Tags);
 	}
 	else
 	{
