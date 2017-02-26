@@ -355,6 +355,11 @@ void UFlareQuestManager::OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft
 	OnCallbackEvent(EFlareQuestCallback::TRADE_DONE);
 }
 
+void UFlareQuestManager::OnNextDay()
+{
+	OnCallbackEvent(EFlareQuestCallback::NEXT_DAY);
+}
+
 void UFlareQuestManager::OnTravelEnded(UFlareFleet* Fleet)
 {
 	if (Fleet == Game->GetPC()->GetPlayerFleet())

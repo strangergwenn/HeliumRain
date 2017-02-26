@@ -1704,4 +1704,52 @@ void UFlareQuestConditionSellAtStation::OnTradeDone(UFlareSimulatedSpacecraft* S
 	}
 }
 
+/*----------------------------------------------------
+	Time after availability date condition
+----------------------------------------------------*/
+UFlareQuestConditionTimeAfterAvailableDate::UFlareQuestConditionTimeAfterAvailableDate(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTimeAfterAvailableDate* UFlareQuestConditionTimeAfterAvailableDate::Create(UFlareQuest* ParentQuest, int64 Duration)
+{
+	UFlareQuestConditionTimeAfterAvailableDate*Condition = NewObject<UFlareQuestConditionTimeAfterAvailableDate>(ParentQuest, UFlareQuestConditionTimeAfterAvailableDate::StaticClass());
+	Condition->Load(ParentQuest, Duration);
+	return Condition;
+}
+
+void UFlareQuestConditionTimeAfterAvailableDate::Load(UFlareQuest* ParentQuest, int64 Duration)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+	DurationLimit = Duration;
+}
+
+FText UFlareQuestConditionTimeAfterAvailableDate::GetInitialLabel()
+{
+	int64 AvailabilityDate = Quest->GetAvailableDate();
+	int64 RemainingDuration = DurationLimit - (GetGame()->GetGameWorld()->GetDate()- AvailabilityDate);
+
+	return FText::Format(LOCTEXT("RemainingDurationFormat", "{0} days remaining"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 2)));
+}
+
+bool UFlareQuestConditionTimeAfterAvailableDate::IsCompleted()
+{
+	float AvailabilityDate = Quest->GetAvailableDate();
+	return GetGame()->GetGameWorld()->GetDate()- AvailabilityDate > DurationLimit;
+}
+
+void UFlareQuestConditionTimeAfterAvailableDate::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = (IsCompleted()) ? 1 : 0;
+	ObjectiveCondition.MaxCounter = 1;
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
 #undef LOCTEXT_NAMESPACE

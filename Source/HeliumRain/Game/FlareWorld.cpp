@@ -606,6 +606,8 @@ void UFlareWorld::Simulate()
 	double EndTs = FPlatformTime::Seconds();
 	FLOGV("** Simulate day %d done in %.6fs", WorldData.Date-1, EndTs- StartTs);
 
+	Game->GetQuestManager()->OnNextDay();
+
 	GameLog::DaySimulated(WorldData.Date);
 }
 

@@ -19,6 +19,8 @@ UFlareQuest::UFlareQuest(const FObjectInitializer& ObjectInitializer)
 	  TrackObjectives(false),
 	  Client(NULL)
 {
+	QuestData.AvailableDate = 0;
+	QuestData.AcceptationDate = 0;
 }
 
 /*----------------------------------------------------
@@ -268,9 +270,9 @@ void UFlareQuest::MakeAvailable()
 		return;
 	}
 
+	QuestData.AvailableDate = QuestManager->GetGame()->GetGameWorld()->GetDate();
 	SetStatus(EFlareQuestStatus::AVAILABLE);
 
-	// Don't notify avaibility if quest is not active after first NextStep
 	if (QuestStatus == EFlareQuestStatus::AVAILABLE)
 	{
 		QuestManager->OnQuestAvailable(this);
@@ -291,6 +293,7 @@ void UFlareQuest::Activate()
 		return;
 	}
 
+	QuestData.AcceptationDate = QuestManager->GetGame()->GetGameWorld()->GetDate();
 	SetStatus(EFlareQuestStatus::ACTIVE);
 	// Activate next step
 	NextStep();

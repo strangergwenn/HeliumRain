@@ -231,6 +231,11 @@ public:
 		return QuestData.Data;
 	}
 
+	int64 GetAvailableDate()
+	{
+		return QuestData.AvailableDate;
+	}
+
 	UFlareCompany* GetClient()
 	{
 		return Client;

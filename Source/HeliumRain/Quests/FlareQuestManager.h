@@ -25,6 +25,7 @@ namespace EFlareQuestCallback
 		WAR_STATE_CHANGED, // Trig when a war state changed
 		SPACECRAFT_DESTROYED, // Trig when a spacecraft is destroyed
 		TRADE_DONE, // Trig when a trade is done
+		NEXT_DAY, // Trig after a simulate
 	};
 }
 
@@ -51,6 +52,11 @@ struct FFlareQuestProgressSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	bool Accepted;
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 AvailableDate;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 AcceptationDate;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FName> SuccessfullSteps;
@@ -172,6 +178,8 @@ public:
 	virtual void OnShipDocked(UFlareSimulatedSpacecraft* Station, UFlareSimulatedSpacecraft* Ship);
 
 	virtual void OnWarStateChanged(UFlareCompany* Company1, UFlareCompany* Company2);
+
+	virtual void OnNextDay();
 
 	virtual void OnTick(float DeltaSeconds);
 

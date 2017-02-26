@@ -130,6 +130,8 @@ void UFlareSaveReaderV1::LoadQuestProgress(const TSharedPtr<FJsonObject> Object,
 {
 	LoadFName(Object, "QuestIdentifier", &Data->QuestIdentifier);
 	Object->TryGetBoolField(TEXT("Accepted"), Data->Accepted);
+	LoadInt64(Object, "AvailableDate", &Data->AvailableDate);
+	LoadInt64(Object, "AcceptationDate", &Data->AcceptationDate);
 
 	LoadFNameArray(Object, "SuccessfullSteps", &Data->SuccessfullSteps);
 	LoadBundle(Object, "Data", &Data->Data);

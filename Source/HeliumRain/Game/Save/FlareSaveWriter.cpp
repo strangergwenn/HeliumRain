@@ -109,6 +109,9 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveQuestProgress(FFlareQuestProgressS
 
 	JsonObject->SetStringField("QuestIdentifier", Data->QuestIdentifier.ToString());
 	JsonObject->SetBoolField("Accepted", Data->Accepted);
+	JsonObject->SetStringField("AvailableDate", FormatInt64(Data->AvailableDate));
+	JsonObject->SetStringField("AcceptationDate", FormatInt64(Data->AcceptationDate));
+
 	JsonObject->SetObjectField("Data", SaveBundle(&Data->Data));
 
 	TArray< TSharedPtr<FJsonValue> > SuccessfullSteps;

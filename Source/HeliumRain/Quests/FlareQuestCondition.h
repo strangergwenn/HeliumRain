@@ -545,3 +545,24 @@ protected:
 	int32 Quantity;
 	int32 CurrentProgression;
 };
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTimeAfterAvailableDate: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionTimeAfterAvailableDate* Create(UFlareQuest* ParentQuest, int64 Duration);
+	void Load(UFlareQuest* ParentQuest, int64 int64);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual FText GetInitialLabel();
+
+protected:
+
+	int64 DurationLimit;
+};
