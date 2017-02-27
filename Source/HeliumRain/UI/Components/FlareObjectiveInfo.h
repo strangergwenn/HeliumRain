@@ -13,9 +13,12 @@ class SFlareObjectiveInfo : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareObjectiveInfo)
+		: _ConditionsOnly(false)
 	{}
 
 	SLATE_ARGUMENT(AFlarePlayerController*, PC)
+	SLATE_ARGUMENT(int32, Width)
+	SLATE_ARGUMENT(bool, ConditionsOnly)
 
 	SLATE_END_ARGS()
 
@@ -35,16 +38,10 @@ public:
 	----------------------------------------------------*/
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
-
-	/** Ensure that we don't display empty widgets */
-	EVisibility GetVisibility() const;
-
+	
 	/** Get the current objective name */
 	FText GetName() const;
-
-	/** Get the current objective description text */
-	FText GetDescription() const;
-
+	
 	FText GetInitialLabel(int32 ConditionIndex) const;
 
 	FText GetTerminalLabel(int32 ConditionIndex) const;
@@ -65,8 +62,6 @@ public:
 	/** Get the progress bar */
 	TOptional<float> GetProgress(int32 ConditionIndex) const;
 
-	EVisibility GetProgressVisibility(int32 ConditionIndex) const;
-
 
 protected:
 
@@ -77,9 +72,13 @@ protected:
 	/** Player reference */
 	UPROPERTY()
 	TWeakObjectPtr<class AFlarePlayerController>    PC;
+
+	// Slate data
 	TSharedPtr<SVerticalBox>				        ConditionBox;
 
 	// Data
+	int32                                           Width;
+	bool                                            ConditionsOnly;
 	float                                           ObjectiveEnterTime;
 	float                                           CurrentFadeTime;
 	float                                           CurrentAlpha;

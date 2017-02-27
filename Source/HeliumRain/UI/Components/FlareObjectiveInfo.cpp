@@ -12,97 +12,44 @@
 
 void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 {
-	// Settings
+	// Args
 	PC = InArgs._PC;
+	Width = InArgs._Width;
+	ConditionsOnly = InArgs._ConditionsOnly;
+
+	// Settings
 	CurrentAlpha = 1;
 	ObjectiveEnterTime = 0.5;
 	CurrentFadeTime = 0;
 	LastObjectiveVersion = -1;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	int32 ObjectiveInfoWidth = 400;
-	int32 ObjectiveInfoTextWidth = ObjectiveInfoWidth - Theme.SmallContentPadding.Left - Theme.SmallContentPadding.Right;
-	FLinearColor ObjectiveColor = Theme.ObjectiveColor;
-	ObjectiveColor.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
+	int32 ObjectiveInfoTextWidth = Width - Theme.SmallContentPadding.Left - Theme.SmallContentPadding.Right;
 	
 	// Create the layout
 	ChildSlot
-	.VAlign(VAlign_Top)
-	.HAlign(HAlign_Right)
 	[
-		SNew(SHorizontalBox)
+		SNew(SVerticalBox)
 
-		// Icon
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
+		// Header
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(Theme.SmallContentPadding)
 		[
-			SNew(SBox)
-			.WidthOverride(2)
-			[
-				SNew(SImage)
-				.Image(&Theme.InvertedBrush)
-				.ColorAndOpacity(ObjectiveColor)
-				.Visibility(this, &SFlareObjectiveInfo::GetVisibility)
-			]
+			SNew(STextBlock)
+			.Text(this, &SFlareObjectiveInfo::GetName)
+			.WrapTextAt(ObjectiveInfoTextWidth)
+			.TextStyle(&Theme.NameFont)
+			.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
+			.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
+			.Visibility(ConditionsOnly ? EVisibility::Collapsed : EVisibility::Visible)
 		]
 
-		// Text
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
+		// Conditions
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(Theme.SmallContentPadding)
 		[
-			SNew(SBackgroundBlur)
-			.BlurRadius(30)
-			.BlurStrength(10)
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Fill)
-			.Padding(FMargin(0))
-			[
-				SNew(SBorder)
-				.BorderImage(&Theme.BackgroundBrush)
-				.Padding(FMargin(1))
-				[
-					SNew(SBox)
-					.WidthOverride(ObjectiveInfoWidth)
-					.Visibility(this, &SFlareObjectiveInfo::GetVisibility)
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(SVerticalBox)
-
-						// Header
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareObjectiveInfo::GetName)
-							.WrapTextAt(ObjectiveInfoTextWidth)
-							.TextStyle(&Theme.NameFont)
-							.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
-							.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
-						]
-
-						// Description
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareObjectiveInfo::GetDescription)
-							.WrapTextAt(ObjectiveInfoTextWidth)
-							.TextStyle(&Theme.TextFont)
-							.ColorAndOpacity(this, &SFlareObjectiveInfo::GetTextColor)
-							.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
-						]
-
-						// Conditions
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(ConditionBox, SVerticalBox)
-						]
-					]
-				]
-			]
+			SAssignNew(ConditionBox, SVerticalBox)
 		]
 	];
 }
@@ -128,8 +75,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 		LastObjectiveVersion = Objective->Version;
 		ConditionBox->ClearChildren();
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-		int32 ObjectiveInfoWidth = 400;
-		int32 ObjectiveInfoTextWidth = ObjectiveInfoWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
+		int32 ObjectiveInfoTextWidth = Width - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
 
 		for (int ConditionIndex = 0; ConditionIndex < Objective->Data.ConditionList.Num(); ConditionIndex++)
 		{
@@ -140,7 +86,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 			[
 				SNew(SVerticalBox)
 
-				// Step description
+				// Condition description (initial label)
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
@@ -152,7 +98,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 					.ShadowColorAndOpacity(this, &SFlareObjectiveInfo::GetShadowColor)
 				]
 
-				// Step progress
+				// Condition progress
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.VAlign(VAlign_Center)
@@ -163,8 +109,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 					+ SHorizontalBox::Slot()
 					[
 						SNew(SBox)
-						.WidthOverride(ObjectiveInfoWidth / 2)
-						.Visibility(this, &SFlareObjectiveInfo::GetProgressVisibility, ConditionIndex)
+						.WidthOverride(Width / 2)
 						.VAlign(VAlign_Center)
 						.Padding(Theme.SmallContentPadding)
 						[
@@ -207,11 +152,6 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 	}
 }
 
-EVisibility SFlareObjectiveInfo::GetVisibility() const
-{
-	return PC->HasObjective() ? EVisibility::Visible : EVisibility::Collapsed;
-}
-
 FText SFlareObjectiveInfo::GetName() const
 {
 	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
@@ -224,12 +164,6 @@ FText SFlareObjectiveInfo::GetName() const
 	{
 		return LOCTEXT("UnnamedObjective", "Objective");
 	}
-}
-
-FText SFlareObjectiveInfo::GetDescription() const
-{
-	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
-	return (Objective ? Objective->Data.Description : FText());
 }
 
 FText SFlareObjectiveInfo::GetInitialLabel(int32 ConditionIndex) const
@@ -326,25 +260,6 @@ TOptional<float> SFlareObjectiveInfo::GetProgress(int32 ConditionIndex) const
 	else
 	{
 		return (float) Condition->Counter / (float) Condition->MaxCounter;
-	}
-}
-
-EVisibility SFlareObjectiveInfo::GetProgressVisibility(int32 ConditionIndex) const
-{
-	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
-	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
-	{
-		return EVisibility::Collapsed;
-	}
-
-	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
-	if (Condition->MaxProgress == 0 && Condition->MaxCounter == 0)
-	{
-		return EVisibility::Collapsed;
-	}
-	else
-	{
-		return EVisibility::Visible;
 	}
 }
 

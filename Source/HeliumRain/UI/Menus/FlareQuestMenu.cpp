@@ -10,6 +10,7 @@
 #include "../../Player/FlarePlayerController.h"
 
 #include "../Components/FlareButton.h"
+#include "../Components/FlareObjectiveInfo.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareQuestMenu"
@@ -231,20 +232,6 @@ void SFlareQuestMenu::FillAvailableQuestList()
 				.HelpText(LOCTEXT("AcceptQuestInfo", "Accept this contract"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestAccepted, Quest)
 			]
-			/*
-			// Reject
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.Padding(FMargin(0))
-			[
-				SNew(SFlareButton)
-				.Transparent(true)
-				.Text(FText())
-				.HelpText(LOCTEXT("RejectQuestInfo", "Reject this quest"))
-				.Icon(FFlareStyleSet::GetIcon("Stop"))
-				.OnClicked(this, &SFlareQuestMenu::OnQuestRejected, Quest)
-				.Width(1)
-			]*/
 		];
 	}
 
@@ -526,28 +513,58 @@ void SFlareQuestMenu::FillQuestDetails()
 			else
 			{
 				TSharedPtr<SVerticalBox> DetailBox = AddQuestDetail(QuestStep);
-				
-				// Description
-				DetailBox->AddSlot()
-				.AutoHeight()
-				.Padding(Theme.SmallContentPadding)
-				[
-					SNew(STextBlock)
-					.WrapTextAt(0.9 * Theme.ContentWidth)
-					.TextStyle(&Theme.NameFont)
-					.Text(StepConditionsText)
-				];
-				
-				// Detailed text
-				DetailBox->AddSlot()
-				.AutoHeight()
-				.Padding(Theme.SmallContentPadding)
-				[
-					SNew(STextBlock)
-					.WrapTextAt(0.9 * Theme.ContentWidth)
-					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStep)
-				];
+								
+				// Detailed progression widget for the current step of the current quest
+				if (QuestStep == SelectedQuest->GetCurrentStep() && SelectedQuest == QuestManager->GetSelectedQuest())
+				{
+					// Step description
+					DetailBox->AddSlot()
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.WrapTextAt(0.9 * Theme.ContentWidth)
+						.TextStyle(&Theme.NameFont)
+						.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStep)
+					];
+
+					// Condition widget
+					DetailBox->AddSlot()
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareObjectiveInfo)
+						.PC(MenuManager->GetPC())
+						.Width(Theme.ContentWidth)
+						.ConditionsOnly(true)
+					];
+				}
+
+				// Simple info
+				else
+				{
+					// Condition text
+					DetailBox->AddSlot()
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.WrapTextAt(0.9 * Theme.ContentWidth)
+						.TextStyle(&Theme.NameFont)
+						.Text(StepConditionsText)
+					];
+
+					// Step description
+					DetailBox->AddSlot()
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.WrapTextAt(0.9 * Theme.ContentWidth)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStep)
+					];
+				}
 
 				// Stop listing steps at this point if it's an ongoing or pending quest
 				if (QuestManager->IsQuestOngoing(SelectedQuest) || QuestManager->IsQuestAvailable(SelectedQuest))
@@ -820,6 +837,7 @@ void SFlareQuestMenu::OnQuestAccepted(UFlareQuest* Quest)
 
 	FillAvailableQuestList();
 	FillOngoingQuestList();
+	FillQuestDetails();
 }
 
 void SFlareQuestMenu::OnQuestAbandoned(UFlareQuest* Quest)
@@ -830,6 +848,7 @@ void SFlareQuestMenu::OnQuestAbandoned(UFlareQuest* Quest)
 
 	FillOngoingQuestList();
 	FillPreviousQuestList();
+	FillQuestDetails();
 }
 
 void SFlareQuestMenu::OnQuestTracked(UFlareQuest* Quest)
@@ -839,6 +858,7 @@ void SFlareQuestMenu::OnQuestTracked(UFlareQuest* Quest)
 	QuestManager->SelectQuest(Quest);
 
 	FillOngoingQuestList();
+	FillQuestDetails();
 }
 
 void SFlareQuestMenu::OnQuestSelected(UFlareQuest* Quest)

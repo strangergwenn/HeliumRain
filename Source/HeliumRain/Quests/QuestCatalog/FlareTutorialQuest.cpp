@@ -108,7 +108,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"RollLeft"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Roll your spacescraft left <input-axis:NormalRollInput,-1.0>.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Roll your spacescraft left with <input-axis:NormalRollInput,-1.0>.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "roll-left", Description);
 
 		Step->GetEnableConditions().Add(FlyShip);

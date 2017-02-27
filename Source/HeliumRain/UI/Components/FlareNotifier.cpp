@@ -16,12 +16,15 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	int32 ObjectiveInfoWidth = 400;
+	FLinearColor ObjectiveColor = Theme.ObjectiveColor;
+	ObjectiveColor.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
 
 	// Create the layout
 	ChildSlot
 	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Right)
-	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight() + 10, 0, 0))
+	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight() + 5, 0, 0))
 	[
 		SNew(SBox)
 		.HeightOverride(800)
@@ -33,9 +36,48 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			[
-				SNew(SFlareObjectiveInfo)
-				.PC(MenuManager->GetPC())
-				.Visibility(this, &SFlareNotifier::GetObjectiveVisibility)
+				SNew(SHorizontalBox)
+
+				// Icon
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SBox)
+					.WidthOverride(2)
+					[
+						SNew(SImage)
+						.Image(&Theme.InvertedBrush)
+						.ColorAndOpacity(ObjectiveColor)
+						.Visibility(this, &SFlareNotifier::GetObjectiveVisibility)
+					]
+				]
+
+				// Text
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SBackgroundBlur)
+					.BlurRadius(30)
+					.BlurStrength(10)
+					.HAlign(HAlign_Fill)
+					.VAlign(VAlign_Fill)
+					.Padding(FMargin(0))
+					[
+						SNew(SBorder)
+						.BorderImage(&Theme.BackgroundBrush)
+						[
+							SNew(SBox)
+							.WidthOverride(ObjectiveInfoWidth)
+							.Visibility(this, &SFlareNotifier::GetObjectiveVisibility)
+							.Padding(Theme.SmallContentPadding)
+							[
+								SNew(SFlareObjectiveInfo)
+								.PC(MenuManager->GetPC())
+								.Width(ObjectiveInfoWidth)
+							]
+						]
+					]
+				]
 			]
 
 			// Notifications

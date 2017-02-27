@@ -49,6 +49,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 			// Dummy container so that SBox doesn't stop ticking on fade
 			SNew(SBorder)
 			.BorderImage(FCoreStyle::Get().GetBrush("NoBrush"))
+			.Padding(FMargin(0))
 			[
 				SAssignNew(Button, SButton)
 				.ContentPadding(FMargin(0))
@@ -74,21 +75,21 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
 					[
-						SNew(SBox)
-						.WidthOverride(NotificatioNWidth)
+						SNew(SBackgroundBlur)
+						.BlurRadius(30)
+						.BlurStrength(10)
+						.BlurRadius(this, &SFlareNotification::GetNotificationBlurRadius)
+						.BlurStrength(this, &SFlareNotification::GetNotificationBlurStrength)
+						.HAlign(HAlign_Fill)
+						.VAlign(VAlign_Fill)
+						.Padding(FMargin(0))
 						[
-							SNew(SBackgroundBlur)
-							.BlurRadius(30)
-							.BlurStrength(10)
-							.BlurRadius(this, &SFlareNotification::GetNotificationBlurRadius)
-							.BlurStrength(this, &SFlareNotification::GetNotificationBlurStrength)
-							.HAlign(HAlign_Fill)
-							.VAlign(VAlign_Fill)
-							.Padding(FMargin(0))
+							SNew(SBorder)
+							.BorderImage(&Theme.BackgroundBrush)
+							.BorderBackgroundColor(this, &SFlareNotification::GetNotificationBackgroundColor)
 							[
-								SNew(SBorder)
-								.BorderImage(&Theme.BackgroundBrush)
-								.BorderBackgroundColor(this, &SFlareNotification::GetNotificationBackgroundColor)
+								SNew(SBox)
+								.WidthOverride(NotificatioNWidth)
 								.Padding(Theme.SmallContentPadding)
 								[
 									SNew(SVerticalBox)
@@ -344,7 +345,7 @@ FMargin SFlareNotification::GetNotificationMargins() const
 {
 	FMargin Result(0);
 
-	Result.Top = CurrentMargin;
+	Result.Top = CurrentMargin + 1;
 
 	return Result;
 }

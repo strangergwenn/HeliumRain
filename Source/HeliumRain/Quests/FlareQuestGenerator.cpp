@@ -430,7 +430,7 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"PickUp"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Pick-up {0} at {1} in {2}"), VIPName, FText::FromString(Station1->GetImmatriculation().ToString()), FText::FromString(Sector1->GetSectorName().ToString()));
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Pick {0} up at {1} in {2}"), VIPName, FText::FromString(Station1->GetImmatriculation().ToString()), FText::FromString(Sector1->GetSectorName().ToString()));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pick-up", Description);
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station1);
@@ -445,7 +445,7 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Drop-off"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Drop-off {0} at {1} in {2}"), VIPName, FText::FromString(Station2->GetImmatriculation().ToString()), FText::FromString(Sector2->GetSectorName().ToString()));
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Drop {0} off at {1} in {2}"), VIPName, FText::FromString(Station2->GetImmatriculation().ToString()), FText::FromString(Sector2->GetSectorName().ToString()));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "drop-off", Description);
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station2);
@@ -971,8 +971,8 @@ void UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const
 	}
 	else
 	{
-		QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameDistant","{0} trade form {1} to {2}"), Resource->Name,
-								  Sector1->GetSectorName(), Sector2->GetSectorName());
+		QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameDistant","{0} trade to {1}"), Resource->Name,
+								  Sector2->GetSectorName());
 		QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionDistantFormat","Trade {0} {1} from {2} to {3}"),
 									 FText::AsNumber(Quantity), Resource->Name,
 										 Sector1->GetSectorName(), Sector2->GetSectorName());
