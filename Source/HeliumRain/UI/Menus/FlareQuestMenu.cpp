@@ -515,7 +515,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				TSharedPtr<SVerticalBox> DetailBox = AddQuestDetail(QuestStep);
 								
 				// Detailed progression widget for the current step of the current quest
-				if (QuestStep == SelectedQuest->GetCurrentStep() && SelectedQuest == QuestManager->GetSelectedQuest())
+				if (QuestStep == SelectedQuest->GetCurrentStep() && SelectedQuest->GetStatus() == EFlareQuestStatus::ONGOING)
 				{
 					// Step description
 					DetailBox->AddSlot()
@@ -537,6 +537,7 @@ void SFlareQuestMenu::FillQuestDetails()
 						.PC(MenuManager->GetPC())
 						.Width(Theme.ContentWidth)
 						.ConditionsOnly(true)
+						.QuestStep(QuestStep)
 					];
 				}
 
@@ -693,6 +694,8 @@ void SFlareQuestMenu::FillQuestDetails()
 			.Text(LOCTEXT("NoSelectedQuest", "No contract selected."))
 		];
 	}
+
+	SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
 }
 
 TSharedPtr<SVerticalBox> SFlareQuestMenu::AddQuestDetail(UFlareQuestStep* QuestStep)
@@ -857,6 +860,7 @@ void SFlareQuestMenu::OnQuestTracked(UFlareQuest* Quest)
 	FCHECK(QuestManager);
 	QuestManager->SelectQuest(Quest);
 
+	SelectedQuest = Quest;
 	FillOngoingQuestList();
 	FillQuestDetails();
 }

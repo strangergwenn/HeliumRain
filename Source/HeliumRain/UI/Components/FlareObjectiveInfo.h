@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 
 
+class UFlareQuestStep;
 class AFlarePlayerController;
 
 
@@ -14,9 +15,11 @@ class SFlareObjectiveInfo : public SCompoundWidget
 
 	SLATE_BEGIN_ARGS(SFlareObjectiveInfo)
 		: _ConditionsOnly(false)
+		, _QuestStep(NULL)
 	{}
 
 	SLATE_ARGUMENT(AFlarePlayerController*, PC)
+	SLATE_ARGUMENT(UFlareQuestStep*, QuestStep)
 	SLATE_ARGUMENT(int32, Width)
 	SLATE_ARGUMENT(bool, ConditionsOnly)
 
@@ -76,13 +79,17 @@ protected:
 	// Slate data
 	TSharedPtr<SVerticalBox>				        ConditionBox;
 
-	// Data
+	// Settings
 	int32                                           Width;
+	UFlareQuestStep*                                QuestStep;
 	bool                                            ConditionsOnly;
+
+	// Data
 	float                                           ObjectiveEnterTime;
 	float                                           CurrentFadeTime;
 	float                                           CurrentAlpha;
 	int32                                           LastObjectiveVersion;
+	FFlarePlayerObjective                           QuestObjective;
 
 
 };

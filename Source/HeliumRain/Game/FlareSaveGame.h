@@ -58,7 +58,6 @@ struct FFlarePlayerObjective
 
 	bool                        Set;
 	FFlarePlayerObjectiveData   Data;
-	int32						Version;
 };
 
 /** Game save data */

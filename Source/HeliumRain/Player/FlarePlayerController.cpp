@@ -63,7 +63,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	// Gameplay
 	QuickSwitchNextOffset = 0;
 	CurrentObjective.Set = false;
-	CurrentObjective.Version = 0;
 	IsTest1 = false;
 	IsTest2 = false;
 	LastBattleState.Init();
@@ -588,7 +587,6 @@ void AFlarePlayerController::Clean()
 	Company = NULL;
 
 	CurrentObjective.Set = false;
-	CurrentObjective.Version = 0;
 
 	QuickSwitchNextOffset = 0;
 	TimeSinceWeaponSwitch = 0;
@@ -1101,12 +1099,7 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 
 void AFlarePlayerController::StartObjective(FText Name, FFlarePlayerObjectiveData Data)
 {
-	if (!CurrentObjective.Set)
-	{
-		CurrentObjective.Set = true;
-		CurrentObjective.Version++;
-	}
-
+	CurrentObjective.Set = true;
 	CurrentObjective.Data = Data;
 }
 

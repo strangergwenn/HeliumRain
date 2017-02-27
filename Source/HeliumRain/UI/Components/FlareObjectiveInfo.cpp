@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareObjectiveInfo.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../../Quests/FlareQuestStep.h"
 
 #define LOCTEXT_NAMESPACE "FlareObjectiveInfo"
 
@@ -15,13 +16,13 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 	// Args
 	PC = InArgs._PC;
 	Width = InArgs._Width;
+	QuestStep = InArgs._QuestStep;
 	ConditionsOnly = InArgs._ConditionsOnly;
 
 	// Settings
 	CurrentAlpha = 1;
 	ObjectiveEnterTime = 0.5;
 	CurrentFadeTime = 0;
-	LastObjectiveVersion = -1;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 ObjectiveInfoTextWidth = Width - Theme.SmallContentPadding.Left - Theme.SmallContentPadding.Right;
 	
@@ -52,6 +53,13 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 			SAssignNew(ConditionBox, SVerticalBox)
 		]
 	];
+
+	// Get objective for this quest
+	if (QuestStep)
+	{
+		QuestObjective = FFlarePlayerObjective();
+		QuestStep->AddEndConditionObjectives(&QuestObjective.Data);
+	}
 }
 
 
@@ -63,19 +71,17 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	int32 ObjectiveInfoTextWidth = Width - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
+
 	float Delta = (PC->HasObjective() ? 1 : -1) * (InDeltaTime / ObjectiveEnterTime);
 	CurrentFadeTime = FMath::Clamp(CurrentFadeTime + Delta, 0.0f, 1.0f);
 	CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, CurrentFadeTime, 2);
 
-	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
-	if (Objective && Objective->Version != LastObjectiveVersion)
+	const FFlarePlayerObjective* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
+	if (Objective)
 	{
-		// Update structure
-		FLOGV("SFlareObjectiveInfo::Tick : New objective step %d", Objective->Version);
-		LastObjectiveVersion = Objective->Version;
 		ConditionBox->ClearChildren();
-		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-		int32 ObjectiveInfoTextWidth = Width - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
 
 		for (int ConditionIndex = 0; ConditionIndex < Objective->Data.ConditionList.Num(); ConditionIndex++)
 		{
@@ -149,6 +155,8 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 				]
 			];
 		}
+
+		SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
 	}
 }
 
@@ -168,21 +176,23 @@ FText SFlareObjectiveInfo::GetName() const
 
 FText SFlareObjectiveInfo::GetInitialLabel(int32 ConditionIndex) const
 {
-	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
+	const FFlarePlayerObjective* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
+
 	return (Objective && Objective->Data.ConditionList.Num() > ConditionIndex ?
 				Objective->Data.ConditionList[ConditionIndex].InitialLabel : FText());
 }
 
 FText SFlareObjectiveInfo::GetTerminalLabel(int32 ConditionIndex) const
 {
-	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
+	const FFlarePlayerObjective* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
+
 	return (Objective && Objective->Data.ConditionList.Num() > ConditionIndex ?
 				Objective->Data.ConditionList[ConditionIndex].TerminalLabel : FText());
 }
 
 FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
 {
-	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
+	const FFlarePlayerObjective* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
 
 	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
 	{
@@ -203,7 +213,8 @@ FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
 
 EVisibility SFlareObjectiveInfo::GetCounterVisibility(int32 ConditionIndex) const
 {
-	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
+	const FFlarePlayerObjective* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
+
 	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
 	{
 		return EVisibility::Collapsed;
@@ -246,7 +257,8 @@ FLinearColor SFlareObjectiveInfo::GetShadowColor() const
 
 TOptional<float> SFlareObjectiveInfo::GetProgress(int32 ConditionIndex) const
 {
-	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
+	const FFlarePlayerObjective* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
+
 	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
 	{
 		return 0;

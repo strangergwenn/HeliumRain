@@ -3,6 +3,7 @@
 #include "FlareNotifier.h"
 #include "../Components/FlareObjectiveInfo.h"
 #include "../../Player/FlareMenuManager.h"
+#include "../../Quests/FlareQuest.h"
 
 #define LOCTEXT_NAMESPACE "FlareNotifier"
 
@@ -188,13 +189,15 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 
 EVisibility SFlareNotifier::GetObjectiveVisibility() const
 {
-	if (MenuManager->IsMenuOpen())
+	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
+
+	if (!MenuManager->IsMenuOpen() && QuestManager->GetSelectedQuest())
 	{
-		return EVisibility::Collapsed;
+		return EVisibility::SelfHitTestInvisible;
 	}
 	else
 	{
-		return EVisibility::SelfHitTestInvisible;
+		return EVisibility::Collapsed;
 	}
 }
 
