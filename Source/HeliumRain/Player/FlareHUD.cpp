@@ -939,13 +939,13 @@ void AFlareHUD::DrawHUDInternal()
 	DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipSmoothedVelocity);
 
 	// Draw objective
-	if (PC->HasObjective() && PC->GetCurrentObjective()->Data.TargetList.Num() > 0)
+	if (PC->HasObjective() && PC->GetCurrentObjective()->TargetList.Num() > 0)
 	{
 		FVector2D ScreenPosition;
 
-		for (int TargetIndex = 0; TargetIndex < PC->GetCurrentObjective()->Data.TargetList.Num(); TargetIndex++)
+		for (int TargetIndex = 0; TargetIndex < PC->GetCurrentObjective()->TargetList.Num(); TargetIndex++)
 		{
-			const FFlarePlayerObjectiveTarget* Target = &PC->GetCurrentObjective()->Data.TargetList[TargetIndex];
+			const FFlarePlayerObjectiveTarget* Target = &PC->GetCurrentObjective()->TargetList[TargetIndex];
 			FVector ObjectiveLocation = Target->Location;
 			FLinearColor InactiveColor = HudColorNeutral;
 

@@ -89,7 +89,7 @@ protected:
 	float                                           CurrentFadeTime;
 	float                                           CurrentAlpha;
 	int32                                           LastObjectiveVersion;
-	FFlarePlayerObjective                           QuestObjective;
+	FFlarePlayerObjectiveData                       QuestObjective;
 
 
 };

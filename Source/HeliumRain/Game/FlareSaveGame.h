@@ -49,17 +49,6 @@ struct FFlarePlayerObjectiveData
 	TArray<FFlarePlayerObjectiveCondition> ConditionList;
 };
 
-
-/** Player objective */
-USTRUCT()
-struct FFlarePlayerObjective
-{
-	GENERATED_USTRUCT_BODY()
-
-	bool                        Set;
-	FFlarePlayerObjectiveData   Data;
-};
-
 /** Game save data */
 USTRUCT()
 struct FFlarePlayerSave

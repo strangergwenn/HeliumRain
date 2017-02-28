@@ -168,7 +168,7 @@ public:
 	bool HasObjective() const;
 
 	/** Get the raw objective data */
-	const FFlarePlayerObjective* GetCurrentObjective() const;
+	const FFlarePlayerObjectiveData* GetCurrentObjective() const;
 
 
 	/*----------------------------------------------------
@@ -393,8 +393,8 @@ protected:
 
 	/** Objective */
 	UPROPERTY()
-	FFlarePlayerObjective                    CurrentObjective;
-
+	FFlarePlayerObjectiveData                CurrentObjective;
+	
 	// Various gameplay data
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
@@ -402,6 +402,7 @@ protected:
 	float                                    MinimalFOV;
 	float                                    NormalFOV;
 	FFlareSectorBattleState                  LastBattleState;
+	bool                                     HasCurrentObjective;
 	bool									 RecoveryActive;
 	TMap<UFlareSimulatedSector*, FFlareSectorBattleState> LastSectorBattleStates;
 

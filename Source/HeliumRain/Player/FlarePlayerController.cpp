@@ -62,7 +62,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 
 	// Gameplay
 	QuickSwitchNextOffset = 0;
-	CurrentObjective.Set = false;
+	HasCurrentObjective = false;
 	IsTest1 = false;
 	IsTest2 = false;
 	LastBattleState.Init();
@@ -586,7 +586,7 @@ void AFlarePlayerController::Clean()
 	PlayerShip = NULL;
 	Company = NULL;
 
-	CurrentObjective.Set = false;
+	HasCurrentObjective = false;
 
 	QuickSwitchNextOffset = 0;
 	TimeSinceWeaponSwitch = 0;
@@ -1099,23 +1099,23 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 
 void AFlarePlayerController::StartObjective(FText Name, FFlarePlayerObjectiveData Data)
 {
-	CurrentObjective.Set = true;
-	CurrentObjective.Data = Data;
+	HasCurrentObjective = true;
+	CurrentObjective = Data;
 }
 
 void AFlarePlayerController::CompleteObjective()
 {
-	CurrentObjective.Set = false;
+	HasCurrentObjective = false;
 }
 
 bool AFlarePlayerController::HasObjective() const
 {
-	return CurrentObjective.Set;
+	return HasCurrentObjective;
 }
 
-const FFlarePlayerObjective* AFlarePlayerController::GetCurrentObjective() const
+const FFlarePlayerObjectiveData* AFlarePlayerController::GetCurrentObjective() const
 {
-	return (CurrentObjective.Set? &CurrentObjective : NULL);
+	return (HasCurrentObjective ? &CurrentObjective : NULL);
 }
 
 

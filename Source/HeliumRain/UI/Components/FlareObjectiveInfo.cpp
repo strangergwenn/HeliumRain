@@ -57,8 +57,8 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 	// Get objective for this quest
 	if (QuestStep)
 	{
-		QuestObjective = FFlarePlayerObjective();
-		QuestStep->AddEndConditionObjectives(&QuestObjective.Data);
+		QuestObjective = FFlarePlayerObjectiveData();
+		QuestStep->AddEndConditionObjectives(&QuestObjective);
 	}
 }
 
@@ -78,15 +78,15 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 	CurrentFadeTime = FMath::Clamp(CurrentFadeTime + Delta, 0.0f, 1.0f);
 	CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, CurrentFadeTime, 2);
 
-	const FFlarePlayerObjective* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
+	const FFlarePlayerObjectiveData* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
 	if (Objective)
 	{
 		ConditionBox->ClearChildren();
 
-		for (int ConditionIndex = 0; ConditionIndex < Objective->Data.ConditionList.Num(); ConditionIndex++)
+		for (int ConditionIndex = 0; ConditionIndex < Objective->ConditionList.Num(); ConditionIndex++)
 		{
 			// Update structure
-			const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
+			const FFlarePlayerObjectiveCondition* Condition = &Objective->ConditionList[ConditionIndex];
 			ConditionBox->AddSlot()
 			.AutoHeight()
 			[
@@ -162,11 +162,11 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 
 FText SFlareObjectiveInfo::GetName() const
 {
-	const FFlarePlayerObjective* Objective = PC->GetCurrentObjective();
+	const FFlarePlayerObjectiveData* Objective = PC->GetCurrentObjective();
 
 	if (Objective)
 	{
-		return Objective->Data.Name;
+		return Objective->Name;
 	}
 	else
 	{
@@ -176,30 +176,30 @@ FText SFlareObjectiveInfo::GetName() const
 
 FText SFlareObjectiveInfo::GetInitialLabel(int32 ConditionIndex) const
 {
-	const FFlarePlayerObjective* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
+	const FFlarePlayerObjectiveData* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
 
-	return (Objective && Objective->Data.ConditionList.Num() > ConditionIndex ?
-				Objective->Data.ConditionList[ConditionIndex].InitialLabel : FText());
+	return (Objective && Objective->ConditionList.Num() > ConditionIndex ?
+				Objective->ConditionList[ConditionIndex].InitialLabel : FText());
 }
 
 FText SFlareObjectiveInfo::GetTerminalLabel(int32 ConditionIndex) const
 {
-	const FFlarePlayerObjective* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
+	const FFlarePlayerObjectiveData* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
 
-	return (Objective && Objective->Data.ConditionList.Num() > ConditionIndex ?
-				Objective->Data.ConditionList[ConditionIndex].TerminalLabel : FText());
+	return (Objective && Objective->ConditionList.Num() > ConditionIndex ?
+				Objective->ConditionList[ConditionIndex].TerminalLabel : FText());
 }
 
 FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
 {
-	const FFlarePlayerObjective* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
+	const FFlarePlayerObjectiveData* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
 
-	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
+	if (!Objective || Objective->ConditionList.Num() <= ConditionIndex)
 	{
 		return FText();
 	}
 
-	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
+	const FFlarePlayerObjectiveCondition* Condition = &Objective->ConditionList[ConditionIndex];
 
 	if (Condition->MaxCounter == 0)
 	{
@@ -213,14 +213,14 @@ FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
 
 EVisibility SFlareObjectiveInfo::GetCounterVisibility(int32 ConditionIndex) const
 {
-	const FFlarePlayerObjective* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
+	const FFlarePlayerObjectiveData* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
 
-	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
+	if (!Objective || Objective->ConditionList.Num() <= ConditionIndex)
 	{
 		return EVisibility::Collapsed;
 	}
 
-	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
+	const FFlarePlayerObjectiveCondition* Condition = &Objective->ConditionList[ConditionIndex];
 	if (Condition->MaxCounter == 0)
 	{
 		return EVisibility::Collapsed;
@@ -257,14 +257,14 @@ FLinearColor SFlareObjectiveInfo::GetShadowColor() const
 
 TOptional<float> SFlareObjectiveInfo::GetProgress(int32 ConditionIndex) const
 {
-	const FFlarePlayerObjective* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
+	const FFlarePlayerObjectiveData* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
 
-	if (!Objective || Objective->Data.ConditionList.Num() <= ConditionIndex)
+	if (!Objective || Objective->ConditionList.Num() <= ConditionIndex)
 	{
 		return 0;
 	}
 
-	const FFlarePlayerObjectiveCondition* Condition = &Objective->Data.ConditionList[ConditionIndex];
+	const FFlarePlayerObjectiveCondition* Condition = &Objective->ConditionList[ConditionIndex];
 	if (Condition->MaxCounter == 0)
 	{
 		return Condition->Progress / Condition->MaxProgress;
