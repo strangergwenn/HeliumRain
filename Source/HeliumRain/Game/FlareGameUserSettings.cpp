@@ -20,7 +20,7 @@ void UFlareGameUserSettings::SetToDefaults()
 
 	// Graphics
 	ScreenPercentage = 100;
-#if LINUX
+#if PLATFORM_LINUX
 	UseTemporalAA = false;
 #else
 	UseTemporalAA = true;
