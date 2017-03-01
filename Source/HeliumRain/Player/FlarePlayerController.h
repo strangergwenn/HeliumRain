@@ -61,7 +61,12 @@ public:
 	/** Get a recovery ship */
 	void ActivateRecovery();
 
+	/** Update a sector */
 	void CheckSectorStateChanges(UFlareSimulatedSector* Sector);
+
+	/** Discover or visit a sector */
+	void DiscoverSector(UFlareSimulatedSector* Sector, bool MarkedAsVisited, bool NotifyPlayer);
+	
 
 	/*----------------------------------------------------
 		Data management

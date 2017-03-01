@@ -54,7 +54,7 @@ void UFlareQuestActionDiscoverSector::Perform()
 {
 	if (Sector)
 	{
-		Sector->GetGame()->GetPC()->GetCompany()->DiscoverSector(Sector);
+		Sector->GetGame()->GetPC()->DiscoverSector(Sector, false, true);
 	}
 	else
 	{
@@ -87,11 +87,11 @@ void UFlareQuestActionVisitSector::Perform()
 {
 	if (Sector)
 	{
-		Sector->GetGame()->GetPC()->GetCompany()->VisitSector(Sector);
+		Sector->GetGame()->GetPC()->DiscoverSector(Sector, true, true);
 	}
 	else
 	{
-		FLOGV("ERROR in UFlareQuestActionVisitSector::Perform : invalid sector to discover for quest %s", *Quest->GetIdentifier().ToString());
+		FLOGV("ERROR in UFlareQuestActionVisitSector::Perform : invalid sector to visit for quest %s", *Quest->GetIdentifier().ToString());
 	}
 }
 

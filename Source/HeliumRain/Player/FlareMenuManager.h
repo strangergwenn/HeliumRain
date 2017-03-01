@@ -283,6 +283,18 @@ public:
 		return MainOverlay;
 	}
 
+	/** Get orbit menu */
+	TSharedPtr<SFlareOrbitalMenu> GetOrbitMenu()
+	{
+		return OrbitMenu;
+	}
+
+	/** Get sector menu */
+	TSharedPtr<SFlareSectorMenu> GetSectorMenu()
+	{
+		return SectorMenu;
+	}
+
 	/** Get the height of the main overlay */
 	static int32 GetMainOverlayHeight();
 

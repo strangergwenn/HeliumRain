@@ -976,6 +976,42 @@ void AFlarePlayerController::CheckSectorStateChanges(UFlareSimulatedSector* Sect
 	}
 }
 
+void AFlarePlayerController::DiscoverSector(UFlareSimulatedSector* Sector, bool MarkedAsVisited, bool NotifyPlayer)
+{
+	// Discover, visit if needed
+	GetCompany()->DiscoverSector(Sector);
+	if (MarkedAsVisited)
+	{
+		GetCompany()->VisitSector(Sector);
+	}
+
+	// Refresh menus
+	if (MenuManager->IsMenuOpen())
+	{
+		if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Orbit)
+		{
+			MenuManager->GetOrbitMenu()->Enter();
+		}
+		else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Sector)
+		{
+			MenuManager->GetSectorMenu()->Enter(Sector);
+		}
+	}
+
+	// Notify
+	if (NotifyPlayer)
+	{
+		Notify(
+			LOCTEXT("DiscoveredSector", "New sector discovered"),
+			FText::Format(
+				LOCTEXT("DiscoveredSectorInfoFormat", "You have discovered a new sector, {0}."),
+				Sector->GetSectorName()),
+			"discover-sector",
+			EFlareNotification::NT_Info,
+			false);
+	}
+}
+
 bool AFlarePlayerController::IsInMenu()
 {
 	return (GetPawn() == MenuPawn);

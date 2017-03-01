@@ -420,10 +420,8 @@ void UFlareGameTools::RevealMap()
 	GetGame()->DeactivateSector();
 	for (int i = 0; i < GetGameWorld()->GetSectors().Num(); i++)
 	{
-
 		UFlareSimulatedSector* Sector = GetGameWorld()->GetSectors()[i];
-		AFlarePlayerController* PC = GetPC();
-		PC->GetCompany()->VisitSector(Sector);
+		GetPC()->DiscoverSector(Sector, true, false);
 	}
 	GetGame()->ActivateCurrentSector();
 }
