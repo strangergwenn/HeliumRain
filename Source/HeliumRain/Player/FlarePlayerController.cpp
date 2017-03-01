@@ -1001,6 +1001,9 @@ void AFlarePlayerController::DiscoverSector(UFlareSimulatedSector* Sector, bool 
 	// Notify
 	if (NotifyPlayer)
 	{
+		FFlareMenuParameterData Data;
+		Data.Sector = Sector;
+
 		Notify(
 			LOCTEXT("DiscoveredSector", "New sector discovered"),
 			FText::Format(
@@ -1008,7 +1011,9 @@ void AFlarePlayerController::DiscoverSector(UFlareSimulatedSector* Sector, bool 
 				Sector->GetSectorName()),
 			"discover-sector",
 			EFlareNotification::NT_Info,
-			false);
+			false,
+			EFlareMenu::MENU_Sector,
+			Data);
 	}
 }
 
