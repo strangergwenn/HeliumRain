@@ -24,7 +24,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 
 	// Game starts
 	ScenarioList.Add(MakeShareable(new FString(TEXT("Freighter"))));
-	//ScenarioList.Add(MakeShareable(new FString(TEXT("Fighter"))));
+	ScenarioList.Add(MakeShareable(new FString(TEXT("Fighter"))));
 	//ScenarioList.Add(MakeShareable(new FString(TEXT("Debug"))));
 
 	// Color
@@ -73,15 +73,6 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 						.Style(&Theme.TextInputStyle)
 					]
 				]
-
-				// Color picker
-				//+ SVerticalBox::Slot()
-				//.Padding(Theme.ContentPadding)
-				//.AutoHeight()
-				//[
-				//	SAssignNew(ColorBox, SFlareColorPanel)
-				//	.MenuManager(MenuManager)
-				//]
 
 				// Scenario
 				+ SVerticalBox::Slot()
@@ -156,7 +147,6 @@ void SFlareNewGameMenu::Enter()
 		FFlarePlayerSave Data;
 		FFlareCompanyDescription Unused;
 		PC->Save(Data, Unused);
-		//ColorBox->Setup(Data);
 	}
 }
 

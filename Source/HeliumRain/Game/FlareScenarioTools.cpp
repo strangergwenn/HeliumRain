@@ -150,7 +150,7 @@ void UFlareScenarioTools::GenerateDebugScenario()
 	FLOG("UFlareScenarioTools::GenerateFreighterScenario");
 	SetupWorld();
 
-	// Discover all known sectors
+	// Discover all sectors
 	if (!PlayerData->QuestData.PlayTutorial)
 	{
 		for (int SectorIndex = 0; SectorIndex < World->GetSectors().Num(); SectorIndex++)
