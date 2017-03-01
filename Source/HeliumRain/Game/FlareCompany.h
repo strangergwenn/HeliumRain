@@ -364,6 +364,16 @@ public:
 		return VisitedSectors;
 	}
 
+	inline bool IsKnownSector(UFlareSimulatedSector* Sector) const
+	{
+		return (KnownSectors.Find(Sector) != INDEX_NONE);
+	}
+
+	inline bool IsVisitedSector(UFlareSimulatedSector* Sector) const
+	{
+		return (VisitedSectors.Find(Sector) != INDEX_NONE);
+	}
+
 	UFlareFleet* FindFleet(FName Identifier) const
 	{
 		for (int i = 0; i < CompanyFleets.Num(); i++)

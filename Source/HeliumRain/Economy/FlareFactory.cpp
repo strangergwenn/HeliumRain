@@ -658,7 +658,7 @@ void UFlareFactory::PerformDiscoverSectorAction(const FFlareFactoryAction* Actio
 	TArray<UFlareSimulatedSector*> Candidates;
 	for (auto CandidateSector : Parent->GetGame()->GetGameWorld()->GetSectors())
 	{
-		if (Company->GetKnownSectors().Find(CandidateSector) == INDEX_NONE && !CandidateSector->GetDescription()->IsHiddenFromTelescopes)
+		if (!Company->IsKnownSector(CandidateSector) && !CandidateSector->GetDescription()->IsHiddenFromTelescopes)
 		{
 			Candidates.Add(CandidateSector);
 		}

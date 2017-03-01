@@ -386,11 +386,47 @@ void UFlareFleet::Merge(UFlareFleet* Fleet)
 
 void UFlareFleet::SetCurrentSector(UFlareSimulatedSector* Sector)
 {
-	CurrentSector = Sector;
-	if(!Sector->IsTravelSector())
+	if (!Sector->IsTravelSector())
 	{
+		// Arrival in a sector
+		if (CurrentTravel && Sector != CurrentSector)
+		{
+			float DiscoveryChance = 0.005;
+			TArray<UFlareCompany*> SectorCompanies;
+			UFlareSimulatedSector* Source = CurrentTravel->GetSourceSector();
+
+			// List companies
+			for (auto Spacecraft : Sector->GetSectorSpacecrafts())
+			{
+				SectorCompanies.AddUnique(Spacecraft->GetCompany());
+			}
+
+			// Each company has a chance of discovering the source sector
+			for (auto Company : SectorCompanies)
+			{
+				if (!Company->IsKnownSector(Source) && Company != FleetCompany)
+				{
+					if (FMath::FRand() < DiscoveryChance)
+					{
+						if (Company == Game->GetPC()->GetCompany())
+						{
+							FLOGV("UFlareFleet::SetCurrentSector : player discovered '%s'", *Source->GetSectorName().ToString());
+							Game->GetPC()->DiscoverSector(Source, false, true);
+						}
+						else
+						{
+							FLOGV("UFlareFleet::SetCurrentSector : '%s' discovered '%s'", *Company->GetName(), *Source->GetSectorName().ToString());
+							Company->DiscoverSector(Source);
+						}
+					}
+				}
+			}
+		}
+
 		CurrentTravel = NULL;
 	}
+
+	CurrentSector = Sector;
 	InitShipList();
 }
 
