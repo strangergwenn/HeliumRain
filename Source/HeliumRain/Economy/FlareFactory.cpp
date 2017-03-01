@@ -3,6 +3,7 @@
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareCompany.h"
+#include "../Game/FlareSimulatedSector.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Economy/FlareCargoBay.h"
@@ -514,9 +515,13 @@ void UFlareFactory::DoProduction()
 			case EFlareFactoryAction::CreateShip:
 				PerformCreateShipAction(Action);
 				break;
+
 			case EFlareFactoryAction::DiscoverSector:
+				PerformDiscoverSectorAction(Action);
+				break;
+
+			// TODO
 			case EFlareFactoryAction::GainTechnology:
-				// TODO
 			default:
 				FLOGV("Warning ! Not implemented factory action %d", (Action->Action+0));
 		}
@@ -590,7 +595,7 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 	FactoryData.TargetShipClass = NAME_None;
 	FactoryData.TargetShipCompany = NAME_None;
 
-	if(FactoryData.OrderShipCompany == NAME_None)
+	if (FactoryData.OrderShipCompany == NAME_None)
 	{
 		// No more ship to produce
 		Stop();
@@ -599,6 +604,97 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 	{
 		Start();
 	}
+}
+
+// Compute a proximity score (lower is better)
+// Hundreds are bodies, dozens are altitude, units are phase
+static int ComputeProximityScore(const UFlareSimulatedSector& SectorA, const UFlareSimulatedSector& SectorB)
+{
+	int Score = 0;
+
+	// Get parameters
+	const FFlareSectorOrbitParameters* ParamsA = SectorA.GetOrbitParameters();
+	const FFlareSectorOrbitParameters* ParamsB = SectorB.GetOrbitParameters();
+
+	// Same planetary body as source
+	if (ParamsA->CelestialBodyIdentifier != ParamsB->CelestialBodyIdentifier)
+	{
+		Score += 100;
+	}
+
+	// Altitude
+	float MaxAltitude = 10000;
+	float AltitudeDistance = FMath::Abs(ParamsA->Altitude - ParamsB->Altitude);
+	AltitudeDistance = FMath::Clamp(AltitudeDistance, 0.0f, MaxAltitude);
+	Score += 10 * (AltitudeDistance / MaxAltitude);
+
+	// Phase
+	float MaxPhase = 360;
+	float PhaseDistance = FMath::Abs(ParamsA->Phase - ParamsB->Phase);
+	PhaseDistance = FMath::Clamp(PhaseDistance, 0.0f, MaxPhase);
+	Score += PhaseDistance / MaxPhase;
+
+	return Score;
+}
+
+struct FSortByProximity
+{
+	UFlareSimulatedSector* SourceSector;
+	FSortByProximity(UFlareSimulatedSector* Sector)
+		: SourceSector(Sector)
+	{}
+
+	bool operator()(const UFlareSimulatedSector& SectorA, const UFlareSimulatedSector& SectorB) const
+	{
+		return (ComputeProximityScore(SectorA, *SourceSector) < ComputeProximityScore(SectorB, *SourceSector));
+	}
+};
+
+void UFlareFactory::PerformDiscoverSectorAction(const FFlareFactoryAction* Action)
+{
+	UFlareCompany* Company = Parent->GetCompany();
+
+	// List all unknown sectors
+	TArray<UFlareSimulatedSector*> Candidates;
+	for (auto CandidateSector : Parent->GetGame()->GetGameWorld()->GetSectors())
+	{
+		if (Company->GetKnownSectors().Find(CandidateSector) == INDEX_NONE && !CandidateSector->GetDescription()->IsHiddenFromTelescopes)
+		{
+			Candidates.Add(CandidateSector);
+		}
+	}
+
+	// Sort by score
+	UFlareSimulatedSector* CurrentSector = Parent->GetCurrentSector();
+	Candidates.Sort(FSortByProximity(CurrentSector));
+
+	// Discover sector
+	if (Candidates.Num())
+	{
+		AFlarePlayerController* PC = Parent->GetGame()->GetPC();
+		UFlareSimulatedSector* TargetSector = NULL;
+
+		// Pick a sector
+		int TelescopeRange = 2;
+		int Index = FMath::RandHelper(TelescopeRange);
+		TargetSector = Candidates[Index];
+
+		// Player-owned telescope (should always be the case according to #99) or other company ?
+		if (Company == PC->GetCompany())
+		{
+			PC->DiscoverSector(TargetSector, false, true);
+		}
+		else
+		{
+			Company->DiscoverSector(TargetSector);
+		}
+	}
+	else
+	{
+		FLOGV("UFlareFactory::PerformDiscoverSectorAction : could not find a sector !");
+	}
+
+	Stop();
 }
 
 
@@ -872,17 +968,22 @@ FText UFlareFactory::GetFactoryCycleInfo()
 		switch (FactoryAction->Action)
 		{
 			// Ship production
-		case EFlareFactoryAction::CreateShip:
-			ProductionOutputText = FText::Format(LOCTEXT("ProductionActionsFormat", "{0}{1} {2} {3}"),
-				ProductionOutputText, CommaText, FText::AsNumber(FactoryAction->Quantity),
-				GetGame()->GetSpacecraftCatalog()->Get(FactoryData.TargetShipClass)->Name);
-			break;
+			case EFlareFactoryAction::CreateShip:
+				ProductionOutputText = FText::Format(LOCTEXT("CreateShipActionFormat", "{0}{1} {2} {3}"),
+					ProductionOutputText, CommaText, FText::AsNumber(FactoryAction->Quantity),
+					GetGame()->GetSpacecraftCatalog()->Get(FactoryData.TargetShipClass)->Name);
+				break;
+
+			// Sector discovery
+			case EFlareFactoryAction::DiscoverSector:
+				ProductionOutputText = FText::Format(LOCTEXT("DiscoverSectorActionFormat", "{0}{1} sector"),
+					ProductionOutputText, CommaText);
+				break;
 
 			// TODO
-		case EFlareFactoryAction::DiscoverSector:
-		case EFlareFactoryAction::GainTechnology:
-		default:
-			FLOGV("SFlareShipMenu::UpdateFactoryLimitsList : Unimplemented factory action %d", (FactoryAction->Action + 0));
+			case EFlareFactoryAction::GainTechnology:
+			default:
+				FLOGV("SFlareShipMenu::UpdateFactoryLimitsList : Unimplemented factory action %d", (FactoryAction->Action + 0));
 		}
 	}
 

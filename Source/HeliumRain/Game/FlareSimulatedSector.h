@@ -177,6 +177,10 @@ struct FFlareSectorDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool IsSolarPoor;
 
+	/** Is this sector impossible to discover */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool IsHiddenFromTelescopes;
+
 	/** Level to load for this sector */
 	UPROPERTY(EditAnywhere, Category = Content)
 	FName LevelName;
@@ -519,7 +523,7 @@ public:
 
 	uint32 GetTransfertResourcePrice(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource);
 
-	inline FFlareSectorOrbitParameters* GetOrbitParameters()
+	const FFlareSectorOrbitParameters* GetOrbitParameters() const
 	{
 		return &SectorOrbitParameters;
 	}

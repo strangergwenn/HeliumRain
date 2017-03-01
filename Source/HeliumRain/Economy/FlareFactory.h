@@ -73,6 +73,8 @@ public:
 
 	void PerformCreateShipAction(const FFlareFactoryAction* Action);
 
+	void PerformDiscoverSectorAction(const FFlareFactoryAction* Action);
+
 
 protected:
 

@@ -108,9 +108,8 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 				Sun = World->GetPlanerarium()->GetSnapShot(LocalTime, SmoothTime);
 
 				// Draw Player
-				FFlareSectorOrbitParameters* PlayerOrbit = GetGame()->GetActiveSector()->GetSimulatedSector()->GetOrbitParameters();
-
-
+				const FFlareSectorOrbitParameters* PlayerOrbit = GetGame()->GetActiveSector()->GetSimulatedSector()->GetOrbitParameters();
+				
 				FFlareCelestialBody* CurrentParent = World->GetPlanerarium()->FindCelestialBody(PlayerOrbit->CelestialBodyIdentifier);
 				if (CurrentParent)
 				{
