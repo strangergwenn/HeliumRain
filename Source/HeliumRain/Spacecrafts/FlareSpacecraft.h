@@ -246,6 +246,10 @@ protected:
 	FFlareSpacecraftComponentDescription*          OrbitalEngineDescription;
 	FFlareSpacecraftComponentDescription*          RCSDescription;
 	FVector                                        SmoothedVelocity;
+	
+	// Idle shipyard dynamic component
+	UPROPERTY()
+	UClass*                                        IdleShipyardTemplate;
 
 	// Weapon loaded
 	UPROPERTY()

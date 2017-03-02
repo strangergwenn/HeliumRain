@@ -477,20 +477,6 @@ struct FFlareSpacecraftSlotDescription
 	TArray<FName> PoweredComponents;
 };
 
-USTRUCT()
-struct FFlareSpacecraftDynamicComponentStateDescription
-{
-	GENERATED_USTRUCT_BODY()
-
-	/** Dynamic component state name */
-	UPROPERTY(EditAnywhere, Category = Content) FName StateIdentifier;
-
-	/** Dynamic component state templates */
-	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UClass*> StateTemplates;
-
-};
-
 /** Spacecraft capabilities */
 UENUM()
 namespace EFlareSpacecraftCapability
@@ -685,10 +671,10 @@ struct FFlareSpacecraftDescription
 	/** Internal component slots */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FFlareSpacecraftSlotDescription> InternalComponentSlots;
-
-	/** Dynamic component states */
+	
+	/** Templates for WIP versions in shipyards */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<FFlareSpacecraftDynamicComponentStateDescription> DynamicComponentStates;
+	TArray<UClass*> ConstructionStateTemplates;
 
 	/** Max angular velocity in degree/s */
 	UPROPERTY(EditAnywhere, Category = Content)	float AngularMaxVelocity;

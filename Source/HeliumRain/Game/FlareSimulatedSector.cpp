@@ -218,11 +218,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	ShipData.IsReserve = false;
 	ShipData.Level = 1;
 	ShipData.HarpoonCompany = NAME_None;
-
-	if (ShipDescription->DynamicComponentStates.Num() > 0)
-	{
-		ShipData.DynamicComponentStateIdentifier = ShipDescription->DynamicComponentStates[0].StateIdentifier;
-	}
+	ShipData.DynamicComponentStateIdentifier = FName("idle");
 
 	FName RCSIdentifier;
 	FName OrbitalEngineIdentifier;
