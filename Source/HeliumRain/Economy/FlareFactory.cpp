@@ -41,6 +41,9 @@ FFlareFactorySave* UFlareFactory::Save()
 
 void UFlareFactory::Simulate()
 {
+	FCHECK(Parent);
+	FCHECK(Parent->GetCurrentSector());
+	FCHECK(Parent->GetCurrentSector()->GetPeople());
 
 	if (!FactoryData.Active)
 	{
