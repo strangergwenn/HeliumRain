@@ -116,20 +116,53 @@ void UFlareTravel::Simulate()
 
 void UFlareTravel::EndTravel()
 {
-	Fleet->SetCurrentSector(DestinationSector);
+	// Each company has a chance of discovering the source sector
+	if (GetSourceSector() && DestinationSector != GetSourceSector())
+	{
+		float DiscoveryChance = 0.005;
+		TArray<UFlareCompany*> SectorCompanies;
+		UFlareSimulatedSector* Source = GetSourceSector();
+
+		// List companies
+		for (auto Spacecraft : DestinationSector->GetSectorSpacecrafts())
+		{
+			SectorCompanies.AddUnique(Spacecraft->GetCompany());
+		}
+
+		for (auto Company : SectorCompanies)
+		{
+			if (!Company->IsKnownSector(Source) && Company != Fleet->GetFleetCompany())
+			{
+				if (FMath::FRand() < DiscoveryChance)
+				{
+					if (Company == Game->GetPC()->GetCompany())
+					{
+						FLOGV("UFlareTravel::EndTravel : player discovered '%s'", *Source->GetSectorName().ToString());
+						Game->GetPC()->DiscoverSector(Source, false, true);
+					}
+					else
+					{
+						FLOGV("UFlareTravel::EndTravel : '%s' discovered '%s'", *Company->GetCompanyName().ToString(), *Source->GetSectorName().ToString());
+						Company->DiscoverSector(Source);
+					}
+				}
+			}
+		}
+	}
+
+	// Make fleet arrive
+	Fleet->SetCurrentSector(DestinationSector);	
 	DestinationSector->AddFleet(Fleet);
 
-	// Place correctly new ships to avoid collision
-
+	// People migration
 	OriginSector->GetPeople()->Migrate(DestinationSector, Fleet->GetShipCount());
-
+	
 	// Price migration
 	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
 	{
 		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
 
 		float ContaminationFactor = 0.00f;
-
 		for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
 		{
 			UFlareSimulatedSpacecraft* Ship = Fleet->GetShips()[ShipIndex];
@@ -144,10 +177,8 @@ void UFlareTravel::EndTravel()
 
 		float OriginPrice = OriginSector->GetPreciseResourcePrice(Resource);
 		float DestinationPrice = DestinationSector->GetPreciseResourcePrice(Resource);
-
 		float Mean = (OriginPrice + DestinationPrice) / 2.f;
-
-
+		
 		float NewOriginPrice = (OriginPrice * (1 - ContaminationFactor)) + (ContaminationFactor * Mean);
 		float NewDestinationPrice = (DestinationPrice * (1 - ContaminationFactor)) + (ContaminationFactor * Mean);
 
@@ -156,11 +187,8 @@ void UFlareTravel::EndTravel()
 
 		OriginSector->SetPreciseResourcePrice(Resource, NewOriginPrice);
 		DestinationSector->SetPreciseResourcePrice(Resource, NewDestinationPrice);
-
 	}
 	
-	Game->GetGameWorld()->DeleteTravel(this);
-
 	// Notify travel ended
 	if (Fleet->GetFleetCompany() == Game->GetPC()->GetCompany() && Fleet->GetCurrentTradeRoute() == NULL)
 	{
@@ -177,11 +205,12 @@ void UFlareTravel::EndTravel()
 			Data);
 	}
 
+	// Update game
+	Game->GetGameWorld()->DeleteTravel(this);
 	if (Game->GetQuestManager())
 	{
 		Game->GetQuestManager()->OnTravelEnded(Fleet);
 	}
-
 }
 
 int64 UFlareTravel::GetElapsedTime()
