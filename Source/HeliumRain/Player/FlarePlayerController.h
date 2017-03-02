@@ -226,6 +226,9 @@ public:
 	/** Toggle the performance logger */
 	void TogglePerformance();
 
+	/** is simulating */
+	void MarkAsSimulating();
+
 	// Menus
 	void ShipMenu();
 	void SectorMenu();
@@ -400,15 +403,17 @@ protected:
 	UPROPERTY()
 	FFlarePlayerObjectiveData                CurrentObjective;
 	
-	// Various gameplay data
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
 	float                                    MinimalFOV;
 	float                                    NormalFOV;
-	FFlareSectorBattleState                  LastBattleState;
+
 	bool                                     HasCurrentObjective;
 	bool									 RecoveryActive;
+	bool                                     IsSimulating;
+
+	FFlareSectorBattleState                  LastBattleState;
 	TMap<UFlareSimulatedSector*, FFlareSectorBattleState> LastSectorBattleStates;
 
 public:
@@ -432,8 +437,6 @@ public:
 	void SetUseCockpit(bool New);
 
 	void SetUseMotionBlur(bool New);
-
-	void SetUseTemporalAA(bool New);
 
 	void SetPauseGameInMenus(bool New);
 
@@ -516,6 +519,11 @@ public:
 	float GetNormalFOV()
 	{
 		return NormalFOV;
+	}
+
+	bool IsGameSimulating() const
+	{
+		return IsSimulating;
 	}
 
 	float GetCurrentFOV();

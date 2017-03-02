@@ -235,30 +235,33 @@ void SFlareNotification::Tick(const FGeometry& AllottedGeometry, const double In
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	Lifetime += InDeltaTime;
-
-	float Ease = 2;
-	float AnimationTime = NotificationExitDuration / 2;
-	float TimeToFade = (NotificationTimeout > 0 ? NotificationTimeout - Lifetime - 2 * AnimationTime : 2 * AnimationTime);
-	float TimeToRemove = (NotificationTimeout > 0 ? NotificationTimeout - Lifetime : AnimationTime);
-
-	// Disappear if finished
-	if (TimeToFade <= 0 && Button->GetVisibility() == EVisibility::Visible)
+	if (!MenuManager->GetPC()->IsGameSimulating())
 	{
-		LastHeight = GetDesiredSize().Y;
-		Button->SetVisibility(EVisibility::Collapsed);
-	}
+		Lifetime += InDeltaTime;
 
-	// Update render data
-	if (Lifetime <= NotificationEnterDuration)
-	{
-		CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, FMath::Clamp(Lifetime / NotificationEnterDuration, 0.0f, 1.0f), Ease);
-		CurrentMargin = NotificationScroll * FMath::InterpEaseOut(1.0f, 0.0f, FMath::Clamp(Lifetime / NotificationEnterDuration, 0.0f, 1.0f), Ease);
-	}
-	else
-	{
-		CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, FMath::Clamp(TimeToFade / AnimationTime, 0.0f, 1.0f), Ease);
-		CurrentMargin = LastHeight * FMath::InterpEaseOut(0.0f, 1.0f, FMath::Clamp(TimeToRemove / AnimationTime, 0.0f, 1.0f), Ease);
+		float Ease = 2;
+		float AnimationTime = NotificationExitDuration / 2;
+		float TimeToFade = (NotificationTimeout > 0 ? NotificationTimeout - Lifetime - 2 * AnimationTime : 2 * AnimationTime);
+		float TimeToRemove = (NotificationTimeout > 0 ? NotificationTimeout - Lifetime : AnimationTime);
+
+		// Disappear if finished
+		if (TimeToFade <= 0 && Button->GetVisibility() == EVisibility::Visible)
+		{
+			LastHeight = GetDesiredSize().Y;
+			Button->SetVisibility(EVisibility::Collapsed);
+		}
+
+		// Update render data
+		if (Lifetime <= NotificationEnterDuration)
+		{
+			CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, FMath::Clamp(Lifetime / NotificationEnterDuration, 0.0f, 1.0f), Ease);
+			CurrentMargin = NotificationScroll * FMath::InterpEaseOut(1.0f, 0.0f, FMath::Clamp(Lifetime / NotificationEnterDuration, 0.0f, 1.0f), Ease);
+		}
+		else
+		{
+			CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, FMath::Clamp(TimeToFade / AnimationTime, 0.0f, 1.0f), Ease);
+			CurrentMargin = LastHeight * FMath::InterpEaseOut(0.0f, 1.0f, FMath::Clamp(TimeToRemove / AnimationTime, 0.0f, 1.0f), Ease);
+		}
 	}
 }
 
