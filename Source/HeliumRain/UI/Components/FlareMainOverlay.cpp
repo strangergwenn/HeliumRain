@@ -23,91 +23,126 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	TitleButtonWidth = 2.0f;
 	TitleButtonHeight = AFlareMenuManager::GetMainOverlayHeight() / (float)(Theme.ButtonHeight);
+	FLinearColor HintColor = Theme.NeutralColor;
+	HintColor.A = 0.3f;
+
+	// State
+	OverlayFadeAlpha = 0;
+	OverlayFadeDuration = 0.2f;
 
 	// Create the layout
 	ChildSlot
-	.VAlign(VAlign_Top)
+	.VAlign(VAlign_Fill)
 	.HAlign(HAlign_Fill)
 	[
-		SAssignNew(Background, SBackgroundBlur)
-		.BlurRadius(30)
-		.BlurStrength(10)
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Fill)
-		.Padding(FMargin(0))
-		[
-			SNew(SBorder)
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Fill)
-			.Padding(FMargin(0))
-			.BorderImage(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Black"))
-			.BorderBackgroundColor(FLinearColor(1, 1, 1, 0.7f))
-			[
-				SNew(SVerticalBox)
+		SNew(SCanvas)
 
-				+ SVerticalBox::Slot()
-				.AutoHeight()
+		// Main widget
+		+ SCanvas::Slot()
+		.VAlign(VAlign_Top)
+		.HAlign(HAlign_Center)
+		.Position(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMainOverlay::GetOverlayPosition)))
+		.Size(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMainOverlay::GetOverlaySize)))
+		[
+			SNew(SVerticalBox)
+
+			// Container
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				SAssignNew(Background, SBackgroundBlur)
+				.BlurRadius(30)
+				.BlurStrength(10)
 				.HAlign(HAlign_Fill)
 				.VAlign(VAlign_Fill)
+				.Padding(FMargin(0))
 				[
-					SAssignNew(MenuList, SHorizontalBox)
-
-					// Title
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
+					SNew(SBorder)
+					.HAlign(HAlign_Fill)
+					.VAlign(VAlign_Fill)
+					.Padding(FMargin(0))
+					.BorderImage(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Black"))
+					.BorderBackgroundColor(FLinearColor(1, 1, 1, 0.7f))
 					[
-						SNew(SBox)
+						SNew(SVerticalBox)
+
+						+ SVerticalBox::Slot()
+						.AutoHeight()
 						.HAlign(HAlign_Fill)
-						.WidthOverride(0.625 * Theme.ContentWidth)
+						.VAlign(VAlign_Fill)
 						[
-							SNew(SHorizontalBox)
+							SAssignNew(MenuList, SHorizontalBox)
 
-							// Title icon
+							// Title
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
-							.VAlign(VAlign_Center)
 							[
-								SNew(SImage)
-								.Image(this, &SFlareMainOverlay::GetCurrentMenuIcon)
-							]
-
-							// Title text
-							+ SHorizontalBox::Slot()
-							.VAlign(VAlign_Center)
-							.AutoWidth()
-							[
-								SNew(SVerticalBox)
-
-								+ SVerticalBox::Slot()
-								.AutoHeight()
-								.Padding(Theme.SmallContentPadding)
+								SNew(SBox)
+								.HAlign(HAlign_Fill)
+								.WidthOverride(0.625 * Theme.ContentWidth)
 								[
-									SNew(STextBlock)
-									.TextStyle(&Theme.TitleFont)
-									.Text(this, &SFlareMainOverlay::GetCurrentMenuName)
-								]
+									SNew(SHorizontalBox)
 
-								+ SVerticalBox::Slot()
-								.AutoHeight()
-								.Padding(Theme.SmallContentPadding)
-								[
-									SNew(STextBlock)
-									.TextStyle(&Theme.TextFont)
-									.Text(this, &SFlareMainOverlay::GetPlayerInfo)
+									// Title icon
+									+ SHorizontalBox::Slot()
+									.AutoWidth()
+									.VAlign(VAlign_Center)
+									[
+										SNew(SImage)
+										.Image(this, &SFlareMainOverlay::GetCurrentMenuIcon)
+									]
+
+									// Title text
+									+ SHorizontalBox::Slot()
+									.VAlign(VAlign_Center)
+									.AutoWidth()
+									[
+										SNew(SVerticalBox)
+
+										+ SVerticalBox::Slot()
+										.AutoHeight()
+										.Padding(Theme.SmallContentPadding)
+										[
+											SNew(STextBlock)
+											.TextStyle(&Theme.TitleFont)
+											.Text(this, &SFlareMainOverlay::GetCurrentMenuName)
+										]
+
+										+ SVerticalBox::Slot()
+										.AutoHeight()
+										.Padding(Theme.SmallContentPadding)
+										[
+											SNew(STextBlock)
+											.TextStyle(&Theme.TextFont)
+											.Text(this, &SFlareMainOverlay::GetPlayerInfo)
+										]
+									]
 								]
 							]
 						]
+
+						// Bottom border
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Fill)
+						[
+							SAssignNew(Border, SImage)
+							.Image(&Theme.NearInvisibleBrush)
+						]
 					]
 				]
+			]
 
-				// Bottom border
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.HAlign(HAlign_Fill)
-				[
-					SAssignNew(Border, SImage)
-					.Image(&Theme.NearInvisibleBrush)
-				]
+			// Helper
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Right)
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.SmallFont)
+				.Text(this, &SFlareMainOverlay::GetHelperText)
+				.ColorAndOpacity(HintColor)
 			]
 		]
 	];
@@ -297,13 +332,11 @@ void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, const FSl
 void SFlareMainOverlay::Open()
 {
 	IsOverlayVisible = true;
-	Background->SetVisibility(EVisibility::Visible);
 }
 
 void SFlareMainOverlay::Close()
 {
 	IsOverlayVisible = false;
-	Background->SetVisibility(EVisibility::Hidden);
 }
 
 bool SFlareMainOverlay::IsOpen() const
@@ -335,6 +368,17 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 	{
 		SetVisibility(EVisibility::Visible);
 	}
+
+	// Fade opening & closing
+	if (IsOverlayVisible)
+	{
+		OverlayFadeAlpha += InDeltaTime / OverlayFadeDuration;
+	}
+	else
+	{
+		OverlayFadeAlpha -= InDeltaTime / OverlayFadeDuration;
+	}
+	OverlayFadeAlpha = FMath::Clamp(OverlayFadeAlpha, 0.0f, 1.0f);
 }
 
 EVisibility SFlareMainOverlay::GetGameButtonVisibility() const
@@ -356,6 +400,22 @@ EVisibility SFlareMainOverlay::GetGameButtonVisibility() const
 	{
 		return EVisibility::Visible;
 	}
+}
+
+FVector2D SFlareMainOverlay::GetOverlayPosition() const
+{
+	FVector2D ScreenSize = GetCachedGeometry().GetLocalSize();
+
+	float Alpha = FMath::InterpEaseOut(-1.0f, 0.0f, OverlayFadeAlpha, 2.0f);
+	float VirtualHeight = Alpha * AFlareMenuManager::GetMainOverlayHeight() - 5;
+
+	return FVector2D(ScreenSize.X / 2, VirtualHeight);
+}
+
+FVector2D SFlareMainOverlay::GetOverlaySize() const
+{
+	FVector2D ScreenSize = GetCachedGeometry().GetLocalSize();
+	return FVector2D(ScreenSize.X, AFlareMenuManager::GetMainOverlayHeight() + 50);
 }
 
 bool SFlareMainOverlay::IsBackDisabled() const
@@ -388,6 +448,19 @@ const FSlateBrush* SFlareMainOverlay::GetCloseIcon() const
 	else
 	{
 		return FFlareStyleSet::GetIcon("Close");
+	}
+}
+
+FText SFlareMainOverlay::GetHelperText() const
+{
+	if (!MenuManager->IsMenuOpen())
+	{
+		FString KeyName = AFlareMenuManager::GetKeyNameFromActionName(FName("ToggleOverlay"));
+		return FText::Format(LOCTEXT("ToggleHelperFormat", "Use <{0}> to toggle the menu"), FText::FromString(KeyName));
+	}
+	else
+	{
+		return FText();
 	}
 }
 

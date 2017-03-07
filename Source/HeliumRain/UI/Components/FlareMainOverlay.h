@@ -62,6 +62,12 @@ public:
 	/** Are the main buttons visible */
 	EVisibility GetGameButtonVisibility() const;
 
+	/** Get overlay position for animation */
+	FVector2D GetOverlayPosition() const;
+
+	/** Get overlay size for animation */
+	FVector2D GetOverlaySize() const;
+
 	/** Can we go back */
 	bool IsBackDisabled() const;
 
@@ -70,6 +76,9 @@ public:
 
 	/** Get icon for the close button */
 	const FSlateBrush* GetCloseIcon() const;
+
+	/** Get the key binding for the mouse */
+	FText GetHelperText() const;
 
 	/** Get the name of the current menu */
 	FText GetCurrentMenuName() const;
@@ -102,6 +111,8 @@ protected:
 
 	// General data
 	bool                                            IsOverlayVisible;
+	float                                           OverlayFadeAlpha;
+	float                                           OverlayFadeDuration;
 	float                                           TitleButtonWidth;
 	float                                           TitleButtonHeight;
 
