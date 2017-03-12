@@ -67,15 +67,19 @@ protected:
 
 	// Gameplay data
 	float                                      CurrentTime;
-	float                                      CurrentTextAlpha;
-	int32                                      CurrentTextIndex;
+	float                                      CurrentAlpha;
+	int32                                      CurrentIndex;
 	TArray<FText>                              TitleList;
 	TArray<FText>                              TextList;
+	TArray<FText>                              SubTextList;
+	TArray<const FSlateBrush*>                 ImageList;
 
 	// Slate data
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
+	TSharedPtr<SImage>                         Image;
 	TSharedPtr<STextBlock>                     Title;
 	TSharedPtr<STextBlock>                     Text;
+	TSharedPtr<STextBlock>                     SubText;
 
 
 };
