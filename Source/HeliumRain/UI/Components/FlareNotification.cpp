@@ -76,8 +76,6 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 					.AutoWidth()
 					[
 						SNew(SBackgroundBlur)
-						.BlurRadius(30)
-						.BlurStrength(10)
 						.BlurRadius(this, &SFlareNotification::GetNotificationBlurRadius)
 						.BlurStrength(this, &SFlareNotification::GetNotificationBlurStrength)
 						.HAlign(HAlign_Fill)
@@ -267,12 +265,14 @@ void SFlareNotification::Tick(const FGeometry& AllottedGeometry, const double In
 
 TOptional<int32> SFlareNotification::GetNotificationBlurRadius() const
 {
-	return 30 * CurrentAlpha;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	return Theme.BlurRadius * CurrentAlpha;
 }
 
 float SFlareNotification::GetNotificationBlurStrength() const
 {
-	return 10.0f * CurrentAlpha;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	return Theme.BlurStrength * CurrentAlpha;
 }
 
 FSlateColor SFlareNotification::GetNotificationColor(EFlareNotification::Type Type) const

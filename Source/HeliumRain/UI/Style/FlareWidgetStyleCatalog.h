@@ -78,6 +78,8 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Main) FScrollBarStyle ScrollBarStyle;
 	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush OddBrush;
 	UPROPERTY(EditAnywhere, Category = Main) FSlateBrush EvenBrush;
+	UPROPERTY(EditAnywhere, Category = Main) int32 BlurRadius;
+	UPROPERTY(EditAnywhere, Category = Main) float BlurStrength;
 
 	// Colors
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor EnemyColor;
