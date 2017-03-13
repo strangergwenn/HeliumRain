@@ -119,9 +119,6 @@ public:
 		Menus
 	----------------------------------------------------*/
 
-	/** Reset the mouse position */
-	void ResetMousePosition();
-
 	/** Show a notification to the user */
 	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type = EFlareNotification::NT_Info, bool Pinned = false, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, FFlareMenuParameterData TargetInfo = FFlareMenuParameterData());
 
@@ -142,6 +139,9 @@ public:
 
 	/** Get the position of the mouse on the screen */
 	FVector2D GetMousePosition();
+
+	/** Reset the mouse to the center of the screen */
+	void ResetMousePosition();
 
 	/** Signal that we are selecting weapons */
 	void SetSelectingWeapon();
@@ -402,7 +402,7 @@ protected:
 	/** Objective */
 	UPROPERTY()
 	FFlarePlayerObjectiveData                CurrentObjective;
-	
+
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;

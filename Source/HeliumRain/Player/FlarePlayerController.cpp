@@ -67,7 +67,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	IsTest2 = false;
 	LastBattleState.Init();
 	RecoveryActive = false;
-	bShowMouseCursor = false;
 
 	// Setup
 	ShipPawn = NULL;
@@ -83,7 +82,7 @@ void AFlarePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	EnableCheats();
-	
+
 	// Get settings
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	FCHECK(MyGameSettings);
@@ -161,39 +160,47 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	}
 	PlayerCameraManager->SetFOV(FOV);
 
-	// Get mouse cursor state
+	// Mouse cursor
 	bool NewShowMouseCursor = true;
 	if (!MenuManager->IsUIOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
 	{
 		NewShowMouseCursor = false;
 	}
 
-	// Set mouse cursor state
 	if (NewShowMouseCursor != bShowMouseCursor)
 	{
+		// Set the mouse status
 		FLOGV("AFlarePlayerController::PlayerTick : New mouse cursor state is %d", NewShowMouseCursor);
-
-		FInputModeGameAndUI InputMode;
-		InputMode.SetHideCursorDuringCapture(true);
-		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::LockAlways);
 		bShowMouseCursor = NewShowMouseCursor;
 
-		if (bShowMouseCursor)
+		ResetMousePosition();
+
+		// Force focus to UI
+		if (NewShowMouseCursor)
 		{
-			FSlateApplication::Get().ReleaseMouseCapture();
-			InputMode.SetWidgetToFocus(MenuManager->GetMainOverlay());
-		}
-		else
-		{
-			TSharedPtr<SViewport> ViewportWidget = GetWorld()->GetGameViewport()->GetGameViewportWidget();
-			if (ViewportWidget.IsValid())
+			FInputModeGameAndUI InputMode;
+			SetInputMode(InputMode);
+
+			if (!NewShowMouseCursor)
 			{
-				TSharedRef<SViewport> ViewportWidgetRef = ViewportWidget.ToSharedRef();
-				Cast<ULocalPlayer>(Player)->GetSlateOperations().UseHighPrecisionMouseMovement(ViewportWidgetRef);
+				ULocalPlayer* LocalPlayer = Cast< ULocalPlayer >( Player );
+
+				UGameViewportClient* GameViewportClient = GetWorld()->GetGameViewport();
+				TSharedPtr<SViewport> ViewportWidget = GameViewportClient->GetGameViewportWidget();
+				if (ViewportWidget.IsValid())
+				{
+					TSharedRef<SViewport> ViewportWidgetRef = ViewportWidget.ToSharedRef();
+					LocalPlayer->GetSlateOperations().UseHighPrecisionMouseMovement(ViewportWidgetRef);
+				}
 			}
 		}
 
-		ResetMousePosition();
+		// Force focus to game
+		else
+		{
+			FInputModeGameOnly InputMode;
+			SetInputMode(InputMode);
+		}
 	}
 	
 	// Update speed effects
@@ -285,16 +292,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	{
 		CheckSectorStateChanges(GetPlayerShip()->GetCurrentSector());
 	}
-}
-
-void AFlarePlayerController::ResetMousePosition()
-{
-	auto& App = FSlateApplication::Get();
-	FVector2D CursorPos = App.GetCursorPos();
-	App.SetCursorPos(CursorPos + FVector2D(0, 1));
-	App.OnMouseMove();
-	App.SetCursorPos(CursorPos);
-	App.OnMouseMove();
 }
 
 float AFlarePlayerController::GetCurrentFOV()
@@ -1035,6 +1032,17 @@ FVector2D AFlarePlayerController::GetMousePosition()
 	}
 
 	return Result;
+}
+
+void AFlarePlayerController::ResetMousePosition()
+{
+	auto& App = FSlateApplication::Get();
+	FVector2D CursorPos = App.GetCursorPos();
+	App.SetCursorPos(CursorPos + FVector2D(0, 1));
+	App.OnMouseMove();
+	App.SetCursorPos(CursorPos);
+	App.OnMouseMove();
+	App.SetAllUserFocusToGameViewport();
 }
 
 void AFlarePlayerController::SetSelectingWeapon()
