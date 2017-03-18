@@ -30,105 +30,99 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 	[
 		SNew(SBox)
 		[
-			SNew(SBorder)
+			SNew(SBackgroundBlur)
+			.BlurRadius(Theme.BlurRadius)
+			.BlurStrength(Theme.BlurStrength)
 			.HAlign(HAlign_Fill)
-			.Padding(FMargin(0, 10))
-			.BorderImage(&Theme.BackgroundBrush)
+			.VAlign(VAlign_Fill)
+			.Padding(FMargin(0))
 			[
-				SNew(SBackgroundBlur)
-				.BlurRadius(Theme.BlurRadius)
-				.BlurStrength(Theme.BlurStrength)
-				.HAlign(HAlign_Fill)
-				.VAlign(VAlign_Fill)
-				.Padding(FMargin(0))
+				SNew(SBorder)
+				.HAlign(HAlign_Center)
+				.Padding(Theme.ContentPadding)
+				.BorderImage(&Theme.BackgroundBrush)
 				[
-					SNew(SBorder)
-					.HAlign(HAlign_Center)
+					SNew(SVerticalBox)
+
+					// Title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
 					.Padding(Theme.ContentPadding)
-					.BorderImage(&Theme.BackgroundBrush)
 					[
-						SNew(SVerticalBox)
-
-						// Title
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareSpacecraftOrderOverlay::GetWindowTitle)
-							.TextStyle(&Theme.TitleFont)
-							.Justification(ETextJustify::Center)
-						]
+						SNew(STextBlock)
+						.Text(this, &SFlareSpacecraftOrderOverlay::GetWindowTitle)
+						.TextStyle(&Theme.TitleFont)
+						.Justification(ETextJustify::Center)
+					]
 	
-						// List
-						+ SVerticalBox::Slot()
-						[
-							SNew(SScrollBox)
-							.Style(&Theme.ScrollBoxStyle)
-							.ScrollBarStyle(&Theme.ScrollBarStyle)
+					// List
+					+ SVerticalBox::Slot()
+					[
+						SNew(SScrollBox)
+						.Style(&Theme.ScrollBoxStyle)
+						.ScrollBarStyle(&Theme.ScrollBarStyle)
 
-							+ SScrollBox::Slot()
-							.Padding(Theme.ContentPadding)
-							[
-								SAssignNew(SpacecraftSelector, SListView<TSharedPtr<FInterfaceContainer>>)
-								.ListItemsSource(&SpacecraftList)
-								.SelectionMode(ESelectionMode::Single)
-								.OnGenerateRow(this, &SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine)
-								.OnSelectionChanged(this, &SFlareSpacecraftOrderOverlay::OnSpacecraftSelectionChanged)
-							]
-						]
-
-						// Help text
-						+ SVerticalBox::Slot()
-						.AutoHeight()
+						+ SScrollBox::Slot()
 						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Right)
 						[
-							SNew(STextBlock)
+							SAssignNew(SpacecraftSelector, SListView<TSharedPtr<FInterfaceContainer>>)
+							.ListItemsSource(&SpacecraftList)
+							.SelectionMode(ESelectionMode::Single)
+							.OnGenerateRow(this, &SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine)
+							.OnSelectionChanged(this, &SFlareSpacecraftOrderOverlay::OnSpacecraftSelectionChanged)
+						]
+					]
+
+					// Help text
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Right)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareSpacecraftOrderOverlay::GetWalletText)
+					]
+	
+					// Buttons
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Right)
+					.VAlign(VAlign_Top)
+					[
+						SNew(SHorizontalBox)
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(ConfirmText, STextBlock)
 							.TextStyle(&Theme.TextFont)
-							.Text(this, &SFlareSpacecraftOrderOverlay::GetWalletText)
+							.WrapTextAt(Theme.ContentWidth)
 						]
-	
-						// Buttons
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Right)
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
 						.VAlign(VAlign_Top)
 						[
-							SNew(SHorizontalBox)
+							SAssignNew(ConfirmButon, SFlareButton)
+							.Text(LOCTEXT("Confirm", "Confirm"))
+							.HelpText(LOCTEXT("ConfirmInfo", "Confirm the choice and start production"))
+							.Icon(FFlareStyleSet::GetIcon("OK"))
+							.OnClicked(this, &SFlareSpacecraftOrderOverlay::OnConfirmed)
+							.Visibility(this, &SFlareSpacecraftOrderOverlay::GetConfirmVisibility)
+						]
 
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(Theme.ContentPadding)
-							[
-								SAssignNew(ConfirmText, STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.WrapTextAt(Theme.ContentWidth)
-							]
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.VAlign(VAlign_Top)
-							[
-								SAssignNew(ConfirmButon, SFlareButton)
-								.Text(LOCTEXT("Confirm", "Confirm"))
-								.HelpText(LOCTEXT("ConfirmInfo", "Confirm the choice and start production"))
-								.Icon(FFlareStyleSet::GetIcon("OK"))
-								.OnClicked(this, &SFlareSpacecraftOrderOverlay::OnConfirmed)
-								.Visibility(this, &SFlareSpacecraftOrderOverlay::GetConfirmVisibility)
-							]
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.VAlign(VAlign_Top)
-							[
-								SNew(SFlareButton)
-								.Text(LOCTEXT("Cancel", "Cancel"))
-								.HelpText(LOCTEXT("CancelInfo", "Go back without saving changes"))
-								.Icon(FFlareStyleSet::GetIcon("Delete"))
-								.OnClicked(this, &SFlareSpacecraftOrderOverlay::OnClose)
-							]
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.VAlign(VAlign_Top)
+						[
+							SNew(SFlareButton)
+							.Text(LOCTEXT("Cancel", "Cancel"))
+							.HelpText(LOCTEXT("CancelInfo", "Go back without saving changes"))
+							.Icon(FFlareStyleSet::GetIcon("Delete"))
+							.OnClicked(this, &SFlareSpacecraftOrderOverlay::OnClose)
 						]
 					]
 				]

@@ -25,73 +25,67 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 	[
 		SNew(SBox)
 		[
-			SNew(SBorder)
+			SNew(SBackgroundBlur)
+			.BlurRadius(Theme.BlurRadius)
+			.BlurStrength(Theme.BlurStrength)
 			.HAlign(HAlign_Fill)
-			.Padding(FMargin(0, 10))
-			.BorderImage(&Theme.BackgroundBrush)
+			.VAlign(VAlign_Fill)
+			.Padding(FMargin(0))
 			[
-				SNew(SBackgroundBlur)
-				.BlurRadius(Theme.BlurRadius)
-				.BlurStrength(Theme.BlurStrength)
-				.HAlign(HAlign_Fill)
-				.VAlign(VAlign_Fill)
-				.Padding(FMargin(0))
+				SNew(SBorder)
+				.HAlign(HAlign_Center)
+				.Padding(Theme.ContentPadding)
+				.BorderImage(&Theme.BackgroundBrush)
 				[
-					SNew(SBorder)
-					.HAlign(HAlign_Center)
+					SNew(SVerticalBox)
+
+					// Title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
 					.Padding(Theme.ContentPadding)
-					.BorderImage(&Theme.BackgroundBrush)
 					[
-						SNew(SVerticalBox)
+						SNew(STextBlock)
+						.Text(this, &SFlareConfirmationOverlay::GetTitle)
+						.TextStyle(&Theme.TitleFont)
+						.Justification(ETextJustify::Center)
+					]
 
-						// Title
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
+					// Info text
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareConfirmationOverlay::GetText)
+						.TextStyle(&Theme.SubTitleFont)
+						.Justification(ETextJustify::Center)
+					]
+
+					// Buttons
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SHorizontalBox)
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
 						[
-							SNew(STextBlock)
-							.Text(this, &SFlareConfirmationOverlay::GetTitle)
-							.TextStyle(&Theme.TitleFont)
-							.Justification(ETextJustify::Center)
+							SAssignNew(OKButton, SFlareButton)
+							.Text(LOCTEXT("Confirm", "Confirm"))
+							.HelpText(LOCTEXT("ConfirmInfo", "Confirm this action"))
+							.Icon(FFlareStyleSet::GetIcon("OK"))
+							.OnClicked(this, &SFlareConfirmationOverlay::OnConfirmed)
 						]
 
-						// Info text
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
 						[
-							SNew(STextBlock)
-							.Text(this, &SFlareConfirmationOverlay::GetText)
-							.TextStyle(&Theme.SubTitleFont)
-							.Justification(ETextJustify::Center)
-						]
-
-						// Buttons
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SHorizontalBox)
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							[
-								SAssignNew(OKButton, SFlareButton)
-								.Text(LOCTEXT("Confirm", "Confirm"))
-								.HelpText(LOCTEXT("ConfirmInfo", "Confirm this action"))
-								.Icon(FFlareStyleSet::GetIcon("OK"))
-								.OnClicked(this, &SFlareConfirmationOverlay::OnConfirmed)
-							]
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							[
-								SAssignNew(CancelButton, SFlareButton)
-								.Text(LOCTEXT("Cancel", "Cancel"))
-								.HelpText(LOCTEXT("CancelInfo", "Cancel this action"))
-								.Icon(FFlareStyleSet::GetIcon("Delete"))
-								.OnClicked(this, &SFlareConfirmationOverlay::OnCancelled)
-							]
+							SAssignNew(CancelButton, SFlareButton)
+							.Text(LOCTEXT("Cancel", "Cancel"))
+							.HelpText(LOCTEXT("CancelInfo", "Cancel this action"))
+							.Icon(FFlareStyleSet::GetIcon("Delete"))
+							.OnClicked(this, &SFlareConfirmationOverlay::OnCancelled)
 						]
 					]
 				]
