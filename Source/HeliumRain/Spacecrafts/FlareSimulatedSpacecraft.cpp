@@ -738,7 +738,7 @@ int64 UFlareSimulatedSpacecraft::ComputeCombatValue()
 		DefaultWeaponIdentifier = Game->GetDefaultTurretIdentifier();
 		// TODO constants
 		DefaultRCSIdentifier = FName("rcs-rift");
-		DefaultOrbitalEngineIdentifier = FName("pod-surtsey");
+		DefaultOrbitalEngineIdentifier = FName("pod-thera");
 
 	}
 

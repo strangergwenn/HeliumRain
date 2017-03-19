@@ -232,7 +232,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	else if (ShipDescription->Size == EFlarePartSize::L)
 	{
 		RCSIdentifier = FName("rcs-rift");
-		OrbitalEngineIdentifier = FName("pod-surtsey");
+		OrbitalEngineIdentifier = FName("pod-thera");
 	}
 	else
 	{
