@@ -8,6 +8,7 @@
 #include "FlareOrbitalEngine.h"
 
 #include "StaticMeshResources.h"
+#include "PhysicsEngine/BodySetup.h"
 
 
 /*----------------------------------------------------
@@ -210,7 +211,7 @@ FFlareSpacecraftComponentSave* UFlareSpacecraftComponent::Save()
 
 float UFlareSpacecraftComponent::GetMeshScale()
 {
-	FVector Extent = GetCollisionShape().GetExtent();
+	FVector Extent = GetBodySetup()->AggGeom.CalcAABB(FTransform()).GetExtent();
 	return FMath::Max(Extent.Size(), 1.0f);
 }
 

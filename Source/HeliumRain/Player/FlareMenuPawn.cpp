@@ -12,7 +12,8 @@ AFlareMenuPawn::AFlareMenuPawn(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, InitialYaw(150)
 	, DisplayDistance(800)
-	, DisplaySize(500)
+	, DisplaySize(300)
+	, ShipDisplaySize(500)
 	, SlideInOutUpOffset(0, 0, -2000)
 	, SlideInOutSideOffset(0, 2000, 0)
 	, SlideInOutTime(0.4)
@@ -128,8 +129,8 @@ void AFlareMenuPawn::ShowShip(UFlareSimulatedSpacecraft* Spacecraft)
 
 	// Setup rotation and scale
 	CurrentSpacecraft->SetActorScale3D(FVector(1, 1, 1));
-	float Scale = DisplaySize / CurrentSpacecraft->GetMeshScale();
-	FLOGV("AFlareMenuPawn::ShowShip : DS=%f, MS=%f, S=%f", DisplaySize, CurrentSpacecraft->GetMeshScale(), Scale);
+	float Scale = ShipDisplaySize / CurrentSpacecraft->GetMeshScale();
+	FLOGV("AFlareMenuPawn::ShowShip : DS=%f, MS=%f, S=%f", ShipDisplaySize, CurrentSpacecraft->GetMeshScale(), Scale);
 	CurrentSpacecraft->SetActorScale3D(Scale * FVector(1, 1, 1));
 	CurrentSpacecraft->SetActorRelativeRotation(FRotator(0, InitialYaw, 0));
 
@@ -170,8 +171,17 @@ void AFlareMenuPawn::ShowPart(const FFlareSpacecraftComponentDescription* PartDe
 	PartContainer->SetRelativeRotation(FRotator::ZeroRotator);
 	CurrentPart->SetRelativeRotation(FRotator(0, -InitialYaw, 0));
 
+	// Except on RCSs, center the part
+	if (PartDesc->Type != EFlarePartType::RCS)
+	{
+		CurrentPartOffset = GetActorLocation() - CurrentPart->Bounds.GetBox().GetCenter();
+	}
+	else
+	{
+		CurrentPartOffset = FVector::ZeroVector;
+	}
+
 	// Setup offset and rotation
-	CurrentPartOffset = GetActorLocation() - CurrentPart->Bounds.GetBox().GetCenter();
 	PartContainer->SetRelativeRotation(OldRot);
 	SlideInOutOffset = SlideInOutUpOffset;
 	SlideInOutCurrentTime = 0.0f;

@@ -102,6 +102,10 @@ protected:
 	/** Component size to use */
 	UPROPERTY(Category = ShipBase, EditAnywhere, BlueprintReadWrite)
 	float DisplaySize;
+	
+	/** Component size to use */
+	UPROPERTY(Category = ShipBase, EditAnywhere, BlueprintReadWrite)
+	float ShipDisplaySize;
 
 	/** Offset vector to slide in or out of the scene (Z variant)*/
 	UPROPERTY(Category = PartViewer, EditAnywhere, BlueprintReadWrite)
