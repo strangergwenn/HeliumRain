@@ -281,15 +281,15 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 			TargetCompany->GiveReputation(this, -50, true);
 
 			UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
-			if(TargetCompany == PlayerCompany)
+			if (TargetCompany == PlayerCompany)
 			{
-
-				if(PlayerCompany->GetHostility(this) != EFlareHostility::Hostile)
+				if (PlayerCompany->GetHostility(this) != EFlareHostility::Hostile)
 				{
+					FString UniqueId = "war-declared-" + GetIdentifier().ToString();
 					FFlareMenuParameterData Data;
 					Game->GetPC()->Notify(LOCTEXT("CompanyDeclareWar", "War declared"),
 						FText::Format(LOCTEXT("CompanyDeclareWarFormat", "{0} declared war on you"), FText::FromString(GetCompanyName().ToString())),
-						FName("war-declared"),
+						FName(*UniqueId),
 						EFlareNotification::NT_Military,
 						false,
 						EFlareMenu::MENU_Leaderboard,
