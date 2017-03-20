@@ -169,33 +169,25 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 
 	if (NewShowMouseCursor != bShowMouseCursor)
 	{
-		// Set the mouse status
 		FLOGV("AFlarePlayerController::PlayerTick : New mouse cursor state is %d", NewShowMouseCursor);
+
+		// Set mouse state
 		bShowMouseCursor = NewShowMouseCursor;
-
-		ResetMousePosition();
-
-		// Force focus to UI
+		
+		// Set focus
 		if (NewShowMouseCursor)
 		{
 			FInputModeGameAndUI InputMode;
+			InputMode.SetHideCursorDuringCapture(false);
 			SetInputMode(InputMode);
 
-			if (!NewShowMouseCursor)
-			{
-				ULocalPlayer* LocalPlayer = Cast< ULocalPlayer >( Player );
-
-				UGameViewportClient* GameViewportClient = GetWorld()->GetGameViewport();
-				TSharedPtr<SViewport> ViewportWidget = GameViewportClient->GetGameViewportWidget();
-				if (ViewportWidget.IsValid())
-				{
-					TSharedRef<SViewport> ViewportWidgetRef = ViewportWidget.ToSharedRef();
-					LocalPlayer->GetSlateOperations().UseHighPrecisionMouseMovement(ViewportWidgetRef);
-				}
-			}
+			auto& App = FSlateApplication::Get();
+			FVector2D CursorPos = App.GetCursorPos();
+			App.SetCursorPos(CursorPos + FVector2D(0, 1));
+			App.OnMouseMove();
+			App.SetCursorPos(CursorPos);
+			App.OnMouseMove();
 		}
-
-		// Force focus to game
 		else
 		{
 			FInputModeGameOnly InputMode;
@@ -1032,17 +1024,6 @@ FVector2D AFlarePlayerController::GetMousePosition()
 	}
 
 	return Result;
-}
-
-void AFlarePlayerController::ResetMousePosition()
-{
-	auto& App = FSlateApplication::Get();
-	FVector2D CursorPos = App.GetCursorPos();
-	App.SetCursorPos(CursorPos + FVector2D(0, 1));
-	App.OnMouseMove();
-	App.SetCursorPos(CursorPos);
-	App.OnMouseMove();
-	App.SetAllUserFocusToGameViewport();
 }
 
 void AFlarePlayerController::SetSelectingWeapon()
