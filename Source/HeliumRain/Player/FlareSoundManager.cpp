@@ -35,9 +35,9 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<USoundCue> WarMusicObj(TEXT("/Game/Music/A_Combat_Cue"));
 
 	// Mix references
-	static ConstructorHelpers::FObjectFinder<USoundClass> MasterClassObj(TEXT("/Engine/EngineSounds/Master"));
-	static ConstructorHelpers::FObjectFinder<USoundClass> MusicClassObj(TEXT("/Engine/EngineSounds/Music"));
-	static ConstructorHelpers::FObjectFinder<USoundClass> EffectsClassObj(TEXT("/Engine/EngineSounds/SFX"));
+	static ConstructorHelpers::FObjectFinder<USoundClass> MasterClassObj(TEXT("/Game/Sound/Class_Master.Class_Master"));
+	static ConstructorHelpers::FObjectFinder<USoundClass> MusicClassObj(TEXT("/Game/Sound/Class_Music.Class_Music"));
+	static ConstructorHelpers::FObjectFinder<USoundClass> EffectsClassObj(TEXT("/Game/Sound/Class_SFX.Class_SFX"));
 	static ConstructorHelpers::FObjectFinder<USoundMix> MasterSoundMixObj(TEXT("/Game/Sound/Mix_Master"));
 	
 	// Sound references
