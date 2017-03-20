@@ -55,6 +55,12 @@ protected:
 	/** Get the resource price info */
 	FText GetResourceDescription() const;
 
+	/** Get the resource name */
+	FText GetResourceName() const;
+
+	/** Get the resource icon */
+	const FSlateBrush* GetResourceIcon() const;
+
 	/** Get the resource usage & production info */
 	FText GetResourceInfo() const;
 

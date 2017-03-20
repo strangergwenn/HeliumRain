@@ -37,80 +37,105 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 			.Padding(FMargin(0))
 			.HAlign(HAlign_Fill)
 			[
-				SNew(SVerticalBox)
+				SNew(SHorizontalBox)
 
-				// Resource name
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.TitlePadding)
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("ResourceTitle", "Current resource"))
-					.TextStyle(&Theme.SubTitleFont)
-				]
-		
-				// Resource picker
-				+ SVerticalBox::Slot()
-				.AutoHeight()
+				// Main resource info
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Top)
+				.HAlign(HAlign_Left)
 				.Padding(Theme.ContentPadding)
 				[
-					SNew(SHorizontalBox)
+					SNew(SVerticalBox)
 
-					// Resource List
-					+ SHorizontalBox::Slot()
-
-					.HAlign(HAlign_Left)
-					.AutoWidth()
+					// Resource name
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
 					[
-						SAssignNew(ResourceSelector, SComboBox<UFlareResourceCatalogEntry*>)
-						.OptionsSource(&MenuManager->GetPC()->GetGame()->GetResourceCatalog()->Resources)
-						.OnGenerateWidget(this, &SFlareWorldEconomyMenu::OnGenerateResourceComboLine)
-						.OnSelectionChanged(this, &SFlareWorldEconomyMenu::OnResourceComboLineSelectionChanged)
-						.ComboBoxStyle(&Theme.ComboBoxStyle)
-						.ForegroundColor(FLinearColor::White)
+						SNew(STextBlock)
+						.Text(this, &SFlareWorldEconomyMenu::GetResourceName)
+						.TextStyle(&Theme.SubTitleFont)
+					]
+		
+					// Resource picker
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+
+						// Icon
+						+ SHorizontalBox::Slot()
+						.VAlign(VAlign_Top)
+						.HAlign(HAlign_Right)
+						.Padding(Theme.ContentPadding)
+						.AutoWidth()
 						[
-							SNew(SBox)
-							.WidthOverride(8 * Theme.ButtonWidth)
+							SNew(SImage)
+							.Image(this, &SFlareWorldEconomyMenu::GetResourceIcon)
+						]
+
+						// Info
+						+ SHorizontalBox::Slot()
+						.VAlign(VAlign_Top)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SVerticalBox)
+
+							// Resource name
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							[
+								SNew(SBox)
+								.WidthOverride(Theme.ContentWidth / 2)
+								.Padding(FMargin(0))
+								.HAlign(HAlign_Left)
+								[
+									SAssignNew(ResourceSelector, SComboBox<UFlareResourceCatalogEntry*>)
+									.OptionsSource(&MenuManager->GetPC()->GetGame()->GetResourceCatalog()->Resources)
+									.OnGenerateWidget(this, &SFlareWorldEconomyMenu::OnGenerateResourceComboLine)
+									.OnSelectionChanged(this, &SFlareWorldEconomyMenu::OnResourceComboLineSelectionChanged)
+									.ComboBoxStyle(&Theme.ComboBoxStyle)
+									.ForegroundColor(FLinearColor::White)
+									[
+										SNew(STextBlock)
+										.Text(this, &SFlareWorldEconomyMenu::OnGetCurrentResourceComboLine)
+										.TextStyle(&Theme.TextFont)
+									]
+								]
+							]
+
+							// Resource description
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.SmallContentPadding)
 							[
 								SNew(STextBlock)
-								.Text(this, &SFlareWorldEconomyMenu::OnGetCurrentResourceComboLine)
 								.TextStyle(&Theme.TextFont)
+								.Text(this, &SFlareWorldEconomyMenu::GetResourceDescription)
+								.WrapTextAt(Theme.ContentWidth)
 							]
 						]
 					]
+				]
 
-					// Info
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					.HAlign(HAlign_Right)
-					.Padding(Theme.ContentPadding)
+				// Resource List
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Center)
+				.HAlign(HAlign_Right)
+				.AutoWidth()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ContentWidth / 2)
+					.Padding(FMargin(0))
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareWorldEconomyMenu::GetResourceDescription)
-						.WrapTextAt(Theme.ContentWidth)
+						.Text(this, &SFlareWorldEconomyMenu::GetResourceInfo)
+						.WrapTextAt(Theme.ContentWidth / 2)
 					]
-
-					// TODO : transport fee, stock, flow, etc
 				]
-			]
-		]
-
-		// Resource stats
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Theme.ContentPadding)
-		.HAlign(HAlign_Center)
-		[
-			SNew(SBox)
-			.WidthOverride(2 * Theme.ContentWidth)
-			.Padding(FMargin(0))
-			.HAlign(HAlign_Left)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TextFont)
-				.Text(this, &SFlareWorldEconomyMenu::GetResourceInfo)
-				.WrapTextAt(Theme.ContentWidth)
 			]
 		]
 
@@ -368,6 +393,8 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 			]
 		];
 	}
+
+	SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
 }
 
 void SFlareWorldEconomyMenu::Exit()
@@ -395,9 +422,9 @@ FSlateColor SFlareWorldEconomyMenu::GetPriceColor(UFlareSimulatedSector* Sector)
 
 		float ResourcePrice = Sector->GetPreciseResourcePrice(TargetResource);
 
-		float PriceRatio = (ResourcePrice - TargetResource->MinPrice) / (float) (TargetResource->MaxPrice - TargetResource->MinPrice);
+		float PriceRatio = (ResourcePrice - TargetResource->MinPrice) / (float)(TargetResource->MaxPrice - TargetResource->MinPrice);
 
-		if(PriceRatio  > 0.5)
+		if (PriceRatio > 0.5)
 		{
 			return FMath::Lerp(MeanPriceColor, HighPriceColor, 2.f * (PriceRatio - 0.5));
 		}
@@ -419,6 +446,27 @@ FText SFlareWorldEconomyMenu::GetResourceDescription() const
 	}
 
 	return FText();
+}
+
+FText SFlareWorldEconomyMenu::GetResourceName() const
+{
+	if (TargetResource)
+	{
+		return TargetResource->Name;
+	}
+
+	return LOCTEXT("NoResourceSelected", "No resource selected");
+}
+
+const FSlateBrush* SFlareWorldEconomyMenu::GetResourceIcon() const
+{
+	if (TargetResource)
+	{
+		return &TargetResource->Icon;
+	}
+
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	return &Theme.ResourceBackground;
 }
 
 FText SFlareWorldEconomyMenu::GetResourceInfo() const
