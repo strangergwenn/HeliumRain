@@ -31,7 +31,6 @@ void SFlareResourcePricesMenu::Construct(const FArguments& InArgs)
 		// Content
 		+ SVerticalBox::Slot()
 		.HAlign(HAlign_Center)
-		.Padding(Theme.ContentPadding)
 		[
 			SNew(SScrollBox)
 			.Style(&Theme.ScrollBoxStyle)

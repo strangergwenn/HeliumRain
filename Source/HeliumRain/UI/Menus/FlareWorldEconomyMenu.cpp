@@ -31,7 +31,6 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.HAlign(HAlign_Center)
-		.Padding(Theme.ContentPadding)
 		[
 			SNew(SBox)
 			.WidthOverride(2 * Theme.ContentWidth)

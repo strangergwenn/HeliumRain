@@ -31,7 +31,6 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 
 		// Company list
 		+ SVerticalBox::Slot()
-		.Padding(Theme.ContentPadding)
 		.HAlign(HAlign_Center)
 		[
 			SNew(SScrollBox)
