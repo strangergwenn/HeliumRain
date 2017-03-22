@@ -30,7 +30,50 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
 		SNew(SVerticalBox)
-		
+
+		// Beta warning
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.Padding(FMargin(0, 30))
+		[
+			SNew(SBackgroundBlur)
+			.BlurRadius(Theme.BlurRadius)
+			.BlurStrength(Theme.BlurStrength)
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			.Padding(FMargin(0))
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SBox)
+					.HeightOverride(10)
+					[
+						SNew(SImage)
+						.Image(&Theme.InvertedBrush)
+						.ColorAndOpacity(Theme.ObjectiveColor)
+					]
+				]
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SBorder)
+					.HAlign(HAlign_Center)
+					.Padding(Theme.ContentPadding)
+					.BorderImage(&Theme.BackgroundBrush)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("Beta", "Helium Rain is in beta ! You could encounter bugs or missing features. Please report issues at dev.helium-rain.com."))
+						.TextStyle(&Theme.NameFont)
+						.Justification(ETextJustify::Center)
+					]
+				]
+			]
+		]
+
 		// Save slots
 		+ SVerticalBox::Slot()
 		.AutoHeight()
@@ -64,7 +107,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			.AutoWidth()
 			[
 				SNew(STextBlock)
-				.Text(FText::Format(FText::FromString("HELIUM RAIN / Alpha / Built on {0} at {1}"),
+				.Text(FText::Format(FText::FromString("HELIUM RAIN / Beta / Built on {0} at {1}"),
 					FText::FromString(__DATE__),  // FString neded here
 					FText::FromString(__TIME__))) // FString neded here
 				.TextStyle(&Theme.SmallFont)
