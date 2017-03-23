@@ -5,6 +5,7 @@
 #include "../../Spacecrafts/FlareWeapon.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../../Player/FlareMenuManager.h"
 
 #define LOCTEXT_NAMESPACE "FlareWeaponStatus"
 
@@ -16,7 +17,7 @@
 void SFlareWeaponStatus::Construct(const FArguments& InArgs)
 {
 	// Args
-	PlayerShip = InArgs._PlayerShip;
+	MenuManager = InArgs._MenuManager;
 	TargetWeaponGroupIndex = InArgs._TargetWeaponGroupIndex;
 
 	// Setup
@@ -28,6 +29,9 @@ void SFlareWeaponStatus::Construct(const FArguments& InArgs)
 	// Content
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	const FSlateBrush* Icon = FFlareStyleSet::GetIcon("Mouse_Nothing_Black");
+
+	// Player ship
+	AFlareSpacecraft* PlayerShip = MenuManager->GetPC()->GetShipPawn();
 	if (PlayerShip && TargetWeaponGroupIndex >= 0)
 	{
 		TargetWeaponGroup = PlayerShip->GetWeaponsSystem()->GetWeaponGroup(TargetWeaponGroupIndex);
@@ -82,9 +86,11 @@ void SFlareWeaponStatus::Tick(const FGeometry& AllottedGeometry, const double In
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	// Get the selection state for this weapon
 	float IsSelected = false;
 	float IsSelecting = false;
+
+	// Get the selection state for this weapon
+	AFlareSpacecraft* PlayerShip = MenuManager->GetPC()->GetShipPawn();
 	if (PlayerShip)
 	{
 		IsSelected = (PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex() == TargetWeaponGroupIndex);

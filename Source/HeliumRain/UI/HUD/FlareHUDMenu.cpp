@@ -16,7 +16,6 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 {
 	// Data
 	MenuManager = InArgs._MenuManager;
-	TargetShip = NULL;
 	Overheating = false;
 	PowerOutage = false;
 	PresentationFlashTime = 0.2f;
@@ -27,7 +26,9 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	// Style
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor NormalColor = Theme.NeutralColor;
+	FLinearColor EnemyColor = Theme.EnemyColor;
 	NormalColor.A = Theme.DefaultAlpha;
+	EnemyColor.A = Theme.DefaultAlpha;
 
 	// Structure
 	ChildSlot
@@ -37,69 +38,6 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	[
 		SNew(SVerticalBox)
 
-		// Text notification box
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Top)
-		[
-			SNew(SVerticalBox)
-
-			// Overheating progress bar
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Top)
-			[
-				SNew(SHorizontalBox)
-				
-				// Icon
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.SmallContentPadding)
-				[
-					SNew(SImage)
-					.Image(FFlareStyleSet::GetIcon("Temperature"))
-					.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColorNoAlpha)
-					.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
-				]
-
-				// Bar
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SBox)
-					.MinDesiredWidth(500)
-					.HAlign(HAlign_Fill)
-					.VAlign(VAlign_Center)
-					[
-						SNew(SProgressBar)
-						.Style(&Theme.ProgressBarStyle)
-						.Percent(this, &SFlareHUDMenu::GetTemperatureProgress)
-						.FillColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColorNoAlpha)
-						.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
-					]
-				]
-
-				// Text
-				+ SHorizontalBox::Slot()
-				.Padding(Theme.SmallContentPadding)
-				[
-					SNew(SBox)
-					.MinDesiredWidth(100)
-					.Padding(Theme.SmallContentPadding)
-					.VAlign(VAlign_Top)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(this, &SFlareHUDMenu::GetTemperatureText)
-						.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
-						.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
-					]
-				]
-			]
-		]
-
 		// Info text
 		+ SVerticalBox::Slot()
 		.AutoHeight()
@@ -108,6 +46,7 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(InfoText, STextBlock)
 			.TextStyle(&Theme.NameFont)
+			.Justification(ETextJustify::Center)
 			.Text(this, &SFlareHUDMenu::GetInfoText)
 			.ColorAndOpacity(NormalColor)
 			.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
@@ -121,8 +60,8 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(LowerInfoText, STextBlock)
 			.TextStyle(&Theme.NameFont)
-			.Text(this, &SFlareHUDMenu::GetLowerInfoText)
-			.ColorAndOpacity(NormalColor)
+			.Text(this, &SFlareHUDMenu::GetWarningText)
+			.ColorAndOpacity(EnemyColor)
 			.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
 		]
 	
@@ -186,32 +125,98 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 			
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				SAssignNew(TemperatureStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_Temperature)
+				SAssignNew(TemperatureStatus, SFlareSubsystemStatus)
+				.Subsystem(EFlareSubsystem::SYS_Temperature)
+				.MenuManager(MenuManager)
 			]
 
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				SAssignNew(PowerStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_Power)
+				SAssignNew(PowerStatus, SFlareSubsystemStatus)
+				.Subsystem(EFlareSubsystem::SYS_Power)
+				.MenuManager(MenuManager)
 			]
 
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				SAssignNew(PropulsionStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_Propulsion)
+				SAssignNew(PropulsionStatus, SFlareSubsystemStatus)
+				.Subsystem(EFlareSubsystem::SYS_Propulsion)
+				.MenuManager(MenuManager)
 			]
 
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				SAssignNew(RCSStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_RCS)
+				SAssignNew(RCSStatus, SFlareSubsystemStatus)
+				.Subsystem(EFlareSubsystem::SYS_RCS)
+				.MenuManager(MenuManager)
 			]
 
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				SAssignNew(LifeSupportStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_LifeSupport)
+				SAssignNew(LifeSupportStatus, SFlareSubsystemStatus)
+				.Subsystem(EFlareSubsystem::SYS_LifeSupport)
+				.MenuManager(MenuManager)
 			]
 
 			+ SHorizontalBox::Slot().AutoWidth()
 			[
-				SAssignNew(WeaponStatus, SFlareSubsystemStatus).Subsystem(EFlareSubsystem::SYS_Weapon)
+				SAssignNew(WeaponStatus, SFlareSubsystemStatus)
+				.Subsystem(EFlareSubsystem::SYS_Weapon)
+				.MenuManager(MenuManager)
+			]
+		]
+
+		// Overheating progress bar
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Top)
+		[
+			SNew(SHorizontalBox)
+				
+			// Icon
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SImage)
+				.Image(FFlareStyleSet::GetIcon("Temperature"))
+				.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColorNoAlpha)
+				.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
+			]
+
+			// Bar
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SBox)
+				.MinDesiredWidth(500)
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Center)
+				[
+					SNew(SProgressBar)
+					.Style(&Theme.ProgressBarStyle)
+					.Percent(this, &SFlareHUDMenu::GetTemperatureProgress)
+					.FillColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColorNoAlpha)
+					.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
+				]
+			]
+
+			// Text
+			+ SHorizontalBox::Slot()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SBox)
+				.MinDesiredWidth(100)
+				.Padding(Theme.SmallContentPadding)
+				.VAlign(VAlign_Top)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.NameFont)
+					.Text(this, &SFlareHUDMenu::GetTemperatureText)
+					.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
+					.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
+				]
 			]
 		]
 	];
@@ -224,27 +229,19 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareHUDMenu::SetTargetShip(UFlareSimulatedSpacecraft* Target)
+void SFlareHUDMenu::OnPlayerShipChanged()
 {
-	// Set targets
-	TargetShip = Target;
-	TemperatureStatus->SetTargetShip(Target);
-	PowerStatus->SetTargetShip(Target);
-	PropulsionStatus->SetTargetShip(Target);
-	RCSStatus->SetTargetShip(Target);
-	LifeSupportStatus->SetTargetShip(Target);
-	WeaponStatus->SetTargetShip(Target);
-	AFlareSpacecraft* PlayerShip = Target->GetActive();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Is this a civilian ship ?
-	WeaponStatus->SetVisibility(Target->IsMilitary() ? EVisibility::Visible : EVisibility::Hidden);
+	UFlareSimulatedSpacecraft* PlayerShip = MenuManager->GetPC()->GetPlayerShip();
+	WeaponStatus->SetVisibility(PlayerShip->IsMilitary() ? EVisibility::Visible : EVisibility::Hidden);
 	WeaponContainer->ClearChildren();
 
 	// Update weapon list
 	if (PlayerShip && PlayerShip->IsMilitary())
 	{
-		TArray<FFlareWeaponGroup*>& WeaponGroupList = PlayerShip->GetWeaponsSystem()->GetWeaponGroupList();
+		TArray<FFlareWeaponGroup*>& WeaponGroupList = PlayerShip->GetActive()->GetWeaponsSystem()->GetWeaponGroupList();
 
 		// Add weapon indicators
 		for (int32 i = WeaponGroupList.Num() - 1; i >= 0; i--)
@@ -253,7 +250,7 @@ void SFlareHUDMenu::SetTargetShip(UFlareSimulatedSpacecraft* Target)
 			.AutoHeight()
 			[
 				SNew(SFlareWeaponStatus)
-				.PlayerShip(PlayerShip)
+				.MenuManager(MenuManager)
 				.TargetWeaponGroupIndex(i)
 			];
 		}
@@ -263,7 +260,7 @@ void SFlareHUDMenu::SetTargetShip(UFlareSimulatedSpacecraft* Target)
 		.AutoHeight()
 		[
 			SNew(SFlareWeaponStatus)
-			.PlayerShip(PlayerShip)
+			.MenuManager(MenuManager)
 			.TargetWeaponGroupIndex(-1)
 		];
 	}
@@ -278,18 +275,20 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	if (TargetShip)
+	UFlareSimulatedSpacecraft* PlayerShip = MenuManager->GetPC()->GetPlayerShip();
+
+	if (PlayerShip)
 	{
 		// Is alive ?
-		SetVisibility(TargetShip->GetDamageSystem()->IsAlive() ? EVisibility::Visible : EVisibility::Collapsed);
+		SetVisibility(PlayerShip->GetDamageSystem()->IsAlive() ? EVisibility::Visible : EVisibility::Collapsed);
 
 		// Overheating status
 		TimeSinceOverheatChanged += InDeltaTime;
-		Temperature = TargetShip->GetDamageSystem()->GetTemperature();
-		OverheatTemperature = TargetShip->GetDamageSystem()->GetOverheatTemperature();
+		Temperature = PlayerShip->GetDamageSystem()->GetTemperature();
+		OverheatTemperature = PlayerShip->GetDamageSystem()->GetOverheatTemperature();
 
 		// Alert the player if the ship is near the overheat temperature
-		bool NewOverheating = (TargetShip->GetDamageSystem()->GetTemperature() > TargetShip->GetDamageSystem()->GetOverheatTemperature() * 0.95);
+		bool NewOverheating = (PlayerShip->GetDamageSystem()->GetTemperature() > PlayerShip->GetDamageSystem()->GetOverheatTemperature() * 0.95);
 		if (NewOverheating != Overheating)
 		{
 			TimeSinceOverheatChanged = 0;
@@ -298,7 +297,7 @@ void SFlareHUDMenu::Tick(const FGeometry& AllottedGeometry, const double InCurre
 
 		// Outage status
 		TimeSinceOutageChanged += InDeltaTime;
-		bool NewPowerOutage = TargetShip->GetDamageSystem()->HasPowerOutage();
+		bool NewPowerOutage = PlayerShip->GetDamageSystem()->HasPowerOutage();
 		if (NewPowerOutage != PowerOutage)
 		{
 			TimeSinceOutageChanged = 0;
@@ -319,95 +318,120 @@ EVisibility SFlareHUDMenu::GetTopPanelVisibility() const
 
 FText SFlareHUDMenu::GetInfoText() const
 {
-	if (TargetShip && TargetShip->IsActive() && !MenuManager->GetPC()->UseCockpit && MenuManager->GetPC()->GetGame()->GetActiveSector())
+	UFlareSimulatedSpacecraft* PlayerShip = MenuManager->GetPC()->GetPlayerShip();
+
+	if (PlayerShip && PlayerShip->IsActive() && !MenuManager->GetPC()->UseCockpit && MenuManager->GetPC()->GetGame()->GetActiveSector())
 	{
+		AFlareSpacecraft* ActivePlayerShip = PlayerShip->GetActive();
+
+		// Get mode info
 		FText ModeText;
 		FText AutopilotText;
-		AFlareSpacecraft* ActiveTargetShip = TargetShip->GetActive();
-
-		if (ActiveTargetShip->GetNavigationSystem()->IsDocked())
+		if (ActivePlayerShip->GetNavigationSystem()->IsDocked())
 		{
 			ModeText = LOCTEXT("Docked", "Docked");
 		}
 		else
 		{
-			ModeText = ActiveTargetShip->GetWeaponsSystem()->GetWeaponModeInfo();
-			if (ActiveTargetShip->GetNavigationSystem()->IsAutoPilot())
+			ModeText = ActivePlayerShip->GetWeaponsSystem()->GetWeaponModeInfo();
+			if (ActivePlayerShip->GetNavigationSystem()->IsAutoPilot())
 			{
 				AutopilotText = LOCTEXT("AUTOPILOT", " (Autopilot)");
 			}
 		}
+		
+		// Sector info
+		UFlareSimulatedSector* CurrentSector = PlayerShip->GetGame()->GetActiveSector()->GetSimulatedSector();
+		FText SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "{0} ({1})"),
+			CurrentSector->GetSectorName(),
+			CurrentSector->GetSectorFriendlynessText(PlayerShip->GetCompany()));
 
-		FText SectorText = FText::Format(LOCTEXT("CurrentSectorFormat", "{0} ({1})\n{2}"),
-			TargetShip->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorName(),
-			TargetShip->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorFriendlynessText(TargetShip->GetCompany()),
-			MenuManager->GetPC()->GetNavHUD()->GetPerformanceText());
-
-		return FText::Format(LOCTEXT("ShipInfoTextFormat", "{0}m/s - {1} {2} - {3}"),
-			FText::AsNumber(FMath::RoundToInt(ActiveTargetShip->GetLinearVelocity().Size())),
+		// Full flight info
+		FText FlightInfo = FText::Format(LOCTEXT("ShipInfoTextFormat", "{0}m/s - {1} {2} in {3}"),
+			FText::AsNumber(FMath::RoundToInt(ActivePlayerShip->GetLinearVelocity().Size())),
 			ModeText,
 			AutopilotText,
 			SectorText);
+
+		// Battle status
+		FText BattleText = CurrentSector->GetSectorBattleStateText(MenuManager->GetPC()->GetCompany());
+
+		// Target info
+		FText TargetText;
+		AFlareSpacecraft* TargetShip = PlayerShip->GetActive()->GetCurrentTarget();
+		if (TargetShip && TargetShip->IsValidLowLevel())
+		{
+			TargetText = FText::Format(LOCTEXT("CurrentTargetFormat", "Targeting {0} ({1})"),
+				FText::FromString(TargetShip->GetParent()->GetImmatriculation().ToString()),
+				FText::FromString(TargetShip->GetCompany()->GetShortName().ToString()));
+		}
+		else
+		{
+			TargetText = LOCTEXT("CurrentNoTarget", "No target");
+		}
+
+		// Build result
+		FString Result = FlightInfo.ToString() + " - " + TargetText.ToString() + "\n" + CurrentSector->GetSectorBalanceText(true).ToString();
+		if (BattleText.ToString().Len())
+		{
+			Result += " - " + BattleText.ToString();
+		}
+
+		// Add performance
+		FText PerformanceText = MenuManager->GetPC()->GetNavHUD()->GetPerformanceText();
+		if (PerformanceText.ToString().Len())
+		{
+			Result += "\n" + PerformanceText.ToString();
+		}
+
+		return FText::FromString(Result);
 	}
 
 	return FText();
 }
 
-FText SFlareHUDMenu::GetLowerInfoText() const
+FText SFlareHUDMenu::GetWarningText() const
 {
-	FText Info;
+	FString Info;
 
-	if (TargetShip && TargetShip->IsActive())
+	UFlareSimulatedSpacecraft* PlayerShip = MenuManager->GetPC()->GetPlayerShip();
+	UFlareSimulatedSector* CurrentSector = PlayerShip->GetGame()->GetActiveSector()->GetSimulatedSector();
+
+	if (CurrentSector)
 	{
-		AFlareSpacecraft* ActiveTargetShip = TargetShip->GetActive();
-		UFlareSpacecraftNavigationSystem* Nav = ActiveTargetShip->GetNavigationSystem();
-		FFlareShipCommandData Command = Nav->GetCurrentCommand();
-		AFlarePlayerController* PC = MenuManager->GetPC();
-		
 		// Get player threats
 		bool Targeted, FiredUpon;
 		UFlareSimulatedSpacecraft* Threat;
-		PC->GetPlayerShipThreatStatus(Targeted, FiredUpon, Threat);
+		MenuManager->GetPC()->GetPlayerShipThreatStatus(Targeted, FiredUpon, Threat);
 
 		// Fired on ?
 		if (FiredUpon)
 		{
-			Info = FText::Format(LOCTEXT("ThreatFiredUponFormat", "UNDER FIRE FROM {0} ({1} - {2})"),
-				FText::FromString(Threat->GetImmatriculation().ToString()),
-				PC->GetGame()->GetSpacecraftCatalog()->Get(Threat->GetDescription()->Identifier)->Name,
-				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
+			if (Threat)
+			{
+				FText WarningText = FText::Format(LOCTEXT("ThreatFiredUponFormat", "UNDER FIRE FROM {0} ({1})"),
+					FText::FromString(Threat->GetImmatriculation().ToString()),
+					FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
+				Info = WarningText.ToString();
+			}
+			else
+			{
+				FText WarningText = FText(LOCTEXT("ThreatFiredUponMissile", "INCOMING MISSILE"));
+				Info = WarningText.ToString();
+			}
 		}
 
 		// Targeted ?
 		else if (Targeted)
 		{
-			Info = FText::Format(LOCTEXT("ThreatTargetFormat", "TARGETED BY {0} ({1} - {2})"),
+			FText WarningText = FText::Format(LOCTEXT("ThreatTargetFormat", "TARGETED BY {0} ({1})"),
 				FText::FromString(Threat->GetImmatriculation().ToString()),
-				PC->GetGame()->GetSpacecraftCatalog()->Get(Threat->GetDescription()->Identifier)->Name,
 				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
-		}
-
-		// Docking info
-		else if (Command.Type == EFlareCommandDataType::CDT_Dock)
-		{
-			AFlareSpacecraft* Target = Command.ActionTarget;
-			Info = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"), FText::FromName(Target->GetImmatriculation()));
-		}
-
-		// Targetting info
-		else
-		{
-			AFlareSpacecraft* TargetShipPawn = ActiveTargetShip;
-			if (TargetShipPawn && TargetShipPawn->GetCurrentTarget())
-			{
-				Info = FText::Format(LOCTEXT("TargettingFormat", "Targeting {0} ({1})"),
-					FText::FromName(TargetShipPawn->GetCurrentTarget()->GetImmatriculation()),
-					TargetShipPawn->GetCurrentTarget()->GetParent()->GetCompany()->GetPlayerHostilityText());
-			}
+			Info = WarningText.ToString();
 		}
 	}
 
-	return Info;
+	return FText::FromString(Info);
 }
 
 TOptional<float> SFlareHUDMenu::GetTemperatureProgress() const
@@ -484,10 +508,12 @@ FText SFlareHUDMenu::GetOutageText() const
 {
 	FText Result;
 
-	if (TargetShip)
+	UFlareSimulatedSpacecraft* PlayerShip = MenuManager->GetPC()->GetPlayerShip();
+
+	if (PlayerShip)
 	{
 		return FText::Format(LOCTEXT("PwBackInFormat", "Power back in {0}..."),
-			FText::AsNumber((int32)(TargetShip->GetDamageSystem()->GetPowerOutageDuration()) + 1));
+			FText::AsNumber((int32)(PlayerShip->GetDamageSystem()->GetPowerOutageDuration()) + 1));
 	}
 
 	return Result;

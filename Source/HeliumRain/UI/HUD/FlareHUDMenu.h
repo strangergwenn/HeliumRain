@@ -30,7 +30,7 @@ public:
 	void Construct(const FArguments& InArgs);
 
 	/** Set the ship to display data for */
-	void SetTargetShip(UFlareSimulatedSpacecraft* Target);
+	void OnPlayerShipChanged();
 
 
 protected:
@@ -53,7 +53,7 @@ protected:
 	FText GetInfoText() const;
 
 	/** Get the current secondary information to show */
-	FText GetLowerInfoText() const;
+	FText GetWarningText() const;
 
 	/** Get the ratio of temperature in the "minimal / max acceptable" range */
 	TOptional<float> GetTemperatureProgress() const;
@@ -97,7 +97,6 @@ protected:
 	TSharedPtr<SVerticalBox>             WeaponContainer;
 
 	// Target data
-	UFlareSimulatedSpacecraft*           TargetShip;
 	float                                Temperature;
 	float                                OverheatTemperature;
 	bool                                 Overheating;

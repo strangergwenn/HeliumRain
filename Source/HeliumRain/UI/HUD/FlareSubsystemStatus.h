@@ -16,6 +16,7 @@ class SFlareSubsystemStatus : public SCompoundWidget
 	{}
 
 	SLATE_ARGUMENT(EFlareSubsystem::Type, Subsystem)
+	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 	
 	SLATE_END_ARGS()
 
@@ -28,9 +29,7 @@ public:
 
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
-
-	/** Set the ship to display data for */
-	void SetTargetShip(UFlareSimulatedSpacecraft* Target);
+	
 
 protected:
 
@@ -58,10 +57,13 @@ protected:
 	/*----------------------------------------------------
 		Private data
 	----------------------------------------------------*/
+	
+	/** HUD reference */
+	UPROPERTY()
+	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
 
 	// Indicator data
 	TEnumAsByte<EFlareSubsystem::Type>      SubsystemType;
-	UFlareSimulatedSpacecraft*              TargetShip;
 
 	// Health management
 	float                                   Health;

@@ -332,7 +332,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.WidthOverride(LabelSize)
 							[
 								SNew(STextBlock)
-								.Text(LOCTEXT("PostProcessLabel", "Post-processing quality"))
+								.Text(LOCTEXT("PostProcessLabel", "Post-process quality"))
 								.TextStyle(&Theme.TextFont)
 							]
 						]

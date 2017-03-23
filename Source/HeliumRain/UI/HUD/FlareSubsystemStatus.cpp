@@ -4,6 +4,8 @@
 #include "../Components/FlareRoundButton.h"
 #include "../../Spacecrafts/FlareWeapon.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"
+#include "../../Player/FlarePlayerController.h"
+#include "../../Player/FlareMenuManager.h"
 
 #define LOCTEXT_NAMESPACE "FlareSubsystemStatus"
 
@@ -15,12 +17,12 @@
 void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 {
 	// Args
-	TargetShip = NULL;
+	MenuManager = InArgs._MenuManager;
 	SubsystemType = InArgs._Subsystem;
 
 	// Settings
 	Health = 1.0f;
-	ComponentHealth = 0.0f;
+	ComponentHealth = 1.0f;
 	HealthDropFlashTime = 2.0f;
 	TimeSinceFlash = HealthDropFlashTime;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -54,26 +56,19 @@ void SFlareSubsystemStatus::Construct(const FArguments& InArgs)
 
 
 /*----------------------------------------------------
-	Interaction
-----------------------------------------------------*/
-
-void SFlareSubsystemStatus::SetTargetShip(UFlareSimulatedSpacecraft* Target)
-{
-	TargetShip = Target;
-}
-
-/*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
 
 void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
-	
-	if (TargetShip)
+
+	UFlareSimulatedSpacecraft* PlayerShip = MenuManager->GetPC()->GetPlayerShip();
+
+	if (PlayerShip)
 	{
 		// Update health
-		ComponentHealth = TargetShip->GetDamageSystem()->GetSubsystemHealth(SubsystemType);
+		ComponentHealth = PlayerShip->GetDamageSystem()->GetSubsystemHealth(SubsystemType);
 
 		// Update flash
 		TimeSinceFlash += InDeltaTime;
@@ -82,16 +77,23 @@ void SFlareSubsystemStatus::Tick(const FGeometry& AllottedGeometry, const double
 			TimeSinceFlash = 0;
 			Health = ComponentHealth;
 		}
+		else if (ComponentHealth > Health)
+		{
+			Health = ComponentHealth;
+		}
 	}
 	else
 	{
-		Health = 1;
+		Health = 1.0f;
 	}
 }
 
 FText SFlareSubsystemStatus::GetText() const
 {
-	UFlareSimulatedSpacecraftDamageSystem* DamageSystem = TargetShip->GetDamageSystem();
+	UFlareSimulatedSpacecraft* PlayerShip = MenuManager->GetPC()->GetPlayerShip();
+	FCHECK(PlayerShip);
+
+	UFlareSimulatedSpacecraftDamageSystem* DamageSystem = PlayerShip->GetDamageSystem();
 	FText SystemText = UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName(SubsystemType);
 
 	switch (SubsystemType)

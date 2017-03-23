@@ -12,7 +12,7 @@ class SFlareWeaponStatus : public SCompoundWidget
 	SLATE_BEGIN_ARGS(SFlareWeaponStatus)
 	{}
 
-	SLATE_ARGUMENT(AFlareSpacecraft*, PlayerShip)
+	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 	SLATE_ARGUMENT(int32, TargetWeaponGroupIndex)
 	
 	SLATE_END_ARGS()
@@ -57,6 +57,10 @@ protected:
 	/*----------------------------------------------------
 		Private data
 	----------------------------------------------------*/
+	
+	/** HUD reference */
+	UPROPERTY()
+	TWeakObjectPtr<class AFlareMenuManager> MenuManager;
 
 	// State data
 	float                                   ComponentHealth;
@@ -65,7 +69,6 @@ protected:
 	float                                   FadeOutTime;
 
 	// Target data
-	AFlareSpacecraft*                       PlayerShip;
 	FFlareWeaponGroup*                      TargetWeaponGroup;
 	int32                                   TargetWeaponGroupIndex;
 

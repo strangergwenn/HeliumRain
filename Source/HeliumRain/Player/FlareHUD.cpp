@@ -210,7 +210,7 @@ void AFlareHUD::OnTargetShipChanged()
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && PC->GetPlayerShip())
 	{
-		HUDMenu->SetTargetShip(PC->GetPlayerShip());
+		HUDMenu->OnPlayerShipChanged();
 		UpdateHUDVisibility();
 	}
 }
