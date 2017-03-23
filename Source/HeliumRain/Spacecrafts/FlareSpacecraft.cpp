@@ -1121,6 +1121,8 @@ void AFlareSpacecraft::DrawShipName(UCanvas* TargetCanvas, int32 Width, int32 He
 		// Drawing
 		FCanvasTextItem TextItem(FVector2D(X, Y), FText::FromString(Text), ShipNameFont, FLinearColor::White);
 		TextItem.Scale = FVector2D(1, 1);
+		TextItem.bOutlined = true;
+		TextItem.OutlineColor = FLinearColor::Green;
 		TargetCanvas->DrawItem(TextItem);
 	}
 }
