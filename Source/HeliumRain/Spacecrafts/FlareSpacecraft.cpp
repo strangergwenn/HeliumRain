@@ -714,13 +714,10 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 	ApplyAsteroidData();
 
 	// Setup ship name texture target
-	if (GetDescription()->Size == EFlarePartSize::L)
-	{
-		ShipNameTexture = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), 256, 256);
-		FCHECK(ShipNameTexture);
-		ShipNameTexture->OnCanvasRenderTargetUpdate.AddDynamic(this, &AFlareSpacecraft::DrawShipName);
-		ShipNameTexture->ClearColor = FLinearColor::Black;
-	}
+	ShipNameTexture = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), 256, 256);
+	FCHECK(ShipNameTexture);
+	ShipNameTexture->OnCanvasRenderTargetUpdate.AddDynamic(this, &AFlareSpacecraft::DrawShipName);
+	ShipNameTexture->ClearColor = FLinearColor::Black;
 
 	// Customization
 	UpdateCustomization();
@@ -1105,11 +1102,15 @@ void AFlareSpacecraft::DrawShipName(UCanvas* TargetCanvas, int32 Width, int32 He
 {
 	if (TargetCanvas)
 	{
-		// Cleanup immatriculation
 		FString Text = GetImmatriculation().ToString().ToUpper();
-		int32 Index = Text.Find(*FString("-")) + 1;
-		Text = Text.RightChop(Index);
-		Text = Text.Replace(*FString("-"), *FString(" "));
+		
+		// Cleanup immatriculation on capitals
+		if (GetDescription()->Size == EFlarePartSize::L)
+		{
+			int32 Index = Text.Find(*FString("-")) + 1;
+			Text = Text.RightChop(Index);
+			Text = Text.Replace(*FString("-"), *FString(" "));
+		}
 
 		// Centering
 		float XL, YL;
