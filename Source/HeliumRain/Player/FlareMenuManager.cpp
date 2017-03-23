@@ -411,7 +411,11 @@ void AFlareMenuManager::FadeOut()
 {
 	FadeFromBlack = false;
 	FadeTimer = 0;
-	Tooltip->HideTooltipForce();
+
+	if (Tooltip.IsValid())
+	{
+		Tooltip->HideTooltipForce();
+	}
 }
 
 void AFlareMenuManager::ProcessNextMenu()
