@@ -131,5 +131,10 @@ public:
 		return InnerContainer;
 	}
 
+	TSharedPtr<SButton> GetInternalButton() const
+	{
+		return InternalButton;
+	}
+
 
 };
