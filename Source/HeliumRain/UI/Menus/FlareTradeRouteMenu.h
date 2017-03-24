@@ -76,6 +76,9 @@ protected:
 	/** Can add sector */
 	bool IsAddSectorDisabled() const;
 
+	/** Can rename trade oute */
+	bool IsRenameDisabled() const;
+
 	TSharedRef<SWidget> OnGenerateResourceComboLine(UFlareResourceCatalogEntry* Item);
 
 	void OnResourceComboLineSelectionChanged(UFlareResourceCatalogEntry* Item, ESelectInfo::Type SelectInfo);

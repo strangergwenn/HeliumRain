@@ -136,6 +136,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 						.HelpText(LOCTEXT("ChangeNameInfo", "Rename this trade route"))
 						.Icon(FFlareStyleSet::GetIcon("OK"))
 						.OnClicked(this, &SFlareTradeRouteMenu::OnConfirmChangeRouteNameClicked)
+						.IsDisabled(this, &SFlareTradeRouteMenu::IsRenameDisabled)
 					]
 
 				]
@@ -899,6 +900,18 @@ bool SFlareTradeRouteMenu::IsAddSectorDisabled() const
 	}
 
 	return false;
+}
+
+bool SFlareTradeRouteMenu::IsRenameDisabled() const
+{
+	if (TargetTradeRoute && TargetTradeRoute->GetTradeRouteName().ToString() != EditRouteName->GetText().ToString())
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 
 TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateResourceComboLine(UFlareResourceCatalogEntry* Item)
