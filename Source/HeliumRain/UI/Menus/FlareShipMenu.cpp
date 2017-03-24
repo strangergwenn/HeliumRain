@@ -295,8 +295,10 @@ void SFlareShipMenu::Enter(UFlareSimulatedSpacecraft* Target, bool IsEditable)
 	}
 	
 	// Fill the docking list if it is visible
-	if (DockSystem && DockSystem->GetDockCount() > 0)
+	if (TargetSpacecraft->IsStation() && DockSystem && DockSystem->GetDockCount() > 0)
 	{
+		ShipList->SetVisibility(EVisibility::Visible);
+
 		TArray<AFlareSpacecraft*> DockedShips = DockSystem->GetDockedShips();
 		for (int32 i = 0; i < DockedShips.Num(); i++)
 		{
@@ -313,6 +315,10 @@ void SFlareShipMenu::Enter(UFlareSimulatedSpacecraft* Target, bool IsEditable)
 		}
 
 		ShipList->RefreshList();
+	}
+	else
+	{
+		ShipList->SetVisibility(EVisibility::Collapsed);
 	}
 }
 
