@@ -32,7 +32,6 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 
 		// Content block
 		+ SVerticalBox::Slot()
-		.Padding(Theme.ContentPadding)
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Fill)
 		[
@@ -490,14 +489,7 @@ EVisibility SFlareTradeMenu::GetTradingVisibility() const
 
 EVisibility SFlareTradeMenu::GetBackToSelectionVisibility() const
 {
-	if (IsEnabled() && TargetLeftSpacecraft->IsActive())
-	{
-		return EVisibility::Collapsed;
-	}
-	else
-	{
-		return GetTradingVisibility();
-	}
+	return IsEnabled() && TargetRightSpacecraft ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 EVisibility SFlareTradeMenu::GetTransactionDetailsVisibility() const
