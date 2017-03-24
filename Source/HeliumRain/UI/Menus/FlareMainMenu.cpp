@@ -49,7 +49,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				[
 					SNew(SBox)
-					.HeightOverride(10)
+					.HeightOverride(8)
 					[
 						SNew(SImage)
 						.Image(&Theme.InvertedBrush)
@@ -105,12 +105,13 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			.HAlign(HAlign_Right)
 			.VAlign(VAlign_Bottom)
 			.AutoWidth()
+			.Padding(Theme.ContentPadding)
 			[
 				SNew(STextBlock)
 				.Text(FText::Format(FText::FromString("HELIUM RAIN / Beta / Built on {0} at {1}"),
 					FText::FromString(__DATE__),  // FString neded here
 					FText::FromString(__TIME__))) // FString neded here
-				.TextStyle(&Theme.SmallFont)
+				.TextStyle(&Theme.TextFont)
 			]
 		]
 	];
