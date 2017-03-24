@@ -37,6 +37,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 		[
 			SNew(SBox)
 			.WidthOverride(Theme.ContentWidth)
+			.Padding(Theme.SmallContentPadding)
 			[
 				SNew(SHorizontalBox)
 			
@@ -62,7 +63,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						// Ship name
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
-						.Padding(FMargin(8))
+						.Padding(Theme.SmallContentPadding)
 						.VAlign(VAlign_Center)
 						[
 							SNew(STextBlock)
@@ -74,7 +75,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						// Ship class
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
-						.Padding(FMargin(8))
+						.Padding(Theme.SmallContentPadding)
 						.VAlign(VAlign_Center)
 						[
 							SNew(STextBlock)
@@ -93,23 +94,22 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					// Company line
 					+ SVerticalBox::Slot()
 					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
 					[
 						SNew(SHorizontalBox)
 
 						// Company flag
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
-						.Padding(FMargin(0, 8))
 						[
 							SAssignNew(CompanyFlag, SFlareCompanyFlag)
 							.Player(InArgs._Player)
 							.Visibility(this, &SFlareSpacecraftInfo::GetCompanyFlagVisibility)
 						]
 
-						// Company info
+						// Spacecraft info
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
-						.Padding(FMargin(8))
 						[
 							SNew(STextBlock)
 							.Text(this, &SFlareSpacecraftInfo::GetSpacecraftInfo)
@@ -128,16 +128,16 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					// Cargo bay block
 					+ SVerticalBox::Slot()
 					.AutoHeight()
-					.Padding(FMargin(6))
+					.Padding(Theme.SmallContentPadding)
 					.HAlign(HAlign_Left)
 					[
 						SAssignNew(CargoBay, SHorizontalBox)
 					]
 
-					// Buttons : Generic
+					// Buttons 
 					+ SVerticalBox::Slot()
+					.Padding(Theme.SmallContentPadding)
 					.AutoHeight()
-					.Padding(FMargin(8, 8, 8, 0))
 					[
 						SNew(SHorizontalBox)
 
@@ -149,17 +149,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Inspect", "DETAILS"))
 							.HelpText(LOCTEXT("InspectInfo", "Take a closer look at this spacecraft"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnInspect)
-							.Width(4)
-						]
-
-						// Upgrade
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(UpgradeButton, SFlareButton)
-							.Text(LOCTEXT("Upgrade", "UPGRADE"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
-							.Width(4)
+							.Width(2.8)
 						]
 
 						// Fly this ship
@@ -169,16 +159,8 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							SAssignNew(FlyButton, SFlareButton)
 							.Text(LOCTEXT("ShipFly", "FLY"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnFly)
-							.Width(4)
+							.Width(2.8)
 						]
-					]
-
-					// Buttons : advanced
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(FMargin(8, 0, 8, 0))
-					[
-						SNew(SHorizontalBox)
 
 						// Trade
 						+ SHorizontalBox::Slot()
@@ -187,7 +169,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							SAssignNew(TradeButton, SFlareButton)
 							.Text(LOCTEXT("Trade", "TRADE"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
-							.Width(4)
+							.Width(2.8)
 						]
 			
 						// Dock here
@@ -198,7 +180,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Dock", "DOCK HERE"))
 							.HelpText(LOCTEXT("DockInfo", "Try to dock at this spacecraft"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnDockAt)
-							.Width(4)
+							.Width(2.8)
 						]
 
 						// Undock
@@ -209,7 +191,17 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("Undock", "UNDOCK"))
 							.HelpText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnUndock)
-							.Width(4)
+							.Width(2.8)
+						]
+
+						// Upgrade
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SAssignNew(UpgradeButton, SFlareButton)
+							.Text(LOCTEXT("Upgrade", "UPGRADE"))
+							.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
+							.Width(2.8)
 						]
 
 						// Scrap
@@ -219,7 +211,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 							SAssignNew(ScrapButton, SFlareButton)
 							.Text(LOCTEXT("Scrap", "SCRAP"))
 							.OnClicked(this, &SFlareSpacecraftInfo::OnScrap)
-							.Width(4)
+							.Width(2.8)
 						]
 					]
 				]
@@ -438,7 +430,7 @@ void SFlareSpacecraftInfo::Show()
 		}
 		else
 		{
-			UpgradeButton->SetHelpText(LOCTEXT("CantUpgradeInfo", "Upgrading requires to be docked at a supply outpost in a peaceful sector"));
+			UpgradeButton->SetHelpText(LOCTEXT("CantUpgradeInfo", "Upgrading requires to be docked at a supply outpost in a peaceful sector, or outside the player fleet"));
 			UpgradeButton->SetDisabled(true);
 		}
 
