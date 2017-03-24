@@ -1141,7 +1141,6 @@ UFlareSimulatedSector* UFlareWorld::FindSector(FName Identifier) const
 		}
 	}
 
-	FCHECK(false);
 	return NULL;
 }
 
