@@ -751,6 +751,12 @@ EVisibility SFlareSpacecraftInfo::GetCompanyFlagVisibility() const
 		return EVisibility::Collapsed;
 	}
 
+	// Not visible while trading
+	else if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Trade)
+	{
+		return EVisibility::Collapsed;
+	}
+
 	// Check the target
 	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
 	{
@@ -768,7 +774,16 @@ EVisibility SFlareSpacecraftInfo::GetCompanyFlagVisibility() const
 
 EVisibility SFlareSpacecraftInfo::GetSpacecraftInfoVisibility() const
 {
-	return (GetSpacecraftInfo().ToString().Len() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
+	// Not visible while trading
+	if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Trade)
+	{
+		return EVisibility::Collapsed;
+	}
+
+	else
+	{
+		return (GetSpacecraftInfo().ToString().Len() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
+	}
 }
 
 FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
