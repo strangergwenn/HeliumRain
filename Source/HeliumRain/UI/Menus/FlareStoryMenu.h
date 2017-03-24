@@ -50,6 +50,12 @@ protected:
 	/** Get the text color & alpha */
 	FSlateColor GetTextColor() const;
 
+	/** Skip to next */
+	void OnNext();
+
+	/** Back to previous */
+	void OnPrevious();
+
 	/** Start playing */
 	void OnStartPlaying();
 
@@ -76,7 +82,7 @@ protected:
 
 	// Slate data
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
-	TSharedPtr<SImage>                         Image;
+	TSharedPtr<SBorder>                        Image;
 	TSharedPtr<STextBlock>                     Title;
 	TSharedPtr<STextBlock>                     Text;
 	TSharedPtr<STextBlock>                     SubText;
