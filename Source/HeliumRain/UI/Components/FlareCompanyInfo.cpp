@@ -62,28 +62,33 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 		+ SHorizontalBox::Slot()
 		.Padding(Theme.ContentPadding)
 		.HAlign(HAlign_Fill)
+		.AutoWidth()
 		[
-			SNew(SVerticalBox)
+			SNew(SBox)
+			.WidthOverride(0.5 * Theme.ContentWidth)
+			[
+				SNew(SVerticalBox)
 				
-			// Name
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(STextBlock)
-				.Text(this, &SFlareCompanyInfo::GetCompanyName)
-				.TextStyle(&Theme.SubTitleFont)
-				.ColorAndOpacity(this, &SFlareCompanyInfo::GetWarColor)
-			]
+				// Name
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareCompanyInfo::GetCompanyName)
+					.TextStyle(&Theme.SubTitleFont)
+					.ColorAndOpacity(this, &SFlareCompanyInfo::GetWarColor)
+				]
 
-			// Data
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(STextBlock)
-				.Text(this, &SFlareCompanyInfo::GetCompanyInfo)
-				.TextStyle(&Theme.TextFont)
+				// Data
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareCompanyInfo::GetCompanyInfo)
+					.TextStyle(&Theme.TextFont)
+				]
 			]
 		]
 
@@ -91,7 +96,6 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Fill)
 		.Padding(Theme.ContentPadding)
-		.AutoWidth()
 		[
 			SNew(SVerticalBox)
 

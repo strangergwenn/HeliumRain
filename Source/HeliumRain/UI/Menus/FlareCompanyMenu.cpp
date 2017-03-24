@@ -36,52 +36,28 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 		// Content block
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Left)
+		.AutoWidth()
 		[
-			SNew(SVerticalBox)
-				
-			// Company name
-			+ SVerticalBox::Slot()
-			.Padding(Theme.TitlePadding)
-			.AutoHeight()
-			[
-				SNew(STextBlock)
-				.Text(this, &SFlareCompanyMenu::GetCompanyName)
-				.TextStyle(&Theme.SubTitleFont)
-			]
+			SNew(SScrollBox)
+			.Style(&Theme.ScrollBoxStyle)
+			.ScrollBarStyle(&Theme.ScrollBarStyle)
 
-			// Company info
-			+ SVerticalBox::Slot()
-			.Padding(Theme.ContentPadding)
-			.AutoHeight()
+			+ SScrollBox::Slot()
 			[
-				SAssignNew(CompanyInfo, SFlareCompanyInfo)
-				.Player(PC)
-			]
-
-			+ SVerticalBox::Slot()
-			.HAlign(HAlign_Left)
-			[
-				SNew(SScrollBox)
-				.Style(&Theme.ScrollBoxStyle)
-				.ScrollBarStyle(&Theme.ScrollBarStyle)
-
-				+ SScrollBox::Slot()
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
+				.HAlign(HAlign_Fill)
 				[
-					SNew(SBox)
-					.WidthOverride(Theme.ContentWidth)
-					.HAlign(HAlign_Fill)
-					[
-						SNew(SVerticalBox)
+					SNew(SVerticalBox)
 
-						// Object list
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.HAlign(HAlign_Left)
-						[
-							SAssignNew(ShipList, SFlareShipList)
-							.MenuManager(MenuManager)
-							.Title(LOCTEXT("Property", "Property"))
-						]
+					// Object list
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					[
+						SAssignNew(ShipList, SFlareShipList)
+						.MenuManager(MenuManager)
+						.Title(LOCTEXT("Property", "Property"))
 					]
 				]
 			]
@@ -90,18 +66,20 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 		// Color box
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Right)
-		.AutoWidth()
 		[
 			SNew(SVerticalBox)
 
-			// Title
+			// Company info
 			+ SVerticalBox::Slot()
-			.Padding(Theme.TitlePadding)
+			.Padding(Theme.ContentPadding)
 			.AutoHeight()
 			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("Colors", "Colors"))
-				.TextStyle(&Theme.SubTitleFont)
+				SNew(SBox)
+				.WidthOverride(0.8 * Theme.ContentWidth)
+				[
+					SAssignNew(CompanyInfo, SFlareCompanyInfo)
+					.Player(PC)
+				]
 			]
 
 			// Color picker
@@ -191,23 +169,6 @@ void SFlareCompanyMenu::Exit()
 
 	Company = NULL;
 	SetVisibility(EVisibility::Collapsed);
-}
-
-
-/*----------------------------------------------------
-	Callbacks
-----------------------------------------------------*/
-
-FText SFlareCompanyMenu::GetCompanyName() const
-{
-	FText Result;
-
-	if (Company)
-	{
-		Result = FText::Format(LOCTEXT("Company", "Company : {0}"), Company->GetCompanyName());
-	}
-
-	return Result;
 }
 
 

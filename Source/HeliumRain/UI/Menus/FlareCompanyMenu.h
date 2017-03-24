@@ -41,14 +41,6 @@ public:
 	void Exit();
 
 
-protected:
-
-	/*----------------------------------------------------
-		Callbacks
-	----------------------------------------------------*/
-
-	/** Get the company name */
-	FText GetCompanyName() const;
 	
 
 protected:
