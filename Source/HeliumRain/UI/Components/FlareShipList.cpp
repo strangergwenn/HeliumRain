@@ -35,8 +35,8 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 			// Filters
 			+ SVerticalBox::Slot()
 			.AutoHeight()
-			.Padding(Theme.TitlePadding)
 			.HAlign(HAlign_Fill)
+			.Padding(Theme.TitlePadding)
 			[
 				SNew(SHorizontalBox)
 
@@ -87,30 +87,32 @@ void SFlareShipList::Construct(const FArguments& InArgs)
 					.Width(2)
 				]
 			]
-
-			// Section title
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.TitlePadding)
-			.HAlign(HAlign_Left)
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("Nothing", "No objects."))
-				.TextStyle(&FFlareStyleSet::GetDefaultTheme().TextFont)
-				.Visibility(this, &SFlareShipList::GetNoObjectsVisibility)
-			]
-
+	
 			// Box
 			+ SVerticalBox::Slot()
 			.AutoHeight()
-			.Padding(Theme.ContentPadding)
 			.HAlign(HAlign_Fill)
 			[
-				SAssignNew(ListWidget, SListView< TSharedPtr<FInterfaceContainer> >)
-				.ListItemsSource(&FilteredList)
-				.SelectionMode(ESelectionMode::Single)
-				.OnGenerateRow(this, &SFlareShipList::GenerateTargetInfo)
-				.OnSelectionChanged(this, &SFlareShipList::OnTargetSelected)
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("Nothing", "No objects."))
+					.TextStyle(&FFlareStyleSet::GetDefaultTheme().TextFont)
+					.Visibility(this, &SFlareShipList::GetNoObjectsVisibility)
+				]
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(ListWidget, SListView< TSharedPtr<FInterfaceContainer> >)
+					.ListItemsSource(&FilteredList)
+					.SelectionMode(ESelectionMode::Single)
+					.OnGenerateRow(this, &SFlareShipList::GenerateTargetInfo)
+					.OnSelectionChanged(this, &SFlareShipList::OnTargetSelected)
+				]
 			]
 		]
 	];

@@ -29,202 +29,196 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Left)
 	[
-		SNew(SVerticalBox)
-
-		// Header container
-		+ SVerticalBox::Slot()
-		.AutoHeight()
+		SNew(SBox)
+		.WidthOverride(Theme.ContentWidth)
+		.Padding(Theme.SmallContentPadding)
 		[
-			SNew(SBox)
-			.WidthOverride(Theme.ContentWidth)
-			.Padding(Theme.SmallContentPadding)
+			SNew(SHorizontalBox)
+			
+			// Data block
+			+ SHorizontalBox::Slot()
 			[
-				SNew(SHorizontalBox)
-			
-				// Data block
-				+ SHorizontalBox::Slot()
+				SNew(SVerticalBox)
+
+				// Main line
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				[
-					SNew(SVerticalBox)
+					SNew(SHorizontalBox)
 
-					// Main line
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SNew(SHorizontalBox)
-
-						// Class icon
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.VAlign(VAlign_Center)
-						[
-							SNew(SImage).Image(this, &SFlareSpacecraftInfo::GetClassIcon)
-						]
-
-						// Ship name
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						.VAlign(VAlign_Center)
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareSpacecraftInfo::GetName)
-							.TextStyle(&Theme.NameFont)
-							.ColorAndOpacity(this, &SFlareSpacecraftInfo::GetTextColor)
-						]
-
-						// Ship class
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						.VAlign(VAlign_Center)
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareSpacecraftInfo::GetDescription)
-							.TextStyle(&Theme.TextFont)
-						]
-
-						// Status
-						+ SHorizontalBox::Slot()
-						.HAlign(HAlign_Right)
-						[
-							SAssignNew(ShipStatus, SFlareShipStatus)
-						]
-					]
-
-					// Company line
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+					// Class icon
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
 					.Padding(Theme.SmallContentPadding)
 					[
-						SNew(SHorizontalBox)
-
-						// Company flag
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(CompanyFlag, SFlareCompanyFlag)
-							.Player(InArgs._Player)
-							.Visibility(this, &SFlareSpacecraftInfo::GetCompanyFlagVisibility)
-						]
-
-						// Spacecraft info
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareSpacecraftInfo::GetSpacecraftInfo)
-							.TextStyle(&Theme.TextFont)
-							.Visibility(this, &SFlareSpacecraftInfo::GetSpacecraftInfoVisibility)
-						]
+						SNew(SImage).Image(this, &SFlareSpacecraftInfo::GetClassIcon)
 					]
 
-					// Captures
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SAssignNew(CaptureBox, SVerticalBox)
-					]
-
-					// Cargo bay block
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+					// Ship name
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
 					.Padding(Theme.SmallContentPadding)
-					.HAlign(HAlign_Left)
+					.VAlign(VAlign_Center)
 					[
-						SAssignNew(CargoBay, SHorizontalBox)
+						SNew(STextBlock)
+						.Text(this, &SFlareSpacecraftInfo::GetName)
+						.TextStyle(&Theme.NameFont)
+						.ColorAndOpacity(this, &SFlareSpacecraftInfo::GetTextColor)
 					]
 
-					// Buttons 
-					+ SVerticalBox::Slot()
+					// Ship class
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
 					.Padding(Theme.SmallContentPadding)
-					.AutoHeight()
+					.VAlign(VAlign_Center)
 					[
-						SNew(SHorizontalBox)
+						SNew(STextBlock)
+						.Text(this, &SFlareSpacecraftInfo::GetDescription)
+						.TextStyle(&Theme.TextFont)
+					]
 
-						// Inspect
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(InspectButton, SFlareButton)
-							.Text(LOCTEXT("Inspect", "DETAILS"))
-							.HelpText(LOCTEXT("InspectInfo", "Take a closer look at this spacecraft"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnInspect)
-							.Width(2.8)
-						]
-
-						// Fly this ship
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(FlyButton, SFlareButton)
-							.Text(LOCTEXT("ShipFly", "FLY"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnFly)
-							.Width(2.8)
-						]
-
-						// Trade
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(TradeButton, SFlareButton)
-							.Text(LOCTEXT("Trade", "TRADE"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
-							.Width(2.8)
-						]
-			
-						// Dock here
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(DockButton, SFlareButton)
-							.Text(LOCTEXT("Dock", "DOCK HERE"))
-							.HelpText(LOCTEXT("DockInfo", "Try to dock at this spacecraft"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnDockAt)
-							.Width(2.8)
-						]
-
-						// Undock
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(UndockButton, SFlareButton)
-							.Text(LOCTEXT("Undock", "UNDOCK"))
-							.HelpText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnUndock)
-							.Width(2.8)
-						]
-
-						// Upgrade
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(UpgradeButton, SFlareButton)
-							.Text(LOCTEXT("Upgrade", "UPGRADE"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
-							.Width(2.8)
-						]
-
-						// Scrap
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SAssignNew(ScrapButton, SFlareButton)
-							.Text(LOCTEXT("Scrap", "SCRAP"))
-							.OnClicked(this, &SFlareSpacecraftInfo::OnScrap)
-							.Width(2.8)
-						]
+					// Status
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Right)
+					[
+						SAssignNew(ShipStatus, SFlareShipStatus)
 					]
 				]
 
-				// Icon
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.HAlign(HAlign_Right)
-				.VAlign(VAlign_Top)
+				// Company line
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
 				[
-					SNew(SImage).Image(this, &SFlareSpacecraftInfo::GetIcon)
-					.Visibility(InArgs._NoInspect ? EVisibility::Hidden : EVisibility::Visible)
+					SNew(SHorizontalBox)
+
+					// Company flag
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(CompanyFlag, SFlareCompanyFlag)
+						.Player(InArgs._Player)
+						.Visibility(this, &SFlareSpacecraftInfo::GetCompanyFlagVisibility)
+					]
+
+					// Spacecraft info
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareSpacecraftInfo::GetSpacecraftInfo)
+						.TextStyle(&Theme.TextFont)
+						.Visibility(this, &SFlareSpacecraftInfo::GetSpacecraftInfoVisibility)
+					]
 				]
+
+				// Captures
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(CaptureBox, SVerticalBox)
+				]
+
+				// Cargo bay block
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				.HAlign(HAlign_Left)
+				[
+					SAssignNew(CargoBay, SHorizontalBox)
+				]
+
+				// Buttons 
+				+ SVerticalBox::Slot()
+				.Padding(Theme.SmallContentPadding)
+				.AutoHeight()
+				[
+					SNew(SHorizontalBox)
+
+					// Inspect
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(InspectButton, SFlareButton)
+						.Text(LOCTEXT("Inspect", "DETAILS"))
+						.HelpText(LOCTEXT("InspectInfo", "Take a closer look at this spacecraft"))
+						.OnClicked(this, &SFlareSpacecraftInfo::OnInspect)
+						.Width(2.8)
+					]
+
+					// Fly this ship
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(FlyButton, SFlareButton)
+						.Text(LOCTEXT("ShipFly", "FLY"))
+						.OnClicked(this, &SFlareSpacecraftInfo::OnFly)
+						.Width(2.8)
+					]
+
+					// Trade
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(TradeButton, SFlareButton)
+						.Text(LOCTEXT("Trade", "TRADE"))
+						.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
+						.Width(2.8)
+					]
+			
+					// Dock here
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(DockButton, SFlareButton)
+						.Text(LOCTEXT("Dock", "DOCK HERE"))
+						.HelpText(LOCTEXT("DockInfo", "Try to dock at this spacecraft"))
+						.OnClicked(this, &SFlareSpacecraftInfo::OnDockAt)
+						.Width(2.8)
+					]
+
+					// Undock
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(UndockButton, SFlareButton)
+						.Text(LOCTEXT("Undock", "UNDOCK"))
+						.HelpText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
+						.OnClicked(this, &SFlareSpacecraftInfo::OnUndock)
+						.Width(2.8)
+					]
+
+					// Upgrade
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(UpgradeButton, SFlareButton)
+						.Text(LOCTEXT("Upgrade", "UPGRADE"))
+						.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
+						.Width(2.8)
+					]
+
+					// Scrap
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(ScrapButton, SFlareButton)
+						.Text(LOCTEXT("Scrap", "SCRAP"))
+						.OnClicked(this, &SFlareSpacecraftInfo::OnScrap)
+						.Width(2.8)
+					]
+				]
+			]
+
+			// Icon
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Top)
+			[
+				SNew(SImage).Image(this, &SFlareSpacecraftInfo::GetIcon)
+				.Visibility(InArgs._NoInspect ? EVisibility::Hidden : EVisibility::Visible)
 			]
 		]
 	];
