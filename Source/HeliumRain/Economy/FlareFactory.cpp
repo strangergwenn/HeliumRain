@@ -694,7 +694,7 @@ void UFlareFactory::PerformDiscoverSectorAction(const FFlareFactoryAction* Actio
 	}
 	else
 	{
-		FLOGV("UFlareFactory::PerformDiscoverSectorAction : could not find a sector !");
+		FLOG("UFlareFactory::PerformDiscoverSectorAction : could not find a sector !");
 	}
 
 	Stop();

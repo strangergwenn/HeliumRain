@@ -10,6 +10,8 @@
 #include "../Game/FlareGameUserSettings.h"
 #include "../Game/AI/FlareCompanyAI.h"
 #include "FlareMenuManager.h"
+#include "../UI/Menus/FlareOrbitalMenu.h"
+#include "../UI/Menus/FlareSectorMenu.h"
 #include "EngineUtils.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick ControlGroups"), STAT_FlarePlayerTick_ControlGroups, STATGROUP_Flare);
