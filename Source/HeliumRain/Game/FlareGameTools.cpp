@@ -1207,7 +1207,7 @@ void UFlareGameTools::PrintCargoBay(FName ShipImmatriculation)
 	UFlareCargoBay* CargoBay = Ship->GetCargoBay();
 
 	FLOGV("Cargo bay for '%s' : ", *ShipImmatriculation.ToString());
-	for (uint32 CargoIndex = 0; CargoIndex < CargoBay->GetSlotCount(); CargoIndex++)
+	for (int32 CargoIndex = 0; CargoIndex < CargoBay->GetSlotCount(); CargoIndex++)
 	{
 		FFlareCargo* Cargo = CargoBay->GetSlot(CargoIndex);
 		FLOGV("  - %s : %u / %u ", (Cargo->Resource ? *Cargo->Resource->Name.ToString() : TEXT("[Empty]")), Cargo->Quantity, CargoBay->GetSlotCapacity());

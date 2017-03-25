@@ -331,7 +331,7 @@ bool UFlareFactory::HasOutputFreeSpace()
 	TArray<FFlareFactoryResource> OutputResources = GetLimitedOutputResources();
 
 	// First, fill already existing slots
-	for (uint32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
+	for (int32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
 	{
 		if(!CargoBay->CheckRestriction(CargoBay->GetSlot(CargoIndex), Parent->GetCompany()))
 		{
@@ -361,7 +361,7 @@ bool UFlareFactory::HasOutputFreeSpace()
 	}
 
 	// Fill free cargo slots
-	for (uint32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
+	for (int32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
 	{
 		if (OutputResources.Num() == 0)
 		{
@@ -452,7 +452,7 @@ void UFlareFactory::CancelProduction()
 	{
 		FFlareResourceDescription*Resource = Game->GetResourceCatalog()->Get(FactoryData.ResourceReserved[ReservedResourceIndex].ResourceIdentifier);
 
-		uint32 GivenQuantity = Parent->GetCargoBay()->GiveResources(Resource, FactoryData.ResourceReserved[ReservedResourceIndex].Quantity, Parent->GetCompany());
+		int32 GivenQuantity = Parent->GetCargoBay()->GiveResources(Resource, FactoryData.ResourceReserved[ReservedResourceIndex].Quantity, Parent->GetCompany());
 
 		if (GivenQuantity >= FactoryData.ResourceReserved[ReservedResourceIndex].Quantity)
 		{
@@ -778,11 +778,10 @@ TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
 	TArray<FFlareFactoryResource> OutputResources = GetCycleData().OutputResources;
 	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{
-		uint32 MaxCapacity = CargoBay->GetSlotCapacity() * FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity;
+		int32 MaxCapacity = CargoBay->GetSlotCapacity() * FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity;
 		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier);
 		int32 MaxAddition;
 		int32 CurrentQuantity = CargoBay->GetResourceQuantity(Resource, GetParent()->GetCompany());
-
 
 		if (CurrentQuantity >= MaxCapacity)
 		{

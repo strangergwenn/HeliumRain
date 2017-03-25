@@ -594,7 +594,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	{
 		FFlareFactoryResource* FactoryResource = &StationDescription->CycleCost.InputResources[ResourceIndex];
 		bool ResourceFound = false;
-		uint32 AvailableQuantity = 0;
+		int32 AvailableQuantity = 0;
 
 		for (int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
 		{
@@ -740,9 +740,9 @@ bool UFlareSimulatedSector::CanUpgradeStation(UFlareSimulatedSpacecraft* Station
 	{
 		FFlareFactoryResource* FactoryResource = &Station->GetDescription()->CycleCost.InputResources[ResourceIndex];
 		bool ResourceFound = false;
-		uint32 AvailableQuantity = 0;
+		int32 AvailableQuantity = 0;
 
-		for (int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
+		for (int32 AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
 		{
 			if (AvailableResources[AvailableResourceIndex].Resource == &(FactoryResource->Resource->Data))
 			{

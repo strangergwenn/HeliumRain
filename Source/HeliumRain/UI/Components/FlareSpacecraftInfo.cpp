@@ -265,7 +265,7 @@ void SFlareSpacecraftInfo::SetSpacecraft(UFlareSimulatedSpacecraft* Target)
 		UFlareCompany* Company = TargetSpacecraft->GetCompany();
 		if (Company->GetPlayerWarState() != EFlareHostility::Hostile)
 		{
-			for (uint32 CargoIndex = 0; CargoIndex < TargetSpacecraft->GetCargoBay()->GetSlotCount() ; CargoIndex++)
+			for (int32 CargoIndex = 0; CargoIndex < TargetSpacecraft->GetCargoBay()->GetSlotCount() ; CargoIndex++)
 			{
 				CargoBay->AddSlot()
 				[

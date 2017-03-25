@@ -429,7 +429,7 @@ void SFlareTradeMenu::FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft
 	if (TargetSpacecraft)
 	{
 		UFlareCargoBay* SpacecraftCargoBay = TargetSpacecraft->GetCargoBay();
-		for (uint32 CargoIndex = 0; CargoIndex < SpacecraftCargoBay->GetSlotCount(); CargoIndex++)
+		for (int32 CargoIndex = 0; CargoIndex < SpacecraftCargoBay->GetSlotCount(); CargoIndex++)
 		{
 			FFlareCargo* Cargo = SpacecraftCargoBay->GetSlot(CargoIndex);
 			CargoBay->AddSlot()
