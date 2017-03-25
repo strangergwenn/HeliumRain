@@ -92,7 +92,6 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					SNew(SHorizontalBox)
 
 					+ SHorizontalBox::Slot()
-					.AutoWidth()
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
@@ -102,6 +101,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
+					.HAlign(HAlign_Right)
 					[
 						SNew(SBox)
 						.WidthOverride(0.4 * Theme.ContentWidth)
@@ -127,7 +127,6 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					SNew(SHorizontalBox)
 
 					+ SHorizontalBox::Slot()
-					.AutoWidth()
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
@@ -137,6 +136,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
+					.HAlign(HAlign_Right)
 					[
 						SNew(SBox)
 						.WidthOverride(0.4 * Theme.ContentWidth)
@@ -230,18 +230,9 @@ void SFlareNewGameMenu::Enter()
 
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-	AFlarePlayerController* PC = MenuManager->GetPC();
 	
-	// Default colors
-	FFlareCompanyDescription Data;
-	Data.CustomizationBasePaintColorIndex = 0;
-	Data.CustomizationPaintColorIndex = 8;
-	Data.CustomizationOverlayColorIndex = 4;
-	Data.CustomizationLightColorIndex = 13;
-	Data.CustomizationPatternIndex = 0;
-	ColorBox->Setup(Data);
-
 	// Get decorator mesh
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC)
 	{
 		const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
@@ -249,6 +240,8 @@ void SFlareNewGameMenu::Enter()
 		PC->GetMenuPawn()->ShowPart(PartDesc);
 		PC->GetMenuPawn()->SetCameraDistance(500);
 	}
+
+	ColorBox->SetupDefault();
 }
 
 void SFlareNewGameMenu::Exit()

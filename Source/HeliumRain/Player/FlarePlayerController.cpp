@@ -74,6 +74,13 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	// Setup
 	ShipPawn = NULL;
 	PlayerShip = NULL;
+
+	// Default colors
+	CompanyData.CustomizationBasePaintColorIndex = 3;
+	CompanyData.CustomizationPaintColorIndex = 8;
+	CompanyData.CustomizationOverlayColorIndex = 4;
+	CompanyData.CustomizationLightColorIndex = 13;
+	CompanyData.CustomizationPatternIndex = 1;
 }
 
 
