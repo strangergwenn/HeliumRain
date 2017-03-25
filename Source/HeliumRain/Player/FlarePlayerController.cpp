@@ -972,10 +972,24 @@ void AFlarePlayerController::CheckSectorStateChanges(UFlareSimulatedSector* Sect
 void AFlarePlayerController::DiscoverSector(UFlareSimulatedSector* Sector, bool MarkedAsVisited, bool NotifyPlayer)
 {
 	// Discover, visit if needed
-	GetCompany()->DiscoverSector(Sector);
+
 	if (MarkedAsVisited)
 	{
+		if(GetCompany()->IsVisitedSector(Sector))
+		{
+			// Already visited
+			return;
+		}
 		GetCompany()->VisitSector(Sector);
+	}
+	else
+	{
+		if(GetCompany()->IsKnownSector(Sector))
+		{
+			// Already known
+			return;
+		}
+		GetCompany()->DiscoverSector(Sector);
 	}
 
 	// Refresh menus
