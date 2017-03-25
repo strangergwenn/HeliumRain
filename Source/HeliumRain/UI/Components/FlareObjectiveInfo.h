@@ -14,8 +14,8 @@ class SFlareObjectiveInfo : public SCompoundWidget
 	----------------------------------------------------*/
 
 	SLATE_BEGIN_ARGS(SFlareObjectiveInfo)
-		: _ConditionsOnly(false)
-		, _QuestStep(NULL)
+		: _QuestStep(NULL)
+		, _ConditionsOnly(false)
 	{}
 
 	SLATE_ARGUMENT(AFlarePlayerController*, PC)
