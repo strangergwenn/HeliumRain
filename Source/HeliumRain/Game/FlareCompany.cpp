@@ -971,6 +971,73 @@ bool UFlareCompany::AtWar()
 	return false;
 }
 
+int32 UFlareCompany::GetTransportCapacity()
+{
+	int32 CompanyCapacity = 0;
+
+	for(UFlareSimulatedSpacecraft* Ship : CompanyShips)
+	{
+		if(Ship->GetDamageSystem()->IsStranded())
+		{
+			continue;
+		}
+
+		CompanyCapacity += Ship->GetCargoBay()->GetCapacity();
+	}
+
+	return CompanyCapacity;
+}
+
+bool UFlareCompany::HasKnowResourceInput(FFlareResourceDescription* Resource)
+{
+	for(UFlareSimulatedSector* Sector : VisitedSectors)
+	{
+		for(UFlareSimulatedSpacecraft* Station : Sector->GetSectorStations())
+		{
+			EFlareResourcePriceContext::Type StationResourceUsage = Station->GetResourceUseType(Resource);
+
+			if(StationResourceUsage != EFlareResourcePriceContext::FactoryInput &&
+				StationResourceUsage != EFlareResourcePriceContext::ConsumerConsumption &&
+				StationResourceUsage != EFlareResourcePriceContext::MaintenanceConsumption)
+			{
+				continue;
+			}
+
+			FLOGV("HasKnowResourceBuyer: %s want buy %s in %s",
+				  *Station->GetImmatriculation().ToString(),
+				  *Resource->Name.ToString(),
+				  *Sector->GetSectorName().ToString())
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UFlareCompany::HasKnowResourceOutput(FFlareResourceDescription* Resource)
+{
+	for(UFlareSimulatedSector* Sector : VisitedSectors)
+	{
+		for(UFlareSimulatedSpacecraft* Station : Sector->GetSectorStations())
+		{
+			EFlareResourcePriceContext::Type StationResourceUsage = Station->GetResourceUseType(Resource);
+
+			if(StationResourceUsage != EFlareResourcePriceContext::FactoryOutput)
+			{
+				continue;
+			}
+
+			FLOGV("HasKnowResourceSeller: %s want sell %s in %s",
+				  *Station->GetImmatriculation().ToString(),
+				  *Resource->Name.ToString(),
+				  *Sector->GetSectorName().ToString())
+			return true;
+		}
+	}
+
+	return false;
+}
+
 int64 UFlareCompany::GetTributeCost(UFlareCompany* Company)
 {
 	return 0.01 * GetCompanyValue().TotalValue + 0.1 * GetCompanyValue().MoneyValue;

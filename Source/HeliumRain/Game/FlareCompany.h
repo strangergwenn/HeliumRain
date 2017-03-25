@@ -432,4 +432,9 @@ public:
 
 	bool AtWar();
 
+	int32 GetTransportCapacity();
+
+	bool HasKnowResourceInput(FFlareResourceDescription* Resource);
+
+	bool HasKnowResourceOutput(FFlareResourceDescription* Resource);
 };

@@ -171,8 +171,6 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 		if (FMath::FRand() > QuestProbability)
 		{
 			// No luck, no quest this time
-			FLOG("No luck");
-
 			continue;
 		}
 
@@ -190,20 +188,22 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 		// if not, try to create a Sell quest
 		if (!Quest)
 		{
-			FLOG("Trade");
 			Quest = UFlareQuestGeneratedResourceTrade::Create(this, Sector, Company);
 		}
 
 		if (!Quest)
 		{
-			FLOG("Purchase");
 			Quest = UFlareQuestGeneratedResourcePurchase::Create(this, Sector, Company);
 		}
 
 		if (!Quest)
 		{
-			FLOG("Sale");
 			Quest = UFlareQuestGeneratedResourceSale::Create(this, Sector, Company);
+		}
+
+		if (!Quest && FMath::FRand() < 0.3)
+		{
+			Quest = UFlareQuestGeneratedVipTransport::Create(this, Sector, Company);
 		}
 
 		// Register quest
@@ -517,6 +517,13 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 			{
 				continue;
 			}
+
+			// Check if player kwown at least one buyer of this resource
+			if(!PlayerCompany->HasKnowResourceInput(Slot.Resource))
+			{
+				continue;
+			}
+
 			// It's a good candidate
 			CandidateStations.Add(CandidateStation);
 		}
@@ -534,6 +541,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 
 	// Find a resource
 
+	int32 BestResourceExcessQuantity = 0;
 	int32 BestResourceQuantity = 0;
 	FFlareResourceDescription* BestResource = NULL;
 
@@ -546,25 +554,32 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 		}
 
 
-		int32 AvailableResourceQuantity = Slot.Quantity - Station->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO;
+		int32 ExcessResourceQuantity = Slot.Quantity - Station->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO;
 
-		if (AvailableResourceQuantity <= 0)
+		if (ExcessResourceQuantity <= 0)
 		{
 			// Not enought resources
 			continue;
 		}
 
-		if (AvailableResourceQuantity > BestResourceQuantity)
+		// Check if player kwown at least one buyer of this resource
+		if(!PlayerCompany->HasKnowResourceInput(Slot.Resource))
 		{
-			BestResourceQuantity = AvailableResourceQuantity;
-			BestResource = Slot.Resource;
+			continue;
 		}
 
-
+		if (ExcessResourceQuantity > BestResourceExcessQuantity)
+		{
+			BestResourceExcessQuantity = ExcessResourceQuantity;
+			BestResourceQuantity = FMath::Min(Slot.Quantity, int32(Station->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO));
+			BestResource = Slot.Resource;
+		}
 	}
 
+	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, PlayerCompany->GetTransportCapacity());
+
 	// Setup reward
-	int64 QuestValue = 1000 * BestResourceQuantity;
+	int64 QuestValue = 1000 * QuestResourceQuantity;
 
 	// Create the quest
 	UFlareQuestGeneratedResourceSale* Quest = NewObject<UFlareQuestGeneratedResourceSale>(Parent, UFlareQuestGeneratedResourceSale::StaticClass());
@@ -575,7 +590,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 	Data.PutName("station", Station->GetImmatriculation());
 	Data.PutName("sector", Station->GetCurrentSector()->GetIdentifier());
 	Data.PutName("resource", BestResource->Identifier);
-	Data.PutInt32("quantity", BestResourceQuantity);
+	Data.PutInt32("quantity", QuestResourceQuantity);
 	Data.PutName("client", Station->GetCompany()->GetIdentifier());
 	Data.PutTag(Parent->GenerateTradeTag(Station, BestResource));
 
@@ -675,6 +690,13 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 			{
 				continue;
 			}
+
+			// Check if player kwown at least one seller of this resource
+			if(!PlayerCompany->HasKnowResourceOutput(Slot.Resource))
+			{
+				continue;
+			}
+
 			// It's a good candidate
 			CandidateStations.Add(CandidateStation);
 		}
@@ -692,6 +714,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 
 	// Find a resource
 
+	int32 BestResourceMissingQuantity = 0;
 	int32 BestResourceQuantity = 0;
 	FFlareResourceDescription* BestResource = NULL;
 
@@ -712,17 +735,27 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 			continue;
 		}
 
+		// Check if player kwown at least one seller of this resource
+		if(!PlayerCompany->HasKnowResourceOutput(Slot.Resource))
+		{
+			continue;
+		}
+
 		if (MissingResourceQuantity > BestResourceQuantity)
 		{
-			BestResourceQuantity = MissingResourceQuantity;
+			BestResourceMissingQuantity = MissingResourceQuantity;
+			BestResourceQuantity = FMath::Min(Station->GetCargoBay()->GetSlotCapacity() - Slot.Quantity, int32(Station->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO));
 			BestResource = Slot.Resource;
 		}
 
 
 	}
 
+	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, PlayerCompany->GetTransportCapacity());
+
+
 	// Setup reward
-	int64 QuestValue = 1000 * BestResourceQuantity;
+	int64 QuestValue = 1000 * QuestResourceQuantity;
 
 	// Create the quest
 	UFlareQuestGeneratedResourcePurchase* Quest = NewObject<UFlareQuestGeneratedResourcePurchase>(Parent, UFlareQuestGeneratedResourcePurchase::StaticClass());
@@ -733,7 +766,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 	Data.PutName("station", Station->GetImmatriculation());
 	Data.PutName("sector", Station->GetCurrentSector()->GetIdentifier());
 	Data.PutName("resource", BestResource->Identifier);
-	Data.PutInt32("quantity", BestResourceQuantity);
+	Data.PutInt32("quantity", QuestResourceQuantity);
 	Data.PutName("client", Station->GetCompany()->GetIdentifier());
 	Data.PutTag(Parent->GenerateTradeTag(Station, BestResource));
 	CreateGenericReward(Data, QuestValue);
@@ -794,8 +827,6 @@ UFlareQuestGeneratedResourceTrade::UFlareQuestGeneratedResourceTrade(const FObje
 UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company)
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
-
-	FLOGV("Create quest UFlareQuestGeneratedResourceTrade for %s in %s ", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString());
 
 	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
 	{
@@ -898,7 +929,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 
 
 	// All maps are full, now, pick the best candidate
-	int32 BestResourceQuantity = 0;
+	int32 BestNeededResourceQuantity = 0;
 	FFlareResourceDescription* BestResource = NULL;
 	UFlareSimulatedSpacecraft* Station1 = NULL;
 	UFlareSimulatedSpacecraft* Station2 = NULL;
@@ -910,9 +941,9 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 		if (BestQuantityToBuyPerResource.Contains(Resource) && BestQuantityToSellPerResource.Contains(Resource))
 		{
 			int32 MinQuantity = FMath::Min(BestQuantityToBuyPerResource[Resource], BestQuantityToSellPerResource[Resource]);
-			if(MinQuantity > BestResourceQuantity)
+			if(MinQuantity > BestNeededResourceQuantity)
 			{
-				BestResourceQuantity = MinQuantity;
+				BestNeededResourceQuantity = MinQuantity;
 				BestResource = Resource;
 			}
 		}
@@ -923,10 +954,17 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	}
 	Station1 = BestStationToBuyPerResource[BestResource];
 	Station2 = BestStationToSellPerResource[BestResource];
+	int32 BestBuyResourceQuantity = FMath::Min(Station1->GetCargoBay()->GetResourceQuantity(BestResource, PlayerCompany), int32(Station1->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO));
+	int32 BestSellResourceQuantity = FMath::Min(Station2->GetCargoBay()->GetSlotCapacity() - Station2->GetCargoBay()->GetResourceQuantity(BestResource, PlayerCompany), int32(Station2->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO));
+
+	int32 BestResourceQuantity = FMath::Min(BestBuyResourceQuantity, BestSellResourceQuantity);
+	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, PlayerCompany->GetTransportCapacity());
+
+
 
 	// Setup reward
 	int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Parent->GetGame()->GetGameWorld(), Station1->GetCurrentSector(), Station2->GetCurrentSector());
-	int64 QuestValue = 2000 * BestResourceQuantity * TravelDuration;
+	int64 QuestValue = 2000 * QuestResourceQuantity * TravelDuration;
 
 	// Create the quest
 	UFlareQuestGeneratedResourceTrade* Quest = NewObject<UFlareQuestGeneratedResourceTrade>(Parent, UFlareQuestGeneratedResourceTrade::StaticClass());
@@ -939,7 +977,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	Data.PutName("station2", Station2->GetImmatriculation());
 	Data.PutName("sector2", Station2->GetCurrentSector()->GetIdentifier());
 	Data.PutName("resource", BestResource->Identifier);
-	Data.PutInt32("quantity", BestResourceQuantity);
+	Data.PutInt32("quantity", QuestResourceQuantity);
 	Data.PutName("client", Station1->GetCompany()->GetIdentifier());
 	Data.PutTag(Parent->GenerateTradeTag(Station1, BestResource));
 	Data.PutTag(Parent->GenerateTradeTag(Station2, BestResource));
