@@ -1077,7 +1077,7 @@ void AFlareSpacecraft::UpdateCustomization()
 				}
 				if (Company && DecalMaterial)
 				{
-					Company->CustomizeComponentMaterial(DecalMaterial);
+					Company->CustomizeMaterial(DecalMaterial);
 					Component->SetMaterial(0, DecalMaterial);
 				}
 			}

@@ -1032,38 +1032,18 @@ void UFlareCompany::UpdateCompanyCustomization()
 	SetupEmblem();
 }
 
-void UFlareCompany::CustomizeComponentMaterial(UMaterialInstanceDynamic* Mat)
+void UFlareCompany::CustomizeMaterial(UMaterialInstanceDynamic* Mat)
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-
-	// Get data from storage
-	FLinearColor BasePaintColor = GetGame()->GetCustomizationCatalog()->GetColor(GetBasePaintColorIndex());
-	FLinearColor PaintColor = GetGame()->GetCustomizationCatalog()->GetColor(GetPaintColorIndex());
-	FLinearColor OverlayColor = GetGame()->GetCustomizationCatalog()->GetColor(GetOverlayColorIndex());
-	FLinearColor LightColor = GetGame()->GetCustomizationCatalog()->GetColor(GetLightColorIndex());
-	UTexture2D* Pattern = GetGame()->GetCustomizationCatalog()->GetPattern(GetPatternIndex());
-	UTexture2D* Emblem = CompanyDescription->Emblem;
 
 	// Apply settings to the material instance
-	Mat->SetVectorParameterValue("BasePaintColor", BasePaintColor);
-	Mat->SetVectorParameterValue("PaintColor", PaintColor);
-	Mat->SetVectorParameterValue("OverlayColor", OverlayColor);
-	Mat->SetVectorParameterValue("LightColor", LightColor);
-	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(LightColor));
-	Mat->SetTextureParameterValue("PaintPattern", Pattern);
-	Mat->SetTextureParameterValue("Emblem", Emblem);
-	Mat->SetScalarParameterValue("IsPainted", 1);
-	Mat->SetScalarParameterValue("TessellationMultiplier", 0.0);
-}
-
-void UFlareCompany::CustomizeEffectMaterial(UMaterialInstanceDynamic* Mat)
-{
-}
-
-FLinearColor UFlareCompany::NormalizeColor(FLinearColor Col) const
-{
-	return FLinearColor(FVector(Col.R, Col.G, Col.B) / Col.GetLuminance());
+	UFlareSpacecraftComponent::CustomizeMaterial(Mat, Game,
+		GetBasePaintColorIndex(),
+		GetPaintColorIndex(),
+		GetOverlayColorIndex(),
+		GetLightColorIndex(),
+		GetPatternIndex(),
+		CompanyDescription->Emblem);
 }
 
 void UFlareCompany::SetupEmblem()

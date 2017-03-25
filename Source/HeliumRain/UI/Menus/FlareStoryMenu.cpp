@@ -104,7 +104,6 @@ void SFlareStoryMenu::Construct(const FArguments& InArgs)
 							SAssignNew(PreviousButton, SFlareButton)
 							.Icon(FFlareStyleSet::GetIcon("Back"))
 							.OnClicked(this, &SFlareStoryMenu::OnPrevious)
-							.Visibility(this, &SFlareStoryMenu::GetPreviousButtonVisibility)
 							.Transparent(true)
 							.Width(2)
 							.Height(2)
@@ -186,6 +185,7 @@ void SFlareStoryMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
+	ExitingMenu = false;
 	FadingIn = true;
 	GoingToNext = true;
 	CurrentTime = 0;
@@ -209,7 +209,7 @@ void SFlareStoryMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 	
 	// Time management
-	if (FadingIn)
+	if (FadingIn && ExitingMenu == false)
 	{
 		CurrentTime += InDeltaTime;
 	}
@@ -228,6 +228,7 @@ void SFlareStoryMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 			if (CurrentIndex + 1 == TextList.Num())
 			{
 				OnStartPlaying();
+				ExitingMenu = true;
 			}
 			else
 			{
@@ -236,7 +237,15 @@ void SFlareStoryMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 		}
 		else
 		{
-			CurrentIndex--;
+			if (CurrentIndex == 0)
+			{
+				MenuManager->OpenMenu(EFlareMenu::MENU_Main);
+				ExitingMenu = true;
+			}
+			else
+			{
+				CurrentIndex--;
+			}
 		}
 	}
 
@@ -264,33 +273,13 @@ void SFlareStoryMenu::OnNext()
 
 void SFlareStoryMenu::OnPrevious()
 {
-	if (CurrentIndex > 0)
-	{
-		FadingIn = false;
-		GoingToNext = false;
-	}
+	FadingIn = false;
+	GoingToNext = false;
 }
 
 void SFlareStoryMenu::OnStartPlaying()
 {
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	UFlareSimulatedSpacecraft* CurrentShip = PC->GetPlayerShip();
-	if (CurrentShip)
-	{
-		UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
-		PC->GetGame()->ActivateCurrentSector();
-
-		FCHECK(PC->GetPlayerShip()->GetActive());
-
-		FFlareMenuParameterData Data;
-		Data.Spacecraft = PC->GetPlayerShip();
-		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
-	}
-}
-
-EVisibility SFlareStoryMenu::GetPreviousButtonVisibility() const
-{
-	return (CurrentIndex > 0) ? EVisibility::Visible : EVisibility::Hidden;
+	MenuManager->OpenMenu(EFlareMenu::MENU_NewGame);
 }
 
 

@@ -46,7 +46,10 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-	
+
+	/** Sanity check */
+	bool IsLaunchDisabled() const;
+
 	/** Start the game */
 	void OnLaunch();
 
@@ -72,6 +75,7 @@ protected:
 	
 	// Slate widgets
 	TSharedPtr<SEditableText>                   CompanyName;
+	TSharedPtr<SEditableText>                   CompanyIdentifier;
 	TSharedPtr<SFlareColorPanel>                ColorBox;
 	TSharedPtr<SFlareButton>                    TutorialButton;
 

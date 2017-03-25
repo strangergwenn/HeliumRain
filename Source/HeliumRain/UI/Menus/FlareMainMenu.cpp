@@ -283,7 +283,7 @@ void SFlareMainMenu::OnOpenSlot(TSharedPtr<int32> Index)
 		}
 		else
 		{
-			MenuManager->OpenMenu(EFlareMenu::MENU_NewGame);
+			MenuManager->OpenMenu(EFlareMenu::MENU_Story);
 		}
 	}
 }

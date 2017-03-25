@@ -30,6 +30,9 @@ public:
 	/** Setup the widget with saved data */
 	void Setup(struct FFlarePlayerSave& PlayerData);
 
+	/** Setup the widget with company data */
+	void Setup(const FFlareCompanyDescription& CompanyData);
+
 	/** Chose a color for the paint base */
 	void OnBasePaintColorPicked(int32 Index);
 

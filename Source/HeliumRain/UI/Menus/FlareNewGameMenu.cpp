@@ -33,6 +33,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 
 	// Name
 	FText DefaultName = LOCTEXT("CompanyName", "Player Inc");
+	FText DefaultIdentifier = LOCTEXT("CompanyName", "PLY");
 	FString PlayerName = MenuManager->GetPC()->PlayerState->PlayerName;
 	if (PlayerName.Len())
 	{
@@ -45,32 +46,110 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Fill)
 	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
-		SNew(SVerticalBox)
-		
-		// Main form
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Theme.ContentPadding)
-		.HAlign(HAlign_Center)
+		SNew(SHorizontalBox)
+
+		// Content block
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Left)
+		.AutoWidth()
 		[
-			SNew(SBox)
-			.WidthOverride(Theme.ContentWidth / 2)
-			.HAlign(HAlign_Fill)
+			SNew(SVerticalBox)
+		
+			// Main form
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Right)
 			[
 				SNew(SVerticalBox)
 				
-				// Company name
+				// Company info
+				+ SVerticalBox::Slot()
+				.Padding(Theme.TitlePadding)
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(LOCTEXT("NewGameTitle", "NEMA COLONIAL ADMINISTRATION"))
+				]
+				
+				// Company info
 				+ SVerticalBox::Slot()
 				.Padding(Theme.ContentPadding)
 				.AutoHeight()
 				[
-					SNew(SBorder)
-					.BorderImage(&Theme.BackgroundBrush)
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(LOCTEXT("NewGameHint", "Please enter the details of your new company."))
+				]
+
+				// Company name
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				.HAlign(HAlign_Fill)
+				[
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
 					.Padding(Theme.ContentPadding)
 					[
-						SAssignNew(CompanyName, SEditableText)
-						.Text(DefaultName)
-						.Style(&Theme.TextInputStyle)
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(LOCTEXT("NewGameCompany", "Company name (Up to 25 characters)"))
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(0.4 * Theme.ContentWidth)
+						[
+							SNew(SBorder)
+							.BorderImage(&Theme.BackgroundBrush)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(CompanyName, SEditableText)
+								.Text(DefaultName)
+								.Style(&Theme.TextInputStyle)
+							]
+						]
+					]
+				]
+				
+				// Company ID
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				.HAlign(HAlign_Fill)
+				[
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(LOCTEXT("NewGameIdentifier", "Hull identifier (Three letters only)"))
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(0.4 * Theme.ContentWidth)
+						[
+							SNew(SBorder)
+							.BorderImage(&Theme.BackgroundBrush)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(CompanyIdentifier, SEditableText)
+								.Text(DefaultIdentifier)
+								.Style(&Theme.TextInputStyle)
+							]
+						]
 					]
 				]
 
@@ -116,8 +195,18 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					.HelpText(LOCTEXT("StartInfo", "Confirm the creation of a new game and start playing"))
 					.Icon(FFlareStyleSet::GetIcon("Load"))
 					.OnClicked(this, &SFlareNewGameMenu::OnLaunch)
+					.IsDisabled(this, &SFlareNewGameMenu::IsLaunchDisabled)
 				]
 			]
+		]
+
+		// Color box
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Right)
+		.Padding(Theme.ContentPadding)
+		[
+			SAssignNew(ColorBox, SFlareColorPanel)
+			.MenuManager(MenuManager)
 		]
 	];
 
@@ -138,15 +227,27 @@ void SFlareNewGameMenu::Setup()
 void SFlareNewGameMenu::Enter()
 {
 	FLOG("SFlareNewGameMenu::Enter");
+
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-
 	AFlarePlayerController* PC = MenuManager->GetPC();
+	
+	// Default colors
+	FFlareCompanyDescription Data;
+	Data.CustomizationBasePaintColorIndex = 0;
+	Data.CustomizationPaintColorIndex = 8;
+	Data.CustomizationOverlayColorIndex = 4;
+	Data.CustomizationLightColorIndex = 13;
+	Data.CustomizationPatternIndex = 0;
+	ColorBox->Setup(Data);
+
+	// Get decorator mesh
 	if (PC)
 	{
-		FFlarePlayerSave Data;
-		FFlareCompanyDescription Unused;
-		PC->Save(Data, Unused);
+		const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
+		PC->GetMenuPawn()->SetCameraOffset(FVector2D(150, 30));
+		PC->GetMenuPawn()->ShowPart(PartDesc);
+		PC->GetMenuPawn()->SetCameraDistance(500);
 	}
 }
 
@@ -161,19 +262,60 @@ void SFlareNewGameMenu::Exit()
 	Callbacks
 ----------------------------------------------------*/
 
+bool SFlareNewGameMenu::IsLaunchDisabled() const
+{
+	FString CompanyNameData = CompanyName->GetText().ToString();
+	FString CompanyIdentifierData = CompanyIdentifier->GetText().ToString();
+
+	if (CompanyNameData.Len() > 25 || CompanyIdentifierData.Len() != 3)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void SFlareNewGameMenu::OnLaunch()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC && Game && !Game->IsLoadedOrCreated())
 	{
 		// Get data
-		FText CompanyNameData = FText::FromString(CompanyName->GetText().ToString().Left(60)); // FString needed here
+		FText CompanyNameData = FText::FromString(CompanyName->GetText().ToString().Left(25)); // FString needed here
+		FName CompanyIdentifierData = FName(*CompanyIdentifier->GetText().ToString().ToUpper().Left(3)); // FString needed here
 		int32 ScenarioIndex = ScenarioList.Find(ScenarioSelector->GetSelectedItem());
-		FLOGV("SFlareNewGameMenu::OnLaunch : '%s', scenario %d", *CompanyNameData.ToString(), ScenarioIndex);
+		FLOGV("SFlareNewGameMenu::OnLaunch '%s', ID '%s', ScenarioIndex %d", *CompanyNameData.ToString(), *CompanyIdentifierData.ToString(), ScenarioIndex);
+
+		// Create company
+		const FFlareCompanyDescription* CurrentCompanyData = PC->GetCompanyDescription();
+		FFlareCompanyDescription CompanyData;
+		CompanyData.Name = CompanyNameData;
+		CompanyData.ShortName = CompanyIdentifierData;
+		CompanyData.Emblem = NULL;
+		CompanyData.CustomizationBasePaintColorIndex = CurrentCompanyData->CustomizationBasePaintColorIndex;
+		CompanyData.CustomizationPaintColorIndex = CurrentCompanyData->CustomizationPaintColorIndex;
+		CompanyData.CustomizationOverlayColorIndex = CurrentCompanyData->CustomizationOverlayColorIndex;
+		CompanyData.CustomizationLightColorIndex = CurrentCompanyData->CustomizationLightColorIndex;
+		CompanyData.CustomizationPatternIndex = CurrentCompanyData->CustomizationPatternIndex;
+
+		// Create game
+		Game->CreateGame(PC, CompanyData, ScenarioIndex, TutorialButton->IsActive());
 
 		// Launch
-		Game->CreateGame(PC, CompanyNameData, ScenarioIndex, TutorialButton->IsActive());
-		MenuManager->OpenMenu(EFlareMenu::MENU_Story);
+		UFlareSimulatedSpacecraft* CurrentShip = PC->GetPlayerShip();
+		if (CurrentShip)
+		{
+			UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
+			PC->GetGame()->ActivateCurrentSector();
+
+			FCHECK(PC->GetPlayerShip()->GetActive());
+
+			FFlareMenuParameterData Data;
+			Data.Spacecraft = PC->GetPlayerShip();
+			MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
+		}
 	}
 }
 

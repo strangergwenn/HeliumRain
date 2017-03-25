@@ -118,6 +118,15 @@ void SFlareColorPanel::Setup(FFlarePlayerSave& PlayerData)
 	}
 }
 
+void SFlareColorPanel::Setup(const FFlareCompanyDescription& CompanyData)
+{
+	BasePaintColorPicker->SetSelectedIndex(CompanyData.CustomizationBasePaintColorIndex);
+	PaintColorPicker->SetSelectedIndex(CompanyData.CustomizationPaintColorIndex);
+	OverlayColorPicker->SetSelectedIndex(CompanyData.CustomizationOverlayColorIndex);
+	LightColorPicker->SetSelectedIndex(CompanyData.CustomizationLightColorIndex);
+	PatternPicker->SetSelectedIndex(CompanyData.CustomizationPatternIndex);
+}
+
 void SFlareColorPanel::OnBasePaintColorPicked(int32 Index)
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();

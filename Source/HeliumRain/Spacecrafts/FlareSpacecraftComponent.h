@@ -381,6 +381,9 @@ public:
 	/** Get the current customization from the ship */
 	virtual void UpdateCustomization();
 
+	/** Customize this material */
+	static void CustomizeMaterial(UMaterialInstanceDynamic* Mat, AFlareGame* Game, int32 BasePaint, int32 Paint, int32 Overlay, int32 Light, int32 Pattern, UTexture2D* Emblem);
+	
 	/** Update light effect */
 	virtual void UpdateLight();
 
@@ -458,6 +461,9 @@ public:
 
 	/** Is this component being drawn */
 	virtual bool IsComponentVisible() const;
+
+	/** Normalize a color */
+	static FLinearColor NormalizeColor(FLinearColor Col);
 
 
 protected:

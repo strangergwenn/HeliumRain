@@ -321,17 +321,50 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 
 void UFlareSpacecraftComponent::UpdateCustomization()
 {
-	if (PlayerCompany)
+	if (ComponentMaterial)
 	{
-		if (ComponentMaterial)
+		if (PlayerCompany)
 		{
-			PlayerCompany->CustomizeComponentMaterial(ComponentMaterial);
+			PlayerCompany->CustomizeMaterial(ComponentMaterial);
 		}
-		if (EffectMaterial)
+		else
 		{
-			PlayerCompany->CustomizeEffectMaterial(EffectMaterial);
+			AFlareGame* Game = SpacecraftPawn->GetGame();
+			AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
+			const FFlareCompanyDescription* CurrentCompanyData = PC->GetCompanyDescription();
+
+			if (CurrentCompanyData)
+			{
+				CustomizeMaterial(ComponentMaterial, Game,
+					CurrentCompanyData->CustomizationBasePaintColorIndex,
+					CurrentCompanyData->CustomizationPaintColorIndex,
+					CurrentCompanyData->CustomizationOverlayColorIndex,
+					CurrentCompanyData->CustomizationLightColorIndex,
+					CurrentCompanyData->CustomizationPatternIndex,
+					CurrentCompanyData->Emblem);
+			}
 		}
 	}
+}
+
+void UFlareSpacecraftComponent::CustomizeMaterial(UMaterialInstanceDynamic* Mat, AFlareGame* Game, int32 BasePaint, int32 Paint, int32 Overlay, int32 Light, int32 Pattern, UTexture2D* Emblem)
+{
+	// Get data from storage
+	FLinearColor BasePaintColor = Game->GetCustomizationCatalog()->GetColor(BasePaint);
+	FLinearColor PaintColor = Game->GetCustomizationCatalog()->GetColor(Paint);
+	FLinearColor OverlayColor = Game->GetCustomizationCatalog()->GetColor(Overlay);
+	FLinearColor LightColor = Game->GetCustomizationCatalog()->GetColor(Light);
+	UTexture2D* PatternTexture = Game->GetCustomizationCatalog()->GetPattern(Pattern);
+
+	// Apply settings to the material instance
+	Mat->SetVectorParameterValue("BasePaintColor", BasePaintColor);
+	Mat->SetVectorParameterValue("PaintColor", PaintColor);
+	Mat->SetVectorParameterValue("OverlayColor", OverlayColor);
+	Mat->SetVectorParameterValue("LightColor", LightColor);
+	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(LightColor));
+	Mat->SetTextureParameterValue("PaintPattern", PatternTexture);
+	Mat->SetTextureParameterValue("Emblem", Emblem);
+	Mat->SetScalarParameterValue("IsPainted", 1);
 }
 
 
@@ -598,4 +631,9 @@ bool UFlareSpacecraftComponent::IsComponentVisible() const
 	{
 		return true;
 	}
+}
+
+FLinearColor UFlareSpacecraftComponent::NormalizeColor(FLinearColor Col)
+{
+	return FLinearColor(FVector(Col.R, Col.G, Col.B) / Col.GetLuminance());
 }

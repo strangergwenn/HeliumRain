@@ -497,11 +497,8 @@ bool AFlareGame::DeleteSaveSlot(int32 Index)
 	Save
 ----------------------------------------------------*/
 
-void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32 ScenarioIndex, bool PlayTutorial)
+void AFlareGame::CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription CompanyData, int32 ScenarioIndex, bool PlayTutorial)
 {
-	FLOGV("AFlareGame::CreateGame ScenarioIndex %d", ScenarioIndex);
-	FLOGV("AFlareGame::CreateGame CompanyName %s", *CompanyName.ToString());
-
 	PlayerController = PC;
 	Clean();
 	PC->Clean();
@@ -518,16 +515,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FText CompanyName, int32
 		CreateCompany(Index);
 	}
 
-	// Manually setup the player company before creating it
-	FFlareCompanyDescription CompanyData;
-	CompanyData.Name = CompanyName;
-	CompanyData.ShortName = *FString("PLY");
-	CompanyData.Emblem = NULL;
-	CompanyData.CustomizationBasePaintColorIndex = 0;
-	CompanyData.CustomizationPaintColorIndex = 8;
-	CompanyData.CustomizationOverlayColorIndex = 4;
-	CompanyData.CustomizationLightColorIndex = 13;
-	CompanyData.CustomizationPatternIndex = 0;
+	// Setup the player company
 	PC->SetCompanyDescription(CompanyData);
 
 	// Player company

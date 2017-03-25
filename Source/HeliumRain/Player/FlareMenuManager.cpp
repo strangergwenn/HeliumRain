@@ -739,7 +739,7 @@ void AFlareMenuManager::OpenSettingsMenu()
 
 void AFlareMenuManager::OpenNewGameMenu()
 {
-	OnEnterMenu(true);
+	OnEnterMenu(false);
 	NewGameMenu->Enter();
 }
 

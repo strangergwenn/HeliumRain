@@ -59,9 +59,6 @@ protected:
 	/** Start playing */
 	void OnStartPlaying();
 
-	/** Get previous visibility */
-	EVisibility GetPreviousButtonVisibility() const;
-
 
 protected:
 
@@ -75,6 +72,7 @@ protected:
 	float                                      TransitionTime;
 
 	// Gameplay data
+	bool                                       ExitingMenu;
 	bool                                       FadingIn;
 	bool                                       GoingToNext;
 	float                                      CurrentTime;
