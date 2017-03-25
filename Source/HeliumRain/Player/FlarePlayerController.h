@@ -260,7 +260,13 @@ public:
 
 	/** Joystick lateral movement Y */
 	void JoystickMoveVerticalInput(float Val);
-	
+
+	/** Hack for right mouse button triggering drag in external camera */
+	void RightMouseButtonPressed();
+
+	/** Hack for right mouse button triggering drag in external camera */
+	void RightMouseButtonReleased();
+
 	/** Test method 1 */
 	void Test1();
 
@@ -406,6 +412,7 @@ protected:
 	float                                    MinimalFOV;
 	float                                    NormalFOV;
 
+	bool                                     RightMousePressed;
 	bool                                     HasCurrentObjective;
 	bool									 RecoveryActive;
 	bool                                     IsSimulating;

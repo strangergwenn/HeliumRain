@@ -65,6 +65,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	// Gameplay
 	QuickSwitchNextOffset = 0;
 	HasCurrentObjective = false;
+	RightMousePressed = false;
 	IsTest1 = false;
 	IsTest2 = false;
 	LastBattleState.Init();
@@ -1226,6 +1227,10 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAxis("JoystickMoveHorizontalInput", this, &AFlarePlayerController::JoystickMoveHorizontalInput);
 	InputComponent->BindAxis("JoystickMoveVerticalInput", this, &AFlarePlayerController::JoystickMoveVerticalInput);
 
+	// Hack for right mouse button triggering drag in external camera
+	InputComponent->BindAction("RightMouseButton", EInputEvent::IE_Pressed, this, &AFlarePlayerController::RightMouseButtonPressed);
+	InputComponent->BindAction("RightMouseButton", EInputEvent::IE_Released, this, &AFlarePlayerController::RightMouseButtonReleased);
+
 	// Test
 	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
 	InputComponent->BindAction("Test2", EInputEvent::IE_Released, this, &AFlarePlayerController::Test2);
@@ -1505,7 +1510,7 @@ void AFlarePlayerController::MouseInputX(float Val)
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
 	}
-	else if (ShipPawn)
+	else if (ShipPawn && !RightMousePressed)
 	{
 		ShipPawn->YawInput(Val);
 	}
@@ -1526,7 +1531,7 @@ void AFlarePlayerController::MouseInputY(float Val)
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(0, -Val));
 	}
-	else if (ShipPawn)
+	else if (ShipPawn && !RightMousePressed)
 	{
 		ShipPawn->PitchInput(Val);
 	}
@@ -1554,6 +1559,16 @@ void AFlarePlayerController::JoystickMoveVerticalInput(float Val)
 	{
 		ShipPawn->JoystickMoveVerticalInput(Val);
 	}
+}
+
+void AFlarePlayerController::RightMouseButtonPressed()
+{
+	RightMousePressed = true;
+}
+
+void AFlarePlayerController::RightMouseButtonReleased()
+{
+	RightMousePressed = false;
 }
 
 void AFlarePlayerController::Test1()
