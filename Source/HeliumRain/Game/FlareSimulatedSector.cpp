@@ -1740,10 +1740,10 @@ int64 UFlareSimulatedSector::GetResourcePrice(FFlareResourceDescription* Resourc
 			return DefaultPrice + Resource->TransportFee;
 		break;
 		case EFlareResourcePriceContext::ConsumerConsumption:
-			return DefaultPrice * 1.1; // TODO dynamic
+			return DefaultPrice * 1.1 + Resource->TransportFee; // TODO dynamic
 		break;
 		case EFlareResourcePriceContext::MaintenanceConsumption:
-			return DefaultPrice * 1.5;
+			return DefaultPrice * 1.5  + Resource->TransportFee;
 		break;
 		default:
 			return 0;
