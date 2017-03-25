@@ -281,9 +281,8 @@ void SFlareNewGameMenu::OnLaunch()
 		int32 ScenarioIndex = ScenarioList.Find(ScenarioSelector->GetSelectedItem());
 		FLOGV("SFlareNewGameMenu::OnLaunch '%s', ID '%s', ScenarioIndex %d", *CompanyNameData.ToString(), *CompanyIdentifierData.ToString(), ScenarioIndex);
 
-		// Create company
+		// Create company data
 		const FFlareCompanyDescription* CurrentCompanyData = PC->GetCompanyDescription();
-		FFlareCompanyDescription CompanyData;
 		CompanyData.Name = CompanyNameData;
 		CompanyData.ShortName = CompanyIdentifierData;
 		CompanyData.Emblem = NULL;
@@ -292,23 +291,13 @@ void SFlareNewGameMenu::OnLaunch()
 		CompanyData.CustomizationOverlayColorIndex = CurrentCompanyData->CustomizationOverlayColorIndex;
 		CompanyData.CustomizationLightColorIndex = CurrentCompanyData->CustomizationLightColorIndex;
 		CompanyData.CustomizationPatternIndex = CurrentCompanyData->CustomizationPatternIndex;
-
+		
 		// Create game
-		Game->CreateGame(PC, CompanyData, ScenarioIndex, TutorialButton->IsActive());
-
-		// Launch
-		UFlareSimulatedSpacecraft* CurrentShip = PC->GetPlayerShip();
-		if (CurrentShip)
-		{
-			UFlareSimulatedSector* Sector = CurrentShip->GetCurrentSector();
-			PC->GetGame()->ActivateCurrentSector();
-
-			FCHECK(PC->GetPlayerShip()->GetActive());
-
-			FFlareMenuParameterData Data;
-			Data.Spacecraft = PC->GetPlayerShip();
-			MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
-		}
+		FFlareMenuParameterData Data;
+		Data.CompanyDescription = &CompanyData;
+		Data.ScenarioIndex = ScenarioIndex;
+		Data.PlayTutorial = TutorialButton->IsActive();
+		MenuManager->OpenMenu(EFlareMenu::MENU_CreateGame, Data);
 	}
 }
 

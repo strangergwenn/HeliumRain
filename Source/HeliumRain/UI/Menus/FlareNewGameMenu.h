@@ -72,6 +72,7 @@ protected:
 	// Game data
 	AFlareGame*                                 Game;
 	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
+	FFlareCompanyDescription                    CompanyData;
 	
 	// Slate widgets
 	TSharedPtr<SEditableText>                   CompanyName;

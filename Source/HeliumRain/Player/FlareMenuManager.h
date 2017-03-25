@@ -138,6 +138,9 @@ protected:
 		Internal menu callbacks
 	----------------------------------------------------*/
 
+	/** Create the game */
+	bool CreateGame();
+
 	/** Load the game */
 	bool LoadGame();
 

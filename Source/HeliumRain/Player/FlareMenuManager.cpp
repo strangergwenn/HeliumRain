@@ -426,6 +426,7 @@ void AFlareMenuManager::ProcessNextMenu()
 	// Process the target
 	switch (NextMenu.Key)
 	{
+		case EFlareMenu::MENU_CreateGame:         MenuOperationDone = CreateGame();         break;
 		case EFlareMenu::MENU_LoadGame:           MenuOperationDone = LoadGame();           break;
 		case EFlareMenu::MENU_FlyShip:            MenuOperationDone = FlyShip();            break;
 		case EFlareMenu::MENU_ReloadSector:       MenuOperationDone = ReloadSector();       break;
@@ -514,6 +515,26 @@ void AFlareMenuManager::UseDarkBackground()
 /*----------------------------------------------------
 	Internal menu callbacks
 ----------------------------------------------------*/
+
+bool AFlareMenuManager::CreateGame()
+{
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+
+	// Create
+	if (NextMenu.Value.ScenarioIndex >= 0)
+	{
+		PC->GetGame()->CreateGame(PC, *NextMenu.Value.CompanyDescription, NextMenu.Value.ScenarioIndex, NextMenu.Value.PlayTutorial);
+		PC->GetGame()->ActivateCurrentSector();
+
+		NextMenu.Value.ScenarioIndex = -1;
+	}
+
+	// Load ship
+	UFlareSimulatedSpacecraft* CurrentShip = PC->GetPlayerShip();
+	NextMenu.Key = EFlareMenu::MENU_FlyShip;
+	NextMenu.Value.Spacecraft = CurrentShip;
+	return FlyShip();
+}
 
 bool AFlareMenuManager::LoadGame()
 {

@@ -18,6 +18,7 @@ namespace EFlareMenu
 		MENU_NewGame,
 
 		// Special "menus" for async transitions
+		MENU_CreateGame,
 		MENU_LoadGame,
 		MENU_FlyShip,
 		MENU_Travel,
@@ -61,6 +62,7 @@ struct FFlareMenuParameterData
 		, Spacecraft(NULL)
 		, Travel(NULL)
 		, Resource(NULL)
+		, ScenarioIndex(0)
 	{}
 
 	class UFlareCompany*                        Company;
@@ -72,6 +74,10 @@ struct FFlareMenuParameterData
 	class UFlareSimulatedSpacecraft*            Spacecraft;
 	class UFlareTravel*                         Travel;
 	struct FFlareResourceDescription*           Resource;
+
+	struct FFlareCompanyDescription*            CompanyDescription;
+	int32                                       ScenarioIndex;
+	bool                                        PlayTutorial;
 };
 
 /** Hostility status */
