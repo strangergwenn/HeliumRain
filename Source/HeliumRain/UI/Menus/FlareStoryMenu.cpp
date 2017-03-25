@@ -25,7 +25,6 @@ void SFlareStoryMenu::Construct(const FArguments& InArgs)
 	FSlateFontInfo SecondaryFont(FPaths::GameContentDir() / TEXT("Slate/Fonts/Lato700.ttf"), 20);
 
 	// Settings
-	TextShowTime = 20.0f;
 	TextHideTime = 1.0f;
 	TransitionTime = 0.5f;
 	int32 Width = 1.5 * Theme.ContentWidth;
@@ -105,6 +104,7 @@ void SFlareStoryMenu::Construct(const FArguments& InArgs)
 							SAssignNew(PreviousButton, SFlareButton)
 							.Icon(FFlareStyleSet::GetIcon("Back"))
 							.OnClicked(this, &SFlareStoryMenu::OnPrevious)
+							.Visibility(this, &SFlareStoryMenu::GetPreviousButtonVisibility)
 							.Transparent(true)
 							.Width(2)
 							.Height(2)
@@ -186,7 +186,9 @@ void SFlareStoryMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
-	CurrentTime = -1.0;
+	FadingIn = true;
+	GoingToNext = true;
+	CurrentTime = 0;
 	CurrentAlpha = 0;
 	CurrentIndex = 0;
 }
@@ -205,39 +207,43 @@ void SFlareStoryMenu::Exit()
 void SFlareStoryMenu::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
-	CurrentTime += InDeltaTime;
 	
-	// Fading in
-	if (CurrentTime <= TransitionTime)
+	// Time management
+	if (FadingIn)
 	{
-		CurrentAlpha = CurrentTime / TransitionTime;
+		CurrentTime += InDeltaTime;
 	}
-
-	// Shown
-	else if (CurrentTime - TransitionTime <= TextShowTime)
-	{
-		CurrentAlpha = 1;
-	}
-
-	// Fading out
-	else if (CurrentTime - TransitionTime - TextShowTime <= TransitionTime)
-	{
-		CurrentAlpha = 1 - (CurrentTime - TransitionTime - TextShowTime) / TransitionTime;
-	}
-
-	// Not shown
-	else if (CurrentTime - TransitionTime - TextShowTime - TransitionTime <= TextHideTime)
-	{
-		CurrentAlpha = 0;
-	}
-
-	// Text switch : loop with the next text, or exit
 	else
 	{
-		CurrentAlpha = 0;
-		OnNext();
+		CurrentTime -= InDeltaTime;
 	}
 
+	// Process transitions on end of fade-outs
+	if (CurrentTime <= 0 && FadingIn == false)
+	{
+		FadingIn = true;
+
+		if (GoingToNext)
+		{
+			if (CurrentIndex + 1 == TextList.Num())
+			{
+				OnStartPlaying();
+			}
+			else
+			{
+				CurrentIndex++;
+			}
+		}
+		else
+		{
+			CurrentIndex--;
+		}
+	}
+
+	// Alpha
+	CurrentTime = FMath::Clamp(CurrentTime, 0.0f, TransitionTime);
+	CurrentAlpha = CurrentTime / TransitionTime;
+	
 	// Update states
 	Title->SetText(TitleList[CurrentIndex]);
 	Text->SetText(TextList[CurrentIndex]);
@@ -252,23 +258,16 @@ FSlateColor SFlareStoryMenu::GetTextColor() const
 
 void SFlareStoryMenu::OnNext()
 {
-	if (CurrentIndex + 1 == TextList.Num())
-	{
-		OnStartPlaying();
-	}
-	else
-	{
-		CurrentTime = 0;
-		CurrentIndex++;
-	}
+	FadingIn = false;
+	GoingToNext = true;
 }
 
 void SFlareStoryMenu::OnPrevious()
 {
 	if (CurrentIndex > 0)
 	{
-		CurrentTime = 0;
-		CurrentIndex--;
+		FadingIn = false;
+		GoingToNext = false;
 	}
 }
 
@@ -287,6 +286,11 @@ void SFlareStoryMenu::OnStartPlaying()
 		Data.Spacecraft = PC->GetPlayerShip();
 		MenuManager->OpenMenu(EFlareMenu::MENU_FlyShip, Data);
 	}
+}
+
+EVisibility SFlareStoryMenu::GetPreviousButtonVisibility() const
+{
+	return (CurrentIndex > 0) ? EVisibility::Visible : EVisibility::Hidden;
 }
 
 
