@@ -244,7 +244,7 @@ struct FFlareCargoSave
 
 	/** Cargo quantity */
 	UPROPERTY(EditAnywhere, Category = Save)
-	uint32 Quantity;
+	int32 Quantity;
 
 	/** Resource Lock type */
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -516,7 +516,7 @@ struct FFlareFactoryResource
 
 	/** Quantity for the resource */
 	UPROPERTY(EditAnywhere, Category = Content)
-	uint32 Quantity;
+	int32 Quantity;
 };
 
 /** Factory action type values */

@@ -21,7 +21,7 @@ void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FF
 	CargoBayBaseCapacity = Parent->GetDescription()->CargoBayCapacity;
 	// Initialize cargo bay
 	CargoBay.Empty();
-	for (uint32 CargoIndex = 0; CargoIndex < CargoBayCount; CargoIndex++)
+	for (int32 CargoIndex = 0; CargoIndex < CargoBayCount; CargoIndex++)
 	{
 		FFlareCargo Cargo;
 		Cargo.Resource = NULL;
@@ -30,7 +30,7 @@ void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FF
 		Cargo.Restriction = EFlareResourceRestriction::Everybody;
 		Cargo.ManualLock= false;
 
-		if (CargoIndex < (uint32)Data.Num())
+		if (CargoIndex < (int32)Data.Num())
 		{
 			// Existing save
 			FFlareCargoSave* CargoSave = &Data[CargoIndex];
@@ -94,9 +94,9 @@ TArray<FFlareCargoSave>* UFlareCargoBay::Save()
    Gameplay
 ----------------------------------------------------*/
 
-bool UFlareCargoBay::HasResources(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Client)
+bool UFlareCargoBay::HasResources(FFlareResourceDescription* Resource, int32 Quantity, UFlareCompany* Client)
 {
-	uint32 PresentQuantity = 0;
+	int32 PresentQuantity = 0;
 
 	if (Quantity == 0)
 	{
@@ -124,9 +124,9 @@ bool UFlareCargoBay::HasResources(FFlareResourceDescription* Resource, uint32 Qu
 	return false;
 }
 
-uint32 UFlareCargoBay::TakeResources(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Client)
+int32 UFlareCargoBay::TakeResources(FFlareResourceDescription* Resource, int32 Quantity, UFlareCompany* Client)
 {
-	uint32 QuantityToTake = Quantity;
+	int32 QuantityToTake = Quantity;
 
 
 	if (QuantityToTake == 0)
@@ -135,7 +135,7 @@ uint32 UFlareCargoBay::TakeResources(FFlareResourceDescription* Resource, uint32
 	}
 
 	// First pass: take resource from the less full cargo
-	uint32 MinQuantity = 0;
+	int32 MinQuantity = 0;
 	FFlareCargo* MinQuantityCargo = NULL;
 
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
@@ -158,7 +158,7 @@ uint32 UFlareCargoBay::TakeResources(FFlareResourceDescription* Resource, uint32
 
 	if (MinQuantityCargo)
 	{
-		uint32 TakenQuantity = FMath::Min(MinQuantityCargo->Quantity, QuantityToTake);
+		int32 TakenQuantity = FMath::Min(MinQuantityCargo->Quantity, QuantityToTake);
 		if (TakenQuantity > 0)
 		{
 			MinQuantityCargo->Quantity -= TakenQuantity;
@@ -187,7 +187,7 @@ uint32 UFlareCargoBay::TakeResources(FFlareResourceDescription* Resource, uint32
 				continue;
 			}
 
-			uint32 TakenQuantity = FMath::Min(Cargo.Quantity, QuantityToTake);
+			int32 TakenQuantity = FMath::Min(Cargo.Quantity, QuantityToTake);
 			if (TakenQuantity > 0)
 			{
 				Cargo.Quantity -= TakenQuantity;
@@ -217,9 +217,9 @@ void UFlareCargoBay::DumpCargo(FFlareCargo* Cargo)
 	}
 }
 
-uint32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Client)
+int32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, int32 Quantity, UFlareCompany* Client)
 {
-	uint32 QuantityToGive = Quantity;
+	int32 QuantityToGive = Quantity;
 
 	if (QuantityToGive == 0)
 	{
@@ -238,8 +238,8 @@ uint32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, uint32
 			}
 
 			// Same resource
-			uint32 AvailableCapacity = GetSlotCapacity() - Cargo.Quantity;
-			uint32 GivenQuantity = FMath::Min(AvailableCapacity, QuantityToGive);
+			int32 AvailableCapacity = GetSlotCapacity() - Cargo.Quantity;
+			int32 GivenQuantity = FMath::Min(AvailableCapacity, QuantityToGive);
 			if (GivenQuantity > 0)
 			{
 				Cargo.Quantity += GivenQuantity;
@@ -265,7 +265,7 @@ uint32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, uint32
 			}
 
 			// Empty Cargo
-			uint32 GivenQuantity = FMath::Min(GetSlotCapacity(), QuantityToGive);
+			int32 GivenQuantity = FMath::Min(GetSlotCapacity(), QuantityToGive);
 			if (GivenQuantity > 0)
 			{
 				Cargo.Quantity += GivenQuantity;
@@ -294,12 +294,12 @@ uint32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, uint32
 	Getters
 ----------------------------------------------------*/
 
-uint32 UFlareCargoBay::GetSlotCapacity() const
+int32 UFlareCargoBay::GetSlotCapacity() const
 {
 	return CargoBayBaseCapacity * Parent->GetLevel();
 }
 
-uint32 UFlareCargoBay::GetCapacity() const
+int32 UFlareCargoBay::GetCapacity() const
 {
 	return GetSlotCapacity() * CargoBayCount;
 }
@@ -318,9 +318,9 @@ int32 UFlareCargoBay::GetFreeSlotCount() const
 	return FreeSlotCount;
 }
 
-uint32 UFlareCargoBay::GetUsedCargoSpace() const
+int32 UFlareCargoBay::GetUsedCargoSpace() const
 {
-	uint32 Used = 0;
+	int32 Used = 0;
 
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num(); CargoIndex++)
 	{
@@ -330,14 +330,14 @@ uint32 UFlareCargoBay::GetUsedCargoSpace() const
 	return Used;
 }
 
-uint32 UFlareCargoBay::GetFreeCargoSpace() const
+int32 UFlareCargoBay::GetFreeCargoSpace() const
 {
 	return GetCapacity() - GetUsedCargoSpace();
 }
 
-uint32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource, UFlareCompany* Client) const
+int32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource, UFlareCompany* Client) const
 {
-	uint32 Quantity = 0;
+	int32 Quantity = 0;
 
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
@@ -356,9 +356,9 @@ uint32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource, 
 	return Quantity;
 }
 
-uint32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resource, UFlareCompany* Client) const
+int32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resource, UFlareCompany* Client) const
 {
-	uint32 Quantity = 0;
+	int32 Quantity = 0;
 
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
@@ -395,12 +395,12 @@ bool UFlareCargoBay::HasRestrictions() const
 	return false;
 }
 
-uint32 UFlareCargoBay::GetSlotCount() const
+int32 UFlareCargoBay::GetSlotCount() const
 {
 	return CargoBayCount;
 }
 
-FFlareCargo* UFlareCargoBay::GetSlot(uint32 Index)
+FFlareCargo* UFlareCargoBay::GetSlot(int32 Index)
 {
 	return &CargoBay[Index];
 }

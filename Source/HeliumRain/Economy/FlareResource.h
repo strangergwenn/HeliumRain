@@ -66,7 +66,7 @@ struct FFlareCargo
 
 	/** Cargo quantity */
 	UPROPERTY(EditAnywhere, Category = Save)
-	uint32 Quantity;
+	int32 Quantity;
 
 	/** Cargo lock */
 	UPROPERTY(EditAnywhere, Category = Save)

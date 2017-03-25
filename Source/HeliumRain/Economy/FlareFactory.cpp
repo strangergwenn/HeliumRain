@@ -343,7 +343,7 @@ bool UFlareFactory::HasOutputFreeSpace()
 			if (&OutputResources[ResourceIndex].Resource->Data == CargoBay->GetSlot(CargoIndex)->Resource)
 			{
 				// Same resource
-				uint32 AvailableCapacity = CargoBay->GetSlotCapacity() - CargoBay->GetSlot(CargoIndex)->Quantity;
+				int32 AvailableCapacity = CargoBay->GetSlotCapacity() - CargoBay->GetSlot(CargoIndex)->Quantity;
 				if (AvailableCapacity > 0)
 				{
 					OutputResources[ResourceIndex].Quantity -= FMath::Min(AvailableCapacity, OutputResources[ResourceIndex].Quantity);
@@ -780,8 +780,8 @@ TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
 	{
 		uint32 MaxCapacity = CargoBay->GetSlotCapacity() * FactoryData.OutputCargoLimit[CargoLimitIndex].Quantity;
 		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(FactoryData.OutputCargoLimit[CargoLimitIndex].ResourceIdentifier);
-		uint32 MaxAddition;
-		uint32 CurrentQuantity = CargoBay->GetResourceQuantity(Resource, GetParent()->GetCompany());
+		int32 MaxAddition;
+		int32 CurrentQuantity = CargoBay->GetResourceQuantity(Resource, GetParent()->GetCompany());
 
 
 		if (CurrentQuantity >= MaxCapacity)
