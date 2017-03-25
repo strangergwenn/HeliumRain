@@ -50,6 +50,12 @@ protected:
 	/** Get the text color & alpha */
 	FSlateColor GetTextColor() const;
 
+	/** Aspect ratio X */
+	FOptionalSize GetWidth() const;
+
+	/** Aspect ratio Y */
+	FOptionalSize GetHeight() const;
+
 	/** Skip to next */
 	void OnNext();
 
@@ -82,6 +88,8 @@ protected:
 	TArray<FText>                              TextList;
 	TArray<FText>                              SubTextList;
 	TArray<const FSlateBrush*>                 ImageList;
+	float                                      MaxWidth;
+	float                                      MaxHeight;
 
 	// Slate data
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
