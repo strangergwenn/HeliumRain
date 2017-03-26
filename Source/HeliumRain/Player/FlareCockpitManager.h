@@ -43,7 +43,7 @@ public:
 protected:
 
 	/** Setup the cockpit materials */
-	void SetupCockpitInstances(UMaterialInstanceDynamic* ScreenInstance, UMaterialInstanceDynamic* FrameInstanceh);
+	void SetupCockpitInstances(UMaterialInstanceDynamic* FrameInstanceh);
 
 	/** Enter the cockpit */
 	void EnterCockpit(AFlareSpacecraft* TargetPlayerShip);
@@ -122,32 +122,15 @@ protected:
 	/*----------------------------------------------------
 		Dynamic data
 	----------------------------------------------------*/
-
-	// Cockpit material instance
-	UPROPERTY(Category = Cockpit, EditAnywhere)
-	UMaterialInstanceDynamic*                FreighterCockpitMaterialInstance;
-
+	
 	// Cockpit material instance (frame)
 	UPROPERTY(Category = Cockpit, EditAnywhere)
 	UMaterialInstanceDynamic*                FreighterCockpitFrameMaterialInstance;
-
-	// Cockpit material instance
-	UPROPERTY(Category = Cockpit, EditAnywhere)
-	UMaterialInstanceDynamic*                FighterCockpitMaterialInstance;
-
+	
 	// Cockpit material instance (frame)
 	UPROPERTY(Category = Cockpit, EditAnywhere)
 	UMaterialInstanceDynamic*                FighterCockpitFrameMaterialInstance;
-
-
-	/*----------------------------------------------------
-		Cameras and render targets
-	----------------------------------------------------*/
-
-	// Cockpit texture (HUD)
-	UPROPERTY(Category = Cockpit, EditAnywhere)
-	UCanvasRenderTarget2D*                   CockpitHUDTarget;
-
+		
 	// Cockpit texture (instruments)
 	UPROPERTY(Category = Cockpit, EditAnywhere)
 	UCanvasRenderTarget2D*                   CockpitInstrumentsTarget;
@@ -162,9 +145,7 @@ public:
 	inline UStaticMeshComponent* GetCockpitMesh() const;
 	
 	bool PlayerShipIsPowered() const;
-
-	UMaterialInstanceDynamic* GetCurrentScreenMaterial();
-
+	
 	UMaterialInstanceDynamic* GetCurrentFrameMaterial();
 
 

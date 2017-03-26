@@ -65,6 +65,10 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	/** Canvas callback for the cockpit's HUD*/
+	UFUNCTION()
+	void DrawHUDTexture(UCanvas* TargetCanvas, int32 Width, int32 Height);
+
 	/** Toggle performance counters */
 	void TogglePerformance();
 
@@ -72,10 +76,6 @@ public:
 	/*----------------------------------------------------
 		Cockpit
 	----------------------------------------------------*/
-
-	/** Canvas callback for the cockpit's HUD*/
-	UFUNCTION()
-	void DrawCockpitHUD(UCanvas* TargetCanvas, int32 Width, int32 Height);
 
 	/** Canvas callback for the cockpit's instruments*/
 	UFUNCTION()
@@ -106,14 +106,6 @@ public:
 
 	/** Get the health color */
 	static FLinearColor GetHealthColor(float Current);
-
-	void SetDistortionGrid(uint32 Value)
-	{
-		DistortionGrid = Value;
-	}
-
-	/** Change a distortion value */
-	void SetDistortion(uint32 Axis, uint32 X, uint32 Y, float Value);
 
 	/** Format a distance in meter */
 	static FString FormatDistance(float Distance);
@@ -182,18 +174,9 @@ protected:
 	/** Is the player flying a military ship */
 	bool IsFlyingMilitaryShip() const;
 	
-	/** Get the distortion grid */
-	float* GetCurrentHorizontalGrid() const;
-
-	/** Get the distortion grid */
-	float* GetCurrentVerticalGrid() const;
-	
 	/** Convert a world location to cockpit-space */
 	bool ProjectWorldLocationToCockpit(FVector World, FVector2D& Cockpit);
-
-	/** Convert a screen location to cockpit-space */
-	bool ScreenToCockpit(FVector2D Screen, FVector2D& Cockpit);
-
+	
 
 protected:
 
@@ -204,6 +187,18 @@ protected:
 	// Menu reference
 	UPROPERTY()
 	AFlareMenuManager*                      MenuManager;
+
+	// HUD texture material master template
+	UPROPERTY(Category = Cockpit, EditAnywhere)
+	UMaterial*                              HUDRenderTargetMaterialTemplate;
+
+	// HUD texture material
+	UPROPERTY(Category = Cockpit, EditAnywhere)
+	UMaterialInstanceDynamic*               HUDRenderTargetMaterial;
+
+	// HUD texture canvas
+	UPROPERTY(Category = Cockpit, EditAnywhere)
+	UCanvasRenderTarget2D*                  HUDRenderTarget;
 
 	// Settings
 	float                                   CombatMouseRadius;
@@ -218,12 +213,12 @@ protected:
 	// General data
 	bool                                    HUDVisible;
 	bool                                    IsInteractive;
-	bool                                    IsDrawingCockpit;
 	bool                                    IsDrawingHUD;
 	FVector2D                               ViewportSize;
+	FVector2D                               PreviousViewportSize;
 	AFlareSpacecraft*                       ContextMenuSpacecraft;
 
-	// Current data
+	// Drawing context
 	FVector2D                               CurrentViewportSize;
 	UCanvas*                                CurrentCanvas;
 
@@ -266,7 +261,6 @@ protected:
 	// Font
 	UFont*                                  HUDFontSmall;
 	UFont*                                  HUDFont;
-	UFont*                                  HUDFontMedium;
 	UFont*                                  HUDFontLarge;
 
 	// Instruments
@@ -284,7 +278,6 @@ protected:
 	FVector2D                               ContextMenuPosition;
 
 	// Debug
-	uint32                                  DistortionGrid;
 	bool                                    ShowPerformance;
 	float                                   PerformanceTimer;
 	float                                   FrameTime;
