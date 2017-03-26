@@ -93,6 +93,7 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor TradingColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor QuestColor;
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor InfoColor;
+	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor HUDFriendlyColor;
 
 	// Fonts
 	UPROPERTY(EditAnywhere, Category = Fonts) FTextBlockStyle TitleFont;

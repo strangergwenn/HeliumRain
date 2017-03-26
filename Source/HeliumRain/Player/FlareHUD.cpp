@@ -130,13 +130,13 @@ void AFlareHUD::BeginPlay()
 
 	// Get HUD colors
 	HudColorNeutral = Theme.NeutralColor;
-	HudColorFriendly = Theme.FriendlyColor;
+	HudColorFriendly = Theme.HUDFriendlyColor;
 	HudColorEnemy = Theme.EnemyColor;
 	HudColorObjective = Theme.ObjectiveColor;
-	HudColorNeutral.A = Theme.DefaultAlpha;
-	HudColorFriendly.A = Theme.DefaultAlpha;
-	HudColorEnemy.A = Theme.DefaultAlpha;
-	HudColorObjective.A = Theme.DefaultAlpha;
+	HudColorNeutral.A = 1;
+	HudColorFriendly.A = 1;
+	HudColorEnemy.A = 1;
+	HudColorObjective.A = 1;
 
 	// HUD material
 	HUDRenderTargetMaterial = UMaterialInstanceDynamic::Create(HUDRenderTargetMaterialTemplate, GetWorld());
@@ -248,6 +248,7 @@ void AFlareHUD::DrawHUD()
 	{
 		// Setup data
 		CurrentViewportSize = ViewportSize;
+		CurrentCanvas = Canvas;
 		IsDrawingHUD = true;
 
 		// Initial data and checks
@@ -262,6 +263,37 @@ void AFlareHUD::DrawHUD()
 
 		// Paint the render target
 		DrawMaterialSimple(HUDRenderTargetMaterial, 0, 0, ViewportSize.X, ViewportSize.Y);
+
+		// Draw nose
+		if (HUDVisible && ShouldDrawHUD())
+		{
+			bool IsExternalCamera = PlayerShip->GetStateManager()->IsExternalCamera();
+			EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
+			if (HUDVisible && !IsExternalCamera)
+			{
+				UTexture2D* NoseIcon = HUDNoseIcon;
+				if (WeaponType == EFlareWeaponGroupType::WG_GUN)
+				{
+					NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
+				}
+
+				if (WeaponType != EFlareWeaponGroupType::WG_TURRET)
+				{
+					DrawHUDIcon(
+						CurrentViewportSize / 2,
+						IconSize,
+						NoseIcon,
+						HudColorNeutral,
+						true);
+				}
+
+				// Speed indication
+				FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
+				int32 SpeedMS = (ShipSmoothedVelocity.Size() + 10.) / 100.0f;
+				FString VelocityText = FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s");
+				FlareDrawText(VelocityText, FVector2D(0, 70), HudColorNeutral, true);
+			}
+		}
 	}
 
 	// Player hit management
@@ -862,32 +894,6 @@ void AFlareHUD::DrawHUDInternal()
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
 	bool IsExternalCamera = PlayerShip->GetStateManager()->IsExternalCamera();
 	EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
-
-	// Draw nose
-	if (HUDVisible && !IsExternalCamera)
-	{
-		UTexture2D* NoseIcon = HUDNoseIcon;
-		if (WeaponType == EFlareWeaponGroupType::WG_GUN)
-		{
-			NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
-		}
-
-		if (WeaponType != EFlareWeaponGroupType::WG_TURRET)
-		{
-			DrawHUDIcon(
-				CurrentViewportSize / 2,
-				IconSize,
-				NoseIcon,
-				HudColorNeutral,
-				true);
-		}
-
-		// Speed indication
-		FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
-		int32 SpeedMS = (ShipSmoothedVelocity.Size() + 10.) / 100.0f;
-		FString VelocityText = FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s");
-		FlareDrawText(VelocityText, FVector2D(0, 70), HudColorNeutral, true, true);
-	}
 
 	// Draw combat mouse pointer
 	if (HUDVisible && !PlayerShip->GetNavigationSystem()->IsAutoPilot()
