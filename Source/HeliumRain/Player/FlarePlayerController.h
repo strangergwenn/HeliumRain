@@ -149,8 +149,11 @@ public:
 	/** Is the player typing ? */
 	bool IsTyping() const;
 
-	/** Show a notification explaining if we succeeded in docking */
+	/** Show a notification explaining if we succeeded in docking request */
 	void NotifyDockingResult(bool Success, UFlareSimulatedSpacecraft* Target);
+
+	/** Notify when docking has actually happened */
+	void NotifyDockingComplete(AFlareSpacecraft* DockStation, bool TellUser);
 
 	/** Check the battle state of the game before FF */
 	bool ConfirmFastForward(FSimpleDelegate OnConfirmed);

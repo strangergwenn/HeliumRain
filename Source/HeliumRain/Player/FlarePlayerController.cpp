@@ -1104,6 +1104,28 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 	}
 }
 
+void AFlarePlayerController::NotifyDockingComplete(AFlareSpacecraft* DockStation, bool TellUser)
+{
+	if (!ShipPawn->GetStateManager()->IsExternalCamera())
+	{
+		SetExternalCamera(true);
+	}
+
+	if (MenuManager->IsMenuOpen())
+	{
+		MenuManager->Reload();
+	}
+
+	if (TellUser)
+	{
+		Notify(
+			LOCTEXT("DockingSuccess", "Docking successful"),
+			FText::Format(LOCTEXT("DockingSuccessInfoFormat", "Your ship is now docked at {0}"), FText::FromName(DockStation->GetImmatriculation())),
+			"docking-success",
+			EFlareNotification::NT_Info);
+	}
+}
+
 bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 {
 	FText BattleTitleText = LOCTEXT("ConfirmBattleTitle", "BATTLE IN PROGRESS");

@@ -1164,19 +1164,7 @@ void AFlareSpacecraft::OnDocked(AFlareSpacecraft* DockStation, bool TellUser)
 	AFlarePlayerController* PC = GetPC();
 	if (IsFlownByPlayer() && PC)
 	{
-		if (!StateManager->IsExternalCamera())
-		{
-			PC->SetExternalCamera(true);
-		}
-
-		if (TellUser)
-		{
-			PC->Notify(
-				LOCTEXT("DockingSuccess", "Docking successful"),
-				FText::Format(LOCTEXT("DockingSuccessInfoFormat", "Your ship is now docked at {0}"), FText::FromName(DockStation->GetImmatriculation())),
-				"docking-success",
-				EFlareNotification::NT_Info);
-		}
+		PC->NotifyDockingComplete(DockStation, TellUser);
 	}
 }
 
