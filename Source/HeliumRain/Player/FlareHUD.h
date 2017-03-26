@@ -163,7 +163,7 @@ protected:
 	void FlareDrawLine(FVector2D Start, FVector2D End, FLinearColor Color);
 
 	/** Get an alpha fade to avoid overdrawing two objects */
-	float GetFadeAlpha(FVector2D A, FVector2D B, bool UseCockpit);
+	float GetFadeAlpha(FVector2D A, FVector2D B);
 
 	/** Is this position inside the viewport + border */
 	bool IsInScreen(FVector2D ScreenPosition) const;

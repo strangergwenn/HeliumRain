@@ -1020,7 +1020,7 @@ void AFlareHUD::DrawHUDInternal()
 
 				// Draw turret reticle
 				FLinearColor TurretColor = HudColorNeutral;
-				TurretColor.A = GetFadeAlpha(ScreenPosition, ViewportSize / 2, PC->UseCockpit);
+				TurretColor.A = GetFadeAlpha(ScreenPosition, ViewportSize / 2);
 				DrawHUDIcon(ScreenPosition, IconSize, HUDAimIcon, TurretColor, true);
 			}
 		}
@@ -1130,7 +1130,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		
 		// Icon
 		FLinearColor DrawColor = HudColorNeutral;
-		DrawColor.A = GetFadeAlpha(ScreenPosition, ViewportSize / 2, PC->UseCockpit);
+		DrawColor.A = GetFadeAlpha(ScreenPosition, ViewportSize / 2);
 		FVector2D IndicatorPosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(0, 30);
 		DrawHUDIcon(ScreenPosition, IconSize, Icon, DrawColor, true);
 	}
@@ -1610,10 +1610,10 @@ void AFlareHUD::FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY
 	}
 }
 
-float AFlareHUD::GetFadeAlpha(FVector2D A, FVector2D B, bool UseCockpit)
+float AFlareHUD::GetFadeAlpha(FVector2D A, FVector2D B)
 {
-	float FadePower = UseCockpit ? 3.0f : 2.0f;
-	float FadeDistance = UseCockpit ? 10.0f : 50.0f;
+	float FadePower = 2.0f;
+	float FadeDistance = 10.0f;
 	float CenterDistance = FMath::Clamp(FadeDistance * (A - B).Size() / ViewportSize.Y, 0.0f, 1.0f);
 	return FMath::Pow(CenterDistance, FadePower);
 }
