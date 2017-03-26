@@ -1079,6 +1079,11 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 {
 	if (Success)
 	{
+		if (Target->GetActive())
+		{
+			ShipPawn->SetCurrentTarget(Target->GetActive());
+		}
+
 		Notify(
 			LOCTEXT("DockingGranted", "Docking granted"),
 			FText::Format(
