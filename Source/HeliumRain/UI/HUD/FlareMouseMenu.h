@@ -49,7 +49,7 @@ public:
 	void Close(bool EnableAction = true);
 
 	/** Check if the menu is open */
-	bool IsOpen();
+	bool IsOpen() const;
 
 	/** Move wheel cursor */
 	void SetWheelCursorMove(FVector2D Move);
@@ -61,6 +61,9 @@ protected:
 	----------------------------------------------------*/
 
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+	
+	/** Blur intensity */
+	float GetWheelMenuBlurStrength() const;
 
 	/** Get a widget's position on the screen */
 	FVector2D GetWidgetPosition(int32 Index) const;
