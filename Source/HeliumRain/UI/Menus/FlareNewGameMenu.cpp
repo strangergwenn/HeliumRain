@@ -23,8 +23,8 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 	Game = MenuManager->GetPC()->GetGame();
 
 	// Game starts
-	ScenarioList.Add(MakeShareable(new FString(TEXT("Freighter"))));
-	ScenarioList.Add(MakeShareable(new FString(TEXT("Fighter"))));
+	ScenarioList.Add(MakeShareable(new FString(TEXT("Transport"))));
+	ScenarioList.Add(MakeShareable(new FString(TEXT("Defense"))));
 	//ScenarioList.Add(MakeShareable(new FString(TEXT("Debug"))));
 
 	// Color
@@ -63,7 +63,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SVerticalBox)
 				
-				// Company info
+				// Title
 				+ SVerticalBox::Slot()
 				.Padding(Theme.TitlePadding)
 				.AutoHeight()
@@ -72,15 +72,48 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					.TextStyle(&Theme.SubTitleFont)
 					.Text(LOCTEXT("NewGameTitle", "NEMA COLONIAL ADMINISTRATION"))
 				]
-				
-				// Company info
+
+				// Scenario
 				+ SVerticalBox::Slot()
 				.Padding(Theme.ContentPadding)
 				.AutoHeight()
+				.HAlign(HAlign_Fill)
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(LOCTEXT("NewGameHint", "Please enter the details of your new company."))
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(LOCTEXT("NewGameScenario", "Company trade"))
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Right)
+					[
+						SNew(SBox)
+						.WidthOverride(0.4 * Theme.ContentWidth)
+						[
+							SNew(SBorder)
+							.BorderImage(&Theme.BackgroundBrush)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(ScenarioSelector, SComboBox<TSharedPtr<FString>>)
+								.OptionsSource(&ScenarioList)
+								.InitiallySelectedItem(ScenarioList[0])
+								.OnGenerateWidget(this, &SFlareNewGameMenu::OnGenerateComboLine)
+								.OnSelectionChanged(this, &SFlareNewGameMenu::OnComboLineSelectionChanged)
+								.ComboBoxStyle(&Theme.ComboBoxStyle)
+								.ForegroundColor(FLinearColor::White)
+								[
+									SNew(STextBlock)
+									.Text(this, &SFlareNewGameMenu::OnGetCurrentComboLine)
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+						]
+					]
 				]
 
 				// Company name
@@ -92,7 +125,6 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					SNew(SHorizontalBox)
 
 					+ SHorizontalBox::Slot()
-					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
@@ -127,7 +159,6 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					SNew(SHorizontalBox)
 
 					+ SHorizontalBox::Slot()
-					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
@@ -153,23 +184,14 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
-				// Scenario
+				// Company ID hint
 				+ SVerticalBox::Slot()
-				.AutoHeight()
 				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				.HAlign(HAlign_Fill)
 				[
-					SAssignNew(ScenarioSelector, SComboBox<TSharedPtr<FString>>)
-					.OptionsSource(&ScenarioList)
-					.InitiallySelectedItem(ScenarioList[0])
-					.OnGenerateWidget(this, &SFlareNewGameMenu::OnGenerateComboLine)
-					.OnSelectionChanged(this, &SFlareNewGameMenu::OnComboLineSelectionChanged)
-					.ComboBoxStyle(&Theme.ComboBoxStyle)
-					.ForegroundColor(FLinearColor::White)
-					[
-						SNew(STextBlock)
-						.Text(this, &SFlareNewGameMenu::OnGetCurrentComboLine)
-						.TextStyle(&Theme.TextFont)
-					]
+					SAssignNew(CompanyIDHint, STextBlock)
+					.TextStyle(&Theme.TextFont)
 				]
 
 				// Tutorial
@@ -179,8 +201,8 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 				.HAlign(HAlign_Right)
 				[
 					SAssignNew(TutorialButton, SFlareButton)
-					.Text(LOCTEXT("Tutorial", "Play tutorial"))
-					.HelpText(LOCTEXT("TutorialInfo", "Start with a few tutorial missions"))
+					.Text(LOCTEXT("Tutorial", "Training contract"))
+					.HelpText(LOCTEXT("TutorialInfo", "Start with a few training contracts"))
 					.Toggle(true)
 				]
 
@@ -191,7 +213,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 				.HAlign(HAlign_Right)
 				[
 					SNew(SFlareButton)
-					.Text(LOCTEXT("Start", "Start the game"))
+					.Text(LOCTEXT("Start", "Start"))
 					.HelpText(LOCTEXT("StartInfo", "Confirm the creation of a new game and start playing"))
 					.Icon(FFlareStyleSet::GetIcon("Load"))
 					.OnClicked(this, &SFlareNewGameMenu::OnLaunch)
@@ -241,7 +263,24 @@ void SFlareNewGameMenu::Enter()
 		PC->GetMenuPawn()->SetCameraDistance(500);
 	}
 
+	// Setup colors
 	ColorBox->SetupDefault();
+
+	// List forbidden companies
+	FString ForbiddenIDsString;
+	UFlareCompanyCatalog* CompanyList = Game->GetCompanyCatalog();
+	for (const FFlareCompanyDescription& Company : CompanyList->Companies)
+	{
+		ForbiddenIDs.Add(Company.ShortName);
+
+		if (ForbiddenIDsString.Len())
+		{
+			ForbiddenIDsString += " - ";
+		}
+		ForbiddenIDsString += Company.ShortName.ToString();
+	}
+	FText ForbiddenIdsText = FText::Format(LOCTEXT("ForbiddenIdListFormat", "Some identifiers are forbidden ({0})"), FText::FromString(ForbiddenIDsString));
+	CompanyIDHint->SetText(ForbiddenIdsText);
 }
 
 void SFlareNewGameMenu::Exit()
@@ -261,6 +300,10 @@ bool SFlareNewGameMenu::IsLaunchDisabled() const
 	FString CompanyIdentifierData = CompanyIdentifier->GetText().ToString();
 
 	if (CompanyNameData.Len() > 25 || CompanyIdentifierData.Len() != 3)
+	{
+		return true;
+	}
+	else if (ForbiddenIDs.Find(FName(*CompanyIdentifierData)) != INDEX_NONE)
 	{
 		return true;
 	}

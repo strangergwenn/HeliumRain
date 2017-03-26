@@ -334,9 +334,7 @@ public:
 	}
 
 	inline const FFlareCompanyDescription* GetPlayerCompanyDescription() const;
-
-	inline const FSlateBrush* GetCompanyEmblem(int32 Index) const;
-
+	
 	inline const int32 GetCompanyCatalogCount() const
 	{
 		return (CompanyCatalog ? CompanyCatalog->Companies.Num() : 0);

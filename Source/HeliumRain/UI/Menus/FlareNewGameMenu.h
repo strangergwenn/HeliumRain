@@ -73,8 +73,10 @@ protected:
 	AFlareGame*                                 Game;
 	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
 	FFlareCompanyDescription                    CompanyData;
+	TArray<FName>                               ForbiddenIDs;
 	
 	// Slate widgets
+	TSharedPtr<STextBlock>                      CompanyIDHint;
 	TSharedPtr<SEditableText>                   CompanyName;
 	TSharedPtr<SEditableText>                   CompanyIdentifier;
 	TSharedPtr<SFlareColorPanel>                ColorBox;
