@@ -78,6 +78,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				.AutoHeight()
 				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Center)
 				[
 					SNew(SHorizontalBox)
 
@@ -121,6 +122,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				.AutoHeight()
 				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Center)
 				[
 					SNew(SHorizontalBox)
 
@@ -155,6 +157,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				.AutoHeight()
 				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Center)
 				[
 					SNew(SHorizontalBox)
 
