@@ -54,6 +54,7 @@ public:
 	/** Move wheel cursor */
 	void SetWheelCursorMove(FVector2D Move);
 
+
 protected:
 
 	/*----------------------------------------------------
@@ -90,10 +91,7 @@ protected:
 
 	/** Check if a widget has been selected */
 	bool HasSelection() const;
-
-	/** Get the slected index */
-	int32 GetSelectedIndex() const;
-
+	
 	/** Reset the current opening/closing animation */
 	void SetAnimDirection(bool Opening);
 
@@ -130,6 +128,7 @@ protected:
 	FVector2D                            MouseOffset;
 	FVector2D                            PreviousMove;
 	int32                                SelectedWidget;
+	int32                                SelectedIndex;
 	float                                CurrentTime;
 	float                                TimeSinceActive;
 	float                                IsOpening;

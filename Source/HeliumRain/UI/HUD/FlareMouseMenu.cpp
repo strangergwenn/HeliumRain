@@ -99,12 +99,11 @@ void SFlareMouseMenu::Close(bool EnableAction)
 	// Result extraction
 	if (HasSelection() && EnableAction)
 	{
-		int32 Index = GetSelectedIndex();
-		if (Index >= 0 && Index < Actions.Num())
+		if (SelectedIndex >= 0 && SelectedIndex < Actions.Num())
 		{
-			FLOGV("SFlareMouseMenu::Close : index %d", Index);
-			Actions[Index].ExecuteIfBound();
-			SelectedWidget = Index;
+			FLOGV("SFlareMouseMenu::Close : index %d", SelectedIndex);
+			Actions[SelectedIndex].ExecuteIfBound();
+			SelectedWidget = SelectedIndex;
 		}
 	}
 	else
@@ -121,6 +120,21 @@ void SFlareMouseMenu::Close(bool EnableAction)
 bool SFlareMouseMenu::IsOpen() const
 {
 	return (CurrentTime > 0);
+}
+
+void SFlareMouseMenu::SetWheelCursorMove(FVector2D Move)
+{
+	if (Move != PreviousMove)
+	{
+		TimeSinceActive = 0;
+		PreviousMove = Move;
+
+		MouseOffset += Move * Sensitivity;
+		if (MouseOffset.Size() > WidgetDistance)
+		{
+			MouseOffset /= MouseOffset.Size() / (float)WidgetDistance;
+		}
+	}
 }
 
 
@@ -153,6 +167,44 @@ void SFlareMouseMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 			MouseOffset = FVector2D::ZeroVector;
 		}
 	}
+
+	// Selection
+	int32 PreviousSelectedIndex = SelectedIndex;
+	if (HasSelection())
+	{
+		int32 BestIndex = -1;
+		float BestColinearity = -1;
+		FVector2D MouseDirection = MouseOffset;
+		MouseDirection.Normalize();
+
+		// Find the best index
+		for (int32 Index = 0; Index < Actions.Num(); Index++)
+		{
+			FVector2D WidgetDirection = GetDirection(Index);
+			WidgetDirection.Normalize();
+
+			float Colinearity = FVector2D::DotProduct(MouseDirection, WidgetDirection);
+
+			if (Colinearity > BestColinearity)
+			{
+				BestColinearity = Colinearity;
+				BestIndex = Index;
+			}
+		}
+
+		SelectedIndex = BestIndex;
+	}
+	else
+	{
+		SelectedIndex = -1;
+	}
+
+	// Switch sound
+	if (SelectedIndex != PreviousSelectedIndex)
+	{
+		// TODO
+		//PC->ClientPlaySound();
+	}
 }
 
 float SFlareMouseMenu::GetWheelMenuBlurStrength() const
@@ -169,22 +221,7 @@ float SFlareMouseMenu::GetWheelMenuBlurStrength() const
 		ShowBlur = (CurrentTime >= 1);
 	}
 
-	return ShowBlur ? Theme.BlurStrength / 2 : 0;
-}
-
-void SFlareMouseMenu::SetWheelCursorMove(FVector2D Move)
-{
-	if (Move != PreviousMove)
-	{
-		TimeSinceActive = 0;
-		PreviousMove = Move;
-
-		MouseOffset += Move * Sensitivity;
-		if (MouseOffset.Size() > WidgetDistance)
-		{
-			MouseOffset /= MouseOffset.Size() / (float)WidgetDistance;
-		}
-	}
+	return ShowBlur ? Theme.BlurStrength  : 0;
 }
 
 FVector2D SFlareMouseMenu::GetWidgetPosition(int32 Index) const
@@ -207,7 +244,7 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 
 	// Color
 	FLinearColor Color = Theme.NeutralColor;
-	if (GetSelectedIndex() == Index)
+	if (Index == SelectedIndex)
 	{
 		Color = Theme.FriendlyColor;
 	}
@@ -263,13 +300,20 @@ void SFlareMouseMenu::AddWidgetInternal(FString Icon, FText Legend, int32 Index)
 		.Position(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetPosition, Index)))
 		.Size(TAttribute<FVector2D>::Create(TAttribute<FVector2D>::FGetter::CreateSP(this, &SFlareMouseMenu::GetWidgetSize, Index)))
 		[
-			SNew(SFlareRoundButton)
-			.Clickable(false)
-			.Text(Legend)
-			.Icon(FFlareStyleSet::GetIcon(Icon))
-			.HighlightColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
-			.IconColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
-			.TextColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+			SNew(SBorder)
+            .BorderImage(FFlareStyleSet::GetIcon("LargeButtonBackground"))
+            .BorderBackgroundColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+            .HAlign(HAlign_Center)
+            .VAlign(VAlign_Center)
+            [
+				SNew(SFlareRoundButton)
+				.Clickable(false)
+				.Text(Legend)
+				.Icon(FFlareStyleSet::GetIcon(Icon))
+				.HighlightColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+				.IconColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+				.TextColor(this, &SFlareMouseMenu::GetWidgetColor, Index)
+			]
 		];
 }
 
@@ -300,38 +344,6 @@ float SFlareMouseMenu::GetColinearity(int32 Index) const
 bool SFlareMouseMenu::HasSelection() const
 {
 	return (MouseOffset).Size() > WidgetDistance / 2;
-}
-
-int32 SFlareMouseMenu::GetSelectedIndex() const
-{
-	if (!HasSelection())
-	{
-		return -1;
-	}
-	else
-	{
-		int32 BestIndex = -1;
-		float BestColinearity = -1;
-		FVector2D MouseDirection = MouseOffset;
-		MouseDirection.Normalize();
-
-		// Find the best index
-		for (int32 Index = 0; Index < Actions.Num(); Index++)
-		{
-			FVector2D WidgetDirection = GetDirection(Index);
-			WidgetDirection.Normalize();
-
-			float Colinearity = FVector2D::DotProduct(MouseDirection, WidgetDirection);
-
-			if (Colinearity > BestColinearity)
-			{
-				BestColinearity = Colinearity;
-				BestIndex = Index;
-			}
-		}
-
-		return BestIndex;
-	}
 }
 
 void SFlareMouseMenu::SetAnimDirection(bool Opening)
