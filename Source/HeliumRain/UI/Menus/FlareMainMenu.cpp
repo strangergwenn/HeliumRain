@@ -49,7 +49,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				[
 					SNew(SBox)
-					.HeightOverride(8)
+					.HeightOverride(2)
 					[
 						SNew(SImage)
 						.Image(&Theme.InvertedBrush)
