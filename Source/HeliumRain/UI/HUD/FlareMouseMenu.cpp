@@ -242,17 +242,23 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	// Color
 	FLinearColor Color = Theme.NeutralColor;
-	if (Index == SelectedIndex)
-	{
-		Color = Theme.FriendlyColor;
-	}
-
+	float AnimAlpha = FMath::Clamp(CurrentTime / AnimTime, 0.0f, 1.0f);
+	
+	// Menu open, maks everything
 	if (MenuManager->IsUIOpen())
 	{
 		Color.A = 0;
 	}
+
+	// Selected item
+	else if (Index == SelectedIndex)
+	{
+		Color = Theme.FriendlyColor;
+		Color.A = AnimAlpha * Theme.DefaultAlpha;
+	}
+
+	// Regular item
 	else
 	{
 		// Compute basic data
@@ -280,7 +286,6 @@ FSlateColor SFlareMouseMenu::GetWidgetColor(int32 Index) const
 		OperatorAlpha = FMath::Pow(OperatorAlpha, ColinearityPower);
 
 		// Update the alpha to account for animation
-		float AnimAlpha = FMath::Clamp(CurrentTime / AnimTime, 0.0f, 1.0f);
 		Color.A = AnimAlpha * ((1.0f - Theme.DefaultAlpha) + Theme.DefaultAlpha * OperatorAlpha);
 	}
 
