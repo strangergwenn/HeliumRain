@@ -143,6 +143,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 				.TextStyle(&Theme.SmallFont)
 				.Text(this, &SFlareMainOverlay::GetHelperText)
 				.ColorAndOpacity(HintColor)
+				.Visibility(this, &SFlareMainOverlay::GetHintVisibility)
 			]
 		]
 	];
@@ -526,6 +527,11 @@ FText SFlareMainOverlay::GetPlayerInfo() const
 	}
 
 	return FText();
+}
+
+EVisibility SFlareMainOverlay::GetHintVisibility() const
+{
+	return (MenuManager->GetPC()->GetNavHUD()->IsHUDVisible()) ? EVisibility::Visible : EVisibility::Hidden;
 }
 
 void SFlareMainOverlay::OnOpenMenu(EFlareMenu::Type Menu)

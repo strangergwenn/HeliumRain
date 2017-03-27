@@ -89,6 +89,9 @@ public:
 	/** Get the player info text */
 	FText GetPlayerInfo() const;
 
+	/** Hint visibility */
+	EVisibility GetHintVisibility() const;
+
 	/** Switch menu */
 	void OnOpenMenu(EFlareMenu::Type Menu);
 

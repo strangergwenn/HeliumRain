@@ -298,6 +298,12 @@ public:
 		return SectorMenu;
 	}
 
+	/** Get notifier */
+	TSharedPtr<SFlareNotifier> GetNotifier()
+	{
+		return Notifier;
+	}	
+
 	/** Get the height of the main overlay */
 	static int32 GetMainOverlayHeight();
 

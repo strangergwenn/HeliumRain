@@ -221,12 +221,14 @@ void AFlareHUD::OnTargetShipChanged()
 
 void AFlareHUD::UpdateHUDVisibility()
 {
-	bool NewVisibility = HUDVisible && !MenuManager->IsMenuOpen();
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	//FLOGV("AFlareHUD::UpdateHUDVisibility : new state is %d", NewVisibility);
-	HUDMenu->SetVisibility((NewVisibility && !PC->UseCockpit) ? EVisibility::Visible : EVisibility::Collapsed);
-	ContextMenu->SetVisibility(NewVisibility && !MenuManager->IsSwitchingMenu() ? EVisibility::Visible : EVisibility::Collapsed);
+	HUDMenu->SetVisibility(
+		(HUDVisible && !MenuManager->IsMenuOpen() && !PC->UseCockpit) ?                 EVisibility::Visible : EVisibility::Collapsed);
+	ContextMenu->SetVisibility(
+		(HUDVisible && !MenuManager->IsMenuOpen() && !MenuManager->IsSwitchingMenu()) ? EVisibility::Visible : EVisibility::Collapsed);
+	MenuManager->GetNotifier()->SetVisibility(
+		(HUDVisible) ?                                                                  EVisibility::SelfHitTestInvisible : EVisibility::Hidden);
 }
 
 void AFlareHUD::SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType)

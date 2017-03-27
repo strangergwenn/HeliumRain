@@ -317,4 +317,9 @@ public:
 		return PerformanceText;
 	}
 
+	bool IsHUDVisible() const
+	{
+		return HUDVisible;
+	}
+
 };
