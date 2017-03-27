@@ -582,6 +582,8 @@ void SFlareSpacecraftOrderOverlay::OnConfirmed()
 				OnConfirmedCB.ExecuteIfBound(Desc);
 			}
 		}
+
+		MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->InfoSound);
 	}
 
 	Close();
@@ -589,6 +591,7 @@ void SFlareSpacecraftOrderOverlay::OnConfirmed()
 
 void SFlareSpacecraftOrderOverlay::OnClose()
 {
+	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
 	Close();
 }
 

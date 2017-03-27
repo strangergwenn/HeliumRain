@@ -243,10 +243,12 @@ FReply SFlareCargoInfo::OnButtonClicked()
 
 void SFlareCargoInfo::OnDumpClicked()
 {
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 
 	if (Cargo && Cargo->Resource)
 	{
+		MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->DeleteSound);
 		TargetSpacecraft->GetCargoBay()->DumpCargo(Cargo);
 	}
 }

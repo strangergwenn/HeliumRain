@@ -198,5 +198,32 @@ protected:
 	UPROPERTY()
 	USoundCue*                               HealthWarningHeavySound;
 
+
+public:
+
+	/*----------------------------------------------------
+		Sound library
+	----------------------------------------------------*/
+
+	/** Negative sound */
+	UPROPERTY()
+	USoundCue*                               NegativeClickSound;
+
+	/** Info sound */
+	UPROPERTY()
+	USoundCue*                               InfoSound;
+
+	/** Ticking sound */
+	UPROPERTY()
+	USoundCue*                               TickSound;
+
+	/** Ticking sound */
+	UPROPERTY()
+	USoundCue*                               BellSound;
+	
+	/** Deletion sound */
+	UPROPERTY()
+	USoundCue*                               DeleteSound;
+
 };
 

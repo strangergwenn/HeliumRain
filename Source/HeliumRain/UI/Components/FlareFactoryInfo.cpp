@@ -521,6 +521,7 @@ void SFlareFactoryInfo::OnStartProduction()
 	FCHECK(TargetFactory);
 	TargetFactory->Start();
 	UpdateFactoryLimits();
+	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->InfoSound);
 }
 
 void SFlareFactoryInfo::OnStopProduction()
@@ -528,6 +529,7 @@ void SFlareFactoryInfo::OnStopProduction()
 	FCHECK(TargetFactory);
 	TargetFactory->Stop();
 	UpdateFactoryLimits();
+	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
 }
 
 void SFlareFactoryInfo::OnDecreaseOutputLimit(FFlareResourceDescription* Resource)

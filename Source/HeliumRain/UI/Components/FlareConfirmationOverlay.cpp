@@ -106,7 +106,10 @@ void SFlareConfirmationOverlay::Confirm(FText Title, FText Text, FSimpleDelegate
 	InfoText = Text;
 	InfoTitle = Title;
 	OnConfirmedCB = OnConfirmed;
+
 	SetVisibility(EVisibility::Visible);
+
+	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->BellSound);
 }
 
 bool SFlareConfirmationOverlay::IsOpen() const
@@ -136,6 +139,8 @@ void SFlareConfirmationOverlay::OnConfirmed()
 	SetVisibility(EVisibility::Collapsed);
 
 	OnConfirmedCB.ExecuteIfBound();
+
+	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->InfoSound);
 }
 
 void SFlareConfirmationOverlay::OnCancelled()
@@ -143,6 +148,8 @@ void SFlareConfirmationOverlay::OnCancelled()
 	MenuManager->HideTooltip(OKButton.Get());
 	MenuManager->HideTooltip(CancelButton.Get());
 	SetVisibility(EVisibility::Collapsed);
+
+	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
 }
 
 #undef LOCTEXT_NAMESPACE

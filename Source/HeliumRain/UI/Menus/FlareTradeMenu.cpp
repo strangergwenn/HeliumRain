@@ -716,6 +716,7 @@ void SFlareTradeMenu::OnConfirmTransaction()
 	PriceBox->Hide();
 	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
 	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
+	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->InfoSound);
 }
 
 void SFlareTradeMenu::OnCancelTransaction()
@@ -730,6 +731,7 @@ void SFlareTradeMenu::OnCancelTransaction()
 	PriceBox->Hide();
 	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
 	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
+	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
 }
 
 void SFlareTradeMenu::OnBackToSelection()

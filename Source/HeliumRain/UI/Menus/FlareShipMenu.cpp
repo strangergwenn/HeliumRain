@@ -1029,12 +1029,14 @@ void SFlareShipMenu::OnPartConfirmed()
 	// Get back to the ship config
 	BuyConfirmation->Hide();
 	LoadTargetSpacecraft();
+	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->InfoSound);
 }
 
 void SFlareShipMenu::OnPartCancelled()
 {
 	BuyConfirmation->Hide();
 	LoadTargetSpacecraft();
+	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
 }
 
 #undef LOCTEXT_NAMESPACE

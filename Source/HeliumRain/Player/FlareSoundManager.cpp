@@ -45,6 +45,11 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<USoundCue> AttackWarningSoundObj(TEXT("/Game/Sound/Game/A_AttackWarning"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> HealthWarningSoundObj(TEXT("/Game/Sound/Game/A_HealthWarning"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> HealthWarningHeavySoundObj(TEXT("/Game/Sound/Game/A_HealthWarningHeavy"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> NegativeClickSoundObj(TEXT("/Game/Sound/Game/A_Negative.A_Negative"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> InfoSoundObj(TEXT("/Game/Sound/Game/A_Info.A_Info"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> TickSoundObj(TEXT("/Game/Sound/Game/A_LightTick.A_LightTick"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> BellSoundObj(TEXT("/Game/Sound/Game/A_Bell.A_Bell"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> DeleteSoundObj(TEXT("/Game/Sound/Game/A_Delete.A_Delete"));
 
 	// Sound class
 	MasterSoundClass = MasterClassObj.Object;
@@ -123,6 +128,13 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	HealthWarningPlayer.PitchedFade = false;
 	HealthWarningPlayer.FadeSpeed = 1.0f;
 	HealthWarningPlayer.Volume = 0;
+
+	// Library
+	NegativeClickSound = NegativeClickSoundObj.Object;
+	InfoSound = InfoSoundObj.Object;
+	TickSound = TickSoundObj.Object;
+	BellSound = BellSoundObj.Object;
+	DeleteSound = DeleteSoundObj.Object;
 }
 
 

@@ -249,7 +249,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		]);
 
 	// Init
-	Close();
+	IsOverlayVisible = false;
 }
 
 void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu)
@@ -456,7 +456,7 @@ FText SFlareMainOverlay::GetHelperText() const
 	if (!MenuManager->IsMenuOpen())
 	{
 		FString KeyName = AFlareMenuManager::GetKeyNameFromActionName(FName("ToggleOverlay"));
-		return FText::Format(LOCTEXT("ToggleHelperFormat", "Use <{0}> to toggle the menu"), FText::FromString(KeyName));
+		return FText::Format(LOCTEXT("ToggleHelperFormat", "<{0}>"), FText::FromString(KeyName));
 	}
 	else
 	{
@@ -536,6 +536,7 @@ void SFlareMainOverlay::OnOpenMenu(EFlareMenu::Type Menu)
 void SFlareMainOverlay::OnBack()
 {
 	MenuManager->Back();
+	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
 }
 
 void SFlareMainOverlay::OnCloseMenu()

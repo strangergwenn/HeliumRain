@@ -1317,6 +1317,7 @@ void AFlarePlayerController::ToggleCamera()
 	if (ShipPawn && ShipPawn->GetParent()->GetDamageSystem()->IsAlive() && !MenuManager->IsMenuOpen() && !IsTyping())
 	{
 		SetExternalCamera(!ShipPawn->GetStateManager()->IsExternalCamera());
+		ClientPlaySound(GetSoundManager()->TickSound);
 	}
 }
 
@@ -1328,6 +1329,7 @@ void AFlarePlayerController::ToggleMenu()
 		{
 			MenuManager->CloseMenu();
 			MenuManager->CloseMainOverlay();
+			ClientPlaySound(GetSoundManager()->NegativeClickSound);
 		}
 		else if (MenuManager->IsOverlayOpen())
 		{
@@ -1336,6 +1338,7 @@ void AFlarePlayerController::ToggleMenu()
 		else
 		{
 			MenuManager->OpenMainOverlay();
+			ClientPlaySound(GetSoundManager()->TickSound);
 		}
 	}
 }
@@ -1358,6 +1361,7 @@ void AFlarePlayerController::ToggleOverlay()
 		else if (!MenuManager->IsUIOpen())
 		{
 			MenuManager->OpenMainOverlay();
+			ClientPlaySound(GetSoundManager()->TickSound);
 		}
 	}
 }
@@ -1373,17 +1377,19 @@ void AFlarePlayerController::BackMenu()
 			{
 				FLOG("AFlarePlayerController::BackMenu Back");
 				MenuManager->Back();
+				ClientPlaySound(GetSoundManager()->NegativeClickSound);
 			}
 			else
 			{
 				FLOG("AFlarePlayerController::BackMenu Close");
 				MenuManager->CloseMenu();
+				ClientPlaySound(GetSoundManager()->NegativeClickSound);
 			}
 		}
-		else
+		else if (MenuManager->IsOverlayOpen())
 		{
 			FLOG("AFlarePlayerController::BackMenu Toggle");
-			ToggleOverlay();
+			MenuManager->CloseMainOverlay();
 		}
 	}
 }

@@ -104,6 +104,7 @@ void SFlareMouseMenu::Close(bool EnableAction)
 			FLOGV("SFlareMouseMenu::Close : index %d", SelectedIndex);
 			Actions[SelectedIndex].ExecuteIfBound();
 			SelectedWidget = SelectedIndex;
+			PC->ClientPlaySound(PC->GetSoundManager()->InfoSound);
 		}
 	}
 	else
@@ -202,8 +203,7 @@ void SFlareMouseMenu::Tick(const FGeometry& AllottedGeometry, const double InCur
 	// Switch sound
 	if (SelectedIndex != PreviousSelectedIndex)
 	{
-		// TODO
-		//PC->ClientPlaySound();
+		PC->ClientPlaySound(PC->GetSoundManager()->TickSound);
 	}
 }
 
