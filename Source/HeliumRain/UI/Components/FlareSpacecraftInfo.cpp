@@ -105,6 +105,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					// Spacecraft info
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
 					[
 						SNew(STextBlock)
 						.Text(this, &SFlareSpacecraftInfo::GetSpacecraftInfo)
