@@ -2,6 +2,7 @@
 #include "../../Flare.h"
 #include "FlareNotification.h"
 #include "../../Player/FlareMenuManager.h"
+#include "../../Player/FlarePlayerController.h"
 
 #define LOCTEXT_NAMESPACE "FlareNotification"
 
@@ -185,7 +186,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 		]
 	];
 
-	SetVisibility(EVisibility::Visible);
+	SetVisibility(EVisibility::Collapsed);
 }
 
 
@@ -233,7 +234,7 @@ void SFlareNotification::Tick(const FGeometry& AllottedGeometry, const double In
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	if (!MenuManager->GetPC()->IsGameSimulating())
+	if (!MenuManager->GetPC()->IsGameBusy())
 	{
 		Lifetime += InDeltaTime;
 

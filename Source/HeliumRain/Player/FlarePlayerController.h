@@ -226,8 +226,8 @@ public:
 	/** Toggle the performance logger */
 	void TogglePerformance();
 
-	/** is simulating */
-	void MarkAsSimulating();
+	/** Is busy */
+	void MarkAsBusy();
 
 	// Menus
 	void ShipMenu();
@@ -418,7 +418,7 @@ protected:
 	bool                                     RightMousePressed;
 	bool                                     HasCurrentObjective;
 	bool									 RecoveryActive;
-	bool                                     IsSimulating;
+	bool                                     IsBusy;
 
 	FFlareSectorBattleState                  LastBattleState;
 	TMap<UFlareSimulatedSector*, FFlareSectorBattleState> LastSectorBattleStates;
@@ -528,9 +528,9 @@ public:
 		return NormalFOV;
 	}
 
-	bool IsGameSimulating() const
+	bool IsGameBusy() const
 	{
-		return IsSimulating;
+		return IsBusy;
 	}
 
 	float GetCurrentFOV();

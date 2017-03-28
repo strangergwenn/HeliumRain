@@ -87,11 +87,21 @@ void SFlareTooltip::Tick(const FGeometry& AllottedGeometry, const double InCurre
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	float Delay = TooltipVisible ? TooltipDelay : 0;
+	// Hide
+	if (MenuManager->GetPC()->IsGameBusy())
+	{
+		HideTooltipForce();
+	}
 
-	TooltipCurrentTime += (TooltipVisible ? InDeltaTime : -InDeltaTime);
-	TooltipCurrentTime = FMath::Clamp(TooltipCurrentTime, 0.0f, 2 * Delay + TooltipFadeDuration);
-	TooltipCurrentAlpha = FMath::Clamp((TooltipCurrentTime - Delay) / TooltipFadeDuration, 0.0f, 1.0f);
+	// Animate
+	else
+	{
+		float Delay = TooltipVisible ? TooltipDelay : 0;
+
+		TooltipCurrentTime += (TooltipVisible ? InDeltaTime : -InDeltaTime);
+		TooltipCurrentTime = FMath::Clamp(TooltipCurrentTime, 0.0f, 2 * Delay + TooltipFadeDuration);
+		TooltipCurrentAlpha = FMath::Clamp((TooltipCurrentTime - Delay) / TooltipFadeDuration, 0.0f, 1.0f);
+	}
 }
 
 void SFlareTooltip::ShowTooltip(SWidget* TargetWidget, FText Title, FText Content)

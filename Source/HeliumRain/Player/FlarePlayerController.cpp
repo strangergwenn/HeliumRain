@@ -125,7 +125,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	Super::PlayerTick(DeltaSeconds);
 	AFlareHUD* HUD = GetNavHUD();
 	TimeSinceWeaponSwitch += DeltaSeconds;
-	IsSimulating = false;
+	IsBusy = false;
 	
 	// Check recovery
 	if (RecoveryActive)
@@ -1394,9 +1394,9 @@ void AFlarePlayerController::BackMenu()
 	}
 }
 
-void AFlarePlayerController::MarkAsSimulating()
+void AFlarePlayerController::MarkAsBusy()
 {
-	IsSimulating = true;
+	IsBusy = true;
 }
 
 void AFlarePlayerController::Simulate()

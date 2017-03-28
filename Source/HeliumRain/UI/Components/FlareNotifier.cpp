@@ -3,6 +3,7 @@
 #include "FlareNotifier.h"
 #include "../Components/FlareObjectiveInfo.h"
 #include "../../Player/FlareMenuManager.h"
+#include "../../Player/FlarePlayerController.h"
 #include "../../Quests/FlareQuest.h"
 
 #define LOCTEXT_NAMESPACE "FlareNotifier"
@@ -151,39 +152,42 @@ void SFlareNotifier::FlushNotifications()
 
 void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
-	int32 NotificationCount = 0;
-
-	// Don't show notifications in story menu
-	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Story
-		|| MenuManager->GetNextMenu() == EFlareMenu::MENU_Story)
-	{
-		NotificationContainer->SetVisibility(EVisibility::Hidden);
-	}
-	else
-	{
-		NotificationContainer->SetVisibility(EVisibility::SelfHitTestInvisible);
-	}
-
 	// Tick parent
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	// Destroy notifications when they're done with the animation
-	for (auto& NotificationEntry : NotificationData)
+	if (!MenuManager->GetPC()->IsGameBusy())
 	{
-		if (NotificationEntry->IsFinished())
+		// Don't show notifications in story menu
+		if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Story
+			|| MenuManager->GetNextMenu() == EFlareMenu::MENU_Story)
 		{
-			NotificationContainer->RemoveSlot(NotificationEntry.ToSharedRef());
+			NotificationContainer->SetVisibility(EVisibility::Hidden);
 		}
 		else
 		{
-			NotificationCount++;
+			NotificationContainer->SetVisibility(EVisibility::SelfHitTestInvisible);
 		}
-	}
 
-	// Clean up the list when no notification is active
-	if (NotificationCount == 0)
-	{
-		NotificationData.Empty();
+		// Destroy notifications when they're done with the animation
+		int32 NotificationCount = 0;
+		for (auto& NotificationEntry : NotificationData)
+		{
+			if (NotificationEntry->IsFinished())
+			{
+				NotificationContainer->RemoveSlot(NotificationEntry.ToSharedRef());
+			}
+			else
+			{
+				NotificationEntry->SetVisibility(EVisibility::Visible);
+				NotificationCount++;
+			}
+		}
+
+		// Clean up the list when no notification is active
+		if (NotificationCount == 0)
+		{
+			NotificationData.Empty();
+		}
 	}
 }
 

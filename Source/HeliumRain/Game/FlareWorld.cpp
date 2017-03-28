@@ -413,7 +413,7 @@ void UFlareWorld::Simulate()
 {
 	double StartTs = FPlatformTime::Seconds();
 	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
-	Game->GetPC()->MarkAsSimulating();
+	Game->GetPC()->MarkAsBusy();
 
 	/**
 	 *  End previous day
