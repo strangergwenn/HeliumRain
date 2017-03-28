@@ -180,4 +180,7 @@ public:
 	int32 GetFleetCapacity() const;
 
 	int32 GetFleetFreeCargoSpace() const;
+
+	int32 GetCombatPoints() const;
+
 };

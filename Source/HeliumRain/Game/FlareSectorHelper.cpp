@@ -562,3 +562,33 @@ void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompa
 		}
 	}
 }
+
+int32 SectorHelper::GetHostileArmyCombatPoints(UFlareSimulatedSector* Sector, UFlareCompany* Company)
+{
+	int32 HostileCombatPoints = 0;
+
+	for(UFlareSimulatedSpacecraft* Spacecraft: Sector->GetSectorSpacecrafts())
+	{
+		if(Spacecraft->GetCompany()->GetWarState(Company) != EFlareHostility::Hostile)
+		{
+			continue;
+		}
+		HostileCombatPoints += Spacecraft->GetCombatPoints();
+	}
+	return HostileCombatPoints;
+}
+
+int32 SectorHelper::GetCompanyArmyCombatPoints(UFlareSimulatedSector* Sector, UFlareCompany* Company)
+{
+	int32 CompanyCombatPoints = 0;
+
+	for(UFlareSimulatedSpacecraft* Spacecraft: Sector->GetSectorSpacecrafts())
+	{
+		if(Spacecraft->GetCompany() != Company)
+		{
+			continue;
+		}
+		CompanyCombatPoints += Spacecraft->GetCombatPoints();
+	}
+	return CompanyCombatPoints;
+}
