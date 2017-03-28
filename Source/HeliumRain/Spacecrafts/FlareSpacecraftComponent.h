@@ -305,6 +305,9 @@ struct FFlareSpacecraftComponentDescription
 	/** Part cost */
 	UPROPERTY(EditAnywhere, Category = Content) int32 Cost;
 
+	/** Part combat points */
+	UPROPERTY(EditAnywhere, Category = Content) int32 CombatPoints;
+
 	/** Repair cost (in fleet supply) */
 	UPROPERTY(EditAnywhere, Category = Content) int32 RepairCost;
 

@@ -705,69 +705,31 @@ float UFlareSimulatedSpacecraft::GetStationEfficiency()
 	return Efficiency;
 }
 
-int64 UFlareSimulatedSpacecraft::ComputeCombatValue()
+int64 UFlareSimulatedSpacecraft::ComputeCombatPoints()
 {
 	if (GetDamageSystem()->IsDisarmed())
 	{
 		return 0;
 	}
 
-	UFlareSimulatedSector* PriceSector = GetCurrentFleet()->IsTraveling() ? GetCurrentFleet()->GetCurrentTravel()->GetDestinationSector() : GetCurrentSector();
-	int64 SpacecraftPrice = UFlareGameTools::ComputeSpacecraftPrice(GetDescription()->Identifier, PriceSector, true, false, true);
-
-	SpacecraftPrice *= GetDamageSystem()->GetGlobalHealth();
-
-	int64 UpgradesCost = 0;
+	int32 SpacecraftCombatPoints = GetDescription()->CombatPoints;
 
 	int32 WeaponGroupCount = GetDescription()->WeaponGroups.Num();
-	UFlareSpacecraftComponentsCatalog* Catalog = Game->GetPC()->GetGame()->GetShipPartsCatalog();
 
-	FName DefaultWeaponIdentifier;
-	FName DefaultRCSIdentifier;
-	FName DefaultOrbitalEngineIdentifier;
-
-	if(GetSize() == EFlarePartSize::S)
+	for(int32 WeaponGroupIndex = 0; WeaponGroupIndex < WeaponGroupCount; WeaponGroupIndex++)
 	{
-		DefaultWeaponIdentifier = Game->GetDefaultWeaponIdentifier();
-		// TODO constants
-		DefaultRCSIdentifier = FName("rcs-coral");
-		DefaultOrbitalEngineIdentifier = FName("engine-thresher");
-	}
-	else
-	{
-		DefaultWeaponIdentifier = Game->GetDefaultTurretIdentifier();
-		// TODO constants
-		DefaultRCSIdentifier = FName("rcs-rift");
-		DefaultOrbitalEngineIdentifier = FName("pod-thera");
-
+		FFlareSpacecraftComponentDescription* CurrentWeapon = GetCurrentPart(EFlarePartType::Weapon, WeaponGroupIndex);
+		SpacecraftCombatPoints += CurrentWeapon->CombatPoints;
 	}
 
-	FFlareSpacecraftComponentDescription* DefaultWeapon = Catalog->Get(DefaultWeaponIdentifier);
-	FFlareSpacecraftComponentDescription* DefaultRCS = Catalog->Get(DefaultRCSIdentifier);
-	FFlareSpacecraftComponentDescription* DefaultOrbitalEngine = Catalog->Get(DefaultOrbitalEngineIdentifier);
 
-	if(DefaultWeapon)
-	{
-		for(int32 WeaponGroupIndex = 0; WeaponGroupIndex < WeaponGroupCount; WeaponGroupIndex++)
-		{
-			FFlareSpacecraftComponentDescription* CurrentWeapon = GetCurrentPart(EFlarePartType::Weapon, WeaponGroupIndex);
-			UpgradesCost += GetUpgradeCost(CurrentWeapon, DefaultWeapon);
-		}
-	}
+	FFlareSpacecraftComponentDescription* CurrentPart = GetCurrentPart(EFlarePartType::RCS, 0);
+	SpacecraftCombatPoints += CurrentPart->CombatPoints;
 
-	if(DefaultRCS)
-	{
-		FFlareSpacecraftComponentDescription* CurrentPart = GetCurrentPart(EFlarePartType::RCS, 0);
-		UpgradesCost += GetUpgradeCost(CurrentPart, DefaultRCS);
-	}
+	CurrentPart = GetCurrentPart(EFlarePartType::OrbitalEngine, 0);
+	SpacecraftCombatPoints += CurrentPart->CombatPoints;
 
-	if(DefaultOrbitalEngine)
-	{
-		FFlareSpacecraftComponentDescription* CurrentPart = GetCurrentPart(EFlarePartType::OrbitalEngine, 0);
-		UpgradesCost += GetUpgradeCost(CurrentPart, DefaultOrbitalEngine);
-	}
-
-	SpacecraftPrice += UpgradesCost;
+	SpacecraftCombatPoints *= GetDamageSystem()->GetGlobalHealth();
 
 	return SpacecraftPrice;
 }

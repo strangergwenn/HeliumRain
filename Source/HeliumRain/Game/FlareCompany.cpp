@@ -858,17 +858,17 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 
 
 	// Compute army values
-	int64 EnemiesArmyValues = 0;
-	int64 AlliesArmyValues = 0;
+	int32 EnemiesArmyCombatPoints = 0;
+	int32 AlliesArmyCombatPoints = 0;
 #ifdef DEBUG_CONFIDENCE
 	FLOGV("Compute confidence for %s (ref: %s)", *GetCompanyName().ToString(), (ReferenceCompany ? *ReferenceCompany->GetCompanyName().ToString(): *FString("none")));
 #endif
 	for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
 	{
 		UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
-		EnemiesArmyValues += EnemyCompany->GetCompanyValue().ArmyValue;
+		EnemiesArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCombatPoints;
 #ifdef DEBUG_CONFIDENCE
-		FLOGV("- enemy: %s (%lld)", *EnemyCompany->GetCompanyName().ToString(), EnemyCompany->GetCompanyValue().ArmyValue);
+		FLOGV("- enemy: %s (%lld)", *EnemyCompany->GetCompanyName().ToString(), EnemyCompany->GetCompanyValue().ArmyCombatPoints);
 #endif
 	}
 
@@ -877,17 +877,17 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 		UFlareCompany* AllyCompany = Allies[AllyIndex];
 
 		// Allies can be enemy to only a part of my ennemie. Cap to the value of the enemy if not me
-		int64 AllyArmyValue = AllyCompany->GetCompanyValue().ArmyValue;
+		int32 AllyArmyCombatPoints= AllyCompany->GetCompanyValue().ArmyCombatPoints;
 #ifdef DEBUG_CONFIDENCE
-		FLOGV("- ally: %s (%lld)", *AllyCompany->GetCompanyName().ToString(), AllyArmyValue);
+		FLOGV("- ally: %s (%lld)", *AllyCompany->GetCompanyName().ToString(), AllyArmyCombatPoints);
 #endif
 		if(AllyCompany == this)
 		{
-			AlliesArmyValues += AllyArmyValue;
+			AlliesArmyCombatPoints += AllyArmyCombatPoints;
 		}
 		else
 		{
-			int64 MaxArmyValue = 0;
+			int32 MaxArmyCombatPoints = 0;
 
 			for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
 			{
@@ -895,42 +895,42 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 
 				if (AllyCompany->GetWarState(EnemyCompany) == EFlareHostility::Hostile)
 				{
-					MaxArmyValue += EnemyCompany->GetCompanyValue().ArmyValue;
+					MaxArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCombatPoints;
 					continue;
 				}
 
 				if (AllyCompany->GetReputation(EnemyCompany) <= -100)
 				{
-					MaxArmyValue += EnemyCompany->GetCompanyValue().ArmyValue;
+					MaxArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCombatPoints;
 					continue;
 				}
 			}
 #ifdef DEBUG_CONFIDENCE
-			FLOGV("  > restricted to %lld", MaxArmyValue);
+			FLOGV("  > restricted to %lld", MaxArmyCombatPoints);
 #endif
-			AlliesArmyValues += FMath::Min(MaxArmyValue, AllyArmyValue);
+			AlliesArmyCombatPoints += FMath::Min(MaxArmyCombatPoints, AllyArmyCombatPoints);
 		}
 
 
 
 
 	}
-#ifdef DEBUG_CONFIDENCE
-	FLOGV("EnemiesArmyValues=%lld AlliesArmyValues=%lld", EnemiesArmyValues, AlliesArmyValues);
+#ifdef EnemiesArmyCombatPoints
+	FLOGV("EnemiesArmyCombatPoints=%lld AlliesArmyCombatPoints=%lld", EnemiesArmyCombatPoints, AlliesArmyCombatPoints);
 #endif
 	// Compute confidence
-	if(AlliesArmyValues == EnemiesArmyValues)
+	if(AlliesArmyCombatPoints == EnemiesArmyCombatPoints)
 	{
 		return 0;
 	}
-	else if(AlliesArmyValues > EnemiesArmyValues)
+	else if(AlliesArmyCombatPoints > EnemiesArmyCombatPoints)
 	{
-		if(EnemiesArmyValues == 0)
+		if(EnemiesArmyCombatPoints == 0)
 		{
 			return 1;
 		}
 
-		float Ratio =  (float) AlliesArmyValues /  (float) EnemiesArmyValues;
+		float Ratio =  (float) AlliesArmyCombatPoints /  (float) EnemiesArmyCombatPoints;
 		float Confidence = 1.f-1.f / (Ratio + 1);
 #ifdef DEBUG_CONFIDENCE
 	FLOGV("Ratio=%f Confidence=%f", Ratio, Confidence);
@@ -939,12 +939,12 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 	}
 	else
 	{
-		if(AlliesArmyValues == 0)
+		if(AlliesArmyCombatPoints == 0)
 		{
 			return -1;
 		}
 
-		float Ratio =  (float) EnemiesArmyValues /  (float) AlliesArmyValues;
+		float Ratio =  (float) EnemiesArmyCombatPoints /  (float) AlliesArmyCombatPoints;
 		float Confidence = 1.f-1.f / (Ratio + 1);
 #ifdef DEBUG_CONFIDENCE
 	FLOGV("Ratio=%f Confidence=%f", Ratio, -Confidence);
@@ -1156,6 +1156,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 	Value.StockValue = 0;
 	Value.ShipsValue = 0;
 	Value.ArmyValue = 0;
+	Value.ArmyCombatPoints = 0;
 	Value.StationsValue = 0;
 
 	for (int SpacecraftIndex = 0; SpacecraftIndex < CompanySpacecrafts.Num(); SpacecraftIndex++)
@@ -1202,7 +1203,11 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 			Value.ShipsValue += SpacecraftPrice;
 		}
 
-		Value.ArmyValue += Spacecraft->ComputeCombatValue();
+		if(Spacecraft->IsMilitary())
+		{
+			Value.ArmyValue += SpacecraftPrice;
+			Value.ArmyCombatPoints += Spacecraft->ComputeCombatPoints();
+		}
 
 		// Value of the stock
 		TArray<FFlareCargo>& CargoBaySlots = Spacecraft->GetCargoBay()->GetSlots();

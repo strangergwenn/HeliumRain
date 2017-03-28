@@ -52,11 +52,11 @@ struct DefenseSector
 {
 	UFlareSimulatedSector* Sector;
 	UFlareSimulatedSector* TempBaseSector;
-	int64 ArmyValue;
-	int64 ArmyAntiSValue;
-	int64 ArmyAntiLValue;
-	int64 LargeShipArmyValue;
-	int64 SmallShipArmyValue;
+	int32 CombatPoints;
+	int64 ArmyAntiSCombatPoints;
+	int64 ArmyAntiLCombatPoints;
+	int32 ArmyLargeShipCombatPoints;
+	int32 ArmySmallShipCombatPoints;
 	int32 LargeShipArmyCount;
 	int32 SmallShipArmyCount;
 	bool CapturingStation;
@@ -75,21 +75,21 @@ struct DefenseSector
 struct WarTargetIncomingFleet
 {
 	int64 TravelDuration;
-	int64 ArmyValue;
+	int32 ArmyCombatPoints;
 };
 
 
 struct WarTarget
 {
 	UFlareSimulatedSector* Sector;
-	int64 EnemyArmyValue;
-	int64 EnemyArmyLValue;
-	int64 EnemyArmySValue;
+	int32 EnemyArmyCombatPoints;
+	int32 EnemyArmyLCombatPoints;
+	int32 EnemyArmySCombatPoints;
 	int64 EnemyStationCount;
 	int64 EnemyCargoCount;
-	int64 OwnedArmyValue;
-	int64 OwnedArmyAntiSValue;
-	int64 OwnedArmyAntiLValue;
+	int32 OwnedArmyCombatPoints;
+	int32 OwnedArmyAntiSCombatPoints;
+	int32 OwnedArmyAntiLCombatPoints;
 	int64 OwnedStationCount;
 	int64 OwnedCargoCount;
 	int64 OwnedMilitaryCount;

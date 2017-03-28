@@ -714,6 +714,10 @@ struct FFlareSpacecraftDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	FFlareProductionData CycleCost;
 
+	/** Spacecraft combat points */
+	UPROPERTY(EditAnywhere, Category = Content)
+	int32 CombatPoints;
+
 	/** Max level.*/
 	UPROPERTY(EditAnywhere, Category = Content)
 	int32 MaxLevel;
