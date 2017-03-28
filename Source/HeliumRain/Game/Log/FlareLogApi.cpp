@@ -201,7 +201,7 @@ void CombatLog::BombDestroyed(FName BombIdentifier)
 	FFlareLogWriter::PushWriterMessage(Message);
 }
 
-void CombatLog::SpacecraftDamaged(UFlareSimulatedSpacecraft* Spacecraft, float Energy, float Radius, FVector RelativeLocation, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
+void CombatLog::SpacecraftDamaged(UFlareSimulatedSpacecraft* Spacecraft, float Energy, float Radius, FVector RelativeLocation, EFlareDamage::Type DamageType, UFlareCompany* DamageSource, FString DamageCauser)
 {
 	FlareLogMessage Message;
 	Message.Target = EFlareLogTarget::Combat;
@@ -246,6 +246,13 @@ void CombatLog::SpacecraftDamaged(UFlareSimulatedSpacecraft* Spacecraft, float E
 		FlareLogMessageParam Param;
 		Param.Type = EFlareLogParam::String;
 		Param.StringValue =  (DamageSource ? DamageSource->GetShortName().ToString() : "");
+		Message.Params.Add(Param);
+	}
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = DamageCauser;
 		Message.Params.Add(Param);
 	}
 

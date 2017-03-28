@@ -599,7 +599,7 @@ void UFlareBattle::ApplyDamage(UFlareSimulatedSpacecraft* Target, float Energy, 
 
 	FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(TargetComponent->ComponentIdentifier);
 
-	CombatLog::SpacecraftDamaged(Target, Energy, 0, FVector::ZeroVector, DamageType, DamageSource);
+	CombatLog::SpacecraftDamaged(Target, Energy, 0, FVector::ZeroVector, DamageType, DamageSource, "SimulatedBattle");
 	float DamageRatio = Target->GetDamageSystem()->ApplyDamage(ComponentDescription, TargetComponent, Energy, DamageType, DamageSource);
 }
 

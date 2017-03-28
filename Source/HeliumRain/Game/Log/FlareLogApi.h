@@ -125,7 +125,7 @@ public:
 	 *  - vector3 : relative location
 	 *  - string : damageSourceCompany
 	 */
-	static void SpacecraftDamaged(UFlareSimulatedSpacecraft* Spacecraft, float Energy, float Radius, FVector RelativeLocation, EFlareDamage::Type DamageType, UFlareCompany* DamageSource);
+	static void SpacecraftDamaged(UFlareSimulatedSpacecraft* Spacecraft, float Energy, float Radius, FVector RelativeLocation, EFlareDamage::Type DamageType, UFlareCompany* DamageSource, FString DamageCauser);
 
 
 	/**
