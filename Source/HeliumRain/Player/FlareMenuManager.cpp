@@ -350,7 +350,7 @@ void AFlareMenuManager::ShowTooltip(SWidget* TargetWidget, FText Title, FText Co
 
 void AFlareMenuManager::HideTooltip(SWidget* TargetWidget)
 {
-	if (Tooltip.IsValid() && !IsFading())
+	if (IsValidLowLevel() && Tooltip.IsValid() && !IsFading())
 	{
 		Tooltip->HideTooltip(TargetWidget);
 	}
