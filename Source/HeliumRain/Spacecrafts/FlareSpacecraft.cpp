@@ -322,8 +322,7 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	// Strictly disallow self-collision : this should never happen
 	if (Other == this)
 	{
-		// TODO fixme
-		FLOGV("%s (%d) self-collision: %s/%s collide with %s/%s",
+		FLOGV("AFlareSpacecraft::NotifyHit : %s (%d) self-collision: %s/%s collided with %s/%s",
 			*GetImmatriculation().ToString(),
 			IsPresentationMode(),
 			(this ? *this->GetName() : TEXT("null")),
@@ -332,19 +331,7 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 			(OtherComp ? *OtherComp->GetName() : TEXT("null"))
 		);
 
-		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-		PC->ConsoleCommand("quit");
-		return;
-
-		PC->Notify(
-			FText::FromString("KNOWN BUG #158"),
-			FText::FromString("You just encountered the known bug #158. You can re-fly your ship by clicking \"fly previous\". Sorry for the inconvenience."),
-			"known-bug-158",
-			EFlareNotification::NT_Military);
-
-		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Orbit);
-
-		return;
+		FCHECK(false);
 	}
 
 	// ghoul 10m/s -> asteroid : 5919376.500000

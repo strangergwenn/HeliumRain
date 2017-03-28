@@ -315,7 +315,14 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 			break;
 		}
 
-		ParentSpacecraft->SetSpawnMode(EFlareSpawnMode::Safe);
+		if (ParentSpacecraft->GetData().SpawnMode == EFlareSpawnMode::Travel && GetSimulatedSector()->IsTravelSector())
+		{
+			FLOG("UFlareSector::LoadSpacecraft : ship is still traveling");
+		}
+		else
+		{
+			ParentSpacecraft->SetSpawnMode(EFlareSpawnMode::Safe);
+		}
 	}
 	else
 	{
@@ -518,6 +525,26 @@ void UFlareSector::PlaceSpacecraft(AFlareSpacecraft* Spacecraft, FVector Locatio
 		RandomLocationRadius += RandomLocationRadiusIncrement;
 	}
 	while (EffectiveDistance <= 0 && RandomLocationRadius < RandomLocationRadiusIncrement * 1000);
+
+#if !UE_BUILD_SHIPPING
+	{
+		TArray<AActor*> ColliderActorList;
+		UGameplayStatics::GetAllActorsOfClass(GetGame()->GetWorld(), AFlareCollider::StaticClass(), ColliderActorList);
+		for (int32 ColliderIndex = 0; ColliderIndex < ColliderActorList.Num(); ColliderIndex++)
+		{
+			AActor* ColliderCandidate = ColliderActorList[ColliderIndex];
+
+			float CandidateSize = Cast<UStaticMeshComponent>(ColliderCandidate->GetRootComponent())->Bounds.SphereRadius;
+			float SpacecraftSize = Spacecraft->GetSimpleCollisionRadius();
+			float Distance = FVector::Dist(ColliderCandidate->GetActorLocation(), Location);
+			
+			if (Distance < CandidateSize + SpacecraftSize)
+			{
+				FLOGV("UFlareSector::PlaceSpacecraft : %s was placed inside collider '%s'", *Spacecraft->GetImmatriculation().ToString(), *ColliderCandidate->GetName());
+			}
+		}
+	}
+#endif
 
 	Spacecraft->SetActorLocation(Location);
 }
