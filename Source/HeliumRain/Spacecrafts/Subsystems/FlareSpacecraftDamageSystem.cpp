@@ -497,7 +497,7 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 		LastDamageCauser = NULL;
 	}
 
-	FString DamageSourceName = OtherSpacecraft ? OtherSpacecraft->GetImmatriculation().ToString() : Other->GetName();
+	FString DamageSourceName = OtherSpacecraft ? OtherSpacecraft->GetImmatriculation().ToString() : Other->GetFullName();
 	ApplyDamage(ImpactEnergy, Radius, BestHitResult.Location, EFlareDamage::DAM_Collision, DamageSource, DamageSourceName);
 }
 
