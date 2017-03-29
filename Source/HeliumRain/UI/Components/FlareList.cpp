@@ -21,6 +21,7 @@ void SFlareList::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	OnItemSelected = InArgs._OnItemSelected;
+	HasShips = false;
 	
 	// Build structure
 	ChildSlot
@@ -43,7 +44,7 @@ void SFlareList::Construct(const FArguments& InArgs)
 				+ SHorizontalBox::Slot()
 				.VAlign(VAlign_Center)
 				[
-					SNew(STextBlock)
+					SAssignNew(Title, STextBlock)
 					.Text(InArgs._Title)
 					.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
 				]
@@ -55,6 +56,7 @@ void SFlareList::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("ShowStations", "Stations"))
 					.HelpText(LOCTEXT("ShowStationsInfo", "Show stations in the list"))
 					.OnClicked(this, &SFlareList::OnToggleShowFlags)
+					.Visibility(this, &SFlareList::GetShipFiltersVisibility)
 					.Small(true)
 					.Transparent(true)
 					.Toggle(true)
@@ -68,6 +70,7 @@ void SFlareList::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("ShowMilitary", "Military"))
 					.HelpText(LOCTEXT("ShowMilitaryInfo", "Show military ships in the list"))
 					.OnClicked(this, &SFlareList::OnToggleShowFlags)
+					.Visibility(this, &SFlareList::GetShipFiltersVisibility)
 					.Small(true)
 					.Transparent(true)
 					.Toggle(true)
@@ -81,6 +84,7 @@ void SFlareList::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("ShowFreighters", "Freighters"))
 					.HelpText(LOCTEXT("ShowFreightersInfo", "Show freighters in the list"))
 					.OnClicked(this, &SFlareList::OnToggleShowFlags)
+					.Visibility(this, &SFlareList::GetShipFiltersVisibility)
 					.Small(true)
 					.Transparent(true)
 					.Toggle(true)
@@ -135,6 +139,7 @@ void SFlareList::AddFleet(UFlareFleet* Fleet)
 
 void SFlareList::AddShip(UFlareSimulatedSpacecraft* Ship)
 {
+	HasShips = true;
 	ObjectList.AddUnique(FInterfaceContainer::New(Ship));
 }
 
@@ -256,8 +261,20 @@ void SFlareList::ClearSelection()
 	}
 }
 
+void SFlareList::SetTitle(FText NewTitle)
+{
+	Title->SetText(NewTitle);
+}
+
+void SFlareList::SetUseCompactDisplay(bool Status)
+{
+	UseCompactDisplay = Status;
+}
+
 void SFlareList::Reset()
 {
+	HasShips = false;
+
 	ObjectList.Empty();
 	FilteredObjectList.Empty();
 
@@ -275,6 +292,11 @@ void SFlareList::Reset()
 EVisibility SFlareList::GetNoObjectsVisibility() const
 {
 	return (FilteredObjectList.Num() > 0 ? EVisibility::Collapsed : EVisibility::Visible);
+}
+
+EVisibility SFlareList::GetShipFiltersVisibility() const
+{
+	return (HasShips ? EVisibility::Visible : EVisibility::Hidden);
 }
 
 TSharedRef<ITableRow> SFlareList::GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)

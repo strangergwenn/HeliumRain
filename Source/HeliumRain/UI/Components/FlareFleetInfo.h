@@ -72,7 +72,16 @@ public:
 	/** Get the text color */
 	FSlateColor GetTextColor() const;
 
-	/** Get the target description */
+	/** Get the edit hint text */
+	FText GetInspectHintText() const;
+
+	/** Can we inspect */
+	bool IsInspectDisabled() const;
+
+	/** Get the fleet composition */
+	FText GetComposition() const;
+
+	/** Get the fleet description */
 	FText GetDescription() const;
 
 	/** Hide the company flag if owned */

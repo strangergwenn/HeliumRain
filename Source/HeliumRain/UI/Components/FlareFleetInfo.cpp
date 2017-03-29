@@ -53,14 +53,14 @@ void SFlareFleetInfo::Construct(const FArguments& InArgs)
 						.ColorAndOpacity(this, &SFlareFleetInfo::GetTextColor)
 					]
 
-					// Fleet description
+					// Fleet composition
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
 					.Padding(Theme.SmallContentPadding)
 					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
-						.Text(this, &SFlareFleetInfo::GetDescription)
+						.Text(this, &SFlareFleetInfo::GetComposition)
 						.TextStyle(&Theme.TextFont)
 					]
 				]
@@ -70,9 +70,26 @@ void SFlareFleetInfo::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				.Padding(Theme.SmallContentPadding)
 				[
-					SAssignNew(CompanyFlag, SFlareCompanyFlag)
-					.Player(InArgs._Player)
-					.Visibility(this, &SFlareFleetInfo::GetCompanyFlagVisibility)
+					SNew(SHorizontalBox)
+
+					// Company flag
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(CompanyFlag, SFlareCompanyFlag)
+						.Player(InArgs._Player)
+						.Visibility(this, &SFlareFleetInfo::GetCompanyFlagVisibility)
+					]
+
+					// Fleet info
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareFleetInfo::GetDescription)
+						.TextStyle(&Theme.TextFont)
+					]
 				]
 
 				// Buttons 
@@ -87,8 +104,9 @@ void SFlareFleetInfo::Construct(const FArguments& InArgs)
 					.AutoWidth()
 					[
 						SAssignNew(InspectButton, SFlareButton)
-						.Text(LOCTEXT("Inspect", "DETAILS"))
-						.HelpText(LOCTEXT("InspectInfo", "Take a closer look at this fleet"))
+						.Text(LOCTEXT("Edit", "EDIT"))
+						.HelpText(this, &SFlareFleetInfo::GetInspectHintText)
+						.IsDisabled(this, &SFlareFleetInfo::IsInspectDisabled)
 						.OnClicked(this, &SFlareFleetInfo::OnInspect)
 						.Width(2.8)
 					]
@@ -201,14 +219,116 @@ FSlateColor SFlareFleetInfo::GetTextColor() const
 	return Result;
 }
 
+FText SFlareFleetInfo::GetInspectHintText() const
+{
+	if (TargetFleet->IsTraveling())
+	{
+		return LOCTEXT("CantEditTravelFleet", "Can't edit travelling fleets");
+	}
+	else if (TargetFleet->GetCurrentSector()->IsPlayerBattleInProgress())
+	{
+		return LOCTEXT("CantEditBattleFleet", "Can't edit fleets during battles");
+	}
+	else
+	{
+		return LOCTEXT("EditInfo", "Change the composition of this fleet");
+	}
+}
+
+bool SFlareFleetInfo::IsInspectDisabled() const
+{
+	if (TargetFleet->IsTraveling())
+	{
+		return true;
+	}
+	else if (TargetFleet->GetCurrentSector()->IsPlayerBattleInProgress())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+FText SFlareFleetInfo::GetComposition() const
+{
+	FText Result;
+
+	if (TargetFleet)
+	{
+		FText SingleShip = LOCTEXT("ShipSingle", "ship");
+		FText MultipleShips = LOCTEXT("ShipPlural", "ships");
+		int32 HeavyShipCount = TargetFleet->GetMilitaryShipCountBySize(EFlarePartSize::L);
+		int32 LightShipCount = TargetFleet->GetMilitaryShipCountBySize(EFlarePartSize::S);
+		int32 CivilianShipCount = TargetFleet->GetShipCount() - HeavyShipCount - LightShipCount;
+
+		// Fighters
+		FText LightShipText;
+		if (LightShipCount > 0)
+		{
+			LightShipText = FText::Format(LOCTEXT("FleetCompositionLightFormat", "{0} light {1}"),
+				FText::AsNumber(LightShipCount),
+				(LightShipCount > 1) ? MultipleShips : SingleShip);
+		}
+
+		// Heavies
+		FText HeavyShipText;
+		if (HeavyShipCount > 0)
+		{
+			HeavyShipText = FText::Format(LOCTEXT("FleetCompositionHeavyFormat", "{0} heavy {1}"),
+				FText::AsNumber(HeavyShipCount),
+				(HeavyShipCount > 1) ? MultipleShips : SingleShip);
+
+			if (LightShipCount > 0)
+			{
+				HeavyShipText = FText::FromString(", " + HeavyShipText.ToString());
+			}
+		}
+
+		// Civilians
+		FText CivilianShipText;
+		if (CivilianShipCount > 0)
+		{
+			CivilianShipText = FText::Format(LOCTEXT("FleetCompositionHeavyFormat", "{0} civilian {1}"),
+				FText::AsNumber(CivilianShipCount),
+				(CivilianShipCount > 1) ? MultipleShips : SingleShip);
+
+			if (LightShipCount > 0 || HeavyShipCount > 0)
+			{
+				CivilianShipText = FText::FromString(", " + CivilianShipText.ToString());
+			}
+		}
+
+		Result = FText::Format(LOCTEXT("FleetCompositionFormat", "({0}{1}{2})"), LightShipText, HeavyShipText, CivilianShipText);
+	}
+
+	return Result;
+}
+
 FText SFlareFleetInfo::GetDescription() const
 {
-	// Common text
-	FText DefaultText = LOCTEXT("Default", "UNKNOWN OBJECT");
+	FText Result;
+	
+	if (TargetFleet)
+	{
+		FText FleetAssignedText;
+		if (TargetFleet->GetCurrentTradeRoute())
+		{
+			FleetAssignedText = FText::Format(LOCTEXT("FleetAssignedFormat", " - {0}"),
+				TargetFleet->GetCurrentTradeRoute()->GetTradeRouteName());
+		}
 
-	// TODO
+		FText FleetDescriptionText = FText::Format(LOCTEXT("FleetFormat", "{0} ({1} / {2}){3}"),
+			TargetFleet->GetFleetName(),
+			FText::AsNumber(TargetFleet->GetShipCount()),
+			FText::AsNumber(TargetFleet->GetMaxShipCount()),
+			FleetAssignedText);
 
-	return DefaultText;
+		Result = FText::Format(LOCTEXT("SpacecraftInfoFormat", "{0} - {1}"), TargetFleet->GetStatusInfo(), FleetDescriptionText);
+	}
+
+	return Result;
 }
 
 EVisibility SFlareFleetInfo::GetCompanyFlagVisibility() const

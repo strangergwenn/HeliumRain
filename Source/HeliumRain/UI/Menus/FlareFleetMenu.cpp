@@ -24,7 +24,7 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 
 	// Setup
 	FleetToAdd = NULL;
-	SelectedFleet = NULL;
+	FleetToEdit = NULL;
 	ShipToRemove = NULL;
 
 	// Build structure
@@ -42,145 +42,146 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 		[
 			SNew(SHorizontalBox)
 
-			// Fleet list
+			// Fleet list & tools
 			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Left)
+			.HAlign(HAlign_Right)
 			[
-				SNew(SBox)
-				.HAlign(HAlign_Fill)
-				.WidthOverride(Theme.ContentWidth)
+				SNew(SScrollBox)
+				.Style(&Theme.ScrollBoxStyle)
+				.ScrollBarStyle(&Theme.ScrollBarStyle)
+				
+				// Fleet details
+				+ SScrollBox::Slot()
+				.Padding(Theme.TitlePadding)
 				[
-					SNew(SVerticalBox)
+					SNew(STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(LOCTEXT("ManageFleet", "Fleet details"))
+					.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+				]
+		
+				// Fleet tools
+				+ SScrollBox::Slot()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SHorizontalBox)
 
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+					// Name field
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Fill)
+					.VAlign(VAlign_Center)
+					.Padding(Theme.SmallContentPadding)
+					[
+						SAssignNew(EditFleetName, SEditableText)
+						.Style(&Theme.TextInputStyle)
+						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+					]
+
+					// Confirm name
+					+ SHorizontalBox::Slot()
 					.HAlign(HAlign_Right)
+					.Padding(Theme.SmallContentPadding)
+					.AutoWidth()
 					[
-						SNew(SVerticalBox)
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(SFlareButton)
-							.Width(8)
-							.Icon(FFlareStyleSet::GetIcon("OK"))
-							.Text(this, &SFlareFleetMenu::GetSelectText)
-							.HelpText(LOCTEXT("SelectFleetInfo", "Select this fleet to rename it or change its composition"))
-							.IsDisabled(this, &SFlareFleetMenu::IsSelectDisabled)
-							.OnClicked(this, &SFlareFleetMenu::OnSelectFleet)
-						]
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(SFlareButton)
-							.Width(8)
-							.Icon(FFlareStyleSet::GetIcon("MoveRight"))
-							.Text(this, &SFlareFleetMenu::GetAddText)
-							.HelpText(LOCTEXT("AddToFleetInfo", "Merge this fleet or ship with the current fleet"))
-							.IsDisabled(this, &SFlareFleetMenu::IsAddDisabled)
-							.OnClicked(this, &SFlareFleetMenu::OnAddToFleet)
-							.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-						]
+						SNew(SFlareButton)
+						.Width(4)
+						.Icon(FFlareStyleSet::GetIcon("OK"))
+						.Text(LOCTEXT("Rename", "Rename"))
+						.HelpText(this, &SFlareFleetMenu::GetRenameHintText)
+						.OnClicked(this, &SFlareFleetMenu::OnRenameFleet)
+						.IsDisabled(this, &SFlareFleetMenu::IsRenameDisabled)
+						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
 					]
 
-					+ SVerticalBox::Slot()
+					// Finish
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Right)
+					.Padding(Theme.SmallContentPadding)
+					.AutoWidth()
 					[
-						SNew(SScrollBox)
-						.Style(&Theme.ScrollBoxStyle)
-						.ScrollBarStyle(&Theme.ScrollBarStyle)
-
-						+ SScrollBox::Slot()
-						[
-							SAssignNew(FleetList, SFlareList)
-							.MenuManager(MenuManager)
-							.Title(LOCTEXT("Unassigned", "Unassigned fleets & ships"))
-							.OnItemSelected(this, &SFlareFleetMenu::OnFleetSelected)
-						]
+						SNew(SFlareButton)
+						.Width(4)
+						.Icon(FFlareStyleSet::GetIcon("OK"))
+						.Text(LOCTEXT("DoneEditing", "Done"))
+						.HelpText(LOCTEXT("DoneEditingInfo", "Finish editing this fleet"))
+						.OnClicked(this, &SFlareFleetMenu::OnEditFinished)
+						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
 					]
+				]
+
+				// Fleet list
+				+ SScrollBox::Slot()
+				[
+					SAssignNew(FleetList, SFlareList)
+					.MenuManager(MenuManager)
+					.OnItemSelected(this, &SFlareFleetMenu::OnFleetSelected)
 				]
 			]
 
-			// Ship list
+			// Fleet details
 			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Fill)
+			.HAlign(HAlign_Left)
 			[
-				SNew(SBox)
-				.HAlign(HAlign_Right)
-				.WidthOverride(Theme.ContentWidth)
+				SNew(SScrollBox)
+				.Style(&Theme.ScrollBoxStyle)
+				.ScrollBarStyle(&Theme.ScrollBarStyle)
+				
+				// Fleet details
+				+ SScrollBox::Slot()
+				.Padding(Theme.TitlePadding)
 				[
-					SNew(SVerticalBox)
+					SNew(STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(LOCTEXT("ManageShips", "Fleet composition"))
+					.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+				]
 
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+				// Add & remove
+				+ SScrollBox::Slot()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SHorizontalBox)
+
+					// Add
+					+ SHorizontalBox::Slot()
 					.HAlign(HAlign_Left)
+					.Padding(Theme.SmallContentPadding)
+					.AutoWidth()
 					[
-						SNew(SVerticalBox)
-							
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(SHorizontalBox)
-
-							// Confirm
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							[
-								SNew(SFlareButton)
-								.Width(4)
-								.Icon(FFlareStyleSet::GetIcon("OK"))
-								.Text(LOCTEXT("Rename", "Rename fleet"))
-								.HelpText(LOCTEXT("ChangeNameInfo", "Rename the selected fleet"))
-								.OnClicked(this, &SFlareFleetMenu::OnRenameFleet)
-								.IsDisabled(this, &SFlareFleetMenu::IsRenameDisabled)
-								.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-							]
-
-							// Name field
-							+ SHorizontalBox::Slot()
-							.HAlign(HAlign_Fill)
-							.Padding(Theme.SmallContentPadding)
-							[
-								SAssignNew(EditFleetName, SEditableText)
-								.Style(&Theme.TextInputStyle)
-								.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-							]
-						]
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						.HAlign(HAlign_Left)
-						[
-							SNew(SFlareButton)
-							.Width(8)
-							.Icon(FFlareStyleSet::GetIcon("MoveLeft"))
-							.Text(this, &SFlareFleetMenu::GetRemoveText)
-							.HelpText(LOCTEXT("RemoveFromFleetInfo", "Remove this ship from the fleet"))
-							.IsDisabled(this, &SFlareFleetMenu::IsRemoveDisabled)
-							.OnClicked(this, &SFlareFleetMenu::OnRemoveFromFleet)
-							.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-						]
+						SNew(SFlareButton)
+						.Width(4)
+						.Icon(FFlareStyleSet::GetIcon("MoveRight"))
+						.Text(LOCTEXT("AddToFleet", "Merge fleet"))
+						.HelpText(this, &SFlareFleetMenu::GetAddHintText)
+						.IsDisabled(this, &SFlareFleetMenu::IsAddDisabled)
+						.OnClicked(this, &SFlareFleetMenu::OnAddToFleet)
+						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
 					]
-									
-					+ SVerticalBox::Slot()
+
+					// Add
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Left)
+					.Padding(Theme.SmallContentPadding)
+					.AutoWidth()
 					[
-						SNew(SScrollBox)
-						.Style(&Theme.ScrollBoxStyle)
-						.ScrollBarStyle(&Theme.ScrollBarStyle)
-
-						+ SScrollBox::Slot()
-						[
-							SAssignNew(ShipList, SFlareList)
-							.MenuManager(MenuManager)
-							.Title(LOCTEXT("CurrentFleet", "Selected fleet"))
-							.OnItemSelected(this, &SFlareFleetMenu::OnSpacecraftSelected)
-							.UseCompactDisplay(true)
-						]
+						SNew(SFlareButton)
+						.Width(4)
+						.Icon(FFlareStyleSet::GetIcon("MoveLeft"))
+						.Text(LOCTEXT("RemoveFromFleet", "Remove ship"))
+						.HelpText(this, &SFlareFleetMenu::GetRemoveHintText)
+						.IsDisabled(this, &SFlareFleetMenu::IsRemoveDisabled)
+						.OnClicked(this, &SFlareFleetMenu::OnRemoveFromFleet)
+						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
 					]
+				]
+
+				// Ship list
+				+ SScrollBox::Slot()
+				[
+					SAssignNew(ShipList, SFlareList)
+					.MenuManager(MenuManager)
+					.OnItemSelected(this, &SFlareFleetMenu::OnSpacecraftSelected)
+					.UseCompactDisplay(true)
 				]
 			]
 		]
@@ -207,11 +208,25 @@ void SFlareFleetMenu::Enter(UFlareFleet* TargetFleet)
 	
 	FleetToAdd = NULL;
 	ShipToRemove = NULL;
-	SelectedFleet = TargetFleet;
+	FleetToEdit = TargetFleet;
 
-	UpdateShipList();
+	// We are in edit mode
+	if (FleetToEdit)
+	{
+		FleetList->SetTitle(LOCTEXT("OtherFleetsListTitle", "Other fleets"));
+		ShipList->SetUseCompactDisplay(true);
+		EditFleetName->SetText(FleetToEdit->GetFleetName());
+	}
+
+	// We are in preview mode
+	else
+	{
+		FleetList->SetTitle(LOCTEXT("AllFleetsListTitle", "Fleets"));
+		ShipList->SetUseCompactDisplay(false);
+	}
+
+	UpdateShipList(FleetToEdit);
 	UpdateFleetList();
-	EditFleetName->SetText(LOCTEXT("NoFleet", "No fleet selected"));
 }
 
 void SFlareFleetMenu::Exit()
@@ -221,9 +236,9 @@ void SFlareFleetMenu::Exit()
 	ShipList->Reset();
 	FleetList->Reset();
 
+	FleetToEdit = NULL;
 	FleetToAdd = NULL;
 	ShipToRemove = NULL;
-	SelectedFleet = NULL;
 
 	SetVisibility(EVisibility::Collapsed);
 }
@@ -238,7 +253,7 @@ void SFlareFleetMenu::UpdateFleetList()
 	for (int32 FleetIndex = 0; FleetIndex < FleetCount; FleetIndex++)
 	{
 		UFlareFleet* Fleet = MenuManager->GetPC()->GetCompany()->GetCompanyFleets()[FleetIndex];
-		if (Fleet && Fleet->GetShips().Num() && Fleet != SelectedFleet)
+		if (Fleet && Fleet->GetShips().Num() && Fleet != FleetToEdit)
 		{
 			FleetList->AddFleet(Fleet);
 		}
@@ -247,37 +262,151 @@ void SFlareFleetMenu::UpdateFleetList()
 	FleetList->RefreshList();
 }
 
-void SFlareFleetMenu::UpdateShipList()
+void SFlareFleetMenu::UpdateShipList(UFlareFleet* Fleet)
 {
-	if (SelectedFleet)
-	{
-		ShipList->Reset();
+	ShipList->Reset();
 
-		int32 ShipCount = SelectedFleet->GetShips().Num();
+	if (Fleet)
+	{
+		int32 ShipCount = Fleet->GetShips().Num();
 		FLOGV("SFlareFleetMenu::UpdateShipList : found %d ships", ShipCount);
 
 		for (int32 SpacecraftIndex = 0; SpacecraftIndex < ShipCount; SpacecraftIndex++)
 		{
-			UFlareSimulatedSpacecraft* ShipCandidate = SelectedFleet->GetShips()[SpacecraftIndex];
+			UFlareSimulatedSpacecraft* ShipCandidate = Fleet->GetShips()[SpacecraftIndex];
 			if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
 			{
 				ShipList->AddShip(ShipCandidate);
 			}
 		}
 
-		ShipList->RefreshList();
-	}	
+		ShipList->SetTitle(Fleet->GetFleetName());
+	}
+	else
+	{
+		ShipList->SetTitle(LOCTEXT("NoFleetSelectedTitle", "No fleet selected"));
+	}
+
+	ShipList->RefreshList();
 }
 
 
 /*----------------------------------------------------
-	Callbacks
+	Content callbacks
 ----------------------------------------------------*/
 
-void SFlareFleetMenu::OnBackClicked()
+EVisibility SFlareFleetMenu::GetEditVisibility() const
 {
-	MenuManager->Back();
+	return FleetToEdit ? EVisibility::Visible : EVisibility::Collapsed;
 }
+
+bool SFlareFleetMenu::IsAddDisabled() const
+{
+	FText Unused;
+	if (!FleetToAdd || !FleetToEdit || FleetToAdd == FleetToEdit || !FleetToEdit->CanMerge(FleetToAdd, Unused))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+FText SFlareFleetMenu::GetAddHintText() const
+{
+	if (FleetToAdd && FleetToEdit)
+	{
+		FText Reason;
+		if (FleetToEdit->CanMerge(FleetToAdd, Reason))
+		{
+			return LOCTEXT("AddToFleetInfo", "Merge selected fleet with this one");
+		}
+		else
+		{
+			return Reason;
+		}
+	}
+	else
+	{
+		return LOCTEXT("NoFleetToEditToAddToInfo", "No fleet selected for merging");
+	}
+}
+
+bool SFlareFleetMenu::IsRemoveDisabled() const
+{
+	if (ShipToRemove == NULL
+		|| ShipToRemove == MenuManager->GetPC()->GetPlayerShip()
+		|| FleetToEdit == NULL
+		|| FleetToEdit->GetShips().Num() <= 1)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+FText SFlareFleetMenu::GetRemoveHintText() const
+{
+	if (ShipToRemove)
+	{
+		if (FleetToEdit->GetShips().Num() > 1)
+		{
+			return LOCTEXT("RemoveFromFleetInfo", "Remove the selected ship from the fleet");
+		}
+		else
+		{
+			return LOCTEXT("CantRemoveFromFleetInfo", "Can't remove the only ship in the fleet");
+		}
+	}
+	else
+	{
+		return LOCTEXT("NoFleetToEditToRemoveFromInfo", "No ship selected for removal");
+	}
+}
+
+bool SFlareFleetMenu::IsRenameDisabled() const
+{
+	if (!FleetToEdit)
+	{
+		return true;
+	}
+	else
+	{
+		if (MenuManager->GetPC()->GetPlayerFleet() == FleetToEdit)
+		{
+			return true;
+		}
+
+		return false;
+	}
+}
+
+FText SFlareFleetMenu::GetRenameHintText() const
+{
+	if (FleetToEdit)
+	{
+		if (MenuManager->GetPC()->GetPlayerFleet() == FleetToEdit)
+		{
+			return LOCTEXT("NoPlayeFleetRenameInfo", "Can't rename the player fleet");
+		}
+		else
+		{
+			return LOCTEXT("FleetRenameInfo", "Rename this fleet");
+		}
+	}
+	else
+	{
+		return LOCTEXT("NoFleetToRenameInfo", "No fleet is selected for renaming");
+	}
+}
+
+
+/*----------------------------------------------------
+	Action callbacks
+----------------------------------------------------*/
 
 void SFlareFleetMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer)
 {
@@ -294,147 +423,35 @@ void SFlareFleetMenu::OnFleetSelected(TSharedPtr<FInterfaceContainer> Spacecraft
 	UFlareFleet* Fleet = SpacecraftContainer->FleetPtr;
 	if (Fleet)
 	{
-		FleetToAdd = Fleet;
-		FLOGV("SFlareFleetMenu::OnFleetSelected : fleet to add/edit '%s'", *Fleet->GetFleetName().ToString());
-	}
-}
-
-EVisibility SFlareFleetMenu::GetEditVisibility() const
-{
-	return SelectedFleet ? EVisibility::Visible : EVisibility::Hidden;
-}
-
-FText SFlareFleetMenu::GetSelectText() const
-{
-	if (!FleetToAdd || FleetToAdd == SelectedFleet)
-	{
-		return LOCTEXT("NoSelectedFleet", "Edit selection");
-	}
-	else if (FleetToAdd->IsTraveling())
-	{
-		return LOCTEXT("CantEditTravelFleet", "Can't edit travelling fleets");
-	}
-	else if (FleetToAdd->GetCurrentSector()->IsPlayerBattleInProgress())
-	{
-		return LOCTEXT("CantEditBattleFleet", "Can't edit fleets during battles");
-	}
-	else
-	{
-		return LOCTEXT("SelectFleet", "Edit selection");
-	}
-}
-
-FText SFlareFleetMenu::GetAddText() const
-{
-	if (FleetToAdd && SelectedFleet)
-	{
-		FText Reason;
-		if (SelectedFleet->CanMerge(FleetToAdd, Reason))
+		// Fleet editing
+		if (FleetToEdit)
 		{
-			return LOCTEXT("AddToFleet", "Add selection to fleet");
+			FleetToAdd = Fleet;
+			FLOGV("SFlareFleetMenu::OnFleetSelected : fleet to add/edit '%s'", *Fleet->GetFleetName().ToString());
 		}
+
+		// Simple preview : list ships
 		else
 		{
-			return Reason;
+			UpdateShipList(Fleet);
 		}
 	}
-
-	return LOCTEXT("NoSelectedFleetToAddTo", "Add selection to fleet");
 }
 
-FText SFlareFleetMenu::GetRemoveText() const
+void SFlareFleetMenu::OnEditFinished()
 {
-	if (ShipToRemove)
-	{
-		if (SelectedFleet->GetShips().Num() > 1)
-		{
-			return LOCTEXT("RemoveFromFleet", "Remove selected ship");
-		}
-		else
-		{
-			return LOCTEXT("CantRemoveFromFleet", "Can't remove the only ship");
-		}
-	}
-
-	return LOCTEXT("NoSelectedFleetToRemoveFrom", "Remove selected ship");
-}
-
-bool SFlareFleetMenu::IsSelectDisabled() const
-{
-	return (!FleetToAdd
-	 || FleetToAdd == SelectedFleet
-	 || FleetToAdd->IsTraveling()
-	 || FleetToAdd->GetCurrentSector()->IsPlayerBattleInProgress());
-}
-
-bool SFlareFleetMenu::IsAddDisabled() const
-{
-	FText Unused;
-	if (!FleetToAdd || !SelectedFleet || FleetToAdd == SelectedFleet || !SelectedFleet->CanMerge(FleetToAdd, Unused))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool SFlareFleetMenu::IsRemoveDisabled() const
-{
-	if (ShipToRemove == NULL
-	 || ShipToRemove == MenuManager->GetPC()->GetPlayerShip()
-	 || SelectedFleet == NULL
-	 || SelectedFleet->GetShips().Num() <= 1)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool SFlareFleetMenu::IsRenameDisabled() const
-{
-	if (!SelectedFleet)
-	{
-		return true;
-	}
-	else
-	{
-		if (MenuManager->GetPC()->GetPlayerFleet() == SelectedFleet)
-		{
-			return true;
-		}
-
-		return false;
-	}
-}
-
-void SFlareFleetMenu::OnSelectFleet()
-{
-	FCHECK(FleetToAdd);
-
-	SelectedFleet = FleetToAdd;
-	EditFleetName->SetText(SelectedFleet->GetFleetName());
-	FLOGV("SFlareFleetMenu::OnSelectFleet : selected '%s'", *SelectedFleet->GetFleetName().ToString());
-
-	UpdateShipList();
-	UpdateFleetList();
-	FleetToAdd = NULL;
-	ShipToRemove = NULL;
+	MenuManager->OpenMenu(EFlareMenu::MENU_Fleet);
 }
 
 void SFlareFleetMenu::OnAddToFleet()
 {
-	FCHECK(SelectedFleet);
+	FCHECK(FleetToEdit);
 	FCHECK(FleetToAdd);
 
 	FLOGV("SFlareFleetMenu::OnAddToFleet : adding '%s'", *FleetToAdd->GetFleetName().ToString());
-	SelectedFleet->Merge(FleetToAdd);
+	FleetToEdit->Merge(FleetToAdd);
 
-	UpdateShipList();
+	UpdateShipList(FleetToEdit);
 	UpdateFleetList();
 	FleetToAdd = NULL;
 	ShipToRemove = NULL;
@@ -442,13 +459,13 @@ void SFlareFleetMenu::OnAddToFleet()
 
 void SFlareFleetMenu::OnRemoveFromFleet()
 {
-	FCHECK(SelectedFleet);
+	FCHECK(FleetToEdit);
 	FCHECK(ShipToRemove);
 
 	FLOGV("SFlareFleetMenu::OnRemoveFromFleet : removing '%s'", *ShipToRemove->GetImmatriculation().ToString());
-	SelectedFleet->RemoveShip(ShipToRemove);
+	FleetToEdit->RemoveShip(ShipToRemove);
 
-	UpdateShipList();
+	UpdateShipList(FleetToEdit);
 	UpdateFleetList();
 	FleetToAdd = NULL;
 	ShipToRemove = NULL;
@@ -456,12 +473,12 @@ void SFlareFleetMenu::OnRemoveFromFleet()
 
 void SFlareFleetMenu::OnRenameFleet()
 {
-	FCHECK(SelectedFleet);
+	FCHECK(FleetToEdit);
 
 	FText NewText = EditFleetName->GetText();
 	FLOGV("SFlareFleetMenu::OnRenameFleet : renaming as '%s'", *NewText.ToString());
 
-	SelectedFleet->SetFleetName(NewText);
+	FleetToEdit->SetFleetName(NewText);
 }
 
 

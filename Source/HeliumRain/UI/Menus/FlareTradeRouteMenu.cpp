@@ -438,7 +438,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SFlareButton)
 						.Width(4)
-						.Icon(FFlareStyleSet::GetIcon("Delete"))
+						.Icon(FFlareStyleSet::GetIcon("OK"))
 						.Text(LOCTEXT("DoneEditing", "Done"))
 						.HelpText(LOCTEXT("DoneEditingInfo", "Finish editing this operation"))
 						.OnClicked(this, &SFlareTradeRouteMenu::OnDoneClicked)

@@ -183,7 +183,7 @@ bool UFlareSimulatedSpacecraft::CanBeFlown(FText& OutInfo) const
 	}
 	else if (!IsActive())
 	{
-		OutInfo = LOCTEXT("CantFlyDistantInfo", "You can't fly a ship from another sector");
+		OutInfo = LOCTEXT("CantFlyDistantInfo", "Can't fly a ship from another sector");
 		return false;
 	}
 	else

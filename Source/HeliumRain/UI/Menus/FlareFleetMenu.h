@@ -42,50 +42,49 @@ public:
 	void UpdateFleetList();
 
 	/** Update the ship list */
-	void UpdateShipList();
+	void UpdateShipList(UFlareFleet* Fleet);
 
 
 protected:
 
 	/*----------------------------------------------------
-		Callbacks
+		Content callbacks
+	----------------------------------------------------*/
+
+	/** Can we see edit buttons */
+	EVisibility GetEditVisibility() const;
+
+	/** Is the "add to fleet" button disabled */
+	bool IsAddDisabled() const;
+	
+	/** Get hint text about merging */
+	FText GetAddHintText() const;
+
+	/** Is the "remove from fleet" button disabled */
+	bool IsRemoveDisabled() const;
+
+	/** Get hint text about removing a ship from the fleet */
+	FText GetRemoveHintText() const;
+
+	/** Is the "rename fleet" button disabled */
+	bool IsRenameDisabled() const;
+
+	/** Get hint text about renaming a fleet */
+	FText GetRenameHintText() const;
+
+
+	/*----------------------------------------------------
+		Action callbacks
 	----------------------------------------------------*/
 	
-	/** Go back to the previous menu*/
-	void OnBackClicked();
-
 	/** A spacecraft has been selected*/
 	void OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer);
 
 	/** A fleet has been selected */
 	void OnFleetSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer);
-
-	/** Can we see edit buttons */
-	EVisibility GetEditVisibility() const;
-
-	/** Get the text about editing a fleet */
-	FText GetSelectText() const;
-
-	/** Get text about merging */
-	FText GetAddText() const;
-
-	/** Get text about removing a ship from the fleet */
-	FText GetRemoveText() const;
-
-	/** Is the "select fleet" button disabled */
-	bool IsSelectDisabled() const;
-
-	/** Is the "add to fleet" button disabled */
-	bool IsAddDisabled() const;
-
-	/** Is the "remove from fleet" button disabled */
-	bool IsRemoveDisabled() const;
-
-	/** Is the "rename fleet" button disabled */
-	bool IsRenameDisabled() const;
-
-	/** Select a fleet */
-	void OnSelectFleet();
+	
+	/** Editing done */
+	void OnEditFinished();
 
 	/** Add the selected ship to the selected fleet */
 	void OnAddToFleet();
@@ -108,16 +107,14 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
 	
 	// Game data
-	UFlareFleet*                                    SelectedFleet;
+	UFlareFleet*                                    FleetToEdit;
+	UFlareFleet*                                    FleetToAdd;
+	UFlareSimulatedSpacecraft*                      ShipToRemove;
 
 	// Menu components
 	TSharedPtr<SFlareList>                          ShipList;
 	TSharedPtr<SFlareList>                          FleetList;
 	TSharedPtr<SEditableText>                       EditFleetName;
-
-	// State data
-	UFlareFleet*                                    FleetToAdd;
-	UFlareSimulatedSpacecraft*                      ShipToRemove;
-
+	
 
 };

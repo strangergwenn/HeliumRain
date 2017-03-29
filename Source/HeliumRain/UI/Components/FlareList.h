@@ -47,6 +47,12 @@ public:
 	/** Clear the current selection */
 	void ClearSelection();
 
+	/** Change title */
+	void SetTitle(FText NewTitle);
+
+	/** Set the compact mode status */
+	void SetUseCompactDisplay(bool Status);
+
 	/** Remove all entries from the list */
 	void Reset();
 	
@@ -65,6 +71,9 @@ protected:
 
 	/** Show a "no objects" text when the data is empty */
 	EVisibility GetNoObjectsVisibility() const;
+
+	/** Show ship filters when ships are present */
+	EVisibility GetShipFiltersVisibility() const;
 
 	/** Target item generator */
 	TSharedRef<ITableRow> GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
@@ -90,6 +99,7 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>                      MenuManager;
 
 	// Menu components
+	TSharedPtr<STextBlock>                                       Title;
 	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >   WidgetList;
 	TArray< TSharedPtr<FInterfaceContainer> >                    ObjectList;
 	TArray< TSharedPtr<FInterfaceContainer> >                    FilteredObjectList;
@@ -104,5 +114,6 @@ protected:
 	// State data
 	FFlareListItemSelected                                       OnItemSelected;
 	bool                                                         UseCompactDisplay;
+	bool                                                         HasShips;
 
 };

@@ -840,14 +840,13 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 				if (Fleet)
 				{
 					FText FleetAssignedText;
-
 					if (Fleet->GetCurrentTradeRoute())
 					{
 						FleetAssignedText = FText::Format(LOCTEXT("FleetAssignedFormat", " - {0}"),
 							Fleet->GetCurrentTradeRoute()->GetTradeRouteName());
 					}
 
-					FText SpacecraftDescriptionText = FText::Format(LOCTEXT("FleetFormat", "{0} ({1} / {2}){3}"),
+					FText FleetDescriptionText = FText::Format(LOCTEXT("FleetFormat", "{0} ({1} / {2}){3}"),
 						Fleet->GetFleetName(),
 						FText::AsNumber(Fleet->GetShipCount()),
 						FText::AsNumber(Fleet->GetMaxShipCount()),
@@ -856,7 +855,7 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 					return FText::Format(LOCTEXT("SpacecraftInfoFormat", "{0}{1} - {2}"),
 						DistanceText,
 						Fleet->GetStatusInfo(),
-						SpacecraftDescriptionText);
+						FleetDescriptionText);
 				}
 				return FText();
 			}
