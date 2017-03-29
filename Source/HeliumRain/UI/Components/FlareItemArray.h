@@ -22,8 +22,8 @@ class SFlareItemArray : public SCompoundWidget
 	SLATE_EVENT(FFlareItemPicked, OnItemPicked)
 
 	SLATE_ARGUMENT(int32, LineSize)
-	SLATE_ARGUMENT(int32, Width)
-	SLATE_ARGUMENT(int32, Height)
+	SLATE_ARGUMENT(float, Width)
+	SLATE_ARGUMENT(float, Height)
 	
 	SLATE_END_ARGS()
 
@@ -46,6 +46,9 @@ public:
 	/** Force the selected item */
 	void SetSelectedIndex(int32 ItemIndex);
 
+	/** Get selected index */
+	int32 GetSelectedIndex() const;
+
 	/** Get an item's content */
 	TSharedRef<SWidget> GetItemContent(int32 ItemIndex) const;
 		
@@ -63,8 +66,8 @@ protected:
 	FFlareItemPicked                   OnItemPickedCallback;
 	int32                              CurrentIndex;
 	int32                              LineSize;
-	int32                              Width;
-	int32                              Height;
+	float                              Width;
+	float                              Height;
 	
 	// Slate data
 	TSharedPtr<SGridPanel>             WidgetGrid;

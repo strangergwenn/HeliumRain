@@ -119,7 +119,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Create a new game from scratch */
-	virtual void CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription CompanyData, int32 ScenarioIndex, bool PlayTutorial);
+	virtual void CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription CompanyData, int32 ScenarioIndex, int32 PlayerEmblemIndex, bool PlayTutorial);
 
 	/** Create a company */
 	UFlareCompany* CreateCompany(int32 CatalogIdentifier);

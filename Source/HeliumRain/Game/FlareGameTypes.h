@@ -63,6 +63,7 @@ struct FFlareMenuParameterData
 		, Travel(NULL)
 		, Resource(NULL)
 		, ScenarioIndex(0)
+		, PlayerEmblemIndex(0)
 	{}
 
 	class UFlareCompany*                        Company;
@@ -77,6 +78,7 @@ struct FFlareMenuParameterData
 
 	struct FFlareCompanyDescription*            CompanyDescription;
 	int32                                       ScenarioIndex;
+	int32                                       PlayerEmblemIndex;
 	bool                                        PlayTutorial;
 };
 

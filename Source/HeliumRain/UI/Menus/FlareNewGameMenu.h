@@ -61,7 +61,10 @@ protected:
 
 	/** Combo line selection changed */
 	void OnComboLineSelectionChanged(TSharedPtr<FString> StringItem, ESelectInfo::Type SelectInfo);
-	
+
+	/** Emblem picked */
+	void OnEmblemPicked(int32 Index);
+
 
 protected:
 
@@ -81,6 +84,7 @@ protected:
 	TSharedPtr<SEditableText>                   CompanyIdentifier;
 	TSharedPtr<SFlareColorPanel>                ColorBox;
 	TSharedPtr<SFlareButton>                    TutorialButton;
+	TSharedPtr<SFlareDropList>                  EmblemPicker;
 
 	// Scenario data
 	TSharedPtr<SComboBox<TSharedPtr<FString> >> ScenarioSelector;

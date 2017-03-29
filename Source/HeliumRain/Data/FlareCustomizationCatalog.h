@@ -39,6 +39,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FLinearColor> PaintColors;
 
+	/** Emblems storage */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FFlareCustomizationPatternDescription> PlayerEmblems;
+
 
 	/*----------------------------------------------------
 		Get & Set
@@ -54,7 +58,16 @@ public:
 		return PaintPatterns.Num();
 	}
 
+	inline int32 GetEmblemCount() const
+	{
+		return PlayerEmblems.Num();
+	}
+
 	FLinearColor GetColor(int32 Index) const;
+
+	UTexture2D* GetEmblem(int32 Index) const;
+
+	const FSlateBrush* GetEmblemBrush(int32 Index) const;
 
 	UTexture2D* GetPattern(int32 Index) const;
 

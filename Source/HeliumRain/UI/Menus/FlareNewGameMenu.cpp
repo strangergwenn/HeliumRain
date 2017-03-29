@@ -126,6 +126,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					SNew(SHorizontalBox)
 
 					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
@@ -160,6 +161,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					SNew(SHorizontalBox)
 
 					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
@@ -192,33 +194,62 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 				.HAlign(HAlign_Fill)
 				[
 					SAssignNew(CompanyIDHint, STextBlock)
-					.TextStyle(&Theme.TextFont)
+					.TextStyle(&Theme.SmallFont)
 				]
 
-				// Tutorial
+				// Bottom box
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Right)
+				.HAlign(HAlign_Fill)
 				[
-					SAssignNew(TutorialButton, SFlareButton)
-					.Text(LOCTEXT("Tutorial", "Training contract"))
-					.HelpText(LOCTEXT("TutorialInfo", "Start with a few training contracts"))
-					.Toggle(true)
-				]
+					SNew(SHorizontalBox)
+					
+					// Emblem
+					+ SHorizontalBox::Slot()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Left)
+					[
+						SAssignNew(EmblemPicker, SFlareDropList)
+						.LineSize(2)
+						.HeaderWidth(2.5)
+						.HeaderHeight(2.5)
+						.ItemWidth(2.5)
+						.ItemHeight(2.225)
+						.OnItemPicked(this, &SFlareNewGameMenu::OnEmblemPicked)
+					]
 
-				// Start
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Right)
-				[
-					SNew(SFlareButton)
-					.Text(LOCTEXT("Start", "Start"))
-					.HelpText(LOCTEXT("StartInfo", "Confirm the creation of a new game and start playing"))
-					.Icon(FFlareStyleSet::GetIcon("Load"))
-					.OnClicked(this, &SFlareNewGameMenu::OnLaunch)
-					.IsDisabled(this, &SFlareNewGameMenu::IsLaunchDisabled)
+					// Buttons
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Right)
+					[
+						SNew(SVerticalBox)
+
+						// Tutorial
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Right)
+						[
+							SAssignNew(TutorialButton, SFlareButton)
+							.Text(LOCTEXT("Tutorial", "Training contract"))
+							.HelpText(LOCTEXT("TutorialInfo", "Start with a few training contracts"))
+							.Toggle(true)
+						]
+
+						// Start
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Right)
+						[
+							SNew(SFlareButton)
+							.Text(LOCTEXT("Start", "Start"))
+							.HelpText(LOCTEXT("StartInfo", "Confirm the creation of a new game and start playing"))
+							.Icon(FFlareStyleSet::GetIcon("Load"))
+							.OnClicked(this, &SFlareNewGameMenu::OnLaunch)
+							.IsDisabled(this, &SFlareNewGameMenu::IsLaunchDisabled)
+						]
+					]
 				]
 			]
 		]
@@ -282,12 +313,21 @@ void SFlareNewGameMenu::Enter()
 	}
 	FText ForbiddenIdsText = FText::Format(LOCTEXT("ForbiddenIdListFormat", "Some identifiers are forbidden ({0})"), FText::FromString(ForbiddenIDsString));
 	CompanyIDHint->SetText(ForbiddenIdsText);
+
+	// Fill emblems
+	UFlareCustomizationCatalog* CustomizationCatalog = Game->GetCustomizationCatalog();
+	for (int i = 0; i < CustomizationCatalog->GetEmblemCount(); i++)
+	{
+		EmblemPicker->AddItem(SNew(SImage).Image(CustomizationCatalog->GetEmblemBrush(i)));
+	}
+	EmblemPicker->SetSelectedIndex(0);
 }
 
 void SFlareNewGameMenu::Exit()
 {
 	SetEnabled(false);
 	SetVisibility(EVisibility::Collapsed);
+	EmblemPicker->ClearItems();
 }
 
 
@@ -317,19 +357,23 @@ bool SFlareNewGameMenu::IsLaunchDisabled() const
 void SFlareNewGameMenu::OnLaunch()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
+	UFlareCustomizationCatalog* CustomizationCatalog = Game->GetCustomizationCatalog();
+	const FFlareCompanyDescription* CurrentCompanyData = PC->GetCompanyDescription();
+
 	if (PC && Game && !Game->IsLoadedOrCreated())
 	{
 		// Get data
 		FText CompanyNameData = FText::FromString(CompanyName->GetText().ToString().Left(25)); // FString needed here
 		FName CompanyIdentifierData = FName(*CompanyIdentifier->GetText().ToString().ToUpper().Left(3)); // FString needed here
 		int32 ScenarioIndex = ScenarioList.Find(ScenarioSelector->GetSelectedItem());
+		int32 EmblemIndex = EmblemPicker->GetSelectedIndex();
+
 		FLOGV("SFlareNewGameMenu::OnLaunch '%s', ID '%s', ScenarioIndex %d", *CompanyNameData.ToString(), *CompanyIdentifierData.ToString(), ScenarioIndex);
 
 		// Create company data
-		const FFlareCompanyDescription* CurrentCompanyData = PC->GetCompanyDescription();
 		CompanyData.Name = CompanyNameData;
 		CompanyData.ShortName = CompanyIdentifierData;
-		CompanyData.Emblem = NULL;
+		CompanyData.Emblem = CustomizationCatalog->GetEmblem(EmblemIndex);
 		CompanyData.CustomizationBasePaintColorIndex = CurrentCompanyData->CustomizationBasePaintColorIndex;
 		CompanyData.CustomizationPaintColorIndex = CurrentCompanyData->CustomizationPaintColorIndex;
 		CompanyData.CustomizationOverlayColorIndex = CurrentCompanyData->CustomizationOverlayColorIndex;
@@ -340,6 +384,7 @@ void SFlareNewGameMenu::OnLaunch()
 		FFlareMenuParameterData Data;
 		Data.CompanyDescription = &CompanyData;
 		Data.ScenarioIndex = ScenarioIndex;
+		Data.PlayerEmblemIndex = EmblemIndex;
 		Data.PlayTutorial = TutorialButton->IsActive();
 		MenuManager->OpenMenu(EFlareMenu::MENU_CreateGame, Data);
 	}
@@ -361,6 +406,10 @@ TSharedRef<SWidget> SFlareNewGameMenu::OnGenerateComboLine(TSharedPtr<FString> I
 }
 
 void SFlareNewGameMenu::OnComboLineSelectionChanged(TSharedPtr<FString> StringItem, ESelectInfo::Type SelectInfo)
+{
+}
+
+void SFlareNewGameMenu::OnEmblemPicked(int32 Index)
 {
 }
 

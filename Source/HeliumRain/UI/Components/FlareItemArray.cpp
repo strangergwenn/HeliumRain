@@ -62,6 +62,18 @@ void SFlareItemArray::SetSelectedIndex(int32 ItemIndex)
 	}
 }
 
+int32 SFlareItemArray::GetSelectedIndex() const
+{
+	for (int32 i = 0; i < ContentArray.Num(); i++)
+	{
+		if (ContentArray[i]->IsActive())
+		{
+			return i;
+		}
+	}
+	return 0;
+}
+
 TSharedRef<SWidget> SFlareItemArray::GetItemContent(int32 ItemIndex) const
 {
 	return ContentArray[ItemIndex]->GetContainer()->GetContent();

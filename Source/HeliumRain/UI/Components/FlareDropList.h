@@ -24,10 +24,10 @@ class SFlareDropList : public SCompoundWidget
 	SLATE_EVENT(FFlareItemPicked, OnItemPicked)
 
 	SLATE_ARGUMENT(int32, LineSize)
-	SLATE_ARGUMENT(int32, HeaderWidth)
-	SLATE_ARGUMENT(int32, HeaderHeight)
-	SLATE_ARGUMENT(int32, ItemWidth)
-	SLATE_ARGUMENT(int32, ItemHeight)
+	SLATE_ARGUMENT(float, HeaderWidth)
+	SLATE_ARGUMENT(float, HeaderHeight)
+	SLATE_ARGUMENT(float, ItemWidth)
+	SLATE_ARGUMENT(float, ItemHeight)
 	
 	SLATE_END_ARGS()
 
@@ -50,6 +50,9 @@ public:
 	/** Force the selected item */
 	void SetSelectedIndex(int32 ItemIndex);
 
+	/** Selected index */
+	int32 GetSelectedIndex() const;
+
 	/** Get an item's content */
 	TSharedRef<SWidget> GetItemContent(int32 ItemIndex) const;
 
@@ -58,7 +61,7 @@ public:
 
 	/** Choose a color*/
 	void OnItemPicked(int32 ItemIndex);
-	
+
 
 protected:
 

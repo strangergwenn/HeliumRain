@@ -400,6 +400,7 @@ void AFlareGame::ReadAllSaveSlots()
 
 				// Emblem material
 				SaveSlotInfo.Emblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, GetWorld());
+				SaveSlotInfo.Emblem->SetTextureParameterValue("Emblem", GetCustomizationCatalog()->GetEmblem(Save->PlayerData.PlayerEmblemIndex));
 				SaveSlotInfo.Emblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(Desc->CustomizationBasePaintColorIndex));
 				SaveSlotInfo.Emblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(Desc->CustomizationPaintColorIndex));
 				SaveSlotInfo.Emblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(Desc->CustomizationOverlayColorIndex));
@@ -497,7 +498,7 @@ bool AFlareGame::DeleteSaveSlot(int32 Index)
 	Save
 ----------------------------------------------------*/
 
-void AFlareGame::CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription CompanyData, int32 ScenarioIndex, bool PlayTutorial)
+void AFlareGame::CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription CompanyData, int32 ScenarioIndex, int32 PlayerEmblemIndex, bool PlayTutorial)
 {
 	PlayerController = PC;
 	Clean();
@@ -525,6 +526,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription
 	PlayerData.CompanyIdentifier = PlayerCompany->GetIdentifier();
 	PlayerData.UUID = FName(*FGuid::NewGuid().ToString());
 	PlayerData.ScenarioId = ScenarioIndex;
+	PlayerData.PlayerEmblemIndex = PlayerEmblemIndex;
 	PlayerData.QuestData.PlayTutorial = PlayTutorial;
 	PlayerData.QuestData.NextGeneratedQuestIndex = 0;
 	PC->SetCompany(PlayerCompany);

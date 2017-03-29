@@ -29,6 +29,24 @@ FLinearColor UFlareCustomizationCatalog::GetColor(int32 Index) const
 	return Result;
 }
 
+UTexture2D* UFlareCustomizationCatalog::GetEmblem(int32 Index) const
+{
+	if (Index >= 0 && Index < PlayerEmblems.Num())
+	{
+		return PlayerEmblems[Index].Texture;
+	}
+	return NULL;
+}
+
+const FSlateBrush* UFlareCustomizationCatalog::GetEmblemBrush(int32 Index) const
+{
+	if (Index >= 0 && Index < PlayerEmblems.Num())
+	{
+		return &PlayerEmblems[Index].PatternPreviewBrush;
+	}
+	return NULL;
+}
+
 UTexture2D* UFlareCustomizationCatalog::GetPattern(int32 Index) const
 {
 	if (Index >= 0 && Index < PaintPatterns.Num())

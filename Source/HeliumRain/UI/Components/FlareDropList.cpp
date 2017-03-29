@@ -22,6 +22,7 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 		// List header
 		+ SVerticalBox::Slot()
 		.AutoHeight()
+		.HAlign(HAlign_Left)
 		[
 			SAssignNew(HeaderButton, SFlareButton)
 			.OnClicked(this, &SFlareDropList::OnHeaderClicked)
@@ -64,6 +65,11 @@ void SFlareDropList::SetSelectedIndex(int32 ItemIndex)
 {
 	ItemArray->SetSelectedIndex(ItemIndex);
 	HeaderButton->GetContainer()->SetContent(ContentArray[ItemIndex]);
+}
+
+int32 SFlareDropList::GetSelectedIndex() const
+{
+	return ItemArray->GetSelectedIndex();
 }
 
 TSharedRef<SWidget> SFlareDropList::GetItemContent(int32 ItemIndex) const

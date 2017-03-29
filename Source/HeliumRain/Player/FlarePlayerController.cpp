@@ -418,9 +418,14 @@ void AFlarePlayerController::SetCompanyDescription(const FFlareCompanyDescriptio
 
 void AFlarePlayerController::Load(const FFlarePlayerSave& SavePlayerData)
 {
+	// Load data
 	PlayerData = SavePlayerData;
 	Company = GetGame()->GetGameWorld()->FindCompany(PlayerData.CompanyIdentifier);
 	PlayerFleet = GetGame()->GetGameWorld()->FindFleet(PlayerData.PlayerFleetIdentifier);
+
+	// Load player emblem
+	UFlareCustomizationCatalog* CustomizationCatalog = GetGame()->GetCustomizationCatalog();
+	CompanyData.Emblem = CustomizationCatalog->GetEmblem(PlayerData.PlayerEmblemIndex);
 }
 
 void AFlarePlayerController::OnLoadComplete()
