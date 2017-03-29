@@ -156,7 +156,7 @@ void UFlareQuest::UpdateState()
 			bool ConditionsStatus = UFlareQuestCondition::CheckConditions(ExpirationConditions, false);
 			if (ConditionsStatus)
 			{
-				Abandon();
+				Abandon(true);
 				break;
 			}
 
@@ -277,10 +277,10 @@ void UFlareQuest::Fail()
 
 	SetStatus(EFlareQuestStatus::FAILED);
 	UFlareQuestAction::PerformActions(FailActions);
-	QuestManager->OnQuestFail(this);
+	QuestManager->OnQuestFail(this, true);
 }
 
-void UFlareQuest::Abandon()
+void UFlareQuest::Abandon(bool Expired)
 {
 	if (QuestStatus == EFlareQuestStatus::ABANDONED)
 	{
@@ -292,7 +292,7 @@ void UFlareQuest::Abandon()
 
 	SetStatus(EFlareQuestStatus::ABANDONED);
 	UFlareQuestAction::PerformActions(FailActions);
-	QuestManager->OnQuestFail(this);
+	QuestManager->OnQuestFail(this, Expired ? false : true);
 }
 
 void UFlareQuest::MakeAvailable()

@@ -215,7 +215,7 @@ void UFlareQuestManager::AbandonQuest(UFlareQuest* Quest)
 {
 	FLOGV("Abandon quest %s", *Quest->GetIdentifier().ToString());
 
-	Quest->Abandon();
+	Quest->Abandon(false);
 }
 
 void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)
@@ -416,7 +416,7 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 
 }
 
-void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
+void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest, bool Notify)
 {
 	FLOGV("Quest %s is now failed", *Quest->GetIdentifier().ToString())
 	OngoingQuests.Remove(Quest);
@@ -425,7 +425,7 @@ void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest)
 	OldQuests.Add(Quest);
 
 	// Quest failed notification
-	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
+	if (Notify && Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
 	{
 		FText Text = LOCTEXT("Quest failed", "Contract failed");
 		FText Info = Quest->GetQuestName();

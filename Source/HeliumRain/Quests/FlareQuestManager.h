@@ -204,7 +204,7 @@ public:
 
 	virtual void OnQuestSuccess(UFlareQuest* Quest);
 
-	virtual void OnQuestFail(UFlareQuest* Quest);
+	virtual void OnQuestFail(UFlareQuest* Quest, bool Notify);
 
 	virtual void OnQuestOngoing(UFlareQuest* Quest);
 

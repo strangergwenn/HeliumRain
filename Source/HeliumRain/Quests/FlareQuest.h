@@ -62,7 +62,7 @@ public:
 
 	virtual void Success();
 
-	virtual void Abandon();
+	virtual void Abandon(bool Expired);
 
 	virtual void Fail();
 
