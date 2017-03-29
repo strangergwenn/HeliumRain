@@ -471,20 +471,7 @@ void UFlareQuestManager::OnQuestOngoing(UFlareQuest* Quest)
 	FLOGV("Quest %s is now ongoing", *Quest->GetIdentifier().ToString())
 	AvailableQuests.Remove(Quest);
 	OngoingQuests.Add(Quest);
-
-	// New quest notification
-	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
-	{
-		FText Text = LOCTEXT("New quest", "New contract started");
-		FText Info = Quest->GetQuestName();
-
-		FFlareMenuParameterData Data;
-		Data.Quest = Quest;
-
-		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status")),
-			EFlareNotification::NT_Quest, false, EFlareMenu::MENU_Quest, Data);
-	}
-
+	
 	if (!SelectedQuest)
 	{
 		SelectQuest(Quest);
