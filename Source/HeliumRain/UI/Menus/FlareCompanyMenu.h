@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareColorPanel.h"
-#include "../Components/FlareShipList.h"
+#include "../Components/FlareList.h"
 #include "../Components/FlareCompanyInfo.h"
 
 
@@ -57,7 +57,7 @@ protected:
 
 	// Menu data
 	TSharedPtr<SFlareColorPanel>             ColorBox;
-	TSharedPtr<SFlareShipList>               ShipList;
+	TSharedPtr<SFlareList>               ShipList;
 	TSharedPtr<SFlareCompanyInfo>            CompanyInfo;
 
 

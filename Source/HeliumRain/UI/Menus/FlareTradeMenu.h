@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
-#include "../Components/FlareShipList.h"
+#include "../Components/FlareList.h"
 #include "../Components/FlareConfirmationBox.h"
 
 class UFlareSimulatedSpacecraft;
@@ -117,7 +117,7 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
 
 	// Menu components
-	TSharedPtr<SFlareShipList>                      ShipList;
+	TSharedPtr<SFlareList>                          ShipList;
 	TSharedPtr<SHorizontalBox>                      LeftCargoBay;
 	TSharedPtr<SHorizontalBox>                      RightCargoBay;
 	TSharedPtr<SSlider>                             QuantitySlider;

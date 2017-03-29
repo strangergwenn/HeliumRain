@@ -94,11 +94,10 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 
 						+ SScrollBox::Slot()
 						[
-							SAssignNew(FleetList, SFlareShipList)
+							SAssignNew(FleetList, SFlareList)
 							.MenuManager(MenuManager)
 							.Title(LOCTEXT("Unassigned", "Unassigned fleets & ships"))
 							.OnItemSelected(this, &SFlareFleetMenu::OnFleetSelected)
-							.UseCompactDisplay(true)
 						]
 					]
 				]
@@ -175,7 +174,7 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 
 						+ SScrollBox::Slot()
 						[
-							SAssignNew(ShipList, SFlareShipList)
+							SAssignNew(ShipList, SFlareList)
 							.MenuManager(MenuManager)
 							.Title(LOCTEXT("CurrentFleet", "Selected fleet"))
 							.OnItemSelected(this, &SFlareFleetMenu::OnSpacecraftSelected)
@@ -208,9 +207,9 @@ void SFlareFleetMenu::Enter(UFlareFleet* TargetFleet)
 	
 	FleetToAdd = NULL;
 	ShipToRemove = NULL;
-	SelectedFleet = NULL;
+	SelectedFleet = TargetFleet;
 
-	ShipList->Reset();
+	UpdateShipList();
 	UpdateFleetList();
 	EditFleetName->SetText(LOCTEXT("NoFleet", "No fleet selected"));
 }
@@ -231,16 +230,14 @@ void SFlareFleetMenu::Exit()
 
 void SFlareFleetMenu::UpdateFleetList()
 {
-	AFlarePlayerController* PC = MenuManager->GetPC();
-
 	FleetList->Reset();
 
-	int32 FleetCount = PC->GetCompany()->GetCompanyFleets().Num();
+	int32 FleetCount = MenuManager->GetPC()->GetCompany()->GetCompanyFleets().Num();
 	FLOGV("SFlareFleetMenu::UpdateFleetList : found %d fleets", FleetCount);
 
 	for (int32 FleetIndex = 0; FleetIndex < FleetCount; FleetIndex++)
 	{
-		UFlareFleet* Fleet = PC->GetCompany()->GetCompanyFleets()[FleetIndex];
+		UFlareFleet* Fleet = MenuManager->GetPC()->GetCompany()->GetCompanyFleets()[FleetIndex];
 		if (Fleet && Fleet->GetShips().Num() && Fleet != SelectedFleet)
 		{
 			FleetList->AddFleet(Fleet);
@@ -252,21 +249,24 @@ void SFlareFleetMenu::UpdateFleetList()
 
 void SFlareFleetMenu::UpdateShipList()
 {
-	ShipList->Reset();
-
-	int32 ShipCount = SelectedFleet->GetShips().Num();
-	FLOGV("SFlareFleetMenu::UpdateShipList : found %d ships", ShipCount);
-
-	for (int32 SpacecraftIndex = 0; SpacecraftIndex < ShipCount; SpacecraftIndex++)
+	if (SelectedFleet)
 	{
-		UFlareSimulatedSpacecraft* ShipCandidate = SelectedFleet->GetShips()[SpacecraftIndex];
-		if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
+		ShipList->Reset();
+
+		int32 ShipCount = SelectedFleet->GetShips().Num();
+		FLOGV("SFlareFleetMenu::UpdateShipList : found %d ships", ShipCount);
+
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < ShipCount; SpacecraftIndex++)
 		{
-			ShipList->AddShip(ShipCandidate);
+			UFlareSimulatedSpacecraft* ShipCandidate = SelectedFleet->GetShips()[SpacecraftIndex];
+			if (ShipCandidate && ShipCandidate->GetDamageSystem()->IsAlive())
+			{
+				ShipList->AddShip(ShipCandidate);
+			}
 		}
-	}
-	
-	ShipList->RefreshList();
+
+		ShipList->RefreshList();
+	}	
 }
 
 
@@ -281,7 +281,7 @@ void SFlareFleetMenu::OnBackClicked()
 
 void SFlareFleetMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer)
 {
-	UFlareSimulatedSpacecraft* Spacecraft = SpacecraftContainer->ShipInterfacePtr;
+	UFlareSimulatedSpacecraft* Spacecraft = SpacecraftContainer->SpacecraftPtr;
 	if (Spacecraft)
 	{
 		ShipToRemove = Spacecraft;

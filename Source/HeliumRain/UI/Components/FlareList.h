@@ -3,17 +3,18 @@
 #include "../../Flare.h"
 #include "../Components/FlareListItem.h"
 #include "../Components/FlareSpacecraftInfo.h"
+#include "../Components/FlareFleetInfo.h"
 
 DECLARE_DELEGATE_OneParam(FFlareListItemSelected, TSharedPtr<FInterfaceContainer>)
 
 
-class SFlareShipList : public SCompoundWidget
+class SFlareList : public SCompoundWidget
 {
 	/*----------------------------------------------------
 		Slate arguments
 	----------------------------------------------------*/
 
-	SLATE_BEGIN_ARGS(SFlareShipList)
+	SLATE_BEGIN_ARGS(SFlareList)
 	 : _UseCompactDisplay(false)
 	{}
 
@@ -49,9 +50,10 @@ public:
 	/** Remove all entries from the list */
 	void Reset();
 	
+	/** Get the number of items */
 	int32 GetItemCount() const
 	{
-		return SpacecraftList.Num();
+		return ObjectList.Num();
 	}
 
 
@@ -88,11 +90,11 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>                      MenuManager;
 
 	// Menu components
-	TSharedPtr<SFlareListItem>                                   PreviousSelection;
-	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >   ListWidget;
-	TArray< TSharedPtr<FInterfaceContainer> >                    FilteredList;
-	TArray< TSharedPtr<FInterfaceContainer> >                    SpacecraftList;
-	TSharedPtr<FInterfaceContainer>                              SelectedItem;
+	TSharedPtr< SListView< TSharedPtr<FInterfaceContainer> > >   WidgetList;
+	TArray< TSharedPtr<FInterfaceContainer> >                    ObjectList;
+	TArray< TSharedPtr<FInterfaceContainer> >                    FilteredObjectList;
+	TSharedPtr<FInterfaceContainer>                              SelectedObject;
+	TSharedPtr<SFlareListItem>                                   PreviousWidget;
 
 	// Filters
 	TSharedPtr<SFlareButton>                                     ShowStationsButton;

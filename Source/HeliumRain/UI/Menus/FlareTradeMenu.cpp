@@ -123,7 +123,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 						// Ship selection list
 						+ SVerticalBox::Slot()
 						[
-							SAssignNew(ShipList, SFlareShipList)
+							SAssignNew(ShipList, SFlareList)
 							.MenuManager(MenuManager)
 							.Title(LOCTEXT("SelectSpacecraft", "Select a spacecraft to trade with"))
 							.OnItemSelected(this, &SFlareTradeMenu::OnSpacecraftSelected)
@@ -609,7 +609,7 @@ FText SFlareTradeMenu::GetResourcePriceInfo(FFlareResourceDescription* Resource)
 
 void SFlareTradeMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> SpacecraftContainer)
 {
-	UFlareSimulatedSpacecraft* Spacecraft = SpacecraftContainer->ShipInterfacePtr;
+	UFlareSimulatedSpacecraft* Spacecraft = SpacecraftContainer->SpacecraftPtr;
 
 	if (Spacecraft)
 	{

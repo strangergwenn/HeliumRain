@@ -16,12 +16,13 @@ public:
 		return MakeShareable(new FInterfaceContainer(InObject));
 	}
 	FInterfaceContainer(UFlareSimulatedSpacecraft* InPtr)
-		: ShipInterfacePtr(InPtr)
+		: SpacecraftPtr(InPtr)
 		, SpacecraftDescriptionPtr(NULL)
 		, PartDescription(NULL)
+		, CompanyPtr(NULL)
 		, FleetPtr(NULL)
 	{}
-	UFlareSimulatedSpacecraft* ShipInterfacePtr;
+	UFlareSimulatedSpacecraft* SpacecraftPtr;
 
 	// Ship description
 	static TSharedPtr<FInterfaceContainer> New(FFlareSpacecraftDescription* InObject)
@@ -29,9 +30,10 @@ public:
 		return MakeShareable(new FInterfaceContainer(InObject));
 	}
 	FInterfaceContainer(FFlareSpacecraftDescription* InPtr)
-		: ShipInterfacePtr(NULL)
+		: SpacecraftPtr(NULL)
 		, SpacecraftDescriptionPtr(InPtr)
 		, PartDescription(NULL)
+		, CompanyPtr(NULL)
 		, FleetPtr(NULL)
 	{}
 	FFlareSpacecraftDescription* SpacecraftDescriptionPtr;
@@ -42,9 +44,10 @@ public:
 		return MakeShareable(new FInterfaceContainer(InObject));
 	}
 	FInterfaceContainer(FFlareSpacecraftComponentDescription* InPtr)
-		: ShipInterfacePtr(NULL)
+		: SpacecraftPtr(NULL)
 		, SpacecraftDescriptionPtr(NULL)
 		, PartDescription(InPtr)
+		, CompanyPtr(NULL)
 		, FleetPtr(NULL)
 	{}
 	FFlareSpacecraftComponentDescription* PartDescription;
@@ -55,8 +58,9 @@ public:
 		return MakeShareable(new FInterfaceContainer(InObject));
 	}
 	FInterfaceContainer(UFlareCompany* InPtr)
-		: ShipInterfacePtr(NULL)
+		: SpacecraftPtr(NULL)
 		, SpacecraftDescriptionPtr(NULL)
+		, PartDescription(NULL)
 		, CompanyPtr(InPtr)
 		, FleetPtr(NULL)
 	{}
@@ -68,8 +72,9 @@ public:
 		return MakeShareable(new FInterfaceContainer(InObject));
 	}
 	FInterfaceContainer(UFlareFleet* InPtr)
-		: ShipInterfacePtr(NULL)
+		: SpacecraftPtr(NULL)
 		, SpacecraftDescriptionPtr(NULL)
+		, PartDescription(NULL)
 		, CompanyPtr(NULL)
 		, FleetPtr(InPtr)
 	{}

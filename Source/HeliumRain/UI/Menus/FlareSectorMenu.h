@@ -3,7 +3,7 @@
 #include "../../Flare.h"
 #include "../Components/FlareListItem.h"
 #include "../Components/FlareSpacecraftInfo.h"
-#include "../Components/FlareShipList.h"
+#include "../Components/FlareList.h"
 
 
 class SFlareSectorMenu : public SCompoundWidget
@@ -137,10 +137,10 @@ protected:
 	TArray<UFlareFleet*>                       FleetList;
 
 	// Menu components
-	TSharedPtr<SFlareShipList>                 OwnedShipList;
-	TSharedPtr<SFlareShipList>                 OtherShipList;
-	TSharedPtr<SFlareShipList>                 OwnedReserveShipList;
-	TSharedPtr<SFlareShipList>                 OtherReserveShipList;
+	TSharedPtr<SFlareList>                     OwnedShipList;
+	TSharedPtr<SFlareList>                     OtherShipList;
+	TSharedPtr<SFlareList>                     OwnedReserveShipList;
+	TSharedPtr<SFlareList>                     OtherReserveShipList;
 	UFlareSimulatedSector*                     TargetSector;
 
 	// Station data

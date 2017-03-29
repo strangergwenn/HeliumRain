@@ -241,7 +241,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				.HAlign(HAlign_Left)
 				[
-					SAssignNew(ShipList, SFlareShipList)
+					SAssignNew(ShipList, SFlareList)
 					.MenuManager(MenuManager)
 					.Title(LOCTEXT("DockedShips", "Docked ships"))
 				]

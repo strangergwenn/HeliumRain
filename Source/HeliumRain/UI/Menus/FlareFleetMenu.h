@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
-#include "../Components/FlareShipList.h"
+#include "../Components/FlareList.h"
 
 class UFlareSimulatedSpacecraft;
 
@@ -106,14 +106,16 @@ protected:
 	// HUD reference
 	UPROPERTY()
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
+	
+	// Game data
+	UFlareFleet*                                    SelectedFleet;
 
 	// Menu components
-	TSharedPtr<SFlareShipList>                      ShipList;
-	TSharedPtr<SFlareShipList>                      FleetList;
+	TSharedPtr<SFlareList>                          ShipList;
+	TSharedPtr<SFlareList>                          FleetList;
 	TSharedPtr<SEditableText>                       EditFleetName;
 
 	// State data
-	UFlareFleet*                                    SelectedFleet;
 	UFlareFleet*                                    FleetToAdd;
 	UFlareSimulatedSpacecraft*                      ShipToRemove;
 

@@ -229,14 +229,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 	{
 		SetSpacecraft(InArgs._Spacecraft);
 	}
-	if (InArgs._Visible && TargetSpacecraft)
-	{
-		Show();
-	}
-	else
-	{
-		Hide();
-	}
+	Hide();
 }
 
 
@@ -748,10 +741,8 @@ EVisibility SFlareSpacecraftInfo::GetCompanyFlagVisibility() const
 	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
 	{
 		UFlareCompany* TargetCompany = TargetSpacecraft->GetCompany();
-
 		if (TargetCompany && PC && TargetCompany == PC->GetCompany())
 		{
-			// Not interesting after all
 			return EVisibility::Collapsed;
 		}
 	}

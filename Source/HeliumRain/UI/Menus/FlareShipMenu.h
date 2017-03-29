@@ -3,7 +3,7 @@
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
 #include "../Components/FlareListItem.h"
-#include "../Components/FlareShipList.h"
+#include "../Components/FlareList.h"
 #include "../Components/FlareConfirmationBox.h"
 #include "../../Spacecrafts/FlareSpacecraftComponent.h"
 #include "../../Player/FlarePlayerController.h"
@@ -149,7 +149,7 @@ protected:
 	TSharedPtr<STextBlock>                          ObjectClassName;
 	TSharedPtr<STextBlock>                          ObjectDescription;
 	TSharedPtr<SFlareSpacecraftInfo>                ObjectActionMenu;
-	TSharedPtr<SFlareShipList>                      ShipList;
+	TSharedPtr<SFlareList>                          ShipList;
 	TSharedPtr<SVerticalBox>                        ShipCustomizationBox;
 	TSharedPtr<SHorizontalBox>                      WeaponButtonBox;
 
