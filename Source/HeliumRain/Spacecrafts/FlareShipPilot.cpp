@@ -35,7 +35,8 @@ UFlareShipPilot::UFlareShipPilot(const class FObjectInitializer& PCIP)
 {
 	ReactionTime = FMath::FRandRange(0.4, 0.7);
 	TimeUntilNextReaction = 0;
-	WaitTime = 0;
+	CurrentWaitTime = 0;
+	DockWaitTime = FMath::FRandRange(30, 45);
 	PilotTargetLocation = FVector::ZeroVector;
 	PilotTargetShip = NULL;
 	LastPilotTargetShip = NULL;
@@ -224,7 +225,6 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 	// If enemy near, run away !
 	if (PilotAvoidShip)
 	{
-
 		FVector DeltaLocation = (PilotAvoidShip->GetActorLocation() - Ship->GetActorLocation()) / 100.f;
 		float Distance = DeltaLocation.Size(); // Distance in meters
 
@@ -237,44 +237,45 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 				Ship->GetNavigationSystem()->Undock();
 			}
 			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 100;
-
-
-
-
+			
 			UseOrbitalBoost = true;
 		}
 		else
 		{
 			PilotAvoidShip = NULL;
 		}
-
 	}
 
-	if (PilotAvoidShip)
+	// Docking wait time
+	if (!PilotAvoidShip && Ship->GetNavigationSystem()->IsDocked())
 	{
-		// Already done
-	}
-	else if (Ship->GetNavigationSystem()->IsDocked())
-	{
-		if (WaitTime < 10)
+		// Dock
+		if (CurrentWaitTime <= 0)
 		{
-			WaitTime += ReactionTime;
+			CurrentWaitTime = DockWaitTime;
 		}
-		else
+
+		// Undock
+		else if (CurrentWaitTime < 0.1)
 		{
-			// Let's undock
 			Ship->GetNavigationSystem()->Undock();
 
 			// Swap target station
 			PilotLastTargetStation = PilotTargetStation;
 			PilotTargetStation = NULL;
-			WaitTime = 0;
+			CurrentWaitTime = 0;
+		}
+
+		// Wait
+		else
+		{
+			CurrentWaitTime -= DeltaSeconds;
 		}
 
 		return;
 	}
 
-	// Wait manoeuver
+	// Wait maneuver
 	else if (Ship->GetNavigationSystem()->IsAutoPilot())
 	{
 		return;
@@ -292,7 +293,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 
 				if (PilotLastTargetStation != FriendlyStations[Index])
 				{
-						PilotTargetStation = FriendlyStations[Index];
+					PilotTargetStation = FriendlyStations[Index];
 				}
 			}
 		}

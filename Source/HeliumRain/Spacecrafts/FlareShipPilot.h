@@ -131,7 +131,8 @@ protected:
 	float                                        ReactionTime;
 	float                                        TimeUntilNextReaction;
 	FVector                                      PilotTargetLocation;
-	float								         WaitTime;
+	float								         DockWaitTime;
+	float								         CurrentWaitTime;
 
 	// Pilot targets
 	UPROPERTY()
