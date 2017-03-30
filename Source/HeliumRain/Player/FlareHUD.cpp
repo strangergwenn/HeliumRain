@@ -958,25 +958,27 @@ void AFlareHUD::DrawHUDInternal()
 		{
 			const FFlarePlayerObjectiveTarget* Target = &PC->GetCurrentObjective()->TargetList[TargetIndex];
 			FVector ObjectiveLocation = Target->Location;
-			FLinearColor InactiveColor = HudColorNeutral;
 
 			bool ShouldDrawMarker = false;
 
+			// Draw icon & distance
 			if (ProjectWorldLocationToCockpit(ObjectiveLocation, ScreenPosition))
 			{
 				if (IsInScreen(ScreenPosition))
 				{
-					// Draw icon
-					DrawHUDIcon(ScreenPosition, IconSize, HUDObjectiveIcon, (Target->Active ? HudColorNeutral : InactiveColor), true);
-
-					if(Target->Active)
+					if (Target->Active)
 					{
-						float Distance = FMath::Max(0.f, ((ObjectiveLocation - PlayerShip->GetActorLocation()).Size() - Target->Radius) / 100);
-						FString ObjectiveText = FormatDistance(Distance);
+						DrawHUDIcon(ScreenPosition, IconSize, HUDObjectiveIcon, HudColorNeutral, true);
 
 						// Draw distance
+						float Distance = FMath::Max(0.f, ((ObjectiveLocation - PlayerShip->GetActorLocation()).Size() - Target->Radius) / 100);
+						FString ObjectiveText = FormatDistance(Distance);
 						FVector2D CenterScreenPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(0, IconSize);
 						FlareDrawText(ObjectiveText, CenterScreenPosition, (Target->Active ? HudColorObjective : HudColorNeutral));
+					}
+					else
+					{
+						DrawHUDIcon(ScreenPosition, IconSize, HUDNoseIcon, HudColorObjective, true);
 					}
 				}
 
