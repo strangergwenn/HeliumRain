@@ -123,7 +123,8 @@ public:
 	 *  - float : energy
 	 *  - float : radius
 	 *  - vector3 : relative location
-	 *  - string : damageSourceCompany
+	 *  - string : company causing damage
+	 *  - string : debugging identifier of object causing damage
 	 */
 	static void SpacecraftDamaged(UFlareSimulatedSpacecraft* Spacecraft, float Energy, float Radius, FVector RelativeLocation, EFlareDamage::Type DamageType, UFlareCompany* DamageSource, FString DamageCauser);
 
