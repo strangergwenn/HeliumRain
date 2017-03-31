@@ -2,6 +2,7 @@
 #include "FlareQuestCondition.h"
 #include "FlareQuest.h"
 #include "../Player/FlarePlayerController.h"
+#include "../Game/FlareSectorHelper.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestCondition"
 
@@ -1752,4 +1753,245 @@ void UFlareQuestConditionTimeAfterAvailableDate::AddConditionObjectives(FFlarePl
 
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
+
+/*----------------------------------------------------
+	Min army combat point in sector condition
+----------------------------------------------------*/
+UFlareQuestConditionMinArmyCombatPointsInSector::UFlareQuestConditionMinArmyCombatPointsInSector(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionMinArmyCombatPointsInSector* UFlareQuestConditionMinArmyCombatPointsInSector::Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, int32 TargetArmyPointsParam)
+{
+	UFlareQuestConditionMinArmyCombatPointsInSector* Condition = NewObject<UFlareQuestConditionMinArmyCombatPointsInSector>(ParentQuest, UFlareQuestConditionMinArmyCombatPointsInSector::StaticClass());
+	Condition->Load(ParentQuest, TargetSectorParam, TargetCompanyParam, TargetArmyPointsParam);
+	return Condition;
+}
+
+void UFlareQuestConditionMinArmyCombatPointsInSector::Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, int32 TargetArmyPointsParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+	Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+	TargetSector = TargetSectorParam;
+	TargetCompany = TargetCompanyParam;
+	TargetArmyPoints = TargetArmyPointsParam;
+}
+
+bool UFlareQuestConditionMinArmyCombatPointsInSector::IsCompleted()
+{
+	int32 armyPoints = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany);
+
+	return armyPoints >= TargetArmyPoints;
+}
+
+void UFlareQuestConditionMinArmyCombatPointsInSector::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany);
+	ObjectiveCondition.MaxCounter = TargetArmyPoints;
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+	Max army combat point in sector condition
+----------------------------------------------------*/
+UFlareQuestConditionMaxArmyCombatPointsInSector::UFlareQuestConditionMaxArmyCombatPointsInSector(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionMaxArmyCombatPointsInSector* UFlareQuestConditionMaxArmyCombatPointsInSector::Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, int32 TargetArmyPointsParam)
+{
+	UFlareQuestConditionMaxArmyCombatPointsInSector* Condition = NewObject<UFlareQuestConditionMaxArmyCombatPointsInSector>(ParentQuest, UFlareQuestConditionMaxArmyCombatPointsInSector::StaticClass());
+	Condition->Load(ParentQuest, TargetSectorParam, TargetCompanyParam, TargetArmyPointsParam);
+	return Condition;
+}
+
+void UFlareQuestConditionMaxArmyCombatPointsInSector::Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, int32 TargetArmyPointsParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+	Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+	TargetSector = TargetSectorParam;
+	TargetCompany = TargetCompanyParam;
+	TargetArmyPoints = TargetArmyPointsParam;
+}
+
+bool UFlareQuestConditionMaxArmyCombatPointsInSector::IsCompleted()
+{
+	int32 armyPoints = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany);
+
+	return armyPoints <= TargetArmyPoints;
+}
+
+void UFlareQuestConditionMaxArmyCombatPointsInSector::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany);
+	ObjectiveCondition.MaxCounter = TargetArmyPoints;
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+	Station lost in secotr condition
+----------------------------------------------------*/
+UFlareQuestConditionStationLostInSector::UFlareQuestConditionStationLostInSector(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionStationLostInSector* UFlareQuestConditionStationLostInSector::Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam)
+{
+	UFlareQuestConditionStationLostInSector* Condition = NewObject<UFlareQuestConditionStationLostInSector>(ParentQuest, UFlareQuestConditionStationLostInSector::StaticClass());
+	Condition->Load(ParentQuest, TargetSectorParam, TargetCompanyParam);
+	return Condition;
+}
+
+void UFlareQuestConditionStationLostInSector::Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::SPACECRAFT_CAPTURED);
+	Completed = false;
+	TargetSector = TargetSectorParam;
+	TargetCompany = TargetCompanyParam;
+}
+
+void UFlareQuestConditionStationLostInSector::OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter)
+{
+	if(CapturedSpacecraftBefore->GetCompany() == TargetCompany && CapturedSpacecraftBefore->GetCurrentSector() == TargetSector)
+	{
+		Completed = true;
+	}
+}
+
+bool UFlareQuestConditionStationLostInSector::IsCompleted()
+{
+	return Completed;
+}
+
+void UFlareQuestConditionStationLostInSector::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+}
+
+/*----------------------------------------------------
+	Min army combat point in sector condition
+----------------------------------------------------*/
+UFlareQuestConditionNoCapturingStationInSector::UFlareQuestConditionNoCapturingStationInSector(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionNoCapturingStationInSector* UFlareQuestConditionNoCapturingStationInSector::Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, UFlareCompany* TargetEnemyCompanyParam)
+{
+	UFlareQuestConditionNoCapturingStationInSector* Condition = NewObject<UFlareQuestConditionNoCapturingStationInSector>(ParentQuest, UFlareQuestConditionNoCapturingStationInSector::StaticClass());
+	Condition->Load(ParentQuest, TargetSectorParam, TargetCompanyParam, TargetEnemyCompanyParam);
+	return Condition;
+}
+
+void UFlareQuestConditionNoCapturingStationInSector::Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, UFlareCompany* TargetEnemyCompanyParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::SPACECRAFT_CAPTURED);
+	TargetSector = TargetSectorParam;
+	TargetCompany = TargetCompanyParam;
+	TargetEnemyCompany = TargetEnemyCompanyParam;
+}
+
+
+bool UFlareQuestConditionNoCapturingStationInSector::IsCompleted()
+{
+	for(UFlareSimulatedSpacecraft* Station : TargetSector->GetSectorStations())
+	{
+
+		if(Station->GetCompany() != TargetCompany)
+		{
+			continue;
+		}
+
+		if(Station->GetCapturePoint(TargetEnemyCompany) > 0)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void UFlareQuestConditionNoCapturingStationInSector::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+}
+
+
+/*----------------------------------------------------
+	Retreat dangerous ships condition
+----------------------------------------------------*/
+UFlareQuestConditionRetreatDangerousShip::UFlareQuestConditionRetreatDangerousShip(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionRetreatDangerousShip* UFlareQuestConditionRetreatDangerousShip::Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam)
+{
+	UFlareQuestConditionRetreatDangerousShip* Condition = NewObject<UFlareQuestConditionRetreatDangerousShip>(ParentQuest, UFlareQuestConditionRetreatDangerousShip::StaticClass());
+	Condition->Load(ParentQuest, TargetSectorParam, TargetCompanyParam);
+	return Condition;
+}
+
+void UFlareQuestConditionRetreatDangerousShip::Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::TRAVEL_STARTED);
+	Completed = false;
+	TargetSector = TargetSectorParam;
+	TargetCompany = TargetCompanyParam;
+}
+
+void UFlareQuestConditionRetreatDangerousShip::OnTravelStarted(UFlareTravel* Travel)
+{
+	if(Completed)
+	{
+		return;
+	}
+
+	if (Travel->GetFleet()->GetFleetCompany() != TargetCompany)
+	{
+		return;
+	}
+
+	if (Travel->GetSourceSector() != TargetSector)
+	{
+		return;
+	}
+
+
+	for(UFlareSimulatedSpacecraft* Ship : Travel->GetFleet()->GetShips())
+	{
+		if(Ship->IsMilitary()  && !Ship->GetDamageSystem()->IsDisarmed())
+		{
+			Completed = true;
+			break;
+		}
+	}
+}
+
+bool UFlareQuestConditionRetreatDangerousShip::IsCompleted()
+{
+	return Completed;
+}
+
+void UFlareQuestConditionRetreatDangerousShip::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+}
+
 #undef LOCTEXT_NAMESPACE

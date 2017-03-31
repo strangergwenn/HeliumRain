@@ -367,6 +367,37 @@ void UFlareQuestManager::OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft
 	OnCallbackEvent(EFlareQuestCallback::TRADE_DONE);
 }
 
+void UFlareQuestManager::OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter)
+{
+	if (CallbacksMap.Contains(EFlareQuestCallback::SPACECRAFT_CAPTURED))
+	{
+		TArray<UFlareQuest*> Callbacks = CallbacksMap[EFlareQuestCallback::SPACECRAFT_CAPTURED];
+		for (UFlareQuest* Quest: Callbacks)
+		{
+			Quest->OnSpacecraftCaptured(CapturedSpacecraftBefore, CapturedSpacecraftAfter);
+			Quest->UpdateState();
+		}
+	}
+
+	OnCallbackEvent(EFlareQuestCallback::SPACECRAFT_CAPTURED);
+}
+
+
+void UFlareQuestManager::OnTravelStarted(UFlareTravel* Travel)
+{
+	if (CallbacksMap.Contains(EFlareQuestCallback::TRAVEL_STARTED))
+	{
+		TArray<UFlareQuest*> Callbacks = CallbacksMap[EFlareQuestCallback::TRAVEL_STARTED];
+		for (UFlareQuest* Quest: Callbacks)
+		{
+			Quest->OnTravelStarted(Travel);
+			Quest->UpdateState();
+		}
+	}
+
+	OnCallbackEvent(EFlareQuestCallback::SPACECRAFT_CAPTURED);
+}
+
 void UFlareQuestManager::OnNextDay()
 {
 	OnCallbackEvent(EFlareQuestCallback::NEXT_DAY);

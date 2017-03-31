@@ -96,6 +96,11 @@ public:
 
 	virtual void OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 Quantity);
 
+	virtual void OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter);
+
+	virtual void OnTravelStarted(UFlareTravel* Travel);
+
+
 protected:
 
 	/*----------------------------------------------------

@@ -40,6 +40,8 @@ namespace EFlareQuestCallback
 		SPACECRAFT_DESTROYED, // Trig when a spacecraft is destroyed
 		TRADE_DONE, // Trig when a trade is done
 		NEXT_DAY, // Trig after a simulate
+		SPACECRAFT_CAPTURED, // Trig when a spacecraft is captured
+		TRAVEL_STARTED, // Trig when a fleet start a travel
 	};
 }
 
@@ -198,6 +200,8 @@ public:
 
 	virtual void OnTick(float DeltaSeconds);
 
+	virtual void OnTravelStarted(UFlareTravel* Travel);
+
 	virtual void OnTravelEnded(UFlareFleet* Fleet);
 
 	virtual void OnQuestStatusChanged(UFlareQuest* Quest);
@@ -214,6 +218,7 @@ public:
 
 	virtual void OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 Quantity);
 
+	virtual void OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter);
 
 protected:
 

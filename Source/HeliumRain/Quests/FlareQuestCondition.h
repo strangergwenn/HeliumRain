@@ -9,6 +9,7 @@ class AFlareGame;
 class UFlareCompany;
 class UFlareSimulatedSector;
 class UFlareSimulatedSpacecraft;
+class UFlareTravel;
 struct FFlarePlayerObjectiveData;
 struct FFlareBundle;
 struct FFlareResourceDescription;
@@ -31,6 +32,10 @@ public:
 	virtual void AddSave(TArray<FFlareQuestConditionSave>& Data);
 
 	virtual void OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 Quantity) {}
+
+	virtual void OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter) {}
+
+	virtual void OnTravelStarted(UFlareTravel* Travel) {}
 
 	void SetConditionIndex(int32 Index)
 	{
@@ -556,7 +561,7 @@ class HELIUMRAIN_API UFlareQuestConditionTimeAfterAvailableDate: public UFlareQu
 public:
 
 	static UFlareQuestConditionTimeAfterAvailableDate* Create(UFlareQuest* ParentQuest, int64 Duration);
-	void Load(UFlareQuest* ParentQuest, int64 int64);
+	void Load(UFlareQuest* ParentQuest, int64 Duration);
 
 	virtual bool IsCompleted();
 	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
@@ -566,3 +571,111 @@ protected:
 
 	int64 DurationLimit;
 };
+
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionMinArmyCombatPointsInSector: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionMinArmyCombatPointsInSector* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, int32 TargetArmyPointsParam);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, int32 TargetArmyPointsParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	UFlareSimulatedSector* TargetSector;
+	UFlareCompany* TargetCompany;
+	int32 TargetArmyPoints;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionMaxArmyCombatPointsInSector: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionMaxArmyCombatPointsInSector* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, int32 TargetArmyPointsParam);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, int32 TargetArmyPointsParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	UFlareSimulatedSector* TargetSector;
+	UFlareCompany* TargetCompany;
+	int32 TargetArmyPoints;
+};
+
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionStationLostInSector: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionStationLostInSector* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual void OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter);
+
+protected:
+
+	UFlareSimulatedSector* TargetSector;
+	UFlareCompany* TargetCompany;
+	bool Completed;
+};
+
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionNoCapturingStationInSector: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionNoCapturingStationInSector* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, UFlareCompany* TargetEnemyCompanyParam);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, UFlareCompany* TargetEnemyCompanyParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	UFlareSimulatedSector* TargetSector;
+	UFlareCompany* TargetCompany;
+	UFlareCompany* TargetEnemyCompany;
+};
+
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionRetreatDangerousShip: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionRetreatDangerousShip* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual void OnTravelStarted(UFlareTravel* Travel);
+
+protected:
+
+	UFlareSimulatedSector* TargetSector;
+	UFlareCompany* TargetCompany;
+	bool Completed;
+
+};
+

@@ -527,7 +527,7 @@ void UFlareWorld::Simulate()
 		}
 	}
 
-	// Ship capture
+	// Spacrecraft capture
 	ProcessShipCapture();
 	ProcessStationCapture();
 
@@ -682,7 +682,10 @@ void UFlareWorld::ProcessShipCapture()
 		FFlareSpacecraftDescription* ShipDescription = Spacecraft->GetDescription();
 
 		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
+
 		UFlareSimulatedSpacecraft* NewShip = Sector->CreateSpacecraft(ShipDescription, HarpoonOwner, SpawnLocation, SpawnRotation, &Data);
+
+		GetGame()->GetQuestManager()->OnSpacecraftCaptured(Spacecraft, NewShip);
 
 		Owner->GiveReputationToOthers(5, false);
 		Owner->GiveReputation(HarpoonOwner, -10, false);
@@ -775,6 +778,9 @@ void UFlareWorld::ProcessStationCapture()
 
 		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
 		UFlareSimulatedSpacecraft* NewShip = Sector->CreateSpacecraft(ShipDescription, Capturer, SpawnLocation, SpawnRotation, &Data);
+
+		GetGame()->GetQuestManager()->OnSpacecraftCaptured(Spacecraft, NewShip);
+
 		Owner->GiveReputationToOthers(30, false);
 		Owner->GiveReputation(Capturer, -40, false);
 		Capturer->GiveReputationToOthers(-50, false);
@@ -1085,6 +1091,8 @@ UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimul
 		TravelData.DepartureDate = GetDate();
 		UFlareTravel::InitTravelSector(TravelData.SectorData);
 		UFlareTravel* Travel = LoadTravel(TravelData);
+
+		GetGame()->GetQuestManager()->OnTravelStarted(Travel);
 
 		return Travel;
 	}

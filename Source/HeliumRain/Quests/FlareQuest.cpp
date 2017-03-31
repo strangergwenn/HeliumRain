@@ -616,6 +616,21 @@ void UFlareQuest::OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlar
 	}
 }
 
+void UFlareQuest::OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter)
+{
+	for (UFlareQuestCondition* Condition : GetCurrentConditions())
+	{
+		Condition->OnSpacecraftCaptured(CapturedSpacecraftBefore, CapturedSpacecraftAfter);
+	}
+}
+
+void UFlareQuest::OnTravelStarted(UFlareTravel* Travel)
+{
+	for (UFlareQuestCondition* Condition : GetCurrentConditions())
+	{
+		Condition->OnTravelStarted(Travel);
+	}
+}
 
 /*----------------------------------------------------
 	Getters

@@ -33,4 +33,8 @@ struct SectorHelper
 
 	static void ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 ConsumedFS);
 
+	static int32 GetHostileArmyCombatPoints(UFlareSimulatedSector* Sector, UFlareCompany* Company);
+
+	static int32 GetCompanyArmyCombatPoints(UFlareSimulatedSector* Sector, UFlareCompany* Company);
+
 };
