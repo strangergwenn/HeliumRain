@@ -904,56 +904,54 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 		UChildActorComponent* Component = Cast<UChildActorComponent>(DynamicComponents[ComponentIndex]);
 		if (Component)
 		{
-			// Regular case : apply template
+			// Apply template
 			if (ConstructionTemplate)
 			{
 				Component->SetChildActorClass(ConstructionTemplate);
-
-				// Setup children
-				if (Component->GetChildActor())
-				{
-					TArray<UActorComponent*> SubDynamicComponents = Component->GetChildActor()->GetComponentsByClass(UChildActorComponent::StaticClass());
-					for (int32 SubComponentIndex = 0; SubComponentIndex < SubDynamicComponents.Num(); SubComponentIndex++)
-					{
-						UChildActorComponent* SubDynamicComponent = Cast<UChildActorComponent>(SubDynamicComponents[SubComponentIndex]);
-
-						if (SubDynamicComponent->GetChildActor())
-						{
-							SubDynamicComponent->GetChildActor()->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
-							SubDynamicComponent->GetChildActor()->SetOwner(this);
-
-							UFlareSpacecraftComponent* ChildRootComponent = Cast<UFlareSpacecraftComponent>(SubDynamicComponent->GetChildActor()->GetRootComponent());
-							if (ChildRootComponent)
-							{
-								FFlareSpacecraftComponentSave Data;
-								Data.Damage = 0;
-								Data.ComponentIdentifier = NAME_None;
-								ChildRootComponent->Initialize(&Data, Company, this, false);
-							}
-						}
-					}
-
-					SubDynamicComponents = Component->GetChildActor()->GetComponentsByClass(UStaticMeshComponent::StaticClass());
-					for (int32 SubComponentIndex = 0; SubComponentIndex < SubDynamicComponents.Num(); SubComponentIndex++)
-					{
-						UStaticMeshComponent* SubDynamicComponent = Cast<UStaticMeshComponent>(SubDynamicComponents[SubComponentIndex]);
-
-						if (SubDynamicComponent)
-						{
-							USceneComponent* ParentDefaultAttachComponent = GetDefaultAttachComponent();
-							if (ParentDefaultAttachComponent)
-							{
-								SubDynamicComponent->AttachToComponent(ParentDefaultAttachComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
-							}
-						}
-					}
-				}
 			}
-
-			// Couldn't find template : use idle template
 			else
 			{
 				Component->SetChildActorClass(IdleShipyardTemplate);
+			}
+
+			// Setup children
+			if (Component->GetChildActor())
+			{
+				TArray<UActorComponent*> SubDynamicComponents = Component->GetChildActor()->GetComponentsByClass(UChildActorComponent::StaticClass());
+				for (int32 SubComponentIndex = 0; SubComponentIndex < SubDynamicComponents.Num(); SubComponentIndex++)
+				{
+					UChildActorComponent* SubDynamicComponent = Cast<UChildActorComponent>(SubDynamicComponents[SubComponentIndex]);
+
+					if (SubDynamicComponent->GetChildActor())
+					{
+						SubDynamicComponent->GetChildActor()->AttachToActor(this, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
+						SubDynamicComponent->GetChildActor()->SetOwner(this);
+
+						UFlareSpacecraftComponent* ChildRootComponent = Cast<UFlareSpacecraftComponent>(SubDynamicComponent->GetChildActor()->GetRootComponent());
+						if (ChildRootComponent)
+						{
+							FFlareSpacecraftComponentSave Data;
+							Data.Damage = 0;
+							Data.ComponentIdentifier = NAME_None;
+							ChildRootComponent->Initialize(&Data, Company, this, false);
+						}
+					}
+				}
+
+				SubDynamicComponents = Component->GetChildActor()->GetComponentsByClass(UStaticMeshComponent::StaticClass());
+				for (int32 SubComponentIndex = 0; SubComponentIndex < SubDynamicComponents.Num(); SubComponentIndex++)
+				{
+					UStaticMeshComponent* SubDynamicComponent = Cast<UStaticMeshComponent>(SubDynamicComponents[SubComponentIndex]);
+
+					if (SubDynamicComponent)
+					{
+						USceneComponent* ParentDefaultAttachComponent = GetDefaultAttachComponent();
+						if (ParentDefaultAttachComponent)
+						{
+							SubDynamicComponent->AttachToComponent(ParentDefaultAttachComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);
+						}
+					}
+				}
 			}
 		}
 	}

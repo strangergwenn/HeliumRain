@@ -543,6 +543,17 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	FVector LocalLocation = Spacecraft->GetRootComponent()->GetComponentTransform().InverseTransformPosition(Location) / 100.f;
 	CombatLog::SpacecraftDamaged(Spacecraft->GetParent(), Energy, Radius, LocalLocation, DamageType, CompanyDamageSource, DamageCauser);
 
+#if! UE_BUILD_SHIPPING
+	
+	// Stations damaged by collisions with non-spacecrafts are highly suspicious
+	if (Spacecraft->IsStation() && DamageType == EFlareDamage::DAM_Collision)
+	{
+		FCHECK(DamageSource);
+		FCHECK(CompanyDamageSource);
+	}
+
+#endif
+
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
