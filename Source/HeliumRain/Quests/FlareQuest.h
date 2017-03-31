@@ -5,6 +5,7 @@
 #include "FlareQuest.generated.h"
 
 class UFlareQuestCondition;
+class UFlareQuestConditionGroup;
 class UFlareQuestStep;
 class UFlareQuestAction;
 class UFlareCompany;
@@ -96,6 +97,11 @@ public:
 
 	virtual void OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 Quantity);
 
+	virtual void OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter);
+
+	virtual void OnTravelStarted(UFlareTravel* Travel);
+
+
 protected:
 
 	/*----------------------------------------------------
@@ -120,10 +126,10 @@ protected:
 	TArray<UFlareQuestStep*>				SuccessfullSteps;
 
 	UPROPERTY()
-	TArray<UFlareQuestCondition*>           TriggerConditions;
+	UFlareQuestConditionGroup*           TriggerCondition;
 
 	UPROPERTY()
-	TArray<UFlareQuestCondition*>           ExpirationConditions;
+	UFlareQuestConditionGroup*           ExpirationCondition;
 
 	UPROPERTY()
 	TArray<UFlareQuestAction*>				SuccessActions;

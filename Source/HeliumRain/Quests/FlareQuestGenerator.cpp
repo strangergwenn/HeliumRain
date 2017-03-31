@@ -10,6 +10,7 @@
 #include "FlareQuestStep.h"
 #include "FlareQuestAction.h"
 #include "../Economy/FlareCargoBay.h"
+#include "../Game/FlareSectorHelper.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestGenerator"
 
@@ -246,6 +247,11 @@ FName UFlareQuestGenerator::GenerateTradeTag(UFlareSimulatedSpacecraft* SourceSp
 	return FName(*(FString("trade-")+SourceSpacecraft->GetImmatriculation().ToString()+"-"+Resource->Identifier.ToString()));
 }
 
+FName UFlareQuestGenerator::GenerateDefenseTag(UFlareSimulatedSector* Sector, UFlareCompany* OwnerCompany, UFlareCompany* HostileCompany)
+{
+	return FName(*(FString("defense-")+Sector->GetIdentifier().ToString()+"-"+OwnerCompany->GetIdentifier().ToString()+"-"+HostileCompany->GetIdentifier().ToString()));
+}
+
 /*----------------------------------------------------
 	Generated quest
 ----------------------------------------------------*/
@@ -273,9 +279,11 @@ void UFlareQuestGenerated::CreateGenericReward(FFlareBundle& Data, int64 QuestVa
 
 void UFlareQuestGenerated::AddGlobalFailCondition(UFlareQuestCondition* Condition)
 {
+
+
 	for(UFlareQuestStep* Step : GetSteps())
 	{
-		Step->GetFailConditions().Add(Condition);
+		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(Condition);
 	}
 }
 
@@ -284,7 +292,7 @@ void UFlareQuestGenerated::SetupQuestGiver(UFlareCompany* Company, bool AddWarCo
 	Client = Company;
 	if (AddWarCondition)
 	{
-		AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, Company));
+		AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Company));
 	}
 }
 
@@ -435,9 +443,10 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station1);
 		Condition->TargetShipSaveId = PickUpShipId;
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 
-		Step->GetEndConditions().Add(Condition);
-		Step->GetFailConditions().Add(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station1));
+		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station1));
+
 		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector1));
 		Steps.Add(Step);
 	}
@@ -450,9 +459,9 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station2);
 		Condition->TargetShipMatchId = PickUpShipId;
-		Step->GetEndConditions().Add(Condition);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 
-		Step->GetFailConditions().Add(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, NULL, PickUpShipId));
+		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, NULL, PickUpShipId));
 		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector2));
 
 		Steps.Add(Step);
@@ -460,7 +469,7 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station2));
 
-	ExpirationConditions.Add(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
 
 	SetupQuestGiver(Station1->GetCompany(), true);
 	SetupGenericReward(Data);
@@ -626,14 +635,14 @@ void UFlareQuestGeneratedResourceSale::Load(UFlareQuestGenerator* Parent, const 
 
 		UFlareQuestConditionBuyAtStation* Condition = UFlareQuestConditionBuyAtStation::Create(this, QUEST_TAG"cond1", Station, Resource, Quantity);
 
-		Step->GetEndConditions().Add(Condition);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
 		Steps.Add(Step);
 	}
 
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station));
 
-	ExpirationConditions.Add(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
 
 	SetupQuestGiver(Station->GetCompany(), true);
 	SetupGenericReward(Data);
@@ -801,14 +810,14 @@ void UFlareQuestGeneratedResourcePurchase::Load(UFlareQuestGenerator* Parent, co
 
 		UFlareQuestConditionSellAtStation* Condition = UFlareQuestConditionSellAtStation::Create(this, QUEST_TAG"cond1", Station, Resource, Quantity);
 
-		Step->GetEndConditions().Add(Condition);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
 		Steps.Add(Step);
 	}
 
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station));
 
-	ExpirationConditions.Add(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
 
 	SetupQuestGiver(Station->GetCompany(), true);
 	SetupGenericReward(Data);
@@ -1034,9 +1043,9 @@ void UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "trade", Description);
 
 		UFlareQuestConditionBuyAtStation* Condition1 = UFlareQuestConditionBuyAtStation::Create(this, QUEST_TAG"cond1", Station1, Resource, Quantity);
-		Step->GetEndConditions().Add(Condition1);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition1);
 		UFlareQuestConditionSellAtStation* Condition2 = UFlareQuestConditionSellAtStation::Create(this, QUEST_TAG"cond2", Station2, Resource, Quantity);
-		Step->GetEndConditions().Add(Condition2);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition2);
 
 		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector1));
 		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector2));
@@ -1045,13 +1054,173 @@ void UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const
 
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station1));
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station2));
-	AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, Station2->GetCompany()));
+	AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Station2->GetCompany()));
 
-	ExpirationConditions.Add(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
 
 	SetupQuestGiver(Station1->GetCompany(), true);
 	SetupGenericReward(Data);
 }
 
+/*----------------------------------------------------
+	Generated station defense quest
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "GeneratedStationDefense"
+UFlareQuestGeneratedStationDefense::UFlareQuestGeneratedStationDefense(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company, UFlareCompany* HostileCompany)
+{
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	{
+		return NULL;
+	}
+
+	// Check unicity
+	if (Parent->FindUniqueTag(Parent->GenerateDefenseTag(Sector, Company, HostileCompany)))
+	{
+		return NULL;
+	}
+
+	int64 WarPrice;
+
+	if (HostileCompany->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	{
+		WarPrice = 0;
+	}
+	else
+	{
+		WarPrice = 1000 * (HostileCompany->GetReputation(PlayerCompany) + 100);
+	}
+
+	int32 PreferredPlayerCombatPoints= FMath::Max(1, int32(PlayerCompany->GetCompanyValue().ArmyCombatPoints /3));
+
+
+	int32 NeedArmyCombatPoints= SectorHelper::GetHostileArmyCombatPoints(Sector, Company) - SectorHelper::GetCompanyArmyCombatPoints(Sector, Company);
+
+
+	int32 RequestedArmyCombatPoints = FMath::Min(PreferredPlayerCombatPoints, NeedArmyCombatPoints);
+
+	int64 ArmyPrice = RequestedArmyCombatPoints  * 250;
+
+	// Setup reward
+	int64 QuestValue = WarPrice + ArmyPrice;
+
+	// Create the quest
+	UFlareQuestGeneratedStationDefense* Quest = NewObject<UFlareQuestGeneratedStationDefense>(Parent, UFlareQuestGeneratedStationDefense::StaticClass());
+
+	FFlareBundle Data;
+	Parent->GenerateIdentifer(UFlareQuestGeneratedStationDefense::GetClass(), Data);
+	Data.PutName("sector", Sector->GetIdentifier());
+	Data.PutInt32("army-combat-points", RequestedArmyCombatPoints );
+	Data.PutName("friendly-company", Company->GetIdentifier());
+	Data.PutName("hostile-company", HostileCompany->GetIdentifier());
+	Data.PutTag(Parent->GenerateDefenseTag(Sector, Company, HostileCompany));
+	CreateGenericReward(Data, QuestValue);
+
+	Quest->Load(Parent, Data);
+
+	return Quest;
+}
+
+void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+{
+	UFlareQuestGenerated::Load(Parent, Data);
+
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+	UFlareSimulatedSector* Sector = Parent->GetGame()->GetGameWorld()->FindSector(InitData.GetName("sector"));
+
+	UFlareCompany* FriendlyCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("friendly-company"));
+	UFlareCompany* HostileCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("hostile-company"));
+	int32 ArmyCombatPoints = InitData.GetInt32("army-combat-points");
+
+	QuestClass = UFlareQuestGeneratedStationDefense::GetClass();
+	Identifier = InitData.GetName("identifier");
+
+	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","Defend {0} against {1}"), Sector->GetSectorName(), HostileCompany->GetCompanyName());
+	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat","Defend stations of {0} in {1} againts {2} with a army of {3} combat points"),
+								 FriendlyCompany->GetCompanyName(), Sector->GetSectorName(), HostileCompany->GetCompanyName(), FText::AsNumber(ArmyCombatPoints ));
+
+	QuestCategory = EFlareQuestCategory::SECONDARY;
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"Attack"
+		FText Description;
+
+		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDistant", "Attack {0} in {1} with a force of {2}"),
+										  HostileCompany->GetCompanyName(), Sector->GetSectorName(), FText::AsNumber(ArmyCombatPoints ));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
+
+		UFlareQuestConditionMinArmyCombatPointsInSector* Condition1 = UFlareQuestConditionMinArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, ArmyCombatPoints);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition1);
+		UFlareQuestConditionAtWar* Condition2 = UFlareQuestConditionAtWar::Create(this, GetQuestManager()->GetGame()->GetPC()->GetCompany(), HostileCompany);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition2);
+
+		UFlareQuestConditionStationLostInSector* FailCondition1 = UFlareQuestConditionStationLostInSector::Create(this, Sector, FriendlyCompany);
+		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition1);
+
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
+
+		// TODO if peace, sucesse
+
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"Defend"
+		FText Description;
+
+		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDistant", "Defend {0} in {1} with your force againts {2}"),
+										  FriendlyCompany->GetCompanyName(), Sector->GetSectorName(), HostileCompany->GetCompanyName());
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "defend", Description);
+
+		// OR root
+		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));
+
+		{
+			UFlareQuestConditionNoCapturingStationInSector* Condition = UFlareQuestConditionNoCapturingStationInSector::Create(this, Sector, FriendlyCompany, HostileCompany);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+		}
+
+		{
+			UFlareQuestConditionMaxArmyCombatPointsInSector* Condition = UFlareQuestConditionMaxArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, 0);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+		}
+
+
+		// OR
+		{
+			// If enemy company and friendly company, there is no more reason to defend so succes
+			UFlareQuestConditionAtPeace* Condition = UFlareQuestConditionAtPeace::Create(this, FriendlyCompany, HostileCompany);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+		}
+
+
+		UFlareQuestConditionRetreatDangerousShip* FailCondition1 = UFlareQuestConditionRetreatDangerousShip::Create(this, Sector, FriendlyCompany);
+		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition1);
+		UFlareQuestConditionAtPeace* FailCondition2 = UFlareQuestConditionAtPeace::Create(this, PlayerCompany, HostileCompany);
+		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition2);
+
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
+
+		Steps.Add(Step);
+	}
+
+
+	AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, PlayerCompany, FriendlyCompany));
+
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionStationLostInSector::Create(this,  Sector, FriendlyCompany));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionNoCapturingStationInSector::Create(this,  Sector, FriendlyCompany, HostileCompany));
+
+	SetupQuestGiver(FriendlyCompany, true);
+	SetupGenericReward(Data);
+}
 
 #undef LOCTEXT_NAMESPACE

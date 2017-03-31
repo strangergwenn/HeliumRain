@@ -4,6 +4,7 @@
 
 class UFlareQuestAction;
 class UFlareQuestCondition;
+class UFlareQuestConditionGroup;
 struct FFlarePlayerObjectiveData;
 
 /** Quest action type */
@@ -64,13 +65,13 @@ protected:
 	int32                                   StepIndex;
 
 	UPROPERTY()
-	TArray<UFlareQuestCondition*>           EnableConditions;
+	UFlareQuestCondition*           EnableCondition;
 	UPROPERTY()
-	TArray<UFlareQuestCondition*>           BlockConditions;
+	UFlareQuestCondition*           BlockCondition;
 	UPROPERTY()
-	TArray<UFlareQuestCondition*>           FailConditions;
+	UFlareQuestCondition*           FailCondition;
 	UPROPERTY()
-	TArray<UFlareQuestCondition*>           EndConditions;
+	UFlareQuestCondition*           EndCondition;
 	UPROPERTY()
 	TArray<UFlareQuestAction*>				InitActions;
 	UPROPERTY()
@@ -100,24 +101,24 @@ public:
 		return StepIndex;
 	}
 
-	TArray<UFlareQuestCondition*>& GetEnableConditions()
+	UFlareQuestCondition* GetEnableCondition()
 	{
-		return EnableConditions;
+		return EnableCondition;
 	}
 
-	TArray<UFlareQuestCondition*>& GetBlockConditions()
+	UFlareQuestCondition* GetBlockCondition()
 	{
-		return BlockConditions;
+		return BlockCondition;
 	}
 
-	TArray<UFlareQuestCondition*>& GetFailConditions()
+	UFlareQuestCondition* GetFailCondition()
 	{
-		return FailConditions;
+		return FailCondition;
 	}
 
-	TArray<UFlareQuestCondition*>& GetEndConditions()
+	UFlareQuestCondition* GetEndCondition()
 	{
-		return EndConditions;
+		return EndCondition;
 	}
 
 	TArray<UFlareQuestAction*>& GetInitActions()
@@ -145,4 +146,8 @@ public:
 		return Status == EFlareQuestStepStatus::COMPLETED;
 	}
 
+	void SetEndCondition(UFlareQuestCondition* EndConditionParam)
+	{
+		EndCondition = EndConditionParam;
+	}
 };

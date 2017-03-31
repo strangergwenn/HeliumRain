@@ -34,6 +34,9 @@ void UFlareQuest::LoadInternal(UFlareQuestManager* Parent)
 {
 	QuestManager = Parent;
 	QuestStatus = EFlareQuestStatus::PENDING;
+
+	TriggerCondition = UFlareQuestConditionAndGroup::Create(this, true);
+	ExpirationCondition = UFlareQuestConditionOrGroup::Create(this, false);
 }
 
 void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
@@ -42,12 +45,12 @@ void UFlareQuest::Restore(const FFlareQuestProgressSave& Data)
 	QuestStatus = Data.Status;
 
 
-	for (UFlareQuestCondition* Condition: TriggerConditions)
+	for (UFlareQuestCondition* Condition: TriggerCondition->GetAllConditions())
 	{
 		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data.TriggerConditionsSave));
 	}
 
-	for (UFlareQuestCondition* Condition: ExpirationConditions)
+	for (UFlareQuestCondition* Condition: ExpirationCondition->GetAllConditions())
 	{
 		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data.ExpirationConditionsSave));
 	}
@@ -88,12 +91,12 @@ FFlareQuestProgressSave* UFlareQuest::Save()
 		QuestData.SuccessfullSteps.Add(Step->GetIdentifier());
 	}
 
-	for (UFlareQuestCondition* Condition: TriggerConditions)
+	for (UFlareQuestCondition* Condition: TriggerCondition->GetAllConditions())
 	{
 		Condition->AddSave(QuestData.TriggerConditionsSave);
 	}
 
-	for (UFlareQuestCondition* Condition: ExpirationConditions)
+	for (UFlareQuestCondition* Condition: ExpirationCondition->GetAllConditions())
 	{
 		Condition->AddSave(QuestData.ExpirationConditionsSave);
 	}
@@ -115,14 +118,14 @@ void UFlareQuest::SetupIndexes()
 
 	// Setup condition indexes
 	int32 ConditionIndex = 0;
-	for (UFlareQuestCondition* Condition: TriggerConditions)
+	for (UFlareQuestCondition* Condition: TriggerCondition->GetAllConditions())
 	{
 		Condition->SetConditionIndex(ConditionIndex++);
 	}
 
 	// Setup condition indexes
 	ConditionIndex = 0;
-	for (UFlareQuestCondition* Condition: ExpirationConditions)
+	for (UFlareQuestCondition* Condition: ExpirationCondition->GetAllConditions())
 	{
 		Condition->SetConditionIndex(ConditionIndex++);
 	}
@@ -143,7 +146,7 @@ void UFlareQuest::UpdateState()
 	{
 		case EFlareQuestStatus::PENDING:
 		{
-			bool ConditionsStatus = UFlareQuestCondition::CheckConditions(TriggerConditions, true);
+			bool ConditionsStatus = TriggerCondition->IsCompleted();
 			if (ConditionsStatus)
 			{
 				MakeAvailable();
@@ -153,7 +156,7 @@ void UFlareQuest::UpdateState()
 		}
 		case EFlareQuestStatus::AVAILABLE:
 		{
-			bool ConditionsStatus = UFlareQuestCondition::CheckConditions(ExpirationConditions, false);
+			bool ConditionsStatus = ExpirationCondition->IsCompleted();
 			if (ConditionsStatus)
 			{
 				Abandon(true);
@@ -538,17 +541,17 @@ TArray<UFlareQuestCondition*> UFlareQuest::GetCurrentConditions()
 	{
 		case EFlareQuestStatus::PENDING:
 			// Use trigger conditions
-			Conditions += TriggerConditions;
+			Conditions += TriggerCondition->GetAllConditions();
 			break;
 		case EFlareQuestStatus::ONGOING:
 		 {
 			// Use current step conditions
 			if (CurrentStep)
 			{
-				Conditions += CurrentStep->GetEnableConditions();
-				Conditions += CurrentStep->GetEndConditions();
-				Conditions += CurrentStep->GetFailConditions();
-				Conditions += CurrentStep->GetBlockConditions();
+				Conditions += CurrentStep->GetEnableCondition()->GetAllConditions();
+				Conditions += CurrentStep->GetEndCondition()->GetAllConditions();
+				Conditions += CurrentStep->GetFailCondition()->GetAllConditions();
+				Conditions += CurrentStep->GetBlockCondition()->GetAllConditions();
 			}
 			else
 			{
@@ -573,7 +576,7 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 	{
 		case EFlareQuestStatus::PENDING:
 			// Use trigger conditions
-			UFlareQuestCondition::AddConditionCallbacks(Callbacks, TriggerConditions);
+			UFlareQuestCondition::AddConditionCallbacks(Callbacks, TriggerCondition->GetAllConditions());
 
 			if (Callbacks.Contains(EFlareQuestCallback::TICK_FLYING))
 			{
@@ -582,17 +585,17 @@ TArray<EFlareQuestCallback::Type> UFlareQuest::GetCurrentCallbacks()
 			break;
 		case EFlareQuestStatus::AVAILABLE:
 			// Use expiration conditions
-			UFlareQuestCondition::AddConditionCallbacks(Callbacks, ExpirationConditions);
+			UFlareQuestCondition::AddConditionCallbacks(Callbacks, ExpirationCondition->GetAllConditions());
 			break;
 		case EFlareQuestStatus::ONGOING:
 		 {
 			// Use current step conditions
 			if (CurrentStep)
 			{
-				UFlareQuestCondition::AddConditionCallbacks(Callbacks, CurrentStep->GetEnableConditions());
-				UFlareQuestCondition::AddConditionCallbacks(Callbacks, CurrentStep->GetEndConditions());
-				UFlareQuestCondition::AddConditionCallbacks(Callbacks, CurrentStep->GetFailConditions());
-				UFlareQuestCondition::AddConditionCallbacks(Callbacks, CurrentStep->GetBlockConditions());
+				UFlareQuestCondition::AddConditionCallbacks(Callbacks, CurrentStep->GetEnableCondition()->GetAllConditions());
+				UFlareQuestCondition::AddConditionCallbacks(Callbacks, CurrentStep->GetEndCondition()->GetAllConditions());
+				UFlareQuestCondition::AddConditionCallbacks(Callbacks, CurrentStep->GetFailCondition()->GetAllConditions());
+				UFlareQuestCondition::AddConditionCallbacks(Callbacks, CurrentStep->GetBlockCondition()->GetAllConditions());
 			}
 			else
 			{
@@ -616,6 +619,21 @@ void UFlareQuest::OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlar
 	}
 }
 
+void UFlareQuest::OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter)
+{
+	for (UFlareQuestCondition* Condition : GetCurrentConditions())
+	{
+		Condition->OnSpacecraftCaptured(CapturedSpacecraftBefore, CapturedSpacecraftAfter);
+	}
+}
+
+void UFlareQuest::OnTravelStarted(UFlareTravel* Travel)
+{
+	for (UFlareQuestCondition* Condition : GetCurrentConditions())
+	{
+		Condition->OnTravelStarted(Travel);
+	}
+}
 
 /*----------------------------------------------------
 	Getters
@@ -703,7 +721,7 @@ FText UFlareQuest::GetQuestExpiration()
 {
 	FString Result;
 
-	for (auto Condition : ExpirationConditions)
+	for (auto Condition : ExpirationCondition->GetAllConditions())
 	{
 		Result += Condition->GetInitialLabel().ToString();
 	}

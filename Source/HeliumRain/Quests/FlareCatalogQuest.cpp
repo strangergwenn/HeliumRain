@@ -31,7 +31,7 @@ void UFlareCatalogQuest::Load(UFlareQuestManager* Parent, const FFlareQuestDescr
 	QuestDescription = Description->QuestDescription;
 	QuestCategory = Description->Category;
 
-	for(const FFlareQuestConditionDescription& ConditionDescription : Description->Triggers)
+	/*for(const FFlareQuestConditionDescription& ConditionDescription : Description->Triggers)
 	{
 		TriggerConditions.Append(GenerateCatalogCondition(ConditionDescription));
 	}
@@ -49,7 +49,8 @@ void UFlareCatalogQuest::Load(UFlareQuestManager* Parent, const FFlareQuestDescr
 	for(const FFlareQuestStepDescription& StepDescription : Description->Steps)
 	{
 		Steps.Add(GenerateCatalogStep(StepDescription));
-	}
+	}*/
+	//TODO repair if needed
 }
 
 TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const FFlareQuestConditionDescription& ConditionDescription)
@@ -214,7 +215,7 @@ UFlareQuestStep* UFlareCatalogQuest::GenerateCatalogStep(const FFlareQuestStepDe
 {
 	UFlareQuestStep* Step = UFlareQuestStep::Create(this, StepDescription.Identifier, StepDescription.StepDescription);
 
-	for(const FFlareQuestConditionDescription& ConditionDescription : StepDescription.EndConditions)
+	/*for(const FFlareQuestConditionDescription& ConditionDescription : StepDescription.EndConditions)
 	{
 		Step->GetEndConditions().Append(GenerateCatalogCondition(ConditionDescription));
 	}
@@ -242,7 +243,8 @@ UFlareQuestStep* UFlareCatalogQuest::GenerateCatalogStep(const FFlareQuestStepDe
 	for(const FFlareQuestActionDescription& ActionDescription : StepDescription.EndActions)
 	{
 		Step->GetEndActions().Add(GenerateCatalogAction(ActionDescription));
-	}
+	}*/
+	// TODO repair if needed
 
 	return Step;
 }

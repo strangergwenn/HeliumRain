@@ -39,6 +39,8 @@ public:
 
 	FName GenerateTradeTag(UFlareSimulatedSpacecraft* SourceSpacecraft, FFlareResourceDescription* Resource);
 
+	FName GenerateDefenseTag(UFlareSimulatedSector* Sector, UFlareCompany* OwnerCompany, UFlareCompany* HostileCompany);
+
 protected:
 
    /*----------------------------------------------------
@@ -154,4 +156,18 @@ public:
 	/** Load the quest from description file */
 	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company);
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestGeneratedStationDefense: public UFlareQuestGenerated
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static FName GetClass() { return "station-defense"; }
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company, UFlareCompany* HostileCompany);
 };

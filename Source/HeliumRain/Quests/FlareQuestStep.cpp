@@ -24,6 +24,10 @@ UFlareQuestStep* UFlareQuestStep::Create(UFlareQuest* Parent, FName Identifier, 
 	UFlareQuestStep* Step = NewObject<UFlareQuestStep>(Parent, UFlareQuestStep::StaticClass());
 	Step->Identifier = Identifier;
 	Step->StepDescription = Description;
+	Step->EnableCondition = UFlareQuestConditionAndGroup::Create(Parent, true);
+	Step->BlockCondition = UFlareQuestConditionOrGroup::Create(Parent, false);
+	Step->FailCondition = UFlareQuestConditionOrGroup::Create(Parent, false);
+	Step->EndCondition = UFlareQuestConditionAndGroup::Create(Parent, true);
 
 	return Step;
 }
@@ -39,7 +43,7 @@ void UFlareQuestStep::UpdateState()
 
 	if(Status == EFlareQuestStepStatus::DISABLED)
 	{
-		if (UFlareQuestCondition::CheckConditions(EnableConditions, true))
+		if (EnableCondition == NULL || EnableCondition->IsCompleted())
 		{
 			Status = EFlareQuestStepStatus::ENABLED;
 			UpdateState();
@@ -49,7 +53,7 @@ void UFlareQuestStep::UpdateState()
 	else
 	{
 		// Enabled or blocked, check failed
-		if (UFlareQuestCondition::CheckFailConditions(FailConditions, false))
+		if (FailCondition != NULL && FailCondition->IsCompleted())
 		{
 			Status = EFlareQuestStepStatus::FAILED;
 			return;
@@ -57,7 +61,7 @@ void UFlareQuestStep::UpdateState()
 
 		if(Status == EFlareQuestStepStatus::BLOCKED)
 		{
-			if (!UFlareQuestCondition::CheckConditions(BlockConditions, false))
+			if (BlockCondition == NULL || !BlockCondition->IsCompleted())
 			{
 				Status = EFlareQuestStepStatus::ENABLED;
 				UpdateState();
@@ -68,14 +72,14 @@ void UFlareQuestStep::UpdateState()
 
 		if(Status == EFlareQuestStepStatus::ENABLED)
 		{
-			if (UFlareQuestCondition::CheckConditions(BlockConditions, false))
+			if (BlockCondition == NULL || !BlockCondition->IsCompleted())
 			{
 				Status = EFlareQuestStepStatus::BLOCKED;
 				UpdateState();
 				return;
 			}
 
-			if (UFlareQuestCondition::CheckConditions(EndConditions, false))
+			if (EndCondition == NULL || EndCondition->IsCompleted())
 			{
 				Status = EFlareQuestStepStatus::COMPLETED;
 				return;
@@ -94,22 +98,22 @@ void UFlareQuestStep::Init()
 
 void UFlareQuestStep::Restore(const TArray<FFlareQuestConditionSave>& Data)
 {
-	for (UFlareQuestCondition* Condition: EnableConditions)
+	for (UFlareQuestCondition* Condition: EnableCondition->GetAllConditions())
 	{
 		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data));
 	}
 
-	for (UFlareQuestCondition* Condition: BlockConditions)
+	for (UFlareQuestCondition* Condition: BlockCondition->GetAllConditions())
 	{
 		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data));
 	}
 
-	for (UFlareQuestCondition* Condition: FailConditions)
+	for (UFlareQuestCondition* Condition: FailCondition->GetAllConditions())
 	{
 		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data));
 	}
 
-	for (UFlareQuestCondition* Condition: EndConditions)
+	for (UFlareQuestCondition* Condition: EndCondition->GetAllConditions())
 	{
 		Condition->Restore(UFlareQuestCondition::GetStepConditionBundle(Condition, Data));
 	}
@@ -117,22 +121,22 @@ void UFlareQuestStep::Restore(const TArray<FFlareQuestConditionSave>& Data)
 
 void UFlareQuestStep::Save(TArray<FFlareQuestConditionSave>& Data)
 {
-	for (UFlareQuestCondition* Condition: EnableConditions)
+	for (UFlareQuestCondition* Condition: EnableCondition->GetAllConditions())
 	{
 		Condition->AddSave(Data);
 	}
 
-	for (UFlareQuestCondition* Condition: BlockConditions)
+	for (UFlareQuestCondition* Condition: BlockCondition->GetAllConditions())
 	{
 		Condition->AddSave(Data);
 	}
 
-	for (UFlareQuestCondition* Condition: FailConditions)
+	for (UFlareQuestCondition* Condition: FailCondition->GetAllConditions())
 	{
 		Condition->AddSave(Data);
 	}
 
-	for (UFlareQuestCondition* Condition: EndConditions)
+	for (UFlareQuestCondition* Condition: EndCondition->GetAllConditions())
 	{
 		Condition->AddSave(Data);
 	}
@@ -150,7 +154,7 @@ void UFlareQuestStep::PerformEndActions()
 
 void UFlareQuestStep::AddEndConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
-	for(UFlareQuestCondition* Condition: EndConditions)
+	for(UFlareQuestCondition* Condition: EndCondition->GetAllConditions())
 	{
 		Condition->AddConditionObjectives(ObjectiveData);
 	}
@@ -163,25 +167,25 @@ void UFlareQuestStep::SetupStepIndexes(int32 Index)
 	int32 ConditionIndex;
 
 	ConditionIndex = 0;
-	for (UFlareQuestCondition* Condition: EnableConditions)
+	for (UFlareQuestCondition* Condition: EnableCondition->GetAllConditions())
 	{
 		Condition->SetConditionIndex(ConditionIndex++);
 	}
 
 	ConditionIndex = 0;
-	for (UFlareQuestCondition* Condition: BlockConditions)
+	for (UFlareQuestCondition* Condition: BlockCondition->GetAllConditions())
 	{
 		Condition->SetConditionIndex(ConditionIndex++);
 	}
 
 	ConditionIndex = 0;
-	for (UFlareQuestCondition* Condition: FailConditions)
+	for (UFlareQuestCondition* Condition: FailCondition->GetAllConditions())
 	{
 		Condition->SetConditionIndex(ConditionIndex++);
 	}
 
 	ConditionIndex = 0;
-	for (UFlareQuestCondition* Condition: EndConditions)
+	for (UFlareQuestCondition* Condition: EndCondition->GetAllConditions())
 	{
 		Condition->SetConditionIndex(ConditionIndex++);
 	}
