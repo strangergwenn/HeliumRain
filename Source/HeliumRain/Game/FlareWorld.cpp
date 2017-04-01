@@ -778,7 +778,8 @@ void UFlareWorld::ProcessStationCapture()
 		Owner->GiveReputationToOthers(30, false);
 		Owner->GiveReputation(Capturer, -40, false);
 		Capturer->GiveReputationToOthers(-50, false);
-		// Shame
+
+		// Shame - Shame - Shame - Dingdingding
 		float Shame = 0.1 * NewShip->GetLevel();
 		Capturer->GiveShame(Shame);
 		Owner->GiveShame(-Shame);

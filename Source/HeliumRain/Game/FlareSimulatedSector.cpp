@@ -327,7 +327,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	ShipData.AsteroidData.AngularVelocity = FVector::ZeroVector;
 	ShipData.AsteroidData.Rotation = FRotator::ZeroRotator;
 
-	// If capture, copy data form captured ship
+	// If captured, copy data from captured ship
 	if (CapturedSpacecraft)
 	{
 		ShipData.Location = CapturedSpacecraft->Location;
@@ -340,6 +340,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 		ShipData.DynamicComponentStateProgress = CapturedSpacecraft->DynamicComponentStateProgress;
 		ShipData.Level = CapturedSpacecraft->Level;
 		ShipData.SpawnMode = EFlareSpawnMode::Safe;
+		ShipData.AttachActorName = CapturedSpacecraft->AttachActorName;
 	}
 
 	// Create the ship
