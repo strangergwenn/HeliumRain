@@ -231,9 +231,9 @@ protected:
 	----------------------------------------------------*/
 	
 	/** Order one ship at any shipyard */
-	int64 OrderOneShip(FFlareSpacecraftDescription* ShipDescription);
+	int64 OrderOneShip(const FFlareSpacecraftDescription* ShipDescription);
 
-	FFlareSpacecraftDescription* FindBestShipToBuild(bool Military);
+	const FFlareSpacecraftDescription* FindBestShipToBuild(bool Military);
 	
 	/** Return if a ship is currently build for the company */
 	bool IsBuildingShip(bool Military);

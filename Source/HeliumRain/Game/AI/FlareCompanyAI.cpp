@@ -1619,7 +1619,7 @@ int64 UFlareCompanyAI::UpdateCargoShipAcquisition()
 		return 0;
 	}
 
-	FFlareSpacecraftDescription* ShipDescription = FindBestShipToBuild(false);
+	const FFlareSpacecraftDescription* ShipDescription = FindBestShipToBuild(false);
 	if (ShipDescription == NULL)
 	{
 		return 0;
@@ -1644,7 +1644,7 @@ int64 UFlareCompanyAI::UpdateWarShipAcquisition(bool limitToOne)
 		return 0;
 	}
 
-	FFlareSpacecraftDescription* ShipDescription = FindBestShipToBuild(true);
+	const FFlareSpacecraftDescription* ShipDescription = FindBestShipToBuild(true);
 
 	return OrderOneShip(ShipDescription);
 }
@@ -3070,7 +3070,7 @@ void UFlareCompanyAI::UpdatePeaceMilitaryMovement()
 	Helpers
 ----------------------------------------------------*/
 
-int64 UFlareCompanyAI::OrderOneShip(FFlareSpacecraftDescription* ShipDescription)
+int64 UFlareCompanyAI::OrderOneShip(const FFlareSpacecraftDescription* ShipDescription)
 {
 	if (ShipDescription == NULL)
 	{
@@ -3133,14 +3133,14 @@ int64 UFlareCompanyAI::OrderOneShip(FFlareSpacecraftDescription* ShipDescription
 }
 
 //#define DEBUG_AI_SHIP_ORDER
-FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Military)
+const FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Military)
 {
 	int32 ShipSCount = 0;
 	int32 ShipLCount = 0;
 
 	// Count owned ships
-	TMap<FFlareSpacecraftDescription*, int32> OwnedShipSCount;
-	TMap<FFlareSpacecraftDescription*, int32> OwnedShipLCount;
+	TMap<const FFlareSpacecraftDescription*, int32> OwnedShipSCount;
+	TMap<const FFlareSpacecraftDescription*, int32> OwnedShipLCount;
 	for (int32 ShipIndex = 0; ShipIndex < Company->GetCompanyShips().Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = Company->GetCompanyShips()[ShipIndex];
@@ -3188,7 +3188,7 @@ FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Military)
 			UFlareFactory* Factory = Factories[Index];
 			if (Factory->GetTargetShipCompany() == Company->GetIdentifier())
 			{
-				FFlareSpacecraftDescription* BuildingShip = Game->GetSpacecraftCatalog()->Get(Factory->GetTargetShipClass());
+				const FFlareSpacecraftDescription* BuildingShip = Game->GetSpacecraftCatalog()->Get(Factory->GetTargetShipClass());
 				if (Military != BuildingShip->IsMilitary())
 				{
 					continue;
@@ -3223,11 +3223,9 @@ FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Military)
 		}
 	}
 
-
-	FFlareSpacecraftDescription* BestShipDescription = NULL;
-
-	int32 SizeDiversity = (Military ? AI_MILITARY_SIZE_DIVERSITY_THRESHOLD : AI_CARGO_SIZE_DIVERSITY_THRESHOLD);
+	// Choose which size to pick
 	int32 Diversity = (Military ? AI_MILITARY_DIVERSITY_THRESHOLD : AI_CARGO_DIVERSITY_THRESHOLD);
+	int32 SizeDiversity = (Military ? AI_MILITARY_SIZE_DIVERSITY_THRESHOLD : AI_CARGO_SIZE_DIVERSITY_THRESHOLD);
 	bool PickLShip = true;
 	if ((ShipLCount+1) * SizeDiversity > ShipSCount)
 	{
@@ -3245,53 +3243,77 @@ FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Military)
 			FLOGV("- Diversity %d", Diversity);
 #endif
 
-	for (int SpacecraftIndex = 0; SpacecraftIndex < Game->GetSpacecraftCatalog()->ShipCatalog.Num(); SpacecraftIndex++)
+	// List possible ship candidates
+	TArray<const FFlareSpacecraftDescription*> CandidateShips;
+	for (auto& CatalogEntry : Game->GetSpacecraftCatalog()->ShipCatalog)
 	{
-		UFlareSpacecraftCatalogEntry* Entry = Game->GetSpacecraftCatalog()->ShipCatalog[SpacecraftIndex];
-		FFlareSpacecraftDescription* Description = &Entry->Data;
-
-		if (Military != Description->IsMilitary())
+		const FFlareSpacecraftDescription* Description = &CatalogEntry->Data;
+		if (Military == Description->IsMilitary())
 		{
-			continue;
+			if (PickLShip == (Description->Size == EFlarePartSize::L))
+			{
+				CandidateShips.Add(Description);
+			}
 		}
-
-		if (PickLShip && Description->Size != EFlarePartSize::L)
-		{
-			continue;
+	}
+	
+	// Sort by size
+	struct FSortBySmallerShip
+	{
+		FORCEINLINE bool operator()(const FFlareSpacecraftDescription& A, const FFlareSpacecraftDescription& B) const
+		{			
+			if (A.Mass > B.Mass)
+			{
+				return false;
+			}
+			else if (A.Mass < B.Mass)
+			{
+				return true;
+			}
+			else if (A.IsMilitary())
+			{
+				if (!B.IsMilitary())
+				{
+					return false;
+				}
+				else
+				{
+					return A.WeaponGroups.Num() < B.WeaponGroups.Num();
+				}
+			}
+			else
+			{
+				return true;
+			}
 		}
+	};
+	CandidateShips.Sort(FSortBySmallerShip());
 
-		if (!PickLShip && Description->Size != EFlarePartSize::S)
-		{
-			continue;
-		}
-
-		TMap<FFlareSpacecraftDescription*, int32>* OwnedShipCount = (PickLShip ? &OwnedShipLCount : &OwnedShipSCount);
-		
+	// Find the first ship that is diverse enough, from small to large
+	const FFlareSpacecraftDescription* BestShipDescription = NULL;
+	TMap<const FFlareSpacecraftDescription*, int32>* OwnedShipCount = (PickLShip ? &OwnedShipLCount : &OwnedShipSCount);
+	for (const FFlareSpacecraftDescription* Description : CandidateShips)
+	{
 		if (BestShipDescription == NULL)
 		{
 			BestShipDescription = Description;
 			continue;
 		}
-
+		
 		int32 CandidateCount = 0;
-		int32 BestCount = 0;
-
-
 		if (OwnedShipCount->Contains(Description))
 		{
 			CandidateCount = (*OwnedShipCount)[Description];
 		}
 
+		int32 BestCount = 0;
 		if (OwnedShipCount->Contains(BestShipDescription))
 		{
 			BestCount = (*OwnedShipCount)[BestShipDescription];
 		}
-
-
-		bool BestBigger = (Military?  BestShipDescription->Mass > Description-> Mass
-									: BestShipDescription->GetCapacity() > Description->GetCapacity());
-
-
+		
+		bool BestBigger = (Military ? BestShipDescription->Mass > Description-> Mass : BestShipDescription->GetCapacity() > Description->GetCapacity());
+		
 		bool Select = false;
 		if (BestBigger && BestCount * Diversity > CandidateCount)
 		{
