@@ -200,11 +200,8 @@ void UFlareAIBehavior::GenerateAffilities()
 {
 	// Reset resource affilities
 	ResourceAffilities.Empty();
-
-
+	
 	// Default behavior
-
-
 	SetResourceAffilities(1.f);
 
 	// If above 5, will become exclusive
@@ -248,7 +245,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		//
 		// Pirate don't trade, and are only interested in getting money by force
 		// All resource affilities are set to 0
-		// They never build station
+		// They never build stations
 		// They never research science
 
 		// They have 2 mode : agressive or moderate
@@ -276,7 +273,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		TradingSell = 0.f;
 		TradingBoth = 0.f;
 
-		// Don't capture station. Change in recovery
+		// Doesn't capture station. Change in recovery
 		StationCapture = 0.f;
 
 		DeclareWarConfidence = -0.2;
@@ -288,7 +285,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		RetreatThreshold = 0.2;
 		DefeatAdaptation = 0.001;
 
-		// Budjet
+		// Budget
 		BudgetTechnologyWeight = 0.0;
 		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 0.0;
@@ -297,14 +294,14 @@ void UFlareAIBehavior::GenerateAffilities()
 	}
 	else if(Company == ST->GhostWorksShipyards)
 	{
-		// Love Hela and don't like Nema
+		// Loves Hela and doesn't like Nema
 
 		ShipyardAffility = 5.0;
 
 		SetSectorAffilitiesByMoon(ST->Nema,0.5f);
 		SetSectorAffilitiesByMoon(ST->Hela, 6.f);
 
-		// Budjet
+		// Budget
 		BudgetTechnologyWeight = 1.0;
 		BudgetMilitaryWeight = 2.0;
 		BudgetStationWeight = 1.0;
@@ -313,14 +310,14 @@ void UFlareAIBehavior::GenerateAffilities()
 	else if(Company == ST->MiningSyndicate)
 	{
 		// Mining specialist.
-		// Love raw material
-		// Like hard work
+		// Loves raw materials
+		// Likes hard work
 		SetResourceAffility(ST->Water, 10.f);
 		SetResourceAffility(ST->Silica, 10.f);
 		SetResourceAffility(ST->IronOxyde, 10.f);
 		SetResourceAffility(ST->Hydrogen, 2.f);
 
-		// Budjet
+		// Budget
 		BudgetTechnologyWeight = 1.0;
 		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 2.0;
@@ -328,16 +325,15 @@ void UFlareAIBehavior::GenerateAffilities()
 	}
 	else if(Company == ST->HelixFoundries)
 	{
-		// Like hard factory, and Anka.
+		// Likes hard factory, and Anka.
 		// Base at Outpost
 		SetResourceAffility(ST->Steel, 10.f);
 		SetResourceAffility(ST->Tools, 10.f);
 		SetResourceAffility(ST->Tech, 5.f);
 		SetSectorAffilitiesByMoon(ST->Anka, 6.f);
 		SetSectorAffility(ST->Outpost, 10.f);
-
-
-		// Budjet
+		
+		// Budget
 		BudgetTechnologyWeight = 1.5;
 		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 2.0;
@@ -345,12 +341,11 @@ void UFlareAIBehavior::GenerateAffilities()
 	}
 	else if(Company == ST->Sunwatch)
 	{
-		// Like hard factory, and Anka.
+		// Likes hard factory, and Anka.
 		// Base at Outpost
 		SetResourceAffility(ST->Fuel, 10.f);
-
-
-		// Budjet
+		
+		// Budget
 		BudgetTechnologyWeight = 1.0;
 		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 2.0;
@@ -370,12 +365,12 @@ void UFlareAIBehavior::GenerateAffilities()
 	}
 	else if(Company == ST->UnitedFarmsChemicals)
 	{
-		// Like chemisty
+		// Likes chemisty
 		SetResourceAffility(ST->Food, 10.f);
 		SetResourceAffility(ST->Carbon, 5.f);
 		SetResourceAffility(ST->Methane, 5.f);
 
-		// Budjet
+		// Budget
 		BudgetTechnologyWeight = 1.5;
 		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 2.0;
@@ -383,7 +378,7 @@ void UFlareAIBehavior::GenerateAffilities()
 	}
 	else if(Company == ST->NemaHeavyWorks)
 	{
-		// Like Nema and heavy work
+		// Likes Nema and heavy work
 		SetResourceAffility(ST->FleetSupply, 2.f);
 		SetResourceAffility(ST->Steel, 5.f);
 		SetResourceAffility(ST->Tools, 5.f);
@@ -392,7 +387,7 @@ void UFlareAIBehavior::GenerateAffilities()
 
 		ShipyardAffility = 3.0;
 
-		// Budjet
+		// Budget
 		BudgetTechnologyWeight = 1.5;
 		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 2.0;
@@ -400,7 +395,7 @@ void UFlareAIBehavior::GenerateAffilities()
 	}
 	else if(Company == ST->AxisSupplies)
 	{
-		// Assure fleet supply disponibility
+		// Assures fleet supply availability
 		SetResourceAffility(ST->FleetSupply, 5.f);
 		SetResourceAffility(ST->Food, 2.f);
 
@@ -408,7 +403,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		ConsumerAffility = 1.0;
 		MaintenanceAffility = 10.0;
 
-		// Budjet
+		// Budget
 		BudgetTechnologyWeight = 1.0;
 		BudgetMilitaryWeight = 0.5;
 		BudgetStationWeight = 2.0;
