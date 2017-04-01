@@ -211,6 +211,9 @@ public:
 
 	void CheckBattleState();
 
+	bool HasHealthyTradeFleet() const;
+
+
 protected:
 
 	/*----------------------------------------------------
@@ -241,6 +244,9 @@ protected:
 	/** Get a list of shipyard */
 	TArray<UFlareSimulatedSpacecraft*> FindShipyards();
 
+	/** Get a list of wrecked cargos */
+	TArray<UFlareSimulatedSpacecraft*> FindIncapacitatedCargos() const;
+	
 	/** Get a list of idle cargos */
 	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos() const;
 

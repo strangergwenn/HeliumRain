@@ -22,6 +22,8 @@
 // TODO, make it depend on company's nature
 #define AI_CARGO_PEACE_MILILTARY_THRESHOLD 10
 
+// If one cargo out of X ships is wrecked, the fleet is unhealthy
+#define AI_CARGO_HEALTHY_THRESHOLD 5
 
 //#define DEBUG_AI_WAR_MILITARY_MOVEMENT
 //#define DEBUG_AI_BATTLE_STATES
@@ -1745,6 +1747,20 @@ void UFlareCompanyAI::CheckBattleState()
 	}
 }
 
+bool UFlareCompanyAI::HasHealthyTradeFleet() const
+{
+	int32 IncapacitatedCargosCount = FindIncapacitatedCargos().Num();
+
+	if (AI_CARGO_HEALTHY_THRESHOLD * IncapacitatedCargosCount > Company->GetCompanyShips().Num())
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
 TArray<WarTargetIncomingFleet> UFlareCompanyAI::GenerateWarTargetIncomingFleets(UFlareSimulatedSector* DestinationSector)
 {
 	TArray<WarTargetIncomingFleet> IncomingFleetList;
@@ -3397,6 +3413,21 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindShipyards()
 	}
 
 	return ShipyardList;
+}
+
+TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIncapacitatedCargos() const
+{
+	TArray<UFlareSimulatedSpacecraft*> IncapacitatedCargos;
+
+	for (UFlareSimulatedSpacecraft* Ship : Company->GetCompanyShips())
+	{
+		if (Ship->GetCargoBay()->GetCapacity() > 0 && (Ship->GetDamageSystem()->IsStranded() || Ship->GetDamageSystem()->IsUncontrollable()))
+		{
+			IncapacitatedCargos.Add(Ship);
+		}
+	}
+
+	return IncapacitatedCargos;
 }
 
 TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos() const

@@ -4,6 +4,7 @@
 #include "../FlareGame.h"
 #include "../FlareCompany.h"
 #include "../FlareScenarioTools.h"
+#include "../../Player/FlarePlayerController.h"
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 
@@ -151,6 +152,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			Company->SetHostilityTo(OtherCompany, false);
 		}
 		else if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile
+				 && Company->GetAI()->HasHealthyTradeFleet()
 				 && Company->GetReputation(OtherCompany) <= -100 && Company->GetConfidenceLevel(OtherCompany) > DeclareWarConfidence)
 		{
 			Company->SetHostilityTo(OtherCompany, true);
