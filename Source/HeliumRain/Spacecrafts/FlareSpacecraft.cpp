@@ -708,7 +708,6 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 
 	// Customization
 	UpdateCustomization();
-	Redock();
 
 	// If not rcs, add passive stabilization
 	if (GetDescription()->RCSCount == 0)
