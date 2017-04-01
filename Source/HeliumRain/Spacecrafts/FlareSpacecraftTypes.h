@@ -727,11 +727,11 @@ struct FFlareSpacecraftDescription
 	bool IsSubstation;
 
 
-	int32 GetCapacity();
+	int32 GetCapacity() const;
 
-	bool IsStation();
+	bool IsStation() const;
 
-	bool IsMilitary();
+	bool IsMilitary() const;
 
 	static const FSlateBrush* GetIcon(FFlareSpacecraftDescription* Characteristic);
 };

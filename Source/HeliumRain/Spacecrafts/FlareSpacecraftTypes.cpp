@@ -96,18 +96,18 @@ EFlareDamage::Type SpacecraftHelper::GetWeaponDamageType(EFlareShellDamageType::
 	};
 }
 
-int32 FFlareSpacecraftDescription::GetCapacity()
+int32 FFlareSpacecraftDescription::GetCapacity() const
 {
 	return CargoBayCapacity * CargoBayCount;
 }
 
 
-bool FFlareSpacecraftDescription::IsStation()
+bool FFlareSpacecraftDescription::IsStation() const
 {
 	return OrbitalEngineCount == 0;
 }
 
-bool FFlareSpacecraftDescription::IsMilitary()
+bool FFlareSpacecraftDescription::IsMilitary() const
 {
 	return GunSlots.Num() > 0 || TurretSlots.Num() > 0;
 }
