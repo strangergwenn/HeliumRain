@@ -91,6 +91,18 @@ protected:
 
 	/** Get the sector's location */
 	FText GetSectorLocation() const;
+
+	/** Get the combat value visibility */
+	EVisibility GetCombatValueVisibility() const;
+
+	/** Get the combat value */
+	FText GetOwnCombatValue() const;
+
+	/** Get the combat value */
+	FText GetFullCombatValue() const;
+
+	/** Get the combat value */
+	FText GetHostileCombatValue() const;
 	
 
 	/*----------------------------------------------------

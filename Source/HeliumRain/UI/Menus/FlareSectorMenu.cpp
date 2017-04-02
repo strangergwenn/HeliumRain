@@ -85,20 +85,115 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.WrapTextAt(Theme.ContentWidth)
 						]
 
-						// Travel here
+						// Combat value
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.HAlign(HAlign_Fill)
+						.VAlign(VAlign_Center)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SHorizontalBox)
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.VAlign(VAlign_Center)
+							[
+								SNew(SImage)
+								.Image(FFlareStyleSet::GetIcon("CombatValue"))
+								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareSectorMenu::GetOwnCombatValue)
+								.TextStyle(&Theme.TextFont)
+								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.VAlign(VAlign_Center)
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("SectorOwnCombatValue", " owned combat value here, "))
+								.TextStyle(&Theme.TextFont)
+								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.VAlign(VAlign_Center)
+							[
+								SNew(SImage)
+								.Image(FFlareStyleSet::GetIcon("CombatValue"))
+								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareSectorMenu::GetHostileCombatValue)
+								.TextStyle(&Theme.TextFont)
+								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.VAlign(VAlign_Center)
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("SectorHostileCombatValue", " hostile, "))
+								.TextStyle(&Theme.TextFont)
+								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.VAlign(VAlign_Center)
+							[
+								SNew(SImage)
+								.Image(FFlareStyleSet::GetIcon("CombatValue"))
+								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareSectorMenu::GetFullCombatValue)
+								.TextStyle(&Theme.TextFont)
+								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.VAlign(VAlign_Center)
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("SectorFullCombatValue", " total"))
+								.TextStyle(&Theme.TextFont)
+								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+							]
+						]
+
+						// Tools line 1
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Left)
+						.Padding(Theme.SmallContentPadding)
 						[
 							SNew(SHorizontalBox)
 
 							// Fleet list
 							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(Theme.SmallContentPadding)
 							[
 								SNew(SBox)
-								.WidthOverride(8 * Theme.ButtonWidth)
+								.WidthOverride(10 * Theme.ButtonWidth)
 								[
 									SAssignNew(FleetSelector, SComboBox<UFlareFleet*>)
 									.OptionsSource(&FleetList)
@@ -117,7 +212,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							// Button
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
-							.Padding(Theme.SmallContentPadding)
 							.HAlign(HAlign_Right)
 							[
 								SNew(SFlareButton)
@@ -138,7 +232,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 				.VAlign(VAlign_Top)
 				[
 					SNew(SBox)
-					.WidthOverride(10 * Theme.ButtonWidth + Theme.ContentPadding.Left + Theme.ContentPadding.Right)
+					.WidthOverride(Theme.ContentWidth)
 					[
 						SNew(SVerticalBox)
 
@@ -160,13 +254,12 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(SHorizontalBox)
 
+							// Show prices
 							+ SHorizontalBox::Slot()
-							.Padding(Theme.SmallContentPadding)
 							.AutoWidth()
 							[
-								// Show prices
 								SNew(SFlareButton)
-								.Width(4.9)
+								.Width(6)
 								.Text(LOCTEXT("ResourcePrices", "Local prices"))
 								.HelpText(LOCTEXT("ResourcePricesInfo", "See the price and use of resources in this sector"))
 								.Icon(FFlareStyleSet::GetIcon("Travel"))
@@ -176,11 +269,10 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 
 							// Build station button
 							+ SHorizontalBox::Slot()
-							.Padding(Theme.SmallContentPadding)
 							.AutoWidth()
 							[
 								SNew(SFlareButton)
-								.Width(5)
+								.Width(6)
 								.Text(this, &SFlareSectorMenu::GetBuildStationText)
 								.HelpText(LOCTEXT("BuildStationInfo", "Build a station in this sector"))
 								.Icon(FFlareStyleSet::GetIcon("Travel"))
@@ -193,10 +285,9 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.HAlign(HAlign_Left)
-						.Padding(Theme.SmallContentPadding)
 						[
 							SNew(SFlareButton)
-							.Width(10)
+							.Width(12)
 							.Text(this, &SFlareSectorMenu::GetRefillText)
 							.HelpText(LOCTEXT("RefillInfo", "Refill all fleets in this sector so that they have the necessary fuel, ammo and resources to fight."))
 							.Icon(FFlareStyleSet::GetIcon("Tank"))
@@ -208,10 +299,9 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.HAlign(HAlign_Left)
-						.Padding(Theme.SmallContentPadding)
 						[
 							SNew(SFlareButton)
-							.Width(10)
+							.Width(12)
 							.Text(this, &SFlareSectorMenu::GetRepairText)
 							.HelpText(LOCTEXT("RepairInfo", "Repair all fleets in this sector."))
 							.Icon(FFlareStyleSet::GetIcon("Repair"))
@@ -304,7 +394,7 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 
 	// Known sector
 	if (PC->GetCompany()->HasVisitedSector(TargetSector))
-	{		
+	{
 		// Add stations
 		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorStations().Num(); SpacecraftIndex++)
 		{
@@ -807,7 +897,7 @@ FText SFlareSectorMenu::GetSectorName() const
 		}
 		else
 		{
-			Result = FText::Format(LOCTEXT("CurrentSectorFormat", "Current sector : {0} ({1})"),
+			Result = FText::Format(LOCTEXT("CurrentSectorFormat", "Sector : {0} ({1})"),
 				TargetSector->GetSectorName(),
 				TargetSector->GetSectorFriendlynessText(MenuManager->GetPC()->GetCompany()));
 		}
@@ -827,7 +917,6 @@ FText SFlareSectorMenu::GetSectorDescription() const
 
 	return Result;
 }
-
 
 FText SFlareSectorMenu::GetSectorLocation() const
 {
@@ -887,6 +976,52 @@ FText SFlareSectorMenu::GetSectorLocation() const
 				LightRatioString,
 				FText::FromString(AttributeString));
 		}
+	}
+
+	return Result;
+}
+
+EVisibility SFlareSectorMenu::GetCombatValueVisibility() const
+{
+	return (MenuManager->GetPC()->GetCompany()->HasVisitedSector(TargetSector) ? EVisibility::Visible : EVisibility::Collapsed);
+}
+
+FText SFlareSectorMenu::GetOwnCombatValue() const
+{
+	FText Result;
+
+	if (IsEnabled() && TargetSector)
+	{
+		UFlareCompany* PlayerCompany = MenuManager->GetPC()->GetCompany();
+		int32 CompanyPoints = PlayerCompany->GetCompanyValue(TargetSector, false).ArmyCombatPoints;
+		return FText::AsNumber(CompanyPoints);
+	}
+
+	return Result;
+}
+
+FText SFlareSectorMenu::GetFullCombatValue() const
+{
+	FText Result;
+
+	if (IsEnabled() && TargetSector)
+	{
+		int32 AllPoints = SectorHelper::GetArmyCombatPoints(TargetSector);
+		return FText::AsNumber(AllPoints);
+	}
+
+	return Result;
+}
+
+FText SFlareSectorMenu::GetHostileCombatValue() const
+{
+	FText Result;
+
+	if (IsEnabled() && TargetSector)
+	{
+		UFlareCompany* PlayerCompany = MenuManager->GetPC()->GetCompany();
+		int32 HostilePoints = SectorHelper::GetHostileArmyCombatPoints(TargetSector, PlayerCompany);
+		return FText::AsNumber(HostilePoints);
 	}
 
 	return Result;

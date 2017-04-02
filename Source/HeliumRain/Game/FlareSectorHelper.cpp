@@ -563,6 +563,17 @@ void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompa
 	}
 }
 
+int32 SectorHelper::GetArmyCombatPoints(UFlareSimulatedSector* Sector)
+{
+	int32 AllCombatPoints = 0;
+
+	for (UFlareSimulatedSpacecraft* Spacecraft : Sector->GetSectorSpacecrafts())
+	{
+		AllCombatPoints += Spacecraft->GetCombatPoints();
+	}
+	return AllCombatPoints;
+}
+
 int32 SectorHelper::GetHostileArmyCombatPoints(UFlareSimulatedSector* Sector, UFlareCompany* Company)
 {
 	int32 HostileCombatPoints = 0;
