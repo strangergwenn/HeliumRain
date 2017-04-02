@@ -455,14 +455,17 @@ void SFlareQuestMenu::FillQuestDetails()
 		{
 			FLOGV ("QuestStep end condition count %d", QuestStep->GetEndCondition()->GetAllConditions().Num());
 
+			bool IsAndType = QuestStep->GetEndCondition()->IsA(UFlareQuestConditionAndGroup::StaticClass());
+
 			// Generate condition text
 			FText StepConditionsText;
 			for(UFlareQuestCondition* Condition : QuestStep->GetEndCondition()->GetAllConditions())
 			{
 				FLOGV ("condition %s (%d)", *Condition->GetInitialLabel().ToString(), Condition->GetConditionIndex());
+				FText StepConditionType = IsAndType ? LOCTEXT("ConditionTypeAnd", "AND:") : LOCTEXT("ConditionTypeOr", "OR:");
 				StepConditionsText = FText::Format(LOCTEXT("StepConditionFormat", "{0}{1}{2}"),
 					StepConditionsText,
-					(Condition->GetConditionIndex() > 0 ? FText::FromString("\n") : FText()),
+					Condition->GetConditionIndex() > 0 ? FText::FromString("\n" + StepConditionType.ToString() + " ") : FText(),
 					Condition->GetInitialLabel());
 			}
 
