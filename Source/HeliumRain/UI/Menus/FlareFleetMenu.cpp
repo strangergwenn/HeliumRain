@@ -46,12 +46,11 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Right)
 			[
-				SNew(SScrollBox)
-				.Style(&Theme.ScrollBoxStyle)
-				.ScrollBarStyle(&Theme.ScrollBarStyle)
+				SNew(SVerticalBox)
 				
 				// Fleet details
-				+ SScrollBox::Slot()
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				.Padding(Theme.TitlePadding)
 				[
 					SNew(STextBlock)
@@ -61,7 +60,8 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 				]
 		
 				// Fleet tools
-				+ SScrollBox::Slot()
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SHorizontalBox)
@@ -110,11 +110,18 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 				]
 
 				// Fleet list
-				+ SScrollBox::Slot()
+				+ SVerticalBox::Slot()
 				[
-					SAssignNew(FleetList, SFlareList)
-					.MenuManager(MenuManager)
-					.OnItemSelected(this, &SFlareFleetMenu::OnFleetSelected)
+					SNew(SScrollBox)
+					.Style(&Theme.ScrollBoxStyle)
+					.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+					+ SScrollBox::Slot()
+					[
+						SAssignNew(FleetList, SFlareList)
+						.MenuManager(MenuManager)
+						.OnItemSelected(this, &SFlareFleetMenu::OnFleetSelected)
+					]
 				]
 			]
 
@@ -122,12 +129,11 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Left)
 			[
-				SNew(SScrollBox)
-				.Style(&Theme.ScrollBoxStyle)
-				.ScrollBarStyle(&Theme.ScrollBarStyle)
+				SNew(SVerticalBox)
 				
 				// Fleet details
-				+ SScrollBox::Slot()
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				.Padding(Theme.TitlePadding)
 				[
 					SNew(STextBlock)
@@ -137,7 +143,8 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 				]
 
 				// Add & remove
-				+ SScrollBox::Slot()
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SHorizontalBox)
@@ -176,12 +183,19 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 				]
 
 				// Ship list
-				+ SScrollBox::Slot()
+				+ SVerticalBox::Slot()
 				[
-					SAssignNew(ShipList, SFlareList)
-					.MenuManager(MenuManager)
-					.OnItemSelected(this, &SFlareFleetMenu::OnSpacecraftSelected)
-					.UseCompactDisplay(true)
+					SNew(SScrollBox)
+					.Style(&Theme.ScrollBoxStyle)
+					.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+					+ SScrollBox::Slot()
+					[
+						SAssignNew(ShipList, SFlareList)
+						.MenuManager(MenuManager)
+						.OnItemSelected(this, &SFlareFleetMenu::OnSpacecraftSelected)
+						.UseCompactDisplay(true)
+					]
 				]
 			]
 		]
