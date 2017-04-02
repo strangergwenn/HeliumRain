@@ -421,6 +421,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
+					.WrapTextAt(0.8 * Theme.ContentWidth)
 					.Text(SelectedQuest->GetQuestDescription())
 				]
 
@@ -431,7 +432,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text((ClientCompany ? FText::Format(LOCTEXT("QuestInfoFormat", "This contract is offered by {0}."), ClientCompany->GetCompanyName()):FText()))
+					.Text((ClientCompany ? FText::Format(LOCTEXT("QuestInfoFormat", "This contract is offered by {0}"), ClientCompany->GetCompanyName()):FText()))
 				]
 			]
 
@@ -439,6 +440,7 @@ void SFlareQuestMenu::FillQuestDetails()
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
 			.Padding(Theme.ContentPadding)
+			.VAlign(VAlign_Top)
 			[
 				SNew(SImage)
 				.Image(ClientCompany ? ClientCompany->GetEmblem() : NULL)
