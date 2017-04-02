@@ -76,7 +76,10 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		UFlareFactory* Factory = NewObject<UFlareFactory>(GetGame()->GetGameWorld(), UFlareFactory::StaticClass());
 		Factory->Load(this, FactoryDescription, FactoryData);
 		Factories.Add(Factory);
-		Game->GetGameWorld()->AddFactory(Factory);
+		if (!IsDestroyed())
+		{
+			Game->GetGameWorld()->AddFactory(Factory);
+		}
 	}
 
 	CargoBay = NewObject<UFlareCargoBay>(this, UFlareCargoBay::StaticClass());
