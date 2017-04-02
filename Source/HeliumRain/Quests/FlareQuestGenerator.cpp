@@ -1143,7 +1143,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 	Identifier = InitData.GetName("identifier");
 
 	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","Defend {0} against {1}"), Sector->GetSectorName(), HostileCompany->GetCompanyName());
-	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat","Defend stations of {0} in {1} againts {2} with a army of {3} combat points"),
+	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat","Defend stations of {0} in {1} against {2} with at least {3} combat value"),
 								 FriendlyCompany->GetCompanyName(), Sector->GetSectorName(), HostileCompany->GetCompanyName(), FText::AsNumber(ArmyCombatPoints ));
 
 	QuestCategory = EFlareQuestCategory::SECONDARY;
@@ -1153,7 +1153,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 		#define QUEST_STEP_TAG QUEST_TAG"Attack"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDistant", "Attack {0} in {1} with a force of {2}"),
+		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDistant", "Attack {0} in {1} with at least {2} combat value"),
 										  HostileCompany->GetCompanyName(), Sector->GetSectorName(), FText::AsNumber(ArmyCombatPoints ));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
 
@@ -1177,7 +1177,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 		#define QUEST_STEP_TAG QUEST_TAG"Defend"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDistant", "Defend {0} in {1} with your force againts {2}"),
+		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDistant", "Defend {0} in {1} against {2}"),
 										  FriendlyCompany->GetCompanyName(), Sector->GetSectorName(), HostileCompany->GetCompanyName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "defend", Description);
 
