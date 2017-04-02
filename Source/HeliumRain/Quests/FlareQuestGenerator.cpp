@@ -1189,35 +1189,45 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 
 	{
 		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"War"
+		FText Description;
+
+		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionWar", "Declare war to {0}"),
+										  HostileCompany->GetCompanyName());
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "war", Description);
+
+		// Impose to declare war
+		UFlareQuestConditionAtWar* Condition = UFlareQuestConditionAtWar::Create(this, GetQuestManager()->GetGame()->GetPC()->GetCompany(), HostileCompany);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
+
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Attack"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDistant", "Attack {0} in {1} with at least {2} combat value"),
+		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionBringForce", "Attack {0} in {1} with at least {2} combat value"),
 										  HostileCompany->GetCompanyName(), Sector->GetSectorName(), FText::AsNumber(ArmyCombatPoints ));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
 
+		// OR root
+		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));
 
 		{
-			// Impose to declare war
-			UFlareQuestConditionAtWar* Condition = UFlareQuestConditionAtWar::Create(this, GetQuestManager()->GetGame()->GetPC()->GetCompany(), HostileCompany);
+			// First case : the player bring forces
+			UFlareQuestConditionMinArmyCombatPointsInSector* Condition = UFlareQuestConditionMinArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, ArmyCombatPoints);
 			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
-		}
-		// AND
-		{
-			UFlareQuestConditionGroup* OrCondition = UFlareQuestConditionOrGroup::Create(this, true);
-			{
-				// First case : the player bring forces
-				UFlareQuestConditionMinArmyCombatPointsInSector* Condition = UFlareQuestConditionMinArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, ArmyCombatPoints);
-				OrCondition->AddChildCondition(Condition);
 
-			}
-			// OR
-			{
-				// First case : no more station to defend
-				UFlareQuestConditionNoCapturingStationInSector* Condition = UFlareQuestConditionNoCapturingStationInSector::Create(this, Sector, FriendlyCompany, HostileCompany);
-				OrCondition->AddChildCondition(Condition);
-			}
-			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(OrCondition);
+		}
+		// OR
+		{
+			// First case : no more station to defend
+			UFlareQuestConditionNoCapturingStationInSector* Condition = UFlareQuestConditionNoCapturingStationInSector::Create(this, Sector, FriendlyCompany, HostileCompany);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		}
 
 		{
@@ -1228,8 +1238,6 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 
 		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
 
-		// TODO if peace, sucesse
-
 		Steps.Add(Step);
 	}
 
@@ -1238,7 +1246,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 		#define QUEST_STEP_TAG QUEST_TAG"Defend"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDistant", "Defend {0} in {1} against {2}"),
+		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDefendStation", "Defend {0} in {1} against {2}"),
 										  FriendlyCompany->GetCompanyName(), Sector->GetSectorName(), HostileCompany->GetCompanyName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "defend", Description);
 
@@ -1255,15 +1263,6 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 			UFlareQuestConditionMaxArmyCombatPointsInSector* Condition = UFlareQuestConditionMaxArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, 0);
 			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		}
-
-
-		// OR
-		{
-			// If enemy company and friendly company, there is no more reason to defend so succes
-			UFlareQuestConditionAtPeace* Condition = UFlareQuestConditionAtPeace::Create(this, FriendlyCompany, HostileCompany);
-			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
-		}
-
 
 		UFlareQuestConditionRetreatDangerousShip* FailCondition1 = UFlareQuestConditionRetreatDangerousShip::Create(this, Sector, FriendlyCompany);
 		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition1);
