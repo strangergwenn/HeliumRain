@@ -80,6 +80,76 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 					.ColorAndOpacity(this, &SFlareCompanyInfo::GetWarColor)
 				]
 
+				// Combat value
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				.VAlign(VAlign_Center)
+				[
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("CombatValue"))
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareCompanyInfo::GetCompanyCombatValue)
+						.TextStyle(&Theme.TextFont)
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("CompanyCombatValue", "combat value"))
+						.TextStyle(&Theme.TextFont)
+					]
+				]
+
+				// Full value
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				.VAlign(VAlign_Center)
+				[
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("CostValue"))
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareCompanyInfo::GetCompanyValue)
+						.TextStyle(&Theme.TextFont)
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("CompanyCreditsValue", "credits value"))
+						.TextStyle(&Theme.TextFont)
+					]
+				]
+
 				// Data
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -254,6 +324,31 @@ FText SFlareCompanyInfo::GetCompanyName() const
 	return Result;
 }
 
+FText SFlareCompanyInfo::GetCompanyCombatValue() const
+{
+	FText Result;
+
+	if (Company)
+	{
+		CompanyValue CompanyValue = Company->GetCompanyValue(NULL, false);
+		Result = FText::AsNumber(CompanyValue.ArmyValue);
+	}
+
+	return Result;
+}
+
+FText SFlareCompanyInfo::GetCompanyValue() const
+{
+	FText Result;
+
+	if (Company)
+	{
+		Result = FText::AsNumber(UFlareGameTools::DisplayMoney(Company->GetCompanyValue().TotalValue));
+	}
+
+	return Result;
+}
+
 FText SFlareCompanyInfo::GetCompanyInfo() const
 {
 	FText Result;
@@ -271,8 +366,7 @@ FText SFlareCompanyInfo::GetCompanyInfo() const
 			FText::AsNumber(CompanyShipCount), CompanyShipCount == 1 ? LOCTEXT("Ship", "ship") : LOCTEXT("Ships", "ships"));
 		
 		// Full string
-		return FText::Format(LOCTEXT("CompanyInfoFormat", "Valued at {0} credits\n{1} credits in bank\n{2} owned\n{3} owned"),
-			FText::AsNumber(UFlareGameTools::DisplayMoney(Company->GetCompanyValue().TotalValue)),
+		return FText::Format(LOCTEXT("CompanyInfoFormat", "{0} credits in bank\n{1}, {2} "),
 			FText::AsNumber(UFlareGameTools::DisplayMoney(Company->GetMoney())),
 			StationText,
 			ShipText);

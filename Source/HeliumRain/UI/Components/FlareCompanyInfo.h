@@ -52,6 +52,12 @@ protected:
 
 	/** Get the name of the company */
 	FText GetCompanyName() const;
+	
+	/** Get the combat value of the company */
+	FText GetCompanyCombatValue() const;
+
+	/** Get the value of the company */
+	FText GetCompanyValue() const;
 
 	/** Get the company info text */
 	FText GetCompanyInfo() const;
