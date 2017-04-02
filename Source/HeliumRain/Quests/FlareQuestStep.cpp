@@ -72,7 +72,7 @@ void UFlareQuestStep::UpdateState()
 
 		if(Status == EFlareQuestStepStatus::ENABLED)
 		{
-			if (BlockCondition == NULL || !BlockCondition->IsCompleted())
+			if (BlockCondition != NULL && BlockCondition->IsCompleted())
 			{
 				Status = EFlareQuestStepStatus::BLOCKED;
 				UpdateState();
