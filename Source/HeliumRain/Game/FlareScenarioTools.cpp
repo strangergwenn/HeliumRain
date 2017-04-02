@@ -490,16 +490,16 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
 			{
 				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.InputResources[ResourceIndex];
-
-				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity() / 2, Company);
+				float StartRatio = FMath::FRandRange(0.25,0.75);
+				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity() * StartRatio, Company);
 			}
 
 			// Give output resources
 			for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.OutputResources.Num(); ResourceIndex++)
 			{
 				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.OutputResources[ResourceIndex];
-
-				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity() / 2, Company);
+				float StartRatio = FMath::FRandRange(0.25,0.75);
+				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity() * StartRatio, Company);
 			}
 		}
 		
@@ -509,7 +509,8 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
-				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity() / 2, Company);
+				float StartRatio = FMath::FRandRange(0.25,0.75);
+				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity() * StartRatio, Company);
 			}
 		}
 
@@ -519,7 +520,8 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
-				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity() / 2, Company);
+				float StartRatio = FMath::FRandRange(0.25,0.75);
+				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity() * StartRatio, Company);
 			}
 		}
 
