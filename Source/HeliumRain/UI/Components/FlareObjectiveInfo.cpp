@@ -207,7 +207,7 @@ FText SFlareObjectiveInfo::GetCounter(int32 ConditionIndex) const
 	}
 	else
 	{
-		return FText::Format(LOCTEXT("ObjectiveCounterFormat", "{0} / {1}"), FText::AsNumber(Condition->Counter), FText::AsNumber(Condition->MaxCounter));
+		return FText::Format(LOCTEXT("ObjectiveCounterFormat", "{0} / {1} "), FText::AsNumber(Condition->Counter), FText::AsNumber(Condition->MaxCounter));
 	}
 }
 

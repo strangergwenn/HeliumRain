@@ -535,7 +535,7 @@ void SFlareQuestMenu::FillQuestDetails()
 					[
 						SNew(SFlareObjectiveInfo)
 						.PC(MenuManager->GetPC())
-						.Width(Theme.ContentWidth)
+						.Width(0.9 * Theme.ContentWidth)
 						.ConditionsOnly(true)
 						.QuestStep(QuestStep)
 					];
