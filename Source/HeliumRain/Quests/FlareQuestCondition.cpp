@@ -1571,12 +1571,12 @@ void UFlareQuestConditionAtPeace::Load(UFlareQuest* ParentQuest, UFlareCompany* 
 
 	if (TargetCompany1 == PlayerCompany)
 	{
-		InitialLabel = FText::Format(LOCTEXT("PlayerAtPeace", "Make peace to {0}"),
+		InitialLabel = FText::Format(LOCTEXT("PlayerAtPeace", "Make peace with {0}"),
 								 TargetCompany2->GetCompanyName());
 	}
 	else if (TargetCompany2 == PlayerCompany)
 	{
-		InitialLabel = FText::Format(LOCTEXT("PlayerAtPeace", "Make peace to {0}"),
+		InitialLabel = FText::Format(LOCTEXT("PlayerAtPeace", "Make peace with {0}"),
 								 TargetCompany1->GetCompanyName());
 	}
 	else
@@ -1948,12 +1948,12 @@ void UFlareQuestConditionMinArmyCombatPointsInSector::Load(UFlareQuest* ParentQu
 
 	if (TargetCompany == PlayerCompany)
 	{
-		FText InitialLabelText = LOCTEXT("PlayerMinArmyCombatPoints", "Bring a combat value of at least {0} in {1}");
+		FText InitialLabelText = LOCTEXT("PlayerMinArmyCombatPoints", "Bring at least {0} combat value in {1}");
 		InitialLabel = FText::Format(InitialLabelText, FText::AsNumber(TargetArmyPoints), TargetSector->GetSectorName());
 	}
 	else
 	{
-		FText InitialLabelText = LOCTEXT("CompanyMinArmyCombatPoints", "{0} must have a combat value of at least {1} in {2}");
+		FText InitialLabelText = LOCTEXT("CompanyMinArmyCombatPoints", "{0} must have at least {1} combat value in {2}");
 		InitialLabel = FText::Format(InitialLabelText, TargetCompany->GetCompanyName(), FText::AsNumber(TargetArmyPoints), TargetSector->GetSectorName());
 	}
 }
@@ -2006,12 +2006,12 @@ void UFlareQuestConditionMaxArmyCombatPointsInSector::Load(UFlareQuest* ParentQu
 
 	if (TargetCompany == PlayerCompany)
 	{
-		FText InitialLabelText = LOCTEXT("PlayerMaxArmyCombatPoints", "Bring a combat value of at max {0} in {1}");
+		FText InitialLabelText = LOCTEXT("PlayerMaxArmyCombatPoints", "Bring at most {0} combat value in {1}");
 		InitialLabel = FText::Format(InitialLabelText, FText::AsNumber(TargetArmyPoints), TargetSector->GetSectorName());
 	}
 	else
 	{
-		FText InitialLabelText = LOCTEXT("CompanyMasArmyCombatPoints", "{0} must have a combat value of at max {1} in {2}");
+		FText InitialLabelText = LOCTEXT("CompanyMasArmyCombatPoints", "{0} must have at most {1} combat value in {2}");
 		InitialLabel = FText::Format(InitialLabelText, TargetCompany->GetCompanyName(), FText::AsNumber(TargetArmyPoints), TargetSector->GetSectorName());
 	}
 }
@@ -2101,7 +2101,7 @@ void UFlareQuestConditionNoCapturingStationInSector::Load(UFlareQuest* ParentQue
 	TargetEnemyCompany = TargetEnemyCompanyParam;
 
 
-	FText InitialLabelText = LOCTEXT("NoCapturingStation", "No station of {0} must being captured by {1} in {2}");
+	FText InitialLabelText = LOCTEXT("NoCapturingStation", "No station owned by {0} must be captured by {1} in {2}");
 	InitialLabel = FText::Format(InitialLabelText, TargetCompany->GetCompanyName(), TargetEnemyCompany->GetCompanyName(), TargetSector->GetSectorName());
 }
 
