@@ -1213,21 +1213,11 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionBringForce", "Attack {0} in {1} with at least {2} combat value"),
 										  HostileCompany->GetCompanyName(), Sector->GetSectorName(), FText::AsNumber(ArmyCombatPoints ));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
-
-		// OR root
-		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));
-
 		{
 			// First case : the player bring forces
 			UFlareQuestConditionMinArmyCombatPointsInSector* Condition = UFlareQuestConditionMinArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, ArmyCombatPoints);
 			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 
-		}
-		// OR
-		{
-			// First case : no more station to defend
-			UFlareQuestConditionNoCapturingStationInSector* Condition = UFlareQuestConditionNoCapturingStationInSector::Create(this, Sector, FriendlyCompany, HostileCompany);
-			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		}
 
 		{
