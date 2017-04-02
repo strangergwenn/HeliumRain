@@ -37,7 +37,7 @@ public:
 
 	virtual void OnTravelStarted(UFlareTravel* Travel) {}
 
-	virtual TArray<UFlareQuestCondition*> GetAllConditions();
+	virtual TArray<UFlareQuestCondition*> GetAllConditions(bool OnlyLeaf = true);
 
 	virtual void SetConditionIndex(int32 Index)
 	{
@@ -119,9 +119,7 @@ public:
 
 	virtual bool IsCompleted() { FCHECK(false); return false; }
 
-	virtual TArray<UFlareQuestCondition*> GetAllConditions();
-
-	void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual TArray<UFlareQuestCondition*> GetAllConditions(bool OnlyLeaf = true);
 
 protected:
 
@@ -145,6 +143,8 @@ public:
 	static UFlareQuestConditionAndGroup* Create(UFlareQuest* ParentQuest, bool EmptyValueParam);
 	void Load(UFlareQuest* ParentQuest, bool EmptyValueParam);
 
+	void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
 	virtual bool IsCompleted();
 
 protected:
@@ -163,6 +163,8 @@ public:
 
 	static UFlareQuestConditionOrGroup* Create(UFlareQuest* ParentQuest, bool EmptyValueParam);
 	void Load(UFlareQuest* ParentQuest, bool EmptyValueParam);
+
+	void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
 
 	virtual bool IsCompleted();
 

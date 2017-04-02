@@ -154,7 +154,7 @@ void UFlareQuestStep::PerformEndActions()
 
 void UFlareQuestStep::AddEndConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
-	for(UFlareQuestCondition* Condition: EndCondition->GetAllConditions())
+	for(UFlareQuestCondition* Condition: EndCondition->GetAllConditions(false))
 	{
 		Condition->AddConditionObjectives(ObjectiveData);
 	}

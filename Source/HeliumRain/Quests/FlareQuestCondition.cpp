@@ -32,7 +32,7 @@ void UFlareQuestCondition::AddSave(TArray<FFlareQuestConditionSave>& Data)
 	}
 }
 
-TArray<UFlareQuestCondition*> UFlareQuestCondition::GetAllConditions()
+TArray<UFlareQuestCondition*> UFlareQuestCondition::GetAllConditions(bool OnlyLeaf)
 {
 	TArray<UFlareQuestCondition*> Conditions;
 
@@ -105,19 +105,20 @@ void UFlareQuestConditionGroup::AddChildCondition(UFlareQuestCondition* Conditio
 	Conditions.Add(Condition);
 }
 
-TArray<UFlareQuestCondition*> UFlareQuestConditionGroup::GetAllConditions()
+TArray<UFlareQuestCondition*> UFlareQuestConditionGroup::GetAllConditions(bool OnlyLeaf)
 {
 	TArray<UFlareQuestCondition*> AllConditions;
+
+	if (!OnlyLeaf)
+	{
+		AllConditions.Add(this);
+	}
 
 	for(UFlareQuestCondition* Condition: Conditions)
 	{
 		AllConditions += Condition->GetAllConditions();
 	}
 	return AllConditions;
-}
-
-void UFlareQuestConditionGroup::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
-{
 }
 
 /*----------------------------------------------------
@@ -160,8 +161,13 @@ bool UFlareQuestConditionAndGroup::IsCompleted()
 	return true;
 }
 
+void UFlareQuestConditionAndGroup::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	ObjectiveData->IsAndCondition = true;
+}
+
 /*----------------------------------------------------
-	And condition
+	Or condition
 ----------------------------------------------------*/
 UFlareQuestConditionOrGroup::UFlareQuestConditionOrGroup(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -198,6 +204,11 @@ bool UFlareQuestConditionOrGroup::IsCompleted()
 	}
 
 	return false;
+}
+
+void UFlareQuestConditionOrGroup::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	ObjectiveData->IsAndCondition = false;
 }
 
 /*----------------------------------------------------
