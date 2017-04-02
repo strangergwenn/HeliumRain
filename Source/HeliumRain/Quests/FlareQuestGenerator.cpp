@@ -222,9 +222,26 @@ void UFlareQuestGenerator::GenerateMilitaryQuests()
 	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
 
 	// Defense quests
-	for (UFlareSimulatedSector* Sector: GetGame()->GetGameWorld()->GetSectors())
+
+	for(UFlareCompany* Company : GetGame()->GetGameWorld()->GetCompanies())
 	{
-		for (UFlareSimulatedSpacecraft* Station : Sector->GetSectorStations())
+		float QuestProbability = 1;
+
+		if(Company->GetReputation(PlayerCompany) < 0)
+		{
+			QuestProbability += Company->GetReputation(PlayerCompany) / 100.f;
+		}
+
+		FLOGV("Militaty QuestProbability for %s: %f", *Company->GetCompanyName().ToString(), QuestProbability);
+
+		// Rand
+		if (FMath::FRand() > QuestProbability)
+		{
+			// No luck, no quest this time
+			continue;
+		}
+
+		for (UFlareSimulatedSpacecraft* Station : Company->GetCompanyStations())
 		{
 			for(UFlareCompany* HostileCompany : GetGame()->GetGameWorld()->GetCompanies())
 			{
@@ -235,10 +252,18 @@ void UFlareQuestGenerator::GenerateMilitaryQuests()
 
 				if (Station->GetCapturePoint(HostileCompany) * 10 > Station->GetCapturePointThreshold())
 				{
-					RegisterQuest(UFlareQuestGeneratedStationDefense::Create(this, Sector, Station->GetCompany(), HostileCompany));
+					RegisterQuest(UFlareQuestGeneratedStationDefense::Create(this, Station->GetCurrentSector(), Station->GetCompany(), HostileCompany));
 				}
 			}
 		}
+
+	}
+
+
+
+	for (UFlareSimulatedSector* Sector: GetGame()->GetGameWorld()->GetSectors())
+	{
+
 	}
 }
 
@@ -1129,7 +1154,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGene
 	}
 	else
 	{
-		WarPrice = 1000 * (HostileCompany->GetReputation(PlayerCompany) + 100);
+		WarPrice = 2000 * (HostileCompany->GetReputation(PlayerCompany) + 100);
 	}
 
 	int32 PreferredPlayerCombatPoints= FMath::Max(5, int32(PlayerCompany->GetCompanyValue().ArmyCombatPoints /3));
@@ -1145,7 +1170,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGene
 		return NULL;
 	}
 
-	int64 ArmyPrice = RequestedArmyCombatPoints  * 250;
+	int64 ArmyPrice = RequestedArmyCombatPoints  * 30000;
 
 	// Setup reward
 	int64 QuestValue = WarPrice + ArmyPrice;
