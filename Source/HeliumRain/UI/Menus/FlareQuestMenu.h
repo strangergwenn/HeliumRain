@@ -88,6 +88,9 @@ protected:
 	/** A quest is abandoned */
 	void OnQuestAbandoned(UFlareQuest* Quest);
 
+	/** A quest is abandoned (confirmed) */
+	void OnQuestAbandonedConfirmed(UFlareQuest* Quest);
+
 	/** A new quest is tracked */
 	void OnQuestTracked(UFlareQuest* Quest);
 

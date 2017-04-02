@@ -845,6 +845,13 @@ void SFlareQuestMenu::OnQuestAccepted(UFlareQuest* Quest)
 
 void SFlareQuestMenu::OnQuestAbandoned(UFlareQuest* Quest)
 {
+	MenuManager->Confirm(LOCTEXT("ConfirmAbandon", "ARE YOU SURE ?"),
+		LOCTEXT("ConfirmAbandonInfo", "Do you really want to abandon this contract ?"),
+		FSimpleDelegate::CreateSP(this, &SFlareQuestMenu::OnQuestAbandonedConfirmed, Quest));
+}
+
+void SFlareQuestMenu::OnQuestAbandonedConfirmed(UFlareQuest* Quest)
+{
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	FCHECK(QuestManager);
 	QuestManager->AbandonQuest(Quest);
