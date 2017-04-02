@@ -42,6 +42,7 @@ struct FFlarePlayerObjectiveData
 	FText                       Name;
 	FText                       Description;
 
+	bool                        IsAndCondition;
 	int                         StepsDone;
 	int                         StepsCount;
 

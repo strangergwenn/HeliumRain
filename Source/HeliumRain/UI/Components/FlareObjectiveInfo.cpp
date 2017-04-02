@@ -178,8 +178,20 @@ FText SFlareObjectiveInfo::GetInitialLabel(int32 ConditionIndex) const
 {
 	const FFlarePlayerObjectiveData* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
 
-	return (Objective && Objective->ConditionList.Num() > ConditionIndex ?
-				Objective->ConditionList[ConditionIndex].InitialLabel : FText());
+	if (Objective && Objective->ConditionList.Num() > ConditionIndex)
+	{
+		FText ConditionType;
+		if (ConditionIndex != 0)
+		{
+			ConditionType = Objective->IsAndCondition ? LOCTEXT("ConditionTypeAnd", "AND:") : LOCTEXT("ConditionTypeOr", "OR:");
+		}
+
+		return FText::FromString(ConditionType.ToString() + " " + Objective->ConditionList[ConditionIndex].InitialLabel.ToString());
+	}
+	else
+	{
+		return FText();
+	}
 }
 
 FText SFlareObjectiveInfo::GetTerminalLabel(int32 ConditionIndex) const
