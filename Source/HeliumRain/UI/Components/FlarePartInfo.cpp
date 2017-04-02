@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlarePartInfo.h"
+#include "../../Game/FlareGameTools.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareCompanyInfo"
