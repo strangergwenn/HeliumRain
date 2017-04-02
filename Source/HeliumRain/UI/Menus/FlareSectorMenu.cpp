@@ -400,7 +400,7 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 		{
 			UFlareSimulatedSpacecraft* StationCandidate = Sector->GetSectorStations()[SpacecraftIndex];
 
-			if (StationCandidate)
+			if (StationCandidate && StationCandidate->GetDamageSystem()->IsAlive())
 			{
 				if (StationCandidate->GetCompany() == PC->GetCompany())
 				{
