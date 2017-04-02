@@ -83,7 +83,6 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 				// Combat value
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				.Padding(Theme.SmallContentPadding)
 				.VAlign(VAlign_Center)
 				[
 					SNew(SHorizontalBox)
@@ -118,7 +117,6 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 				// Full value
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				.Padding(Theme.SmallContentPadding)
 				.VAlign(VAlign_Center)
 				[
 					SNew(SHorizontalBox)

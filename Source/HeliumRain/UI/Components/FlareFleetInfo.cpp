@@ -63,6 +63,28 @@ void SFlareFleetInfo::Construct(const FArguments& InArgs)
 						.Text(this, &SFlareFleetInfo::GetComposition)
 						.TextStyle(&Theme.TextFont)
 					]
+
+					// Combat value icon
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					.VAlign(VAlign_Center)
+					.Padding(FMargin(5, 0, 0, 0))
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("CombatValue"))
+					]
+
+					// Combat value
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareFleetInfo::GetCombatValue)
+						.TextStyle(&Theme.TextFont)
+					]
 				]
 
 				// Company line
@@ -267,18 +289,16 @@ FText SFlareFleetInfo::GetComposition() const
 		FText LightShipText;
 		if (LightShipCount > 0)
 		{
-			LightShipText = FText::Format(LOCTEXT("FleetCompositionLightFormat", "{0} light {1}"),
-				FText::AsNumber(LightShipCount),
-				(LightShipCount > 1) ? MultipleShips : SingleShip);
+			LightShipText = FText::Format(LOCTEXT("FleetCompositionLightFormat", "{0} light"),
+				FText::AsNumber(LightShipCount));
 		}
 
 		// Heavies
 		FText HeavyShipText;
 		if (HeavyShipCount > 0)
 		{
-			HeavyShipText = FText::Format(LOCTEXT("FleetCompositionHeavyFormat", "{0} heavy {1}"),
-				FText::AsNumber(HeavyShipCount),
-				(HeavyShipCount > 1) ? MultipleShips : SingleShip);
+			HeavyShipText = FText::Format(LOCTEXT("FleetCompositionHeavyFormat", "{0} heavy"),
+				FText::AsNumber(HeavyShipCount));
 
 			if (LightShipCount > 0)
 			{
@@ -290,9 +310,8 @@ FText SFlareFleetInfo::GetComposition() const
 		FText CivilianShipText;
 		if (CivilianShipCount > 0)
 		{
-			CivilianShipText = FText::Format(LOCTEXT("FleetCompositionHeavyFormat", "{0} civilian {1}"),
-				FText::AsNumber(CivilianShipCount),
-				(CivilianShipCount > 1) ? MultipleShips : SingleShip);
+			CivilianShipText = FText::Format(LOCTEXT("FleetCompositionHeavyFormat", "{0} civilian"),
+				FText::AsNumber(CivilianShipCount));
 
 			if (LightShipCount > 0 || HeavyShipCount > 0)
 			{
@@ -301,6 +320,18 @@ FText SFlareFleetInfo::GetComposition() const
 		}
 
 		Result = FText::Format(LOCTEXT("FleetCompositionFormat", "({0}{1}{2})"), LightShipText, HeavyShipText, CivilianShipText);
+	}
+
+	return Result;
+}
+
+FText SFlareFleetInfo::GetCombatValue() const
+{
+	FText Result;
+
+	if (TargetFleet)
+	{
+		return FText::AsNumber(TargetFleet->GetCombatPoints());
 	}
 
 	return Result;

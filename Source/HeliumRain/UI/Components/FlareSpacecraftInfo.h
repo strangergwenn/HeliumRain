@@ -104,6 +104,9 @@ public:
 	/** Get the target class name */
 	FText GetDescription() const;
 
+	/** Get the target combat value */
+	FText GetCombatValue() const;
+
 	/** Get the target icon */
 	const FSlateBrush* GetIcon() const;
 

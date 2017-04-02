@@ -78,6 +78,28 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						.TextStyle(&Theme.TextFont)
 					]
 
+					// Combat value icon
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					.VAlign(VAlign_Center)
+					.Padding(FMargin(5, 0, 0, 0))
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("CombatValue"))
+					]
+
+					// Combat value
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareSpacecraftInfo::GetCombatValue)
+						.TextStyle(&Theme.TextFont)
+					]
+
 					// Status
 					+ SHorizontalBox::Slot()
 					.HAlign(HAlign_Right)
@@ -702,6 +724,18 @@ FText SFlareSpacecraftInfo::GetDescription() const
 	}
 
 	return DefaultText;
+}
+
+FText SFlareSpacecraftInfo::GetCombatValue() const
+{
+	FText Result;
+
+	if (TargetSpacecraft->IsValidLowLevel())
+	{
+		return FText::AsNumber(TargetSpacecraft->GetCombatPoints());
+	}
+
+	return Result;
 }
 
 const FSlateBrush* SFlareSpacecraftInfo::GetIcon() const

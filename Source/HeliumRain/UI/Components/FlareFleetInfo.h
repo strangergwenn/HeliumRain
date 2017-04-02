@@ -81,6 +81,9 @@ public:
 	/** Get the fleet composition */
 	FText GetComposition() const;
 
+	/** Get the fleet combat value */
+	FText GetCombatValue() const;
+	
 	/** Get the fleet description */
 	FText GetDescription() const;
 
