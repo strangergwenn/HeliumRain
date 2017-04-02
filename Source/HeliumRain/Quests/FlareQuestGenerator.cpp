@@ -1170,7 +1170,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGene
 		return NULL;
 	}
 
-	int64 ArmyPrice = RequestedArmyCombatPoints  * 30000;
+	int64 ArmyPrice = RequestedArmyCombatPoints  * 60000;
 
 	// Setup reward
 	int64 QuestValue = WarPrice + ArmyPrice;
