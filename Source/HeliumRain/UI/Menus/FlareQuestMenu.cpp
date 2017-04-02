@@ -486,7 +486,7 @@ void SFlareQuestMenu::FillQuestDetails()
 					+ SHorizontalBox::Slot()
 					[
 						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
+						.TextStyle(&Theme.NameFont)
 						.Text(StepConditionsText)
 					]
 					
@@ -768,8 +768,7 @@ FText SFlareQuestMenu::GetQuestStepDescription(UFlareQuestStep* QuestStep) const
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	FCHECK(QuestManager);
 
-	// Hide this for completed quests
-	if (SelectedQuest && (CurrentQuestStep == QuestStep || !QuestManager->IsQuestOngoing(SelectedQuest)))
+	if (SelectedQuest)
 	{
 		return SelectedQuest->FormatTags(QuestStep->GetStepDescription());
 	}
@@ -784,8 +783,7 @@ EVisibility SFlareQuestMenu::GetQuestStepDescriptionVisibility(UFlareQuestStep* 
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	FCHECK(QuestManager);
 
-	// Hide this for completed quests
-	if (SelectedQuest && (CurrentQuestStep == QuestStep || !QuestManager->IsQuestOngoing(SelectedQuest)))
+	if (SelectedQuest)
 	{
 		return EVisibility::Visible;
 	}
