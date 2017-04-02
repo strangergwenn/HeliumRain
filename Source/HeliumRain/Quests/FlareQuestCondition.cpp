@@ -109,13 +109,15 @@ TArray<UFlareQuestCondition*> UFlareQuestConditionGroup::GetAllConditions()
 {
 	TArray<UFlareQuestCondition*> AllConditions;
 
-	AllConditions.Add(this);
-
 	for(UFlareQuestCondition* Condition: Conditions)
 	{
 		AllConditions += Condition->GetAllConditions();
 	}
 	return AllConditions;
+}
+
+void UFlareQuestConditionGroup::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
 }
 
 /*----------------------------------------------------
@@ -1506,6 +1508,24 @@ void UFlareQuestConditionAtWar::Load(UFlareQuest* ParentQuest, UFlareCompany* Co
 	Callbacks.AddUnique(EFlareQuestCallback::WAR_STATE_CHANGED);
 	TargetCompany1 = Company1;
 	TargetCompany2 = Company2;
+
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	if (TargetCompany1 == PlayerCompany)
+	{
+		InitialLabel = FText::Format(LOCTEXT("PlayerAtWar", "Declare war to {0}"),
+								 TargetCompany2->GetCompanyName());
+	}
+	else if (TargetCompany2 == PlayerCompany)
+	{
+		InitialLabel = FText::Format(LOCTEXT("PlayerAtWar", "Declare war to {0}"),
+								 TargetCompany1->GetCompanyName());
+	}
+	else
+	{
+		InitialLabel = FText::Format(LOCTEXT("OtherCompanyAtWar", "{0} and {1} are at war"),
+								 TargetCompany1->GetCompanyName(), TargetCompany2->GetCompanyName());
+	}
 }
 
 bool UFlareQuestConditionAtWar::IsCompleted()
@@ -1515,6 +1535,14 @@ bool UFlareQuestConditionAtWar::IsCompleted()
 
 void UFlareQuestConditionAtWar::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = 1;
+	ObjectiveCondition.MaxProgress = 1;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.Progress =IsCompleted() ? 1 : 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
 
 /*----------------------------------------------------
@@ -1538,6 +1566,24 @@ void UFlareQuestConditionAtPeace::Load(UFlareQuest* ParentQuest, UFlareCompany* 
 	Callbacks.AddUnique(EFlareQuestCallback::WAR_STATE_CHANGED);
 	TargetCompany1 = Company1;
 	TargetCompany2 = Company2;
+
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	if (TargetCompany1 == PlayerCompany)
+	{
+		InitialLabel = FText::Format(LOCTEXT("PlayerAtPeace", "Make peace to {0}"),
+								 TargetCompany2->GetCompanyName());
+	}
+	else if (TargetCompany2 == PlayerCompany)
+	{
+		InitialLabel = FText::Format(LOCTEXT("PlayerAtPeace", "Make peace to {0}"),
+								 TargetCompany1->GetCompanyName());
+	}
+	else
+	{
+		InitialLabel = FText::Format(LOCTEXT("OtherCompanyAtPeace", "{0} and {1} are at peace"),
+								 TargetCompany1->GetCompanyName(), TargetCompany2->GetCompanyName());
+	}
 }
 
 bool UFlareQuestConditionAtPeace::IsCompleted()
@@ -1547,6 +1593,14 @@ bool UFlareQuestConditionAtPeace::IsCompleted()
 
 void UFlareQuestConditionAtPeace::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = 1;
+	ObjectiveCondition.MaxProgress = 1;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.Progress =IsCompleted() ? 1 : 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
 
 
@@ -1889,6 +1943,19 @@ void UFlareQuestConditionMinArmyCombatPointsInSector::Load(UFlareQuest* ParentQu
 	TargetSector = TargetSectorParam;
 	TargetCompany = TargetCompanyParam;
 	TargetArmyPoints = TargetArmyPointsParam;
+
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	if (TargetCompany == PlayerCompany)
+	{
+		FText InitialLabelText = LOCTEXT("PlayerMinArmyCombatPoints", "Bring a combat value of at least {0} in {1}");
+		InitialLabel = FText::Format(InitialLabelText, FText::AsNumber(TargetArmyPoints), TargetSector->GetSectorName());
+	}
+	else
+	{
+		FText InitialLabelText = LOCTEXT("CompanyMinArmyCombatPoints", "{0} must have a combat value of at least {1} in {2}");
+		InitialLabel = FText::Format(InitialLabelText, TargetCompany->GetCompanyName(), FText::AsNumber(TargetArmyPoints), TargetSector->GetSectorName());
+	}
 }
 
 bool UFlareQuestConditionMinArmyCombatPointsInSector::IsCompleted()
@@ -1934,6 +2001,19 @@ void UFlareQuestConditionMaxArmyCombatPointsInSector::Load(UFlareQuest* ParentQu
 	TargetSector = TargetSectorParam;
 	TargetCompany = TargetCompanyParam;
 	TargetArmyPoints = TargetArmyPointsParam;
+
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	if (TargetCompany == PlayerCompany)
+	{
+		FText InitialLabelText = LOCTEXT("PlayerMaxArmyCombatPoints", "Bring a combat value of at max {0} in {1}");
+		InitialLabel = FText::Format(InitialLabelText, FText::AsNumber(TargetArmyPoints), TargetSector->GetSectorName());
+	}
+	else
+	{
+		FText InitialLabelText = LOCTEXT("CompanyMasArmyCombatPoints", "{0} must have a combat value of at max {1} in {2}");
+		InitialLabel = FText::Format(InitialLabelText, TargetCompany->GetCompanyName(), FText::AsNumber(TargetArmyPoints), TargetSector->GetSectorName());
+	}
 }
 
 bool UFlareQuestConditionMaxArmyCombatPointsInSector::IsCompleted()
@@ -1998,7 +2078,7 @@ void UFlareQuestConditionStationLostInSector::AddConditionObjectives(FFlarePlaye
 }
 
 /*----------------------------------------------------
-	Min army combat point in sector condition
+	No capturing station condition
 ----------------------------------------------------*/
 UFlareQuestConditionNoCapturingStationInSector::UFlareQuestConditionNoCapturingStationInSector(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -2019,6 +2099,10 @@ void UFlareQuestConditionNoCapturingStationInSector::Load(UFlareQuest* ParentQue
 	TargetSector = TargetSectorParam;
 	TargetCompany = TargetCompanyParam;
 	TargetEnemyCompany = TargetEnemyCompanyParam;
+
+
+	FText InitialLabelText = LOCTEXT("NoCapturingStation", "No station of {0} must being captured by {1} in {2}");
+	InitialLabel = FText::Format(InitialLabelText, TargetCompany->GetCompanyName(), TargetEnemyCompany->GetCompanyName(), TargetSector->GetSectorName());
 }
 
 
@@ -2042,6 +2126,31 @@ bool UFlareQuestConditionNoCapturingStationInSector::IsCompleted()
 
 void UFlareQuestConditionNoCapturingStationInSector::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
+	int32 CapturingStationCount = 0;
+	for(UFlareSimulatedSpacecraft* Station : TargetSector->GetSectorStations())
+	{
+
+		if(Station->GetCompany() != TargetCompany)
+		{
+			continue;
+		}
+
+		if(Station->GetCapturePoint(TargetEnemyCompany) > 0)
+		{
+			CapturingStationCount++;
+		}
+	}
+
+
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = CapturingStationCount;
+	ObjectiveCondition.MaxCounter = 0;
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
 
 

@@ -807,7 +807,6 @@ void UFlareWorld::ProcessStationCapture()
 				MenuData);
 		}
 	}
-
 }
 
 void UFlareWorld::SimulatePeopleMoneyMigration()

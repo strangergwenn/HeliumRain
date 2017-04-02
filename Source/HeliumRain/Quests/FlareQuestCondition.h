@@ -121,6 +121,8 @@ public:
 
 	virtual TArray<UFlareQuestCondition*> GetAllConditions();
 
+	void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
 protected:
 
 	UPROPERTY()

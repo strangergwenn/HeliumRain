@@ -33,6 +33,10 @@ public:
 
 	void GenerateSectorQuest(UFlareSimulatedSector* Sector);
 
+	void GenerateMilitaryQuests();
+
+	void RegisterQuest(UFlareQuestGenerated* Quest);
+
 	bool FindUniqueTag(FName Tag);
 
 	FName GenerateVipTag(UFlareSimulatedSpacecraft* SourceSpacecraft);

@@ -54,8 +54,13 @@ void UFlareQuestGenerator::LoadQuests(const FFlareQuestSave& Data)
 		{
 			Quest = NewObject<UFlareQuestGeneratedResourceTrade>(this, UFlareQuestGeneratedResourceTrade::StaticClass());
 		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedStationDefense::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedStationDefense>(this, UFlareQuestGeneratedStationDefense::StaticClass());
+		}
 		else
 		{
+			FLOGV("ERROR: not loaded quest %s", *QuestData.QuestClass.ToString());
 			continue;
 		}
 
@@ -208,14 +213,43 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 		}
 
 		// Register quest
-		if (Quest)
-		{
-			QuestManager->AddQuest(Quest);
-			GeneratedQuests.Add(Quest);
-			QuestManager->LoadCallbacks(Quest);
-			Quest->UpdateState();
-		}
+		RegisterQuest(Quest);
+	}
+}
 
+void UFlareQuestGenerator::GenerateMilitaryQuests()
+{
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	// Defense quests
+	for (UFlareSimulatedSector* Sector: GetGame()->GetGameWorld()->GetSectors())
+	{
+		for (UFlareSimulatedSpacecraft* Station : Sector->GetSectorStations())
+		{
+			for(UFlareCompany* HostileCompany : GetGame()->GetGameWorld()->GetCompanies())
+			{
+				if(HostileCompany == PlayerCompany)
+				{
+					continue;
+				}
+
+				if (Station->GetCapturePoint(HostileCompany) * 10 > Station->GetCapturePointThreshold())
+				{
+					RegisterQuest(UFlareQuestGeneratedStationDefense::Create(this, Sector, Station->GetCompany(), HostileCompany));
+				}
+			}
+		}
+	}
+}
+
+void UFlareQuestGenerator::RegisterQuest(UFlareQuestGenerated* Quest)
+{
+	if (Quest)
+	{
+		QuestManager->AddQuest(Quest);
+		GeneratedQuests.Add(Quest);
+		QuestManager->LoadCallbacks(Quest);
+		Quest->UpdateState();
 	}
 }
 
@@ -1098,13 +1132,18 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGene
 		WarPrice = 1000 * (HostileCompany->GetReputation(PlayerCompany) + 100);
 	}
 
-	int32 PreferredPlayerCombatPoints= FMath::Max(1, int32(PlayerCompany->GetCompanyValue().ArmyCombatPoints /3));
+	int32 PreferredPlayerCombatPoints= FMath::Max(10, int32(PlayerCompany->GetCompanyValue().ArmyCombatPoints /3));
 
 
-	int32 NeedArmyCombatPoints= SectorHelper::GetHostileArmyCombatPoints(Sector, Company) - SectorHelper::GetCompanyArmyCombatPoints(Sector, Company);
+	int32 NeedArmyCombatPoints= FMath::Min(10, SectorHelper::GetHostileArmyCombatPoints(Sector, Company) - SectorHelper::GetCompanyArmyCombatPoints(Sector, Company) /2);
 
 
 	int32 RequestedArmyCombatPoints = FMath::Min(PreferredPlayerCombatPoints, NeedArmyCombatPoints);
+
+	if(RequestedArmyCombatPoints < 0)
+	{
+		return NULL;
+	}
 
 	int64 ArmyPrice = RequestedArmyCombatPoints  * 250;
 
@@ -1157,13 +1196,35 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 										  HostileCompany->GetCompanyName(), Sector->GetSectorName(), FText::AsNumber(ArmyCombatPoints ));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
 
-		UFlareQuestConditionMinArmyCombatPointsInSector* Condition1 = UFlareQuestConditionMinArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, ArmyCombatPoints);
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition1);
-		UFlareQuestConditionAtWar* Condition2 = UFlareQuestConditionAtWar::Create(this, GetQuestManager()->GetGame()->GetPC()->GetCompany(), HostileCompany);
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition2);
 
-		UFlareQuestConditionStationLostInSector* FailCondition1 = UFlareQuestConditionStationLostInSector::Create(this, Sector, FriendlyCompany);
-		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition1);
+		{
+			// Impose to declare war
+			UFlareQuestConditionAtWar* Condition = UFlareQuestConditionAtWar::Create(this, GetQuestManager()->GetGame()->GetPC()->GetCompany(), HostileCompany);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+		}
+		// AND
+		{
+			UFlareQuestConditionGroup* OrCondition = UFlareQuestConditionOrGroup::Create(this, true);
+			{
+				// First case : the player bring forces
+				UFlareQuestConditionMinArmyCombatPointsInSector* Condition = UFlareQuestConditionMinArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, ArmyCombatPoints);
+				OrCondition->AddChildCondition(Condition);
+
+			}
+			// OR
+			{
+				// First case : no more station to defend
+				UFlareQuestConditionNoCapturingStationInSector* Condition = UFlareQuestConditionNoCapturingStationInSector::Create(this, Sector, FriendlyCompany, HostileCompany);
+				OrCondition->AddChildCondition(Condition);
+			}
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(OrCondition);
+		}
+
+		{
+			// Failed to defend
+			UFlareQuestConditionStationLostInSector* FailCondition = UFlareQuestConditionStationLostInSector::Create(this, Sector, FriendlyCompany);
+			Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition);
+		}
 
 		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
 
@@ -1189,6 +1250,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		}
 
+		// OR
 		{
 			UFlareQuestConditionMaxArmyCombatPointsInSector* Condition = UFlareQuestConditionMaxArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, 0);
 			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);

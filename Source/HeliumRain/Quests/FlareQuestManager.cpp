@@ -400,6 +400,7 @@ void UFlareQuestManager::OnTravelStarted(UFlareTravel* Travel)
 
 void UFlareQuestManager::OnNextDay()
 {
+	QuestGenerator->GenerateMilitaryQuests();
 	OnCallbackEvent(EFlareQuestCallback::NEXT_DAY);
 }
 
