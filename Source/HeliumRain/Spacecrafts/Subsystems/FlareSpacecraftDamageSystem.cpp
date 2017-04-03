@@ -281,8 +281,6 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 					EFlareMenu::MENU_Company);
 			}
 		}
-
-
 	}
 
 	// Lost company ship
@@ -325,7 +323,7 @@ void UFlareSpacecraftDamageSystem::CheckRecovery()
 	// If last, activate recovery
 	if (EmptyFleet)
 	{
-		PC->ActivateRecovery();
+		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_GameOver);
 	}
 }
 

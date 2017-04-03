@@ -251,12 +251,6 @@ void AFlareGame::Recovery()
 			OtherCompany->ForceReputation(PlayerCompany, 0);
 		}
 	}
-
-	GetPC()->Notify(LOCTEXT("ShipRecovery", "Recovery ship"),
-		FText::Format(LOCTEXT("ShipRecoveryFormat", "Your fleet was destroyed. You wake up in a recovery ship in {0}..."),
-					  GetPC()->GetPlayerShip()->GetCurrentSector()->GetSectorName()),
-		FName("ship-recovery"),
-		EFlareNotification::NT_Info);
 }
 
 void AFlareGame::SetWorldPause(bool Pause)

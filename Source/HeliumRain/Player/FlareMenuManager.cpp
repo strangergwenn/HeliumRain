@@ -18,6 +18,7 @@
 #include "../UI/Menus/FlareCreditsMenu.h"
 #include "../UI/Menus/FlareResourcePricesMenu.h"
 #include "../UI/Menus/FlareWorldEconomyMenu.h"
+#include "../UI/Menus/FlareGameOverMenu.h"
 
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareScenarioTools.h"
@@ -65,6 +66,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(LeaderboardMenu, SFlareLeaderboardMenu).MenuManager(this);
 		SAssignNew(ResourcePricesMenu, SFlareResourcePricesMenu).MenuManager(this);
 		SAssignNew(WorldEconomyMenu, SFlareWorldEconomyMenu).MenuManager(this);
+		SAssignNew(GameOverMenu, SFlareGameOverMenu).MenuManager(this);		
 		SAssignNew(CreditsMenu, SFlareCreditsMenu).MenuManager(this);
 
 		// Create overlays
@@ -99,6 +101,7 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(LeaderboardMenu.ToSharedRef()),    50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ResourcePricesMenu.ToSharedRef()), 50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(WorldEconomyMenu.ToSharedRef()),   50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(GameOverMenu.ToSharedRef()),       50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CreditsMenu.ToSharedRef()),        50);
 
 		// Register special menus
@@ -125,6 +128,7 @@ void AFlareMenuManager::SetupMenu()
 		LeaderboardMenu->Setup();
 		ResourcePricesMenu->Setup();
 		WorldEconomyMenu->Setup();
+		GameOverMenu->Setup();
 		CreditsMenu->Setup();
 
 		// Init
@@ -382,6 +386,7 @@ void AFlareMenuManager::ResetMenu()
 	LeaderboardMenu->Exit();
 	ResourcePricesMenu->Exit();
 	WorldEconomyMenu->Exit();
+	GameOverMenu->Exit();
 	CreditsMenu->Exit();
 
 	Tooltip->HideTooltipForce();
@@ -431,7 +436,9 @@ void AFlareMenuManager::ProcessNextMenu()
 		case EFlareMenu::MENU_FlyShip:            MenuOperationDone = FlyShip();            break;
 		case EFlareMenu::MENU_ReloadSector:       MenuOperationDone = ReloadSector();       break;
 		case EFlareMenu::MENU_FastForwardSingle:  MenuOperationDone = FastForwardSingle();  break;
+
 		case EFlareMenu::MENU_Travel:             Travel();                    break;
+		case EFlareMenu::MENU_GameOver:           GameOver();                  break;
 
 		case EFlareMenu::MENU_Main:               OpenMainMenu();              break;
 		case EFlareMenu::MENU_Settings:           OpenSettingsMenu();          break;
@@ -681,6 +688,18 @@ void AFlareMenuManager::Travel()
 	NextMenu.Key = EFlareMenu::MENU_Orbit;
 	NextMenu.Value = FFlareMenuParameterData();
 	OpenOrbit();
+}
+
+void AFlareMenuManager::GameOver()
+{
+	OnEnterMenu(false, false);
+
+	GetGame()->DeactivateSector();
+	GetGame()->Recovery();
+	GetGame()->GetGameWorld()->Simulate();
+	GetGame()->ActivateCurrentSector();
+
+	GameOverMenu->Enter();
 }
 
 bool AFlareMenuManager::ReloadSector()
@@ -937,6 +956,7 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 		case EFlareMenu::MENU_Station:        Name = LOCTEXT("StationMenuName", "Station");                break;
 		case EFlareMenu::MENU_ShipConfig:     Name = LOCTEXT("ShipConfigMenuName", "Ship upgrade");        break;
 		case EFlareMenu::MENU_Travel:         Name = LOCTEXT("TravelMenuName", "Travel");                  break;
+		case EFlareMenu::MENU_GameOver:       Name = LOCTEXT("GameOverMenuName", "Game over");             break;
 		case EFlareMenu::MENU_Sector:         Name = LOCTEXT("SectorMenuName", "Sector info");             break;
 		case EFlareMenu::MENU_Trade:          Name = LOCTEXT("TradeMenuName", "Trade");                    break;
 		case EFlareMenu::MENU_TradeRoute:     Name = LOCTEXT("TradeRouteMenuName", "Trade route");         break;
@@ -967,6 +987,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType)
 		case EFlareMenu::MENU_Station:        Path = "Station";      break;
 		case EFlareMenu::MENU_ShipConfig:     Path = "ShipUpgrade";  break;
 		case EFlareMenu::MENU_Travel:         Path = "Travel";       break;
+		case EFlareMenu::MENU_GameOver:       Path = "HeliumRain";   break;
 		case EFlareMenu::MENU_Sector:         Path = "Sector";       break;
 		case EFlareMenu::MENU_Trade:          Path = "Trade";        break;
 		case EFlareMenu::MENU_TradeRoute:     Path = "Trade";        break;

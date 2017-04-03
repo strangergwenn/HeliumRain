@@ -24,6 +24,7 @@ namespace EFlareMenu
 		MENU_Travel,
 		MENU_ReloadSector,
 		MENU_FastForwardSingle,
+		MENU_GameOver,
 
 		// Main gameplay menus
 		MENU_Story,

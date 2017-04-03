@@ -69,7 +69,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	IsTest1 = false;
 	IsTest2 = false;
 	LastBattleState.Init();
-	RecoveryActive = false;
 
 	// Setup
 	ShipPawn = NULL;
@@ -127,15 +126,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	TimeSinceWeaponSwitch += DeltaSeconds;
 	IsBusy = false;
 	
-	// Check recovery
-	if (RecoveryActive)
-	{
-		RecoveryActive = false;
-		GetGame()->DeactivateSector();
-		GetGame()->Recovery();
-		MenuManager->OpenMenu(EFlareMenu::MENU_FastForwardSingle);
-	}
-
 	// We are flying
 	if (ShipPawn)
 	{
@@ -598,7 +588,6 @@ void AFlarePlayerController::Clean()
 
 	LastBattleState.Init();
 	LastSectorBattleStates.Empty();
-	RecoveryActive = false;
 
 	MenuManager->FlushNotifications();
 }
@@ -889,11 +878,6 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 
 		}
 	}
-}
-
-void AFlarePlayerController::ActivateRecovery()
-{
-	RecoveryActive = true;
 }
 
 void AFlarePlayerController::CheckSectorStateChanges(UFlareSimulatedSector* Sector)

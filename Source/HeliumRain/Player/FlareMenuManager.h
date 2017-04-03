@@ -29,6 +29,7 @@ class SFlareTradeRouteMenu;
 class SFlareCreditsMenu;
 class SFlareResourcePricesMenu;
 class SFlareWorldEconomyMenu;
+class SFlareGameOverMenu;
 
 // Gameplay classes
 class AFlarePlayerController;
@@ -152,6 +153,9 @@ protected:
 
 	/** Reload the sector */
 	bool ReloadSector();
+
+	/** Game over */
+	void GameOver();
 
 	/** Reload the sector after a FF */
 	bool FastForwardSingle();
@@ -356,6 +360,7 @@ protected:
 	TSharedPtr<SFlareCreditsMenu>           CreditsMenu;
 	TSharedPtr<SFlareResourcePricesMenu>    ResourcePricesMenu;
 	TSharedPtr<SFlareWorldEconomyMenu>      WorldEconomyMenu;
+	TSharedPtr<SFlareGameOverMenu>          GameOverMenu;
 	
 
 };

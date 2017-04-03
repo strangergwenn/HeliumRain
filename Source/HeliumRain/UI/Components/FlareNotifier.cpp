@@ -158,8 +158,10 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 	if (!MenuManager->GetPC()->IsGameBusy())
 	{
 		// Don't show notifications in story menu
-		if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Story
-			|| MenuManager->GetNextMenu() == EFlareMenu::MENU_Story)
+		if (   MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Story
+			|| MenuManager->GetNextMenu() == EFlareMenu::MENU_Story
+			|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_GameOver
+			|| MenuManager->GetNextMenu() == EFlareMenu::MENU_GameOver)
 		{
 			NotificationContainer->SetVisibility(EVisibility::Hidden);
 		}

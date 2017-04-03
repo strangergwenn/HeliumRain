@@ -57,10 +57,7 @@ public:
 
 	/** Is the player ship being targeted ? Get one of the attackers too. */
 	void GetPlayerShipThreatStatus(bool& IsTargeted, bool& IsFiredUpon, UFlareSimulatedSpacecraft*& Threat) const;
-
-	/** Get a recovery ship */
-	void ActivateRecovery();
-
+	
 	/** Update a sector */
 	void CheckSectorStateChanges(UFlareSimulatedSector* Sector);
 
@@ -417,7 +414,6 @@ protected:
 
 	bool                                     RightMousePressed;
 	bool                                     HasCurrentObjective;
-	bool									 RecoveryActive;
 	bool                                     IsBusy;
 
 	FFlareSectorBattleState                  LastBattleState;
