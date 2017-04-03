@@ -42,92 +42,96 @@ void SFlareStoryMenu::Construct(const FArguments& InArgs)
 	.HAlign(HAlign_Center)
 	.VAlign(VAlign_Center)
 	[
-		SNew(SVerticalBox)
-
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Fill)
+		SNew(SBorder)
+		.BorderImage(FFlareStyleSet::GetImage("Black"))
 		[
-			SNew(SBox)
-			.WidthOverride(this, &SFlareStoryMenu::GetWidth)
-			.HeightOverride(this, &SFlareStoryMenu::GetHeight)
+			SNew(SVerticalBox)
+
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
 			[
-				SAssignNew(Image, SBorder)
-				.BorderBackgroundColor(this, &SFlareStoryMenu::GetTextColor)
+				SNew(SBox)
+				.WidthOverride(this, &SFlareStoryMenu::GetWidth)
+				.HeightOverride(this, &SFlareStoryMenu::GetHeight)
 				[
-					SNew(SVerticalBox)
-
-					// Title
-					+ SVerticalBox::Slot()
-					.HAlign(HAlign_Center)
-					.VAlign(VAlign_Top)
-					.Padding(Theme.ContentPadding)
-					.AutoHeight()
+					SAssignNew(Image, SBorder)
+					.BorderBackgroundColor(this, &SFlareStoryMenu::GetTextColor)
 					[
-						SAssignNew(Title, STextBlock)
-						.Justification(ETextJustify::Left)
-						.Font(TitleFont)
-						.ColorAndOpacity(this, &SFlareStoryMenu::GetTextColor)
-					]
+						SNew(SVerticalBox)
 
-					// Text
-					+ SVerticalBox::Slot()
-					.HAlign(HAlign_Center)
-					.VAlign(VAlign_Top)
-					.Padding(Theme.ContentPadding)
-					[
-						SAssignNew(Text, STextBlock)
-						.Justification(ETextJustify::Center)
-						.Font(MainFont)
-						.ColorAndOpacity(this, &SFlareStoryMenu::GetTextColor)
-					]
+						// Title
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Center)
+						.VAlign(VAlign_Top)
+						.Padding(Theme.ContentPadding)
+						.AutoHeight()
+						[
+							SAssignNew(Title, STextBlock)
+							.Justification(ETextJustify::Left)
+							.Font(TitleFont)
+							.ColorAndOpacity(this, &SFlareStoryMenu::GetTextColor)
+						]
 
-					// Bottom pane
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SNew(SBackgroundBlur)
-						.BlurRadius(10)
-						.BlurStrength(1)
+						// Text
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Center)
+						.VAlign(VAlign_Top)
 						.Padding(Theme.ContentPadding)
 						[
-							SNew(SHorizontalBox)
+							SAssignNew(Text, STextBlock)
+							.Justification(ETextJustify::Center)
+							.Font(MainFont)
+							.ColorAndOpacity(this, &SFlareStoryMenu::GetTextColor)
+						]
 
-							// Previous
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.HAlign(HAlign_Left)
+						// Bottom pane
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SBackgroundBlur)
+							.BlurRadius(10)
+							.BlurStrength(1)
+							.Padding(Theme.ContentPadding)
 							[
-								SAssignNew(PreviousButton, SFlareButton)
-								.Icon(FFlareStyleSet::GetIcon("Back"))
-								.OnClicked(this, &SFlareStoryMenu::OnPrevious)
-								.Transparent(true)
-								.Width(2)
-								.Height(2)
-							]
+								SNew(SHorizontalBox)
 
-							// Text
-							+ SHorizontalBox::Slot()
-							[
-								SAssignNew(SubText, STextBlock)
-								.Justification(ETextJustify::Center)
-								.Font(SecondaryFont)
-								.WrapTextAt(TextWidth)
-								.ColorAndOpacity(this, &SFlareStoryMenu::GetTextColor)
-							]
+								// Previous
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.HAlign(HAlign_Left)
+								[
+									SAssignNew(PreviousButton, SFlareButton)
+									.Icon(FFlareStyleSet::GetIcon("Back"))
+									.OnClicked(this, &SFlareStoryMenu::OnPrevious)
+									.Transparent(true)
+									.Width(2)
+									.Height(2)
+								]
 
-							// Next
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.HAlign(HAlign_Right)
-							[
-								SAssignNew(NextButton, SFlareButton)
-								.Icon(FFlareStyleSet::GetIcon("Next"))
-								.OnClicked(this, &SFlareStoryMenu::OnNext)
-								.Transparent(true)
-								.Width(2)
-								.Height(2)
+								// Text
+								+ SHorizontalBox::Slot()
+								[
+									SAssignNew(SubText, STextBlock)
+									.Justification(ETextJustify::Center)
+									.Font(SecondaryFont)
+									.WrapTextAt(TextWidth)
+									.ColorAndOpacity(this, &SFlareStoryMenu::GetTextColor)
+								]
+
+								// Next
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.HAlign(HAlign_Right)
+								[
+									SAssignNew(NextButton, SFlareButton)
+									.Icon(FFlareStyleSet::GetIcon("Next"))
+									.OnClicked(this, &SFlareStoryMenu::OnNext)
+									.Transparent(true)
+									.Width(2)
+									.Height(2)
+								]
 							]
 						]
 					]

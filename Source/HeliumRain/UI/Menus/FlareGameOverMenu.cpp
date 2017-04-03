@@ -39,74 +39,78 @@ void SFlareGameOverMenu::Construct(const FArguments& InArgs)
 	.HAlign(HAlign_Center)
 	.VAlign(VAlign_Center)
 	[
-		SNew(SVerticalBox)
-
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Fill)
+		SNew(SBorder)
+		.BorderImage(FFlareStyleSet::GetImage("Black"))
 		[
-			SNew(SBox)
-			.WidthOverride(this, &SFlareGameOverMenu::GetWidth)
-			.HeightOverride(this, &SFlareGameOverMenu::GetHeight)
+			SNew(SVerticalBox)
+
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
 			[
-				SNew(SBorder)
-				.BorderImage(FFlareStyleSet::GetImage("Story_GameOver"))
+				SNew(SBox)
+				.WidthOverride(this, &SFlareGameOverMenu::GetWidth)
+				.HeightOverride(this, &SFlareGameOverMenu::GetHeight)
 				[
-					SNew(SVerticalBox)
-
-					+ SVerticalBox::Slot()
-					.VAlign(VAlign_Top)
-					.Padding(Theme.ContentPadding)
-					.AutoHeight()
+					SNew(SBorder)
+					.BorderImage(FFlareStyleSet::GetImage("Story_GameOver"))
 					[
-						SNew(SHorizontalBox)
+						SNew(SVerticalBox)
+
+						+ SVerticalBox::Slot()
+						.VAlign(VAlign_Top)
+						.Padding(Theme.ContentPadding)
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
 						
-						+ SHorizontalBox::Slot()
-						.HAlign(HAlign_Left)
-						[
-							SNew(SBox)
-							.WidthOverride(2 * Theme.ButtonWidth)
+							+ SHorizontalBox::Slot()
+							.HAlign(HAlign_Left)
+							[
+								SNew(SBox)
+								.WidthOverride(2 * Theme.ButtonWidth)
+							]
+
+							// Title
+							+ SHorizontalBox::Slot()
+							.HAlign(HAlign_Center)
+							.Padding(Theme.ContentPadding)
+							.AutoWidth()
+							[
+								SNew(STextBlock)
+								.Justification(ETextJustify::Center)
+								.Font(TitleFont)
+								.Text(LOCTEXT("YouDied", "FLEET DESTROYED"))
+							]
+
+							// Exit
+							+ SHorizontalBox::Slot()
+							.HAlign(HAlign_Right)
+							[
+								SAssignNew(ExitButton, SFlareButton)
+								.Width(2)
+								.Height(2)
+								.Transparent(true)
+								.OnClicked(this, &SFlareGameOverMenu::OnQuit)
+							]
 						]
 
-						// Title
-						+ SHorizontalBox::Slot()
-						.HAlign(HAlign_Center)
-						.Padding(Theme.ContentPadding)
-						.AutoWidth()
+						// Bottom pane
+						+ SVerticalBox::Slot()
+						.VAlign(VAlign_Bottom)
 						[
-							SNew(STextBlock)
-							.Justification(ETextJustify::Center)
-							.Font(TitleFont)
-							.Text(LOCTEXT("YouDied", "FLEET DESTROYED"))
-						]
-
-						// Exit
-						+ SHorizontalBox::Slot()
-						.HAlign(HAlign_Right)
-						[
-							SAssignNew(ExitButton, SFlareButton)
-							.Width(2)
-							.Height(2)
-							.Transparent(true)
-							.OnClicked(this, &SFlareGameOverMenu::OnQuit)
-						]
-					]
-
-					// Bottom pane
-					+ SVerticalBox::Slot()
-					.VAlign(VAlign_Bottom)
-					[
-						SNew(SBackgroundBlur)
-						.BlurRadius(10)
-						.BlurStrength(1)
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(STextBlock)
-							.Justification(ETextJustify::Center)
-							.Font(SecondaryFont)
-							.Text(LOCTEXT("ShipRecovery", "Your fleet was destroyed and you have been injured. The Nema Colonial Administration is providing you a new start, and a new ship. Try not to destroy this one."))
-							.WrapTextAt(TextWidth)
+							SNew(SBackgroundBlur)
+							.BlurRadius(10)
+							.BlurStrength(1)
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(STextBlock)
+								.Justification(ETextJustify::Center)
+								.Font(SecondaryFont)
+								.Text(LOCTEXT("ShipRecovery", "Your fleet was destroyed and you have been injured. The Nema Colonial Administration is providing you a new start, and a new ship. Try not to destroy this one."))
+								.WrapTextAt(TextWidth)
+							]
 						]
 					]
 				]
