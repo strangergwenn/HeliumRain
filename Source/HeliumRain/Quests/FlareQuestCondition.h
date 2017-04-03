@@ -736,11 +736,17 @@ public:
 	virtual bool IsCompleted();
 	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
 
+	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
+
 protected:
+	int32 GetCapturingStations();
 
 	UFlareSimulatedSector* TargetSector;
 	UFlareCompany* TargetCompany;
 	UFlareCompany* TargetEnemyCompany;
+	int32 InitialCapturingStations;
+	bool HasInitialCapturingStations;
 };
 
 

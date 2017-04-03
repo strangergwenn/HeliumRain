@@ -7,6 +7,7 @@
 #define LOCTEXT_NAMESPACE "FlareQuestCondition"
 
 static FName INITIAL_VELOCITY_TAG("initial-velocity");
+static FName INITIAL_CAPTURING_STATIONS_TAG("initial-capturing-stations");
 static FName CURRENT_PROGRESSION_TAG("current-progression");
 static FName INITIAL_TRANSFORM_TAG("initial-transform");
 static FName WAYPOINTS_TAG("waypoints");
@@ -2017,8 +2018,17 @@ void UFlareQuestConditionMaxArmyCombatPointsInSector::Load(UFlareQuest* ParentQu
 
 	if (TargetCompany == PlayerCompany)
 	{
-		FText InitialLabelText = LOCTEXT("PlayerMaxArmyCombatPoints", "Bring at most {0} combat value in {1}");
-		InitialLabel = FText::Format(InitialLabelText, FText::AsNumber(TargetArmyPoints), TargetSector->GetSectorName());
+		if(TargetArmyPoints == 0)
+		{
+			FText InitialLabelText = LOCTEXT("PlayerMaxArmyCombatPoints", "Die fighting in {0}");
+			InitialLabel = FText::Format(InitialLabelText, TargetSector->GetSectorName());
+
+		}
+		else
+		{
+			FText InitialLabelText = LOCTEXT("PlayerMaxArmyCombatPoints", "Bring at most {0} combat value in {1}");
+			InitialLabel = FText::Format(InitialLabelText, FText::AsNumber(TargetArmyPoints), TargetSector->GetSectorName());
+		}
 	}
 	else
 	{
@@ -2094,6 +2104,7 @@ void UFlareQuestConditionStationLostInSector::AddConditionObjectives(FFlarePlaye
 UFlareQuestConditionNoCapturingStationInSector::UFlareQuestConditionNoCapturingStationInSector(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	HasInitialCapturingStations = false;
 }
 
 UFlareQuestConditionNoCapturingStationInSector* UFlareQuestConditionNoCapturingStationInSector::Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam, UFlareCompany* TargetEnemyCompanyParam)
@@ -2117,8 +2128,55 @@ void UFlareQuestConditionNoCapturingStationInSector::Load(UFlareQuest* ParentQue
 }
 
 
+void UFlareQuestConditionNoCapturingStationInSector::Restore(const FFlareBundle* Bundle)
+{
+	if (Bundle)
+	{
+		HasInitialCapturingStations = Bundle->HasInt32(INITIAL_CAPTURING_STATIONS_TAG);
+		InitialCapturingStations = Bundle->GetInt32(INITIAL_CAPTURING_STATIONS_TAG);
+	}
+	else
+	{
+		HasInitialCapturingStations = false;
+	}
+}
+
+void UFlareQuestConditionNoCapturingStationInSector::Save(FFlareBundle* Bundle)
+{
+	if (HasInitialCapturingStations)
+	{
+		Bundle->PutFloat(INITIAL_CAPTURING_STATIONS_TAG, InitialCapturingStations);
+	}
+}
+
+
+int32 UFlareQuestConditionNoCapturingStationInSector::GetCapturingStations()
+{
+	int32 CapturingStationCount = 0;
+	for(UFlareSimulatedSpacecraft* Station : TargetSector->GetSectorStations())
+	{
+
+		if(Station->GetCompany() != TargetCompany)
+		{
+			continue;
+		}
+
+		if(Station->GetCapturePoint(TargetEnemyCompany) > 0)
+		{
+			CapturingStationCount++;
+		}
+	}
+	return CapturingStationCount;
+}
+
 bool UFlareQuestConditionNoCapturingStationInSector::IsCompleted()
 {
+
+	if (!HasInitialCapturingStations)
+	{
+		InitialCapturingStations = GetCapturingStations();
+	}
+
 	for(UFlareSimulatedSpacecraft* Station : TargetSector->GetSectorStations())
 	{
 
@@ -2137,28 +2195,32 @@ bool UFlareQuestConditionNoCapturingStationInSector::IsCompleted()
 
 void UFlareQuestConditionNoCapturingStationInSector::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
-	int32 CapturingStationCount = 0;
-	for(UFlareSimulatedSpacecraft* Station : TargetSector->GetSectorStations())
+	if (!HasInitialCapturingStations)
 	{
-
-		if(Station->GetCompany() != TargetCompany)
-		{
-			continue;
-		}
-
-		if(Station->GetCapturePoint(TargetEnemyCompany) > 0)
-		{
-			CapturingStationCount++;
-		}
+		InitialCapturingStations = GetCapturingStations();
 	}
 
+	int32 CurrentStations = GetCapturingStations();
+
+
+	int32 Progress = InitialCapturingStations - CurrentStations;
+
+	FText StationShortText;
+	if(CurrentStations > 1)
+	{
+		StationShortText = LOCTEXT("StationToSecureFormat", "{0} stations left");
+	}
+	else
+	{
+		StationShortText = LOCTEXT("StationToSecureFormat", "{0} station left");
+	}
 
 	FFlarePlayerObjectiveCondition ObjectiveCondition;
 	ObjectiveCondition.InitialLabel = GetInitialLabel();
-	ObjectiveCondition.TerminalLabel = FText();
-	ObjectiveCondition.Progress = 0;
-	ObjectiveCondition.MaxProgress = 0;
-	ObjectiveCondition.Counter = CapturingStationCount;
+	ObjectiveCondition.TerminalLabel = FText::Format(StationShortText, FText::AsNumber(CurrentStations));
+	ObjectiveCondition.Progress = Progress;
+	ObjectiveCondition.MaxProgress = InitialCapturingStations;
+	ObjectiveCondition.Counter = 0;
 	ObjectiveCondition.MaxCounter = 0;
 
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
