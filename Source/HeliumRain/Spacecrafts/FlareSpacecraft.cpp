@@ -227,7 +227,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 					{
 						PC->Notify(
 							LOCTEXT("ExitSector", "Exited sector"),
-							LOCTEXT("ExitSectorDescription", "Your ship went too far from the orbit reference and had to turn around."),
+							LOCTEXT("ExitSectorDescription", "Your ship went too far from the sector origin, and is now traveling back. Wait a day to arrive there, or find a new destination."),
 							"exit-sector",
 							EFlareNotification::NT_Info);
 
