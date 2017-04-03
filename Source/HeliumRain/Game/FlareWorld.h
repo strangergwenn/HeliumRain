@@ -121,7 +121,7 @@ public:
 	/** Simulate world from now to the next event */
 	void FastForward();
 
-	UFlareTravel* StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector);
+	UFlareTravel* StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector, bool Force=false);
 
 	virtual void DeleteTravel(UFlareTravel* Travel);
 

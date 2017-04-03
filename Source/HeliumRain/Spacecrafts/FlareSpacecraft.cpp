@@ -221,8 +221,9 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				{
 					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits);
 
+
 					// Notify if we're just resetting the ship
-					if (GetData().SpawnMode != EFlareSpawnMode::Exit)
+					if (GetData().SpawnMode != EFlareSpawnMode::Travel)
 					{
 						PC->Notify(
 							LOCTEXT("ExitSector", "Exited sector"),
@@ -230,16 +231,29 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 							"exit-sector",
 							EFlareNotification::NT_Info);
 
-						GetData().SpawnMode = EFlareSpawnMode::Exit;
+						GetData().SpawnMode = EFlareSpawnMode::Travel;
 					}
 
-					// Reload
-					FFlareMenuParameterData MenuParameters;
-					MenuParameters.Spacecraft = GetParent();
-					MenuParameters.Sector = GetParent()->GetCurrentSector();
-					PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ReloadSector, MenuParameters);
+					if(GetParent()->GetCurrentSector()->IsTravelSector())
+					{
+						// Reload
+						FFlareMenuParameterData MenuParameters;
+						MenuParameters.Spacecraft = GetParent();
+						MenuParameters.Sector = GetParent()->GetCurrentSector();
+						PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ReloadSector, MenuParameters);
+					}
+					else
+					{
+						UFlareTravel* Travel = GetGame()->GetGameWorld()->StartTravel(GetParent()->GetCurrentFleet(), GetParent()->GetCurrentSector(), true);
 
-					HasExitedSector = true;
+						if (Travel)
+						{
+							FFlareMenuParameterData Data;
+							Data.Travel = Travel;
+							PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Travel, Data);
+						}
+					}
+
 					return;
 				}
 			}

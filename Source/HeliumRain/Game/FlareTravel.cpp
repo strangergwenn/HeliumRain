@@ -230,6 +230,11 @@ void UFlareTravel::ChangeDestination(UFlareSimulatedSector* NewDestinationSector
 		return;
 	}
 
+	if(NewDestinationSector->IsTravelSector())
+	{
+		return;
+	}
+
 	DestinationSector = NewDestinationSector;
 
 	TravelData.DestinationSectorIdentifier = DestinationSector->GetIdentifier();

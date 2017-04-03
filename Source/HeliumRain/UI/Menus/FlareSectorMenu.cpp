@@ -627,7 +627,7 @@ bool SFlareSectorMenu::IsTravelDisabled() const
 	{
 		return true;
 	}
-	else if (SelectedFleet->IsTraveling() || !SelectedFleet->CanTravel() || SelectedFleet->GetCurrentSector() == TargetSector)
+	else if (!SelectedFleet->CanTravel() || SelectedFleet->GetCurrentSector() == TargetSector)
 	{
 		return true;
 	}

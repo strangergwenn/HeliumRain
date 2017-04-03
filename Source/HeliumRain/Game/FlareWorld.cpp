@@ -1018,9 +1018,9 @@ void UFlareWorld::OnFleetSupplyConsumed(int32 Quantity)
 	WorldData.DailyFleetSupplyConsumption += Quantity;
 }
 
-UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector)
+UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimulatedSector* DestinationSector, bool Force)
 {
-	if (!TravelingFleet->CanTravel())
+	if (!TravelingFleet->CanTravel() && !Force)
 	{
 		return NULL;
 	}
@@ -1030,7 +1030,7 @@ UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimul
 		TravelingFleet->GetCurrentTravel()->ChangeDestination(DestinationSector);
 		return TravelingFleet->GetCurrentTravel();
 	}
-	else if (TravelingFleet->GetCurrentSector() == DestinationSector)
+	else if (TravelingFleet->GetCurrentSector() == DestinationSector && !Force)
 	{
 		//Try to start a travel to current sector
 		return NULL;

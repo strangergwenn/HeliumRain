@@ -236,7 +236,7 @@ void UFlareFleet::RemoveImmobilizedShips()
 
 	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
 	{
-		if (!FleetShips[ShipIndex]->CanTravel())
+		if (!FleetShips[ShipIndex]->CanTravel() && FleetShips[ShipIndex] != Game->GetPC()->GetPlayerShip())
 		{
 			ShipToRemove.Add(FleetShips[ShipIndex]);
 		}
