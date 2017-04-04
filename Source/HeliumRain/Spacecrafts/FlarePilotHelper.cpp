@@ -196,6 +196,11 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 {
 	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_GetBestTarget);
 
+	if (!Ship || !Ship->GetGame()->GetActiveSector())
+	{
+		return NULL;
+	}
+
 	AFlareSpacecraft* BestTarget = NULL;
 	float BestScore = 0;
 

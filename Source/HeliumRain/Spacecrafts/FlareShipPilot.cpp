@@ -1366,6 +1366,11 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly, EFl
 	// - From another company
 	// - Is the nearest
 
+	if (!Ship || !Ship->GetGame()->GetActiveSector())
+	{
+		return NULL;
+	}
+
 	FVector PilotLocation = Ship->GetActorLocation();
 	float MinDistanceSquared = -1;
 	AFlareSpacecraft* NearestHostileShip = NULL;
