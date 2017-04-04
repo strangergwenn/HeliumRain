@@ -21,6 +21,8 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, CombatMouseRadius(100)
 	, HUDVisible(true)
+	, CurrentPowerTime(0)
+	, PowerTransitionTime(1.0f)
 	, ShowPerformance(false)
 	, PerformanceTimer(0)
 	, FrameTime(0)
@@ -252,19 +254,16 @@ void AFlareHUD::DrawHUD()
 		CurrentViewportSize = ViewportSize;
 		CurrentCanvas = Canvas;
 		IsDrawingHUD = true;
-
-		// Initial data and checks
-		if (!ShouldDrawHUD())
-		{
-			return;
-		}
-
+		
 		// Look for a spacecraft to draw the context menu on
 		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 		UpdateContextMenu(PlayerShip);
 
 		// Paint the render target
-		DrawMaterialSimple(HUDRenderTargetMaterial, 0, 0, ViewportSize.X, ViewportSize.Y);
+		if (PlayerShip && !MenuManager->IsMenuOpen())
+		{
+			DrawMaterialSimple(HUDRenderTargetMaterial, 0, 0, ViewportSize.X, ViewportSize.Y);
+		}
 
 		// Draw nose
 		if (HUDVisible && ShouldDrawHUD())
@@ -273,19 +272,25 @@ void AFlareHUD::DrawHUD()
 			EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
 			if (HUDVisible && !IsExternalCamera)
 			{
+				// Color
+				FLinearColor HUDNosePowerColor = HudColorNeutral;
+				HUDNosePowerColor.A = CurrentPowerTime / PowerTransitionTime;
+
+				// Nose texture
 				UTexture2D* NoseIcon = HUDNoseIcon;
 				if (WeaponType == EFlareWeaponGroupType::WG_GUN)
 				{
 					NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
 				}
 
+				// Nose drawing
 				if (WeaponType != EFlareWeaponGroupType::WG_TURRET)
 				{
 					DrawHUDIcon(
 						CurrentViewportSize / 2,
 						IconSize,
 						NoseIcon,
-						HudColorNeutral,
+						HUDNosePowerColor,
 						true);
 				}
 
@@ -293,7 +298,7 @@ void AFlareHUD::DrawHUD()
 				FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
 				int32 SpeedMS = (ShipSmoothedVelocity.Size() + 10.) / 100.0f;
 				FString VelocityText = FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s");
-				FlareDrawText(VelocityText, FVector2D(0, 70), HudColorNeutral, true);
+				FlareDrawText(VelocityText, FVector2D(0, 70), HUDNosePowerColor, true);
 			}
 		}
 	}
@@ -320,6 +325,26 @@ void AFlareHUD::DrawHUDTexture(UCanvas* TargetCanvas, int32 Width, int32 Height)
 void AFlareHUD::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+
+	// Power timer
+	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
+	if (PlayerShip && PlayerShip->GetParent()->GetDamageSystem()->IsAlive() && !PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage())
+	{
+		CurrentPowerTime += DeltaSeconds;
+	}
+	else
+	{
+		CurrentPowerTime -= DeltaSeconds;
+	}
+	CurrentPowerTime = FMath::Clamp(CurrentPowerTime, 0.0f, PowerTransitionTime);
+
+	// Update power on the HUD material when in cockpit mode
+	if (HUDRenderTargetMaterial)
+	{
+		float PowerAlpha = PC->UseCockpit ? CurrentPowerTime / PowerTransitionTime : 1.0f;
+		HUDRenderTargetMaterial->SetScalarParameterValue("PowerAlpha", PowerAlpha);
+	}
 
 	// Ingame profiler
 	if (ShowPerformance)
@@ -376,7 +401,6 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	}
 
 	// Mouse control
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	if (PC && !MouseMenu->IsOpen())
 	{
 		FVector2D MousePos = PC->GetMousePosition();
@@ -386,7 +410,7 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	}
 
 	// Update HUD
-	if (HUDRenderTarget)
+	if (HUDRenderTarget && ShouldDrawHUD())
 	{
 		HUDRenderTarget->UpdateResource();
 	}
@@ -778,9 +802,14 @@ void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVecto
 
 void AFlareHUD::UpdateContextMenu(AFlareSpacecraft* PlayerShip)
 {
+	if (!PlayerShip || !PlayerShip->GetGame())
+	{
+		return;
+	}
+
 	ContextMenuSpacecraft = NULL;
 	UFlareSector* ActiveSector = PlayerShip->GetGame()->GetActiveSector();
-
+	
 	// Look for a ship
 	if (ActiveSector && IsInteractive)
 	{

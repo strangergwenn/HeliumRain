@@ -277,6 +277,10 @@ protected:
 	TSharedPtr<SFlareContextMenu>           ContextMenu;
 	FVector2D                               ContextMenuPosition;
 
+	// Power
+	float                                   CurrentPowerTime;
+	float                                   PowerTransitionTime;
+
 	// Debug
 	bool                                    ShowPerformance;
 	float                                   PerformanceTimer;
