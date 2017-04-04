@@ -255,13 +255,24 @@ void AFlareHUD::DrawHUD()
 		CurrentViewportSize = ViewportSize;
 		CurrentCanvas = Canvas;
 		IsDrawingHUD = true;
-		
+
 		// Look for a spacecraft to draw the context menu on
 		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 		UpdateContextMenu(PlayerShip);
 
+		// Should we paint the render target ?
+		bool DrawRenderTarget = false;
+		if (PC->UseCockpit)
+		{
+			DrawRenderTarget = PlayerShip && !PC->IsInMenu();
+		}
+		else
+		{
+			DrawRenderTarget = PlayerShip && !PC->IsInMenu() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive();
+		}
+
 		// Paint the render target
-		if (PlayerShip && (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None))
+		if (DrawRenderTarget)
 		{
 			DrawMaterialSimple(HUDRenderTargetMaterial, 0, 0, ViewportSize.X, ViewportSize.Y);
 		}
@@ -910,7 +921,7 @@ bool AFlareHUD::ShouldDrawHUD() const
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
-	if (!ActiveSector || !PlayerShip || !PlayerShip->GetParent()->GetDamageSystem()->IsAlive() || MenuManager->IsMenuOpen() || MenuManager->IsSwitchingMenu() || IsWheelMenuOpen())
+	if (!ActiveSector || !PlayerShip || !PlayerShip->GetParent()->GetDamageSystem()->IsAlive() || PC->IsInMenu() || IsWheelMenuOpen())
 	{
 		return false;
 	}
