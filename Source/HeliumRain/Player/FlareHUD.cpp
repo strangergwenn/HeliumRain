@@ -260,7 +260,7 @@ void AFlareHUD::DrawHUD()
 		UpdateContextMenu(PlayerShip);
 
 		// Paint the render target
-		if (PlayerShip && !MenuManager->GetCurrentMenu() != EFlareMenu::MENU_None)
+		if (PlayerShip && (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None))
 		{
 			DrawMaterialSimple(HUDRenderTargetMaterial, 0, 0, ViewportSize.X, ViewportSize.Y);
 		}
