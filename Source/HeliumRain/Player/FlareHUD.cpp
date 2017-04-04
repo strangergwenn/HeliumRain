@@ -260,7 +260,7 @@ void AFlareHUD::DrawHUD()
 		UpdateContextMenu(PlayerShip);
 
 		// Paint the render target
-		if (PlayerShip && !MenuManager->IsMenuOpen())
+		if (PlayerShip && !MenuManager->GetCurrentMenu() != EFlareMenu::MENU_None)
 		{
 			DrawMaterialSimple(HUDRenderTargetMaterial, 0, 0, ViewportSize.X, ViewportSize.Y);
 		}
@@ -329,20 +329,17 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
 	// Power timer
-	if (!MenuManager->IsSwitchingMenu())
+	if (PlayerShip
+		&& PlayerShip->GetParent()->GetDamageSystem()->IsAlive()
+		&& !PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage())
 	{
-		if (PlayerShip
-			&& PlayerShip->GetParent()->GetDamageSystem()->IsAlive()
-			&& !PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage())
-		{
-			CurrentPowerTime += DeltaSeconds;
-		}
-		else
-		{
-			CurrentPowerTime -= DeltaSeconds;
-		}
-		CurrentPowerTime = FMath::Clamp(CurrentPowerTime, 0.0f, PowerTransitionTime);
+		CurrentPowerTime += DeltaSeconds;
 	}
+	else
+	{
+		CurrentPowerTime -= DeltaSeconds;
+	}
+	CurrentPowerTime = FMath::Clamp(CurrentPowerTime, 0.0f, PowerTransitionTime);
 
 	// Update power on the HUD material when in cockpit mode
 	if (HUDRenderTargetMaterial)
