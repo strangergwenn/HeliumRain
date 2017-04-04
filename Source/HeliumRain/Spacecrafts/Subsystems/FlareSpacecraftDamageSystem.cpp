@@ -206,13 +206,27 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 	{
 		if (LastDamageCauser)
 		{
-			PC->Notify(
-				LOCTEXT("PlayerShipDestroyed", "Your ship has been destroyed"),
-				FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
-				FName("ship-destroyed"),
-				EFlareNotification::NT_Military,
-				false,
-				EFlareMenu::MENU_Company);
+			if(LastDamageCauser->IsStation())
+			{
+				PC->Notify(
+					LOCTEXT("PlayerShipDestroyedByStation", "Your ship has been destroyed"),
+					FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class station"), LastDamageCauser->GetParent()->GetDescription()->Name),
+					FName("ship-destroyed"),
+					EFlareNotification::NT_Military,
+					false,
+					EFlareMenu::MENU_Company);
+			}
+			else
+			{
+				PC->Notify(
+					LOCTEXT("PlayerShipDestroyedByShip", "Your ship has been destroyed"),
+					FText::Format(LOCTEXT("ShipDestroyedFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
+					FName("ship-destroyed"),
+					EFlareNotification::NT_Military,
+					false,
+					EFlareMenu::MENU_Company);
+			}
+
 		}
 		else
 		{
