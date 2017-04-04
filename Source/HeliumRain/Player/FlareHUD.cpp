@@ -122,6 +122,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	RightInstrument = FVector2D(30, 320);
 	InstrumentSize =  FVector2D(380, 115);
 	InstrumentLine =  FVector2D(0, 20);
+	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 }
 
 void AFlareHUD::BeginPlay()
