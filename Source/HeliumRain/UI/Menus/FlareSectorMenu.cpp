@@ -393,7 +393,7 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	// Known sector
-	if (PC->GetCompany()->HasVisitedSector(TargetSector))
+	if (PC->GetCompany()->HasVisitedSector(TargetSector) || TargetSector->IsTravelSector())
 	{
 		// Add stations
 		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorStations().Num(); SpacecraftIndex++)
@@ -584,6 +584,10 @@ FText SFlareSectorMenu::GetTravelText() const
 		{
 			return LOCTEXT("TravelAlreadyHereFormat", "Already there");
 		}
+		else if (TargetSector->IsTravelSector())
+		{
+			return LOCTEXT("CantTravelToTravelFormat", "Can't travel to a moving fleet");
+		}
 		else if (!SelectedFleet->CanTravel(Reason))
 		{
 			return Reason;
@@ -624,6 +628,10 @@ bool SFlareSectorMenu::IsTravelDisabled() const
 	UFlareFleet* SelectedFleet = FleetSelector->GetSelectedItem();
 
 	if (SelectedFleet == NULL)
+	{
+		return true;
+	}
+	else if (TargetSector->IsTravelSector())
 	{
 		return true;
 	}
