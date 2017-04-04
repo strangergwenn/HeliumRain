@@ -182,7 +182,6 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 				SNew(SImage)
 				.Image(FFlareStyleSet::GetIcon("Temperature"))
 				.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColorNoAlpha)
-				.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
 			]
 
 			// Bar
@@ -198,7 +197,6 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 					.Style(&Theme.ProgressBarStyle)
 					.Percent(this, &SFlareHUDMenu::GetTemperatureProgress)
 					.FillColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColorNoAlpha)
-					.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
 				]
 			]
 
@@ -215,7 +213,6 @@ void SFlareHUDMenu::Construct(const FArguments& InArgs)
 					.TextStyle(&Theme.NameFont)
 					.Text(this, &SFlareHUDMenu::GetTemperatureText)
 					.ColorAndOpacity(this, &SFlareHUDMenu::GetTemperatureColor)
-					.Visibility(this, &SFlareHUDMenu::GetTopPanelVisibility)
 				]
 			]
 		]

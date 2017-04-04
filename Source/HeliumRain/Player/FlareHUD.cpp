@@ -225,12 +225,12 @@ void AFlareHUD::UpdateHUDVisibility()
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	HUDMenu->SetVisibility(
-		(HUDVisible && !MenuManager->IsMenuOpen() && !PC->UseCockpit) ?                 EVisibility::Visible : EVisibility::Collapsed);
-	ContextMenu->SetVisibility(
-		(HUDVisible && !MenuManager->IsMenuOpen() && !MenuManager->IsSwitchingMenu()) ? EVisibility::Visible : EVisibility::Collapsed);
-	MenuManager->GetNotifier()->SetVisibility(
-		(HUDVisible) ?                                                                  EVisibility::SelfHitTestInvisible : EVisibility::Hidden);
+	HUDMenu->SetVisibility((HUDVisible && !MenuManager->IsMenuOpen() && PC->GetPlayerShip()->GetDamageSystem()->IsAlive() && !PC->UseCockpit) ?
+		EVisibility::Visible : EVisibility::Collapsed);
+	ContextMenu->SetVisibility((HUDVisible && !MenuManager->IsMenuOpen() && !MenuManager->IsSwitchingMenu()) ?
+		EVisibility::Visible : EVisibility::Collapsed);
+	MenuManager->GetNotifier()->SetVisibility((HUDVisible) ?
+		EVisibility::SelfHitTestInvisible : EVisibility::Hidden);
 }
 
 void AFlareHUD::SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType)
@@ -326,18 +326,23 @@ void AFlareHUD::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
 	// Power timer
-	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
-	if (PlayerShip && PlayerShip->GetParent()->GetDamageSystem()->IsAlive() && !PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage())
+	if (!MenuManager->IsSwitchingMenu())
 	{
-		CurrentPowerTime += DeltaSeconds;
+		if (PlayerShip
+			&& PlayerShip->GetParent()->GetDamageSystem()->IsAlive()
+			&& !PlayerShip->GetParent()->GetDamageSystem()->HasPowerOutage())
+		{
+			CurrentPowerTime += DeltaSeconds;
+		}
+		else
+		{
+			CurrentPowerTime -= DeltaSeconds;
+		}
+		CurrentPowerTime = FMath::Clamp(CurrentPowerTime, 0.0f, PowerTransitionTime);
 	}
-	else
-	{
-		CurrentPowerTime -= DeltaSeconds;
-	}
-	CurrentPowerTime = FMath::Clamp(CurrentPowerTime, 0.0f, PowerTransitionTime);
 
 	// Update power on the HUD material when in cockpit mode
 	if (HUDRenderTargetMaterial)
