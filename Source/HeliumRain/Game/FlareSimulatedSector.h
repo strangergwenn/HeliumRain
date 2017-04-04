@@ -491,7 +491,7 @@ public:
 
 	int32 GetMaxStationsInSector()
 	{
-		return 30;
+		return 20;
 	}
 
 	bool IsTravelSector()
