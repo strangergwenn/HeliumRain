@@ -409,8 +409,8 @@ protected:
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
-	float                                    MinimalFOV;
-	float                                    NormalFOV;
+	float                                    CombatZoomFOVRatio;
+	float                                    NormalVerticalFOV;
 
 	bool                                     RightMousePressed;
 	bool                                     HasCurrentObjective;
@@ -519,16 +519,19 @@ public:
 		return &PlayerData;
 	}
 
-	float GetNormalFOV()
-	{
-		return NormalFOV;
-	}
-
 	bool IsGameBusy() const
 	{
 		return IsBusy;
 	}
 
-	float GetCurrentFOV();
+	/** Convert vertical to horizontal FOV - We want vertical for the cockpit, UE uses horizontal */
+	float VerticalToHorizontalFOV(float VerticalFOV) const;
+
+	/** Get the unzoomed horizontal FOV */
+	float GetNormalFOV() const;
+
+	/** Get the desired horizontal FOV */
+	float GetCurrentFOV() const;
+
 };
 

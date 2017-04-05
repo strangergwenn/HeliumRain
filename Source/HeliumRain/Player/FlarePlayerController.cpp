@@ -32,8 +32,8 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, Company(NULL)
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
-	, MinimalFOV(40)
-	, NormalFOV(90)
+	, CombatZoomFOVRatio(0.4f)
+	, NormalVerticalFOV(60)
 {
 	CheatClass = UFlareGameTools::StaticClass();
 		
@@ -152,13 +152,8 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 		}
 	}
 
-	// Combat zoom
-	float FOV = NormalFOV;
-	if (ShipPawn)
-	{
-		FOV = FMath::Lerp(NormalFOV, MinimalFOV, ShipPawn->GetStateManager()->GetCombatZoomAlpha());
-	}
-	PlayerCameraManager->SetFOV(FOV);
+	// Update FOV
+	PlayerCameraManager->SetFOV(GetCurrentFOV());
 
 	// Mouse cursor
 	bool NewShowMouseCursor = true;
@@ -286,9 +281,29 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	}
 }
 
-float AFlarePlayerController::GetCurrentFOV()
+float AFlarePlayerController::VerticalToHorizontalFOV(float VerticalFOV) const
 {
-	return PlayerCameraManager->GetFOVAngle();
+	float AspectRatio = GetNavHUD()->GetViewportSize().X / GetNavHUD()->GetViewportSize().Y;
+	float VerticalFOVRadians = FMath::DegreesToRadians(VerticalFOV);
+	float HorizontalFOVRadians = FMath::Atan(FMath::Tan(VerticalFOVRadians / 2) * AspectRatio);
+	return 2 * FMath::RadiansToDegrees(HorizontalFOVRadians);
+}
+
+float AFlarePlayerController::GetNormalFOV() const
+{
+	return VerticalToHorizontalFOV(NormalVerticalFOV);
+}
+
+float AFlarePlayerController::GetCurrentFOV() const
+{
+	// Zooming just decreases FOV
+	float VerticalFOV = NormalVerticalFOV;
+	if (ShipPawn)
+	{
+		VerticalFOV *= FMath::Lerp(1.0f, CombatZoomFOVRatio, ShipPawn->GetStateManager()->GetCombatZoomAlpha());
+	}
+
+	return VerticalToHorizontalFOV(VerticalFOV);
 }
 
 void AFlarePlayerController::SetExternalCamera(bool NewState)
@@ -357,17 +372,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	CockpitManager->OnFlyShip(ShipPawn);
-
-	// Setup FOV
-	if (ShipPawn->GetParent()->IsMilitary())
-	{
-		NormalFOV = 94;
-	}
-	else
-	{
-		NormalFOV = 93;
-	}
-
+	
 	// Combat groups
 	GetTacticManager()->SetCurrentShipGroup(EFlareCombatGroup::AllMilitary);
 	GetTacticManager()->ResetShipGroup(EFlareCombatTactic::ProtectMe);
