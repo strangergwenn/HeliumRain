@@ -162,6 +162,11 @@ bool UFlareBattle::SimulateTurn()
         ShipToSimulate.RemoveAt(Index);
     }
 
+	for (UFlareSimulatedSpacecraft* Ship : Sector->GetSectorSpacecrafts())
+	{
+		Ship->GetDamageSystem()->NotifyDamage();
+	}
+
     return HasFight;
 }
 

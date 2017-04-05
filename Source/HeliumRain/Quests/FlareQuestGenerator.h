@@ -39,11 +39,17 @@ public:
 
 	bool FindUniqueTag(FName Tag);
 
+	float ComputeQuestProbability(UFlareCompany* Company);
+
 	FName GenerateVipTag(UFlareSimulatedSpacecraft* SourceSpacecraft);
 
 	FName GenerateTradeTag(UFlareSimulatedSpacecraft* SourceSpacecraft, FFlareResourceDescription* Resource);
 
 	FName GenerateDefenseTag(UFlareSimulatedSector* Sector, UFlareCompany* OwnerCompany, UFlareCompany* HostileCompany);
+
+	FName GenerateAttackTag(UFlareSimulatedSector* Sector, UFlareCompany* OwnerCompany, UFlareCompany* HostileCompany);
+
+	FName GenerateHarassTag(UFlareCompany* OwnerCompany, UFlareCompany* HostileCompany);
 
 protected:
 
@@ -174,4 +180,18 @@ public:
 	/** Load the quest from description file */
 	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company, UFlareCompany* HostileCompany);
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestGeneratedCargoHunt: public UFlareQuestGenerated
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static FName GetClass() { return "cargo-hunt"; }
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany);
 };

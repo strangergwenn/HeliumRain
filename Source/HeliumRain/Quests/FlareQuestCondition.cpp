@@ -2288,4 +2288,144 @@ void UFlareQuestConditionRetreatDangerousShip::AddConditionObjectives(FFlarePlay
 {
 }
 
+
+/*----------------------------------------------------
+	Destroy spacecraft condition
+----------------------------------------------------*/
+
+UFlareQuestConditionDestroySpacecraft::UFlareQuestConditionDestroySpacecraft(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionDestroySpacecraft* UFlareQuestConditionDestroySpacecraft::Create(UFlareQuest* ParentQuest,
+																					 FName ConditionIdentifierParam,
+																					 UFlareCompany* HostileCompanyParam,
+																					 int32 SpacecraftCountParam,
+																					 bool MilitaryParam,
+																					 EFlarePartSize::Type SizeParam,
+																					 bool DestroyTargetParam)
+{
+	UFlareQuestConditionDestroySpacecraft*Condition = NewObject<UFlareQuestConditionDestroySpacecraft>(ParentQuest, UFlareQuestConditionDestroySpacecraft::StaticClass());
+	Condition->Load(ParentQuest, ConditionIdentifierParam, HostileCompanyParam, SpacecraftCountParam, MilitaryParam, SizeParam, DestroyTargetParam);
+	return Condition;
+}
+
+void UFlareQuestConditionDestroySpacecraft::Load(UFlareQuest* ParentQuest,
+												 FName ConditionIdentifierParam,
+												 UFlareCompany* HostileCompanyParam,
+												 int32 SpacecraftCountParam,
+												 bool MilitaryParam,
+												 EFlarePartSize::Type SizeParam,
+												 bool DestroyTargetParam)
+{
+	if (ConditionIdentifierParam == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionDestroySpacecraft need identifier for state saving");
+	}
+	LoadInternal(ParentQuest, ConditionIdentifierParam);
+	Callbacks.AddUnique(EFlareQuestCallback::SPACECRAFT_DESTROYED);
+
+
+	TargetCompany = HostileCompanyParam;
+	Quantity = SpacecraftCountParam;
+	TargetSize = SizeParam;
+	DestroyTarget = DestroyTargetParam;
+	MilitaryTarget = MilitaryParam;
+
+
+	if(DestroyTarget)
+	{
+		InitialLabel = FText::Format(LOCTEXT("DestroySpacecraftLabel","Destroy {0} {1} {2} to {3}"),
+									 FText::AsNumber(Quantity),
+									 MilitaryTarget? LOCTEXT("TargetMilitay","military") : LOCTEXT("TargetCargo","cargo"),
+									 TargetSize == EFlarePartSize::L? LOCTEXT("TargetLarge","large") : LOCTEXT("TargetSmall","small"),
+									 TargetCompany->GetCompanyName());
+	}
+	else
+	{
+		InitialLabel = FText::Format(LOCTEXT("UncontrollableSpacecraftLabel","Make uncontrollable {0} {1} {2} to {3}"),
+										 FText::AsNumber(Quantity),
+										 MilitaryTarget? LOCTEXT("TargetMilitay","military") : LOCTEXT("TargetCargo","cargo"),
+										 TargetSize == EFlarePartSize::L? LOCTEXT("TargetLarge","large") : LOCTEXT("TargetSmall","small"),
+										 TargetCompany->GetCompanyName());
+
+	}
+}
+
+void UFlareQuestConditionDestroySpacecraft::Restore(const FFlareBundle* Bundle)
+{
+	bool HasSave = true;
+	if(Bundle)
+	{
+		HasSave &= Bundle->HasInt32(CURRENT_PROGRESSION_TAG);
+	}
+	else
+	{
+		HasSave = false;
+	}
+
+	if(HasSave)
+	{
+		CurrentProgression = Bundle->GetInt32(CURRENT_PROGRESSION_TAG);
+	}
+	else
+	{
+		CurrentProgression = 0;
+	}
+
+}
+
+void UFlareQuestConditionDestroySpacecraft::Save(FFlareBundle* Bundle)
+{
+	Bundle->PutInt32(CURRENT_PROGRESSION_TAG, CurrentProgression);
+}
+
+
+bool UFlareQuestConditionDestroySpacecraft::IsCompleted()
+{
+	return CurrentProgression >= Quantity;
+}
+
+void UFlareQuestConditionDestroySpacecraft::OnSpacecraftDestroyed(UFlareSimulatedSpacecraft *Spacecraft, bool Uncontrollable, UFlareCompany *Source)
+{
+	if(Spacecraft->GetCompany() != TargetCompany)
+	{
+		return;
+	}
+
+	if(DestroyTarget != (!Uncontrollable))
+	{
+		return;
+	}
+
+	if(Spacecraft->GetSize() != TargetSize)
+	{
+		return;
+	}
+
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+	if(PlayerCompany != Source)
+	{
+		return;
+	}
+
+	CurrentProgression++;
+}
+
+
+void UFlareQuestConditionDestroySpacecraft::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = Quantity;
+	ObjectiveCondition.MaxProgress = Quantity;
+	ObjectiveCondition.Counter = CurrentProgression;
+	ObjectiveCondition.Progress = CurrentProgression;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+
+
 #undef LOCTEXT_NAMESPACE

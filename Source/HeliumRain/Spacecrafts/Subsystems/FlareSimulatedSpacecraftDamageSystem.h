@@ -114,6 +114,8 @@ public:
 	void SetDamageDirty(FFlareSpacecraftComponentDescription* ComponentDescription);
 	void SetAmmoDirty();
 
+	void NotifyDamage();
+
 protected:
 
 	/*----------------------------------------------------
@@ -146,6 +148,9 @@ protected:
 
 	bool                                            DamageDirty;
 	bool                                            AmmoDirty;
+	bool											WasAlive;
+	bool											WasControllable;
+	UFlareCompany*			                        LastDamageCauser;
 
 public:
 

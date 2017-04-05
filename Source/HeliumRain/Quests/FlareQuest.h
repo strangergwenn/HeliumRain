@@ -99,6 +99,8 @@ public:
 
 	virtual void OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter);
 
+	virtual void OnSpacecraftDestroyed(UFlareSimulatedSpacecraft* Spacecraft, bool Uncontrollable, UFlareCompany* Source);
+
 	virtual void OnTravelStarted(UFlareTravel* Travel);
 
 

@@ -563,8 +563,6 @@ void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 	Spacecraft->SetDestroyed(true);
 
 	CompanyDestroyedSpacecrafts.Add(Spacecraft);
-	GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft);
-
 }
 
 void UFlareCompany::DiscoverSector(UFlareSimulatedSector* Sector)

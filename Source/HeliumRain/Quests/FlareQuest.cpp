@@ -619,6 +619,14 @@ void UFlareQuest::OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlar
 	}
 }
 
+void UFlareQuest::OnSpacecraftDestroyed(UFlareSimulatedSpacecraft* Spacecraft, bool Uncontrollable, UFlareCompany* Source)
+{
+	for (UFlareQuestCondition* Condition : GetCurrentConditions())
+	{
+		Condition->OnSpacecraftDestroyed(Spacecraft, Uncontrollable, Source);
+	}
+}
+
 void UFlareQuest::OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter)
 {
 	for (UFlareQuestCondition* Condition : GetCurrentConditions())

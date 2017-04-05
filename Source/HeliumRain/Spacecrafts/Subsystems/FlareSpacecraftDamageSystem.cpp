@@ -108,6 +108,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		}
 
 		WasControllable = false;
+
 		OnControlLost();
 	}
 
@@ -259,7 +260,8 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 		}
 	}
 
-	Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft->GetParent());
+	Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft->GetParent(), false,
+																	LastDamageCauser ? LastDamageCauser->GetCompany() : NULL);
 }
 
 void UFlareSpacecraftDamageSystem::OnControlLost()
@@ -316,6 +318,9 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 
 	Spacecraft->GetNavigationSystem()->Undock();
 	Spacecraft->GetNavigationSystem()->AbortAllCommands();
+
+	Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft->GetParent(), true,
+																	LastDamageCauser ? LastDamageCauser->GetCompany() : NULL);
 }
 
 void UFlareSpacecraftDamageSystem::CheckRecovery()

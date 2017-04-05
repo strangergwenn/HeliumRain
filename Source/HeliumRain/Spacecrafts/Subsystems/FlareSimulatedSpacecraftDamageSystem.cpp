@@ -48,6 +48,9 @@ void UFlareSimulatedSpacecraftDamageSystem::Initialize(UFlareSimulatedSpacecraft
 		FFlareSpacecraftComponentSave* ComponentData = &Data->Components[ComponentIndex];
 		ComponentData->IsPoweredCacheIndex = -1;
 	}
+
+	WasControllable = !IsUncontrollable();
+	WasAlive = IsAlive();
 }
 
 
@@ -378,6 +381,8 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 			}
 		}
 	}
+
+	LastDamageCauser = DamageSource;
 
 	return InflictedDamageRatio;
 }
@@ -719,6 +724,32 @@ float UFlareSimulatedSpacecraftDamageSystem::GetArmor(FFlareSpacecraftComponentD
 	}
 
 	return 1;
+}
+
+void UFlareSimulatedSpacecraftDamageSystem::NotifyDamage()
+{
+	// Update uncontrollable status
+	if (WasControllable && IsUncontrollable())
+	{
+
+		WasControllable = false;
+
+		Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft, true,
+																			LastDamageCauser);
+
+	}
+
+
+	// Update alive status
+	if (WasAlive && !IsAlive())
+	{
+
+		WasAlive = false;
+
+		Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft, true,
+																			LastDamageCauser);
+	}
+
 }
 
 #undef LOCTEXT_NAMESPACE

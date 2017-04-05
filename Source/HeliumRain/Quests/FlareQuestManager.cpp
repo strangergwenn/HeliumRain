@@ -347,8 +347,18 @@ void UFlareQuestManager::OnWarStateChanged(UFlareCompany* Company1, UFlareCompan
 	OnCallbackEvent(EFlareQuestCallback::WAR_STATE_CHANGED);
 }
 
-void UFlareQuestManager::OnSpacecraftDestroyed(UFlareSimulatedSpacecraft* Spacecraft)
+void UFlareQuestManager::OnSpacecraftDestroyed(UFlareSimulatedSpacecraft* Spacecraft, bool Uncontrollable, UFlareCompany* Source)
 {
+	if (CallbacksMap.Contains(EFlareQuestCallback::SPACECRAFT_DESTROYED))
+	{
+		TArray<UFlareQuest*> Callbacks = CallbacksMap[EFlareQuestCallback::SPACECRAFT_DESTROYED];
+		for (UFlareQuest* Quest: Callbacks)
+		{
+			Quest->OnSpacecraftDestroyed(Spacecraft, Uncontrollable, Source);
+			Quest->UpdateState();
+		}
+	}
+
 	OnCallbackEvent(EFlareQuestCallback::SPACECRAFT_DESTROYED);
 }
 

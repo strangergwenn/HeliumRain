@@ -35,6 +35,8 @@ public:
 
 	virtual void OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter) {}
 
+	virtual void OnSpacecraftDestroyed(UFlareSimulatedSpacecraft* Spacecraft, bool Uncontrollable, UFlareCompany* Source) {}
+
 	virtual void OnTravelStarted(UFlareTravel* Travel) {}
 
 	virtual TArray<UFlareQuestCondition*> GetAllConditions(bool OnlyLeaf = true);
@@ -770,5 +772,46 @@ protected:
 	UFlareCompany* TargetCompany;
 	bool Completed;
 
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionDestroySpacecraft: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	static UFlareQuestConditionDestroySpacecraft* Create(UFlareQuest* ParentQuest,
+														 FName ConditionIdentifierParam,
+														 UFlareCompany* HostileCompanyParam,
+														 int32 SpacecraftCountParam,
+														 bool MilitaryParam,
+														 EFlarePartSize::Type SizeParam,
+														 bool DestroyTargetParam);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifierParam,
+			  UFlareCompany* HostileCompanyParam,
+			  int32 SpacecraftCountParam,
+			  bool MilitaryParam,
+			  EFlarePartSize::Type SizeParam,
+			  bool DestroyTargetParam);
+
+	virtual bool IsCompleted();
+	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
+
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual void OnSpacecraftDestroyed(UFlareSimulatedSpacecraft *Spacecraft, bool Uncontrollable, UFlareCompany *Source);
+
+
+
+protected:
+
+	UFlareCompany* TargetCompany;
+	int32 Quantity;
+	int32 CurrentProgression;
+	EFlarePartSize::Type TargetSize;
+	bool DestroyTarget;
+	bool MilitaryTarget;
 };
 
