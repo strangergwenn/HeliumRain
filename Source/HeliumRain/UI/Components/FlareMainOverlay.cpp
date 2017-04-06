@@ -472,6 +472,10 @@ FText SFlareMainOverlay::GetCurrentMenuName() const
 	if (MenuManager->IsMenuOpen())
 	{
 		Name = AFlareMenuManager::GetMenuName(MenuManager->GetCurrentMenu());
+		if (Name.ToString().Len() == 0)
+		{
+			Name = AFlareMenuManager::GetMenuName(MenuManager->GetPreviousMenu());
+		}
 	}
 	else
 	{
@@ -485,7 +489,14 @@ const FSlateBrush* SFlareMainOverlay::GetCurrentMenuIcon() const
 {
 	if (MenuManager->IsMenuOpen())
 	{
-		return AFlareMenuManager::GetMenuIcon(MenuManager->GetCurrentMenu());
+		if (AFlareMenuManager::GetMenuIcon(MenuManager->GetCurrentMenu()))
+		{
+			return AFlareMenuManager::GetMenuIcon(MenuManager->GetCurrentMenu());
+		}
+		else
+		{
+			return AFlareMenuManager::GetMenuIcon(MenuManager->GetPreviousMenu());
+		}
 	}
 	else
 	{

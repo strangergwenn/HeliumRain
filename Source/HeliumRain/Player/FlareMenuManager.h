@@ -27,6 +27,7 @@ class SFlareSectorMenu;
 class SFlareTradeMenu;
 class SFlareTradeRouteMenu;
 class SFlareCreditsMenu;
+class SFlareEULAMenu;
 class SFlareResourcePricesMenu;
 class SFlareWorldEconomyMenu;
 class SFlareGameOverMenu;
@@ -208,6 +209,9 @@ protected:
 	/** Go to the game's credits */
 	void OpenCredits();
 
+	/** Go to the game's EULA */
+	void OpenEULA();
+
 	/** Exit the menu */
 	void ExitMenu();
 
@@ -264,6 +268,10 @@ public:
 	/** Which menu, if any, is opened ? */
 	UFUNCTION(BlueprintCallable, Category = "Flare")
 	EFlareMenu::Type GetCurrentMenu() const;
+
+	/** Which menu, if any, was opened ? */
+	UFUNCTION(BlueprintCallable, Category = "Flare")
+	EFlareMenu::Type GetPreviousMenu() const;
 
 	/** Which menu, if any, is coming next ? */
 	UFUNCTION(BlueprintCallable, Category = "Flare")
@@ -358,6 +366,7 @@ protected:
 	TSharedPtr<SFlareTradeMenu>             TradeMenu;
 	TSharedPtr<SFlareTradeRouteMenu>        TradeRouteMenu;
 	TSharedPtr<SFlareCreditsMenu>           CreditsMenu;
+	TSharedPtr<SFlareEULAMenu>              EULAMenu;
 	TSharedPtr<SFlareResourcePricesMenu>    ResourcePricesMenu;
 	TSharedPtr<SFlareWorldEconomyMenu>      WorldEconomyMenu;
 	TSharedPtr<SFlareGameOverMenu>          GameOverMenu;

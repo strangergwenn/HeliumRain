@@ -72,6 +72,9 @@ protected:
 	
 	/*** Open credits */
 	void OnOpenCredits();
+
+	/*** Open EULA */
+	void OnOpenEULA();
 	
 
 protected:

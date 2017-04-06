@@ -23,9 +23,6 @@ void SFlareStoryMenu::Construct(const FArguments& InArgs)
 	// Style data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FSlateFontInfo TitleFont(FPaths::GameContentDir() / TEXT("Slate/Fonts/Lato700.ttf"), 60);
-	FSlateFontInfo MainFont(FPaths::GameContentDir() / TEXT("Slate/Fonts/Lato700.ttf"), 30);
-	FSlateFontInfo SecondaryFont(FPaths::GameContentDir() / TEXT("Slate/Fonts/Lato700.ttf"), 20);
 
 	// Settings
 	TextHideTime = 1.0f;
@@ -70,7 +67,7 @@ void SFlareStoryMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(Title, STextBlock)
 							.Justification(ETextJustify::Left)
-							.Font(TitleFont)
+							.TextStyle(&Theme.SpecialTitleFont)
 							.ColorAndOpacity(this, &SFlareStoryMenu::GetTextColor)
 						]
 
@@ -82,7 +79,7 @@ void SFlareStoryMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(Text, STextBlock)
 							.Justification(ETextJustify::Center)
-							.Font(MainFont)
+							.TextStyle(&Theme.TitleFont)
 							.ColorAndOpacity(this, &SFlareStoryMenu::GetTextColor)
 						]
 
@@ -115,7 +112,7 @@ void SFlareStoryMenu::Construct(const FArguments& InArgs)
 								[
 									SAssignNew(SubText, STextBlock)
 									.Justification(ETextJustify::Center)
-									.Font(SecondaryFont)
+									.TextStyle(&Theme.NameFont)
 									.WrapTextAt(TextWidth)
 									.ColorAndOpacity(this, &SFlareStoryMenu::GetTextColor)
 								]

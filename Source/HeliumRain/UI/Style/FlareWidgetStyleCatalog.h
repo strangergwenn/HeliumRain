@@ -96,6 +96,7 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Colors) FLinearColor HUDFriendlyColor;
 
 	// Fonts
+	UPROPERTY(EditAnywhere, Category = Fonts) FTextBlockStyle SpecialTitleFont;
 	UPROPERTY(EditAnywhere, Category = Fonts) FTextBlockStyle TitleFont;
 	UPROPERTY(EditAnywhere, Category = Fonts) FTextBlockStyle InvertedTitleFont;
 	UPROPERTY(EditAnywhere, Category = Fonts) FTextBlockStyle SubTitleFont;

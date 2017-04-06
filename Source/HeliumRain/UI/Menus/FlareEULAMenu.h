@@ -6,13 +6,13 @@
 class AFlareMenuManager;
 
 
-class SFlareCreditsMenu : public SCompoundWidget
+class SFlareEULAMenu : public SCompoundWidget
 {
 	/*----------------------------------------------------
 		Slate arguments
 	----------------------------------------------------*/
 
-	SLATE_BEGIN_ARGS(SFlareCreditsMenu){}
+	SLATE_BEGIN_ARGS(SFlareEULAMenu){}
 
 	SLATE_ARGUMENT(TWeakObjectPtr<class AFlareMenuManager>, MenuManager)
 	

@@ -205,7 +205,6 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 	{
 		LockText = FText::Format(LOCTEXT("InputCargoFormat", "(Input)\n"), Cargo->Resource->Acronym);
 	}
-	// TODO Trade
 	
 	// Format the current capacity info
 	int32 Capacity = TargetSpacecraft->GetCargoBay()->GetSlotCapacity();

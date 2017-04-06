@@ -23,9 +23,6 @@ void SFlareGameOverMenu::Construct(const FArguments& InArgs)
 	// Style data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FSlateFontInfo TitleFont(FPaths::GameContentDir() / TEXT("Slate/Fonts/Lato700.ttf"), 60);
-	FSlateFontInfo MainFont(FPaths::GameContentDir() / TEXT("Slate/Fonts/Lato700.ttf"), 30);
-	FSlateFontInfo SecondaryFont(FPaths::GameContentDir() / TEXT("Slate/Fonts/Lato700.ttf"), 20);
 
 	// Settings
 	int32 Width = 1.5 * Theme.ContentWidth;
@@ -80,7 +77,7 @@ void SFlareGameOverMenu::Construct(const FArguments& InArgs)
 							[
 								SNew(STextBlock)
 								.Justification(ETextJustify::Center)
-								.Font(TitleFont)
+								.TextStyle(&Theme.SpecialTitleFont)
 								.Text(LOCTEXT("YouDied", "FLEET DESTROYED"))
 							]
 
@@ -107,7 +104,7 @@ void SFlareGameOverMenu::Construct(const FArguments& InArgs)
 							[
 								SNew(STextBlock)
 								.Justification(ETextJustify::Center)
-								.Font(SecondaryFont)
+								.TextStyle(&Theme.NameFont)
 								.Text(LOCTEXT("ShipRecovery", "Your fleet was destroyed and you have been injured. The Nema Colonial Administration is providing you a new start, and a new ship. Try not to destroy this one."))
 								.WrapTextAt(TextWidth)
 							]

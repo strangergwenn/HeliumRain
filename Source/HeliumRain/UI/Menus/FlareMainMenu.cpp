@@ -30,11 +30,18 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
 		SNew(SVerticalBox)
-
-		// Beta warning
+		
+		// Save slots
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(FMargin(0, 30))
+		[
+			SAssignNew(SaveBox, SHorizontalBox)
+		]
+
+		// Bottom bar
+		+ SVerticalBox::Slot()
+		.VAlign(VAlign_Bottom)
+		.HAlign(HAlign_Fill)
 		[
 			SNew(SBackgroundBlur)
 			.BlurRadius(Theme.BlurRadius)
@@ -45,6 +52,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SVerticalBox)
 
+				// Header
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
@@ -57,61 +65,73 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
+				// Container
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
 					SNew(SBorder)
 					.HAlign(HAlign_Center)
-					.Padding(Theme.ContentPadding)
 					.BorderImage(&Theme.BackgroundBrush)
 					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("Beta", "Helium Rain is in beta ! You could encounter bugs or missing features. Please report issues at dev.helium-rain.com."))
-						.TextStyle(&Theme.NameFont)
-						.Justification(ETextJustify::Center)
+						SNew(SVerticalBox)
+
+						// Beta warning
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("Beta", "Helium Rain is in beta ! You could encounter bugs or missing features. Please report issues at dev.helium-rain.com."))
+							.TextStyle(&Theme.NameFont)
+							.Justification(ETextJustify::Center)
+						]
+
+						// Buttons
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Fill)
+						[
+							SNew(SHorizontalBox)
+
+							// Credits
+							+ SHorizontalBox::Slot()
+							.HAlign(HAlign_Left)
+							.AutoWidth()
+							[
+								SNew(SFlareButton)
+								.Transparent(true)
+								.Width(3)
+								.Text(LOCTEXT("GameCredits", "Credits"))
+								.OnClicked(this, &SFlareMainMenu::OnOpenCredits)
+							]
+
+							// EULA
+							+ SHorizontalBox::Slot()
+							.HAlign(HAlign_Left)
+							[
+								SNew(SFlareButton)
+								.Transparent(true)
+								.Width(7)
+								.Text(LOCTEXT("GameEULA", "End-user Licence Agreement"))
+								.OnClicked(this, &SFlareMainMenu::OnOpenEULA)
+							]
+
+							// Version
+							+ SHorizontalBox::Slot()
+							.HAlign(HAlign_Right)
+							.VAlign(VAlign_Center)
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(FText::Format(FText::FromString("HELIUM RAIN / Beta / Built on {0} at {1}"),
+									FText::FromString(__DATE__),  // FString neded here
+									FText::FromString(__TIME__))) // FString neded here
+								.TextStyle(&Theme.TextFont)
+							]
+						]
 					]
 				]
-			]
-		]
-
-		// Save slots
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		[
-			SAssignNew(SaveBox, SHorizontalBox)
-		]
-
-		// Build info
-		+ SVerticalBox::Slot()
-		.VAlign(VAlign_Bottom)
-		.HAlign(HAlign_Fill)
-		.Padding(Theme.SmallContentPadding)
-		[
-			SNew(SHorizontalBox)
-
-			// Credits
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Left)
-			[
-				SNew(SFlareButton)
-				.Transparent(true)
-				.Width(3)
-				.Text(LOCTEXT("GameCredits", "Credits"))
-				.OnClicked(this, &SFlareMainMenu::OnOpenCredits)
-			]
-
-			// Version
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Bottom)
-			.AutoWidth()
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(STextBlock)
-				.Text(FText::Format(FText::FromString("HELIUM RAIN / Beta / Built on {0} at {1}"),
-					FText::FromString(__DATE__),  // FString neded here
-					FText::FromString(__TIME__))) // FString neded here
-				.TextStyle(&Theme.TextFont)
 			]
 		]
 	];
@@ -310,6 +330,12 @@ void SFlareMainMenu::OnOpenCredits()
 {
 	MenuManager->OpenMenu(EFlareMenu::MENU_Credits);
 }
+
+void SFlareMainMenu::OnOpenEULA()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_EULA);
+}
+
 
 #undef LOCTEXT_NAMESPACE
 

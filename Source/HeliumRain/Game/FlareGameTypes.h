@@ -45,6 +45,7 @@ namespace EFlareMenu
 		// Support menus
 		MENU_Settings,
 		MENU_Credits,
+		MENU_EULA,
 		MENU_Quit
 	};
 }

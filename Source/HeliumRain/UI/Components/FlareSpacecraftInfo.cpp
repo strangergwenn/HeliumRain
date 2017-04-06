@@ -710,7 +710,6 @@ FText SFlareSpacecraftInfo::GetDescription() const
 	// Description builder
 	if (TargetSpacecraftDesc && TargetSpacecraft->IsValidLowLevel())
 	{
-		// TODO exclude shipyard
 		if(TargetSpacecraft && TargetSpacecraft->IsStation())
 		{
 			return FText::Format(LOCTEXT("DescriptionStationFormat", "(Lv {0} {1})"),

@@ -16,6 +16,7 @@
 #include "../UI/Menus/FlareTradeMenu.h"
 #include "../UI/Menus/FlareTradeRouteMenu.h"
 #include "../UI/Menus/FlareCreditsMenu.h"
+#include "../UI/Menus/FlareEULAMenu.h"
 #include "../UI/Menus/FlareResourcePricesMenu.h"
 #include "../UI/Menus/FlareWorldEconomyMenu.h"
 #include "../UI/Menus/FlareGameOverMenu.h"
@@ -66,8 +67,9 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(LeaderboardMenu, SFlareLeaderboardMenu).MenuManager(this);
 		SAssignNew(ResourcePricesMenu, SFlareResourcePricesMenu).MenuManager(this);
 		SAssignNew(WorldEconomyMenu, SFlareWorldEconomyMenu).MenuManager(this);
-		SAssignNew(GameOverMenu, SFlareGameOverMenu).MenuManager(this);		
+		SAssignNew(GameOverMenu, SFlareGameOverMenu).MenuManager(this);
 		SAssignNew(CreditsMenu, SFlareCreditsMenu).MenuManager(this);
+		SAssignNew(EULAMenu, SFlareEULAMenu).MenuManager(this);
 
 		// Create overlays
 		SAssignNew(MainOverlay, SFlareMainOverlay).MenuManager(this);
@@ -103,6 +105,7 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(WorldEconomyMenu.ToSharedRef()),   50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(GameOverMenu.ToSharedRef()),       50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CreditsMenu.ToSharedRef()),        50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(EULAMenu.ToSharedRef()),           50);
 
 		// Register special menus
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainOverlay.ToSharedRef()),        55);
@@ -130,6 +133,7 @@ void AFlareMenuManager::SetupMenu()
 		WorldEconomyMenu->Setup();
 		GameOverMenu->Setup();
 		CreditsMenu->Setup();
+		EULAMenu->Setup();
 
 		// Init
 		CurrentMenu.Key = EFlareMenu::MENU_None;
@@ -388,6 +392,7 @@ void AFlareMenuManager::ResetMenu()
 	WorldEconomyMenu->Exit();
 	GameOverMenu->Exit();
 	CreditsMenu->Exit();
+	EULAMenu->Exit();
 
 	Tooltip->HideTooltipForce();
 
@@ -457,6 +462,7 @@ void AFlareMenuManager::ProcessNextMenu()
 		case EFlareMenu::MENU_ResourcePrices:     OpenResourcePrices();        break;
 		case EFlareMenu::MENU_WorldEconomy:       OpenWorldEconomy();          break;
 		case EFlareMenu::MENU_Credits:            OpenCredits();               break;
+		case EFlareMenu::MENU_EULA:               OpenEULA();                  break;
 
 		case EFlareMenu::MENU_Quit:               PC->ConsoleCommand("quit");  break;
 
@@ -917,6 +923,12 @@ void AFlareMenuManager::OpenCredits()
 	CreditsMenu->Enter();
 }
 
+void AFlareMenuManager::OpenEULA()
+{
+	OnEnterMenu(false, false, false);
+	EULAMenu->Enter();
+}
+
 void AFlareMenuManager::ExitMenu()
 {
 	// Reset menu
@@ -1082,6 +1094,19 @@ bool AFlareMenuManager::IsSwitchingMenu() const
 EFlareMenu::Type AFlareMenuManager::GetCurrentMenu() const
 {
 	return CurrentMenu.Key;
+}
+
+EFlareMenu::Type AFlareMenuManager::GetPreviousMenu() const
+{
+	if (MenuHistory.Num())
+	{
+		TFlareMenuData PreviousMenu = MenuHistory.Last();
+		return PreviousMenu.Key;
+	}
+	else
+	{
+		return EFlareMenu::MENU_None;
+	}
 }
 
 EFlareMenu::Type AFlareMenuManager::GetNextMenu() const
