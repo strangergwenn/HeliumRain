@@ -95,7 +95,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 						.AutoHeight()
 						[
 							SNew(STextBlock)
-							.Text(LOCTEXT("DONT-TRANSLATE-Stranger", "Gwenna\u00EBl ARBONA 'Stranger'"))
+							.Text(LOCTEXT("DONT-TRANSLATE-Stranger", "Gwenna\u00EBl 'Stranger' ARBONA"))
 							.Font(MainFont)
 						]
 
@@ -118,7 +118,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 						.AutoHeight()
 						[
 							SNew(STextBlock)
-							.Text(LOCTEXT("DONT-TRANSLATE-Niavok", "Fr\u00E9d\u00E9ric BERTOLUS 'Niavok'"))
+							.Text(LOCTEXT("DONT-TRANSLATE-Niavok", "Fr\u00E9d\u00E9ric 'Niavok' BERTOLUS"))
 							.Font(MainFont)
 						]
 
@@ -132,57 +132,39 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
-				// Team 2
+				// Daisy
 				+ SVerticalBox::Slot()
 				.AutoHeight()
+				.HAlign(HAlign_Center)
+				.Padding(Theme.ContentPadding)
 				[
-					SNew(SHorizontalBox)
+					SNew(SVerticalBox)
 
-					// Daisy
-					+ SHorizontalBox::Slot()
-					.Padding(Theme.ContentPadding)
+					+ SVerticalBox::Slot()
+					.AutoHeight()
 					[
-						SNew(SVerticalBox)
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("DONT-TRANSLATE-Daisy", "Daisy HERBAULT"))
-							.Font(MainFont)
-						]
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("DONT-TRANSLATE-Daisy-Info", "Music"))
-							.Font(SecondaryFont)
-						]
+						SNew(STextBlock)
+						.Text(LOCTEXT("DONT-TRANSLATE-Daisy", "Daisy HERBAULT"))
+						.Font(MainFont)
 					]
 
-					// Grom
-					+ SHorizontalBox::Slot()
-					.Padding(Theme.ContentPadding)
+					+ SVerticalBox::Slot()
+					.AutoHeight()
 					[
-						SNew(SVerticalBox)
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("DONT-TRANSLATE-Grom", "J\u00E9r\u00F4me MILLION-ROUSSEAU"))
-							.Font(MainFont)
-						]
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("DONT-TRANSLATE-Grom-Info", "Game logo \u2022 Communication"))
-							.Font(SecondaryFont)
-						]
+						SNew(STextBlock)
+						.Text(LOCTEXT("DONT-TRANSLATE-Daisy-Info", "Music"))
+						.Font(SecondaryFont)
 					]
+				]
+
+				// Jérôme
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("DONT-TRANSLATE-Grom", "Game logo by J\u00E9r\u00F4me MILLION-ROUSSEAU."))
+					.Font(SecondaryFont)
 				]
 
 				// Thanks
@@ -191,7 +173,17 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("DONT-TRANSLATE-Special Thanks", "Special thanks : Johanna and our friends at NERD and Parrot"))
+					.Text(LOCTEXT("DONT-TRANSLATE-Special Thanks", "Special thanks to Johanna and our friends at NERD."))
+					.Font(SecondaryFont)
+				]
+
+				// Thanks
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("DONT-TRANSLATE-Project", "This game took us more than three years to create. We hope you'll have a great time playing it !"))
 					.Font(SecondaryFont)
 				]
 
@@ -218,7 +210,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("DONT-TRANSLATE-Engine-Info2", "Unreal\u00AE Engine, Copyright 1998 - 2016, Epic Games, Inc. All rights reserved."))
+					.Text(LOCTEXT("DONT-TRANSLATE-Engine-Info2", "Unreal\u00AE Engine, Copyright 1998 - 2017, Epic Games, Inc. All rights reserved."))
 					.Font(SecondaryFont)
 					.WrapTextAt(TextWidth)
 				]
@@ -228,7 +220,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("DONT-TRANSLATE-Sound-Info", "Helium Rain uses some sound resources from FreeSFX (http://www.freesfx.co.uk)."))
+					.Text(LOCTEXT("DONT-TRANSLATE-Sound-Info", "Some sound resources were provided by FreeSFX (http://www.freesfx.co.uk)."))
 					.Font(SecondaryFont)
 					.WrapTextAt(TextWidth)
 				]
@@ -238,7 +230,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("DONT-TRANSLATE-Assets-Info", "Helium Rain uses some third-party assets created by CGMontreal, Poleshift Games, W3 Studios and 'Gargore'."))
+					.Text(LOCTEXT("DONT-TRANSLATE-Assets-Info", "Some art assets were provided by CGMontreal, Poleshift Games, W3 Studios and 'Gargore'."))
 					.Font(SecondaryFont)
 					.WrapTextAt(TextWidth)
 				]

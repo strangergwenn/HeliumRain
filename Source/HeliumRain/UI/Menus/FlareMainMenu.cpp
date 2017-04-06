@@ -96,7 +96,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 				SNew(SFlareButton)
 				.Transparent(true)
 				.Width(3)
-				.Text(LOCTEXT("About", "About"))
+				.Text(LOCTEXT("GameCredits", "Credits"))
 				.OnClicked(this, &SFlareMainMenu::OnOpenCredits)
 			]
 
