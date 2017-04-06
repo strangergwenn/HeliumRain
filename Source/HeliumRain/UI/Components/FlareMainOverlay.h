@@ -62,6 +62,9 @@ public:
 	/** Are the main buttons visible */
 	EVisibility GetGameButtonVisibility() const;
 
+	/** Is this disabled */
+	bool IsGameButtonDisabled(EFlareMenu::Type Menu) const;
+
 	/** Get overlay position for animation */
 	FVector2D GetOverlayPosition() const;
 

@@ -270,6 +270,7 @@ void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu)
 		.Transparent(true)
 		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, Menu)
 		.Visibility(this, &SFlareMainOverlay::GetGameButtonVisibility)
+		.IsDisabled(this, &SFlareMainOverlay::IsGameButtonDisabled, Menu)
 	];
 
 	// Fill button contents
@@ -434,6 +435,18 @@ EVisibility SFlareMainOverlay::GetGameButtonVisibility() const
 	else
 	{
 		return EVisibility::Visible;
+	}
+}
+
+bool SFlareMainOverlay::IsGameButtonDisabled(EFlareMenu::Type Menu) const
+{
+	if (Menu == EFlareMenu::MENU_Technology)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 
