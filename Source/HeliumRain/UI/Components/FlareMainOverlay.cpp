@@ -516,7 +516,7 @@ FText SFlareMainOverlay::GetPlayerInfo() const
 	}
 	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main)
 	{
-		return LOCTEXT("SaveSlotHint", "Pick a save slot");
+		return FText();
 	}
 	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_NewGame)
 	{
@@ -534,7 +534,7 @@ FText SFlareMainOverlay::GetPlayerInfo() const
 	}
 	else if (!MenuManager->IsFading())
 	{
-		return LOCTEXT("FastForwarding", "Fast forwarding...\n");
+		return LOCTEXT("FastForwarding", "Time is passing by...\n");
 	}
 
 	return FText();

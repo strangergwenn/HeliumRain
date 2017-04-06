@@ -88,7 +88,7 @@ void SFlareEULAMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(STextBlock)
 						.Text(LOCTEXT("DONT-TRANSLATE-EULA-Text", "Helium Rain includes the Unreal® Engine code and other code, materials, and information " \
-							"(the 'Epic Materials') from Epic Games, Inc. (\'Epic'). All Epic Materials are provided on an 'as is' and 'as available' basis, " \
+							"(the 'Epic Materials') from Epic Games, Inc. ('Epic'). All Epic Materials are provided on an 'as is' and 'as available' basis, " \
 							"'with all faults' and without warranty of any kind.  [Licensor], Epic, and Epic's affiliates disclaim all warranties, conditions, common law duties, " \
 							"and representations (express, implied, oral, and written) with respect to the Epic Materials, including without limitation all express, " \
 							"implied, and statutory warranties and conditions of any kind, such as title, non-interference with your enjoyment, authority, non-infringement, " \
@@ -101,7 +101,7 @@ void SFlareEULAMenu::Construct(const FArguments& InArgs)
 							"    (3) that the operation of the Epic Materials will be uninterrupted, bug free, or error free in any or all circumstances, \n" \
 							"    (4) that any defects in the Epic Materials can or will be corrected, \n" \
 							"    (5) that the Epic Materials are or will be in compliance with a platform manufacturer's rules or requirements, or \n" \
-							"    (6) that a platform manufacturer has approved or will approve this Helium Rain, or will not revoke approval of this Helium Rain for any or no reason. \n\n" \
+							"    (6) that a platform manufacturer has approved or will approve Helium Rain, or will not revoke approval of Helium Rain for any or no reason. \n\n" \
 							"Any warranty against infringement that may be provided in Section 2-312 of the Uniform Commercial Code or in any other comparable statute is expressly disclaimed " \
 							"by [Licensor] and Epic. [Licensor], Epic, and Epic's affiliates do not guarantee continuous, error-free, virus-free, or secure operation of or access to the " \
 							"Epic Materials. \n\n" \
