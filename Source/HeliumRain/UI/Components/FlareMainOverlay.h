@@ -89,6 +89,9 @@ public:
 	/** Get the player info text */
 	FText GetPlayerInfo() const;
 
+	/** Get the player info text visibility */
+	EVisibility GetPlayerInfoVisibility() const;
+
 	/** Hint visibility */
 	EVisibility GetHintVisibility() const;
 
@@ -118,6 +121,7 @@ protected:
 	float                                           OverlayFadeDuration;
 	float                                           TitleButtonWidth;
 	float                                           TitleButtonHeight;
+	FText                                           PlayerInfoText;
 
 	// Slate data
 	TSharedPtr<SBackgroundBlur>                     Background;

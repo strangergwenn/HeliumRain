@@ -115,6 +115,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 											SNew(STextBlock)
 											.TextStyle(&Theme.TextFont)
 											.Text(this, &SFlareMainOverlay::GetPlayerInfo)
+											.Visibility(this, &SFlareMainOverlay::GetPlayerInfoVisibility)
 										]
 									]
 								]
@@ -354,6 +355,7 @@ bool SFlareMainOverlay::IsOpen() const
 void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+	AFlarePlayerController* PC = MenuManager->GetPC();
 	
 	// Get 2D position
 	FVector2D MousePosition = MenuManager->GetPC()->GetMousePosition();
@@ -369,6 +371,37 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 	else
 	{
 		SetVisibility(EVisibility::Visible);
+	}
+
+	// Player info text
+	PlayerInfoText = FText();
+	if (PC->GetShipPawn())
+	{
+		PlayerInfoText =  FText::Format(LOCTEXT("PlayerInfoFormat", "{0}\n{1} credits available"),
+			PC->GetShipPawn()->GetShipStatus(),
+			FText::AsNumber(PC->GetCompany()->GetMoney() / 100));
+	}
+	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main)
+	{
+		PlayerInfoText = FText();
+	}
+	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_NewGame)
+	{
+		PlayerInfoText = LOCTEXT("NewGameHint", "Please describe your company");
+	}
+	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Settings)
+	{
+		PlayerInfoText = LOCTEXT("SettingsHint", "Changes will be applied and saved");
+	}
+	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None
+		|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Credits
+		|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Story)
+	{
+		PlayerInfoText = FText();
+	}
+	else if (!MenuManager->IsFading())
+	{
+		PlayerInfoText = LOCTEXT("FastForwarding", "Time is passing by...\n");
 	}
 
 	// Fade opening & closing
@@ -478,7 +511,8 @@ FText SFlareMainOverlay::GetCurrentMenuName() const
 			Name = AFlareMenuManager::GetMenuName(MenuManager->GetPreviousMenu());
 		}
 	}
-	else
+
+	if (Name.ToString().Len() == 0)
 	{
 		Name = LOCTEXT("FlyingText", "Flying");
 	}
@@ -490,55 +524,27 @@ const FSlateBrush* SFlareMainOverlay::GetCurrentMenuIcon() const
 {
 	if (MenuManager->IsMenuOpen())
 	{
-		if (AFlareMenuManager::GetMenuIcon(MenuManager->GetCurrentMenu()))
+		if (MenuManager->GetCurrentMenu() != EFlareMenu::MENU_None)
 		{
 			return AFlareMenuManager::GetMenuIcon(MenuManager->GetCurrentMenu());
 		}
-		else
+		else if (MenuManager->GetPreviousMenu() != EFlareMenu::MENU_None)
 		{
 			return AFlareMenuManager::GetMenuIcon(MenuManager->GetPreviousMenu());
 		}
 	}
-	else
-	{
-		return AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector);
-	}
+
+	return AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector);
 }
 
 FText SFlareMainOverlay::GetPlayerInfo() const
 {
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	
-	if (PC->GetShipPawn())
-	{
-		return FText::Format(LOCTEXT("PlayerInfoFormat", "{0}\n{1} credits available"),
-			PC->GetShipPawn()->GetShipStatus(),
-			FText::AsNumber(PC->GetCompany()->GetMoney() / 100));
-	}
-	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main)
-	{
-		return FText();
-	}
-	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_NewGame)
-	{
-		return LOCTEXT("NewGameHint", "Please describe your company");
-	}
-	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Settings)
-	{
-		return LOCTEXT("SettingsHint", "Changes will be applied and saved");
-	}
-	else if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_None
-		|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Credits
-		|| MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Story)
-	{
-		return FText();
-	}
-	else if (!MenuManager->IsFading())
-	{
-		return LOCTEXT("FastForwarding", "Time is passing by...\n");
-	}
+	return PlayerInfoText;
+}
 
-	return FText();
+EVisibility SFlareMainOverlay::GetPlayerInfoVisibility() const
+{
+	return (PlayerInfoText.ToString().Len() ? EVisibility::Visible : EVisibility::Collapsed);
 }
 
 EVisibility SFlareMainOverlay::GetHintVisibility() const
