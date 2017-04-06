@@ -41,6 +41,7 @@ namespace EFlareMenu
 		MENU_Leaderboard,
 		MENU_ResourcePrices,
 		MENU_WorldEconomy,
+		MENU_Technology,
 
 		// Support menus
 		MENU_Settings,

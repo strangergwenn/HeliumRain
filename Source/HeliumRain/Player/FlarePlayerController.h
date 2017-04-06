@@ -233,6 +233,7 @@ public:
 	void LeaderboardMenu();
 	void CompanyMenu();
 	void FleetMenu();
+	void TechnologyMenu();
 	void QuestMenu();
 	void MainMenu();
 	void SettingsMenu();

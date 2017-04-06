@@ -155,6 +155,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	AddMenuLink(EFlareMenu::MENU_Leaderboard);
 	AddMenuLink(EFlareMenu::MENU_Company);
 	AddMenuLink(EFlareMenu::MENU_Fleet);
+	AddMenuLink(EFlareMenu::MENU_Technology);
 	AddMenuLink(EFlareMenu::MENU_Quest);
 	
 	// Main

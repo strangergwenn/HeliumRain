@@ -1277,6 +1277,7 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("LeaderboardMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::LeaderboardMenu);
 	InputComponent->BindAction("CompanyMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::CompanyMenu);
 	InputComponent->BindAction("FleetMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::FleetMenu);
+	InputComponent->BindAction("TechnologyMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::TechnologyMenu);
 	InputComponent->BindAction("QuestMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::QuestMenu);
 	InputComponent->BindAction("MainMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::MainMenu);
 	InputComponent->BindAction("SettingsMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::SettingsMenu);
@@ -1489,6 +1490,15 @@ void AFlarePlayerController::FleetMenu()
 	{
 		FLOG("AFlarePlayerController::FleetMenu");
 		MenuManager->OpenMenu(EFlareMenu::MENU_Fleet);
+	}
+}
+
+void AFlarePlayerController::TechnologyMenu()
+{
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Technology)
+	{
+		FLOG("AFlarePlayerController::TechnologyMenu");
+		MenuManager->OpenMenu(EFlareMenu::MENU_Technology);
 	}
 }
 

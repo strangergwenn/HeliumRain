@@ -19,6 +19,7 @@
 #include "../UI/Menus/FlareEULAMenu.h"
 #include "../UI/Menus/FlareResourcePricesMenu.h"
 #include "../UI/Menus/FlareWorldEconomyMenu.h"
+#include "../UI/Menus/FlareTechnologyMenu.h"
 #include "../UI/Menus/FlareGameOverMenu.h"
 
 #include "../Player/FlarePlayerController.h"
@@ -67,6 +68,7 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(LeaderboardMenu, SFlareLeaderboardMenu).MenuManager(this);
 		SAssignNew(ResourcePricesMenu, SFlareResourcePricesMenu).MenuManager(this);
 		SAssignNew(WorldEconomyMenu, SFlareWorldEconomyMenu).MenuManager(this);
+		SAssignNew(TechnologyMenu, SFlareTechnologyMenu).MenuManager(this);
 		SAssignNew(GameOverMenu, SFlareGameOverMenu).MenuManager(this);
 		SAssignNew(CreditsMenu, SFlareCreditsMenu).MenuManager(this);
 		SAssignNew(EULAMenu, SFlareEULAMenu).MenuManager(this);
@@ -103,6 +105,7 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(LeaderboardMenu.ToSharedRef()),    50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(ResourcePricesMenu.ToSharedRef()), 50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(WorldEconomyMenu.ToSharedRef()),   50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(TechnologyMenu.ToSharedRef()),     50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(GameOverMenu.ToSharedRef()),       50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CreditsMenu.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(EULAMenu.ToSharedRef()),           50);
@@ -131,6 +134,7 @@ void AFlareMenuManager::SetupMenu()
 		LeaderboardMenu->Setup();
 		ResourcePricesMenu->Setup();
 		WorldEconomyMenu->Setup();
+		TechnologyMenu->Setup();
 		GameOverMenu->Setup();
 		CreditsMenu->Setup();
 		EULAMenu->Setup();
@@ -390,6 +394,7 @@ void AFlareMenuManager::ResetMenu()
 	LeaderboardMenu->Exit();
 	ResourcePricesMenu->Exit();
 	WorldEconomyMenu->Exit();
+	TechnologyMenu->Exit();
 	GameOverMenu->Exit();
 	CreditsMenu->Exit();
 	EULAMenu->Exit();
@@ -461,6 +466,7 @@ void AFlareMenuManager::ProcessNextMenu()
 		case EFlareMenu::MENU_Leaderboard:        OpenLeaderboard();           break;
 		case EFlareMenu::MENU_ResourcePrices:     OpenResourcePrices();        break;
 		case EFlareMenu::MENU_WorldEconomy:       OpenWorldEconomy();          break;
+		case EFlareMenu::MENU_Technology:         OpenTechnology();            break;
 		case EFlareMenu::MENU_Credits:            OpenCredits();               break;
 		case EFlareMenu::MENU_EULA:               OpenEULA();                  break;
 
@@ -917,6 +923,12 @@ void AFlareMenuManager::OpenWorldEconomy()
 	WorldEconomyMenu->Enter(NextMenu.Value.Resource, NextMenu.Value.Sector);
 }
 
+void AFlareMenuManager::OpenTechnology()
+{
+	OnEnterMenu(false);
+	TechnologyMenu->Enter();
+}
+
 void AFlareMenuManager::OpenCredits()
 {
 	OnEnterMenu(false, false, false);
@@ -956,12 +968,13 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 	switch (MenuType)
 	{
 		case EFlareMenu::MENU_None:           Name = LOCTEXT("NoneMenuName", "");                          break;
-		case EFlareMenu::MENU_Main:           Name = LOCTEXT("MainMenuName", "Helium Rain");               break;
+		case EFlareMenu::MENU_Main:           Name = LOCTEXT("MainMenuName", "Main menu");                 break;
 		case EFlareMenu::MENU_NewGame:        Name = LOCTEXT("NewGameMenuName", "New game");               break;
 		case EFlareMenu::MENU_Company:        Name = LOCTEXT("CompanyMenuName", "Company");                break;
 		case EFlareMenu::MENU_Leaderboard:    Name = LOCTEXT("LeaderboardMenuName", "Leaderboard");        break;
 		case EFlareMenu::MENU_ResourcePrices: Name = LOCTEXT("ResourcePricesMenuName", "Local prices");    break;
 		case EFlareMenu::MENU_WorldEconomy:   Name = LOCTEXT("WorldEconomyMenuName", "World prices");      break;
+		case EFlareMenu::MENU_Technology:     Name = LOCTEXT("TechnologyMenuName", "Technology");          break;
 		case EFlareMenu::MENU_Ship:           Name = LOCTEXT("ShipMenuName", "Ship");                      break;
 		case EFlareMenu::MENU_Fleet:          Name = LOCTEXT("FleetMenuName", "Fleets");                   break;
 		case EFlareMenu::MENU_Quest:          Name = LOCTEXT("QuestMenuName", "Contracts");                break;
@@ -993,6 +1006,7 @@ const FSlateBrush* AFlareMenuManager::GetMenuIcon(EFlareMenu::Type MenuType)
 		case EFlareMenu::MENU_Leaderboard:    Path = "Leaderboard";  break;
 		case EFlareMenu::MENU_ResourcePrices: Path = "Sector";       break;
 		case EFlareMenu::MENU_WorldEconomy:   Path = "Sector";       break;
+		case EFlareMenu::MENU_Technology:     Path = "Technology";   break;
 		case EFlareMenu::MENU_Ship:           Path = "Ship";         break;
 		case EFlareMenu::MENU_Fleet:          Path = "Fleet";        break;
 		case EFlareMenu::MENU_Quest:          Path = "Quest";        break;
@@ -1019,14 +1033,15 @@ FString AFlareMenuManager::GetMenuKey(EFlareMenu::Type MenuType)
 
 	switch (MenuType)
 	{
-		case EFlareMenu::MENU_Main:           Key = "MainMenu";         break;
-		case EFlareMenu::MENU_Company:        Key = "CompanyMenu";      break;
-		case EFlareMenu::MENU_Leaderboard:    Key = "LeaderboardMenu";  break;
 		case EFlareMenu::MENU_Ship:           Key = "ShipMenu";         break;
-		case EFlareMenu::MENU_Fleet:          Key = "FleetMenu";        break;
-		case EFlareMenu::MENU_Quest:          Key = "QuestMenu";        break;
 		case EFlareMenu::MENU_Sector:         Key = "SectorMenu";       break;
 		case EFlareMenu::MENU_Orbit:          Key = "OrbitMenu";        break;
+		case EFlareMenu::MENU_Leaderboard:    Key = "LeaderboardMenu";  break;
+		case EFlareMenu::MENU_Company:        Key = "CompanyMenu";      break;
+		case EFlareMenu::MENU_Fleet:          Key = "FleetMenu";        break;
+		case EFlareMenu::MENU_Technology:     Key = "TechnologyMenu";   break;
+		case EFlareMenu::MENU_Quest:          Key = "QuestMenu";        break;
+		case EFlareMenu::MENU_Main:           Key = "MainMenu";         break;
 		case EFlareMenu::MENU_Settings:       Key = "SettingsMenu";     break;
 		default:                              Key = "NoKey";
 	}

@@ -1527,21 +1527,24 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddDefaults(EKeys::Escape)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open ship menu", "Open ship menu")))
 		->AddActionMapping("ShipMenu")
-		->AddDefaults(EKeys::F2)));
+		->AddDefaults(EKeys::F1)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open sector menu", "Open sector menu")))
 		->AddActionMapping("SectorMenu")
-		->AddDefaults(EKeys::F3)));
+		->AddDefaults(EKeys::F2)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open orbital map", "Open orbital map")))
 		->AddActionMapping("OrbitMenu")
-		->AddDefaults(EKeys::F4)));
+		->AddDefaults(EKeys::F3)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open leaderboard", "Open leaderboard")))
 		->AddActionMapping("LeaderboardMenu")
-		->AddDefaults(EKeys::F5)));
+		->AddDefaults(EKeys::F4)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open company menu", "Open company menu")))
 		->AddActionMapping("CompanyMenu")
-		->AddDefaults(EKeys::F6)));
+		->AddDefaults(EKeys::F5)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open fleet menu", "Open fleet menu")))
 		->AddActionMapping("FleetMenu")
+		->AddDefaults(EKeys::F6)));
+	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open technology menu", "Open technology menu")))
+		->AddActionMapping("TechnologyMenu")
 		->AddDefaults(EKeys::F7)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open quest menu", "Open quest menu")))
 		->AddActionMapping("QuestMenu")

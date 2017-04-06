@@ -31,6 +31,7 @@ class SFlareEULAMenu;
 class SFlareResourcePricesMenu;
 class SFlareWorldEconomyMenu;
 class SFlareGameOverMenu;
+class SFlareTechnologyMenu;
 
 // Gameplay classes
 class AFlarePlayerController;
@@ -206,6 +207,9 @@ protected:
 	/** Open the world economy menu */
 	void OpenWorldEconomy();
 
+	/** Open the technology menu */
+	void OpenTechnology();
+
 	/** Go to the game's credits */
 	void OpenCredits();
 
@@ -369,6 +373,7 @@ protected:
 	TSharedPtr<SFlareEULAMenu>              EULAMenu;
 	TSharedPtr<SFlareResourcePricesMenu>    ResourcePricesMenu;
 	TSharedPtr<SFlareWorldEconomyMenu>      WorldEconomyMenu;
+	TSharedPtr<SFlareTechnologyMenu>        TechnologyMenu;
 	TSharedPtr<SFlareGameOverMenu>          GameOverMenu;
 	
 
