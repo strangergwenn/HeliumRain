@@ -181,6 +181,6 @@ public:
 
 	int32 GetFleetFreeCargoSpace() const;
 
-	int32 GetCombatPoints() const;
+	int32 GetCombatPoints(bool ReduceByDamage) const;
 
 };

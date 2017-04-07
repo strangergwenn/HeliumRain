@@ -1209,10 +1209,10 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGene
 		WarPrice = 2000 * (HostileCompany->GetReputation(PlayerCompany) + 100);
 	}
 
-	int32 PreferredPlayerCombatPoints= FMath::Max(5, int32(PlayerCompany->GetCompanyValue().ArmyCombatPoints /3));
+	int32 PreferredPlayerCombatPoints= FMath::Max(5, int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints /3));
 
 
-	int32 NeedArmyCombatPoints= FMath::Min(5, SectorHelper::GetHostileArmyCombatPoints(Sector, Company) - SectorHelper::GetCompanyArmyCombatPoints(Sector, Company) /2);
+	int32 NeedArmyCombatPoints= FMath::Min(5, SectorHelper::GetHostileArmyCombatPoints(Sector, Company, true) - SectorHelper::GetCompanyArmyCombatPoints(Sector, Company, true) /2);
 
 
 	int32 RequestedArmyCombatPoints = FMath::Min(PreferredPlayerCombatPoints, NeedArmyCombatPoints);
@@ -1386,7 +1386,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt::Create(UFlareQuestGenerator
 		WarPrice = 500 * (HostileCompany->GetReputation(PlayerCompany) + 100);
 	}
 
-	int32 PreferredPlayerCombatPoints= FMath::Max(10, int32(PlayerCompany->GetCompanyValue().ArmyCombatPoints));
+	int32 PreferredPlayerCombatPoints= FMath::Max(10, int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints));
 
 	bool RequestDestroyTarget = FMath::RandBool();
 

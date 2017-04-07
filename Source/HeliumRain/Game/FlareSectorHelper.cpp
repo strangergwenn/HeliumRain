@@ -563,18 +563,18 @@ void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompa
 	}
 }
 
-int32 SectorHelper::GetArmyCombatPoints(UFlareSimulatedSector* Sector)
+int32 SectorHelper::GetArmyCombatPoints(UFlareSimulatedSector* Sector, bool ReduceByDamage)
 {
 	int32 AllCombatPoints = 0;
 
 	for (UFlareSimulatedSpacecraft* Spacecraft : Sector->GetSectorSpacecrafts())
 	{
-		AllCombatPoints += Spacecraft->GetCombatPoints();
+		AllCombatPoints += Spacecraft->GetCombatPoints(ReduceByDamage);
 	}
 	return AllCombatPoints;
 }
 
-int32 SectorHelper::GetHostileArmyCombatPoints(UFlareSimulatedSector* Sector, UFlareCompany* Company)
+int32 SectorHelper::GetHostileArmyCombatPoints(UFlareSimulatedSector* Sector, UFlareCompany* Company, bool ReduceByDamage)
 {
 	int32 HostileCombatPoints = 0;
 
@@ -584,12 +584,12 @@ int32 SectorHelper::GetHostileArmyCombatPoints(UFlareSimulatedSector* Sector, UF
 		{
 			continue;
 		}
-		HostileCombatPoints += Spacecraft->GetCombatPoints();
+		HostileCombatPoints += Spacecraft->GetCombatPoints(ReduceByDamage);
 	}
 	return HostileCombatPoints;
 }
 
-int32 SectorHelper::GetCompanyArmyCombatPoints(UFlareSimulatedSector* Sector, UFlareCompany* Company)
+int32 SectorHelper::GetCompanyArmyCombatPoints(UFlareSimulatedSector* Sector, UFlareCompany* Company, bool ReduceByDamage)
 {
 	int32 CompanyCombatPoints = 0;
 
@@ -599,7 +599,7 @@ int32 SectorHelper::GetCompanyArmyCombatPoints(UFlareSimulatedSector* Sector, UF
 		{
 			continue;
 		}
-		CompanyCombatPoints += Spacecraft->GetCombatPoints();
+		CompanyCombatPoints += Spacecraft->GetCombatPoints(ReduceByDamage);
 	}
 	return CompanyCombatPoints;
 }

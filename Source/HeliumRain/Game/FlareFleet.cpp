@@ -219,13 +219,13 @@ int32 UFlareFleet::GetFleetFreeCargoSpace() const
 	return FreeCargoSpace;
 }
 
-int32 UFlareFleet::GetCombatPoints() const
+int32 UFlareFleet::GetCombatPoints(bool ReduceByDamage) const
 {
 	int32 CombatPoints = 0;
 
 	for(UFlareSimulatedSpacecraft* Ship: FleetShips)
 	{
-		CombatPoints += Ship->GetCombatPoints();
+		CombatPoints += Ship->GetCombatPoints(ReduceByDamage);
 	}
 	return CombatPoints;
 }

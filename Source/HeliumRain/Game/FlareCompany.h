@@ -20,7 +20,8 @@ struct CompanyValue
 	int64 StockValue;
 	int64 ShipsValue;
 	int64 ArmyValue;
-	int32 ArmyCombatPoints;
+	int32 ArmyTotalCombatPoints;
+	int32 ArmyCurrentCombatPoints;
 	int32 ResearchSpent;
 
 	int64 StationsValue;

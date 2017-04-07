@@ -886,9 +886,9 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 	for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
 	{
 		UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
-		EnemiesArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCombatPoints;
+		EnemiesArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCurrentCombatPoints;
 #ifdef DEBUG_CONFIDENCE
-		FLOGV("- enemy: %s (%lld)", *EnemyCompany->GetCompanyName().ToString(), EnemyCompany->GetCompanyValue().ArmyCombatPoints);
+		FLOGV("- enemy: %s (%lld)", *EnemyCompany->GetCompanyName().ToString(), EnemyCompany->GetCompanyValue().ArmyCurrentCombatPoints);
 #endif
 	}
 
@@ -897,7 +897,7 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 		UFlareCompany* AllyCompany = Allies[AllyIndex];
 
 		// Allies can be enemy to only a part of my ennemie. Cap to the value of the enemy if not me
-		int32 AllyArmyCombatPoints= AllyCompany->GetCompanyValue().ArmyCombatPoints;
+		int32 AllyArmyCombatPoints= AllyCompany->GetCompanyValue().ArmyCurrentCombatPoints;
 #ifdef DEBUG_CONFIDENCE
 		FLOGV("- ally: %s (%lld)", *AllyCompany->GetCompanyName().ToString(), AllyArmyCombatPoints);
 #endif
@@ -915,13 +915,13 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 
 				if (AllyCompany->GetWarState(EnemyCompany) == EFlareHostility::Hostile)
 				{
-					MaxArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCombatPoints;
+					MaxArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCurrentCombatPoints;
 					continue;
 				}
 
 				if (AllyCompany->GetReputation(EnemyCompany) <= -100)
 				{
-					MaxArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCombatPoints;
+					MaxArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCurrentCombatPoints;
 					continue;
 				}
 			}
@@ -1252,7 +1252,8 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 	Value.StockValue = 0;
 	Value.ShipsValue = 0;
 	Value.ArmyValue = 0;
-	Value.ArmyCombatPoints = 0;
+	Value.ArmyCurrentCombatPoints = 0;
+	Value.ArmyTotalCombatPoints = 0;
 	Value.ResearchSpent = 0;
 	Value.StationsValue = 0;
 
@@ -1303,7 +1304,8 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 		if(Spacecraft->IsMilitary())
 		{
 			Value.ArmyValue += SpacecraftPrice;
-			Value.ArmyCombatPoints += Spacecraft->GetCombatPoints();
+			Value.ArmyTotalCombatPoints += Spacecraft->GetCombatPoints(false);
+			Value.ArmyCurrentCombatPoints += Spacecraft->GetCombatPoints(true);
 		}
 
 		// Value of the stock

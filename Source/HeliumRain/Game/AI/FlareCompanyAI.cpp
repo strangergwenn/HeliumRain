@@ -1783,7 +1783,7 @@ TArray<WarTargetIncomingFleet> UFlareCompanyAI::GenerateWarTargetIncomingFleets(
 
 		for (UFlareSimulatedSpacecraft* Ship : Travel->GetFleet()->GetShips())
 		{
-			ArmyCombatPoints += Ship->GetCombatPoints();
+			ArmyCombatPoints += Ship->GetCombatPoints(true);
 		}
 
 		// Add an entry or modify one
@@ -1930,7 +1930,7 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 				{
 					if (Spacecraft->IsMilitary())
 					{
-						int32 ShipCombatPoints = Spacecraft->GetCombatPoints();
+						int32 ShipCombatPoints = Spacecraft->GetCombatPoints(true);
 						Target.EnemyArmyCombatPoints += ShipCombatPoints;
 
 						if (Spacecraft->GetSize() == EFlarePartSize::L)
@@ -1958,7 +1958,7 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 				{
 					if (Spacecraft->IsMilitary())
 					{
-						int32 ShipCombatPoints= Spacecraft->GetCombatPoints();
+						int32 ShipCombatPoints= Spacecraft->GetCombatPoints(true);
 
 						Target.OwnedArmyCombatPoints += ShipCombatPoints;
 						Target.OwnedMilitaryCount++;
@@ -2043,7 +2043,7 @@ TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList()
 
 		for (UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
 		{
-			int32 ShipCombatPoints= Ship->GetCombatPoints();
+			int32 ShipCombatPoints= Ship->GetCombatPoints(true);
 
 			if (Ship->GetCompany() != Company
 			 || Ship->CanTravel() == false
@@ -2301,7 +2301,7 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 				UFlareSimulatedSpacecraft* SelectedShip = MovableShips[ShipIndex];
 				MovableShips.RemoveAt(ShipIndex);
 
-				int32 ShipCombatPoints = SelectedShip->GetCombatPoints();
+				int32 ShipCombatPoints = SelectedShip->GetCombatPoints(true);
 				if (SelectedShip->GetWeaponsSystem()->HasAntiLargeShipWeapon())
 				{
 					AntiLFleetCombatPoints += ShipCombatPoints;
@@ -2764,7 +2764,7 @@ bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sect
 
 		bool EnoughAntiL = Sector.ArmyAntiLCombatPoints >= Target.EnemyArmyLCombatPoints * Behavior->GetAttackThreshold();
 		bool EnoughAntiS = Sector.ArmyAntiSCombatPoints >= Target.EnemyArmySCombatPoints * Behavior->GetAttackThreshold();
-		int32 CombatPoints = Ship->GetCombatPoints();
+		int32 CombatPoints = Ship->GetCombatPoints(true);
 		bool HasAntiLargeShipWeapon = Ship->GetWeaponsSystem()->HasAntiLargeShipWeapon();
 		bool HasAntiSmallShipWeapon = Ship->GetWeaponsSystem()->HasAntiSmallShipWeapon();
 
@@ -2825,7 +2825,7 @@ bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sect
 
 		bool EnoughAntiL = Sector.ArmyAntiLCombatPoints >= Target.EnemyArmyLCombatPoints * Behavior->GetAttackThreshold();
 		bool EnoughAntiS = Sector.ArmyAntiSCombatPoints >= Target.EnemyArmySCombatPoints * Behavior->GetAttackThreshold();
-		int32 CombatPoints = Ship->GetCombatPoints();
+		int32 CombatPoints = Ship->GetCombatPoints(true);
 		bool HasAntiLargeShipWeapon = Ship->GetWeaponsSystem()->HasAntiLargeShipWeapon();
 		bool HasAntiSmallShipWeapon = Ship->GetWeaponsSystem()->HasAntiSmallShipWeapon();
 
@@ -2897,7 +2897,7 @@ bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sect
 			{
 				if (Ship->GetWeaponsSystem()->HasAntiLargeShipWeapon())
 				{
-					int32 CombatPoints = Ship->GetCombatPoints();
+					int32 CombatPoints = Ship->GetCombatPoints(true);
 					// See if upgrade to S improve this
 					float FutureAntiLRatio = (Target.EnemyArmyLCombatPoints > 0 ?
 											(Sector.ArmyAntiLCombatPoints - CombatPoints) / Target.EnemyArmyLCombatPoints * Behavior->GetAttackThreshold() :
@@ -2925,7 +2925,7 @@ bool UFlareCompanyAI::UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sect
 			{
 				if (Ship->GetWeaponsSystem()->HasAntiSmallShipWeapon())
 				{
-					int32 CombatPoints = Ship->GetCombatPoints();
+					int32 CombatPoints = Ship->GetCombatPoints(true);
 					// See if upgrade to S improve this
 					float FutureAntiLRatio = (Target.EnemyArmyLCombatPoints > 0 ?
 											(Sector.ArmyAntiLCombatPoints + CombatPoints) / Target.EnemyArmyLCombatPoints * Behavior->GetAttackThreshold() :

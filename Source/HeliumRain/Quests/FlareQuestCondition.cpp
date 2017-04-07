@@ -1972,7 +1972,7 @@ void UFlareQuestConditionMinArmyCombatPointsInSector::Load(UFlareQuest* ParentQu
 
 bool UFlareQuestConditionMinArmyCombatPointsInSector::IsCompleted()
 {
-	int32 armyPoints = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany);
+	int32 armyPoints = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany, true);
 
 	return armyPoints >= TargetArmyPoints;
 }
@@ -1984,7 +1984,7 @@ void UFlareQuestConditionMinArmyCombatPointsInSector::AddConditionObjectives(FFl
 	ObjectiveCondition.TerminalLabel = FText();
 	ObjectiveCondition.Progress = 0;
 	ObjectiveCondition.MaxProgress = 0;
-	ObjectiveCondition.Counter = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany);
+	ObjectiveCondition.Counter = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany, true);
 	ObjectiveCondition.MaxCounter = TargetArmyPoints;
 
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
@@ -2039,7 +2039,7 @@ void UFlareQuestConditionMaxArmyCombatPointsInSector::Load(UFlareQuest* ParentQu
 
 bool UFlareQuestConditionMaxArmyCombatPointsInSector::IsCompleted()
 {
-	int32 armyPoints = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany);
+	int32 armyPoints = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany, true);
 
 	return armyPoints <= TargetArmyPoints;
 }
@@ -2051,7 +2051,7 @@ void UFlareQuestConditionMaxArmyCombatPointsInSector::AddConditionObjectives(FFl
 	ObjectiveCondition.TerminalLabel = FText();
 	ObjectiveCondition.Progress = 0;
 	ObjectiveCondition.MaxProgress = 0;
-	ObjectiveCondition.Counter = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany);
+	ObjectiveCondition.Counter = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany, true);
 	ObjectiveCondition.MaxCounter = TargetArmyPoints;
 
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);

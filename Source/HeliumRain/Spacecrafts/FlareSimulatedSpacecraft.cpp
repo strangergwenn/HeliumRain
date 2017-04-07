@@ -708,9 +708,9 @@ float UFlareSimulatedSpacecraft::GetStationEfficiency()
 	return Efficiency;
 }
 
-int32 UFlareSimulatedSpacecraft::GetCombatPoints()
+int32 UFlareSimulatedSpacecraft::GetCombatPoints(bool ReduceByDamage)
 {
-	if (GetDamageSystem()->IsDisarmed())
+	if (!IsMilitary() || !GetDamageSystem()->IsAlive() || (ReduceByDamage && GetDamageSystem()->IsDisarmed()))
 	{
 		return 0;
 	}
@@ -732,7 +732,10 @@ int32 UFlareSimulatedSpacecraft::GetCombatPoints()
 	CurrentPart = GetCurrentPart(EFlarePartType::OrbitalEngine, 0);
 	SpacecraftCombatPoints += CurrentPart->CombatPoints;
 
-	SpacecraftCombatPoints *= GetDamageSystem()->GetGlobalHealth();
+	if(ReduceByDamage)
+	{
+		SpacecraftCombatPoints *= GetDamageSystem()->GetGlobalHealth();
+	}
 
 	return SpacecraftCombatPoints;
 }

@@ -1001,8 +1001,12 @@ FText SFlareSectorMenu::GetOwnCombatValue() const
 	if (IsEnabled() && TargetSector)
 	{
 		UFlareCompany* PlayerCompany = MenuManager->GetPC()->GetCompany();
-		int32 CompanyPoints = PlayerCompany->GetCompanyValue(TargetSector, false).ArmyCombatPoints;
-		return FText::AsNumber(CompanyPoints);
+
+		CompanyValue Value = PlayerCompany->GetCompanyValue(TargetSector, false);
+		return FText::Format(LOCTEXT("CombatValueFormat", "{0}/{1}"),
+							 FText::AsNumber(Value.ArmyCurrentCombatPoints),
+								 FText::AsNumber(Value.ArmyTotalCombatPoints));
+
 	}
 
 	return Result;
@@ -1014,8 +1018,11 @@ FText SFlareSectorMenu::GetFullCombatValue() const
 
 	if (IsEnabled() && TargetSector)
 	{
-		int32 AllPoints = SectorHelper::GetArmyCombatPoints(TargetSector);
-		return FText::AsNumber(AllPoints);
+		int32 AllPoints = SectorHelper::GetArmyCombatPoints(TargetSector, false);
+		int32 CurrentAllPoints = SectorHelper::GetArmyCombatPoints(TargetSector, true);
+		return FText::Format(LOCTEXT("CombatValueFormat", "{0}/{1}"),
+							 FText::AsNumber(CurrentAllPoints),
+								 FText::AsNumber(AllPoints));
 	}
 
 	return Result;
@@ -1028,8 +1035,11 @@ FText SFlareSectorMenu::GetHostileCombatValue() const
 	if (IsEnabled() && TargetSector)
 	{
 		UFlareCompany* PlayerCompany = MenuManager->GetPC()->GetCompany();
-		int32 HostilePoints = SectorHelper::GetHostileArmyCombatPoints(TargetSector, PlayerCompany);
-		return FText::AsNumber(HostilePoints);
+		int32 HostilePoints = SectorHelper::GetHostileArmyCombatPoints(TargetSector, PlayerCompany, false);
+		int32 CurrentHostilePoints = SectorHelper::GetHostileArmyCombatPoints(TargetSector, PlayerCompany, true);
+		return FText::Format(LOCTEXT("CombatValueFormat", "{0}/{1}"),
+							 FText::AsNumber(CurrentHostilePoints),
+								 FText::AsNumber(HostilePoints));
 	}
 
 	return Result;

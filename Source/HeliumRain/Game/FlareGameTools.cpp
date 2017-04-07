@@ -497,7 +497,8 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 	FLOGV("      - Ships %f $", Value.ShipsValue/ 100.);
 	FLOGV("      - Stations %f $", Value.StationsValue/ 100.);
 	FLOGV("    - Army %f $", Value.ArmyValue/ 100.);
-	FLOGV("    - Army combat point %d", Value.ArmyCombatPoints);
+	FLOGV("    - Army current combat point %d", Value.ArmyCurrentCombatPoints);
+	FLOGV("    - Army total combat point %d", Value.ArmyTotalCombatPoints);
 	TArray<UFlareFleet*> CompanyFleets = Company->GetCompanyFleets();
 	FLOGV("  > %d fleets", CompanyFleets.Num());
 	for (int i = 0; i < CompanyFleets.Num(); i++)
