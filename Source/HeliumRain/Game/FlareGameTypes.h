@@ -200,6 +200,9 @@ struct FFlareTechnologyDescription
 	FName Identifier;
 
 	UPROPERTY(EditAnywhere, Category = Content)
+	FName ScienceCost;
+
+	UPROPERTY(EditAnywhere, Category = Content)
 	int32 Level;
 
 	UPROPERTY(EditAnywhere, Category = Content)
