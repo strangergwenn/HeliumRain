@@ -87,7 +87,7 @@ void SFlareEULAMenu::Construct(const FArguments& InArgs)
 					+ SScrollBox::Slot()
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("DONT-TRANSLATE-EULA-Text", "Helium Rain includes the Unreal® Engine code and other code, materials, and information " \
+						.Text(LOCTEXT("DONT-TRANSLATE-EULA-Text", "Helium Rain includes the UnrealÂ® Engine code and other code, materials, and information " \
 							"(the 'Epic Materials') from Epic Games, Inc. ('Epic'). All Epic Materials are provided on an 'as is' and 'as available' basis, " \
 							"'with all faults' and without warranty of any kind.  [Licensor], Epic, and Epic's affiliates disclaim all warranties, conditions, common law duties, " \
 							"and representations (express, implied, oral, and written) with respect to the Epic Materials, including without limitation all express, " \
