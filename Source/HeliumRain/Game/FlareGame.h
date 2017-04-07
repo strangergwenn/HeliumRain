@@ -10,6 +10,7 @@
 #include "../Spacecrafts/FlareBomb.h"
 #include "../Player/FlareMenuPawn.h"
 
+#include "FlareGameTypes.h"
 #include "FlarePlanetarium.h"
 #include "FlareGameTools.h"
 #include "FlareCompany.h"
@@ -23,6 +24,7 @@
 #include "../Data/FlareAsteroidCatalog.h"
 #include "../Data/FlareCompanyCatalog.h"
 #include "../Data/FlareResourceCatalog.h"
+#include "../Data/FlareTechnologyCatalog.h"
 #include "../Data/FlareOrbitalMap.h"
 
 #include "FlareGame.generated.h"
@@ -260,6 +262,10 @@ protected:
 	UPROPERTY()
 	UFlareResourceCatalog*                     ResourceCatalog;
 
+	/** Reference to all technologies */
+	UPROPERTY()
+	UFlareTechnologyCatalog*                   TechnologyCatalog;
+
 	/** Default asteroid */
 	UPROPERTY()
 	UStaticMesh*                               DefaultAsteroid;
@@ -383,6 +389,11 @@ public:
 	inline UFlareResourceCatalog* GetResourceCatalog() const
 	{
 		return ResourceCatalog;
+	}
+
+	inline UFlareTechnologyCatalog* GetTechnologyCatalog() const
+	{
+		return TechnologyCatalog;
 	}
 
 	inline bool IsLoadedOrCreated() const

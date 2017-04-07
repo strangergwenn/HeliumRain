@@ -165,6 +165,18 @@ namespace EFlareSectorKnowledge
 	};
 }
 
+/** Technology type for user display */
+UENUM()
+namespace EFlareTechnologyCategory
+{
+	enum Type
+	{
+		General, /** All-purpose tech */
+		Economy, /** Economy tech */
+		Military /** Military tech */
+	};
+}
+
 /** Company sector knowledge data */
 USTRUCT()
 struct FFlareCompanySectorKnowledge
@@ -176,6 +188,28 @@ struct FFlareCompanySectorKnowledge
 
 	UPROPERTY(EditAnywhere, Category = Save)
 	TEnumAsByte<EFlareSectorKnowledge::Type> Knowledge;
+};
+
+/** Technology description */
+USTRUCT()
+struct FFlareTechnologyDescription
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, Category = Content)
+	FName Identifier;
+
+	UPROPERTY(EditAnywhere, Category = Content)
+	int32 Level;
+
+	UPROPERTY(EditAnywhere, Category = Content)
+	FText Name;
+
+	UPROPERTY(EditAnywhere, Category = Content)
+	FText Description;
+
+	UPROPERTY(EditAnywhere, Category = Content)
+	TEnumAsByte<EFlareTechnologyCategory::Type> Category;
 };
 
 /** Company reputation save data */
