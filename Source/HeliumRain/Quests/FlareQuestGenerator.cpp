@@ -62,6 +62,10 @@ void UFlareQuestGenerator::LoadQuests(const FFlareQuestSave& Data)
 		{
 			Quest = NewObject<UFlareQuestGeneratedCargoHunt>(this, UFlareQuestGeneratedCargoHunt::StaticClass());
 		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedMilitaryHunt::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedMilitaryHunt>(this, UFlareQuestGeneratedMilitaryHunt::StaticClass());
+		}
 		else
 		{
 			FLOGV("ERROR: not loaded quest %s", *QuestData.QuestClass.ToString());
@@ -238,6 +242,7 @@ void UFlareQuestGenerator::GenerateMilitaryQuests()
 	for(UFlareCompany* Company : GetGame()->GetGameWorld()->GetCompanies())
 	{
 		float QuestProbability = ComputeQuestProbability(Company);
+		CompanyValue Value = Company->GetCompanyValue();
 
 		if(Company == PlayerCompany)
 		{
@@ -275,7 +280,6 @@ void UFlareQuestGenerator::GenerateMilitaryQuests()
 		// Cargo hunt
 		for(UFlareCompany* OtherCompany : GetGame()->GetGameWorld()->GetCompanies())
 		{
-
 			if(OtherCompany == PlayerCompany)
 			{
 				continue;
@@ -286,24 +290,51 @@ void UFlareQuestGenerator::GenerateMilitaryQuests()
 				continue;
 			}
 
-			// 1% per day per negative reputation point
-			float CargoHuntQuestProbability = FMath::Clamp((-50 - Company->GetReputation(OtherCompany)) * 0.00001f, 0.f, 1.f);
+			CompanyValue OtherValue = OtherCompany->GetCompanyValue();
 
-
-			//FLOGV("CargoHuntQuestProbability for %s to %s: %f", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString(), CargoHuntQuestProbability);
-
-			float rand = FMath::FRand();
-
-			//FLOGV("rand %f", rand);
-
-			// Rand
-			if (rand > CargoHuntQuestProbability)
+			if(OtherValue.TotalValue > Value.TotalValue*1.1)
 			{
-				// No luck, no quest this time
-				continue;
+				// 1% per day per negative reputation point
+				float CargoHuntQuestProbability = FMath::Clamp((-50 - Company->GetReputation(OtherCompany)) * 0.0001f, 0.f, 1.f);
+
+
+				//FLOGV("CargoHuntQuestProbability for %s to %s: %f", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString(), CargoHuntQuestProbability);
+
+				float rand = FMath::FRand();
+
+				//FLOGV("rand %f", rand);
+
+				// Rand
+				if (rand > CargoHuntQuestProbability)
+				{
+					// No luck, no quest this time
+					continue;
+				}
+
+				RegisterQuest(UFlareQuestGeneratedCargoHunt::Create(this, Company, OtherCompany));
 			}
 
-			RegisterQuest(UFlareQuestGeneratedCargoHunt::Create(this, Company, OtherCompany));
+			if(OtherValue.ArmyCurrentCombatPoints > Value.ArmyCurrentCombatPoints*1.1)
+			{
+				// 1% per day per negative reputation point
+				float MilitaryHuntQuestProbability = FMath::Clamp((-50 - Company->GetReputation(OtherCompany)) * 0.001f, 0.f, 1.f);
+
+
+				//FLOGV("CargoHuntQuestProbability for %s to %s: %f", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString(), CargoHuntQuestProbability);
+
+				float rand = FMath::FRand();
+
+				//FLOGV("rand %f", rand);
+
+				// Rand
+				if (rand > MilitaryHuntQuestProbability)
+				{
+					// No luck, no quest this time
+					continue;
+				}
+
+				RegisterQuest(UFlareQuestGeneratedMilitaryHunt::Create(this, Company, OtherCompany));
+			}
 		}
 	}
 }
@@ -1217,7 +1248,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGene
 
 	int32 RequestedArmyCombatPoints = FMath::Min(PreferredPlayerCombatPoints, NeedArmyCombatPoints);
 
-	if(RequestedArmyCombatPoints < 0)
+	if(RequestedArmyCombatPoints <= 0)
 	{
 		return NULL;
 	}
@@ -1354,7 +1385,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 	Generated cargo hunt quest
 ----------------------------------------------------*/
 #undef QUEST_TAG
-#define QUEST_TAG "GeneratedStationDefense"
+#define QUEST_TAG "GeneratedCargoHunt"
 UFlareQuestGeneratedCargoHunt::UFlareQuestGeneratedCargoHunt(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -1452,7 +1483,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt::Create(UFlareQuestGenerator
 	FLOGV("RequestedArmyCombatPoints %d", RequestedArmyCombatPoints);*/
 
 
-	if(RequestedArmyCombatPoints < 0)
+	if(RequestedArmyCombatPoints <= 0)
 	{
 		return NULL;
 	}
@@ -1535,6 +1566,137 @@ void UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFl
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);
 }
+
+/*----------------------------------------------------
+	Generated military hunt quest
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "GeneratedMilitaryHunt"
+UFlareQuestGeneratedMilitaryHunt::UFlareQuestGeneratedMilitaryHunt(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt::Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany)
+{
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	{
+		return NULL;
+	}
+
+	// Check unicity
+	if (Parent->FindUniqueTag(Parent->GenerateHarassTag(Company, HostileCompany)))
+	{
+		return NULL;
+	}
+
+	int64 WarPrice;
+
+	if (HostileCompany->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	{
+		WarPrice = 0;
+	}
+	else
+	{
+		WarPrice = 500 * (HostileCompany->GetReputation(PlayerCompany) + 100);
+	}
+
+	int32 PreferredPlayerCombatPoints= FMath::Max(10, int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints));
+
+	bool RequestDestroyTarget = FMath::RandBool();
+
+
+	int32 NeedArmyCombatPoints = HostileCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.1,0.5);
+
+	int32 RequestedArmyCombatPoints = FMath::Min(PreferredPlayerCombatPoints, NeedArmyCombatPoints);
+
+
+	FLOGV("NeedArmyCombatPoints %d", NeedArmyCombatPoints);
+	FLOGV("PreferredPlayerCombatPoints %d", PreferredPlayerCombatPoints);
+	FLOGV("RequestedArmyCombatPoints %d", RequestedArmyCombatPoints);
+
+
+	if(RequestedArmyCombatPoints <= 0)
+	{
+		return NULL;
+	}
+
+	int64 ArmyPrice = RequestedArmyCombatPoints  * 20000;
+
+	// Setup reward
+	int64 QuestValue = WarPrice + ArmyPrice;
+
+	// Create the quest
+	UFlareQuestGeneratedMilitaryHunt* Quest = NewObject<UFlareQuestGeneratedMilitaryHunt>(Parent, UFlareQuestGeneratedMilitaryHunt::StaticClass());
+
+	FFlareBundle Data;
+	Parent->GenerateIdentifer(UFlareQuestGeneratedMilitaryHunt::GetClass(), Data);
+	Data.PutInt32("army-combat-points", RequestedArmyCombatPoints );
+	Data.PutInt32("destroy", RequestDestroyTarget);
+	Data.PutName("friendly-company", Company->GetIdentifier());
+	Data.PutName("hostile-company", HostileCompany->GetIdentifier());
+	Data.PutTag(Parent->GenerateHarassTag(Company, HostileCompany));
+	CreateGenericReward(Data, QuestValue);
+
+	Quest->Load(Parent, Data);
+
+	return Quest;
+}
+
+void UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+{
+	UFlareQuestGenerated::Load(Parent, Data);
+
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	UFlareCompany* FriendlyCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("friendly-company"));
+	UFlareCompany* HostileCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("hostile-company"));
+	int32 RequestedArmyCombatPoints = InitData.GetInt32("army-combat-points");
+	bool RequestDestroyTarget = InitData.GetInt32("destroy") > 0;
+
+	QuestClass = UFlareQuestGeneratedMilitaryHunt::GetClass();
+	Identifier = InitData.GetName("identifier");
+
+	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","Attack {0}'s military ships"), HostileCompany->GetCompanyName());
+
+	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat","{0} ships up to {1} combat value of {2}"),
+								 RequestDestroyTarget? LOCTEXT("RequestDestroyTarget","Destroy") : LOCTEXT("RequestUncotrollableTarget","Make uncontrollable"),
+									 FText::AsNumber(RequestedArmyCombatPoints),
+									 HostileCompany->GetCompanyName());
+
+	QuestCategory = EFlareQuestCategory::SECONDARY;
+
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"CargoMilitaryHarass"
+		FText Description;
+
+		Description = LOCTEXT(QUEST_STEP_TAG"Harass", "Attack military ships");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "harass", Description);
+
+
+		UFlareQuestConditionDestroyCombatValue* Condition = UFlareQuestConditionDestroyCombatValue::Create(this,
+																										 QUEST_TAG"cond1",
+																										 HostileCompany,
+																										 RequestedArmyCombatPoints,
+																										 RequestDestroyTarget);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+
+		Steps.Add(Step);
+	}
+
+	AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, PlayerCompany, FriendlyCompany));
+
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAtWar::Create(this,  PlayerCompany, FriendlyCompany));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+
+	SetupQuestGiver(FriendlyCompany, true);
+	SetupGenericReward(Data);
+}
+
 
 #undef LOCTEXT_NAMESPACE
 

@@ -710,7 +710,7 @@ float UFlareSimulatedSpacecraft::GetStationEfficiency()
 
 int32 UFlareSimulatedSpacecraft::GetCombatPoints(bool ReduceByDamage)
 {
-	if (!IsMilitary() || !GetDamageSystem()->IsAlive() || (ReduceByDamage && GetDamageSystem()->IsDisarmed()))
+	if (!IsMilitary() || (ReduceByDamage && GetDamageSystem()->IsDisarmed()))
 	{
 		return 0;
 	}

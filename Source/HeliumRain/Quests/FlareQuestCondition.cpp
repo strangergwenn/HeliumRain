@@ -2404,6 +2404,11 @@ void UFlareQuestConditionDestroySpacecraft::OnSpacecraftDestroyed(UFlareSimulate
 		return;
 	}
 
+	if(Spacecraft->IsMilitary() != MilitaryTarget)
+	{
+		return;
+	}
+
 	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
 	if(PlayerCompany != Source)
 	{
@@ -2415,6 +2420,127 @@ void UFlareQuestConditionDestroySpacecraft::OnSpacecraftDestroyed(UFlareSimulate
 
 
 void UFlareQuestConditionDestroySpacecraft::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = Quantity;
+	ObjectiveCondition.MaxProgress = Quantity;
+	ObjectiveCondition.Counter = CurrentProgression;
+	ObjectiveCondition.Progress = CurrentProgression;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+	Destroy combat value condition
+----------------------------------------------------*/
+
+UFlareQuestConditionDestroyCombatValue::UFlareQuestConditionDestroyCombatValue(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionDestroyCombatValue* UFlareQuestConditionDestroyCombatValue::Create(UFlareQuest* ParentQuest,
+																					 FName ConditionIdentifierParam,
+																					 UFlareCompany* HostileCompanyParam,
+																					 int32 CombatValueParam,
+																					 bool DestroyTargetParam)
+{
+	UFlareQuestConditionDestroyCombatValue*Condition = NewObject<UFlareQuestConditionDestroyCombatValue>(ParentQuest, UFlareQuestConditionDestroyCombatValue::StaticClass());
+	Condition->Load(ParentQuest, ConditionIdentifierParam, HostileCompanyParam, CombatValueParam, DestroyTargetParam);
+	return Condition;
+}
+
+void UFlareQuestConditionDestroyCombatValue::Load(UFlareQuest* ParentQuest,
+												 FName ConditionIdentifierParam,
+												 UFlareCompany* HostileCompanyParam,
+												 int32 CombatValueParam,
+												 bool DestroyTargetParam)
+{
+	if (ConditionIdentifierParam == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionDestroyCombatValue need identifier for state saving");
+	}
+	LoadInternal(ParentQuest, ConditionIdentifierParam);
+	Callbacks.AddUnique(EFlareQuestCallback::SPACECRAFT_DESTROYED);
+
+
+	TargetCompany = HostileCompanyParam;
+	Quantity = CombatValueParam;
+	DestroyTarget = DestroyTargetParam;
+
+
+	if(DestroyTarget)
+	{
+		InitialLabel = FText::Format(LOCTEXT("DestroySpacecraftLabel","Destroy ships up to {0} combats points to {1}"),
+									 FText::AsNumber(Quantity),
+									 TargetCompany->GetCompanyName());
+	}
+	else
+	{
+		InitialLabel = FText::Format(LOCTEXT("UncontrollableSpacecraftLabel","Make uncontrollable ships up to {0} combats points to {1}"),
+										 FText::AsNumber(Quantity),
+										 TargetCompany->GetCompanyName());
+
+	}
+}
+
+void UFlareQuestConditionDestroyCombatValue::Restore(const FFlareBundle* Bundle)
+{
+	bool HasSave = true;
+	if(Bundle)
+	{
+		HasSave &= Bundle->HasInt32(CURRENT_PROGRESSION_TAG);
+	}
+	else
+	{
+		HasSave = false;
+	}
+
+	if(HasSave)
+	{
+		CurrentProgression = Bundle->GetInt32(CURRENT_PROGRESSION_TAG);
+	}
+	else
+	{
+		CurrentProgression = 0;
+	}
+
+}
+
+void UFlareQuestConditionDestroyCombatValue::Save(FFlareBundle* Bundle)
+{
+	Bundle->PutInt32(CURRENT_PROGRESSION_TAG, CurrentProgression);
+}
+
+
+bool UFlareQuestConditionDestroyCombatValue::IsCompleted()
+{
+	return CurrentProgression >= Quantity;
+}
+
+void UFlareQuestConditionDestroyCombatValue::OnSpacecraftDestroyed(UFlareSimulatedSpacecraft *Spacecraft, bool Uncontrollable, UFlareCompany *Source)
+{
+	if(Spacecraft->GetCompany() != TargetCompany)
+	{
+		return;
+	}
+
+	if(DestroyTarget != (!Uncontrollable))
+	{
+		return;
+	}
+
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+	if(PlayerCompany != Source)
+	{
+		return;
+	}
+
+	CurrentProgression+=Spacecraft->GetCombatPoints(false);
+}
+
+void UFlareQuestConditionDestroyCombatValue::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
 	FFlarePlayerObjectiveCondition ObjectiveCondition;
 	ObjectiveCondition.InitialLabel = InitialLabel;

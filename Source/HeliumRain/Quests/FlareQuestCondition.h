@@ -815,3 +815,37 @@ protected:
 	bool MilitaryTarget;
 };
 
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionDestroyCombatValue: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	static UFlareQuestConditionDestroyCombatValue* Create(UFlareQuest* ParentQuest,
+														 FName ConditionIdentifierParam,
+														 UFlareCompany* HostileCompanyParam,
+														 int32 CombatValueParam,
+														 bool DestroyTargetParam);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifierParam,
+			  UFlareCompany* HostileCompanyParam,
+			  int32 CombatValueParam,
+			  bool DestroyTargetParam);
+
+	virtual bool IsCompleted();
+	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
+
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual void OnSpacecraftDestroyed(UFlareSimulatedSpacecraft *Spacecraft, bool Uncontrollable, UFlareCompany *Source);
+
+
+
+protected:
+
+	UFlareCompany* TargetCompany;
+	int32 Quantity;
+	int32 CurrentProgression;
+	bool DestroyTarget;
+};
