@@ -113,6 +113,9 @@ public:
 	/** Get the target class icon */
 	const FSlateBrush* GetClassIcon() const;
 
+	/** Hide the combat value for non-military */
+	EVisibility GetCombatValueVisibility() const;
+
 	/** Hide the company flag if owned */
 	EVisibility GetCompanyFlagVisibility() const;
 

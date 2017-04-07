@@ -87,6 +87,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					[
 						SNew(SImage)
 						.Image(FFlareStyleSet::GetIcon("CombatValue"))
+						.Visibility(this, &SFlareSpacecraftInfo::GetCombatValueVisibility)
 					]
 
 					// Combat value
@@ -98,6 +99,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						SNew(STextBlock)
 						.Text(this, &SFlareSpacecraftInfo::GetCombatValue)
 						.TextStyle(&Theme.TextFont)
+						.Visibility(this, &SFlareSpacecraftInfo::GetCombatValueVisibility)
 					]
 
 					// Status
@@ -753,6 +755,27 @@ const FSlateBrush* SFlareSpacecraftInfo::GetClassIcon() const
 		return FFlareSpacecraftDescription::GetIcon(TargetSpacecraftDesc);
 	}
 	return NULL;
+}
+
+EVisibility SFlareSpacecraftInfo::GetCombatValueVisibility() const
+{
+	// Crash mitigation - If parent is hidden, so are we, don't try to use the target (#178)
+	if ((OwnerWidget.IsValid() && OwnerWidget->GetVisibility() != EVisibility::Visible)
+		|| (PC && !PC->GetMenuManager()->IsUIOpen()))
+	{
+		return EVisibility::Hidden;
+	}
+
+	// Check the target
+	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
+	{
+		if (TargetSpacecraft->IsStation() || !TargetSpacecraft->IsMilitary())
+		{
+			return EVisibility::Hidden;
+		}
+	}
+
+	return EVisibility::Visible;
 }
 
 EVisibility SFlareSpacecraftInfo::GetCompanyFlagVisibility() const
