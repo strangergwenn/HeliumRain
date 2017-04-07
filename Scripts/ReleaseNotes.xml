@@ -1,18 +1,16 @@
 ﻿<!DOCTYPE files>
 <ReleaseNotes>
-	<UpdateInProgress>0</UpdateInProgress>
-	<Version>beta</Version>
-	<Date>April 2017</Date>
+	<Version>Beta</Version>
 	<Notes>*Helium Rain Beta*
-Welcome to Helium Rain !
+Welcome to Helium Rain
 
 *Changelog*
-This is a beta build of Helium Rain. Please do not share this software ! We're trying to complete the game with your feedback before we release it officially.
+This is a beta build of Helium Rain. Please do not share this software. We're trying to complete the game with your feedback before we release it officially.
 
-We expect this release to have most major features of the final game, with the exception of our technological progress system ; and most of the content. Have fun !
+We expect this release to have most major features of the final game, with the exception of our technological progress system ; and most of the content. Have fun :) 
 
 *Bug reports*
 Please report any issue you have with the game on our public bug tracker :  http://dev.helium-rain.com
-Thank you for helping us making Helium Rain a great game !
+Thank you for helping us making Helium Rain a great game.
 	</Notes>
 </ReleaseNotes>
