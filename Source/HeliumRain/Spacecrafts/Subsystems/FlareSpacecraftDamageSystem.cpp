@@ -262,6 +262,34 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 
 	Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft->GetParent(), false,
 																	LastDamageCauser ? LastDamageCauser->GetCompany() : NULL);
+
+	// This ship has been damaged and someone is to blame
+	if (LastDamageCauser != NULL && LastDamageCauser->GetCompany() != Spacecraft->GetCompany())
+	{
+		// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
+		if (Spacecraft->GetCompany()->GetWarState(LastDamageCauser->GetCompany()) != EFlareHostility::Hostile)
+		{
+			float ReputationCost = -40;
+
+			Spacecraft->GetCompany()->GiveReputationToOthers(-0.3 * ReputationCost, false);
+			LastDamageCauser->GetCompany()->GiveReputationToOthers(0.5*ReputationCost, false);
+
+			// Lower attacker's reputation on victim
+			Spacecraft->GetCompany()->GiveReputation(LastDamageCauser->GetCompany(), ReputationCost, true);
+			if(LastDamageCauser->GetCompany() == PC->GetCompany())
+			{
+				for(UFlareCompany* Company : PC->GetGame()->GetGameWorld()->GetCompanies())
+				{
+					if(Company->GetReputation(PC->GetCompany()) < -100)
+					{
+						// Consider player just declare war
+						Company->SetHostilityTo(PC->GetCompany(), true);
+						PC->GetCompany()->SetHostilityTo(Company, true);
+					}
+				}
+			}
+		}
+	}
 }
 
 void UFlareSpacecraftDamageSystem::OnControlLost()
@@ -321,6 +349,35 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 
 	Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft->GetParent(), true,
 																	LastDamageCauser ? LastDamageCauser->GetCompany() : NULL);
+
+
+	// This ship has been damaged and someone is to blame
+	if (LastDamageCauser != NULL && LastDamageCauser->GetCompany() != Spacecraft->GetCompany())
+	{
+		// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
+		if (Spacecraft->GetCompany()->GetWarState(LastDamageCauser->GetCompany()) != EFlareHostility::Hostile)
+		{
+			float ReputationCost = -30;
+
+			Spacecraft->GetCompany()->GiveReputationToOthers(-0.2 * ReputationCost, false);
+			LastDamageCauser->GetCompany()->GiveReputationToOthers(0.5*ReputationCost, false);
+
+			// Lower attacker's reputation on victim
+			Spacecraft->GetCompany()->GiveReputation(LastDamageCauser->GetCompany(), ReputationCost, true);
+			if(LastDamageCauser->GetCompany() == PC->GetCompany())
+			{
+				for(UFlareCompany* Company : PC->GetGame()->GetGameWorld()->GetCompanies())
+				{
+					if(Company->GetReputation(PC->GetCompany()) < -100)
+					{
+						// Consider player just declare war
+						Company->SetHostilityTo(PC->GetCompany(), true);
+						PC->GetCompany()->SetHostilityTo(Company, true);
+					}
+				}
+			}
+		}
+	}
 }
 
 void UFlareSpacecraftDamageSystem::CheckRecovery()
