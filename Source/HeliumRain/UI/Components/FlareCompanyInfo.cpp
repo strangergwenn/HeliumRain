@@ -114,6 +114,40 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 					]
 				]
 
+				// Research value
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.VAlign(VAlign_Center)
+				[
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("ResearchValue"))
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareCompanyInfo::GetCompanyResearchValue)
+						.TextStyle(&Theme.TextFont)
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("CompanyResearchValue", "research spent"))
+						.TextStyle(&Theme.TextFont)
+					]
+				]
+
 				// Full value
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -330,6 +364,19 @@ FText SFlareCompanyInfo::GetCompanyCombatValue() const
 	{
 		CompanyValue CompanyValue = Company->GetCompanyValue(NULL, false);
 		Result = FText::AsNumber(CompanyValue.ArmyCombatPoints);
+	}
+
+	return Result;
+}
+
+FText SFlareCompanyInfo::GetCompanyResearchValue() const
+{
+	FText Result;
+
+	if (Company)
+	{
+		CompanyValue CompanyValue = Company->GetCompanyValue(NULL, false);
+		Result = FText::AsNumber(CompanyValue.ResearchSpent);
 	}
 
 	return Result;

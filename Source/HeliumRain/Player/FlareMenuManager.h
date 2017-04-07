@@ -314,6 +314,12 @@ public:
 		return SectorMenu;
 	}
 
+	/** Get technology menu */
+	TSharedPtr<SFlareTechnologyMenu> GetTechnologyMenu()
+	{
+		return TechnologyMenu;
+	}
+
 	/** Get notifier */
 	TSharedPtr<SFlareNotifier> GetNotifier()
 	{

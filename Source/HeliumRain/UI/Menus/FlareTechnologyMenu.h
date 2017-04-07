@@ -2,6 +2,8 @@
 
 #include "../../Flare.h"
 
+struct FFlareTechnologyDescription;
+
 
 class SFlareTechnologyMenu : public SCompoundWidget
 {
@@ -33,7 +35,41 @@ public:
 
 	/** Exit this menu */
 	void Exit();
-		
+
+
+protected:
+
+	/*----------------------------------------------------
+		Callbacks
+	----------------------------------------------------*/
+
+	/** Company info text */
+	FText GetCompanyTechnologyInfo() const;
+
+	/** Technology name text */
+	FText GetTechnologyName() const;
+
+	/** Technology description text */
+	FText GetTechnologyDescription() const;
+
+	/** Coloring for the levle text */
+	FSlateColor GetTitleTextColor(int32 RowLevel) const;
+
+	/** Is the unlocking of technology disabled */
+	bool IsUnlockDisabled() const;
+
+	/** Unlock button text */
+	FText GetTechnologyUnlockText() const;
+
+	/** Unlock button hint text */
+	FText GetTechnologyUnlockHintText() const;
+
+	/** Technology selected */
+	void OnTechnologySelected(const FFlareTechnologyDescription* Technology);
+	
+	/** The selected technology is unlocked */
+	void OnTechnologyUnlocked();
+
 
 protected:
 
@@ -41,8 +77,22 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	// Menu manager
-	TWeakObjectPtr<class AFlareMenuManager>  MenuManager;
+	// General data
+	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
+	const FFlareTechnologyDescription*              SelectedTechnology;
 	
+	// Slate objects
+	TSharedPtr<SScrollBox>                          TechnologyTree;
+
+public:
+
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
+
+	const FFlareTechnologyDescription* GetSelectedTechnology()
+	{
+		return SelectedTechnology;
+	}
 
 };

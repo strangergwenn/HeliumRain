@@ -56,6 +56,9 @@ protected:
 	/** Get the combat value of the company */
 	FText GetCompanyCombatValue() const;
 
+	/** Get the research value of the company */
+	FText GetCompanyResearchValue() const;
+
 	/** Get the value of the company */
 	FText GetCompanyValue() const;
 

@@ -200,7 +200,7 @@ struct FFlareTechnologyDescription
 	FName Identifier;
 
 	UPROPERTY(EditAnywhere, Category = Content)
-	FName ScienceCost;
+	int32 ResearchCost;
 
 	UPROPERTY(EditAnywhere, Category = Content)
 	int32 Level;
@@ -338,6 +338,15 @@ struct FFlareCompanySave
 
 	/* Modify reputation to this company */
 	float Shame;
+
+	/** Unlocked technologies */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FName> UnlockedTechnologies;
+
+	/** Science amount */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 ResearchAmount;
+
 };
 
 /** Game save data */

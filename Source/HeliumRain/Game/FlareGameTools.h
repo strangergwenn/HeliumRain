@@ -203,6 +203,9 @@ public:
 	void GiveMoney(FName CompanyShortName, int64 Amount);
 
 	UFUNCTION(exec)
+	void GiveResearch(FName CompanyShortName, int64 Amount);
+
+	UFUNCTION(exec)
 	void TransferResources(FName SourceImmatriculation, FName DestinationImmatriculation, FName ResourceIdentifier, uint32 Quantity);
 
 

@@ -33,7 +33,6 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 	Game = Cast<UFlareWorld>(GetOuter())->GetGame();
 	CompanyData = Data;
 	CompanyData.Identifier = FName(*GetName());
-	CompanyDescription = NULL;
 
 	// Player description ID is -1
 	if (Data.CatalogIdentifier >= 0)
@@ -53,6 +52,12 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 	TacticManager = NewObject<UFlareTacticManager>(this, UFlareTacticManager::StaticClass());
 	FCHECK(TacticManager);
 	TacticManager->Load(this);
+
+	// Load technologies
+	for (int i = 0; i < CompanyData.UnlockedTechnologies.Num(); i++)
+	{
+		UnlockTechnology(CompanyData.UnlockedTechnologies[i], false);
+	}	
 
 	// Load ships
 	for (int i = 0 ; i < CompanyData.ShipData.Num(); i++)
@@ -128,6 +133,7 @@ FFlareCompanySave* UFlareCompany::Save()
 	CompanyData.StationData.Empty();
 	CompanyData.DestroyedSpacecraftData.Empty();
 	CompanyData.SectorsKnowledge.Empty();
+	CompanyData.UnlockedTechnologies.Empty();
 
 	for (int i = 0 ; i < CompanyFleets.Num(); i++)
 	{
@@ -174,6 +180,11 @@ FFlareCompanySave* UFlareCompany::Save()
 
 			CompanyData.SectorsKnowledge.Add(SectorKnowledge);
 		}
+	}
+
+	for (auto& Technology : UnlockedTechnologies)
+	{
+		CompanyData.UnlockedTechnologies.Add(Technology.Key);
 	}
 
 	CompanyData.CompanyValue = GetCompanyValue().TotalValue;
@@ -614,6 +625,17 @@ void UFlareCompany::GiveMoney(int64 Amount)
 	{
 		FLOGV("$ %s + %lld -> %llu", *GetCompanyName().ToString(), Amount, CompanyData.Money);
 	}*/
+}
+
+void UFlareCompany::GiveResearch(int64 Amount)
+{
+	if (Amount < 0)
+	{
+		FLOGV("UFlareCompany::GiveMoney : Failed to give %d research from %s (balance: %d)", Amount, *GetCompanyName().ToString(), CompanyData.ResearchAmount);
+		return;
+	}
+
+	CompanyData.ResearchAmount += Amount;
 }
 
 #define REPUTATION_RANGE 200.f
@@ -1138,6 +1160,82 @@ const FSlateBrush* UFlareCompany::GetEmblem() const
 
 
 /*----------------------------------------------------
+	Technology
+----------------------------------------------------*/
+
+bool UFlareCompany::IsTechnologyUnlocked(FName Identifier) const
+{
+	FFlareTechnologyDescription* Technology = GetGame()->GetTechnologyCatalog()->Get(Identifier);
+
+	if (UnlockedTechnologies.Contains(Identifier))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool UFlareCompany::IsTechnologyAvailable(FName Identifier, FText& Reason) const
+{
+	FFlareTechnologyDescription* Technology = GetGame()->GetTechnologyCatalog()->Get(Identifier);
+ 
+	if (GetTechnologyLevel() < Technology->Level)
+	{
+		Reason = LOCTEXT("CantUnlockTechLevel", "You don't have the technology level to research this technology");
+		return false;
+	}
+	else if (GetResearchAmount() < Technology->ResearchCost)
+	{
+		Reason = LOCTEXT("CantUnlockTechCost", "You haven't done enough research for this technology");
+		return false;
+	}
+	else if (IsTechnologyUnlocked(Identifier))
+	{
+		Reason = LOCTEXT("CantUnlockTechAlready", "You have already researched this technology");
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+int32 UFlareCompany::GetTechnologyLevel() const
+{
+	return FMath::FloorToInt(FMath::Sqrt(UnlockedTechnologies.Num()));
+}
+
+int32 UFlareCompany::GetResearchAmount() const
+{
+	return CompanyData.ResearchAmount;
+}
+
+void UFlareCompany::UnlockTechnology(FName Identifier, bool NotifyPlayer)
+{
+	FFlareTechnologyDescription* Technology = GetGame()->GetTechnologyCatalog()->Get(Identifier);
+	FText Unused;
+
+	if (Identifier != NAME_None && Technology && IsTechnologyAvailable(Identifier, Unused))
+	{
+		CompanyData.ResearchAmount -= Technology->ResearchCost;
+		UnlockedTechnologies.Add(Identifier, Technology);
+
+		if (NotifyPlayer)
+		{
+			FString UniqueId = "technology-unlocked-" + Identifier.ToString();
+			Game->GetPC()->Notify(LOCTEXT("CompanyUnlockTechnology", "Technology unlocked"),
+				FText::Format(LOCTEXT("CompanyUnlockTechnologyFormat", "You have researched {0} for your company !"), Technology->Name),
+				FName(*UniqueId),
+				EFlareNotification::NT_Info,
+				false);
+		}
+	}
+}
+
+
+/*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/
 
@@ -1155,6 +1253,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 	Value.ShipsValue = 0;
 	Value.ArmyValue = 0;
 	Value.ArmyCombatPoints = 0;
+	Value.ResearchSpent = 0;
 	Value.StationsValue = 0;
 
 	for (int SpacecraftIndex = 0; SpacecraftIndex < CompanySpacecrafts.Num(); SpacecraftIndex++)
@@ -1225,9 +1324,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 		for (int32 FactoryIndex = 0; FactoryIndex < Spacecraft->GetFactories().Num(); FactoryIndex++)
 		{
 			UFlareFactory* Factory = Spacecraft->GetFactories()[FactoryIndex];
-
-
-
+			
 			for (int32 ReservedResourceIndex = 0 ; ReservedResourceIndex < Factory->GetReservedResources().Num(); ReservedResourceIndex++)
 			{
 				FName ResourceIdentifier = Factory->GetReservedResources()[ReservedResourceIndex].ResourceIdentifier;
@@ -1244,6 +1341,11 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 				}
 			}
 		}
+	}
+
+	for (auto& Technology : UnlockedTechnologies)
+	{
+		Value.ResearchSpent += Technology.Value->ResearchCost;
 	}
 
 	Value.SpacecraftsValue = Value.ShipsValue + Value.StationsValue;

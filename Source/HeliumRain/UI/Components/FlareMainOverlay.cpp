@@ -440,14 +440,7 @@ EVisibility SFlareMainOverlay::GetGameButtonVisibility() const
 
 bool SFlareMainOverlay::IsGameButtonDisabled(EFlareMenu::Type Menu) const
 {
-	if (Menu == EFlareMenu::MENU_Technology)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return false;
 }
 
 FVector2D SFlareMainOverlay::GetOverlayPosition() const

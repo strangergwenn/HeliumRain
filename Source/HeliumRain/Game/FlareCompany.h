@@ -21,6 +21,7 @@ struct CompanyValue
 	int64 ShipsValue;
 	int64 ArmyValue;
 	int32 ArmyCombatPoints;
+	int32 ResearchSpent;
 
 	int64 StationsValue;
 
@@ -176,6 +177,9 @@ public:
 	/** Give a money amount to the company. In cents */
 	virtual void GiveMoney(int64 Amount);
 
+	/** Give a research amount to the company */
+	virtual void GiveResearch(int64 Amount);
+	
 	virtual void GiveReputation(UFlareCompany* Company, float Amount, bool Propagate);
 
 	void GiveReputationToOthers(float Amount, bool Propagate);
@@ -206,6 +210,26 @@ public:
 	/** Get the company emblem */
 	const FSlateBrush* GetEmblem() const;
 
+
+	/*----------------------------------------------------
+		Technology
+	----------------------------------------------------*/
+
+	/** Check if a technology has been unlocked and is used */
+	bool IsTechnologyUnlocked(FName Identifier) const;
+
+	/** Check if a technology can be unlocked */
+	bool IsTechnologyAvailable(FName Identifier, FText& Reason) const;
+
+	/** Get the current technology level */
+	int32 GetTechnologyLevel() const;
+
+	/** Get the current amount of science */
+	int32 GetResearchAmount() const;
+
+	/** Unlock a technology */
+	void UnlockTechnology(FName Identifier, bool NotifyPlayer = false);
+	
 
 protected:
 
@@ -250,6 +274,9 @@ protected:
 	AFlareGame*                             Game;
 	TArray<UFlareSimulatedSector*>          KnownSectors;
 	TArray<UFlareSimulatedSector*>          VisitedSectors;
+
+	int32                                   ResearchAmount;
+	TMap<FName, FFlareTechnologyDescription*> UnlockedTechnologies;
 
 
 public:

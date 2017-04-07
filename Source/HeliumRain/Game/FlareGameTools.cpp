@@ -1287,6 +1287,24 @@ void UFlareGameTools::GiveMoney(FName CompanyShortName, int64 Amount)
 	Company->GiveMoney(Amount);
 }
 
+void UFlareGameTools::GiveResearch(FName CompanyShortName, int64 Amount)
+{
+	if (!GetGameWorld())
+	{
+		FLOG("AFlareGame::GiveResearch failed: no loaded world");
+		return;
+	}
+
+	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
+	if (!Company)
+	{
+		FLOGV("AFlareGame::GiveResearch failed: no company with short name '%s'", *CompanyShortName.ToString());
+		return;
+	}
+
+	Company->GiveResearch(Amount);
+}
+
 void UFlareGameTools::TransferResources(FName SourceImmatriculation, FName DestinationImmatriculation, FName ResourceIdentifier, uint32 Quantity)
 {
 	if (!GetGameWorld())
