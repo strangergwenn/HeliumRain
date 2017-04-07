@@ -1001,12 +1001,18 @@ FText SFlareSectorMenu::GetOwnCombatValue() const
 	if (IsEnabled() && TargetSector)
 	{
 		UFlareCompany* PlayerCompany = MenuManager->GetPC()->GetCompany();
-
 		CompanyValue Value = PlayerCompany->GetCompanyValue(TargetSector, false);
-		return FText::Format(LOCTEXT("CombatValueFormat", "{0}/{1}"),
-							 FText::AsNumber(Value.ArmyCurrentCombatPoints),
-								 FText::AsNumber(Value.ArmyTotalCombatPoints));
 
+		if (Value.ArmyCurrentCombatPoints > 0 || Value.ArmyTotalCombatPoints > 0)
+		{
+			Result = FText::Format(LOCTEXT("CombatValueFormat", "{0}/{1}"),
+				FText::AsNumber(Value.ArmyCurrentCombatPoints),
+				FText::AsNumber(Value.ArmyTotalCombatPoints));
+		}
+		else
+		{
+			Result = LOCTEXT("CombatValueZero", "0");
+		}
 	}
 
 	return Result;
@@ -1020,9 +1026,17 @@ FText SFlareSectorMenu::GetFullCombatValue() const
 	{
 		int32 AllPoints = SectorHelper::GetArmyCombatPoints(TargetSector, false);
 		int32 CurrentAllPoints = SectorHelper::GetArmyCombatPoints(TargetSector, true);
-		return FText::Format(LOCTEXT("CombatValueFormat", "{0}/{1}"),
-							 FText::AsNumber(CurrentAllPoints),
-								 FText::AsNumber(AllPoints));
+
+		if (CurrentAllPoints > 0 || AllPoints > 0)
+		{
+			Result = FText::Format(LOCTEXT("CombatValueFormat", "{0}/{1}"),
+				FText::AsNumber(CurrentAllPoints),
+				FText::AsNumber(AllPoints));
+		}
+		else
+		{
+			Result = LOCTEXT("CombatValueZero", "0");
+		}
 	}
 
 	return Result;
@@ -1037,9 +1051,17 @@ FText SFlareSectorMenu::GetHostileCombatValue() const
 		UFlareCompany* PlayerCompany = MenuManager->GetPC()->GetCompany();
 		int32 HostilePoints = SectorHelper::GetHostileArmyCombatPoints(TargetSector, PlayerCompany, false);
 		int32 CurrentHostilePoints = SectorHelper::GetHostileArmyCombatPoints(TargetSector, PlayerCompany, true);
-		return FText::Format(LOCTEXT("CombatValueFormat", "{0}/{1}"),
-							 FText::AsNumber(CurrentHostilePoints),
-								 FText::AsNumber(HostilePoints));
+
+		if (CurrentHostilePoints > 0 || HostilePoints > 0)
+		{
+			Result = FText::Format(LOCTEXT("CombatValueFormat", "{0}/{1}"),
+				FText::AsNumber(CurrentHostilePoints),
+				FText::AsNumber(HostilePoints));
+		}
+		else
+		{
+			Result = LOCTEXT("CombatValueZero", "0");
+		}
 	}
 
 	return Result;

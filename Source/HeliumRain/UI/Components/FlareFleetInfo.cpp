@@ -331,9 +331,16 @@ FText SFlareFleetInfo::GetCombatValue() const
 
 	if (TargetFleet)
 	{
-		Result = FText::Format(LOCTEXT("GetCombatValueFormat", "{0}/{1})"),
-					FText::AsNumber(TargetFleet->GetCombatPoints(true)),
-					FText::AsNumber(TargetFleet->GetCombatPoints(false)));
+		if (TargetFleet->GetCombatPoints(true) > 0 || TargetFleet->GetCombatPoints(false) > 0)
+		{
+			Result = FText::Format(LOCTEXT("GetCombatValueFormat", "{0}/{1}"),
+				FText::AsNumber(TargetFleet->GetCombatPoints(true)),
+				FText::AsNumber(TargetFleet->GetCombatPoints(false)));
+		}
+		else
+		{
+			Result = LOCTEXT("GetCombatValueZero", "0");
+		}
 	}
 
 	return Result;

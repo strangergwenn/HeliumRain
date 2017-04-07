@@ -800,9 +800,16 @@ FText SFlareSpacecraftInfo::GetCombatValue() const
 
 	if (TargetSpacecraft->IsValidLowLevel())
 	{
-		return FText::Format(LOCTEXT("GetCombatValueFormat", "{0}/{1}"),
-			FText::AsNumber(TargetSpacecraft->GetCombatPoints(true)),
-			FText::AsNumber(TargetSpacecraft->GetCombatPoints(false)));
+		if (TargetSpacecraft->GetCombatPoints(true) > 0 || TargetSpacecraft->GetCombatPoints(false) > 0)
+		{
+			Result = FText::Format(LOCTEXT("GetCombatValueFormat", "{0}/{1}"),
+				FText::AsNumber(TargetSpacecraft->GetCombatPoints(true)),
+				FText::AsNumber(TargetSpacecraft->GetCombatPoints(false)));
+		}
+		else
+		{
+			Result = LOCTEXT("GetCombatValueZero", "0");
+		}
 	}
 
 	return Result;

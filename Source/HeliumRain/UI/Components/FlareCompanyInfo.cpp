@@ -363,9 +363,17 @@ FText SFlareCompanyInfo::GetCompanyCombatValue() const
 	if (Company)
 	{
 		CompanyValue CompanyValue = Company->GetCompanyValue(NULL, false);
-		Result = FText::Format(LOCTEXT("CompanyCombatValueFormat", "{0}/{1}"),
-					FText::AsNumber(CompanyValue.ArmyCurrentCombatPoints),
-					FText::AsNumber(CompanyValue.ArmyTotalCombatPoints));
+
+		if (CompanyValue.ArmyCurrentCombatPoints > 0 || CompanyValue.ArmyTotalCombatPoints > 0)
+		{
+			Result = FText::Format(LOCTEXT("CompanyCombatValueFormat", "{0}/{1}"),
+				FText::AsNumber(CompanyValue.ArmyCurrentCombatPoints),
+				FText::AsNumber(CompanyValue.ArmyTotalCombatPoints));
+		}
+		else
+		{
+			Result = LOCTEXT("CompanyCombatZero", "0");
+		}
 	}
 
 	return Result;
