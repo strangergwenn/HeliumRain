@@ -69,25 +69,34 @@ public:
 	/** Update a list of capturing companies */
 	void UpdateCaptureList();
 
-	/** Inspect the current target */
+	/** Can we target the current spacecraft ? */
+	bool IsTargetDisabled() const;
+
+	/** Can we target the current spacecraft ? Hint text */
+	FText GetTargetButtonHint() const;
+
+	/** Inspect the current spacecraft */
 	void OnInspect();
 
-	/** Upgrade the current target */
+	/** Target the current spacecraft */
+	void OnTarget();
+
+	/** Upgrade the current spacecraft */
 	void OnUpgrade();
 
-	/** Trade with the current target */
+	/** Trade with the current spacecraft */
 	void OnTrade();
 
-	/** Fly the current target */
+	/** Fly the current spacecraft */
 	void OnFly();
 
-	/** Try to dock at the target station */
+	/** Try to dock at the station */
 	void OnDockAt();
 
 	/** Undock */
 	void OnUndock();
 
-	/** Scrap this ship */
+	/** Scrap this spacecraft */
 	void OnScrap();
 	
 
@@ -146,6 +155,7 @@ protected:
 	// Slate data (buttons)
 	TSharedPtr<SVerticalBox>          CaptureBox;
 	TSharedPtr<SFlareButton>          InspectButton;
+	TSharedPtr<SFlareButton>          TargetButton;
 	TSharedPtr<SFlareButton>          UpgradeButton;
 	TSharedPtr<SFlareButton>          TradeButton;
 	TSharedPtr<SFlareButton>          FlyButton;
