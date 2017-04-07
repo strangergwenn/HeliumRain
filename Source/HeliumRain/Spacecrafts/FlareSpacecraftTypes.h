@@ -526,7 +526,7 @@ namespace EFlareFactoryAction
 	enum Type
 	{
 		CreateShip,
-		GainTechnology,
+		GainResearch,
 		DiscoverSector
 	};
 }

@@ -523,8 +523,10 @@ void UFlareFactory::DoProduction()
 				PerformDiscoverSectorAction(Action);
 				break;
 
-			// TODO
-			case EFlareFactoryAction::GainTechnology:
+			case EFlareFactoryAction::GainResearch:
+				PerformGainResearchAction(Action);
+				break;
+
 			default:
 				FLOGV("Warning ! Not implemented factory action %d", (Action->Action+0));
 		}
@@ -698,6 +700,13 @@ void UFlareFactory::PerformDiscoverSectorAction(const FFlareFactoryAction* Actio
 	}
 
 	Stop();
+}
+
+void UFlareFactory::PerformGainResearchAction(const FFlareFactoryAction* Action)
+{
+	UFlareCompany* Company = Parent->GetCompany();
+
+	Company->GiveResearch(Action->Quantity);
 }
 
 
@@ -982,8 +991,12 @@ FText UFlareFactory::GetFactoryCycleInfo()
 					ProductionOutputText, CommaText);
 				break;
 
-			// TODO
-			case EFlareFactoryAction::GainTechnology:
+			// Research gain
+			case EFlareFactoryAction::GainResearch:
+				ProductionOutputText = FText::Format(LOCTEXT("GainResearchActionFormat", "{0}{1}{2} research"),
+					ProductionOutputText, CommaText, FText::AsNumber(FactoryAction->Quantity));
+				break;
+
 			default:
 				FLOGV("SFlareShipMenu::UpdateFactoryLimitsList : Unimplemented factory action %d", (FactoryAction->Action + 0));
 		}

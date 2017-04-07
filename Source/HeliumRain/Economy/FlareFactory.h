@@ -74,6 +74,8 @@ public:
 	void PerformCreateShipAction(const FFlareFactoryAction* Action);
 
 	void PerformDiscoverSectorAction(const FFlareFactoryAction* Action);
+	
+	void PerformGainResearchAction(const FFlareFactoryAction* Action);
 
 
 protected:
