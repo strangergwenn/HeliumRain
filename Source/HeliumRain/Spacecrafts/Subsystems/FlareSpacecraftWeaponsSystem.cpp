@@ -40,6 +40,36 @@ void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 		return;
 	}
 
+	// Set current gun target for proximity weapons on S ships
+	if (Spacecraft->GetNavigationSystem()->IsManualPilot() && Spacecraft->GetDescription()->Size == EFlarePartSize::S)
+	{
+		FVector CameraAimDirection = Spacecraft->GetCamera()->GetComponentRotation().Vector();
+
+		for (UFlareWeapon* Weapon : Spacecraft->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons)
+		{
+			// Try getting a target
+			AActor* HitTarget = NULL;
+			Weapon->IsSafeToFire(0, HitTarget);
+			if (!HitTarget || HitTarget == Weapon->GetSpacecraft())
+			{
+				HitTarget = Weapon->GetSpacecraft()->GetCurrentTarget();
+			}
+
+			// Aim the turret toward the target or a distant point
+			if (HitTarget && Cast<UPrimitiveComponent>(HitTarget->GetRootComponent()))
+			{
+				FVector Location = HitTarget->GetActorLocation();
+				FVector Velocity = Cast<UPrimitiveComponent>(HitTarget->GetRootComponent())->GetPhysicsLinearVelocity() / 100;
+				Weapon->SetTarget(Location, Velocity);
+			}
+			else
+			{
+				FVector FireTargetLocation = Weapon->GetMuzzleLocation(0) + CameraAimDirection * 100000;
+				Weapon->SetTarget(FireTargetLocation, FVector::ZeroVector);
+			}
+		}
+	}
+
 	// Are we firing ?
 	bool WantFire = false;
 	if (Spacecraft->GetNavigationSystem()->IsManualPilot() && Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
