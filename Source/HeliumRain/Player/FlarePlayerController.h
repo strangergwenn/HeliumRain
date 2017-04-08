@@ -56,7 +56,7 @@ public:
 	bool SwitchToNextShip(bool Instant = false);
 
 	/** Is the player ship being targeted ? Get one of the attackers too. */
-	void GetPlayerShipThreatStatus(bool& IsTargeted, bool& IsFiredUpon, UFlareSimulatedSpacecraft*& Threat) const;
+	void GetPlayerShipThreatStatus(bool& IsTargeted, bool& IsFiredUpon, bool& CollidingSoon, bool& ExitingSoon, bool& LowHealth, UFlareSimulatedSpacecraft*& Threat) const;
 	
 	/** Update a sector */
 	void CheckSectorStateChanges(UFlareSimulatedSector* Sector);

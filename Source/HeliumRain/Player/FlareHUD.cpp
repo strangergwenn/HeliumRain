@@ -712,14 +712,14 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		CurrentPos += InstrumentLine;
 
 		// Get player threats
-		bool Targeted, FiredUpon;
+		bool Targeted, FiredUpon, CollidingSoon, ExitingSoon, LowHealth;
 		UFlareSimulatedSpacecraft* Threat;
-		PC->GetPlayerShipThreatStatus(Targeted, FiredUpon, Threat);
+		PC->GetPlayerShipThreatStatus(Targeted, FiredUpon, CollidingSoon, ExitingSoon, LowHealth, Threat);
 
 		// Fired on ?
 		if (FiredUpon)
 		{
-			if(Threat)
+			if (Threat)
 			{
 				FText WarningText = FText::Format(LOCTEXT("ThreatFiredUponFormat", "UNDER FIRE FROM {0} ({1})"),
 					FText::FromString(Threat->GetImmatriculation().ToString()),
@@ -733,12 +733,33 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 			}
 		}
 
+		// Collision ?
+		else if (CollidingSoon)
+		{
+			FText WarningText = LOCTEXT("ThreatCollisionFormat", "IMMINENT COLLISION");
+			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+		}
+
+		// Leaving sector ?
+		else if (ExitingSoon)
+		{
+			FText WarningText = LOCTEXT("ThreatLeavingFormat", "LEAVING SECTOR");
+			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+		}
+
 		// Targeted ?
 		else if (Targeted)
 		{
 			FText WarningText = FText::Format(LOCTEXT("ThreatTargetFormat", "TARGETED BY {0} ({1})"),
 				FText::FromString(Threat->GetImmatriculation().ToString()),
 				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
+			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+		}
+
+		// Low health
+		else if (LowHealth)
+		{
+			FText WarningText = LOCTEXT("ThreatHealthFormat", "LIFE SUPPORT COMPROMISED");
 			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
 		}
 

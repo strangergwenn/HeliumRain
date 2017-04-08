@@ -3,8 +3,9 @@
 #include "FlarePlayerController.h"
 #include "../Game/FlareGameTools.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
-#include "../Spacecrafts/FlareShipPilot.h"
 #include "../Spacecrafts/FlareTurret.h"
+#include "../Spacecrafts/FlareShipPilot.h"
+#include "../Spacecrafts/FlarePilotHelper.h"
 #include "../Spacecrafts/FlareTurretPilot.h"
 #include "../Game/Planetarium/FlareSimulatedPlanetarium.h"
 #include "../Game/FlareGameUserSettings.h"
@@ -808,7 +809,7 @@ bool AFlarePlayerController::SwitchToNextShip(bool Instant)
 	return false;
 }
 
-void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& IsFiredUpon, UFlareSimulatedSpacecraft*& Threat) const
+void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& IsFiredUpon, bool& CollidingSoon, bool& ExitingSoon, bool& LowHealth, UFlareSimulatedSpacecraft*& Threat) const
 {
 	IsTargeted = false;
 	IsFiredUpon = false;
@@ -819,6 +820,7 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 
 	if (GetShipPawn() && GetGame()->GetActiveSector())
 	{
+		// Threats
 		TArray<AFlareSpacecraft*>& Ships = GetGame()->GetActiveSector()->GetShips();
 		for (AFlareSpacecraft* Ship : Ships)
 		{
@@ -870,7 +872,8 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 			}
 		}
 
-		if(!IsFiredUpon)
+		// Bomb alarm
+		if (!IsFiredUpon)
 		{
 			for (AFlareBomb* Bomb : GetGame()->GetActiveSector()->GetBombs())
 			{
@@ -882,6 +885,14 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 			}
 
 		}
+
+		// Low health
+		UFlareSimulatedSpacecraftDamageSystem* DamageSystem = GetShipPawn()->GetParent()->GetDamageSystem();
+		LowHealth = (DamageSystem->IsCrewEndangered() || DamageSystem->IsUncontrollable()) && DamageSystem->IsAlive();
+
+		// Other helpers
+		CollidingSoon = PilotHelper::IsAnticollisionImminent(GetShipPawn(), 10.0f);
+		ExitingSoon = PilotHelper::IsSectorExitImminent(GetShipPawn(), 10.0f);
 	}
 }
 

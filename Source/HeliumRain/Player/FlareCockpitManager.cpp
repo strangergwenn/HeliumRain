@@ -309,9 +309,9 @@ void AFlareCockpitManager::UpdateTarget(float DeltaSeconds)
 	// Lights are enabled on powered ships
 	if (PlayerShipIsPowered())
 	{
-		bool Targeted, FiredUpon;
+		bool Targeted, FiredUpon, CollidingSoon, ExitingSoon, LowHealth;
 		UFlareSimulatedSpacecraft* Threat;
-		PC->GetPlayerShipThreatStatus(Targeted, FiredUpon, Threat);
+		PC->GetPlayerShipThreatStatus(Targeted, FiredUpon, CollidingSoon, ExitingSoon, LowHealth, Threat);
 
 		// Player ship is fired upon
 		if (FiredUpon)

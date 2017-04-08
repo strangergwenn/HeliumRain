@@ -40,11 +40,15 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<USoundClass> EffectsClassObj(TEXT("/Game/Sound/Class_SFX.Class_SFX"));
 	static ConstructorHelpers::FObjectFinder<USoundMix> MasterSoundMixObj(TEXT("/Game/Sound/Mix_Master"));
 	
-	// Sound references
+	// Alarm sounds
 	static ConstructorHelpers::FObjectFinder<USoundCue> TargetWarningSoundObj(TEXT("/Game/Sound/Game/A_TargetWarning"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> AttackWarningSoundObj(TEXT("/Game/Sound/Game/A_AttackWarning"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> HealthWarningSoundObj(TEXT("/Game/Sound/Game/A_HealthWarning"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> HealthWarningHeavySoundObj(TEXT("/Game/Sound/Game/A_HealthWarningHeavy"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> CollisionWarningSoundObj(TEXT("/Game/Sound/Game/A_CollisionWarning"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> SectorExitWarningSoundObj(TEXT("/Game/Sound/Game/A_SectorExitWarning"));
+
+	// Notifications
 	static ConstructorHelpers::FObjectFinder<USoundCue> NegativeClickSoundObj(TEXT("/Game/Sound/Game/A_Negative.A_Negative"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> InfoSoundObj(TEXT("/Game/Sound/Game/A_Info.A_Info"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> TickSoundObj(TEXT("/Game/Sound/Game/A_LightTick.A_LightTick"));
@@ -72,6 +76,8 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	AttackWarningSound = AttackWarningSoundObj.Object;
 	HealthWarningSound = HealthWarningSoundObj.Object;
 	HealthWarningHeavySound = HealthWarningHeavySoundObj.Object;
+	CollisionWarningSound = CollisionWarningSoundObj.Object;
+	SectorExitWarningSound = SectorExitWarningSoundObj.Object;
 	
 	// Music sound
 	MusicPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("MusicSound"));
@@ -129,6 +135,22 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	HealthWarningPlayer.FadeSpeed = 1.0f;
 	HealthWarningPlayer.Volume = 0;
 
+	// Warning sound on collision
+	CollisionWarningPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("CollisionWarningSound"));
+	CollisionWarningPlayer.Sound->bAutoActivate = false;
+	CollisionWarningPlayer.Sound->bAutoDestroy = false;
+	CollisionWarningPlayer.PitchedFade = false;
+	CollisionWarningPlayer.FadeSpeed = 1.0f;
+	CollisionWarningPlayer.Volume = 0;
+
+	// Warning sound on sector exit
+	SectorExitWarningPlayer.Sound = PCIP.CreateDefaultSubobject<UAudioComponent>(this, TEXT("SectorExitWarningSound"));
+	SectorExitWarningPlayer.Sound->bAutoActivate = false;
+	SectorExitWarningPlayer.Sound->bAutoDestroy = false;
+	SectorExitWarningPlayer.PitchedFade = false;
+	SectorExitWarningPlayer.FadeSpeed = 1.0f;
+	SectorExitWarningPlayer.Volume = 0;
+
 	// Library
 	NegativeClickSound = NegativeClickSoundObj.Object;
 	InfoSound = InfoSoundObj.Object;
@@ -166,9 +188,13 @@ void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 		TargetWarningPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 		AttackWarningPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 		HealthWarningPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
+		CollisionWarningPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
+		SectorExitWarningPlayer.Sound->AttachToComponent(RootComponent, AttachRules);
 		TargetWarningPlayer.Sound->SetSound(TargetWarningSound);
 		AttackWarningPlayer.Sound->SetSound(AttackWarningSound);
 		HealthWarningPlayer.Sound->SetSound(HealthWarningSound);
+		CollisionWarningPlayer.Sound->SetSound(CollisionWarningSound);
+		SectorExitWarningPlayer.Sound->SetSound(SectorExitWarningSound);
 		
 		// Device
 		FAudioDevice* AudioDevice = Player->GetWorld()->GetAudioDevice();
@@ -260,11 +286,10 @@ void UFlareSoundManager::Update(float DeltaSeconds)
 		}
 
 		// Get player threats
-		bool Targeted, FiredUpon;
+		bool Targeted, FiredUpon, CollidingSoon, ExitingSoon, LowHealth;
 		UFlareSimulatedSpacecraft* Threat;
-		PC->GetPlayerShipThreatStatus(Targeted, FiredUpon, Threat);
+		PC->GetPlayerShipThreatStatus(Targeted, FiredUpon, CollidingSoon, ExitingSoon, LowHealth, Threat);
 		UFlareSimulatedSpacecraftDamageSystem* DamageSystem = PlayerShip->GetParent()->GetDamageSystem();
-		bool PlayerShipEndangered = (DamageSystem->IsCrewEndangered() || DamageSystem->IsUncontrollable()) && DamageSystem->IsAlive();
 		
 		// Update engine sounds
 		UpdatePlayer(PowerPlayer,  (!DamageSystem->IsUncontrollable() && !DamageSystem->HasPowerOutage() ? 1 : -1) * DeltaSeconds);
@@ -275,7 +300,9 @@ void UFlareSoundManager::Update(float DeltaSeconds)
 		bool IsHeavy = (ShipPawn->GetParent()->GetDescription()->Size == EFlarePartSize::L);
 		UpdatePlayer(TargetWarningPlayer, (!IsHeavy && !FiredUpon & Targeted ?  1.0f : -1.0f) * DeltaSeconds);
 		UpdatePlayer(AttackWarningPlayer, (!IsHeavy &&  FiredUpon ?             1.0f : -1.0f) * DeltaSeconds);
-		UpdatePlayer(HealthWarningPlayer, (PlayerShipEndangered ?               1.0f : -1.0f) * DeltaSeconds);
+		UpdatePlayer(HealthWarningPlayer, (LowHealth ?                          1.0f : -1.0f) * DeltaSeconds);
+		UpdatePlayer(CollisionWarningPlayer, (CollidingSoon ?                   1.0f : -1.0f) * DeltaSeconds);
+		UpdatePlayer(SectorExitWarningPlayer, (ExitingSoon ?                    1.0f : -1.0f) * DeltaSeconds);
 	}
 
 	// No ship : stop all ship sounds
@@ -287,6 +314,8 @@ void UFlareSoundManager::Update(float DeltaSeconds)
 		UpdatePlayer(TargetWarningPlayer, -DeltaSeconds);
 		UpdatePlayer(AttackWarningPlayer, -DeltaSeconds);
 		UpdatePlayer(HealthWarningPlayer, -DeltaSeconds);
+		UpdatePlayer(CollisionWarningPlayer, -DeltaSeconds);
+		UpdatePlayer(SectorExitWarningPlayer, -DeltaSeconds);
 	}
 
 	UpdateEffectsVolume(DeltaSeconds);

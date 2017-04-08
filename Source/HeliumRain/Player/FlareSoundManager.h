@@ -176,6 +176,14 @@ protected:
 	// Health warning sound node
 	UPROPERTY()
 	FFlareSoundPlayer                        HealthWarningPlayer;
+
+	// Collision warning sound node
+	UPROPERTY()
+	FFlareSoundPlayer                        CollisionWarningPlayer;
+
+	// Exit warning sound node
+	UPROPERTY()
+	FFlareSoundPlayer                        SectorExitWarningPlayer;
 	
 
 	/*----------------------------------------------------
@@ -198,6 +206,14 @@ protected:
 	UPROPERTY()
 	USoundCue*                               HealthWarningHeavySound;
 
+	// Warning sound on collision risk
+	UPROPERTY()
+	USoundCue*                               CollisionWarningSound;
+
+	// Warning sound on sector exit
+	UPROPERTY()
+	USoundCue*                               SectorExitWarningSound;
+	 
 
 public:
 

@@ -297,9 +297,7 @@ protected:
 
 	bool                                           HasExitedSector;
 	bool                                           Paused;
-
-	bool										   InWarningZone;
-
+	
 	bool                                           AttachedToParentActor;
 
 	// Joystick settings

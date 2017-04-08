@@ -155,73 +155,17 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 		{
 			SCOPE_CYCLE_COUNTER(STAT_FlareSpacecraft_PlayerShip);
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
-			
+
+			// Reload the sector if player leave the limits
 			if (this == PlayerShip && !HasExitedSector)
 			{
-				// Warn player if he's going to exit the sector
 				float Distance = GetActorLocation().Size();
 				float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
-				if (Distance < Limits)
-				{
-					float MinDistance = Limits - Distance;
-					bool ExitImminent = false;
 
-					// Facing the center of the sector : no warning
-					if (FVector::DotProduct(PlayerShip->GetActorRotation().Vector(), -PlayerShip->GetActorLocation()) > 0.5)
-					{
-						ExitImminent = false;
-					}
-
-					// Else, if close to limits : warning
-					else if (MinDistance < 0.1 * Limits)
-					{
-						ExitImminent = true;
-					}
-
-					// Else if going to exit soon : warning
-					else if (!GetLinearVelocity().IsNearlyZero())
-					{
-						// https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
-						FVector ShipDirection = GetLinearVelocity().GetUnsafeNormal();
-						FVector ShipLocation = GetActorLocation();
-						float Dot = FVector::DotProduct(ShipDirection, ShipLocation);
-
-						float DistanceBeforeExit = -Dot + FMath::Sqrt(Dot * Dot - Distance * Distance + Limits * Limits);
-						float Velocity = GetLinearVelocity().Size() * 100;
-						float DurationBeforeExit = DistanceBeforeExit / Velocity;
-
-						if (DurationBeforeExit < 15)
-						{
-							ExitImminent = true;
-						}
-					}
-
-					// Warn if going to exit
-					if (ExitImminent)
-					{
-						if (!InWarningZone)
-						{
-							PC->Notify(
-								LOCTEXT("ExitSectorImminent", "Exiting sector"),
-								LOCTEXT("ExitSectorImminentDescription", "Your ship is going to exit the sector. Go back near the sector center if you want to stay."),
-								"exit-sector-imminent",
-								EFlareNotification::NT_Info);
-						}
-
-						InWarningZone = true;
-					}
-					else
-					{
-						InWarningZone = false;
-					}
-				}
-
-				// Reload the sector if player leave the limits
-				else
+				if (Distance > Limits)
 				{
 					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits);
-
-
+					
 					// Notify if we're just resetting the ship
 					if (GetData().SpawnMode != EFlareSpawnMode::Travel)
 					{
@@ -752,7 +696,6 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 	}
 
 	CurrentTarget = NULL;
-	InWarningZone = false;
 }
 
 void AFlareSpacecraft::Save()
