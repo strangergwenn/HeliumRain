@@ -44,6 +44,9 @@ struct PilotHelper
 	/** Correct trajectory to avoid incoming ships */
 	static FVector AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, AFlareSpacecraft* SpacecraftToIgnore = NULL, float PreventionDuration = 5.f);
 
+	static bool IsAnticollisionImminent(AFlareSpacecraft* Ship, float PreventionDuration) { return false; }
+	static bool IsSectorExitImminent(AFlareSpacecraft* Ship, float PreventionDuration) { return false; }
+
 	static AFlareSpacecraft* GetBestTarget(AFlareSpacecraft* Ship, struct TargetPreferences Preferences);
 
 	static UFlareSpacecraftComponent* GetBestTargetComponent(AFlareSpacecraft* TargetSpacecraft);
