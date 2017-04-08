@@ -1304,7 +1304,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 
 					// Snip helpers
 					float ZoomAlpha = PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha();
-					if(ScreenPositionValid && Spacecraft->GetSize() == EFlarePartSize::L && ZoomAlpha > 0)
+					if (ScreenPositionValid && !Spacecraft->IsStation() && Spacecraft->GetSize() == EFlarePartSize::L && ZoomAlpha > 0)
 					{
 						FVector2D AimOffset = ScreenPosition - HelperScreenPosition;
 						UTexture2D* NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
