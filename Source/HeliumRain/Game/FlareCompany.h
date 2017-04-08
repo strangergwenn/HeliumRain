@@ -235,7 +235,10 @@ public:
 
 	/** Unlock a technology */
 	void UnlockTechnology(FName Identifier, bool FromSave = false);
+
+	bool HasStationTechnologyUnlocked() const;
 	
+	bool HasStationUnlockedStation(const FFlareSpacecraftDescription* Description) const;
 
 protected:
 

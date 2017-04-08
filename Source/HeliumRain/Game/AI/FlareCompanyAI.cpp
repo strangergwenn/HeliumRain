@@ -1450,6 +1450,11 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool& Lock, bool&
 				continue;
 			}
 
+			if (Company->HasStationUnlockedStation(StationDescription))
+			{
+				continue;
+			}
+
 			// Check sector limitations
 			TArray<FText> Reasons;
 			if (!Sector->CanBuildStation(StationDescription, Company, Reasons, true))

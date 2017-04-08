@@ -524,9 +524,9 @@ FText SFlareSectorMenu::GetBuildStationHelpText() const
 	{
 		return FText();
 	}
-	else if (!PC->GetCompany()->IsTechnologyUnlocked("stations"))
+	else if (!PC->GetCompany()->HasStationTechnologyUnlocked())
 	{
-		return LOCTEXT("CantBuildStationTechInfo", "You need to unlock station technolgy first");
+		return LOCTEXT("CantBuildStationTechInfo", "You need to unlock station technology first");
 	}
 	else if (!PC->GetCompany()->HasVisitedSector(TargetSector))
 	{
@@ -546,7 +546,7 @@ bool SFlareSectorMenu::IsBuildStationDisabled() const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	if (!PC->GetCompany()->IsTechnologyUnlocked("stations"))
+	if (!PC->GetCompany()->HasStationTechnologyUnlocked())
 	{
 		return true;
 	}

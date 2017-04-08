@@ -1214,6 +1214,65 @@ bool UFlareCompany::IsTechnologyAvailable(FName Identifier, FText& Reason) const
 	}
 }
 
+bool UFlareCompany::HasStationTechnologyUnlocked() const
+{
+	return IsTechnologyUnlocked("stations") ||
+	IsTechnologyUnlocked("mining") ||
+	IsTechnologyUnlocked("orbital-pumps") ||
+	IsTechnologyUnlocked("chemicals") ||
+	IsTechnologyUnlocked("advanced-stations") ||
+	IsTechnologyUnlocked("metallurgy");
+}
+
+
+bool UFlareCompany::HasStationUnlockedStation(const FFlareSpacecraftDescription* Description) const
+{
+	FName Identifier = Description->Identifier;
+
+	if(Identifier == "station-habitation" ||
+			Identifier == "station-hub" ||
+			Identifier == "station-outpost" ||
+			Identifier == "station-research" ||
+			Identifier == "station-solar-plant")
+	{
+		return IsTechnologyUnlocked("stations");
+	}
+	else if(Identifier == "station-ice-mine"||
+			Identifier == "station-silica-mine" ||
+			Identifier == "station-iron-mine")
+	{
+		return IsTechnologyUnlocked("mining");
+	}
+	else if(Identifier == "station-carbon-refinery" ||
+			Identifier == "station-farm" ||
+			Identifier == "station-plastics-refinery")
+	{
+		return IsTechnologyUnlocked("chemicals");
+	}
+	else if(Identifier == "station-ch4-pump"||
+			Identifier == "station-he3-pump" ||
+			Identifier == "station-h2-pump")
+	{
+		return IsTechnologyUnlocked("orbital-pumps");
+	}
+	else if(Identifier == "station-steelworks" ||
+			Identifier == "station-tool-factory" ||
+			Identifier == "station-arsenal")
+	{
+		return IsTechnologyUnlocked("metallurgy");
+	}
+	else if(Identifier == "station-foundry" ||
+			Identifier == "station-shipyard" ||
+			Identifier == "station-tokamak" ||
+			Identifier == "station-telescope")
+	{
+		return IsTechnologyUnlocked("advanced-stations");
+	}
+
+	FLOGV("WARNING: station %s don't need technology", *Description->Identifier.ToString());
+	return true;
+}
+
 int32 UFlareCompany::GetTechnologyCost(const FFlareTechnologyDescription* Technology) const
 {
 	return Technology->ResearchCost * CompanyData.ResearchRatio;
