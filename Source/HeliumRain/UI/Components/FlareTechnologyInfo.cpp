@@ -61,6 +61,7 @@ void SFlareTechnologyInfo::Construct(const FArguments& InArgs)
 				[
 					SNew(SBox)
 					.WidthOverride(4 * Theme.ResourceWidth)
+					.HeightOverride(Theme.ResourceHeight)
 					.Padding(FMargin(0))
 					[
 						SNew(SVerticalBox)
