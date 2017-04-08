@@ -977,13 +977,11 @@ void AFlareHUD::DrawHUDInternal()
 				DrawDockingHelper(Spacecraft);
 			}
 
-			// Draw search markers
-			if (!IsExternalCamera && ShouldDrawSearchMarker && 
-				(Highlighted ||
-					(PlayerShip->GetParent()->GetDamageSystem()->IsAlive()
-					&& !Spacecraft->IsStation()
-					&& Spacecraft->GetCompany()->GetPlayerWarState() != EFlareHostility::Owned)
-				)
+			// Draw search markers for alive ships or highlighted stations when not in external camera
+			if (!IsExternalCamera && ShouldDrawSearchMarker
+				&& PlayerShip->GetParent()->GetDamageSystem()->IsAlive()
+				&& Spacecraft->GetParent()->GetDamageSystem()->IsAlive()
+				&& (Highlighted || !Spacecraft->IsStation())
 			)
 			{
 				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), Highlighted, FocusDistance);
@@ -1037,6 +1035,7 @@ void AFlareHUD::DrawHUDInternal()
 				ShouldDrawMarker = true;
 			}
 
+			// Draw objective
 			if (ShouldDrawMarker && !IsExternalCamera && Target->Active)
 			{
 				DrawSearchArrow(ObjectiveLocation, HudColorObjective, true);
@@ -1366,19 +1365,15 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 		}
 	}
 
-	if(ScreenPositionValid)
+	// Tell the HUD to draw the search marker only if we are outside this
+	if (ScreenPositionValid)
 	{
-		// Tell the HUD to draw the search marker only if we are outside this
 		return !IsInScreen(ScreenPosition);
 	}
-
-	// Dead ship
-	if (!Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
+	else
 	{
-		return false;
+		return true;
 	}
-
-	return true;
 }
 
 void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float DesignatorIconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Dangerous, bool Highlighted)
