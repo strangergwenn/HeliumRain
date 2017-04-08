@@ -300,4 +300,9 @@ public:
 	int32 GetVisibleQuestCount();
 
 	int32 GetVisibleQuestCount(UFlareCompany* Client);
+
+	UFlareQuestGenerator* GetQuestGenerator()
+	{
+		return QuestGenerator;
+	}
 };

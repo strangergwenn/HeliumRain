@@ -8,6 +8,8 @@
 #include "../FlareSectorHelper.h"
 
 #include "../../Economy/FlareCargoBay.h"
+#include "../../Quests/FlareQuestManager.h"
+#include "../../Quests/FlareQuestGenerator.h"
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 
@@ -1916,6 +1918,7 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 		Target.OwnedMilitaryCount = 0;
 		Target.WarTargetIncomingFleets = GenerateWarTargetIncomingFleets(Sector);
 
+
 		for (UFlareSimulatedSpacecraft* Spacecraft : Sector->GetSectorSpacecrafts())
 		{
 			EFlareHostility::Type Hostility = Spacecraft->GetCompany()->GetWarState(Company);
@@ -1940,6 +1943,11 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList()
 						else
 						{
 							Target.EnemyArmySCombatPoints += ShipCombatPoints;
+						}
+
+						if(ShipCombatPoints > 0)
+						{
+							Target.ArmedDefenseCompanies.AddUnique(Spacecraft->GetCompany());
 						}
 					}
 					else
@@ -2293,6 +2301,8 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 			// Send random ships
 			int32 MinShipToSend = FMath::Max(Target.EnemyCargoCount, Target.EnemyStationCount);
 			int32 SentShips = 0;
+			int32 SentCombatPoints = 0;
+
 			while (MovableShips.Num() > 0 &&
 				   ((SentShips < MinShipToSend) || (AntiLFleetCombatPoints < AntiLFleetCombatPointsLimit || AntiSFleetCombatPoints < AntiSFleetCombatPointsLimit)))
 			{
@@ -2328,6 +2338,12 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 
 				Game->GetGameWorld()->StartTravel(SelectedShip->GetCurrentFleet(), Target.Sector);
 				SentShips++;
+				SentCombatPoints+=ShipCombatPoints;
+			}
+
+			if(SentShips > 0 && TravelDuration > 1)
+			{
+				Game->GetQuestManager()->GetQuestGenerator()->GenerateAttackQuests(Company, SentCombatPoints, Target, TravelDuration);
 			}
 
 			if (Sector.CombatPoints == 0)

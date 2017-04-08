@@ -35,6 +35,8 @@ public:
 
 	void GenerateMilitaryQuests();
 
+	void GenerateAttackQuests(UFlareCompany* AttackCompany, int32 AttackCombatPoints, WarTarget& Target, int64 TravelDuration);
+
 	void RegisterQuest(UFlareQuestGenerated* Quest);
 
 	bool FindUniqueTag(FName Tag);
@@ -45,9 +47,10 @@ public:
 
 	FName GenerateTradeTag(UFlareSimulatedSpacecraft* SourceSpacecraft, FFlareResourceDescription* Resource);
 
-	FName GenerateDefenseTag(UFlareSimulatedSector* Sector, UFlareCompany* OwnerCompany, UFlareCompany* HostileCompany);
 
-	FName GenerateAttackTag(UFlareSimulatedSector* Sector, UFlareCompany* OwnerCompany, UFlareCompany* HostileCompany);
+	FName GenerateDefenseTag(UFlareSimulatedSector* Sector, UFlareCompany* HostileCompany);
+
+	FName GenerateAttackTag(UFlareSimulatedSector* Sector, UFlareCompany* OwnerCompany);
 
 	FName GenerateHarassTag(UFlareCompany* OwnerCompany, UFlareCompany* HostileCompany);
 
@@ -180,6 +183,34 @@ public:
 	/** Load the quest from description file */
 	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company, UFlareCompany* HostileCompany);
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestGeneratedJoinAttack: public UFlareQuestGenerated
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static FName GetClass() { return "join-attack"; }
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, int32 AttackCombatPoints, WarTarget& Target, int64 TravelDuration);
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestGeneratedSectorDefense: public UFlareQuestGenerated
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static FName GetClass() { return "sector-defense"; }
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany, int32 AttackCombatPoints, WarTarget& Target, int64 TravelDuration);
 };
 
 //////////////////////////////////////////////////////

@@ -664,6 +664,28 @@ protected:
 
 //////////////////////////////////////////////////////
 UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionAfterDate: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionAfterDate* Create(UFlareQuest* ParentQuest, int64 Date);
+	void Load(UFlareQuest* ParentQuest, int64 Date);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual FText GetInitialLabel();
+
+protected:
+
+	int64 DateLimit;
+};
+
+
+//////////////////////////////////////////////////////
+UCLASS()
 class HELIUMRAIN_API UFlareQuestConditionMinArmyCombatPointsInSector: public UFlareQuestCondition
 {
 	GENERATED_UCLASS_BODY()
@@ -702,6 +724,24 @@ protected:
 	int32 TargetArmyPoints;
 };
 
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionNoBattleInSector: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionNoBattleInSector* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	UFlareSimulatedSector* TargetSector;
+	UFlareCompany* TargetCompany;
+};
 
 //////////////////////////////////////////////////////
 UCLASS()

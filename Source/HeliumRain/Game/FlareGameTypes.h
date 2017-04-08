@@ -386,6 +386,15 @@ struct FVectorArray
 	TArray<FVector> Entries;
 };
 
+USTRUCT()
+struct FNameArray
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY()
+	TArray<FName> Entries;
+};
+
 /** Generic storage system */
 USTRUCT()
 struct FFlareBundle
@@ -405,6 +414,9 @@ struct FFlareBundle
 	TMap<FName, FVectorArray> VectorArrayValues;
 
 	UPROPERTY(EditAnywhere, Category = Save)
+	TMap<FName, FNameArray> NameArrayValues;
+
+	UPROPERTY(EditAnywhere, Category = Save)
 	TMap<FName, FName> NameValues;
 
 	UPROPERTY(EditAnywhere, Category = Save)
@@ -418,6 +430,7 @@ struct FFlareBundle
 	bool HasTransform(FName Key) const;
 	bool HasVectorArray(FName Key) const;
 	bool HasName(FName Key) const;
+	bool HasNameArray(FName Key) const;
 	bool HasString(FName Key) const;
 	bool HasTag(FName Tag) const;
 
@@ -427,6 +440,7 @@ struct FFlareBundle
 	FTransform GetTransform(FName Key, const FTransform Default = FTransform::Identity) const;
 	TArray<FVector> GetVectorArray(FName Key) const;
 	FName GetName(FName Key) const;
+	TArray<FName> GetNameArray(FName Key) const;
 	FString GetString(FName Key) const;
 
 	void PutFloat(FName Key, float Value);
@@ -434,6 +448,7 @@ struct FFlareBundle
 	void PutTransform(FName Key, const FTransform Value);
 	void PutVectorArray(FName Key, const TArray<FVector> Value);
 	void PutName(FName Key, FName Value);
+	void PutNameArray(FName Key, const TArray<FName> Value);
 	void PutString(FName Key, FString Value);
 	void PutTag(FName Tag);
 
@@ -454,6 +469,34 @@ struct FFlareIncomingEvent
 	UPROPERTY(EditAnywhere, Category = Content)
 	int64 RemainingDuration;
 };
+
+
+struct WarTargetIncomingFleet
+{
+	int64 TravelDuration;
+	int32 ArmyCombatPoints;
+};
+
+
+
+struct WarTarget
+{
+	UFlareSimulatedSector* Sector;
+	int32 EnemyArmyCombatPoints;
+	int32 EnemyArmyLCombatPoints;
+	int32 EnemyArmySCombatPoints;
+	int64 EnemyStationCount;
+	int64 EnemyCargoCount;
+	int32 OwnedArmyCombatPoints;
+	int32 OwnedArmyAntiSCombatPoints;
+	int32 OwnedArmyAntiLCombatPoints;
+	int64 OwnedStationCount;
+	int64 OwnedCargoCount;
+	int64 OwnedMilitaryCount;
+	TArray<WarTargetIncomingFleet> WarTargetIncomingFleets; // List player company fleets
+	TArray<UFlareCompany*> ArmedDefenseCompanies;
+};
+
 
 UCLASS()
 class HELIUMRAIN_API UFlareGameTypes : public UObject

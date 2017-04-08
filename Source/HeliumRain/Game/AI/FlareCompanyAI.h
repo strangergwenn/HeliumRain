@@ -72,30 +72,6 @@ struct DefenseSector
 	}
 };
 
-struct WarTargetIncomingFleet
-{
-	int64 TravelDuration;
-	int32 ArmyCombatPoints;
-};
-
-
-struct WarTarget
-{
-	UFlareSimulatedSector* Sector;
-	int32 EnemyArmyCombatPoints;
-	int32 EnemyArmyLCombatPoints;
-	int32 EnemyArmySCombatPoints;
-	int64 EnemyStationCount;
-	int64 EnemyCargoCount;
-	int32 OwnedArmyCombatPoints;
-	int32 OwnedArmyAntiSCombatPoints;
-	int32 OwnedArmyAntiLCombatPoints;
-	int64 OwnedStationCount;
-	int64 OwnedCargoCount;
-	int64 OwnedMilitaryCount;
-	TArray<WarTargetIncomingFleet> WarTargetIncomingFleets; // List player company fleets
-};
-
 
 UCLASS()
 class HELIUMRAIN_API UFlareCompanyAI : public UObject

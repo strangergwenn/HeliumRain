@@ -1933,6 +1933,54 @@ void UFlareQuestConditionTimeAfterAvailableDate::AddConditionObjectives(FFlarePl
 }
 
 /*----------------------------------------------------
+	After date condition
+----------------------------------------------------*/
+UFlareQuestConditionAfterDate::UFlareQuestConditionAfterDate(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionAfterDate* UFlareQuestConditionAfterDate::Create(UFlareQuest* ParentQuest, int64 Date)
+{
+	UFlareQuestConditionAfterDate*Condition = NewObject<UFlareQuestConditionAfterDate>(ParentQuest, UFlareQuestConditionAfterDate::StaticClass());
+	Condition->Load(ParentQuest, Date);
+	return Condition;
+}
+
+void UFlareQuestConditionAfterDate::Load(UFlareQuest* ParentQuest, int64 Date)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+	DateLimit = Date;
+}
+
+FText UFlareQuestConditionAfterDate::GetInitialLabel()
+{
+	int64 RemainingDuration = DateLimit - GetGame()->GetGameWorld()->GetDate();
+
+	return FText::Format(LOCTEXT("RemainingDurationFormat", "{0} remaining"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 2)));
+}
+
+bool UFlareQuestConditionAfterDate::IsCompleted()
+{
+	float AvailabilityDate = Quest->GetAvailableDate();
+	return GetGame()->GetGameWorld()->GetDate() > DateLimit;
+}
+
+void UFlareQuestConditionAfterDate::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = (IsCompleted()) ? 1 : 0;
+	ObjectiveCondition.MaxCounter = 1;
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
 	Min army combat point in sector condition
 ----------------------------------------------------*/
 UFlareQuestConditionMinArmyCombatPointsInSector::UFlareQuestConditionMinArmyCombatPointsInSector(const FObjectInitializer& ObjectInitializer)
@@ -2053,6 +2101,63 @@ void UFlareQuestConditionMaxArmyCombatPointsInSector::AddConditionObjectives(FFl
 	ObjectiveCondition.MaxProgress = 0;
 	ObjectiveCondition.Counter = SectorHelper::GetCompanyArmyCombatPoints(TargetSector, TargetCompany, true);
 	ObjectiveCondition.MaxCounter = TargetArmyPoints;
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+	No battle in sector condition
+----------------------------------------------------*/
+UFlareQuestConditionNoBattleInSector::UFlareQuestConditionNoBattleInSector(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionNoBattleInSector* UFlareQuestConditionNoBattleInSector::Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam)
+{
+	UFlareQuestConditionNoBattleInSector* Condition = NewObject<UFlareQuestConditionNoBattleInSector>(ParentQuest, UFlareQuestConditionNoBattleInSector::StaticClass());
+	Condition->Load(ParentQuest, TargetSectorParam, TargetCompanyParam);
+	return Condition;
+}
+
+void UFlareQuestConditionNoBattleInSector::Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, UFlareCompany* TargetCompanyParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+	Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+	TargetSector = TargetSectorParam;
+	TargetCompany = TargetCompanyParam;
+
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	if (TargetCompany == PlayerCompany)
+	{
+		FText InitialLabelText = LOCTEXT("PlayerNoBattle", "No battle in {0}");
+		InitialLabel = FText::Format(InitialLabelText, TargetSector->GetSectorName());
+
+
+	}
+	else
+	{
+		FText InitialLabelText = LOCTEXT("CompanyNoBattle", "No battle for {0} in {1}");
+		InitialLabel = FText::Format(InitialLabelText, TargetCompany->GetCompanyName(), TargetSector->GetSectorName());
+	}
+}
+
+bool UFlareQuestConditionNoBattleInSector::IsCompleted()
+{
+	return !TargetSector->GetSectorBattleState(TargetCompany).InFight;
+}
+
+void UFlareQuestConditionNoBattleInSector::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.MaxCounter = 1;
 
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }

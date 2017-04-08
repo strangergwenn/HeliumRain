@@ -814,6 +814,22 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveBundle(FFlareBundle* Data)
 		JsonObject->SetObjectField("NameValues", Int32Object);
 	}
 	
+	if(Data->NameArrayValues.Num() > 0)
+	{
+		TSharedRef<FJsonObject> TransformObject = MakeShareable(new FJsonObject());
+		for (auto& Pair : Data->NameArrayValues)
+		{
+			TArray< TSharedPtr<FJsonValue> > NameArray;
+			for(FName Name: Pair.Value.Entries)
+			{
+				NameArray.Add(MakeShareable(new FJsonValueString(Name.ToString())));
+			}
+
+			TransformObject->SetArrayField(Pair.Key.ToString(), NameArray);
+		}
+		JsonObject->SetObjectField("NameArrayValues", TransformObject);
+	}
+
 	if (Data->StringValues.Num() > 0)
 	{
 		TSharedRef<FJsonObject> StringObject = MakeShareable(new FJsonObject());
