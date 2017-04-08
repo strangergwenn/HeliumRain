@@ -580,7 +580,7 @@ FText SFlareOrbitalMenu::GetDateText() const
 		{
 			int64 Credits = PlayerCompany->GetMoney();
 			FText DateText = UFlareGameTools::GetDisplayDate(GameWorld->GetDate());
-			return FText::Format(LOCTEXT("DateCreditsInfoFormat", "{0} - {1} credits"), DateText, FText::AsNumber(UFlareGameTools::DisplayMoney(Credits)));
+			return FText::Format(LOCTEXT("DateCreditsInfoFormat", "Company date : {0} - {1} credits"), DateText, FText::AsNumber(UFlareGameTools::DisplayMoney(Credits)));
 		}
 	}
 

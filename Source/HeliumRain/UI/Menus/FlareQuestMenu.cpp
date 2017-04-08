@@ -432,7 +432,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text((ClientCompany ? FText::Format(LOCTEXT("QuestInfoFormat", "This contract is offered by {0}"), ClientCompany->GetCompanyName()):FText()))
+					.Text((ClientCompany ? FText::Format(LOCTEXT("QuestInfoFormat", "This contract is offered by {0}."), ClientCompany->GetCompanyName()):FText()))
 				]
 			]
 

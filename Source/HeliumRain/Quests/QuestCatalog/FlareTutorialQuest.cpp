@@ -64,7 +64,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"PitchUp"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your cursor to the top or bottom part of the screen to pitch up.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your cursor to the top of the screen to pitch up.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pitch-up", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -75,7 +75,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"PitchDown"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your cursor to the top or bottom part of the screen to pitch down.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your cursor to the bottom of the screen to pitch down.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pitch-down", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -86,7 +86,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"YawLeft"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your cursor to the left or right part of the screen to turn left.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your cursor to the left of the screen to turn left.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "yaw-left", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -97,7 +97,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"YawRight"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your cursor to the left or right part of the screen to turn right.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your cursor to the right of the screen to turn right.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "yaw-right", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -141,7 +141,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"FollowAdvancedPath"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can use the prograde vector to follow a path. Keep a constant velocity and just aim your target, your ship's engine controller will automatically align yout velicity with your ship orientation.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can use the prograde vector to follow a path. Keep a constant velocity and aim for your target, your ship's engine controller will automatically align your velocity with your ship's orientation.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "follow-advanced-path", Description);
 
 
@@ -202,7 +202,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Activate"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your ship arrived at destination. Close this menu to fly it !");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your ship arrived at destination !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "activate", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionSectorActive::Create(this, Sector));

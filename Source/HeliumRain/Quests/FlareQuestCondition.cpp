@@ -1910,7 +1910,7 @@ FText UFlareQuestConditionTimeAfterAvailableDate::GetInitialLabel()
 	int64 AvailabilityDate = Quest->GetAvailableDate();
 	int64 RemainingDuration = DurationLimit - (GetGame()->GetGameWorld()->GetDate()- AvailabilityDate);
 
-	return FText::Format(LOCTEXT("RemainingDurationFormat", "{0} remaining"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 2)));
+	return FText::Format(LOCTEXT("RemainingDurationFormat", "{0} left"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 2)));
 }
 
 bool UFlareQuestConditionTimeAfterAvailableDate::IsCompleted()
@@ -2132,14 +2132,14 @@ void UFlareQuestConditionNoBattleInSector::Load(UFlareQuest* ParentQuest, UFlare
 
 	if (TargetCompany == PlayerCompany)
 	{
-		FText InitialLabelText = LOCTEXT("PlayerNoBattle", "No battle in {0}");
+		FText InitialLabelText = LOCTEXT("PlayerNoBattle", "Battle finished in {0}");
 		InitialLabel = FText::Format(InitialLabelText, TargetSector->GetSectorName());
 
 
 	}
 	else
 	{
-		FText InitialLabelText = LOCTEXT("CompanyNoBattle", "No battle for {0} in {1}");
+		FText InitialLabelText = LOCTEXT("CompanyNoBattle", "Battle finished for {0} in {1}");
 		InitialLabel = FText::Format(InitialLabelText, TargetCompany->GetCompanyName(), TargetSector->GetSectorName());
 	}
 }
