@@ -238,7 +238,9 @@ public:
 
 	bool HasStationTechnologyUnlocked() const;
 	
-	bool HasStationUnlockedStation(const FFlareSpacecraftDescription* Description) const;
+	bool IsTechnologyUnlockedStation(const FFlareSpacecraftDescription* Description) const;
+
+	bool IsTechnologyUnlockedPart(const FFlareSpacecraftComponentDescription* Description) const;
 
 protected:
 

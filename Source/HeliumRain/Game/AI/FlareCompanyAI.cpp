@@ -1450,7 +1450,7 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool& Lock, bool&
 				continue;
 			}
 
-			if (Company->HasStationUnlockedStation(StationDescription))
+			if (Company->IsTechnologyUnlockedStation(StationDescription))
 			{
 				continue;
 			}
@@ -2609,6 +2609,11 @@ bool UFlareCompanyAI::UpgradeShip(UFlareSimulatedSpacecraft* Ship, EFlarePartSiz
 
 		for (FFlareSpacecraftComponentDescription* Part : PartListData)
 		{
+			if (!Company->IsTechnologyUnlockedPart(Part))
+			{
+				continue;
+			}
+
 			if (!Part->WeaponCharacteristics.IsWeapon)
 			{
 				continue;

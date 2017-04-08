@@ -1225,7 +1225,7 @@ bool UFlareCompany::HasStationTechnologyUnlocked() const
 }
 
 
-bool UFlareCompany::HasStationUnlockedStation(const FFlareSpacecraftDescription* Description) const
+bool UFlareCompany::IsTechnologyUnlockedStation(const FFlareSpacecraftDescription* Description) const
 {
 	FName Identifier = Description->Identifier;
 
@@ -1270,6 +1270,25 @@ bool UFlareCompany::HasStationUnlockedStation(const FFlareSpacecraftDescription*
 	}
 
 	FLOGV("WARNING: station %s don't need technology", *Description->Identifier.ToString());
+	return true;
+}
+
+bool UFlareCompany::IsTechnologyUnlockedPart(const FFlareSpacecraftComponentDescription* Description) const
+{
+	FName Identifier = Description->Identifier;
+
+	if(Identifier == "weapon-heavy-salvage" ||
+			Identifier == "weapon-light-salvage")
+	{
+		return IsTechnologyUnlocked("pirate-tech");
+	}
+
+	if(Identifier == "weapon-hades" ||
+			Identifier == "weapon-macaria")
+	{
+		return IsTechnologyUnlocked("flak");
+	}
+
 	return true;
 }
 

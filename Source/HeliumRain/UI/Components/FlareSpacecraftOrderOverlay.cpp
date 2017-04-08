@@ -193,7 +193,7 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSector* Sector, FOrderDel
 		for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->StationCatalog.Num(); SpacecraftIndex++)
 		{
 			FFlareSpacecraftDescription* Description = &SpacecraftCatalog->StationCatalog[SpacecraftIndex]->Data;
-			if (!Description->IsSubstation && MenuManager->GetPC()->GetCompany()->HasStationUnlockedStation(Description))
+			if (!Description->IsSubstation && MenuManager->GetPC()->GetCompany()->IsTechnologyUnlockedStation(Description))
 			{
 				UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->StationCatalog[SpacecraftIndex];
 				SpacecraftList.AddUnique(FInterfaceContainer::New(&Entry->Data));

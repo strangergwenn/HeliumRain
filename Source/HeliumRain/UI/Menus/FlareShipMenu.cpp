@@ -501,9 +501,12 @@ void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* Select
 		CurrentEquippedPartIndex = Index;
 
 		// Copy items
-		for (int32 i = 0; i < PartListData.Num(); i++)
+		for (FFlareSpacecraftComponentDescription* Part : PartListData)
 		{
-			PartListDataShared.AddUnique(FInterfaceContainer::New(PartListData[i]));
+			if (MenuManager->GetPC()->GetCompany()->IsTechnologyUnlockedPart(Part))
+			{
+				PartListDataShared.AddUnique(FInterfaceContainer::New(Part));
+			}
 		}
 
 		// Update list
