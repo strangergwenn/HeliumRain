@@ -274,7 +274,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 								SNew(SFlareButton)
 								.Width(6)
 								.Text(this, &SFlareSectorMenu::GetBuildStationText)
-								.HelpText(LOCTEXT("BuildStationInfo", "Build a station in this sector"))
+								.HelpText(this, &SFlareSectorMenu::GetBuildStationHelpText)
 								.Icon(FFlareStyleSet::GetIcon("Travel"))
 								.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
 								.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
@@ -516,14 +516,41 @@ FText SFlareSectorMenu::GetBuildStationText() const
 	}
 }
 
+FText SFlareSectorMenu::GetBuildStationHelpText() const
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+
+	if (!PC || !TargetSector)
+	{
+		return FText();
+	}
+	else if (!PC->GetCompany()->IsTechnologyUnlocked("stations"))
+	{
+		return LOCTEXT("CantBuildStationTechInfo", "You need to unlock station technolgy first");
+	}
+	else if (!PC->GetCompany()->HasVisitedSector(TargetSector))
+	{
+		return LOCTEXT("CantBuildStationUnknownInfo", "Can't build stations in unknown sectors");
+	}
+	else if (TargetSector->GetSectorStations().Num() >= TargetSector->GetMaxStationsInSector())
+	{
+		return LOCTEXT("CantBuildStationMaxInfo", "This sector is already full");
+	}
+	else
+	{
+		return LOCTEXT("BuildStationInfo", "Build a station in this sector");
+	}
+}
+
 bool SFlareSectorMenu::IsBuildStationDisabled() const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	if (TargetSector
-		&& PC
-		&& PC->GetCompany()->HasVisitedSector(TargetSector)
-		&& TargetSector->GetSectorStations().Num() < TargetSector->GetMaxStationsInSector())
+	if (!PC->GetCompany()->IsTechnologyUnlocked("stations"))
+	{
+		return true;
+	}
+	else if (TargetSector && PC->GetCompany()->HasVisitedSector(TargetSector) && TargetSector->GetSectorStations().Num() < TargetSector->GetMaxStationsInSector())
 	{
 		return false;
 	}

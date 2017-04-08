@@ -5,6 +5,7 @@
 
 
 class AFlarePlayerController;
+class UFlareCompany;
 
 
 class SFlareConfirmationBox : public SCompoundWidget

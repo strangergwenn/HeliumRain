@@ -46,6 +46,9 @@ protected:
 
 	/** Can we build stations */
 	FText GetBuildStationText() const;
+
+	/** Can we build stations */
+	FText GetBuildStationHelpText() const;
 	
 	/** Do we have more than the max stations already ? */
 	bool IsBuildStationDisabled() const;

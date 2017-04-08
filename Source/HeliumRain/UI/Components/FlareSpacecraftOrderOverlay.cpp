@@ -271,7 +271,7 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 					{
 						if (Index)
 						{
-							CantBuildReasons += FString(" - ");
+							CantBuildReasons += FString("\n\u2022 ");
 						}
 						CantBuildReasons += Reasons[Index].ToString();
 					}

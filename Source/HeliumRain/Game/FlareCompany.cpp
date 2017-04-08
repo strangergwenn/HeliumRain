@@ -635,6 +635,12 @@ void UFlareCompany::GiveResearch(int64 Amount)
 		return;
 	}
 
+	// Instruments technology
+	if (IsTechnologyUnlocked("instruments"))
+	{
+		Amount *= 1.5;
+	}
+
 	CompanyData.ResearchAmount += Amount;
 }
 
@@ -1166,6 +1172,12 @@ const FSlateBrush* UFlareCompany::GetEmblem() const
 bool UFlareCompany::IsTechnologyUnlocked(FName Identifier) const
 {
 	FFlareTechnologyDescription* Technology = GetGame()->GetTechnologyCatalog()->Get(Identifier);
+
+	// TODO #657 : Add company AI and remove this
+	if (this != Game->GetPC()->GetCompany())
+	{
+		return true;
+	}
 
 	if (UnlockedTechnologies.Contains(Identifier))
 	{
