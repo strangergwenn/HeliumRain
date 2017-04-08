@@ -891,8 +891,8 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 		LowHealth = (DamageSystem->IsCrewEndangered() || DamageSystem->IsUncontrollable()) && DamageSystem->IsAlive();
 
 		// Other helpers
-		CollidingSoon = PilotHelper::IsAnticollisionImminent(GetShipPawn(), 10.0f);
-		ExitingSoon = PilotHelper::IsSectorExitImminent(GetShipPawn(), 10.0f);
+		CollidingSoon = PilotHelper::IsAnticollisionImminent(GetShipPawn(), 8.0f);
+		ExitingSoon = PilotHelper::IsSectorExitImminent(GetShipPawn(), 15.0f);
 	}
 }
 

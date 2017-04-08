@@ -147,7 +147,7 @@ bool PilotHelper::FindMostDangerousCollision(AFlareSpacecraft* Ship, AFlareSpace
 		}
 	}
 
-	return MostDangerousCandidateActor != NULL;
+	return *MostDangerousCandidateActor != NULL;
 }
 
 bool PilotHelper::IsAnticollisionImminent(AFlareSpacecraft* Ship, float PreventionDuration)
