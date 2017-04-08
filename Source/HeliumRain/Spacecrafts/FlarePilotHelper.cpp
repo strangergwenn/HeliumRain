@@ -73,7 +73,11 @@ bool PilotHelper::CheckFriendlyFire(UFlareSector* Sector, UFlareCompany* MyCompa
 
 }
 
-FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, AFlareSpacecraft* SpacecraftToIgnore, float PreventionDuration)
+bool PilotHelper::FindMostDangerousCollision(AFlareSpacecraft* Ship, AFlareSpacecraft* SpacecraftToIgnore,
+											 AActor** MostDangerousCandidateActor,
+											 FVector* MostDangerousLocation,
+											 float* MostDangerousHitTime,
+											 float* MostDangerousInterCollisionTravelTime)
 {
 	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_AnticollisionCorrection);
 
@@ -118,7 +122,7 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 	// No candidate found, return
 	if (Candidates.Num() == 0)
 	{
-		return InitialVelocity;
+		return false;
 	}
 
 	// Input data for danger processing
@@ -129,10 +133,9 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 	float MaxRelevanceDistance = 200 * CurrentSize;
 
 	// Output data
-	AActor* MostDangerousCandidateActor = NULL;
-	FVector MostDangerousLocation;
-	float MostDangerousHitTime = 0;
-	float MostDangerousInterCollisionTravelTime = 0;
+	*MostDangerousCandidateActor = NULL;
+	*MostDangerousHitTime = 0;
+	*MostDangerousInterCollisionTravelTime = 0;
 
 	// Process all candidates
 	for (auto SelectedCandidate : Candidates)
@@ -140,8 +143,50 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 		if ((SelectedCandidate.Key->GetActorLocation() - CurrentLocation).Size() < MaxRelevanceDistance)
 		{
 			CheckRelativeDangerosity(SelectedCandidate.Key, CurrentLocation, CurrentSize, SelectedCandidate.Value, CurrentVelocity,
-				&MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
+				MostDangerousCandidateActor, MostDangerousLocation, MostDangerousHitTime, MostDangerousInterCollisionTravelTime);
 		}
+	}
+
+	return MostDangerousCandidateActor != NULL;
+}
+
+bool PilotHelper::IsAnticollisionImminent(AFlareSpacecraft* Ship, float PreventionDuration)
+{
+	// Output data
+	AActor* MostDangerousCandidateActor;
+	FVector MostDangerousLocation;
+	float MostDangerousHitTime;
+	float MostDangerousInterCollisionTravelTime;
+
+	bool HaveCollision = FindMostDangerousCollision(Ship, NULL,
+		&MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
+	if(HaveCollision)
+	{
+		if((MostDangerousHitTime - MostDangerousInterCollisionTravelTime) < PreventionDuration)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, AFlareSpacecraft* SpacecraftToIgnore, float PreventionDuration)
+{
+	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_AnticollisionCorrection);
+
+	// Output data
+	AActor* MostDangerousCandidateActor;
+	FVector MostDangerousLocation;
+	float MostDangerousHitTime;
+	float MostDangerousInterCollisionTravelTime;
+
+	bool HaveCollision = FindMostDangerousCollision(Ship, SpacecraftToIgnore,
+		&MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
+
+	if(!HaveCollision)
+	{
+		return InitialVelocity;
 	}
 
 	// Avoid the most dangerous target
@@ -149,10 +194,14 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 	{
 		SCOPE_CYCLE_COUNTER(STAT_PilotHelper_AnticollisionCorrection_Avoidance);
 
+		FBox ShipBox = Ship->GetComponentsBoundingBox();
+		FVector CurrentLocation = (ShipBox.Max + ShipBox.Min) / 2.0;
+
 		if (MostDangerousHitTime > 0)
 		{
 			UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(MostDangerousCandidateActor->GetRootComponent());
 			
+
 			FVector MinDistancePoint = CurrentLocation + Ship->Airframe->GetPhysicsLinearVelocity() * MostDangerousHitTime;
 			FVector FutureTargetLocation =  MostDangerousLocation + StaticMeshComponent->GetPhysicsLinearVelocity() * MostDangerousHitTime;
 			FVector AvoidanceVector = MinDistancePoint - FutureTargetLocation;
@@ -167,10 +216,12 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 				AvoidanceAxis = AvoidanceVector.GetUnsafeNormal();
 			}
 
-			//DrawDebugLine(Ship->GetWorld(), CurrentLocation, MinDistancePoint , FColor::Yellow, true);
-			//DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Ship->Airframe->GetPhysicsLinearVelocity(), FColor::White, true);
-			//DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + AvoidanceAxis *1000 , FColor::Green, true);
-			//DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + InitialVelocity *10 , FColor::Blue, true);
+			/*DrawDebugLine(Ship->GetWorld(), CurrentLocation, MinDistancePoint , FColor::Yellow, true);
+			DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Ship->Airframe->GetPhysicsLinearVelocity(), FColor::White, true);
+			DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + AvoidanceAxis *1000 , FColor::Green, true);
+			DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + InitialVelocity *10 , FColor::Blue, true);
+			FLOGV("MostDangerousHitTime %f", MostDangerousHitTime);
+			FLOGV("MostDangerousInterCollisionTravelTime %f", MostDangerousInterCollisionTravelTime);*/
 
 			// Below few second begin avoidance maneuver
 			float Alpha = 1 - FMath::Max(0.0f, MostDangerousHitTime - MostDangerousInterCollisionTravelTime)/PreventionDuration;
@@ -190,6 +241,47 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 	}
 
 	return InitialVelocity;
+}
+
+bool PilotHelper::IsSectorExitImminent(AFlareSpacecraft* Ship, float PreventionDuration)
+{
+	float Distance = Ship->GetActorLocation().Size();
+	float Limits = Ship->GetGame()->GetActiveSector()->GetSectorLimits();
+
+	float MinDistance = Limits - Distance;
+	bool ExitImminent = false;
+
+	// Facing the center of the sector : no warning
+	if (FVector::DotProduct(Ship->GetActorRotation().Vector(), -Ship->GetActorLocation()) > 0.5)
+	{
+		ExitImminent = false;
+	}
+
+	// Else, if close to limits : warning
+	else if (MinDistance < 0.1 * Limits)
+	{
+		ExitImminent = true;
+	}
+
+	// Else if going to exit soon : warning
+	else if (!Ship->GetLinearVelocity().IsNearlyZero())
+	{
+		// https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
+		FVector ShipDirection = Ship->GetLinearVelocity().GetUnsafeNormal();
+		FVector ShipLocation = Ship->GetActorLocation();
+		float Dot = FVector::DotProduct(ShipDirection, ShipLocation);
+
+		float DistanceBeforeExit = -Dot + FMath::Sqrt(Dot * Dot - Distance * Distance + Limits * Limits);
+		float Velocity = Ship->GetLinearVelocity().Size() * 100;
+		float DurationBeforeExit = DistanceBeforeExit / Velocity;
+
+		if (DurationBeforeExit < PreventionDuration)
+		{
+			ExitImminent = true;
+		}
+	}
+
+	return ExitImminent;
 }
 
 AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct TargetPreferences Preferences)
