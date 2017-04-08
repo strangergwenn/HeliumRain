@@ -61,25 +61,43 @@ void SFlareTechnologyInfo::Construct(const FArguments& InArgs)
 				[
 					SNew(SBox)
 					.WidthOverride(4 * Theme.ResourceWidth)
-					.HeightOverride(Theme.ResourceHeight)
 					.Padding(FMargin(0))
 					[
 						SNew(SVerticalBox)
 						
+						// Title
 						+ SVerticalBox::Slot()
 						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
 						[
 							SNew(STextBlock)
 							.TextStyle(&Theme.NameFont)
 							.Text(Technology->Name)
 						]
 						
+						// Cost info
 						+ SVerticalBox::Slot()
 						.AutoHeight()
 						.HAlign(HAlign_Right)
+						.VAlign(VAlign_Bottom)
+						.Padding(Theme.SmallContentPadding)
 						[
-							SNew(SImage)
-							.Image(this, &SFlareTechnologyInfo::GetUnlockIcon)
+							SNew(SHorizontalBox)
+
+							+ SHorizontalBox::Slot()
+							[
+								SNew(SImage)
+								.Image(this, &SFlareTechnologyInfo::GetUnlockIcon)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.VAlign(VAlign_Center)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.TextFont)
+								.Text(this, &SFlareTechnologyInfo::GetTechnologyCost)
+							]
 						]
 					]
 				]
@@ -157,7 +175,19 @@ const FSlateBrush* SFlareTechnologyInfo::GetUnlockIcon() const
 	}
 	else
 	{
-		return FFlareStyleSet::GetIcon("ResearchAmount");
+		return FFlareStyleSet::GetIcon("ResearchValue");
+	}
+}
+
+FText SFlareTechnologyInfo::GetTechnologyCost() const
+{
+	if (MenuManager->GetPC()->GetCompany()->IsTechnologyUnlocked(Technology->Identifier))
+	{
+		return FText();
+	}
+	else
+	{
+		return FText::AsNumber(Technology->ResearchCost);
 	}
 }
 

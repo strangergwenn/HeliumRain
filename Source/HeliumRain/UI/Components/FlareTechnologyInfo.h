@@ -52,6 +52,9 @@ protected:
 
 	/** Get the icon to display */
 	const FSlateBrush* GetUnlockIcon() const;
+
+	/** Cost text */
+	FText GetTechnologyCost() const;
 	
 	/** Technology item clicked */
 	FReply OnButtonClicked();

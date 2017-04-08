@@ -271,9 +271,9 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 					{
 						if (Index)
 						{
-							CantBuildReasons += FString("\n\u2022 ");
+							CantBuildReasons += FString("\n");
 						}
-						CantBuildReasons += Reasons[Index].ToString();
+						CantBuildReasons += LOCTEXT("DONT-TRANSLATE-ListSymbol", "\u2022 ").ToString() + Reasons[Index].ToString();
 					}
 					ConfirmText->SetText(FText::FromString(CantBuildReasons));
 				}

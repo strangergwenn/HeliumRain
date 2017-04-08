@@ -342,7 +342,7 @@ void SFlareTechnologyMenu::OnTechnologyUnlocked()
 {
 	if (SelectedTechnology)
 	{
-		MenuManager->GetPC()->GetCompany()->UnlockTechnology(SelectedTechnology->Identifier, true);
+		MenuManager->GetPC()->GetCompany()->UnlockTechnology(SelectedTechnology->Identifier);
 	}
 }
 

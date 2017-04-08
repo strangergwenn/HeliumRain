@@ -229,7 +229,7 @@ public:
 	int32 GetResearchAmount() const;
 
 	/** Unlock a technology */
-	void UnlockTechnology(FName Identifier, bool NotifyPlayer = false);
+	void UnlockTechnology(FName Identifier, bool FromSave = false);
 	
 
 protected:

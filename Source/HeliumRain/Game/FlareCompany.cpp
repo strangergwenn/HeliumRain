@@ -56,7 +56,7 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 	// Load technologies
 	for (int i = 0; i < CompanyData.UnlockedTechnologies.Num(); i++)
 	{
-		UnlockTechnology(CompanyData.UnlockedTechnologies[i], false);
+		UnlockTechnology(CompanyData.UnlockedTechnologies[i], true);
 	}	
 
 	// Load ships
@@ -1216,7 +1216,12 @@ bool UFlareCompany::IsTechnologyAvailable(FName Identifier, FText& Reason) const
 
 int32 UFlareCompany::GetTechnologyLevel() const
 {
-	return 1 + FMath::FloorToInt(FMath::Sqrt(UnlockedTechnologies.Num()));
+	// 0 technologies -> Level 1
+	// 2 technologies -> Level 2
+	// 4 technologies -> Level 3
+	// 6 technologies -> Level 4
+
+	return 1 + FMath::FloorToInt(UnlockedTechnologies.Num() / 2);
 }
 
 int32 UFlareCompany::GetResearchAmount() const
@@ -1224,18 +1229,19 @@ int32 UFlareCompany::GetResearchAmount() const
 	return CompanyData.ResearchAmount;
 }
 
-void UFlareCompany::UnlockTechnology(FName Identifier, bool NotifyPlayer)
+void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave)
 {
 	FFlareTechnologyDescription* Technology = GetGame()->GetTechnologyCatalog()->Get(Identifier);
 	FText Unused;
 
-	if (Identifier != NAME_None && Technology && IsTechnologyAvailable(Identifier, Unused))
+	if (Identifier != NAME_None && Technology && (IsTechnologyAvailable(Identifier, Unused) || FromSave))
 	{
-		CompanyData.ResearchAmount -= Technology->ResearchCost;
 		UnlockedTechnologies.Add(Identifier, Technology);
 
-		if (NotifyPlayer)
+		if (!FromSave)
 		{
+			CompanyData.ResearchAmount -= Technology->ResearchCost;
+
 			FString UniqueId = "technology-unlocked-" + Identifier.ToString();
 			Game->GetPC()->Notify(LOCTEXT("CompanyUnlockTechnology", "Technology unlocked"),
 				FText::Format(LOCTEXT("CompanyUnlockTechnologyFormat", "You have researched {0} for your company !"), Technology->Name),
