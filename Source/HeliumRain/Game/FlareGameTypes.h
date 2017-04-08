@@ -336,7 +336,7 @@ struct FFlareCompanySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64 PlayerLastWarDate;
 
-	/* Modify reputation to this company */
+	/** Modify reputation to this company */
 	float Shame;
 
 	/** Unlocked technologies */
@@ -347,6 +347,13 @@ struct FFlareCompanySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 ResearchAmount;
 
+	/** Research inflation ratio*/
+	UPROPERTY(EditAnywhere, Category = Save)
+	float ResearchRatio;
+
+	/** Research inflation ratio*/
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 ResearchSpent;
 };
 
 /** Game save data */

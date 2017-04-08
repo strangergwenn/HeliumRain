@@ -252,6 +252,8 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 	LoadInt32(Object, "FleetImmatriculationIndex", &Data->FleetImmatriculationIndex);
 	LoadInt32(Object, "TradeRouteImmatriculationIndex", &Data->TradeRouteImmatriculationIndex);
 	LoadInt32(Object, "ResearchAmount", &Data->ResearchAmount);
+	LoadInt32(Object, "ResearchSpent", &Data->ResearchSpent);
+	LoadFloat(Object, "ResearchRatio", &Data->ResearchRatio);
 	LoadFloat(Object, "Shame", &Data->Shame);
 	
 	const TArray<TSharedPtr<FJsonValue>>* UnlockedTechnologies;

@@ -22,7 +22,6 @@ struct CompanyValue
 	int64 ArmyValue;
 	int32 ArmyTotalCombatPoints;
 	int32 ArmyCurrentCombatPoints;
-	int32 ResearchSpent;
 
 	int64 StationsValue;
 
@@ -222,11 +221,17 @@ public:
 	/** Check if a technology can be unlocked */
 	bool IsTechnologyAvailable(FName Identifier, FText& Reason) const;
 
+	/** Get the current technology cost */
+	int32 GetTechnologyCost(const FFlareTechnologyDescription* Technology) const;
+
 	/** Get the current technology level */
 	int32 GetTechnologyLevel() const;
 
 	/** Get the current amount of science */
 	int32 GetResearchAmount() const;
+
+	/** Get the current amount of science */
+	int32 GetResearchSpent() const;
 
 	/** Unlock a technology */
 	void UnlockTechnology(FName Identifier, bool FromSave = false);

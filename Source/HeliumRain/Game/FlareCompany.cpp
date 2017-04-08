@@ -1198,7 +1198,7 @@ bool UFlareCompany::IsTechnologyAvailable(FName Identifier, FText& Reason) const
 		Reason = LOCTEXT("CantUnlockTechLevel", "You don't have the technology level to research this technology");
 		return false;
 	}
-	else if (GetResearchAmount() < Technology->ResearchCost)
+	else if (GetResearchAmount() < GetTechnologyCost(Technology))
 	{
 		Reason = LOCTEXT("CantUnlockTechCost", "You haven't done enough research for this technology");
 		return false;
@@ -1212,6 +1212,11 @@ bool UFlareCompany::IsTechnologyAvailable(FName Identifier, FText& Reason) const
 	{
 		return true;
 	}
+}
+
+int32 UFlareCompany::GetTechnologyCost(const FFlareTechnologyDescription* Technology) const
+{
+	return Technology->ResearchCost * CompanyData.ResearchRatio;
 }
 
 int32 UFlareCompany::GetTechnologyLevel() const
@@ -1229,6 +1234,11 @@ int32 UFlareCompany::GetResearchAmount() const
 	return CompanyData.ResearchAmount;
 }
 
+int32 UFlareCompany::GetResearchSpent() const
+{
+	return CompanyData.ResearchSpent;
+}
+
 void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave)
 {
 	FFlareTechnologyDescription* Technology = GetGame()->GetTechnologyCatalog()->Get(Identifier);
@@ -1240,7 +1250,13 @@ void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave)
 
 		if (!FromSave)
 		{
-			CompanyData.ResearchAmount -= Technology->ResearchCost;
+			float CurrentResearchInflation = IsTechnologyUnlocked("instruments") ? 1.4 : 1.5;
+			int32 Cost = GetTechnologyCost(Technology);
+
+			CompanyData.ResearchAmount -= Cost;
+			CompanyData.ResearchSpent += Cost;
+
+			CompanyData.ResearchRatio *= CurrentResearchInflation;
 
 			FString UniqueId = "technology-unlocked-" + Identifier.ToString();
 			Game->GetPC()->Notify(LOCTEXT("CompanyUnlockTechnology", "Technology unlocked"),
@@ -1272,7 +1288,6 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 	Value.ArmyValue = 0;
 	Value.ArmyCurrentCombatPoints = 0;
 	Value.ArmyTotalCombatPoints = 0;
-	Value.ResearchSpent = 0;
 	Value.StationsValue = 0;
 
 	for (int SpacecraftIndex = 0; SpacecraftIndex < CompanySpacecrafts.Num(); SpacecraftIndex++)
@@ -1361,11 +1376,6 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 				}
 			}
 		}
-	}
-
-	for (auto& Technology : UnlockedTechnologies)
-	{
-		Value.ResearchSpent += Technology.Value->ResearchCost;
 	}
 
 	Value.SpacecraftsValue = Value.ShipsValue + Value.StationsValue;

@@ -188,7 +188,7 @@ FText SFlareTechnologyInfo::GetTechnologyCost() const
 	}
 	else
 	{
-		return FText::AsNumber(Technology->ResearchCost);
+		return FText::AsNumber(MenuManager->GetPC()->GetCompany()->GetTechnologyCost(Technology));
 	}
 }
 
