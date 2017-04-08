@@ -418,7 +418,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						]
 					
 						// Pause in menus
-						+ SHorizontalBox::Slot()
+						/*+ SHorizontalBox::Slot()
 						.AutoWidth()
 						.Padding(Theme.SmallContentPadding)
 						[
@@ -427,7 +427,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.HelpText(LOCTEXT("PauseInMenusInfo", "Pause the game when entering a full-screen menu."))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnPauseInMenusToggle)
-						]
+						]*/
 					]
 				
 					// Ship count level box
@@ -620,7 +620,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
 	AnticollisionButton->SetActive(MyGameSettings->UseAnticollision);
-	PauseInMenusButton->SetActive(MyGameSettings->PauseGameInMenus);
+	//PauseInMenusButton->SetActive(MyGameSettings->PauseGameInMenus);
 
 	float MaxShipRatio = ((float) MyGameSettings->MaxShipsInSector - MIN_MAX_SHIPS) / ((float) MAX_MAX_SHIPS - MIN_MAX_SHIPS);
 
