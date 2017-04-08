@@ -1216,7 +1216,7 @@ bool UFlareCompany::IsTechnologyAvailable(FName Identifier, FText& Reason) const
 
 int32 UFlareCompany::GetTechnologyLevel() const
 {
-	return FMath::FloorToInt(FMath::Sqrt(UnlockedTechnologies.Num()));
+	return 1 + FMath::FloorToInt(FMath::Sqrt(UnlockedTechnologies.Num()));
 }
 
 int32 UFlareCompany::GetResearchAmount() const
