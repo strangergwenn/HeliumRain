@@ -306,7 +306,9 @@ void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 
 			float DamageRatio = Spacecraft->GetDamageSystem()->GetDamageRatio(ComponentDescription, ComponentData);
 
-			float ComponentMaxRepairRatio = GetComponentMaxRepairRatio(ComponentDescription);
+			float TechnologyBonus = Company->IsTechnologyUnlocked("quick-repair") ? 1.5f: 1.f;
+
+			float ComponentMaxRepairRatio = GetComponentMaxRepairRatio(ComponentDescription) * TechnologyBonus;
 
 			float CurrentRepairRatio = FMath::Min(ComponentMaxRepairRatio, (1.f - DamageRatio));
 			float TotalRepairRatio = 1.f - DamageRatio;
@@ -418,7 +420,8 @@ void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 			FFlareSpacecraftComponentSave* ComponentData = &Spacecraft->GetData().Components[ComponentIndex];
 			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
 
-			float ComponentMaxRepairRatio = GetComponentMaxRepairRatio(ComponentDescription);
+			float TechnologyBonus = Company->IsTechnologyUnlocked("quick-repair") ? 1.5f: 1.f;
+			float ComponentMaxRepairRatio = GetComponentMaxRepairRatio(ComponentDescription) * TechnologyBonus;
 
 			float ConsumedFS = Spacecraft->GetDamageSystem()->Repair(ComponentDescription,ComponentData, RepairRatio * ComponentMaxRepairRatio, RemainingFS);
 
