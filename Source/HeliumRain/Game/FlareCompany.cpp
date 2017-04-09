@@ -1323,14 +1323,17 @@ void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave, bool Force
 
 	if (Identifier != NAME_None && Technology && (IsTechnologyAvailable(Identifier, Unused) || FromSave || Force))
 	{
+		// Check before research
+		float CurrentResearchInflation = IsTechnologyUnlocked("instruments") ? 1.22 : 1.3;
+
+		// Unlock
 		UnlockedTechnologies.Add(Identifier, Technology);
 
 		if (!FromSave)
 		{
-			float CurrentResearchInflation = IsTechnologyUnlocked("instruments") ? 1.22 : 1.3;
 			int32 Cost = GetTechnologyCost(Technology);
 
-			if (!force)
+			if (!Force)
 			{
 				CompanyData.ResearchAmount -= Cost;
 			}
@@ -1339,12 +1342,15 @@ void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave, bool Force
 
 			CompanyData.ResearchRatio *= CurrentResearchInflation;
 
-			FString UniqueId = "technology-unlocked-" + Identifier.ToString();
-			Game->GetPC()->Notify(LOCTEXT("CompanyUnlockTechnology", "Technology unlocked"),
-				FText::Format(LOCTEXT("CompanyUnlockTechnologyFormat", "You have researched {0} for your company !"), Technology->Name),
-				FName(*UniqueId),
-				EFlareNotification::NT_Info,
-				false);
+			if (this == Game->GetPC()->GetCompany())
+			{
+				FString UniqueId = "technology-unlocked-" + Identifier.ToString();
+				Game->GetPC()->Notify(LOCTEXT("CompanyUnlockTechnology", "Technology unlocked"),
+					FText::Format(LOCTEXT("CompanyUnlockTechnologyFormat", "You have researched {0} for your company !"), Technology->Name),
+					FName(*UniqueId),
+					EFlareNotification::NT_Info,
+					false);
+			}
 		}
 	}
 }

@@ -243,7 +243,7 @@ void UFlareAIBehavior::GenerateAffilities()
 	MaintenanceAffility = 0.1;
 
 	// Budget
-	BudgetTechnologyWeight = 1.0;
+	BudgetTechnologyWeight = 0.2;
 	BudgetMilitaryWeight = 1.0;
 	BudgetStationWeight = 1.0;
 	BudgetTradeWeight = 1.0;
@@ -328,7 +328,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		SetSectorAffilitiesByMoon(ST->Hela, 6.f);
 
 		// Budget
-		BudgetTechnologyWeight = 1.0;
+		BudgetTechnologyWeight = 0.2;
 		BudgetMilitaryWeight = 2.0;
 		BudgetStationWeight = 1.0;
 		BudgetTradeWeight = 1.0;
@@ -344,7 +344,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		SetResourceAffility(ST->Hydrogen, 2.f);
 
 		// Budget
-		BudgetTechnologyWeight = 1.0;
+		BudgetTechnologyWeight = 0.2;
 		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 2.0;
 		BudgetTradeWeight = 2.0;
@@ -360,7 +360,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		SetSectorAffility(ST->Outpost, 10.f);
 		
 		// Budget
-		BudgetTechnologyWeight = 1.5;
+		BudgetTechnologyWeight = 0.4;
 		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 2.0;
 		BudgetTradeWeight = 2.0;
@@ -372,14 +372,14 @@ void UFlareAIBehavior::GenerateAffilities()
 		SetResourceAffility(ST->Fuel, 10.f);
 		
 		// Budget
-		BudgetTechnologyWeight = 1.0;
+		BudgetTechnologyWeight = 0.6;
 		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 2.0;
 		BudgetTradeWeight = 2.0;
 	}
 	else if(Company == ST->IonLane)
 	{
-		BudgetTechnologyWeight = 1.0;
+		BudgetTechnologyWeight = 0.2;
 		BudgetMilitaryWeight = 2.0;
 		BudgetStationWeight = 0.1;
 		BudgetTradeWeight = 2.0;
@@ -397,7 +397,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		SetResourceAffility(ST->Methane, 5.f);
 
 		// Budget
-		BudgetTechnologyWeight = 1.5;
+		BudgetTechnologyWeight = 0.4;
 		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 2.0;
 		BudgetTradeWeight = 2.0;
@@ -414,7 +414,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		ShipyardAffility = 3.0;
 
 		// Budget
-		BudgetTechnologyWeight = 1.5;
+		BudgetTechnologyWeight = 0.4;
 		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 2.0;
 		BudgetTradeWeight = 2.0;
@@ -430,7 +430,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		MaintenanceAffility = 10.0;
 
 		// Budget
-		BudgetTechnologyWeight = 1.0;
+		BudgetTechnologyWeight = 0.2;
 		BudgetMilitaryWeight = 0.5;
 		BudgetStationWeight = 2.0;
 		BudgetTradeWeight = 2.0;
