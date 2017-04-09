@@ -154,9 +154,9 @@ float UFlareQuestGenerator::ComputeQuestProbability(UFlareCompany* Company)
 	float QuestProbability = GlobalQuestProbability * CompanyQuestProbability;
 
 
-	FLOGV("CompanyQuestProbability %f", CompanyQuestProbability);
+	/*FLOGV("CompanyQuestProbability %f", CompanyQuestProbability);
 	FLOGV("GlobalQuestProbability %f", GlobalQuestProbability);
-	FLOGV("QuestProbability before rep %f", QuestProbability);
+	FLOGV("QuestProbability before rep %f", QuestProbability);*/
 
 
 	// Then make proba variable with the reputation :
@@ -167,7 +167,7 @@ float UFlareQuestGenerator::ComputeQuestProbability(UFlareCompany* Company)
 	{
 		QuestProbability += Company->GetReputation(PlayerCompany) / 100.f;
 	}
-	FLOGV("QuestProbability %f", QuestProbability);
+	//FLOGV("QuestProbability %f", QuestProbability);
 
 
 	return QuestProbability;
@@ -190,7 +190,7 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 			continue;
 		}
 
-		FLOGV("GenerateSectorQuest for %s", *Company->GetCompanyName().ToString());
+		//FLOGV("GenerateSectorQuest for %s", *Company->GetCompanyName().ToString());
 
 
 			// Rand
@@ -285,7 +285,7 @@ void UFlareQuestGenerator::GenerateMilitaryQuests()
 		CompanyValue Value = Company->GetCompanyValue();
 
 
-		FLOGV("Militaty QuestProbability for %s: %f", *Company->GetCompanyName().ToString(), QuestProbability);
+		//FLOGV("Militaty QuestProbability for %s: %f", *Company->GetCompanyName().ToString(), QuestProbability);
 
 		// Rand
 		if (FMath::FRand() > QuestProbability)
@@ -446,12 +446,42 @@ void UFlareQuestGenerated::Load(UFlareQuestGenerator* Parent, const FFlareBundle
 	InitData = Data;
 }
 
-void UFlareQuestGenerated::CreateGenericReward(FFlareBundle& Data, int64 QuestValue)
+void UFlareQuestGenerated::CreateGenericReward(FFlareBundle& Data, int64 QuestValue, UFlareCompany* Client)
 {
 	// TODO more reward
-	Data.PutInt32("reward-money", QuestValue);
 
-	// Reputation penalty
+	bool RewardGiven = false;
+
+	int32 ClientResearch = Client->GetResearchSpent();
+	int32 PlayerResearch = Client->GetGame()->GetPC()->GetCompany()->GetResearchSpent();
+
+	if(ClientResearch > PlayerResearch)
+	{
+		// There is a chance to hava research reward
+
+		float ResearchRewardProbability = 0.5f * (1.f - float(PlayerResearch) / float(ClientResearch));
+
+		FLOGV("ResearchRewardProbability for %s : %f", *Client->GetCompanyName().ToString(), ResearchRewardProbability);
+
+		if (FMath::FRand() < ResearchRewardProbability)
+		{
+			int32 MaxPossibleResearchReward = ClientResearch - PlayerResearch;
+			int32 GainedResearchReward = QuestValue / 50000;
+
+			int32 ResearchReward = FMath::Min(GainedResearchReward, MaxPossibleResearchReward);
+
+			Data.PutInt32("reward-research", ResearchReward);
+			RewardGiven = true;
+		}
+	}
+
+	if(!RewardGiven)
+	{
+		Data.PutInt32("reward-money", QuestValue);
+	}
+
+	// Reputation reward and penalty
+	Data.PutInt32("reward-reputation", FMath::Sqrt(QuestValue / 10000));
 	Data.PutInt32("penalty-reputation", -FMath::Sqrt(QuestValue / 1000));
 }
 
@@ -481,6 +511,18 @@ void UFlareQuestGenerated::SetupGenericReward(const FFlareBundle& Data)
 	{
 		int64 Amount = Data.GetInt32("reward-money");
 		GetSuccessActions().Add(UFlareQuestActionGiveMoney::Create(this, Client, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Amount));
+	}
+
+	if (Data.HasInt32("reward-research"))
+	{
+		int64 Amount = Data.GetInt32("reward-research");
+		GetSuccessActions().Add(UFlareQuestActionGiveResearch::Create(this, Client, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Amount));
+	}
+
+	if (Data.HasInt32("reward-reputation"))
+	{
+		int64 Amount = Data.GetInt32("reward-reputation");
+		GetSuccessActions().Add(UFlareQuestActionReputationChange::Create(this, Client, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Amount));
 	}
 
 	if (Data.HasInt32("penalty-reputation"))
@@ -585,7 +627,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenera
 	Data.PutName("sector-2", Station2->GetCurrentSector()->GetIdentifier());
 	Data.PutName("client", Station1->GetCompany()->GetIdentifier());
 	Data.PutTag(Parent->GenerateVipTag(Station1));
-	CreateGenericReward(Data, QuestValue);
+	CreateGenericReward(Data, QuestValue, Station1->GetCompany());
 
 	Quest->Load(Parent, Data);
 
@@ -781,7 +823,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 	Data.PutName("client", Station->GetCompany()->GetIdentifier());
 	Data.PutTag(Parent->GenerateTradeTag(Station, BestResource));
 
-	CreateGenericReward(Data, QuestValue);
+	CreateGenericReward(Data, QuestValue, Station->GetCompany());
 
 	Quest->Load(Parent, Data);
 
@@ -956,7 +998,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 	Data.PutInt32("quantity", QuestResourceQuantity);
 	Data.PutName("client", Station->GetCompany()->GetIdentifier());
 	Data.PutTag(Parent->GenerateTradeTag(Station, BestResource));
-	CreateGenericReward(Data, QuestValue);
+	CreateGenericReward(Data, QuestValue, Station->GetCompany());
 
 	Quest->Load(Parent, Data);
 
@@ -1168,7 +1210,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	Data.PutName("client", Station1->GetCompany()->GetIdentifier());
 	Data.PutTag(Parent->GenerateTradeTag(Station1, BestResource));
 	Data.PutTag(Parent->GenerateTradeTag(Station2, BestResource));
-	CreateGenericReward(Data, QuestValue);
+	CreateGenericReward(Data, QuestValue, Station1->GetCompany());
 
 	Quest->Load(Parent, Data);
 
@@ -1304,7 +1346,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGene
 	Data.PutName("friendly-company", Company->GetIdentifier());
 	Data.PutName("hostile-company", HostileCompany->GetIdentifier());
 	Data.PutTag(Parent->GenerateDefenseTag(Sector, HostileCompany));
-	CreateGenericReward(Data, QuestValue);
+	CreateGenericReward(Data, QuestValue, Company);
 
 	Quest->Load(Parent, Data);
 
@@ -1488,7 +1530,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedJoinAttack::Create(UFlareQuestGenerato
 	Data.PutName("friendly-company", Company->GetIdentifier());
 	Data.PutNameArray("hostile-companies", HostileCompanies);
 	Data.PutTag(Parent->GenerateAttackTag(Target.Sector, Company));
-	CreateGenericReward(Data, QuestValue);
+	CreateGenericReward(Data, QuestValue, Company);
 
 	Quest->Load(Parent, Data);
 
@@ -1712,7 +1754,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedSectorDefense::Create(UFlareQuestGener
 	Data.PutName("friendly-company", Company->GetIdentifier());
 	Data.PutName("hostile-company", HostileCompany->GetIdentifier());
 	Data.PutTag(Parent->GenerateDefenseTag(Target.Sector, HostileCompany));
-	CreateGenericReward(Data, QuestValue);
+	CreateGenericReward(Data, QuestValue, Company);
 
 	Quest->Load(Parent, Data);
 
@@ -1972,7 +2014,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt::Create(UFlareQuestGenerator
 	Data.PutName("friendly-company", Company->GetIdentifier());
 	Data.PutName("hostile-company", HostileCompany->GetIdentifier());
 	Data.PutTag(Parent->GenerateHarassTag(Company, HostileCompany));
-	CreateGenericReward(Data, QuestValue);
+	CreateGenericReward(Data, QuestValue, Company);
 
 	Quest->Load(Parent, Data);
 
@@ -2106,7 +2148,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt::Create(UFlareQuestGenera
 	Data.PutName("friendly-company", Company->GetIdentifier());
 	Data.PutName("hostile-company", HostileCompany->GetIdentifier());
 	Data.PutTag(Parent->GenerateHarassTag(Company, HostileCompany));
-	CreateGenericReward(Data, QuestValue);
+	CreateGenericReward(Data, QuestValue, Company);
 
 	Quest->Load(Parent, Data);
 

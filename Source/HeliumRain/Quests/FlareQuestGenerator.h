@@ -99,7 +99,7 @@ public:
 	void SetupQuestGiver(UFlareCompany* Company, bool AddWarCondition);
 	void SetupGenericReward(const FFlareBundle& Data);
 
-	static void CreateGenericReward(FFlareBundle& Data, int64 QuestValue);
+	static void CreateGenericReward(FFlareBundle& Data, int64 QuestValue, UFlareCompany* Client);
 
 	FFlareBundle* GetInitData() {
 		return &InitData;

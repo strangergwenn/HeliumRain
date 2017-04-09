@@ -162,6 +162,39 @@ protected:
 
 //////////////////////////////////////////////////////
 UCLASS()
+class HELIUMRAIN_API UFlareQuestActionGiveResearch: public UFlareQuestAction
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	/*----------------------------------------------------
+		Gameplay
+	----------------------------------------------------*/
+	static UFlareQuestActionGiveResearch* Create(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int32 AmountParam);
+	void Load(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int32 AmountParam);
+
+	virtual void Perform();
+
+	inline int64 GetAmount() const
+	{
+		return Amount;
+	}
+
+protected:
+
+	/*----------------------------------------------------
+		Protected data
+	----------------------------------------------------*/
+
+	UFlareCompany* FromCompany;
+	UFlareCompany* ToCompany;
+	int64 Amount;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
 class HELIUMRAIN_API UFlareQuestActionReputationChange: public UFlareQuestAction
 {
 	GENERATED_UCLASS_BODY()

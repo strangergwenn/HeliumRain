@@ -664,6 +664,12 @@ FText UFlareQuest::GetQuestReward()
 			Result += FText::Format(LOCTEXT("QuestRewardMoneyFormat", "Payment of {0} credits\n"), FText::AsNumber(UFlareGameTools::DisplayMoney(MoneyAction->GetAmount()))).ToString();
 		}
 
+		UFlareQuestActionGiveResearch* ResearchAction = Cast<UFlareQuestActionGiveResearch>(Action);
+		if (ResearchAction)
+		{
+			Result += FText::Format(LOCTEXT("QuestRewardResearchFormat", "Gain of {0} research\n"), FText::AsNumber(ResearchAction->GetAmount())).ToString();
+		}
+
 		UFlareQuestActionDiscoverSector* SectorAction = Cast<UFlareQuestActionDiscoverSector>(Action);
 		if (SectorAction)
 		{

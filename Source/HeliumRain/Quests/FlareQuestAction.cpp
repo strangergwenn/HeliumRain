@@ -151,6 +151,33 @@ void UFlareQuestActionGiveMoney::Perform()
 	ToCompany->GiveMoney(Amount);
 }
 
+/*----------------------------------------------------
+	Give research action
+----------------------------------------------------*/
+UFlareQuestActionGiveResearch::UFlareQuestActionGiveResearch(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestActionGiveResearch* UFlareQuestActionGiveResearch::Create(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int32 AmountParam)
+{
+	UFlareQuestActionGiveResearch* Action = NewObject<UFlareQuestActionGiveResearch>(ParentQuest, UFlareQuestActionGiveResearch::StaticClass());
+	Action->Load(ParentQuest, FromCompanyParam, ToCompanyParam, AmountParam);
+	return Action;
+}
+
+void UFlareQuestActionGiveResearch::Load(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int32 AmountParam)
+{
+	LoadInternal(ParentQuest);
+	FromCompany = FromCompanyParam;
+	ToCompany = ToCompanyParam;
+	Amount = AmountParam;
+}
+
+void UFlareQuestActionGiveResearch::Perform()
+{
+	ToCompany->GiveResearch(Amount);
+}
 
 /*----------------------------------------------------
 	Reputation change action
