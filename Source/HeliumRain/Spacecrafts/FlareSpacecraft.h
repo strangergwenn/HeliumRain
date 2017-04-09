@@ -345,6 +345,11 @@ public:
 		return Parent;
 	}
 
+	inline bool IsLoadedAndReady() const
+	{
+		return LoadedAndReady;
+	}
+
 	inline FFlareSpacecraftDescription* GetDescription() const
 	{
 		return Parent->GetDescription();

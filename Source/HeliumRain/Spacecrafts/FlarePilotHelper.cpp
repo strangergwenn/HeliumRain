@@ -158,9 +158,9 @@ bool PilotHelper::IsAnticollisionImminent(AFlareSpacecraft* Ship, float Preventi
 	float MostDangerousHitTime;
 	float MostDangerousInterCollisionTravelTime;
 
-	bool HaveCollision = FindMostDangerousCollision(Ship, NULL,
-		&MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
-	if(HaveCollision)
+	bool HaveCollision = FindMostDangerousCollision(Ship, NULL, &MostDangerousCandidateActor, &MostDangerousLocation, &MostDangerousHitTime, &MostDangerousInterCollisionTravelTime);
+
+	if (HaveCollision && Ship->IsLoadedAndReady() && !Ship->GetNavigationSystem()->IsAutoPilot() && !Ship->GetNavigationSystem()->IsDocked())
 	{
 		if((MostDangerousHitTime - MostDangerousInterCollisionTravelTime) < PreventionDuration)
 		{
