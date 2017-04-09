@@ -1122,7 +1122,9 @@ void AFlarePlayerController::NotifyDockingComplete(AFlareSpacecraft* DockStation
 		SetExternalCamera(true);
 	}
 
-	if (MenuManager->IsMenuOpen())
+	// Reload if we were in a real menu
+	EFlareMenu::Type CurrentMenu = MenuManager->GetCurrentMenu();
+	if (CurrentMenu != EFlareMenu::MENU_None && CurrentMenu != EFlareMenu::MENU_ReloadSector && CurrentMenu != EFlareMenu::MENU_FastForwardSingle)
 	{
 		MenuManager->Reload();
 	}
