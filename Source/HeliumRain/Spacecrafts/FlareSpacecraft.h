@@ -297,6 +297,7 @@ protected:
 
 	bool                                           HasExitedSector;
 	bool                                           Paused;
+	bool                                           LoadedAndReady;
 	
 	bool                                           AttachedToParentActor;
 

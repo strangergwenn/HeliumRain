@@ -57,12 +57,6 @@ void UFlareSector::Load(UFlareSimulatedSector* Parent)
 		}
 	}
 
-	// Check docking once all spacecraft are loaded
-	for (int i = 0; i < SectorSpacecrafts.Num(); i++)
-	{
-		SectorSpacecrafts[i]->Redock();
-	}
-
 	// Load bombs
 	for (int i = 0; i < ParentSector->GetData()->BombData.Num(); i++)
 	{

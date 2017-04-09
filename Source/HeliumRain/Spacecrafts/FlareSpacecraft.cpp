@@ -65,6 +65,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	// Gameplay
 	HasExitedSector = false;
 	Paused = false;
+	LoadedAndReady = false;
 	AttachedToParentActor = false;
 	TargetIndex = 0;
 	TimeSinceSelection = 0;
@@ -119,6 +120,17 @@ void AFlareSpacecraft::BeginPlay()
 void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
 	FCHECK(IsValidLowLevel());
+
+	// Wait for readiness to call some stuff on load
+	if (!LoadedAndReady)
+	{
+		if (Parent && StateManager && !IsPresentationMode())
+		{
+			LoadedAndReady = true;
+
+			Redock();
+		}
+	}
 	
 	// Attach to parent actor, if any
 	if (GetData().AttachActorName != NAME_None && !AttachedToParentActor)
