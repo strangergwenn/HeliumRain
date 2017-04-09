@@ -1171,14 +1171,6 @@ const FSlateBrush* UFlareCompany::GetEmblem() const
 
 bool UFlareCompany::IsTechnologyUnlocked(FName Identifier) const
 {
-	FFlareTechnologyDescription* Technology = GetGame()->GetTechnologyCatalog()->Get(Identifier);
-
-	// TODO #657 : Add company AI and remove this
-	if (this != Game->GetPC()->GetCompany())
-	{
-		return true;
-	}
-
 	if (UnlockedTechnologies.Contains(Identifier))
 	{
 		return true;
@@ -1324,21 +1316,25 @@ int32 UFlareCompany::GetResearchSpent() const
 	return CompanyData.ResearchSpent;
 }
 
-void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave)
+void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave, bool Force)
 {
 	FFlareTechnologyDescription* Technology = GetGame()->GetTechnologyCatalog()->Get(Identifier);
 	FText Unused;
 
-	if (Identifier != NAME_None && Technology && (IsTechnologyAvailable(Identifier, Unused) || FromSave))
+	if (Identifier != NAME_None && Technology && (IsTechnologyAvailable(Identifier, Unused) || FromSave || Force))
 	{
 		UnlockedTechnologies.Add(Identifier, Technology);
 
 		if (!FromSave)
 		{
-			float CurrentResearchInflation = IsTechnologyUnlocked("instruments") ? 1.4 : 1.5;
+			float CurrentResearchInflation = IsTechnologyUnlocked("instruments") ? 1.22 : 1.3;
 			int32 Cost = GetTechnologyCost(Technology);
 
-			CompanyData.ResearchAmount -= Cost;
+			if (!force)
+			{
+				CompanyData.ResearchAmount -= Cost;
+			}
+
 			CompanyData.ResearchSpent += Cost;
 
 			CompanyData.ResearchRatio *= CurrentResearchInflation;

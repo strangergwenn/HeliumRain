@@ -211,6 +211,31 @@ void UFlareScenarioTools::SetupWorld()
 	NemaHeavyWorks->GiveMoney(100000000);
 	Pirates->GiveMoney(1000000);
 
+	// Give technology
+	MiningSyndicate->UnlockTechnology("mining", false, true);
+
+	UnitedFarmsChemicals->UnlockTechnology("orbital-pumps", false, true);
+	UnitedFarmsChemicals->UnlockTechnology("chemicals", false, true);
+
+
+	Sunwatch->UnlockTechnology("instruments", false, true);
+	Sunwatch->UnlockTechnology("stations", false, true);
+
+	NemaHeavyWorks->UnlockTechnology("metallurgy", false, true);
+	NemaHeavyWorks->UnlockTechnology("orbital-pumps", false, true);
+
+	AxisSupplies->UnlockTechnology("stations", false, true);
+	AxisSupplies->UnlockTechnology("metallurgy", false, true);
+
+	HelixFoundries->UnlockTechnology("metallurgy", false, true);
+	HelixFoundries->UnlockTechnology("advanced-stations", false, true);
+
+	GhostWorksShipyards->UnlockTechnology("stations", false, true);
+	GhostWorksShipyards->UnlockTechnology("mining", false, true);
+	GhostWorksShipyards->UnlockTechnology("chemicals", false, true);
+
+	Pirates->UnlockTechnology("pirate-tech", false, true);
+	Pirates->UnlockTechnology("quick-repair", false, true);
 
 	// Population setup
 	BlueHeart->GetPeople()->GiveBirth(3000);

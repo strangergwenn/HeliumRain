@@ -234,7 +234,7 @@ public:
 	int32 GetResearchSpent() const;
 
 	/** Unlock a technology */
-	void UnlockTechnology(FName Identifier, bool FromSave = false);
+	void UnlockTechnology(FName Identifier, bool FromSave = false, bool Force = false);
 
 	bool HasStationTechnologyUnlocked() const;
 	
