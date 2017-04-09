@@ -1316,6 +1316,12 @@ int32 UFlareCompany::GetResearchSpent() const
 	return CompanyData.ResearchSpent;
 }
 
+int32 UFlareCompany::GetResearchValue() const
+{
+	return GetResearchSpent() + GetResearchAmount();
+}
+
+
 void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave, bool Force)
 {
 	FFlareTechnologyDescription* Technology = GetGame()->GetTechnologyCatalog()->Get(Identifier);

@@ -385,7 +385,7 @@ FText SFlareCompanyInfo::GetCompanyResearchValue() const
 
 	if (Company)
 	{
-		Result = FText::AsNumber(Company->GetResearchSpent());
+		Result = FText::AsNumber(Company->GetResearchValue());
 	}
 
 	return Result;

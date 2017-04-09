@@ -452,8 +452,8 @@ void UFlareQuestGenerated::CreateGenericReward(FFlareBundle& Data, int64 QuestVa
 
 	bool RewardGiven = false;
 
-	int32 ClientResearch = Client->GetResearchSpent();
-	int32 PlayerResearch = Client->GetGame()->GetPC()->GetCompany()->GetResearchSpent();
+	int32 ClientResearch = Client->GetResearchValue();
+	int32 PlayerResearch = Client->GetGame()->GetPC()->GetCompany()->GetResearchValue();
 
 	if(ClientResearch > PlayerResearch)
 	{

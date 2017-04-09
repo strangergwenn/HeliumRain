@@ -233,6 +233,9 @@ public:
 	/** Get the current amount of science */
 	int32 GetResearchSpent() const;
 
+	/** Get the total amount of science */
+	int32 GetResearchValue() const;
+
 	/** Unlock a technology */
 	void UnlockTechnology(FName Identifier, bool FromSave = false, bool Force = false);
 
