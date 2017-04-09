@@ -92,6 +92,7 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	if(ActiveSpacecraft)
 	{
 		ActiveSpacecraft->Load(this);
+		ActiveSpacecraft->Redock();
 	}
 }
 
