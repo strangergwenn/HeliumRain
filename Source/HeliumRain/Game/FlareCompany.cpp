@@ -1277,20 +1277,21 @@ bool UFlareCompany::IsTechnologyUnlockedPart(const FFlareSpacecraftComponentDesc
 {
 	FName Identifier = Description->Identifier;
 
-	if(Identifier == "weapon-heavy-salvage" ||
-			Identifier == "weapon-light-salvage")
+	if (Identifier == "weapon-heavy-salvage" ||
+		Identifier == "weapon-light-salvage")
 	{
 		return IsTechnologyUnlocked("pirate-tech");
 	}
 
-	if(Identifier == "weapon-hades" ||
-			Identifier == "weapon-macaria")
+	if (Identifier == "weapon-hades" ||
+		Identifier == "weapon-mjolnir")
 	{
 		return IsTechnologyUnlocked("flak");
 	}
 
-	if(Identifier == "weapon-wyrm" ||
-			Identifier == "weapon-sparrow")
+	if (Identifier == "weapon-wyrm" ||
+		Identifier == "weapon-sparrow" ||
+		Identifier == "weapon-hydra")
 	{
 		return IsTechnologyUnlocked("bombing");
 	}
