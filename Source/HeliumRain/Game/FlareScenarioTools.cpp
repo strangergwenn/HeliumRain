@@ -208,7 +208,8 @@ void UFlareScenarioTools::SetupWorld()
 	IonLane->GiveMoney(100000000);
 	GhostWorksShipyards->GiveMoney(100000000);
 	NemaHeavyWorks->GiveMoney(100000000);
-	Pirates->GiveMoney(0);
+	Pirates->GiveMoney(1000000);
+
 
 	// Population setup
 	BlueHeart->GetPeople()->GiveBirth(3000);
