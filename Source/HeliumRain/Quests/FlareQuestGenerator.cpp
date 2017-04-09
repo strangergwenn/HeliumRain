@@ -805,7 +805,8 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 		}
 	}
 
-	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, PlayerCompany->GetTransportCapacity());
+	int32 MinPlayerTransportCapacity = FMath::Max(100, PlayerCompany->GetTransportCapacity());
+	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, MinPlayerTransportCapacity);
 
 	// Setup reward
 	int64 QuestValue = 1000 * QuestResourceQuantity;
@@ -980,7 +981,8 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 
 	}
 
-	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, PlayerCompany->GetTransportCapacity());
+	int32 MinPlayerTransportCapacity = FMath::Max(100, PlayerCompany->GetTransportCapacity());
+	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, MinPlayerTransportCapacity);
 
 
 	// Setup reward
@@ -1187,7 +1189,8 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	int32 BestSellResourceQuantity = FMath::Min(Station2->GetCargoBay()->GetSlotCapacity() - Station2->GetCargoBay()->GetResourceQuantity(BestResource, PlayerCompany), int32(Station2->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO));
 
 	int32 BestResourceQuantity = FMath::Min(BestBuyResourceQuantity, BestSellResourceQuantity);
-	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, PlayerCompany->GetTransportCapacity());
+	int32 MinPlayerTransportCapacity = FMath::Max(100, PlayerCompany->GetTransportCapacity());
+	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, MinPlayerTransportCapacity);
 
 
 
