@@ -26,6 +26,7 @@ void SFlarePartInfo::Construct(const FArguments& InArgs)
 		// Part icon
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
+		.VAlign(VAlign_Top)
 		[
 			SNew(SImage).Image(&InArgs._Description->MeshPreviewBrush)
 		]
@@ -38,7 +39,7 @@ void SFlarePartInfo::Construct(const FArguments& InArgs)
 			// Title and cost
 			+ SVerticalBox::Slot()
 			.VAlign(VAlign_Top)
-			.Padding(Theme.TitlePadding)
+			.Padding(Theme.SmallContentPadding)
 			.AutoHeight()
 			[
 				SNew(SHorizontalBox)
@@ -61,7 +62,6 @@ void SFlarePartInfo::Construct(const FArguments& InArgs)
 
 				// Cost label
 				+ SHorizontalBox::Slot()
-				.Padding(10, 0)
 				.HAlign(HAlign_Right)
 				.VAlign(VAlign_Center)
 				.AutoWidth()
@@ -73,7 +73,6 @@ void SFlarePartInfo::Construct(const FArguments& InArgs)
 
 			// Characteristics
 			+ SVerticalBox::Slot()
-			.Padding(FMargin(10, 2, 10, 2))
 			.AutoHeight()
 			[
 				SAssignNew(InfoBox, SHorizontalBox)
