@@ -707,6 +707,38 @@ void UFlareWorld::ProcessShipCapture()
 				EFlareMenu::MENU_Sector,
 				MenuData);
 		}
+
+		// Research steal
+		{
+
+			// TODO research steal techno ?
+			int32 CapturerResearch = HarpoonOwner->GetResearchValue();
+			int32 OwnerResearch = Owner->GetResearchValue();
+
+			if(OwnerResearch > CapturerResearch)
+			{
+				// There is a chance to hava research reward
+
+				int32 ResearchSteal = FMath::Sqrt(float(OwnerResearch - CapturerResearch) / 10.f);
+
+				HarpoonOwner->GiveResearch(ResearchSteal);
+
+				if (ResearchSteal > 0 && GetGame()->GetPC()->GetCompany() == HarpoonOwner)
+				{
+					FFlareMenuParameterData MenuData;
+					MenuData.Company = Owner;
+
+					GetGame()->GetPC()->Notify(LOCTEXT("ShipResearchStolen", "Research stolen in the ship"),
+						FText::Format(LOCTEXT("ShipResearchStolenFormat", "You stole {0} research during the ship capture."),
+									FText::AsNumber(ResearchSteal)),
+						FName("ship-research-stolen"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Sector,
+						MenuData);
+				}
+			}
+		}
 	}
 }
 
@@ -815,6 +847,38 @@ void UFlareWorld::ProcessStationCapture()
 				false,
 				EFlareMenu::MENU_Sector,
 				MenuData);
+		}
+
+		// Research steal
+		{
+
+			// TODO research steal techno ?
+			int32 CapturerResearch = Capturer->GetResearchValue();
+			int32 OwnerResearch = Owner->GetResearchValue();
+
+			if(OwnerResearch > CapturerResearch)
+			{
+				// There is a chance to hava research reward
+
+				int32 ResearchSteal = FMath::Sqrt(float(OwnerResearch - CapturerResearch));
+
+				Capturer->GiveResearch(ResearchSteal);
+
+				if (ResearchSteal > 0 && GetGame()->GetPC()->GetCompany() == Capturer)
+				{
+					FFlareMenuParameterData MenuData;
+					MenuData.Company = Owner;
+
+					GetGame()->GetPC()->Notify(LOCTEXT("StationResearchStolen", "Research stolen in the station"),
+						FText::Format(LOCTEXT("StationResearchStolenFormat", "You stole {0} research during the station capture."),
+									FText::AsNumber(ResearchSteal)),
+						FName("station-research-stolen"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Sector,
+						MenuData);
+				}
+			}
 		}
 	}
 }
