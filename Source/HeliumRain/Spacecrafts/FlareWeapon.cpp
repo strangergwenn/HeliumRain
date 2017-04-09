@@ -225,7 +225,7 @@ bool UFlareWeapon::FireGun(int GunIndex)
 
 	FVector FiringAxis = ComputeParallaxCorrection(GunIndex);
 	FVector FiringDirection = FMath::VRandCone(FiringAxis, Imprecision);
-	FVector FiringVelocity = GetPhysicsLinearVelocity();
+	FVector FiringVelocity = Spacecraft->Airframe->GetPhysicsLinearVelocity();
 
 	// Create a shell
 	AFlareShell* Shell = GetWorld()->SpawnActor<AFlareShell>(
