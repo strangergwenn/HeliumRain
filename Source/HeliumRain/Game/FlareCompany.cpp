@@ -1293,7 +1293,7 @@ bool UFlareCompany::IsTechnologyUnlockedPart(const FFlareSpacecraftComponentDesc
 
 int32 UFlareCompany::GetTechnologyCost(const FFlareTechnologyDescription* Technology) const
 {
-	return Technology->ResearchCost * CompanyData.ResearchRatio;
+	return Technology->ResearchCost * Technology->Level * CompanyData.ResearchRatio;
 }
 
 int32 UFlareCompany::GetTechnologyLevel() const
