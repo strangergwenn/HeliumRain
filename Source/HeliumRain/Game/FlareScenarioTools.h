@@ -170,5 +170,6 @@ public:
 	FName                                      StationShipyard;
 	FName                                      StationHub;
 	FName                                      StationOutpost;
+	FName									   StationResearch;
 
 };

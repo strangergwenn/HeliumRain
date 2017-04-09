@@ -121,6 +121,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	StationShipyard = "station-shipyard";
 	StationHub = "station-hub";
 	StationOutpost = "station-outpost";
+	StationResearch = "station-research";
 }
 
 void UFlareScenarioTools::GenerateEmptyScenario()
@@ -227,6 +228,10 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationHydrogenPump, NemaHeavyWorks, TheSpire, 1, 2);
 	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 1);
 	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 2, 2);
+
+	// Labo
+	CreateStations(StationResearch, Sunwatch, Lighthouse, 1, 1);
+
 
 	// Create Blue Heart capital station
 	{
