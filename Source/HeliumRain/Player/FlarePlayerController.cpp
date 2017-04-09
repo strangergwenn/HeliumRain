@@ -151,6 +151,12 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 				UpdateMusicTrack(BattleState);
 			}
 		}
+
+		// Exhaust kick
+		if (ShipPawn->GetNavigationSystem()->IsUsingOrbitalEngines())
+		{
+			ClientPlayCameraShake(CameraShakeCatalog->Exhaust);
+		}
 	}
 
 	// Update FOV

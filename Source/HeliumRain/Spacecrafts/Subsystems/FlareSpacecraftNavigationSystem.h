@@ -278,6 +278,7 @@ protected:
 	TArray <AActor*>                         PathColliders;
 	TQueue <FFlareShipCommandData>           CommandData;
 	float                                    AnticollisionAngle;
+	bool                                     HasUsedOrbitalBoost;
 
 	// Physics simulation
 	FVector                                  LinearTargetVelocity;
@@ -332,4 +333,10 @@ public:
 	{
 		return Status;
 	}
+
+	inline bool IsUsingOrbitalEngines() const
+	{
+		return HasUsedOrbitalBoost;
+	}
+
 };

@@ -39,6 +39,7 @@ UFlareSpacecraftNavigationSystem::UFlareSpacecraftNavigationSystem(const class F
 	, LinearDeadDistance(0.1)
 	, LinearMaxDockingVelocity(10)
 	, NegligibleSpeedRatio(0.0005)
+	, HasUsedOrbitalBoost(false)
 {
 	AnticollisionAngle = FMath::FRandRange(0, 360);
 	DockConstraint = NULL;
@@ -102,6 +103,7 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 	}
 
 	// Physics
+	HasUsedOrbitalBoost = false;
 	if (!IsDocked())
 	{
 		// TODO enable physic when docked but attach the ship to the station
@@ -1195,7 +1197,6 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 		//Log = true;
 	}
 
-	bool HasUsedOrbitalBoost = false;
 	float LinearMasterAlpha = 0.f;
 	float LinearMasterBoostAlpha = 0.f;
 
@@ -1224,7 +1225,6 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 			if (AccelerationWithBoost.Size() > Acceleration.Size())
 			{
 				HasUsedOrbitalBoost = true;
-
 
 				float BoostDeltaV = (AccelerationWithBoost.Size() - Acceleration.Size()) * DeltaSeconds;
 				float DeltaVAfterClassicalAcceleration = DeltaV.Size() - AccelerationDeltaV;

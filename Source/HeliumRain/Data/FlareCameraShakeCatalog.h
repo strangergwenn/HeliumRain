@@ -30,4 +30,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = Content)
 	TSubclassOf<UCameraShake> ImpactL;
 	
+	/** Exhaust */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TSubclassOf<UCameraShake> Exhaust;
+	
 };
