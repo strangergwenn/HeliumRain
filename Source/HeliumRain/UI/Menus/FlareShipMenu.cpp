@@ -494,20 +494,25 @@ void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* Select
 	if (CanEdit)
 	{
 		FLOGV("SFlareShipMenu::UpdatePartList : looking for %s", *SelectItem->Name.ToString());
-		int32 Index = PartListData.Find(SelectItem);
 
-		ShipPartIndex = Index;
-		CurrentPartIndex = Index;
-		CurrentEquippedPartIndex = Index;
+		int32 Index = INDEX_NONE;
 
 		// Copy items
 		for (FFlareSpacecraftComponentDescription* Part : PartListData)
 		{
-			if (MenuManager->GetPC()->GetCompany()->IsTechnologyUnlockedPart(Part))
+			if (Part == SelectItem || MenuManager->GetPC()->GetCompany()->IsTechnologyUnlockedPart(Part))
 			{
 				PartListDataShared.AddUnique(FInterfaceContainer::New(Part));
+				if(Part == SelectItem)
+				{
+					Index = PartListDataShared.Num() - 1;
+				}
 			}
 		}
+
+		ShipPartIndex = Index;
+		CurrentPartIndex = Index;
+		CurrentEquippedPartIndex = Index;
 
 		// Update list
 		PartList->RequestListRefresh();

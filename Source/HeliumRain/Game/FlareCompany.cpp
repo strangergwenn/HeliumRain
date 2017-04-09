@@ -1289,6 +1289,12 @@ bool UFlareCompany::IsTechnologyUnlockedPart(const FFlareSpacecraftComponentDesc
 		return IsTechnologyUnlocked("flak");
 	}
 
+	if(Identifier == "weapon-wyrm" ||
+			Identifier == "weapon-sparrow")
+	{
+		return IsTechnologyUnlocked("bombing");
+	}
+
 	return true;
 }
 
