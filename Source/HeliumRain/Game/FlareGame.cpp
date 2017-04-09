@@ -517,7 +517,6 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription
 	// Player company
 	FFlarePlayerSave PlayerData;
 	UFlareCompany* PlayerCompany = CreateCompany(-1);
-	PlayerCompany->GiveShame(-0.1);
 	PlayerData.CompanyIdentifier = PlayerCompany->GetIdentifier();
 	PlayerData.UUID = FName(*FGuid::NewGuid().ToString());
 	PlayerData.ScenarioId = ScenarioIndex;
