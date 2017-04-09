@@ -140,7 +140,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	CollisionWarningPlayer.Sound->bAutoActivate = false;
 	CollisionWarningPlayer.Sound->bAutoDestroy = false;
 	CollisionWarningPlayer.PitchedFade = false;
-	CollisionWarningPlayer.FadeSpeed = 1.0f;
+	CollisionWarningPlayer.FadeSpeed = 10.0f;
 	CollisionWarningPlayer.Volume = 0;
 
 	// Warning sound on sector exit
@@ -148,7 +148,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	SectorExitWarningPlayer.Sound->bAutoActivate = false;
 	SectorExitWarningPlayer.Sound->bAutoDestroy = false;
 	SectorExitWarningPlayer.PitchedFade = false;
-	SectorExitWarningPlayer.FadeSpeed = 1.0f;
+	SectorExitWarningPlayer.FadeSpeed = 10.0f;
 	SectorExitWarningPlayer.Volume = 0;
 
 	// Library
