@@ -294,7 +294,10 @@ void UFlareQuest::Abandon(bool Expired)
 	QuestManager->GetGame()->GetPC()->GetMenuManager()->ClearNotifications(GetQuestNotificationTag());
 
 	SetStatus(EFlareQuestStatus::ABANDONED);
-	UFlareQuestAction::PerformActions(FailActions);
+	if(!Expired)
+	{
+		UFlareQuestAction::PerformActions(FailActions);
+	}
 	QuestManager->OnQuestFail(this, Expired ? false : true);
 }
 
