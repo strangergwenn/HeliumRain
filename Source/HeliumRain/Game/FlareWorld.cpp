@@ -745,7 +745,17 @@ void UFlareWorld::ProcessStationCapture()
 				}
 
 				// Capture
-				int32 CompanyCapturePoint = Sector->GetCompanyCapturePoints(Company);
+				float NegociationRatio = 1.f;
+				if(Company->IsTechnologyUnlocked("negociations"))
+				{
+					NegociationRatio *= 1.5;
+				}
+				if(Spacecraft->GetCompany()->IsTechnologyUnlocked("negociations"))
+				{
+					NegociationRatio *= 0.5;
+				}
+
+				int32 CompanyCapturePoint = Sector->GetCompanyCapturePoints(Company) * NegociationRatio;
 				if(Spacecraft->TryCapture(Company, CompanyCapturePoint))
 				{
 					StationToCapture.Add(Spacecraft);
