@@ -389,15 +389,15 @@ void UFlareWeapon::FillBombs()
 
 		if (BombIndex == 0)
 		{
-			Roll = 90;
+			Roll = (NegativeZScale ? 180 : 0);
 		}
 		else if (BombIndex == 1)
 		{
-			Roll = -90;
+			Roll = (NegativeZScale ? 90 : -90);
 		}
 		else if (BombIndex == 2)
 		{
-			Roll = (NegativeZScale ? 180 : 0);
+			Roll = (NegativeZScale ? -90 : 90);
 		}
 
 		FTransform LocalRotation(FRotator(0,0,Roll));
