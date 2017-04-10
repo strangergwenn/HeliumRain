@@ -39,8 +39,6 @@ public:
 	/** Are we close to the target ? */
 	virtual bool IsCloseToAim() const;
 
-	virtual bool IsSafeToFire(int GunIndex, AActor*& HitTarget) const override;
-
 	virtual bool IsReacheableAxis(FVector TargetAxis) const;
 
 	virtual float GetMinLimitAtAngle(float Angle) const;
@@ -48,9 +46,6 @@ public:
 	virtual void GetBoundingSphere(FVector& Location, float& Radius) override;
 
 	virtual void ShowFiringEffects(int GunIndex) override;
-
-	// TODO Put in help with FlareShell::Trace
-	bool Trace(const FVector& Start, const FVector& End, FHitResult& HitOut) const;
 
 
 protected:

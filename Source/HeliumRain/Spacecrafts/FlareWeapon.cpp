@@ -10,6 +10,8 @@
 DECLARE_CYCLE_STAT(TEXT("FlareWeapon Firing"), STAT_Weapon_Firing, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareWeapon FireGun"), STAT_Weapon_FireGun, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareWeapon ConfigureShellFuze"), STAT_Weapon_ConfigureShellFuze, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareWeapon IsSafeToFire"), STAT_FlareWeapon_IsSafeToFire, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareWeapon Trace"), STAT_FlareWeapon_Trace, STATGROUP_Flare);
 
 
 /*----------------------------------------------------
@@ -468,8 +470,51 @@ bool UFlareWeapon::IsTurret() const
 
 bool UFlareWeapon::IsSafeToFire(int GunIndex, AActor*& HitTarget) const
 {
-	HitTarget = NULL;
+	SCOPE_CYCLE_COUNTER(STAT_FlareWeapon_IsSafeToFire);
+
+	FVector FiringLocation = GetMuzzleLocation(GunIndex);
+	FVector FiringDirection = GetFireAxis();
+	FVector FireTargetLocation = FiringLocation + FiringDirection * 100000;
+
+	FHitResult HitResult(ForceInit);
+	if (Trace(FiringLocation, FireTargetLocation, HitResult))
+	{
+		if (HitResult.Actor.IsValid() && HitResult.Actor == Spacecraft)
+		{
+			HitTarget = HitResult.Actor.Get();
+			return false;
+		}
+	}
+
+	HitTarget = HitResult.Actor.IsValid() ? HitResult.Actor.Get() : NULL;
 	return true;
+}
+
+bool UFlareWeapon::Trace(const FVector& Start, const FVector& End, FHitResult& HitOut) const
+{
+	SCOPE_CYCLE_COUNTER(STAT_FlareWeapon_Trace);
+
+	FCollisionQueryParams TraceParams(FName(TEXT("Shell Trace")), true, NULL);
+	TraceParams.bTraceComplex = true;
+	// TraceParams.bTraceAsyncScene = true;
+	TraceParams.bReturnPhysicalMaterial = false;
+
+	// Re-initialize hit info
+	HitOut = FHitResult(ForceInit);
+
+	ECollisionChannel CollisionChannel = (ECollisionChannel)(ECC_WorldStatic | ECC_WorldDynamic | ECC_Pawn);
+
+	// Trace!
+	GetWorld()->LineTraceSingleByChannel(
+		HitOut,		// result
+		Start,	// start
+		End, // end
+		CollisionChannel, // collision channel
+		TraceParams
+	);
+
+	// Hit any Actor?
+	return (HitOut.GetActor() != NULL);
 }
 
 float UFlareWeapon::GetAimRadius() const

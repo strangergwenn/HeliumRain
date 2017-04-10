@@ -7,8 +7,6 @@
 
 DECLARE_CYCLE_STAT(TEXT("FlareTurret Tick"), STAT_FlareTurret_Tick, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareTurret Update"), STAT_FlareTurret_Update, STATGROUP_Flare);
-DECLARE_CYCLE_STAT(TEXT("FlareTurret IsSafeToFire"), STAT_FlareTurret_IsSafeToFire, STATGROUP_Flare);
-DECLARE_CYCLE_STAT(TEXT("FlareTurret Trace"), STAT_FlareTurret_Trace, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareTurret IsReacheableAxis"), STAT_FlareTurret_IsReacheableAxis, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareTurret GetMinLimitAtAngle"), STAT_FlareTurret_GetMinLimitAtAngle, STATGROUP_Flare);
 
@@ -311,55 +309,6 @@ FVector UFlareTurret::GetTurretBaseLocation() const
 bool UFlareTurret::IsCloseToAim() const
 {
 	return (FVector::DotProduct(AimDirection, GetFireAxis()) > 0.999);
-}
-
-bool UFlareTurret::IsSafeToFire(int GunIndex, AActor*& HitTarget) const
-{
-	SCOPE_CYCLE_COUNTER(STAT_FlareTurret_IsSafeToFire);
-
-	FVector FiringLocation = GetMuzzleLocation(GunIndex);
-	FVector FiringDirection = GetFireAxis();
-	FVector FireTargetLocation = FiringLocation + FiringDirection * 100000;
-
-	FHitResult HitResult(ForceInit);
-	if (Trace(FiringLocation, FireTargetLocation, HitResult))
-	{
-		if (HitResult.Actor.IsValid() && HitResult.Actor == Spacecraft)
-		{
-			HitTarget = HitResult.Actor.Get();
-			return false;
-		}
-	}
-
-	HitTarget = HitResult.Actor.IsValid() ? HitResult.Actor.Get() : NULL;
-	return true;
-}
-
-bool UFlareTurret::Trace(const FVector& Start, const FVector& End, FHitResult& HitOut) const
-{
-	SCOPE_CYCLE_COUNTER(STAT_FlareTurret_Trace);
-
-	FCollisionQueryParams TraceParams(FName(TEXT("Shell Trace")), true, NULL);
-	TraceParams.bTraceComplex = true;
-	// TraceParams.bTraceAsyncScene = true;
-	TraceParams.bReturnPhysicalMaterial = false;
-
-	// Re-initialize hit info
-	HitOut = FHitResult(ForceInit);
-
-	ECollisionChannel CollisionChannel = (ECollisionChannel) (ECC_WorldStatic | ECC_WorldDynamic | ECC_Pawn);
-
-	// Trace!
-	GetWorld()->LineTraceSingleByChannel(
-		HitOut,		// result
-		Start,	// start
-		End , // end
-		CollisionChannel, // collision channel
-		TraceParams
-	);
-
-	// Hit any Actor?
-	return (HitOut.GetActor() != NULL) ;
 }
 
 bool UFlareTurret::IsReacheableAxis(FVector TargetAxis) const

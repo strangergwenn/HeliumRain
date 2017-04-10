@@ -57,6 +57,8 @@ public:
 
 	virtual bool IsSafeToFire(int GunIndex, AActor*& HitTarget) const;
 
+	virtual bool Trace(const FVector& Start, const FVector& End, FHitResult& HitOut) const;
+
 	/** Return the aim need minimum radius. 0 if not proximity fuze */
 	virtual float GetAimRadius() const;
 
