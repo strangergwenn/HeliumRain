@@ -109,28 +109,22 @@ void AFlareShell::Tick(float DeltaSeconds)
 
 	if (ShellDescription)
 	{
-		if (ShellDescription->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Contact)
+		FHitResult HitResult(ForceInit);
+		if (Trace(ActorLocation, NextActorLocation, HitResult))
 		{
-			FHitResult HitResult(ForceInit);
-			if (Trace(ActorLocation, NextActorLocation, HitResult))
-			{
-				OnImpact(HitResult, ShellVelocity);
-			}
+			OnImpact(HitResult, ShellVelocity);
 		}
-		else if (ShellDescription->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
+		
+		if (ShellDescription->WeaponCharacteristics.FuzeType == EFlareShellFuzeType::Proximity)
 		{
-
 			if (SecureTime > 0)
 			{
 				SecureTime -= DeltaSeconds;
 			}
-			else
+			else if (ActiveTime > 0)
 			{
-				if (ActiveTime > 0)
-				{
-					CheckFuze(ActorLocation, NextActorLocation);
-					ActiveTime -= DeltaSeconds;
-				}
+				CheckFuze(ActorLocation, NextActorLocation);
+				ActiveTime -= DeltaSeconds;
 			}
 		}
 	}
