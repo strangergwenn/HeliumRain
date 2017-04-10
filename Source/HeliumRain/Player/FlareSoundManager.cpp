@@ -27,12 +27,13 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 
 	// Music track references
 	static ConstructorHelpers::FObjectFinder<USoundCue> MenuMusicObj(TEXT("/Game/Music/A_Menu_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> Ambient1MusicObj(TEXT("/Game/Music/A_Ambient1_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> Ambient2MusicObj(TEXT("/Game/Music/A_Ambient2_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> TravelMusicObj(TEXT("/Game/Music/A_Travel_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> ExplorationMusicObj(TEXT("/Game/Music/A_Exploration_Cue"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> TravelMusicObj(TEXT("/Game/Music/A_Exploration_Cue"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> DangerMusicObk(TEXT("/Game/Music/A_Danger_Cue"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> PacificMusicObj(TEXT("/Game/Music/A_Exploration_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> DangerMusicObj(TEXT("/Game/Music/A_Danger_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> CombatMusicObj(TEXT("/Game/Music/A_Combat_Cue"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> WarMusicObj(TEXT("/Game/Music/A_Combat_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> BattleMusicObj(TEXT("/Game/Music/A_Battle_Cue"));
 
 	// Mix references
 	static ConstructorHelpers::FObjectFinder<USoundClass> MasterClassObj(TEXT("/Game/Sound/Class_Master.Class_Master"));
@@ -64,12 +65,13 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	// Music track store
 	MusicTracks.Add(NULL);
 	MusicTracks.Add(MenuMusicObj.Object);
-	MusicTracks.Add(ExplorationMusicObj.Object);
+	MusicTracks.Add(Ambient1MusicObj.Object);
+	MusicTracks.Add(Ambient2MusicObj.Object);
 	MusicTracks.Add(TravelMusicObj.Object);
-	MusicTracks.Add(PacificMusicObj.Object);
-	MusicTracks.Add(DangerMusicObk.Object);
+	MusicTracks.Add(ExplorationMusicObj.Object);
+	MusicTracks.Add(DangerMusicObj.Object);
 	MusicTracks.Add(CombatMusicObj.Object);
-	MusicTracks.Add(WarMusicObj.Object);
+	MusicTracks.Add(BattleMusicObj.Object);
 
 	// Sound references
 	TargetWarningSound = TargetWarningSoundObj.Object;

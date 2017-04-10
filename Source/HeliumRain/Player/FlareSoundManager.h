@@ -16,12 +16,13 @@ namespace EFlareMusicTrack
 	{
 		None,
 		Menu,
-		Exploration,
+		Ambient1,
+		Ambient2,
 		Travel,
-		Pacific,
+		Exploration,
 		Danger,
 		Combat,
-		War
+		Battle
 	};
 }
 

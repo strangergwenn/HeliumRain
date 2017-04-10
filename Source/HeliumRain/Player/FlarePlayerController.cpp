@@ -1,6 +1,7 @@
 
 #include "../Flare.h"
 #include "FlarePlayerController.h"
+#include "FlareSoundManager.h"
 #include "../Game/FlareGameTools.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareTurret.h"
@@ -481,8 +482,8 @@ void AFlarePlayerController::UpdateMusicTrack(FFlareSectorBattleState NewBattleS
 			UFlareSimulatedSector* Sector = GetGame()->GetActiveSector()->GetSimulatedSector();
 			if (Sector->GetSectorShips().Num() > 15)
 			{
-				FLOG("AFlarePlayerController::UpdateMusicTrack : war");
-				SoundManager->RequestMusicTrack(EFlareMusicTrack::War);
+				FLOG("AFlarePlayerController::UpdateMusicTrack : battle");
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::Battle);
 			}
 			else
 			{
@@ -511,10 +512,15 @@ void AFlarePlayerController::UpdateMusicTrack(FFlareSectorBattleState NewBattleS
 				FLOG("AFlarePlayerController::UpdateMusicTrack : using level music");
 				SoundManager->RequestMusicTrack(LevelMusic);
 			}
+			else if (FMath::RandBool())
+			{
+				FLOG("AFlarePlayerController::UpdateMusicTrack : ambient1");
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::Ambient1);
+			}
 			else
 			{
-				FLOG("AFlarePlayerController::UpdateMusicTrack : exploration");
-				SoundManager->RequestMusicTrack(EFlareMusicTrack::Exploration);
+				FLOG("AFlarePlayerController::UpdateMusicTrack : ambient2");
+				SoundManager->RequestMusicTrack(EFlareMusicTrack::Ambient2);
 			}
 		}
 	}
