@@ -8,6 +8,26 @@
 	Constructor
 ----------------------------------------------------*/
 
+static bool SortByWeaponType(const UFlareSpacecraftComponentsCatalogEntry& A, const UFlareSpacecraftComponentsCatalogEntry& B)
+{
+	const FFlareSpacecraftComponentWeaponCharacteristics& CharA = A.Data.WeaponCharacteristics;
+	const FFlareSpacecraftComponentWeaponCharacteristics& CharB = B.Data.WeaponCharacteristics;
+
+	if (CharA.BombCharacteristics.IsBomb && !CharA.BombCharacteristics.IsBomb)
+	{
+		return false;
+	}
+	if (CharA.BombCharacteristics.IsBomb && CharB.BombCharacteristics.IsBomb)
+	{
+		return (CharA.ExplosionPower > CharB.ExplosionPower);
+	}
+	else
+	{
+		return (CharA.GunCharacteristics.KineticEnergy > CharB.GunCharacteristics.KineticEnergy);
+	}
+}
+
+
 UFlareSpacecraftComponentsCatalog::UFlareSpacecraftComponentsCatalog(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
@@ -42,6 +62,8 @@ UFlareSpacecraftComponentsCatalog::UFlareSpacecraftComponentsCatalog(const class
 			MetaCatalog.Add(SpacecraftComponent);
 		}
 	}
+
+	WeaponCatalog.Sort(SortByWeaponType);
 }
 
 
