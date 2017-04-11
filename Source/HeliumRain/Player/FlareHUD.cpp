@@ -8,6 +8,7 @@
 #include "../Spacecrafts/Subsystems/FlareSpacecraftDamageSystem.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Game/AI/FlareCompanyAI.h"
+#include "../Game/FlareGameUserSettings.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareNavigationHUD"
@@ -29,6 +30,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	, GameThreadTime(0)
 	, RenderThreadTime(0)
 	, GPUFrameTime(0)
+	, PreviousScreenPercentage(0)
 {
 	// Load content (general icons)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDReticleIconObj         (TEXT("/Game/Gameplay/HUD/TX_Reticle.TX_Reticle"));
@@ -400,7 +402,8 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	PlayerHitTime += DeltaSeconds;
 
 	// HUD texture target
-	if (ViewportSize != PreviousViewportSize)
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	if (ViewportSize != PreviousViewportSize || MyGameSettings->ScreenPercentage != PreviousScreenPercentage)
 	{
 		HUDRenderTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);		
 		if (HUDRenderTarget)
@@ -409,6 +412,8 @@ void AFlareHUD::Tick(float DeltaSeconds)
 			HUDRenderTarget->ClearColor = FLinearColor::Black;
 			HUDRenderTarget->UpdateResource();
 			HUDRenderTargetMaterial->SetTextureParameterValue("Texture", HUDRenderTarget);
+			HUDRenderTargetMaterial->SetScalarParameterValue("ScreenPercentage", MyGameSettings->ScreenPercentage / 100.0f);
+			PreviousScreenPercentage = MyGameSettings->ScreenPercentage;
 		}
 
 		PreviousViewportSize = ViewportSize;

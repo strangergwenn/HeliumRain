@@ -214,6 +214,7 @@ protected:
 	bool                                    HUDVisible;
 	bool                                    IsInteractive;
 	bool                                    IsDrawingHUD;
+	int32                                   PreviousScreenPercentage;
 	FVector2D                               ViewportSize;
 	FVector2D                               PreviousViewportSize;
 	AFlareSpacecraft*                       ContextMenuSpacecraft;
