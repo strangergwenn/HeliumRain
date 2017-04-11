@@ -589,7 +589,7 @@ void SFlareQuestMenu::FillQuestDetails()
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.SubTitleFont)
-				.Text(LOCTEXT("ExpirationTitle", "Contract expiration"))
+				.Text(LOCTEXT("ExpirationTitle", "Time left to accept this contract"))
 			];
 
 			QuestDetails->AddSlot()
