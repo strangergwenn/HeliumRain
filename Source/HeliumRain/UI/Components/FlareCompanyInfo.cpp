@@ -143,7 +143,7 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("CompanyResearchValue", "research spent"))
+						.Text(LOCTEXT("CompanyResearchValue", "research value"))
 						.TextStyle(&Theme.TextFont)
 					]
 				]
