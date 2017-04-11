@@ -91,6 +91,7 @@ void SFlareTechnologyMenu::Construct(const FArguments& InArgs)
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
 					.Text(this, &SFlareTechnologyMenu::GetTechnologyDescription)
+					.WrapTextAt(0.7 * Theme.ContentWidth)
 				]
 			
 				// Button
