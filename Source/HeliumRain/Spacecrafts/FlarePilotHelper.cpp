@@ -599,7 +599,7 @@ bool PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector Curre
 	FVector DeltaLocation = CandidateLocation - CurrentLocation;
 
 	// Eliminate obvious not-dangerous candidates based on velocity
-	if (DeltaVelocity.IsNearlyZero() || FVector::DotProduct(DeltaLocation, DeltaVelocity) > 0)
+	if (DeltaVelocity.IsNearlyZero() || (FVector::DotProduct(DeltaLocation.GetUnsafeNormal(), DeltaVelocity) > -200))
 	{
 		return false;
 	}
