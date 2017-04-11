@@ -183,7 +183,10 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-flying"));
 
+	FName PickUpShipId = "dock-at-ship-id";
 	UFlareSimulatedSector* Sector = FindSector("the-depths");
+	UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations().Num() ? Sector->GetSectorStations()[0] : NULL;
+
 	if (!Sector)
 	{
 		return;
@@ -192,7 +195,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Travel"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","To start a travel, open the orbital map (using <RIGHT CLICK> or <input-action:OrbitMenu>), select the \"The Depths\" and click \"Travel\".<br>Then, use the \"Fast Forward\" button to complete the travel.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","To start a travel, open the overlay with <input-action:ToggleOverlay> and click on the orbital map. Select the sector \"The Depths\" and click \"Travel\".<br>Then, use the \"Fast Forward\" button to complete the travel.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "travel", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionSectorVisited::Create(this, Sector));
@@ -206,6 +209,20 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "activate", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionSectorActive::Create(this, Sector));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"DockAt"
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "You can now dock at stations to trade resources or upgrade your spacecraft. Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}, and then press <input-action:Wheel> to select the docking option. Your ship will dock automatically - but you can brake to disengage the autopilot. Use the wheel menu to undock too !"), FText::FromString(Station->GetImmatriculation().ToString()));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pick-up", Description);
+
+		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station);
+		Condition->TargetShipSaveId = PickUpShipId;
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+
 		Steps.Add(Step);
 	}
 }
