@@ -192,7 +192,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Travel"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","To start a travel, open the orbital map, select the \"The Depths\" and click \"Travel\".<br>Then, use the \"Fast Forward\" button to complete the travel.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","To start a travel, open the orbital map (using <RIGHT CLICK> or <input-action:OrbitMenu>), select the \"The Depths\" and click \"Travel\".<br>Then, use the \"Fast Forward\" button to complete the travel.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "travel", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionSectorVisited::Create(this, Sector));
