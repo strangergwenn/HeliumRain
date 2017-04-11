@@ -13,7 +13,7 @@ static bool SortByWeaponType(const UFlareSpacecraftComponentsCatalogEntry& A, co
 	const FFlareSpacecraftComponentWeaponCharacteristics& CharA = A.Data.WeaponCharacteristics;
 	const FFlareSpacecraftComponentWeaponCharacteristics& CharB = B.Data.WeaponCharacteristics;
 
-	if (CharA.BombCharacteristics.IsBomb && !CharA.BombCharacteristics.IsBomb)
+	if (CharA.BombCharacteristics.IsBomb && !CharB.BombCharacteristics.IsBomb)
 	{
 		return false;
 	}
@@ -25,6 +25,11 @@ static bool SortByWeaponType(const UFlareSpacecraftComponentsCatalogEntry& A, co
 	{
 		return (CharA.GunCharacteristics.KineticEnergy > CharB.GunCharacteristics.KineticEnergy);
 	}
+}
+
+static bool SortByCost(const UFlareSpacecraftComponentsCatalogEntry& A, const UFlareSpacecraftComponentsCatalogEntry& B)
+{
+	return (A.Data.Cost > B.Data.Cost);
 }
 
 
@@ -63,6 +68,9 @@ UFlareSpacecraftComponentsCatalog::UFlareSpacecraftComponentsCatalog(const class
 		}
 	}
 
+	// Sort entries for the upgrade menu
+	EngineCatalog.Sort(SortByCost);
+	RCSCatalog.Sort(SortByCost);
 	WeaponCatalog.Sort(SortByWeaponType);
 }
 
