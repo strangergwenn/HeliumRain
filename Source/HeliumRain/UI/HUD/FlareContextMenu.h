@@ -33,14 +33,8 @@ public:
 	/** Set a station as content */
 	void SetSpacecraft(AFlareSpacecraft* Target);
 	
-	/** Show the menu */
-	void Show();
-
-	/** Hide the menu */
-	void Hide();
-
 	/** Open the menu associated to the target */
-	FReply OnClicked();
+	void OnClicked();
 
 
 protected:
@@ -54,9 +48,9 @@ protected:
 	/** Get the current position */
 	FMargin GetContextMenuPosition() const;
 
-	/** Get the visibility setting for the button */
-	EVisibility GetButtonVisibility() const;
-
+	/** Get the color setting for the button */
+	FSlateColor GetColor() const;
+	
 	/** Get the icon brush */
 	const FSlateBrush* GetIcon() const;
 
@@ -75,7 +69,6 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 		
 	// Game data
-	bool                                       IsTargetting;
 	AFlareSpacecraft*                          PlayerShip;
 	AFlareSpacecraft*		                   TargetSpacecraft;
 	

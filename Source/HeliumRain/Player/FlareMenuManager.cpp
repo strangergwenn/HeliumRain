@@ -485,12 +485,12 @@ void AFlareMenuManager::ProcessNextMenu()
 	{
 		NextMenu.Value = FFlareMenuParameterData();
 		NextMenu.Key = EFlareMenu::MENU_None;
+	}
 
-		// Signal the HUD
-		if (GetPC()->GetNavHUD())
-		{
-			GetPC()->GetNavHUD()->UpdateHUDVisibility();
-		}
+	// Signal the HUD
+	if (GetPC()->GetNavHUD())
+	{
+		GetPC()->GetNavHUD()->UpdateHUDVisibility();
 	}
 }
 

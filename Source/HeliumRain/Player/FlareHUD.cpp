@@ -202,6 +202,7 @@ void AFlareHUD::SetWheelMenu(bool State, bool EnableActionOnClose)
 	{
 		MouseMenu->Close(EnableActionOnClose);
 	}
+	UpdateHUDVisibility();
 }
 
 void AFlareHUD::SetWheelCursorMove(FVector2D Move)
@@ -229,8 +230,6 @@ void AFlareHUD::UpdateHUDVisibility()
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
 	HUDMenu->SetVisibility((HUDVisible && !MenuManager->IsMenuOpen() && PC->GetPlayerShip()->GetDamageSystem()->IsAlive() && !PC->UseCockpit) ?
-		EVisibility::Visible : EVisibility::Collapsed);
-	ContextMenu->SetVisibility((HUDVisible && !MenuManager->IsMenuOpen() && !MenuManager->IsSwitchingMenu()) ?
 		EVisibility::Visible : EVisibility::Collapsed);
 	MenuManager->GetNotifier()->SetVisibility((HUDVisible) ?
 		EVisibility::SelfHitTestInvisible : EVisibility::Hidden);
@@ -889,11 +888,9 @@ void AFlareHUD::UpdateContextMenu(AFlareSpacecraft* PlayerShip)
 						// Update state
 						ContextMenuPosition = ScreenPosition;
 						ContextMenuSpacecraft = Spacecraft;
-
-						ContextMenu->SetSpacecraft(Spacecraft);
 						if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 						{
-							ContextMenu->Show();
+							ContextMenu->SetSpacecraft(Spacecraft);
 							return;
 						}
 					}
@@ -905,7 +902,7 @@ void AFlareHUD::UpdateContextMenu(AFlareSpacecraft* PlayerShip)
 	// Hide the context menu if nothing was found
 	if (ContextMenuSpacecraft == NULL || !IsInteractive)
 	{
-		ContextMenu->Hide();
+		ContextMenu->SetSpacecraft(NULL);
 	}
 }
 

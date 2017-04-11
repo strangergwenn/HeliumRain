@@ -17,11 +17,10 @@
 void SFlareContextMenu::Construct(const FArguments& InArgs)
 {
 	// Data
+	PlayerShip = NULL;
 	TargetSpacecraft = NULL;
 	HUD = InArgs._HUD;
 	MenuManager = InArgs._MenuManager;
-	IsTargetting = false;
-	PlayerShip = NULL;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Structure
@@ -33,34 +32,29 @@ void SFlareContextMenu::Construct(const FArguments& InArgs)
 		.BorderImage(FCoreStyle::Get().GetBrush("NoBrush"))
 		.Padding(this, &SFlareContextMenu::GetContextMenuPosition)
 		[
-			SNew(SButton)
-			.ContentPadding(FMargin(0))
-			.ButtonStyle(FCoreStyle::Get(), "NoBorder")
-			.OnClicked(this, &SFlareContextMenu::OnClicked)
-			.Visibility(this, &SFlareContextMenu::GetButtonVisibility)
+			SNew(SBox)
+			.WidthOverride(200)
+			.HeightOverride(200)
 			[
-				SNew(SVerticalBox)
-
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(SImage)
-					.Image(this, &SFlareContextMenu::GetIcon)
-				]
-
-				+ SVerticalBox::Slot()
-				.AutoHeight()
+				SNew(SBorder)
+				.BorderImage(FFlareStyleSet::GetIcon("LargeButtonBackground"))
+				.BorderBackgroundColor(this, &SFlareContextMenu::GetColor)
 				.HAlign(HAlign_Center)
+				.VAlign(VAlign_Center)
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
+					SNew(SFlareRoundButton)
 					.Text(this, &SFlareContextMenu::GetText)
+					.Icon(this, &SFlareContextMenu::GetIcon)
+					.IconColor(this, &SFlareContextMenu::GetColor)
+					.TextColor(this, &SFlareContextMenu::GetColor)
+					.HighlightColor(this, &SFlareContextMenu::GetColor)
+					.OnClicked(this, &SFlareContextMenu::OnClicked)
 				]
 			]
 		]
 	];
 
-	Hide();
+	TargetSpacecraft = NULL;
 }
 
 
@@ -73,45 +67,14 @@ void SFlareContextMenu::SetSpacecraft(AFlareSpacecraft* Target)
 	TargetSpacecraft = Target;
 }
 
-void SFlareContextMenu::Show()
-{
-	SetVisibility(EVisibility::Visible);
-}
-
-void SFlareContextMenu::Hide()
-{
-	SetVisibility(EVisibility::Collapsed);
-	TargetSpacecraft = NULL;
-}
-
-FReply SFlareContextMenu::OnClicked()
+void SFlareContextMenu::OnClicked()
 {
 	if (TargetSpacecraft && PlayerShip)
 	{
-		if (IsTargetting)
-		{
-			UFlareSpacecraftWeaponsSystem* WeaponSystem = PlayerShip->GetWeaponsSystem();
-			AFlareSpacecraft* Spacecraft = TargetSpacecraft;
-			FCHECK(Spacecraft != NULL);
-
-			if (Spacecraft != WeaponSystem->GetActiveWeaponTarget())
-			{
-				WeaponSystem->SetActiveWeaponTarget(Spacecraft);
-			}
-			else
-			{
-				WeaponSystem->SetActiveWeaponTarget(NULL);
-			}
-		}
-		else
-		{
-			FFlareMenuParameterData Data;
-			Data.Spacecraft = TargetSpacecraft->GetParent();
-			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, Data);
-		}
+		FFlareMenuParameterData Data;
+		Data.Spacecraft = TargetSpacecraft->GetParent();
+		MenuManager->OpenMenu(EFlareMenu::MENU_Ship, Data);
 	}
-
-	return FReply::Handled();
 }
 
 
@@ -126,17 +89,28 @@ void SFlareContextMenu::Tick(const FGeometry& AllottedGeometry, const double InC
 	if (IsEnabled() && MenuManager.IsValid())
 	{
 		PlayerShip = MenuManager->GetPC()->GetShipPawn();
-
-		if (PlayerShip && PlayerShip->IsMilitary() && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET)
-		{
-			// Manual targetting is not cool, disabled
-			//IsTargetting = true;
-		}
-		else
-		{
-			IsTargetting = false;
-		}
 	}
+}
+
+FSlateColor SFlareContextMenu::GetColor() const
+{
+	FLinearColor Color = FLinearColor::White;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	if (TargetSpacecraft &&
+		!MenuManager->IsMenuOpen() &&
+		!MenuManager->IsSwitchingMenu() &&
+		HUD->IsHUDVisible() &&
+		!HUD->IsWheelMenuOpen())
+	{
+		Color.A = Theme.DefaultAlpha;
+	}
+	else
+	{
+		Color.A = 0;
+	}
+
+	return Color;
 }
 
 FMargin SFlareContextMenu::GetContextMenuPosition() const
@@ -146,27 +120,15 @@ FMargin SFlareContextMenu::GetContextMenuPosition() const
 	float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
 
 	FVector2D Pos = HudLocation / ViewportScale;
-	Pos.X -= 48;
-	Pos.Y -= 48;
+	Pos.X -= 100;
+	Pos.Y -= 100;
 
 	return FMargin(Pos.X, Pos.Y, 0, 0);
 }
 
-EVisibility SFlareContextMenu::GetButtonVisibility() const
-{
-	if (!IsTargetting || (TargetSpacecraft && TargetSpacecraft->GetParent()->GetCompany()->GetPlayerWarState() <= EFlareHostility::Neutral))
-	{
-		return EVisibility::Visible;
-	}
-	else
-	{
-		return EVisibility::Collapsed;
-	}
-}
-
 const FSlateBrush* SFlareContextMenu::GetIcon() const
 {
-	return (IsTargetting ? FFlareStyleSet::GetIcon("TargettingContextButton") : FFlareStyleSet::GetIcon("DesignatorContextButton"));
+	return FFlareStyleSet::GetIcon("DesignatorContextButton");
 }
 
 FText SFlareContextMenu::GetText() const
@@ -175,20 +137,6 @@ FText SFlareContextMenu::GetText() const
 
 	if (TargetSpacecraft && PlayerShip)
 	{
-		if (IsTargetting)
-		{
-			UFlareSpacecraftWeaponsSystem* WeaponSystem = PlayerShip->GetWeaponsSystem();
-
-			if (TargetSpacecraft != WeaponSystem->GetActiveWeaponTarget())
-			{
-				Info = LOCTEXT("Mark", "Mark as target\n {0}");
-			}
-			else
-			{
-				Info = LOCTEXT("Clear", "Clear target\n {0}");
-			}
-		}
-
 		Info = FText::Format(Info, FText::FromName(TargetSpacecraft->GetParent()->GetImmatriculation()));
 	}
 
