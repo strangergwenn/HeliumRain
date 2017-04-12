@@ -273,7 +273,7 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 						{
 							CantBuildReasons += FString("\n");
 						}
-						CantBuildReasons += LOCTEXT("DONT-TRANSLATE-ListSymbol", "\u2022 ").ToString() + Reasons[Index].ToString();
+						CantBuildReasons += Reasons[Index].ToString();
 					}
 					ConfirmText->SetText(FText::FromString(CantBuildReasons));
 				}
@@ -360,13 +360,13 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 		// Production cost
 		if (MenuManager->GetPC()->GetCompany() == TargetFactory->GetParent()->GetCompany())
 		{
-			ProductionCost = TargetFactory->GetFactoryCycleCost(CycleData);
+			ProductionCost = FText::Format(LOCTEXT("FactoryProductionResourcesFormat", "\u2022 {0}"), TargetFactory->GetFactoryCycleCost(CycleData));
 		}
 		else
 		{
 			ProductionTime += TargetFactory->GetRemainingProductionDuration();
 			int32 CycleProductionCost = UFlareGameTools::ComputeSpacecraftPrice(Desc->Identifier, TargetFactory->GetParent()->GetCurrentSector(), true);
-			ProductionCost = FText::Format(LOCTEXT("FactoryProductionCostFormat", "{0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(CycleProductionCost)));
+			ProductionCost = FText::Format(LOCTEXT("FactoryProductionCostFormat", "\u2022 {0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(CycleProductionCost)));
 		}
 	}
 
@@ -382,34 +382,62 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 		for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.InputResources.Num(); ResourceIndex++)
 		{
 			FFlareFactoryResource* FactoryResource = &Desc->CycleCost.InputResources[ResourceIndex];
-			ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
+			if (ResourcesString.Len())
+			{
+				ResourcesString += ", ";
+			}
+			ResourcesString += FString::Printf(TEXT("%u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
 		}
 
 		// Constraints
 		FString ConstraintString;
 		if (Desc->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
 		{
-			ConstraintString += ", " + LOCTEXT("AsteroidNeeded", "a free asteroid").ToString();
+			if (ConstraintString.Len())
+			{
+				ConstraintString += ", ";
+			}
+			ConstraintString += LOCTEXT("AsteroidNeeded", "a free asteroid").ToString();
 		}
 		if (Desc->BuildConstraint.Contains(EFlareBuildConstraint::SunExposure))
 		{
-			ConstraintString += ", " + LOCTEXT("SunNeeded", "good sun exposure").ToString();
+			if (ConstraintString.Len())
+			{
+				ConstraintString += ", ";
+			}
+			ConstraintString += LOCTEXT("SunNeeded", "good sun exposure").ToString();
 		}
 		if (Desc->BuildConstraint.Contains(EFlareBuildConstraint::GeostationaryOrbit))
 		{
-			ConstraintString += ", " + LOCTEXT("GeostationaryNeeded", "a geostationary orbit").ToString();
+			if (ConstraintString.Len())
+			{
+				ConstraintString += ", ";
+			}
+			ConstraintString += LOCTEXT("GeostationaryNeeded", "a geostationary orbit").ToString();
 		}
 		if (Desc->BuildConstraint.Contains(EFlareBuildConstraint::HideOnIce))
 		{
-			ConstraintString += ", " + LOCTEXT("NonIcyNeeded", "a non-icy sector").ToString();
+			if (ConstraintString.Len())
+			{
+				ConstraintString += ", ";
+			}
+			ConstraintString += LOCTEXT("NonIcyNeeded", "a non-icy sector").ToString();
 		}
 		if (Desc->BuildConstraint.Contains(EFlareBuildConstraint::HideOnNoIce))
 		{
-			ConstraintString += ", " + LOCTEXT("IcyNeeded", "an icy sector").ToString();
+			if (ConstraintString.Len())
+			{
+				ConstraintString += ", ";
+			}
+			ConstraintString += LOCTEXT("IcyNeeded", "an icy sector").ToString();
+		}
+		if (ConstraintString.Len())
+		{
+			ConstraintString = LOCTEXT("ConstructioNRequirement", "\n\u2022 Requires").ToString() + " " + ConstraintString;
 		}
 
 		// Final text
-		ProductionCost = FText::Format(LOCTEXT("StationCostFormat", "{0} credits ({1} existing stations) {2}\nRequires a cargo ship {3}"),
+		ProductionCost = FText::Format(LOCTEXT("StationCostFormat", "\u2022 Costs {0} credits ({1} existing stations) {3}\n\u2022 Completion requires {2}"),
 			FText::AsNumber(UFlareGameTools::DisplayMoney(TargetSector->GetStationConstructionFee(Desc->CycleCost.ProductionCost))),
 			FText::AsNumber(TargetSector->GetSectorStations().Num()),
 			FText::FromString(ResourcesString),
@@ -502,7 +530,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 			.AutoHeight()
 			[
 				SNew(STextBlock)
-				.Text(FText::Format(LOCTEXT("ProductionTimeFormat", "{0} days"), FText::AsNumber(ProductionTime)))
+				.Text(FText::Format(LOCTEXT("ProductionTimeFormat", "\u2022 {0} days"), FText::AsNumber(ProductionTime)))
 				.WrapTextAt(0.65 * Theme.ContentWidth)
 				.TextStyle(&Theme.TextFont)
 			]

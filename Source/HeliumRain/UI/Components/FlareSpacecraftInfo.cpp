@@ -143,11 +143,11 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						]
 					]
 
-					// Captures
+					// Message box
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					[
-						SAssignNew(CaptureBox, SVerticalBox)
+						SAssignNew(MessageBox, SVerticalBox)
 					]
 
 					// Cargo bay block
@@ -331,6 +331,7 @@ void SFlareSpacecraftInfo::SetMinimized(bool NewState)
 
 void SFlareSpacecraftInfo::Show()
 {
+	FCHECK(PC);
 	SetVisibility(EVisibility::Visible);
 
 	if (Minimized)
@@ -477,6 +478,9 @@ void SFlareSpacecraftInfo::Show()
 		}
 	}
 
+	// Update message box
+	MessageBox->ClearChildren();
+	UpdateConstructionInfo();
 	UpdateCaptureList();
 
 	if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Trade)
@@ -487,7 +491,7 @@ void SFlareSpacecraftInfo::Show()
 
 void SFlareSpacecraftInfo::Hide()
 {
-	CaptureBox->ClearChildren();
+	MessageBox->ClearChildren();
 	TargetSpacecraft = NULL;
 	TargetSpacecraftDesc = NULL;
 	SetVisibility(EVisibility::Collapsed);
@@ -498,77 +502,101 @@ void SFlareSpacecraftInfo::Hide()
 	Callbacks
 ----------------------------------------------------*/
 
-void SFlareSpacecraftInfo::UpdateCaptureList()
+void SFlareSpacecraftInfo::UpdateConstructionInfo()
 {
-	CaptureBox->ClearChildren();
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
-	// Initial checks
-	FCHECK(PC);
-	if (TargetSpacecraft == NULL || !TargetSpacecraft->IsValidLowLevel() || !TargetSpacecraft->IsStation())
+	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel() && TargetSpacecraft->IsStation())
 	{
-		return;
-	}
-
-	// Find all companies that could capture this
-	TArray<UFlareCompany*> Companies = PC->GetGame()->GetGameWorld()->GetCompanies();
-	for (int32 CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
-	{
-		UFlareCompany* Company = Companies[CompanyIndex];
-		if (TargetSpacecraft->GetCapturePoint(Company) > 0)
+		// TODO : enable this when we can test if a station is under construction
+		if (false)
 		{
-			FText CaptureInfo = FText::Format(LOCTEXT("CaptureFormat", "Capture in progress by {0} ({1})"),
-				Company->GetCompanyName(),
-				Company->GetPlayerHostilityText());
+			UFlareCompany* Company = TargetSpacecraft->GetCompany();
 
-			CaptureBox->AddSlot()
-			.AutoHeight()
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(SBorder)
-				.BorderImage(&Theme.BackgroundBrush)
-				.Padding(Theme.SmallContentPadding)
-				[
-					SNew(SHorizontalBox)
+			float ResourcesAcquisitionRatio = 0;
+			FText MissingResourcesText;
 
-					// Flag
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(SFlareCompanyFlag)
-						.Company(Company)
-						.Player(PC)
-					]
-
-					// Textual warning
-					+ SHorizontalBox::Slot()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(CaptureInfo)
-					]
-
-					// Progress bar
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(SBox)
-						.WidthOverride(100)
-						.VAlign(VAlign_Center)
-						[
-							SNew(SProgressBar)
-							.Percent(static_cast<float>(TargetSpacecraft->GetCapturePoint(Company)) / static_cast<float>(TargetSpacecraft->GetCapturePointThreshold()))
-							.BorderPadding(FVector2D(0, 0))
-							.Style(&Theme.ProgressBarStyle)
-						]
-					]
-				]
-			];
+			FText ConstructionInfo = FText::Format(LOCTEXT("ConstructionFormat", "This station is under construction and needs {0}"), MissingResourcesText);
+			AddMessage(ConstructionInfo, NULL, ResourcesAcquisitionRatio);
 		}
 	}
+}
+
+void SFlareSpacecraftInfo::UpdateCaptureList()
+{
+	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel() && TargetSpacecraft->IsStation())
+	{
+		// Find all companies that could capture this
+		TArray<UFlareCompany*> Companies = PC->GetGame()->GetGameWorld()->GetCompanies();
+		for (int32 CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
+		{
+			UFlareCompany* Company = Companies[CompanyIndex];
+			if (TargetSpacecraft->GetCapturePoint(Company) > 0)
+			{
+				FText CaptureInfo = FText::Format(LOCTEXT("CaptureFormat", "Capture in progress by {0} ({1})"),
+					Company->GetCompanyName(),
+					Company->GetPlayerHostilityText());
+
+				AddMessage(CaptureInfo, Company, static_cast<float>(TargetSpacecraft->GetCapturePoint(Company)) / static_cast<float>(TargetSpacecraft->GetCapturePointThreshold()));
+			}
+		}
+	}
+}
+
+void SFlareSpacecraftInfo::AddMessage(FText Message, UFlareCompany* Company, float Progress)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	// Structure
+	TSharedPtr<SHorizontalBox> Temp;
+	MessageBox->AddSlot()
+	.AutoHeight()
+	.Padding(Theme.SmallContentPadding)
+	[
+		SNew(SBorder)
+		.BorderImage(&Theme.BackgroundBrush)
+		.Padding(Theme.SmallContentPadding)
+		[
+			SAssignNew(Temp, SHorizontalBox)
+		]
+	];	
+
+	// Flag
+	if (Company)
+	{
+		Temp->AddSlot()
+		.AutoWidth()
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(SFlareCompanyFlag)
+			.Company(Company)
+			.Player(PC)
+		];
+	}
+
+	// Text info
+	Temp->AddSlot()
+	.Padding(Theme.SmallContentPadding)
+	[
+		SNew(STextBlock)
+		.TextStyle(&Theme.TextFont)
+		.Text(Message)
+		.WrapTextAt(0.75 * Theme.ContentWidth)
+	];
+
+	// Progress bar
+	Temp->AddSlot()
+	.AutoWidth()
+	.Padding(Theme.SmallContentPadding)
+	[
+		SNew(SBox)
+		.WidthOverride(100)
+		.VAlign(VAlign_Center)
+		[
+			SNew(SProgressBar)
+			.Percent(Progress)
+			.BorderPadding(FVector2D(0, 0))
+			.Style(&Theme.ProgressBarStyle)
+		]
+	];
 }
 
 bool SFlareSpacecraftInfo::IsTargetDisabled() const

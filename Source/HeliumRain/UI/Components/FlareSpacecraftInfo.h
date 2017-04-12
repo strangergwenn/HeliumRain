@@ -66,8 +66,14 @@ public:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Update the construction state */
+	void UpdateConstructionInfo();
+
 	/** Update a list of capturing companies */
 	void UpdateCaptureList();
+
+	/** Add a message info */
+	void AddMessage(FText Message, UFlareCompany* Company, float Progress);
 
 	/** Can we target the current spacecraft ? */
 	bool IsTargetDisabled() const;
@@ -153,7 +159,7 @@ protected:
 	FFlareObjectRemoved               OnRemoved;
 
 	// Slate data (buttons)
-	TSharedPtr<SVerticalBox>          CaptureBox;
+	TSharedPtr<SVerticalBox>          MessageBox;
 	TSharedPtr<SFlareButton>          InspectButton;
 	TSharedPtr<SFlareButton>          TargetButton;
 	TSharedPtr<SFlareButton>          UpgradeButton;
