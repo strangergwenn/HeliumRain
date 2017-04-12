@@ -903,7 +903,9 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 		LowHealth = (DamageSystem->IsCrewEndangered() || DamageSystem->IsUncontrollable()) && DamageSystem->IsAlive();
 
 		// Other helpers
-		CollidingSoon = PilotHelper::IsAnticollisionImminent(GetShipPawn(), 8.0f);
+		UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+		bool NoCollisionRisk = (MyGameSettings->UseAnticollision || MenuManager->IsUIOpen());
+		CollidingSoon = PilotHelper::IsAnticollisionImminent(GetShipPawn(), 8.0f) && !NoCollisionRisk;
 		ExitingSoon = PilotHelper::IsSectorExitImminent(GetShipPawn(), 15.0f);
 	}
 }
