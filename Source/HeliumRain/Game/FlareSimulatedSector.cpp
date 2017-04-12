@@ -567,6 +567,13 @@ bool UFlareSimulatedSector::CanUpgradeStation(UFlareSimulatedSpacecraft* Station
 
 	UFlareCompany* Company = Station->GetCompany();
 
+	// Is under construction	
+	if (Station->IsUnderConstruction())
+	{
+		OutReasons.Add(LOCTEXT("BuildImpossibleCOnstruction", "Can't upgrade stations in construction"));
+		Result = false;
+	}
+
 	// Check money cost
 	if (Company->GetMoney() < Station->GetStationUpgradeFee())
 	{
