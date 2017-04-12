@@ -161,11 +161,11 @@ public:
 
 	/** Create a ship in a sector for the current player*/
 	UFUNCTION(exec)
-	UFlareSimulatedSpacecraft* CreateShipForMeInSector(FName ShipClass, FName SectorIdentifier);
+	UFlareSimulatedSpacecraft* CreateShipForMeInSector(FName ShipClass, FName SectorIdentifier, bool UnderConstruction);
 
 	/** Create a station attached to an asteroid in the level */
 	UFUNCTION(exec)
-	UFlareSimulatedSpacecraft* CreateStationInCompanyAttachedInSector(FName StationClass, FName CompanyShortName, FName SectorIdentifier);
+	UFlareSimulatedSpacecraft* CreateStationInCompanyAttachedInSector(FName StationClass, FName CompanyShortName, FName SectorIdentifier, bool UnderConstruction);
 
 	UFUNCTION(exec)
 	void PrintSectorList();
@@ -215,11 +215,11 @@ public:
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
-	UFlareSimulatedSpacecraft* CreateStationForMe(FName StationClass);
+	UFlareSimulatedSpacecraft* CreateStationForMe(FName StationClass, bool UnderConstruction);
 
 	/** Create a station in the level */
 	UFUNCTION(exec)
-	UFlareSimulatedSpacecraft* CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance);
+	UFlareSimulatedSpacecraft* CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance, bool UnderConstruction);
 
 	/** Create a ship in the level for the current player*/
 	UFUNCTION(exec)

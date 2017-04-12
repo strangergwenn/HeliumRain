@@ -77,6 +77,8 @@ public:
 	
 	void PerformGainResearchAction(const FFlareFactoryAction* Action);
 
+	void PerformBuildStationAction(const FFlareFactoryAction* Action);
+
 
 protected:
 
@@ -88,7 +90,9 @@ protected:
 	FFlareFactorySave                        FactoryData;
 
 	AFlareGame*                              Game;
+
 	const FFlareFactoryDescription*          FactoryDescription;
+
 	UFlareSimulatedSpacecraft*				 Parent;
 	FFlareWorldEvent                         NextEvent;
 	uint32                                   ScaledProductionCost;
@@ -96,6 +100,9 @@ protected:
 	int32 CycleCostCacheLevel;
 
 public:
+
+	FFlareFactoryDescription           ConstructionFactoryDescription;
+
 
 	/*----------------------------------------------------
 		Getters

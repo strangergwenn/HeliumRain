@@ -504,7 +504,7 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 {
 	for (uint32 Index = 0; Index < Count; Index++)
 	{
-		UFlareSimulatedSpacecraft* Station = Sector->CreateStation(StationClass, Company, SpawnParameters);
+		UFlareSimulatedSpacecraft* Station = Sector->CreateStation(StationClass, Company, false, SpawnParameters);
 
 		if (!Station)
 		{

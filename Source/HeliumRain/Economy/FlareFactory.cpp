@@ -527,6 +527,10 @@ void UFlareFactory::DoProduction()
 				PerformGainResearchAction(Action);
 				break;
 
+			case EFlareFactoryAction::BuildStation:
+				PerformBuildStationAction(Action);
+				break;
+
 			default:
 				FLOGV("Warning ! Not implemented factory action %d", (Action->Action+0));
 		}
@@ -708,6 +712,13 @@ void UFlareFactory::PerformGainResearchAction(const FFlareFactoryAction* Action)
 
 	Company->GiveResearch(Action->Quantity);
 }
+
+
+void UFlareFactory::PerformBuildStationAction(const FFlareFactoryAction* Action)
+{
+	Parent->FinishConstruction();
+}
+
 
 
 /*----------------------------------------------------

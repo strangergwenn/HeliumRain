@@ -303,6 +303,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 
 	// TODO light save if destroyed
 	JsonObject->SetBoolField("IsDestroyed", Data->IsDestroyed);
+	JsonObject->SetBoolField("IsUnderConstruction", Data->IsUnderConstruction);
 	JsonObject->SetStringField("Immatriculation", Data->Immatriculation.ToString());
 	JsonObject->SetStringField("NickName", Data->NickName.ToString());
 	JsonObject->SetStringField("Identifier", Data->Identifier.ToString());

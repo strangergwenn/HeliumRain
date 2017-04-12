@@ -967,7 +967,7 @@ void UFlareGameTools::PrintTravelByIndex(int32 Index)
 	Sector tools
 ----------------------------------------------------*/
 
-UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipForMeInSector(FName ShipClass, FName SectorIdentifier)
+UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipForMeInSector(FName ShipClass, FName SectorIdentifier, bool UnderConstruction)
 {
 	if (!GetGameWorld())
 	{
@@ -993,12 +993,12 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateShipForMeInSector(FName ShipCl
 
 	AFlarePlayerController* PC = GetPC();
 
-	UFlareSimulatedSpacecraft* ShipPawn = Sector->CreateStation(ShipClass, PC->GetCompany());
+	UFlareSimulatedSpacecraft* ShipPawn = Sector->CreateStation(ShipClass, PC->GetCompany(), UnderConstruction);
 
 	return ShipPawn;
 }
 
-UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompanyAttachedInSector(FName StationClass, FName CompanyShortName, FName SectorIdentifier)
+UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompanyAttachedInSector(FName StationClass, FName CompanyShortName, FName SectorIdentifier, bool UnderConstruction)
 {
 	if (!GetGameWorld())
 	{
@@ -1027,7 +1027,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompanyAttachedInSect
 		return NULL;
 	}
 
-	UFlareSimulatedSpacecraft* NewStation = Sector->CreateStation(StationClass, Company);
+	UFlareSimulatedSpacecraft* NewStation = Sector->CreateStation(StationClass, Company, UnderConstruction);
 	return NewStation;
 }
 
@@ -1349,7 +1349,7 @@ void UFlareGameTools::TransferResources(FName SourceImmatriculation, FName Desti
 	Active Sector tools
 ----------------------------------------------------*/
 
-UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationForMe(FName StationClass)
+UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationForMe(FName StationClass, bool UnderConstruction)
 {
 	if (!GetActiveSector())
 	{
@@ -1357,10 +1357,10 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationForMe(FName StationClas
 		return NULL;
 	}
 
-	return CreateStationInCompany(StationClass, GetPC()->GetCompany()->GetShortName(), 100);
+	return CreateStationInCompany(StationClass, GetPC()->GetCompany()->GetShortName(), 100, UnderConstruction);
 }
 
-UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance)
+UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompany(FName StationClass, FName CompanyShortName, float Distance, bool UnderConstruction)
 {
 	if (!GetActiveSector())
 	{
@@ -1385,7 +1385,7 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompany(FName Station
 	}
 
 	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector();
-	UFlareSimulatedSpacecraft* NewStation = ActiveSector->CreateStation(StationClass, Company, StationParams);
+	UFlareSimulatedSpacecraft* NewStation = ActiveSector->CreateStation(StationClass, Company, UnderConstruction, StationParams);
 	GetGame()->ActivateCurrentSector();
 	
 	FFlareMenuParameterData Data;

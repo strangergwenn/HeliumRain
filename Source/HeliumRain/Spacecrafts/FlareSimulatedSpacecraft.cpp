@@ -49,31 +49,75 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	Game->GetGameWorld()->ClearFactories(this);
 	Factories.Empty();
 
-	// Load factories
-	for (int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
+	if(!IsUnderConstruction())
 	{
-		FFlareFactorySave FactoryData;
-		FFlareFactoryDescription* FactoryDescription = &SpacecraftDescription->Factories[FactoryIndex]->Data;
-
-		if (FactoryIndex < SpacecraftData.FactoryStates.Num())
+		// Load factories
+		for (int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
 		{
-			FactoryData = SpacecraftData.FactoryStates[FactoryIndex];
-		}
-		else
-		{
-				FactoryData.Active = FactoryDescription->AutoStart;
-				FactoryData.CostReserved = 0;
-				FactoryData.ProductedDuration = 0;
-				FactoryData.InfiniteCycle = true;
-				FactoryData.CycleCount = 0;
-				FactoryData.TargetShipClass = NAME_None;
-				FactoryData.TargetShipCompany = NAME_None;
-				FactoryData.OrderShipClass = NAME_None;
-				FactoryData.OrderShipCompany = NAME_None;
-				FactoryData.OrderShipAdvancePayment = 0;
-		}
+			FFlareFactorySave FactoryData;
+			FFlareFactoryDescription* FactoryDescription = &SpacecraftDescription->Factories[FactoryIndex]->Data;
 
+			if (FactoryIndex < SpacecraftData.FactoryStates.Num())
+			{
+				FactoryData = SpacecraftData.FactoryStates[FactoryIndex];
+			}
+			else
+			{
+					FactoryData.Active = FactoryDescription->AutoStart;
+					FactoryData.CostReserved = 0;
+					FactoryData.ProductedDuration = 0;
+					FactoryData.InfiniteCycle = true;
+					FactoryData.CycleCount = 0;
+					FactoryData.TargetShipClass = NAME_None;
+					FactoryData.TargetShipCompany = NAME_None;
+					FactoryData.OrderShipClass = NAME_None;
+					FactoryData.OrderShipCompany = NAME_None;
+					FactoryData.OrderShipAdvancePayment = 0;
+			}
+
+			UFlareFactory* Factory = NewObject<UFlareFactory>(GetGame()->GetGameWorld(), UFlareFactory::StaticClass());
+			Factory->Load(this, FactoryDescription, FactoryData);
+			Factories.Add(Factory);
+			if (!IsDestroyed())
+			{
+				Game->GetGameWorld()->AddFactory(Factory);
+			}
+		}
+	}
+	else
+	{
 		UFlareFactory* Factory = NewObject<UFlareFactory>(GetGame()->GetGameWorld(), UFlareFactory::StaticClass());
+
+		FFlareFactoryDescription* FactoryDescription = &Factory->ConstructionFactoryDescription;
+		FactoryDescription->AutoStart = true;
+		FactoryDescription->Name = LOCTEXT("Constructionfactory", "Under constuction");
+		FactoryDescription->Description = LOCTEXT("ConstructionfactoryDescription", "Bring construction resources");
+		FactoryDescription->Identifier = FName(*(FString("construction-") + SpacecraftDescription->Identifier.ToString()));
+
+		FFlareFactoryAction OutputAction;
+		OutputAction.Action = EFlareFactoryAction::BuildStation;
+		OutputAction.Identifier = "build-station";
+		OutputAction.Quantity = 1;
+		FactoryDescription->OutputActions.Add(OutputAction);
+		FactoryDescription->CycleCost.ProductionCost = 0;
+		FactoryDescription->CycleCost.ProductionTime = 1;
+		FactoryDescription->CycleCost.InputResources.Append(SpacecraftDescription->CycleCost.InputResources);
+		FactoryDescription->VisibleStates = true;
+
+		// Create construction factory
+		FFlareFactorySave FactoryData;
+		FactoryData.Active = FactoryDescription->AutoStart;
+		FactoryData.CostReserved = 0;
+		FactoryData.ProductedDuration = 0;
+		FactoryData.InfiniteCycle = true;
+		FactoryData.CycleCount = 0;
+		FactoryData.TargetShipClass = NAME_None;
+		FactoryData.TargetShipCompany = NAME_None;
+		FactoryData.OrderShipClass = NAME_None;
+		FactoryData.OrderShipCompany = NAME_None;
+		FactoryData.OrderShipAdvancePayment = 0;
+
+
 		Factory->Load(this, FactoryDescription, FactoryData);
 		Factories.Add(Factory);
 		if (!IsDestroyed())
@@ -82,9 +126,9 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		}
 	}
 
+	// Construction cargo bay
 	CargoBay = NewObject<UFlareCargoBay>(this, UFlareCargoBay::StaticClass());
 	CargoBay->Load(this, SpacecraftData.Cargo);
-
 
 	// Lock resources
 	LockResources();
@@ -312,13 +356,14 @@ void UFlareSimulatedSpacecraft::LockResources()
 {
 	GetCargoBay()->UnlockAll();
 
-	if (GetDescription()->Factories.Num() > 0)
-	{
-		FFlareFactoryDescription* Factory = &GetDescription()->Factories[0]->Data;
 
-		for (int32 ResourceIndex = 0 ; ResourceIndex < Factory->CycleCost.InputResources.Num() ; ResourceIndex++)
+	if (Factories.Num() > 0)
+	{
+		UFlareFactory* Factory = Factories[0];
+
+		for (int32 ResourceIndex = 0 ; ResourceIndex < Factory->GetCycleData().InputResources.Num() ; ResourceIndex++)
 		{
-			const FFlareFactoryResource* Resource = &Factory->CycleCost.InputResources[ResourceIndex];
+			const FFlareFactoryResource* Resource = &Factory->GetCycleData().InputResources[ResourceIndex];
 
 			if (!GetCargoBay()->LockSlot(&Resource->Resource->Data, EFlareResourceLock::Input, false))
 			{
@@ -326,9 +371,9 @@ void UFlareSimulatedSpacecraft::LockResources()
 			}
 		}
 
-		for (int32 ResourceIndex = 0 ; ResourceIndex < Factory->CycleCost.OutputResources.Num() ; ResourceIndex++)
+		for (int32 ResourceIndex = 0 ; ResourceIndex < Factory->GetCycleData().OutputResources.Num() ; ResourceIndex++)
 		{
-			const FFlareFactoryResource* Resource = &Factory->CycleCost.OutputResources[ResourceIndex];
+			const FFlareFactoryResource* Resource = &Factory->GetCycleData().OutputResources[ResourceIndex];
 
 			if (!GetCargoBay()->LockSlot(&Resource->Resource->Data, EFlareResourceLock::Output, false))
 			{
@@ -337,27 +382,31 @@ void UFlareSimulatedSpacecraft::LockResources()
 		}
 	}
 
-	if (HasCapability(EFlareSpacecraftCapability::Consumer))
+	if (!IsUnderConstruction())
 	{
-		for (int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
+
+		if (HasCapability(EFlareSpacecraftCapability::Consumer))
 		{
-			FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
-			if (!GetCargoBay()->LockSlot(Resource, EFlareResourceLock::Input, false))
+			for (int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
 			{
-				FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
+				FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
+				if (!GetCargoBay()->LockSlot(Resource, EFlareResourceLock::Input, false))
+				{
+					FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
+				}
 			}
 		}
-	}
 
-	if (HasCapability(EFlareSpacecraftCapability::Maintenance))
-	{
-		for (int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
+		if (HasCapability(EFlareSpacecraftCapability::Maintenance))
 		{
-			FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
-
-			if (!GetCargoBay()->LockSlot(Resource, EFlareResourceLock::Trade, false))
+			for (int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
 			{
-				FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
+				FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
+
+				if (!GetCargoBay()->LockSlot(Resource, EFlareResourceLock::Trade, false))
+				{
+					FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
+				}
 			}
 		}
 	}
@@ -631,6 +680,17 @@ FFlareSpacecraftComponentDescription* UFlareSimulatedSpacecraft::GetCurrentPart(
 		}
 	}
 	return NULL;
+}
+
+void UFlareSimulatedSpacecraft::FinishConstruction()
+{
+	if(!IsUnderConstruction())
+	{
+		return;
+	}
+
+	SpacecraftData.IsUnderConstruction = false;
+	Load(SpacecraftData);
 }
 
 int64 UFlareSimulatedSpacecraft::GetUpgradeCost(FFlareSpacecraftComponentDescription* NewPart, FFlareSpacecraftComponentDescription* OldPart)

@@ -357,6 +357,7 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FFlareSpacecraftSave* Data)
 {
 	Object->TryGetBoolField(TEXT("IsDestroyed"), Data->IsDestroyed);
+	Object->TryGetBoolField(TEXT("IsUnderConstruction"), Data->IsUnderConstruction);
 	LoadFName(Object, "Immatriculation", &Data->Immatriculation);
 	LoadFText(Object, "NickName", &Data->NickName);
 	LoadFName(Object, "Identifier", &Data->Identifier);

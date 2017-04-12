@@ -17,8 +17,28 @@ void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FF
 {
 	Parent = ParentSpacecraft;
 	Game = Parent->GetGame();
-	CargoBayCount = Parent->GetDescription()->CargoBayCount;
-	CargoBayBaseCapacity = Parent->GetDescription()->CargoBayCapacity;
+
+	if (Parent->IsUnderConstruction())
+	{
+		UFlareFactory* Factory = Parent->GetFactories()[0];
+		CargoBayBaseCapacity = 0;
+		for(const FFlareFactoryResource& Resource: Factory->GetCycleData().InputResources)
+		{
+			if(Resource.Quantity > CargoBayBaseCapacity)
+			{
+				CargoBayBaseCapacity = Resource.Quantity;
+			}
+		}
+
+		CargoBayCount = Factory->GetCycleData().InputResources.Num();
+		CargoBayBaseCapacity = Parent->GetDescription()->CargoBayCapacity;
+	}
+	else
+	{
+		CargoBayCount = Parent->GetDescription()->CargoBayCount;
+		CargoBayBaseCapacity = Parent->GetDescription()->CargoBayCapacity;
+	}
+
 	// Initialize cargo bay
 	CargoBay.Empty();
 	for (int32 CargoIndex = 0; CargoIndex < CargoBayCount; CargoIndex++)

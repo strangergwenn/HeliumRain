@@ -137,7 +137,7 @@ FFlareSectorSave* UFlareSimulatedSector::Save()
 }
 
 
-UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationClass, UFlareCompany* Company, FFlareStationSpawnParameters SpawnParameters)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationClass, UFlareCompany* Company, bool UnderConstruction, FFlareStationSpawnParameters SpawnParameters)
 {
 	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(StationClass);
 	UFlareSimulatedSpacecraft* Station = NULL;
@@ -151,7 +151,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationCla
 	if (Desc)
 	{
 		bool SafeSpawn = (SpawnParameters.AttachActorName != NAME_None);
-		Station = CreateSpacecraft(Desc, Company, SpawnParameters.Location, SpawnParameters.Rotation, NULL, SafeSpawn);
+		Station = CreateSpacecraft(Desc, Company, SpawnParameters.Location, SpawnParameters.Rotation, NULL, SafeSpawn, UnderConstruction);
 
 		// Needs an esteroid ? 
 		if (Station && Desc->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
@@ -192,13 +192,14 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FName ShipCla
 }
 
 UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation,
-	FFlareSpacecraftSave* CapturedSpacecraft, bool SafeSpawnAtLocation)
+	FFlareSpacecraftSave* CapturedSpacecraft, bool SafeSpawnAtLocation, bool UnderConstruction)
 {
 	UFlareSimulatedSpacecraft* Spacecraft = NULL;
 
 	// Default data
 	FFlareSpacecraftSave ShipData;
 	ShipData.IsDestroyed = false;
+	ShipData.IsUnderConstruction = UnderConstruction;
 	ShipData.Location = TargetPosition;
 	ShipData.Rotation = TargetRotation;
 	ShipData.LinearVelocity = FVector::ZeroVector;
@@ -462,6 +463,13 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 {
 	bool Result = true;
 
+	// The sector must be known
+	if (!Company->IsVisitedSector(this))
+	{
+		OutReasons.Add(LOCTEXT("StationVisitRequired", "You need to visit the sector first"));
+		Result = false;
+	}
+
 	// Station technology
 	if (!Company->IsTechnologyUnlocked("stations"))
 	{
@@ -525,108 +533,6 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 		Result = false;
 	}
 
-	// First, it need a free cargo
-	bool HasFreeCargo = false;
-	for (int ShipIndex = 0; ShipIndex < SectorShips.Num(); ShipIndex++)
-	{
-		UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
-
-		if (Ship->GetCompany() != Company)
-		{
-			continue;
-		}
-
-		if (Ship->GetDescription()->CargoBayCount == 0)
-		{
-			// Not a cargo
-			continue;
-		}
-
-		HasFreeCargo = true;
-		break;
-	}
-	if (!HasFreeCargo)
-	{
-		OutReasons.Add(LOCTEXT("BuildRequiresCargo", "No cargo with free space"));
-		Result = false;
-	}
-	
-	// Compute total available resources in company ships
-	TArray<FFlareCargo> AvailableResources;
-
-	for (int SpacecraftIndex = 0; SpacecraftIndex < SectorShips.Num(); SpacecraftIndex++)
-	{
-		UFlareSimulatedSpacecraft* Spacecraft = SectorShips[SpacecraftIndex];
-
-
-		if (Spacecraft->GetCompany() != Company)
-		{
-			continue;
-		}
-
-		UFlareCargoBay* CargoBay = Spacecraft->GetCargoBay();
-
-
-		for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
-		{
-			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
-
-			uint32 AvailableQuantity = CargoBay->GetResourceQuantity(Resource, Company);
-
-			bool NewResource = true;
-
-
-			for (int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
-			{
-				if (AvailableResources[AvailableResourceIndex].Resource == Resource)
-				{
-					AvailableResources[AvailableResourceIndex].Quantity += AvailableQuantity;
-					NewResource = false;
-
-					break;
-				}
-			}
-
-			if (NewResource)
-			{
-				FFlareCargo NewResourceCargo;
-				NewResourceCargo.Resource = Resource;
-				NewResourceCargo.Quantity = AvailableQuantity;
-				AvailableResources.Add(NewResourceCargo);
-			}
-		}
-	}
-
-	// Check resource cost
-	for (int32 ResourceIndex = 0; ResourceIndex < StationDescription->CycleCost.InputResources.Num(); ResourceIndex++)
-	{
-		FFlareFactoryResource* FactoryResource = &StationDescription->CycleCost.InputResources[ResourceIndex];
-		bool ResourceFound = false;
-		int32 AvailableQuantity = 0;
-
-		for (int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
-		{
-			if (AvailableResources[AvailableResourceIndex].Resource == &(FactoryResource->Resource->Data))
-			{
-				AvailableQuantity = AvailableResources[AvailableResourceIndex].Quantity;
-				if (AvailableQuantity >= FactoryResource->Quantity)
-				{
-					ResourceFound = true;
-				}
-				break;
-			}
-		}
-		if (!ResourceFound)
-		{
-			OutReasons.Add(FText::Format(LOCTEXT("BuildRequiresResources", "Not enough {0} ({1} / {2})"),
-					FactoryResource->Resource->Data.Name,
-					FText::AsNumber(AvailableQuantity),
-					FText::AsNumber(FactoryResource->Quantity)));
-
-			Result = false;
-		}
-	}
-
 	return Result;
 }
 
@@ -652,34 +558,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::BuildStation(FFlareSpacecraftD
 
 	GetPeople()->Pay(ProductionCost);
 
-	// Take resource cost
-	for (int ResourceIndex = 0; ResourceIndex < StationDescription->CycleCost.InputResources.Num(); ResourceIndex++)
-	{
-		FFlareFactoryResource* FactoryResource = &StationDescription->CycleCost.InputResources[ResourceIndex];
-		uint32 ResourceToTake = FactoryResource->Quantity;
-		FFlareResourceDescription* Resource = &(FactoryResource->Resource->Data);
-
-
-		// Take from ships
-		for (int ShipIndex = 0; ShipIndex < SectorShips.Num() && ResourceToTake > 0; ShipIndex++)
-		{
-			UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
-
-			if (Ship->GetCompany() != Company)
-			{
-				continue;
-			}
-
-			ResourceToTake -= Ship->GetCargoBay()->TakeResources(Resource, ResourceToTake, Ship->GetCompany());
-		}
-
-		if (ResourceToTake > 0)
-		{
-			FLOG("UFlareSimulatedSector::BuildStation : Failed to take resource cost for build station a station but CanBuild test succeded");
-		}
-	}
-
-	return CreateStation(StationDescription->Identifier, Company);
+	return CreateStation(StationDescription->Identifier, Company, true);
 }
 
 bool UFlareSimulatedSector::CanUpgradeStation(UFlareSimulatedSpacecraft* Station, TArray<FText>& OutReasons)

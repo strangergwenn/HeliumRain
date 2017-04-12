@@ -320,6 +320,10 @@ struct FFlareSpacecraftSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	bool IsDestroyed;
 
+	/** Destroyed state */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool IsUnderConstruction;
+
 	/** Ship location */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FVector Location;
@@ -527,7 +531,8 @@ namespace EFlareFactoryAction
 	{
 		CreateShip,
 		GainResearch,
-		DiscoverSector
+		DiscoverSector,
+		BuildStation
 	};
 }
 

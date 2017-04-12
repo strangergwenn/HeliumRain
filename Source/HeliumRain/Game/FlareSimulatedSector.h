@@ -350,14 +350,14 @@ public:
     ----------------------------------------------------*/
 
     /** Create a station in the level  for a specific company */
-	UFlareSimulatedSpacecraft* CreateStation(FName StationClass, UFlareCompany* Company, FFlareStationSpawnParameters SpawnParameters = FFlareStationSpawnParameters());
+	UFlareSimulatedSpacecraft* CreateStation(FName StationClass, UFlareCompany* Company, bool UnderConstruction, FFlareStationSpawnParameters SpawnParameters = FFlareStationSpawnParameters());
 
     /** Create a ship in the level  for a specific company */
 	UFlareSimulatedSpacecraft* CreateSpacecraft(FName ShipClass, UFlareCompany* Company, FVector TargetPosition);
 
 	/** Create a ship or station in the level  for a specific company. No null parameter accepted */
 	UFlareSimulatedSpacecraft* CreateSpacecraft(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetLocation, FRotator TargetRotation = FRotator::ZeroRotator,
-		FFlareSpacecraftSave* CapturedSpacecraft = NULL, bool SafeSpawnAtLocation = false);
+		FFlareSpacecraftSave* CapturedSpacecraft = NULL, bool SafeSpawnAtLocation = false, bool UnderConstruction = false);
 
 	/** Create an asteroid */
 	void CreateAsteroid(int32 ID, FName Name, FVector Location);

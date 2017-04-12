@@ -133,6 +133,7 @@ public:
 	FFlareSpacecraftComponentDescription* GetCurrentPart(EFlarePartType::Type Type, int32 WeaponGroupIndex);
 
 
+	void FinishConstruction();
 
 	/*----------------------------------------------------
 		Resources
@@ -301,5 +302,10 @@ public:
 	bool IsDestroyed()
 	{
 		return SpacecraftData.IsDestroyed;
+	}
+
+	bool IsUnderConstruction()
+	{
+		return SpacecraftData.IsUnderConstruction;
 	}
 };
