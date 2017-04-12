@@ -1008,6 +1008,11 @@ FText UFlareFactory::GetFactoryCycleInfo()
 					ProductionOutputText, CommaText, FText::AsNumber(FactoryAction->Quantity));
 				break;
 
+			// Build station
+			case EFlareFactoryAction::BuildStation:
+				ProductionOutputText = LOCTEXT("BuildStationActionFormat", "finish station construction");
+				break;
+
 			default:
 				FLOGV("SFlareShipMenu::UpdateFactoryLimitsList : Unimplemented factory action %d", (FactoryAction->Action + 0));
 		}
