@@ -504,19 +504,10 @@ void SFlareSpacecraftInfo::Hide()
 
 void SFlareSpacecraftInfo::UpdateConstructionInfo()
 {
-	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel() && TargetSpacecraft->IsStation())
+	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel() && TargetSpacecraft->IsStation() && TargetSpacecraft->IsUnderConstruction())
 	{
-		// TODO : enable this when we can test if a station is under construction
-		if (false)
-		{
-			UFlareCompany* Company = TargetSpacecraft->GetCompany();
-
-			float ResourcesAcquisitionRatio = 0;
-			FText MissingResourcesText;
-
-			FText ConstructionInfo = FText::Format(LOCTEXT("ConstructionFormat", "This station is under construction and needs {0}"), MissingResourcesText);
-			AddMessage(ConstructionInfo, NULL, ResourcesAcquisitionRatio);
-		}
+		FText ConstructionInfo = LOCTEXT("ConstructionInfo", "This station is under construction and needs resources to be completed. Open details to see the current construction status.");
+		AddMessage(ConstructionInfo, NULL, 0);
 	}
 }
 
@@ -541,7 +532,7 @@ void SFlareSpacecraftInfo::UpdateCaptureList()
 	}
 }
 
-void SFlareSpacecraftInfo::AddMessage(FText Message, UFlareCompany* Company, float Progress)
+void SFlareSpacecraftInfo::AddMessage(FText Message, UFlareCompany* CaptureCompany, float Progress)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
@@ -560,14 +551,14 @@ void SFlareSpacecraftInfo::AddMessage(FText Message, UFlareCompany* Company, flo
 	];	
 
 	// Flag
-	if (Company)
+	if (CaptureCompany)
 	{
 		Temp->AddSlot()
 		.AutoWidth()
 		.Padding(Theme.SmallContentPadding)
 		[
 			SNew(SFlareCompanyFlag)
-			.Company(Company)
+			.Company(CaptureCompany)
 			.Player(PC)
 		];
 	}
@@ -579,24 +570,27 @@ void SFlareSpacecraftInfo::AddMessage(FText Message, UFlareCompany* Company, flo
 		SNew(STextBlock)
 		.TextStyle(&Theme.TextFont)
 		.Text(Message)
-		.WrapTextAt(0.75 * Theme.ContentWidth)
+		.WrapTextAt(0.9 * Theme.ContentWidth)
 	];
 
 	// Progress bar
-	Temp->AddSlot()
-	.AutoWidth()
-	.Padding(Theme.SmallContentPadding)
-	[
-		SNew(SBox)
-		.WidthOverride(100)
-		.VAlign(VAlign_Center)
+	if (CaptureCompany)
+	{
+		Temp->AddSlot()
+		.AutoWidth()
+		.Padding(Theme.SmallContentPadding)
 		[
-			SNew(SProgressBar)
-			.Percent(Progress)
-			.BorderPadding(FVector2D(0, 0))
-			.Style(&Theme.ProgressBarStyle)
-		]
-	];
+			SNew(SBox)
+			.WidthOverride(100)
+			.VAlign(VAlign_Center)
+			[
+				SNew(SProgressBar)
+				.Percent(Progress)
+				.BorderPadding(FVector2D(0, 0))
+				.Style(&Theme.ProgressBarStyle)
+			]
+		];
+	}
 }
 
 bool SFlareSpacecraftInfo::IsTargetDisabled() const

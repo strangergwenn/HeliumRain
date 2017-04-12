@@ -73,7 +73,7 @@ public:
 	void UpdateCaptureList();
 
 	/** Add a message info */
-	void AddMessage(FText Message, UFlareCompany* Company, float Progress);
+	void AddMessage(FText Message, UFlareCompany* CaptureCompany, float Progress);
 
 	/** Can we target the current spacecraft ? */
 	bool IsTargetDisabled() const;

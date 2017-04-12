@@ -321,6 +321,11 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 
 void UFlareSpacecraftComponent::UpdateCustomization()
 {
+	if (Spacecraft && Spacecraft->IsStation() && Spacecraft->GetParent()->IsUnderConstruction())
+	{
+		return;
+	}
+
 	if (ComponentMaterial)
 	{
 		if (PlayerCompany)

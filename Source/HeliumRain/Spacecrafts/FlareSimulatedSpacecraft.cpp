@@ -90,7 +90,7 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 
 		FFlareFactoryDescription* FactoryDescription = &Factory->ConstructionFactoryDescription;
 		FactoryDescription->AutoStart = true;
-		FactoryDescription->Name = LOCTEXT("Constructionfactory", "Under constuction");
+		FactoryDescription->Name = LOCTEXT("Constructionfactory", "Station under constuction");
 		FactoryDescription->Description = LOCTEXT("ConstructionfactoryDescription", "Bring construction resources");
 		FactoryDescription->Identifier = FName(*(FString("construction-") + SpacecraftDescription->Identifier.ToString()));
 
