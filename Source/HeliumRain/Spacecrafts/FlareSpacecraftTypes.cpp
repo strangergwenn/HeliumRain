@@ -111,3 +111,17 @@ bool FFlareSpacecraftDescription::IsMilitary() const
 {
 	return GunSlots.Num() > 0 || TurretSlots.Num() > 0;
 }
+
+bool FFlareSpacecraftDescription::IsResearch() const
+{
+	for (int32 FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
+	{
+		FFlareFactoryDescription* FactoryDescription = &Factories[FactoryIndex]->Data;
+
+		if(FactoryDescription->IsResearch())
+		{
+			return true;
+		}
+	}
+	return false;
+}

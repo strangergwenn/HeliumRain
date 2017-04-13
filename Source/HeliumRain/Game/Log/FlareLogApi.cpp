@@ -46,9 +46,9 @@ void GameLog::DaySimulated(int64 NewDate)
 }
 
 void GameLog::AIConstructionStart(UFlareCompany* Company,
-								UFlareSimulatedSector* ConstructionProjectSector,
-								FFlareSpacecraftDescription* ConstructionProjectStationDescription,
-								UFlareSimulatedSpacecraft* ConstructionProjectStation)
+								UFlareSimulatedSector* ConstructionSector,
+								FFlareSpacecraftDescription* ConstructionStationDescription,
+								UFlareSimulatedSpacecraft* ConstructionStation)
 {
 	FlareLogMessage Message;
 	Message.Target = EFlareLogTarget::Game;
@@ -63,19 +63,19 @@ void GameLog::AIConstructionStart(UFlareCompany* Company,
 	{
 		FlareLogMessageParam Param;
 		Param.Type = EFlareLogParam::String;
-		Param.StringValue = ConstructionProjectSector->GetIdentifier().ToString();
+		Param.StringValue = ConstructionSector->GetIdentifier().ToString();
 		Message.Params.Add(Param);
 	}
 	{
 		FlareLogMessageParam Param;
 		Param.Type = EFlareLogParam::String;
-		Param.StringValue = ConstructionProjectStationDescription->Identifier.ToString();
+		Param.StringValue = ConstructionStationDescription->Identifier.ToString();
 		Message.Params.Add(Param);
 	}
 	{
 		FlareLogMessageParam Param;
 		Param.Type = EFlareLogParam::String;
-		Param.StringValue = (ConstructionProjectStation ? ConstructionProjectStation->GetImmatriculation().ToString() : "");
+		Param.StringValue = (ConstructionStation ? ConstructionStation->GetImmatriculation().ToString() : "");
 		Message.Params.Add(Param);
 	}
 

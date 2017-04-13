@@ -262,8 +262,6 @@ public:
 	/** Get the cost of a spacecraft */
 	static int64 ComputeSpacecraftPrice(FName ShipIdentifier, UFlareSimulatedSector* Sector, bool WithMargin, bool ConstructionPrice = false, bool LocalPrice = true);
 
-	static uint32 ComputeConstructionCapacity(FName ShipClass, AFlareGame *Game);
-
 	static inline int64 DisplayMoney(int64 Money)
 	{
 		return Money/100;

@@ -342,6 +342,8 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 		ShipData.Level = CapturedSpacecraft->Level;
 		ShipData.SpawnMode = EFlareSpawnMode::Safe;
 		ShipData.AttachActorName = CapturedSpacecraft->AttachActorName;
+		ShipData.IsUnderConstruction = CapturedSpacecraft->IsUnderConstruction;
+		ShipData.CargoBackup = CapturedSpacecraft->CargoBackup;
 	}
 
 	// Create the ship

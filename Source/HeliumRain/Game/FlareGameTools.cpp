@@ -1765,34 +1765,6 @@ int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSe
 }
 
 
-uint32 UFlareGameTools::ComputeConstructionCapacity(FName ShipClass, AFlareGame *Game)
-{
-	FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(ShipClass);
-
-	if (!Desc)
-	{
-		FLOGV("ComputeConstructionCapacity failed: Unkwnon ship %s", *ShipClass.ToString());
-		return 0;
-	}
-
-	int32 Capacity = 0;
-
-	for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.InputResources.Num() ; ResourceIndex++)
-	{
-		FFlareFactoryResource* Resource = &Desc->CycleCost.InputResources[ResourceIndex];
-		Capacity += Resource->Quantity;
-	}
-
-	// Substract output resource
-	for (int ResourceIndex = 0; ResourceIndex < Desc->CycleCost.OutputResources.Num() ; ResourceIndex++)
-	{
-		FFlareFactoryResource* Resource = &Desc->CycleCost.OutputResources[ResourceIndex];
-		Capacity += Resource->Quantity;
-	}
-
-	return Capacity;
-}
-
 /*----------------------------------------------------
 	Getter
 ----------------------------------------------------*/

@@ -48,9 +48,9 @@ public:
 	 *   - string : upgraded station (empty if no upgrade)
 	 */
 	static void AIConstructionStart(UFlareCompany* Company,
-									UFlareSimulatedSector* ConstructionProjectSector,
-									FFlareSpacecraftDescription* ConstructionProjectStationDescription,
-									UFlareSimulatedSpacecraft* ConstructionProjectStation);
+									UFlareSimulatedSector* ConstructionSector,
+									FFlareSpacecraftDescription* ConstructionStationDescription,
+									UFlareSimulatedSpacecraft* ConstructionStation);
 };
 
 class CombatLog

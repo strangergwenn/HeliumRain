@@ -112,15 +112,10 @@ public:
 	/** Update trading for the company's fleet*/
 	void UpdateTrading();
 
-	/** Manage the construction of stations */
-	void UpdateStationConstruction();
-
-
 	void UpdateBestScore(float Score,
 						  UFlareSimulatedSector* Sector,
 						  FFlareSpacecraftDescription* StationDescription,
 						  UFlareSimulatedSpacecraft *Station,
-						  float* CurrentConstructionScore,
 						  float* BestScore,
 						  FFlareSpacecraftDescription** BestStationDescription,
 						  UFlareSimulatedSpacecraft** BestStation,
@@ -138,7 +133,7 @@ public:
 
 	void ProcessBudgetTrade(int64 BudgetAmount, bool& Lock, bool& Idle);
 
-	void ProcessBudgetStation(int64 BudgetAmount, bool& Lock, bool& Idle);
+	void ProcessBudgetStation(int64 BudgetAmount, bool Technology, bool& Lock, bool& Idle);
 
 	/** Buy war ships */
 	int64 UpdateWarShipAcquisition(bool limitToOne);
@@ -234,7 +229,7 @@ protected:
 	float GetShipyardUsageRatio() const;
 
 	/** Generate a score for ranking construction projects, version 2 */
-	float ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station) const;
+	float ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station, bool Technology) const;
 
 	float ComputeStationPrice(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, UFlareSimulatedSpacecraft* Station) const;
 
@@ -262,21 +257,11 @@ protected:
 	UPROPERTY()
 	UFlareAIBehavior*                      Behavior;
 	
-	// Construction project
-	FFlareSpacecraftDescription*			 ConstructionProjectStationDescription;
-	UFlareSimulatedSector*         			 ConstructionProjectSector;
-	UFlareSimulatedSpacecraft *              ConstructionProjectStation;
-	TArray<UFlareSimulatedSpacecraft *>      ConstructionShips;
-	TArray<UFlareSimulatedSpacecraft *>      ConstructionStaticShips;
-	int32                                    ConstructionProjectNeedCapacity;
-
 	// Cache
 	TMap<FFlareResourceDescription*, int32>  ResourceFlow;
 	TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldStats;
 	TArray<UFlareSimulatedSpacecraft*>       Shipyards;
 	TMap<UFlareSimulatedSector*, SectorVariation> WorldResourceVariation;
-	TMap<FFlareResourceDescription *, int32> MissingResourcesQuantity;
-	TMap<FFlareResourceDescription *, int32> MissingStaticResourcesQuantity;
 
 	TArray<UFlareSimulatedSector*>            SectorWithBattle;
 

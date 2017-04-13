@@ -628,6 +628,18 @@ struct FFlareFactoryDescription
 		return false;
 	}
 
+	bool IsResearch() const
+	{
+		for (int32 Index = 0; Index < OutputActions.Num(); Index++)
+		{
+			if (OutputActions[Index].Action == EFlareFactoryAction::GainResearch)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 };
 
 /** Catalog data structure for a spacecraft */
@@ -745,6 +757,8 @@ struct FFlareSpacecraftDescription
 	bool IsStation() const;
 
 	bool IsMilitary() const;
+
+	bool IsResearch() const;
 
 	static const FSlateBrush* GetIcon(FFlareSpacecraftDescription* Characteristic);
 };

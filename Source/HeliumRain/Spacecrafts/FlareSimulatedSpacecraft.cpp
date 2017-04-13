@@ -312,14 +312,13 @@ EFlareResourcePriceContext::Type UFlareSimulatedSpacecraft::GetResourceUseType(F
 	}
 
 	// Parse factories
-	for (int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
+	for (UFlareFactory* Factory : Factories)
 	{
-		FFlareFactoryDescription* FactoryDescription = &SpacecraftDescription->Factories[FactoryIndex]->Data;
 
 		// Is input resource of a station ?
-		for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num(); ResourceIndex++)
+		for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetCycleData().InputResources.Num(); ResourceIndex++)
 		{
-			const FFlareFactoryResource* FactoryResource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
+			const FFlareFactoryResource* FactoryResource = &Factory->GetCycleData().InputResources[ResourceIndex];
 			if (&FactoryResource->Resource->Data == Resource)
 			{
 				return EFlareResourcePriceContext::FactoryInput;
@@ -327,9 +326,9 @@ EFlareResourcePriceContext::Type UFlareSimulatedSpacecraft::GetResourceUseType(F
 		}
 
 		// Is output resource of a station ?
-		for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num(); ResourceIndex++)
+		for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetCycleData().OutputResources.Num(); ResourceIndex++)
 		{
-			const FFlareFactoryResource* FactoryResource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
+			const FFlareFactoryResource* FactoryResource = &Factory->GetCycleData().OutputResources[ResourceIndex];
 			if (&FactoryResource->Resource->Data == Resource)
 			{
 				return EFlareResourcePriceContext::FactoryOutput;
@@ -445,6 +444,7 @@ void UFlareSimulatedSpacecraft::Upgrade()
 	SpacecraftData.Cargo.Empty();
 	Load(SpacecraftData);
 
+	FLOGV("UFlareSimulatedSpacecraft::Upgrade %s to level %d done", *GetImmatriculation().ToString(), SpacecraftData.Level);
 }
 
 

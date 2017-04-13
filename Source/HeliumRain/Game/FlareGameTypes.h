@@ -235,24 +235,6 @@ struct FFlareCompanyAISave
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName ConstructionProjectStationDescriptionIdentifier;
-
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName ConstructionProjectSectorIdentifier;
-
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName ConstructionProjectStationIdentifier;
-
-	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FName> ConstructionShipsIdentifiers;
-
-	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FName> ConstructionStaticShipsIdentifiers;
-
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 ConstructionProjectNeedCapacity;
-
 	int64 BudgetTechnology;
 	int64 BudgetMilitary;
 	int64 BudgetStation;

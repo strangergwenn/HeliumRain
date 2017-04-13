@@ -106,9 +106,6 @@ void UFlareAIBehavior::SimulateGeneralBehavior()
 
 	Company->GetAI()->ProcessBudget(Company->GetAI()->AllBudgets);
 
-	// Create or upgrade stations
-	Company->GetAI()->UpdateStationConstruction();
-
 	// Buy ships
 	//Company->GetAI()->UpdateShipAcquisition(IdleCargoCapacity);
 
@@ -214,9 +211,6 @@ void UFlareAIBehavior::SimulatePirateBehavior()
 	Company->GetAI()->UpdateTrading();
 
 	Company->GetAI()->ProcessBudget(Company->GetAI()->AllBudgets);
-
-	// Create or upgrade stations
-	Company->GetAI()->UpdateStationConstruction();
 
 	Company->GetAI()->UpdateMilitaryMovement();
 
