@@ -1324,10 +1324,10 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 						FlareDrawLine(ScreenPosition, HelperScreenPosition, HUDAimHelperColor);
 					}
 
-
 					// Snip helpers
 					float ZoomAlpha = PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha();
-					if (ScreenPositionValid && !Spacecraft->IsStation() && Spacecraft->GetSize() == EFlarePartSize::L && ZoomAlpha > 0)
+					if (ScreenPositionValid && !Spacecraft->IsStation() && Spacecraft->GetSize() == EFlarePartSize::L && ZoomAlpha > 0
+						&& PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
 					{
 						FVector2D AimOffset = ScreenPosition - HelperScreenPosition;
 						UTexture2D* NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
