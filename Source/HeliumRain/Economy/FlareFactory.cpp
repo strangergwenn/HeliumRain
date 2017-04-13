@@ -85,6 +85,12 @@ void UFlareFactory::Simulate()
 	}
 	TryBeginProduction();
 
+	if (GetProductionTime(GetCycleData()) == 0  && HasCostReserved())
+	{
+		DoProduction();
+	}
+
+
 post_prod:
 
 	if (FactoryDescription->VisibleStates)
@@ -104,6 +110,7 @@ void UFlareFactory::TryBeginProduction()
 	{
 		BeginProduction();
 	}
+
 }
 
 void UFlareFactory::UpdateDynamicState()
@@ -737,7 +744,8 @@ const FFlareProductionData& UFlareFactory::GetCycleData()
 	}
 	else
 	{
-		CycleCostCacheLevel = Parent->GetLevel();
+
+		CycleCostCacheLevel = Parent->IsUnderConstruction() ? 1 : Parent->GetLevel();
 		CycleCostCache.ProductionTime = FactoryDescription->CycleCost.ProductionTime;
 		CycleCostCache.ProductionCost = FactoryDescription->CycleCost.ProductionCost * CycleCostCacheLevel;
 		CycleCostCache.InputResources = FactoryDescription->CycleCost.InputResources;

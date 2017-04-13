@@ -313,6 +313,11 @@ TOptional<float> SFlareFactoryInfo::GetProductionProgress() const
 {
 	if (TargetFactory)
 	{
+		if(TargetFactory->GetProductionDuration() == 0)
+		{
+			return 0;
+		}
+
 		return ((float)TargetFactory->GetProductedDuration() / (float)TargetFactory->GetProductionDuration());
 	}
 	else

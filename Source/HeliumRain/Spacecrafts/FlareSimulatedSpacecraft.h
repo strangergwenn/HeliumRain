@@ -79,10 +79,7 @@ public:
 
 	void SetDynamicComponentState(FName Identifier, float Progress = 0.f);
 
-	void Upgrade()
-	{
-		SpacecraftData.Level++;
-	}
+	void Upgrade();
 
 	void SetActiveSpacecraft(AFlareSpacecraft* Spacecraft)
 	{

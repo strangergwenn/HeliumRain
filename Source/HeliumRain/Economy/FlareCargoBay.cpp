@@ -315,7 +315,7 @@ int32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, int32 Q
 
 int32 UFlareCargoBay::GetSlotCapacity() const
 {
-	return CargoBayBaseCapacity * Parent->GetLevel();
+	return CargoBayBaseCapacity * (Parent->IsUnderConstruction() ? 1 : Parent->GetLevel());
 }
 
 int32 UFlareCargoBay::GetCapacity() const
@@ -421,6 +421,11 @@ int32 UFlareCargoBay::GetSlotCount() const
 
 FFlareCargo* UFlareCargoBay::GetSlot(int32 Index)
 {
+	if(Index >= CargoBay.Num())
+	{
+		return NULL;
+	}
+
 	return &CargoBay[Index];
 }
 

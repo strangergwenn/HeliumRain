@@ -321,7 +321,7 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 
 void UFlareSpacecraftComponent::UpdateCustomization()
 {
-	if (Spacecraft && Spacecraft->IsStation() && Spacecraft->GetParent()->IsUnderConstruction())
+	if (Spacecraft && Spacecraft->IsStation() && Spacecraft->GetParent()->IsUnderConstruction() && Spacecraft->GetParent()->GetLevel() == 1)
 	{
 		return;
 	}

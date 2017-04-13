@@ -3876,6 +3876,12 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 
 		//FLOGV(" after output: %f", Score);
 
+		if(FactoryDescription->CycleCost.ProductionTime <=0)
+		{
+			// Contruction cycle
+			return 0;
+		}
+
 		float GainPerDay = GainPerCycle / FactoryDescription->CycleCost.ProductionTime;
 		if (GainPerDay < 0)
 		{
@@ -3986,6 +3992,10 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				FFlareResourceDescription* Resource = Factory->GetInputResource(ResourceIndex);
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
+				if(Factory->GetProductionDuration() == 0)
+				{
+					continue;
+				}
 
 				int32 Flow = Factory->GetInputResourceQuantity(ResourceIndex) / Factory->GetProductionDuration();
 
@@ -4045,6 +4055,11 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			{
 				FFlareResourceDescription* Resource = Factory->GetOutputResource(ResourceIndex);
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
+
+				if(Factory->GetProductionDuration() == 0)
+				{
+					continue;
+				}
 
 				int32 Flow = Factory->GetOutputResourceQuantity(ResourceIndex) / Factory->GetProductionDuration();
 
@@ -4681,6 +4696,10 @@ TMap<FFlareResourceDescription*, int32> UFlareCompanyAI::ComputeWorldResourceFlo
 				{
 					FFlareResourceDescription* Resource = Factory->GetInputResource(ResourceIndex);
 
+					if(Factory->GetProductionDuration() == 0)
+					{
+						continue;
+					}
 
 					int32 Flow = Factory->GetInputResourceQuantity(ResourceIndex) / Factory->GetProductionDuration();
 					WorldResourceFlow[Resource] -= Flow;
@@ -4690,6 +4709,11 @@ TMap<FFlareResourceDescription*, int32> UFlareCompanyAI::ComputeWorldResourceFlo
 				for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetOutputResourcesCount(); ResourceIndex++)
 				{
 					FFlareResourceDescription* Resource = Factory->GetOutputResource(ResourceIndex);
+
+					if(Factory->GetProductionDuration() == 0)
+					{
+						continue;
+					}
 
 					int32 Flow = Factory->GetOutputResourceQuantity(ResourceIndex) / Factory->GetProductionDuration();
 					WorldResourceFlow[Resource] += Flow;

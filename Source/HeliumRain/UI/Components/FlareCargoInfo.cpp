@@ -108,6 +108,10 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 	];
 
 	// Initial state of cargo slot
+	if (TargetSpacecraft->GetCargoBay()->GetSlotCount() <= CargoIndex)
+	{
+		return;
+	}
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 	FCHECK(Cargo);
 	PermissionButton->SetActive(Cargo->Restriction == EFlareResourceRestriction::Everybody);
@@ -130,6 +134,12 @@ void SFlareCargoInfo::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEv
 	SWidget::OnMouseEnter(MyGeometry, MouseEvent);
 
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+
+	if (TargetSpacecraft->GetCargoBay()->GetSlotCount() <= CargoIndex)
+	{
+		return;
+	}
+
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 	FCHECK(Cargo);
 
@@ -161,6 +171,11 @@ void SFlareCargoInfo::OnMouseLeave(const FPointerEvent& MouseEvent)
 
 const FSlateBrush* SFlareCargoInfo::GetResourceIcon() const
 {
+	if (TargetSpacecraft->GetCargoBay()->GetSlotCount() <= CargoIndex)
+	{
+		return NULL;
+	}
+
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 	FCHECK(Cargo);
 
@@ -177,6 +192,11 @@ const FSlateBrush* SFlareCargoInfo::GetResourceIcon() const
 
 FText SFlareCargoInfo::GetResourceAcronym() const
 {
+	if (TargetSpacecraft->GetCargoBay()->GetSlotCount() <= CargoIndex)
+	{
+		return FText();
+	}
+
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 	FCHECK(Cargo);
 
@@ -192,6 +212,11 @@ FText SFlareCargoInfo::GetResourceAcronym() const
 
 FText SFlareCargoInfo::GetResourceQuantity() const
 {
+	if (TargetSpacecraft->GetCargoBay()->GetSlotCount() <= CargoIndex)
+	{
+		return FText();
+	}
+
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 	FCHECK(Cargo);
 	
@@ -230,6 +255,11 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 
 FReply SFlareCargoInfo::OnButtonClicked()
 {
+	if (TargetSpacecraft->GetCargoBay()->GetSlotCount() <= CargoIndex)
+	{
+		return FReply::Handled();
+	}
+
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 
 	if (Cargo && Cargo->Resource && Cargo->Quantity > 0)
@@ -243,6 +273,10 @@ FReply SFlareCargoInfo::OnButtonClicked()
 void SFlareCargoInfo::OnDumpClicked()
 {
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+	if (TargetSpacecraft->GetCargoBay()->GetSlotCount() <= CargoIndex)
+	{
+		return;
+	}
 	FFlareCargo* Cargo = TargetSpacecraft->GetCargoBay()->GetSlot(CargoIndex);
 
 	if (Cargo && Cargo->Resource)

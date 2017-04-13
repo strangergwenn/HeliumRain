@@ -100,7 +100,7 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		OutputAction.Quantity = 1;
 		FactoryDescription->OutputActions.Add(OutputAction);
 		FactoryDescription->CycleCost.ProductionCost = 0;
-		FactoryDescription->CycleCost.ProductionTime = 1;
+		FactoryDescription->CycleCost.ProductionTime = 0;
 		FactoryDescription->CycleCost.InputResources.Append(SpacecraftDescription->CycleCost.InputResources);
 		FactoryDescription->VisibleStates = true;
 
@@ -435,6 +435,20 @@ void UFlareSimulatedSpacecraft::SetDynamicComponentState(FName Identifier, float
 	SpacecraftData.DynamicComponentStateProgress = Progress;
 }
 
+void UFlareSimulatedSpacecraft::Upgrade()
+{
+	FLOGV("UFlareSimulatedSpacecraft::Upgrade %s to level %d", *GetImmatriculation().ToString(), SpacecraftData.Level+1);
+
+	SpacecraftData.Level++;
+	SpacecraftData.IsUnderConstruction = true;
+	SpacecraftData.CargoBackup = SpacecraftData.Cargo;
+	SpacecraftData.Cargo.Empty();
+	Load(SpacecraftData);
+
+}
+
+
+
 void UFlareSimulatedSpacecraft::ForceUndock()
 {
 	SpacecraftData.DockedTo = NAME_None;
@@ -690,6 +704,7 @@ void UFlareSimulatedSpacecraft::FinishConstruction()
 	}
 
 	SpacecraftData.IsUnderConstruction = false;
+	SpacecraftData.Cargo = SpacecraftData.CargoBackup;
 	Load(SpacecraftData);
 }
 

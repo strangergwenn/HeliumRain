@@ -63,6 +63,11 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 					FFlareResourceDescription* Resource = Factory->GetInputResource(ResourceIndex);
 					WorldHelper::FlareResourceStats *ResourceStats = &WorldStats[Resource];
 
+					if(Factory->GetProductionDuration() == 0)
+					{
+						continue;
+					}
+
 					float Flow = (float) Factory->GetInputResourceQuantity(ResourceIndex) / (float) Factory->GetProductionDuration();
 					ResourceStats->Consumption += Flow;
 				}
@@ -72,6 +77,11 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 				{
 					FFlareResourceDescription* Resource = Factory->GetOutputResource(ResourceIndex);
 					WorldHelper::FlareResourceStats *ResourceStats = &WorldStats[Resource];
+
+					if(Factory->GetProductionDuration() == 0)
+					{
+						continue;
+					}
 
 					float Flow = (float) Factory->GetOutputResourceQuantity(ResourceIndex) / (float) Factory->GetProductionDuration();
 					ResourceStats->Production+= Flow;

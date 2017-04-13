@@ -345,6 +345,13 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	}
 	JsonObject->SetArrayField("Cargo", Cargo);
 
+	TArray< TSharedPtr<FJsonValue> > CargoBackup;
+	for(int i = 0; i < Data->CargoBackup.Num(); i++)
+	{
+		CargoBackup.Add(MakeShareable(new FJsonValueObject(SaveCargo(&Data->CargoBackup[i]))));
+	}
+	JsonObject->SetArrayField("CargoBackup", CargoBackup);
+
 	TArray< TSharedPtr<FJsonValue> > FactoryStates;
 	for(int i = 0; i < Data->FactoryStates.Num(); i++)
 	{
@@ -585,6 +592,8 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompanyAI(FFlareCompanyAISave* Dat
 	JsonObject->SetStringField("ConstructionProjectSectorIdentifier", Data->ConstructionProjectSectorIdentifier.ToString());
 	JsonObject->SetStringField("ConstructionProjectStationIdentifier", Data->ConstructionProjectStationIdentifier.ToString());
 	JsonObject->SetStringField("ConstructionProjectNeedCapacity", FormatInt32(Data->ConstructionProjectNeedCapacity));
+	JsonObject->SetBoolField("ConstructionProjectIsResearch", Data->ConstructionProjectIsResearch);
+
 	JsonObject->SetStringField("BudgetMilitary", FormatInt64(Data->BudgetMilitary));
 	JsonObject->SetStringField("BudgetStation", FormatInt64(Data->BudgetStation));
 	JsonObject->SetStringField("BudgetTechnology", FormatInt64(Data->BudgetTechnology));

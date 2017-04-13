@@ -583,82 +583,6 @@ bool UFlareSimulatedSector::CanUpgradeStation(UFlareSimulatedSpacecraft* Station
 		Result = false;
 	}
 
-	// Compute total available resources
-	TArray<FFlareCargo> AvailableResources;
-
-	for (int SpacecraftIndex = 0; SpacecraftIndex < SectorShips.Num(); SpacecraftIndex++)
-	{
-		UFlareSimulatedSpacecraft* Spacecraft = SectorShips[SpacecraftIndex];
-
-
-		if (Spacecraft->GetCompany() != Company)
-		{
-			continue;
-		}
-
-		UFlareCargoBay* CargoBay = Spacecraft->GetCargoBay();
-
-
-		for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
-		{
-			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
-
-			uint32 AvailableQuantity = CargoBay->GetResourceQuantity(Resource, Company);
-
-			bool NewResource = true;
-
-
-			for (int AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
-			{
-				if (AvailableResources[AvailableResourceIndex].Resource == Resource)
-				{
-					AvailableResources[AvailableResourceIndex].Quantity += AvailableQuantity;
-					NewResource = false;
-
-					break;
-				}
-			}
-
-			if (NewResource)
-			{
-				FFlareCargo NewResourceCargo;
-				NewResourceCargo.Resource = Resource;
-				NewResourceCargo.Quantity = AvailableQuantity;
-				AvailableResources.Add(NewResourceCargo);
-			}
-		}
-	}
-
-	// Check resource cost
-	for (int32 ResourceIndex = 0; ResourceIndex < Station->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
-	{
-		FFlareFactoryResource* FactoryResource = &Station->GetDescription()->CycleCost.InputResources[ResourceIndex];
-		bool ResourceFound = false;
-		int32 AvailableQuantity = 0;
-
-		for (int32 AvailableResourceIndex = 0; AvailableResourceIndex < AvailableResources.Num(); AvailableResourceIndex++)
-		{
-			if (AvailableResources[AvailableResourceIndex].Resource == &(FactoryResource->Resource->Data))
-			{
-				AvailableQuantity = AvailableResources[AvailableResourceIndex].Quantity;
-				if (AvailableQuantity >= FactoryResource->Quantity)
-				{
-					ResourceFound = true;
-				}
-				break;
-			}
-		}
-		if (!ResourceFound)
-		{
-			OutReasons.Add(FText::Format(LOCTEXT("BuildRequiresResources", "Not enough {0} ({1} / {2})"),
-					FactoryResource->Resource->Data.Name,
-					FText::AsNumber(AvailableQuantity),
-					FText::AsNumber(FactoryResource->Quantity)));
-
-			Result = false;
-		}
-	}
-
 	return Result;
 }
 
@@ -686,34 +610,6 @@ bool UFlareSimulatedSector::UpgradeStation(UFlareSimulatedSpacecraft* Station)
 	}
 
 	GetPeople()->Pay(ProductionCost);
-
-	// Take resource cost
-	for (int ResourceIndex = 0; ResourceIndex < Station->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
-	{
-		FFlareFactoryResource* FactoryResource = &Station->GetDescription()->CycleCost.InputResources[ResourceIndex];
-		uint32 ResourceToTake = FactoryResource->Quantity;
-		FFlareResourceDescription* Resource = &(FactoryResource->Resource->Data);
-
-
-		// Take from ships
-		for (int ShipIndex = 0; ShipIndex < SectorShips.Num() && ResourceToTake > 0; ShipIndex++)
-		{
-			UFlareSimulatedSpacecraft* Ship = SectorShips[ShipIndex];
-
-			if (Ship->GetCompany() != Company)
-			{
-				continue;
-			}
-
-			ResourceToTake -= Ship->GetCargoBay()->TakeResources(Resource, ResourceToTake, Company);
-		}
-
-
-		if (ResourceToTake > 0)
-		{
-			FLOG("UFlareSimulatedSector::BuildStation : Failed to take resource cost for build station a station but CanBuild test succeded");
-		}
-	}
 
 	Station->Upgrade();
 
