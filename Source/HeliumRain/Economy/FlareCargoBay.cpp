@@ -31,7 +31,6 @@ void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FF
 		}
 
 		CargoBayCount = Factory->GetCycleData().InputResources.Num();
-		CargoBayBaseCapacity = Parent->GetDescription()->CargoBayCapacity;
 	}
 	else
 	{
