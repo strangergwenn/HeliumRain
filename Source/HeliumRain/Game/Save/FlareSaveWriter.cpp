@@ -592,7 +592,6 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompanyAI(FFlareCompanyAISave* Dat
 	JsonObject->SetStringField("ConstructionProjectSectorIdentifier", Data->ConstructionProjectSectorIdentifier.ToString());
 	JsonObject->SetStringField("ConstructionProjectStationIdentifier", Data->ConstructionProjectStationIdentifier.ToString());
 	JsonObject->SetStringField("ConstructionProjectNeedCapacity", FormatInt32(Data->ConstructionProjectNeedCapacity));
-	JsonObject->SetBoolField("ConstructionProjectIsResearch", Data->ConstructionProjectIsResearch);
 
 	JsonObject->SetStringField("BudgetMilitary", FormatInt64(Data->BudgetMilitary));
 	JsonObject->SetStringField("BudgetStation", FormatInt64(Data->BudgetStation));

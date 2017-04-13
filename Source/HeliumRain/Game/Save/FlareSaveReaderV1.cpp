@@ -715,7 +715,6 @@ void UFlareSaveReaderV1::LoadCompanyAI(const TSharedPtr<FJsonObject> Object, FFl
 	LoadFName(Object, "ConstructionProjectSectorIdentifier", &Data->ConstructionProjectSectorIdentifier);
 	LoadFName(Object, "ConstructionProjectStationIdentifier", &Data->ConstructionProjectStationIdentifier);
 	LoadInt32(Object, "ConstructionProjectNeedCapacity", &Data->ConstructionProjectNeedCapacity);
-	Object->TryGetBoolField(TEXT("ConstructionProjectIsResearch"), Data->ConstructionProjectIsResearch);
 	LoadInt64(Object, "BudgetMilitary", &Data->BudgetMilitary);
 	LoadInt64(Object, "BudgetStation", &Data->BudgetStation);
 	LoadInt64(Object, "BudgetTechnology", &Data->BudgetTechnology);
