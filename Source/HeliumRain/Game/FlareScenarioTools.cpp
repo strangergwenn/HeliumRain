@@ -212,8 +212,12 @@ void UFlareScenarioTools::SetupWorld()
 	Pirates->GiveMoney(1000000);
 
 	// Give technology
+	IonLane->UnlockTechnology("stations", false, true);
+
+	MiningSyndicate->UnlockTechnology("stations", false, true);
 	MiningSyndicate->UnlockTechnology("mining", false, true);
 
+	UnitedFarmsChemicals->UnlockTechnology("stations", false, true);
 	UnitedFarmsChemicals->UnlockTechnology("orbital-pumps", false, true);
 	UnitedFarmsChemicals->UnlockTechnology("chemicals", false, true);
 
@@ -221,12 +225,14 @@ void UFlareScenarioTools::SetupWorld()
 	Sunwatch->UnlockTechnology("instruments", false, true);
 	Sunwatch->UnlockTechnology("stations", false, true);
 
+	NemaHeavyWorks->UnlockTechnology("stations", false, true);
 	NemaHeavyWorks->UnlockTechnology("metallurgy", false, true);
 	NemaHeavyWorks->UnlockTechnology("orbital-pumps", false, true);
 
 	AxisSupplies->UnlockTechnology("stations", false, true);
 	AxisSupplies->UnlockTechnology("metallurgy", false, true);
 
+	HelixFoundries->UnlockTechnology("stations", false, true);
 	HelixFoundries->UnlockTechnology("metallurgy", false, true);
 	HelixFoundries->UnlockTechnology("advanced-stations", false, true);
 
