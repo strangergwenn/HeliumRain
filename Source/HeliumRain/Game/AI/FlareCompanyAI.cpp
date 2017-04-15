@@ -242,7 +242,7 @@ void UFlareCompanyAI::UpdateTrading()
 					Request.Operation = EFlareTradeRouteOperation::LoadOrBuy;
 					Request.Client = Ship;
 					Request.CargoLimit = AI_NERF_RATIO;
-					Request.MaxQuantity = Ship->GetCargoBay()->GetFreeSpaceForResource(BestDeal.Resource, Ship->GetCompany());
+					Request.MaxQuantity = FMath::Min(BestDeal.BuyQuantity, Ship->GetCargoBay()->GetFreeSpaceForResource(BestDeal.Resource, Ship->GetCompany()));
 
 					UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
 
@@ -3150,6 +3150,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 		ResourceVariation.MinCapacity = 0;
 		ResourceVariation.ConsumerMaxStock = 0;
 		ResourceVariation.MaintenanceMaxStock = 0;
+		ResourceVariation.HighPriority = 0;
 
 		SectorVariation.ResourceVariations.Add(Resource, ResourceVariation);
 	}
@@ -3188,6 +3189,11 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				if (ProductionDuration == 0)
 				{
 					ProductionDuration = 10;
+				}
+
+				if(Station->IsUnderConstruction())
+				{
+					Variation->HighPriority = true;
 				}
 
 				int32 Flow = Factory->GetInputResourceQuantity(ResourceIndex) / ProductionDuration;
@@ -3234,12 +3240,15 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				// The AI don't let anything for the player : it's too hard
 				// Make the AI ignore the sector with not enought stock or to little capacity
-				Variation->OwnedCapacity -= SlotCapacity * AI_NERF_RATIO;
-
-				float EmptyRatio = (float) Capacity / (float) SlotCapacity;
-				if (EmptyRatio > AI_NERF_RATIO/2)
+				if(!Station->IsUnderConstruction())
 				{
-					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * AI_NERF_RATIO));
+					Variation->OwnedCapacity -= SlotCapacity * AI_NERF_RATIO;
+
+					float EmptyRatio = (float) Capacity / (float) SlotCapacity;
+					if (EmptyRatio > AI_NERF_RATIO/2)
+					{
+						Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * AI_NERF_RATIO));
+					}
 				}
 			}
 
@@ -3295,7 +3304,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 		}
 
 		// Customer flow
-		if (Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+		if (!Station->IsUnderConstruction() && Station->HasCapability(EFlareSpacecraftCapability::Consumer))
 		{
 			if (Company == Station->GetCompany())
 			{
@@ -3341,7 +3350,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 		}
 
 		// Maintenance
-		if (Station->HasCapability(EFlareSpacecraftCapability::Maintenance))
+		if (!Station->IsUnderConstruction() && Station->HasCapability(EFlareSpacecraftCapability::Maintenance))
 		{
 			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
 			{
@@ -3749,6 +3758,10 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 					* Behavior->GetResourceAffility(Resource)
 					* (Behavior->GetSectorAffility(SectorA) + Behavior->GetSectorAffility(SectorB));
 
+			if (VariationB->HighPriority)
+			{
+				Score *= 10000;
+			}
 #ifdef DEBUG_AI_TRADING
 			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 			{
@@ -3770,6 +3783,8 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 				FLOGV(" -> Resource affility=%f", Behavior->GetResourceAffility(Resource));
 				FLOGV(" -> SectorA affility=%f", Behavior->GetSectorAffility(SectorA));
 				FLOGV(" -> SectorB affility=%f", Behavior->GetSectorAffility(SectorB));
+				FLOGV(" -> Temporisation=%d", Temporisation);
+				FLOGV(" -> HighPriority=%d", VariationB->HighPriority);
 				FLOGV(" -> Score=%f", Score);
 			}
 #endif

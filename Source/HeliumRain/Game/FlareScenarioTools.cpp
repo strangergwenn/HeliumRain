@@ -353,7 +353,6 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationOutpost, AxisSupplies, Crossroads, 1);
 	CreateStations(StationOutpost, AxisSupplies, TheDig, 1);
 	CreateStations(StationOutpost, AxisSupplies, FrozenRealm, 1);
-	CreateStations(StationOutpost, AxisSupplies, Ruins, 1);
 	CreateStations(StationOutpost, AxisSupplies, WinterJunction, 1);
 	CreateStations(StationOutpost, AxisSupplies, Tranquility, 1);
 

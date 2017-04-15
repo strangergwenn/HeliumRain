@@ -84,7 +84,8 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		}
 		EFlareResourcePriceContext::Type StationResourceUsage = Station->GetResourceUseType(Request.Resource);
 
-		if(NeedOutput && StationResourceUsage != EFlareResourcePriceContext::FactoryOutput)
+		if(NeedOutput && (StationResourceUsage != EFlareResourcePriceContext::FactoryOutput &&
+						  StationResourceUsage != EFlareResourcePriceContext::MaintenanceConsumption))
 		{
 			continue;
 		}
@@ -111,15 +112,18 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		uint32 LoadMaxQuantity  = 0;
 
 
-		// Check cargo limit
-		if(NeedOutput && Request.CargoLimit != -1 && FullRatio < Request.CargoLimit)
+		if(!Station->IsUnderConstruction())
 		{
-			continue;
-		}
+			// Check cargo limit
+			if(NeedOutput && Request.CargoLimit != -1 && FullRatio < Request.CargoLimit)
+			{
+				continue;
+			}
 
-		if(NeedInput && Request.CargoLimit != -1 && FullRatio > Request.CargoLimit)
-		{
-			continue;
+			if(NeedInput && Request.CargoLimit != -1 && FullRatio > Request.CargoLimit)
+			{
+				continue;
+			}
 		}
 
 		if(Station->GetCargoBay()->WantBuy(Request.Resource, Request.Client->GetCompany()))
@@ -154,6 +158,15 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		}
 
 		Score *= 1 + (FullRatio * FullRatioBonus) + (EmptyRatio * EmptyRatioBonus);
+
+		if(Station->IsUnderConstruction())
+		{
+			Score *= 10000;
+			FLOGV("Station %s is under construction. Score %f, BestScore %f",
+				  *Station->GetImmatriculation().ToString(),
+				  Score,
+				  BestScore)
+		}
 
 		if(Score > 0 && Score > BestScore)
 		{

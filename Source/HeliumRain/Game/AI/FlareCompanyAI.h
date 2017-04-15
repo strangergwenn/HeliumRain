@@ -38,6 +38,8 @@ struct ResourceVariation
 	int32 MinCapacity;
 	int32 ConsumerMaxStock;
 	int32 MaintenanceMaxStock;
+
+	bool HighPriority;
 };
 
 /* Local list of resource flows */
