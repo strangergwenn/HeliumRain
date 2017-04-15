@@ -673,7 +673,7 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool Technology, 
 				continue;
 			}
 
-			if (Company->IsTechnologyUnlockedStation(StationDescription))
+			if (!Company->IsTechnologyUnlockedStation(StationDescription))
 			{
 				continue;
 			}
@@ -2946,6 +2946,43 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 		float StationPrice = ComputeStationPrice(Sector, StationDescription, Station);
 		Score *= 1.f + 1/StationPrice;
 
+	}
+	else if (FactoryDescription && FactoryDescription->IsResearch())
+	{
+
+		if(Technology)
+		{
+			FLOG("FactoryDescription->IsResearch()");
+		}
+
+		// Underflow malus
+		for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num(); ResourceIndex++)
+		{
+			const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
+
+			float MaxVolume = FMath::Max(WorldStats[&Resource->Resource->Data].Production, WorldStats[&Resource->Resource->Data].Consumption);
+			if (MaxVolume > 0)
+			{
+				float UnderflowRatio = WorldStats[&Resource->Resource->Data].Balance / MaxVolume;
+				if (UnderflowRatio < 0)
+				{
+					float UnderflowMalus = FMath::Clamp((UnderflowRatio * 100)  / 20.f + 1.f, 0.f, 1.f);
+					Score *= UnderflowMalus;
+					//FLOGV("    MaxVolume %f", MaxVolume);
+					//FLOGV("    UnderflowRatio %f", UnderflowRatio);
+					//FLOGV("    UnderflowMalus %f", UnderflowMalus);
+				}
+			}
+			else
+			{
+				if(Technology)
+				{
+					FLOG("No input production");
+				}
+				// No input production, ignore this station
+				return 0;
+			}
+		}
 	}
 	else if (FactoryDescription && FactoryDescription->IsShipyard())
 	{
