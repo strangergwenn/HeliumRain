@@ -64,12 +64,18 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 					WorldHelper::FlareResourceStats *ResourceStats = &WorldStats[Resource];
 
 					int64 ProductionDuration = Factory->GetProductionDuration();
+
+					float Flow = 0;
+
 					if (ProductionDuration == 0)
 					{
-						ProductionDuration = 10;
+						Flow = 1;
+					}
+					else
+					{
+						Flow = (float) Factory->GetInputResourceQuantity(ResourceIndex) / float(ProductionDuration);
 					}
 
-					float Flow = (float) Factory->GetInputResourceQuantity(ResourceIndex) / float(ProductionDuration);
 					ResourceStats->Consumption += Flow;
 				}
 
