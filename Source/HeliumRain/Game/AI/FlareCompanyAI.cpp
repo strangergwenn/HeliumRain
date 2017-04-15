@@ -3250,6 +3250,10 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 						Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * AI_NERF_RATIO));
 					}
 				}
+				else
+				{
+					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, Capacity);
+				}
 			}
 
 			// Ouput flow
@@ -3628,6 +3632,7 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 				!VariationA->FactoryCapacity &&
 				!VariationA->StorageCapacity &&
 				!VariationA->MaintenanceCapacity &&
+				!VariationA->MinCapacity &&
 				!VariationB->OwnedFlow &&
 				!VariationB->FactoryFlow &&
 				!VariationB->OwnedStock &&
@@ -3636,7 +3641,8 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 				!VariationB->OwnedCapacity &&
 				!VariationB->FactoryCapacity &&
 				!VariationB->StorageCapacity &&
-				!VariationB->MaintenanceCapacity)
+				!VariationB->MaintenanceCapacity &&
+				!VariationB->MinCapacity)
 			{
 				continue;
 			}
@@ -3699,6 +3705,11 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 			int32 MaintenanceCapacity = VariationB->MaintenanceCapacity;
 			int32 FactoryCapacity = FMath::Max(0, (int32)(VariationB->FactoryCapacity + VariationB->FactoryFlow * TravelTime));
 			int32 StorageCapacity = VariationB->StorageCapacity;
+
+			if(OwnedCapacity + MaintenanceCapacity + FactoryCapacity + StorageCapacity < VariationB->MinCapacity)
+			{
+				FactoryCapacity += VariationB->MinCapacity;
+			}
 
 			int32 OwnedSellQuantity = FMath::Min(OwnedCapacity, QuantityToSell);
 			MoneyGain += OwnedSellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * 2;
