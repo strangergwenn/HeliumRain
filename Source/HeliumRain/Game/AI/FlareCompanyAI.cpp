@@ -2987,6 +2987,9 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 				return 0;
 			}
 		}
+
+		float StationPrice = ComputeStationPrice(Sector, StationDescription, Station);
+		Score *= 1.f + 1/StationPrice;
 	}
 	else if (FactoryDescription && FactoryDescription->IsShipyard())
 	{
@@ -3018,6 +3021,9 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 				return 0;
 			}
 		}
+
+		float StationPrice = ComputeStationPrice(Sector, StationDescription, Station);
+		Score *= 1.f + 1/StationPrice;
 
 		//FLOGV("Score=%f for %s in %s", Score, *StationDescription->Identifier.ToString(), *Sector->GetIdentifier().ToString());
 
