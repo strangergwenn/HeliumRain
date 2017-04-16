@@ -43,6 +43,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 			.LineSize(3)
 			.ItemWidth(1)
 			.ItemHeight(1)
+			.ShowColorWheel(true)
 		]
 		
 		// Paint picker
@@ -53,6 +54,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 			.LineSize(3)
 			.ItemWidth(1)
 			.ItemHeight(1)
+			.ShowColorWheel(true)
 		]
 		
 		// Overlay picker
@@ -63,6 +65,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 			.LineSize(3)
 			.ItemWidth(1)
 			.ItemHeight(1)
+			.ShowColorWheel(true)
 		]
 		
 		// Light picker
@@ -73,6 +76,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 			.LineSize(3)
 			.ItemWidth(1)
 			.ItemHeight(1)
+			.ShowColorWheel(true)
 		]
 	];
 

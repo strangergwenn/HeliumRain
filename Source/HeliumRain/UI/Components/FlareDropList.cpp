@@ -11,8 +11,10 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 {
 	// Data
 	IsDropped = false;
+	HasColorWheel = InArgs._ShowColorWheel;
 	LineSize = InArgs._LineSize;
 	OnItemPickedCallback = InArgs._OnItemPicked;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	
 	// Layout
 	ChildSlot
@@ -40,10 +42,49 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 			.Width(InArgs._ItemWidth)
 			.Height(InArgs._ItemHeight)
 		]
+
+		// Color picker
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		[
+			SNew(SBorder)
+			.BorderImage(&Theme.BackgroundBrush)
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SBox)
+					.WidthOverride(LineSize * Theme.ButtonWidth * InArgs._ItemWidth)
+					.HeightOverride(LineSize * Theme.ButtonWidth * InArgs._ItemWidth)
+					[
+						// TODO FRED
+						// See UEDIR\4.15\Engine\Source\Runtime\AppFramework\Private\Widgets\Colors\SColorPicker.cpp :) 
+						SAssignNew(ColorWheel, SColorWheel)
+						//.OnValueChanged(this, &SFlareDropList::HandleColorSpectrumValueChanged)
+						//.OnMouseCaptureBegin(this, &SFlareDropList::HandleInteractiveChangeBegin)
+						//.OnMouseCaptureEnd(this, &SFlareDropList::HandleInteractiveChangeEnd)
+					]
+				]
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					// TODO FRED
+					SAssignNew(ColorSlider, SSlider)
+					.Style(&Theme.SliderStyle)
+					.Value(0)
+					//.OnValueChanged(this, &SFlareDropList::OnBrightnessChanged)    // void SFlareDropList::OnBrightnessChanged(float Value)
+				]
+			]
+		]
 	];
 
 	// Default settings
 	ItemArray->SetVisibility(EVisibility::Collapsed);
+	ColorWheel->SetVisibility(EVisibility::Collapsed);
+	ColorSlider->SetVisibility(EVisibility::Collapsed);
 	HeaderButton->GetContainer()->SetHAlign(HAlign_Fill);
 	HeaderButton->GetContainer()->SetVAlign(VAlign_Fill);
 }
@@ -80,6 +121,16 @@ TSharedRef<SWidget> SFlareDropList::GetItemContent(int32 ItemIndex) const
 void SFlareDropList::OnHeaderClicked()
 {
 	ItemArray->SetVisibility(IsDropped ? EVisibility::Collapsed : EVisibility::Visible);
+	if (HasColorWheel)
+	{
+		ColorWheel->SetVisibility(IsDropped ? EVisibility::Collapsed : EVisibility::Visible);
+		ColorSlider->SetVisibility(IsDropped ? EVisibility::Collapsed : EVisibility::Visible);
+	}
+	else
+	{
+		ColorWheel->SetVisibility(EVisibility::Collapsed);
+		ColorSlider->SetVisibility(EVisibility::Collapsed);
+	}
 	IsDropped = !IsDropped;
 }
 
@@ -94,4 +145,6 @@ void SFlareDropList::OnItemPicked(int32 ItemIndex)
 
 	IsDropped = false;
 	ItemArray->SetVisibility(EVisibility::Collapsed);
+	ColorWheel->SetVisibility(EVisibility::Collapsed);
+	ColorSlider->SetVisibility(EVisibility::Collapsed);
 }

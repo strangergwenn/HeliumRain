@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareItemArray.h"
+#include "Runtime/Slate/Public/Widgets/Colors/SColorWheel.h"
 
 
 DECLARE_DELEGATE_OneParam(FFlareItemPicked, int32)
@@ -19,6 +20,7 @@ class SFlareDropList : public SCompoundWidget
 		, _HeaderHeight(1)
 		, _ItemWidth(3)
 		, _ItemHeight(1)
+		, _ShowColorWheel(false)
 	{}
 
 	SLATE_EVENT(FFlareItemPicked, OnItemPicked)
@@ -28,6 +30,7 @@ class SFlareDropList : public SCompoundWidget
 	SLATE_ARGUMENT(float, HeaderHeight)
 	SLATE_ARGUMENT(float, ItemWidth)
 	SLATE_ARGUMENT(float, ItemHeight)
+	SLATE_ARGUMENT(bool, ShowColorWheel)		
 	
 	SLATE_END_ARGS()
 
@@ -71,12 +74,15 @@ protected:
 	
 	// Data
 	bool                          IsDropped;
+	bool                          HasColorWheel;
 	int32                         LineSize;
 	FFlareItemPicked              OnItemPickedCallback;
 	
 	// Slate data
 	TSharedPtr<SFlareButton>      HeaderButton;
 	TSharedPtr<SFlareItemArray>   ItemArray;
+	TSharedPtr<SColorWheel>       ColorWheel;
+	TSharedPtr<SSlider>           ColorSlider;
 	TArray< TSharedRef<SWidget> > ContentArray;
 	
 
