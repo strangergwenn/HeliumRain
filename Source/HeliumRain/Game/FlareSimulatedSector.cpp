@@ -480,6 +480,14 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	}
 
 	// Too many stations
+	if (SectorStations.Num() >= GetMaxStationsInSector()/2 && !Company->IsTechnologyUnlocked("dense-sectors"))
+	{
+		OutReasons.Add(LOCTEXT("BuildNeedDenseSectors", "There are too many stations in the sector. Unlock 'dense sectors' technology to build more stations in this sector"));
+		Result = false;
+	}
+
+
+	// Too many stations
 	if (SectorStations.Num() >= GetMaxStationsInSector())
 	{
 		OutReasons.Add(LOCTEXT("BuildTooManyStations", "There are too many stations in the sector"));
