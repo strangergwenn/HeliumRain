@@ -9,6 +9,8 @@
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 
+//#define DEBUG_AI_NO_WAR
+
 /*----------------------------------------------------
 	Public API
 ----------------------------------------------------*/
@@ -139,7 +141,9 @@ void UFlareAIBehavior::UpdateDiplomacy()
 		{
 			if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile)
 			{
+#ifndef DEBUG_AI_NO_WAR
 				Company->SetHostilityTo(OtherCompany, true);
+#endif
 			}
 			continue;
 		}
@@ -175,7 +179,9 @@ void UFlareAIBehavior::UpdateDiplomacy()
 
 			if(!CancelWar)
 			{
+#ifndef DEBUG_AI_NO_WAR
 				Company->SetHostilityTo(OtherCompany, true);
+#endif
 				if (OtherCompany == Game->GetPC()->GetCompany())
 				{
 					OtherCompany->SetHostilityTo(Company, true);

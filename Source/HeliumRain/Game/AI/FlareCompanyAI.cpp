@@ -111,7 +111,9 @@ void UFlareCompanyAI::UpdateDiplomacy()
 }
 
 //#define DEBUG_AI_TRADING
-#define DEBUG_AI_TRADING_COMPANY "ION"
+#define DEBUG_AI_TRADING_COMPANY "MSY"
+#define DEBUG_AI_TRADING_SECTOR_B "the-forge"
+#define DEBUG_AI_TRADING_RESOURCES "sio2"
 
 void UFlareCompanyAI::UpdateTrading()
 {
@@ -3121,7 +3123,6 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 		float GainPerDay = GainPerCycle / FactoryDescription->CycleCost.ProductionTime;
 		if (GainPerDay < 0)
 		{
-			// TODO Shipyard
 			return 0;
 		}
 
@@ -3641,7 +3642,8 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 			continue;
 		}*/
 
-		if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+		if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
+				&& SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B)
 		{
 			FLOGV("Travel %s -> %s -> %s : %lld days", *Ship->GetCurrentSector()->GetSectorName().ToString(),
 			*SectorA->GetSectorName().ToString(), *SectorB->GetSectorName().ToString(), TravelTime);
@@ -3658,9 +3660,35 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 			struct ResourceVariation* VariationB = &SectorVariationB->ResourceVariations[Resource];
 
 #ifdef DEBUG_AI_TRADING
-		if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+		if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
+				&& SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B
+				&& Resource->Identifier == DEBUG_AI_TRADING_RESOURCES)
 		{
 			FLOGV("- Check for %s", *Resource->Name.ToString());
+			FLOGV("!VariationA->OwnedFlow %d",VariationA->OwnedFlow);
+			FLOGV("!VariationA->FactoryFlow %d",VariationA->FactoryFlow);
+			FLOGV("!VariationA->OwnedStock %d",VariationA->OwnedStock);
+			FLOGV("!VariationA->FactoryStock %d",VariationA->FactoryStock);
+			FLOGV("!VariationA->StorageStock %d",VariationA->StorageStock);
+			FLOGV("!VariationA->OwnedCapacity %d",VariationA->OwnedCapacity);
+			FLOGV("!VariationA->FactoryCapacity %d",VariationA->FactoryCapacity);
+			FLOGV("!VariationA->StorageCapacity %d",VariationA->StorageCapacity);
+			FLOGV("!VariationA->MaintenanceCapacity %d",VariationA->MaintenanceCapacity);
+			FLOGV("!VariationA->MinCapacity %d",VariationA->MinCapacity);
+			FLOGV("!VariationA->IncomingResources %d",VariationA->IncomingResources);
+			FLOGV("!VariationB->OwnedFlow %d",VariationB->OwnedFlow);
+			FLOGV("!VariationB->FactoryFlow %d",VariationB->FactoryFlow);
+			FLOGV("!VariationB->OwnedStock %d",VariationB->OwnedStock);
+			FLOGV("!VariationB->FactoryStock %d",VariationB->FactoryStock);
+			FLOGV("!VariationB->StorageStock %d",VariationB->StorageStock);
+			FLOGV("!VariationB->OwnedCapacity %d",VariationB->OwnedCapacity);
+			FLOGV("!VariationB->FactoryCapacity %d",VariationB->FactoryCapacity);
+			FLOGV("!VariationB->StorageCapacity %d", VariationB->StorageCapacity);
+			FLOGV("!VariationB->MaintenanceCapacity %d", VariationB->MaintenanceCapacity);
+			FLOGV("!VariationB->MinCapacity %d", VariationB->MinCapacity);
+			FLOGV("!VariationB->IncomingResources %d", VariationB->IncomingResources);
+			FLOGV("  - VariationA %p", VariationA);
+			FLOGV("  - VariationB %p", VariationB);
 		}
 
 		/*if (Resource->Identifier != "fuel")
@@ -3704,6 +3732,15 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 				+ VariationA->StorageStock
 				- (VariationA->OwnedFlow * TravelTimeToA)
 				- (VariationA->FactoryFlow * TravelTimeToA);
+#ifdef DEBUG_AI_TRADING
+			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
+					&& SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B
+					&& Resource->Identifier == DEBUG_AI_TRADING_RESOURCES)
+			{
+				FLOGV("InitialQuantity %d", InitialQuantity);
+				FLOGV("StockInAAfterTravel %d", StockInAAfterTravel);
+			}
+#endif
 
 			if (StockInAAfterTravel <= 0 && InitialQuantity == 0)
 			{
@@ -3821,7 +3858,9 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 				Score *= 10000;
 			}
 #ifdef DEBUG_AI_TRADING
-			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
+					&& SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B
+					&& Resource->Identifier == DEBUG_AI_TRADING_RESOURCES)
 			{
 				FLOGV(" -> IncomingCapacity=%d", SectorVariationA->IncomingCapacity);
 				FLOGV(" -> IncomingResources=%d", VariationA->IncomingResources);
