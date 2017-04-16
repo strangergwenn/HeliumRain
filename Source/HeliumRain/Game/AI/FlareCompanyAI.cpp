@@ -2959,11 +2959,6 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 	else if (FactoryDescription && FactoryDescription->IsResearch())
 	{
 
-		if(Technology)
-		{
-			FLOG("FactoryDescription->IsResearch()");
-		}
-
 		// Underflow malus
 		for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num(); ResourceIndex++)
 		{
