@@ -680,6 +680,13 @@ void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Pr
 		CompanyReputation = &CompanyData.CompaniesReputation[CompanyData.CompaniesReputation.Num()-1];
 	}
 
+
+	if(Amount < 0 && Company->IsTechnologyUnlocked("diplomacy"))
+	{
+		Amount /= 2;
+	}
+
+
 	// Gain reputation is easier with low reputation and loose reputation is easier with hight reputation.
 	// Reputation vary between -200 and 200
 	// 0% if reputation in variation direction = 200
