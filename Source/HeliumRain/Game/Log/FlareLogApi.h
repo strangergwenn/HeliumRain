@@ -51,6 +51,18 @@ public:
 									UFlareSimulatedSector* ConstructionSector,
 									FFlareSpacecraftDescription* ConstructionStationDescription,
 									UFlareSimulatedSpacecraft* ConstructionStation);
+
+
+	/**
+	 * A company unlock a research
+	 *
+	 * Event: COMPANY_UNLOCK_RESEARCH
+	 * Params:
+	 *   - string : company
+	 *   - string : research
+	 */
+	static void UnlockResearch(UFlareCompany* Company, FFlareTechnologyDescription* Research);
+
 };
 
 class CombatLog

@@ -92,6 +92,41 @@ void UFlareCompanyAI::Simulate()
 		}
 
 		Behavior->Simulate();
+
+		PurchaseResearch();
+	}
+}
+
+void UFlareCompanyAI::PurchaseResearch()
+{
+	FText Reason;
+	if (AIData.ResearchProject == NAME_None || !Company->IsTechnologyAvailable(AIData.ResearchProject, Reason, true))
+	{
+		// Find a new research
+		TArray<FFlareTechnologyDescription*> ResearchCandidates;
+
+		for(UFlareTechnologyCatalogEntry* Technology : GetGame()->GetTechnologyCatalog()->TechnologyCatalog)
+		{
+			if(Company->IsTechnologyAvailable(Technology->Data.Identifier, Reason, true))
+			{
+				ResearchCandidates.Add(&Technology->Data);
+			}
+		}
+
+		if(ResearchCandidates.Num() == 0)
+		{
+			// No research to research
+			return;
+		}
+
+		int32 PickIndex = FMath::RandRange(0, ResearchCandidates.Num() - 1);
+		AIData.ResearchProject = ResearchCandidates[PickIndex]->Identifier;
+	}
+
+	// Try to buy
+	if(Company->IsTechnologyAvailable(AIData.ResearchProject, Reason))
+	{
+		Company->UnlockTechnology(AIData.ResearchProject);
 	}
 }
 

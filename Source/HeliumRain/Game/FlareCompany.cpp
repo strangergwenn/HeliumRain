@@ -1181,7 +1181,7 @@ bool UFlareCompany::IsTechnologyUnlocked(FName Identifier) const
 	}
 }
 
-bool UFlareCompany::IsTechnologyAvailable(FName Identifier, FText& Reason) const
+bool UFlareCompany::IsTechnologyAvailable(FName Identifier, FText& Reason, bool IgnoreCost) const
 {
 	FFlareTechnologyDescription* Technology = GetGame()->GetTechnologyCatalog()->Get(Identifier);
  
@@ -1190,7 +1190,7 @@ bool UFlareCompany::IsTechnologyAvailable(FName Identifier, FText& Reason) const
 		Reason = LOCTEXT("CantUnlockTechLevel", "You don't have the technology level to research this technology");
 		return false;
 	}
-	else if (GetResearchAmount() < GetTechnologyCost(Technology))
+	else if (!IgnoreCost && GetResearchAmount() < GetTechnologyCost(Technology))
 	{
 		Reason = LOCTEXT("CantUnlockTechCost", "You haven't done enough research for this technology");
 		return false;
@@ -1357,6 +1357,8 @@ void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave, bool Force
 					EFlareNotification::NT_Info,
 					false);
 			}
+
+			GameLog::UnlockResearch(this, Technology);
 		}
 	}
 }

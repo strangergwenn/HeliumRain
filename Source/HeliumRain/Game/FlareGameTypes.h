@@ -242,6 +242,8 @@ struct FFlareCompanyAISave
 
 	/* Modify AttackThreshold */
 	float Caution;
+
+	FName ResearchProject;
 };
 
 

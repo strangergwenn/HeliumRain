@@ -98,6 +98,9 @@ public:
 	/** Simulate a day */
 	virtual void Simulate();
 
+	/** Try to purchase research */
+	virtual void PurchaseResearch();
+
 	/** Destroy a spacecraft */
 	virtual void DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
 

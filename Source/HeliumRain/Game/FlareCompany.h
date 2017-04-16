@@ -219,7 +219,7 @@ public:
 	bool IsTechnologyUnlocked(FName Identifier) const;
 
 	/** Check if a technology can be unlocked */
-	bool IsTechnologyAvailable(FName Identifier, FText& Reason) const;
+	bool IsTechnologyAvailable(FName Identifier, FText& Reason, bool IgnoreCost=false) const;
 
 	/** Get the current technology cost */
 	int32 GetTechnologyCost(const FFlareTechnologyDescription* Technology) const;

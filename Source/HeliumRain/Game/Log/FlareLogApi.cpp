@@ -82,6 +82,29 @@ void GameLog::AIConstructionStart(UFlareCompany* Company,
 	FFlareLogWriter::PushWriterMessage(Message);
 }
 
+void GameLog::UnlockResearch(UFlareCompany* Company,
+								FFlareTechnologyDescription* Research)
+{
+	FlareLogMessage Message;
+	Message.Target = EFlareLogTarget::Game;
+	Message.Event = EFlareLogEvent::COMPANY_UNLOCK_RESEARCH;
+
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Company->GetShortName().ToString();
+		Message.Params.Add(Param);
+	}
+	{
+		FlareLogMessageParam Param;
+		Param.Type = EFlareLogParam::String;
+		Param.StringValue = Research->Identifier.ToString();
+		Message.Params.Add(Param);
+	}
+
+	FFlareLogWriter::PushWriterMessage(Message);
+}
+
 // Combat log api
 
 void CombatLog::SectorActivated(UFlareSimulatedSector* Sector)
