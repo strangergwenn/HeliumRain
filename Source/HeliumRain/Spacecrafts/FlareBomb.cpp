@@ -161,12 +161,14 @@ void AFlareBomb::Tick(float DeltaSeconds)
 			if (!IsActive() && Distance > 500000 && BombData.LifeTime > 30)
 			{
 				OnBombDetonated(NULL, NULL, FVector(), FVector());
+				//DrawDebugSphere(GetWorld(), GetActorLocation(), 1000, 32, FColor::Red, true);
 			}
 
 			// Parent removed destroy
 			if (!ParentWeapon || !ParentWeapon->IsValidLowLevel() || !ParentWeapon->GetSpacecraft()->IsValidLowLevel())
 			{
 				OnBombDetonated(NULL, NULL, FVector(), FVector());
+				//DrawDebugSphere(GetWorld(), GetActorLocation(), 1000, 32, FColor::Red, true);
 			}
 		}
 	}
@@ -212,7 +214,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 
 		FLOGV("Dot %f", Dot);*/
 
-		if (!BombVelocityRefTarget.IsNearlyZero())
+		/*if (!BombVelocityRefTarget.IsNearlyZero())
 		{
 
 			float ConvergenceSpeed = FMath::Max(WeaponDescription->WeaponCharacteristics.BombCharacteristics.NominalVelocity /50.f, FVector::DotProduct(TargetDirection, BombVelocityRefTarget));
@@ -227,7 +229,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 			{
 				FineAimVelocityRefTarget = TargetDirection * FMath::Max(ConvergenceSpeed, WeaponDescription->WeaponCharacteristics.BombCharacteristics.NominalVelocity);
 			}
-		}
+		}*/
 		
 		//FLOGV("FineAimVelocityRefTarget Dot %f", FVector::DotProduct(FineAimVelocityRefTarget.GetUnsafeNormal(), TargetDirection));
 
@@ -274,7 +276,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 
 		if (!DeltaAngularV.IsNearlyZero())
 		{
-			FVector DeltaAngularVAxis = DeltaAngularV.GetUnsafeNormal();
+			FVector	DeltaAngularVAxis = DeltaAngularV.GetUnsafeNormal();
 			FVector Acceleration = DeltaAngularVAxis * WeaponDescription->WeaponCharacteristics.BombCharacteristics.AngularAcceleration * DeltaSeconds;
 			FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaAngularV.Size());
 			BombComp->SetPhysicsAngularVelocity(ClampedAcceleration, true);
@@ -452,6 +454,8 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 {
 	UFlareCompany* OwnerCompany = ParentWeapon->GetSpacecraft()->GetCompany();
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+
+	//DrawDebugSphere(GetWorld(), GetActorLocation(), 1000, 32, FColor::Green, true);
 
 	// Apply damage
 	HitSpacecraft->GetDamageSystem()->SetLastDamageCauser(Cast<AFlareSpacecraft>(ParentWeapon->GetOwner()));
