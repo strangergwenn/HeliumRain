@@ -1359,7 +1359,7 @@ int64 UFlareCompanyAI::GetDefenseSectorTravelDuration(TArray<DefenseSector>& Def
 
 	for (DefenseSector& Sector : DefenseSectorList)
 	{
-		int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), OriginSector.Sector, Sector.Sector);
+		int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), OriginSector.Sector, Sector.Sector, Company);
 		if (TravelDuration > MaxTravelDuration)
 		{
 			MaxTravelDuration = TravelDuration;
@@ -1380,7 +1380,7 @@ TArray<DefenseSector> UFlareCompanyAI::GetDefenseSectorListInRange(TArray<Defens
 			continue;
 		}
 
-		int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), OriginSector.Sector, Sector.Sector);
+		int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), OriginSector.Sector, Sector.Sector, Company);
 		if (TravelDuration <= MaxTravelDuration)
 		{
 			Sectors.Add(Sector);
@@ -1392,8 +1392,8 @@ TArray<DefenseSector> UFlareCompanyAI::GetDefenseSectorListInRange(TArray<Defens
 
 inline static bool SectorDefenseDistanceComparator(const DefenseSector& ip1, const DefenseSector& ip2)
 {
-	int64 ip1TravelDuration = UFlareTravel::ComputeTravelDuration(ip1.Sector->GetGame()->GetGameWorld(), ip1.TempBaseSector, ip1.Sector);
-	int64 ip2TravelDuration = UFlareTravel::ComputeTravelDuration(ip1.Sector->GetGame()->GetGameWorld(), ip2.TempBaseSector, ip2.Sector);
+	int64 ip1TravelDuration = UFlareTravel::ComputeTravelDuration(ip1.Sector->GetGame()->GetGameWorld(), ip1.TempBaseSector, ip1.Sector, NULL);
+	int64 ip2TravelDuration = UFlareTravel::ComputeTravelDuration(ip1.Sector->GetGame()->GetGameWorld(), ip2.TempBaseSector, ip2.Sector, NULL);
 
 	return (ip1TravelDuration < ip2TravelDuration);
 }
@@ -1462,7 +1462,7 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 
 			// Check if there is an incomming fleet bigger than local
 			bool DefenseFleetFound = false;
-			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), Sector.Sector, Target.Sector);
+			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), Sector.Sector, Target.Sector, Company);
 			for (WarTargetIncomingFleet& Fleet : Target.WarTargetIncomingFleets)
 			{
 				// Incoming fleet will be late, ignore it
@@ -1742,7 +1742,7 @@ UFlareSimulatedSector* UFlareCompanyAI::FindNearestSectorWithPeace(UFlareSimulat
 			continue;
 		}
 
-		int64 Duration = UFlareTravel::ComputeTravelDuration(Sector->GetGame()->GetGameWorld(), OriginSector, Sector);
+		int64 Duration = UFlareTravel::ComputeTravelDuration(Sector->GetGame()->GetGameWorld(), OriginSector, Sector, Company);
 
 		if (!NearestSector || Duration < NearestDuration)
 		{
@@ -1777,7 +1777,7 @@ UFlareSimulatedSector* UFlareCompanyAI::FindNearestSectorWithFS(UFlareSimulatedS
 			continue;
 		}
 
-		int64 Duration = UFlareTravel::ComputeTravelDuration(Sector->GetGame()->GetGameWorld(), OriginSector, Sector);
+		int64 Duration = UFlareTravel::ComputeTravelDuration(Sector->GetGame()->GetGameWorld(), OriginSector, Sector, Company);
 
 		if (!NearestSector || Duration < NearestDuration)
 		{
@@ -1801,7 +1801,7 @@ UFlareSimulatedSector* UFlareCompanyAI::FindNearestSectorWithUpgradePossible(UFl
 			continue;
 		}
 
-		int64 Duration = UFlareTravel::ComputeTravelDuration(Sector->GetGame()->GetGameWorld(), OriginSector, Sector);
+		int64 Duration = UFlareTravel::ComputeTravelDuration(Sector->GetGame()->GetGameWorld(), OriginSector, Sector, Company);
 
 		if (!NearestSector || Duration < NearestDuration)
 		{
@@ -2312,7 +2312,7 @@ void UFlareCompanyAI::UpdatePeaceMilitaryMovement()
 
 		for (UFlareSimulatedSector* SectorCandidate : LowDefenseSectors)
 		{
-			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), Ship->GetCurrentSector(), SectorCandidate);
+			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), Ship->GetCurrentSector(), SectorCandidate, Company);
 			if (BestSectorCandidate == NULL || MinDurationTravel > TravelDuration)
 			{
 				MinDurationTravel = TravelDuration;
@@ -2743,7 +2743,7 @@ void UFlareCompanyAI::CargosEvasion()
 			for (int32 SectorIndex2 = 0; SectorIndex2 < Company->GetKnownSectors().Num(); SectorIndex2++)
 			{
 				UFlareSimulatedSector* SectorCandidate = Company->GetKnownSectors()[SectorIndex2];
-				int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), Sector, SectorCandidate);
+				int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), Sector, SectorCandidate, Company);
 
 				if (DistantUnsafeSector == NULL || MaxDurationTravel < TravelDuration)
 				{
@@ -3654,7 +3654,7 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 		}
 		else
 		{
-			TravelTimeToA = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), Ship->GetCurrentSector(), SectorA);
+			TravelTimeToA = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), Ship->GetCurrentSector(), SectorA, Company);
 		}
 
 		if (SectorA == SectorB)
@@ -3666,7 +3666,7 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 		{
 			// Travel time
 
-			TravelTimeToB = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), SectorA, SectorB);
+			TravelTimeToB = UFlareTravel::ComputeTravelDuration(Game->GetGameWorld(), SectorA, SectorB, Company);
 
 		}
 		int64 TravelTime = TravelTimeToA + TravelTimeToB;

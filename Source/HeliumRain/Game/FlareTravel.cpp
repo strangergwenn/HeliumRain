@@ -253,10 +253,10 @@ bool UFlareTravel::CanChangeDestination()
 
 void UFlareTravel::GenerateTravelDuration()
 {
-	TravelDuration = ComputeTravelDuration(Game->GetGameWorld(), OriginSector, DestinationSector);
+	TravelDuration = ComputeTravelDuration(Game->GetGameWorld(), OriginSector, DestinationSector, Fleet->GetFleetCompany());
 }
 
-int64 UFlareTravel::ComputeTravelDuration(UFlareWorld* World, UFlareSimulatedSector* OriginSector, UFlareSimulatedSector* DestinationSector)
+int64 UFlareTravel::ComputeTravelDuration(UFlareWorld* World, UFlareSimulatedSector* OriginSector, UFlareSimulatedSector* DestinationSector, UFlareCompany* Company)
 {
 	int64 TravelDuration = 0;
 
@@ -294,6 +294,11 @@ int64 UFlareTravel::ComputeTravelDuration(UFlareWorld* World, UFlareSimulatedSec
 		FFlareCelestialBody* DestinationCelestialBody = World->GetPlanerarium()->FindCelestialBody(DestinationCelestialBodyIdentifier);
 
 		TravelDuration = (UFlareGameTools::SECONDS_IN_DAY/2 + ComputeAltitudeTravelDuration(World, OriginCelestialBody, OriginAltitude, DestinationCelestialBody, DestinationAltitude)) / UFlareGameTools::SECONDS_IN_DAY;
+	}
+
+	if(Company && Company->IsTechnologyUnlocked("fast-travel"))
+	{
+		TravelDuration /= 2;
 	}
 
 	return FMath::Max((int64) 1, TravelDuration);

@@ -78,7 +78,7 @@ public:
 
 	FFlareSectorOrbitParameters ComputeCurrentTravelLocation();
 
-	static int64 ComputeTravelDuration(UFlareWorld* World, UFlareSimulatedSector* OriginSector, UFlareSimulatedSector* DestinationSector);
+	static int64 ComputeTravelDuration(UFlareWorld* World, UFlareSimulatedSector* OriginSector, UFlareSimulatedSector* DestinationSector, UFlareCompany* Company);
 
 	static int64 ComputePhaseTravelDuration(UFlareWorld* World, FFlareCelestialBody* CelestialBody, double Altitude, double OriginPhase, double DestinationPhase);
 

@@ -825,7 +825,7 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 				continue;
 			}
 
-			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), this, SectorCandidate);
+			int64 TravelDuration = UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), this, SectorCandidate, NULL);
 
 
 			if (MinTravelDuration == -1 || MinTravelDuration > TravelDuration)

@@ -925,7 +925,7 @@ void UFlareWorld::SimulatePeopleMoneyMigration()
 				float TotalWealth = WealthA + WealthB;
 
 				float PercentRatio = 0.05f; // 5% at max
-				float TravelDuration = FMath::Max(1.f, (float) UFlareTravel::ComputeTravelDuration(this, SectorA, SectorB));
+				float TravelDuration = FMath::Max(1.f, (float) UFlareTravel::ComputeTravelDuration(this, SectorA, SectorB, NULL));
 
 				if(TotalWealth > 0)
 				{
