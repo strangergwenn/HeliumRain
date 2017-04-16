@@ -224,6 +224,7 @@ void UFlareScenarioTools::SetupWorld()
 
 	Sunwatch->UnlockTechnology("instruments", false, true);
 	Sunwatch->UnlockTechnology("stations", false, true);
+	Sunwatch->UnlockTechnology("metallurgy", false, true);
 
 	NemaHeavyWorks->UnlockTechnology("stations", false, true);
 	NemaHeavyWorks->UnlockTechnology("metallurgy", false, true);
@@ -234,11 +235,13 @@ void UFlareScenarioTools::SetupWorld()
 
 	HelixFoundries->UnlockTechnology("stations", false, true);
 	HelixFoundries->UnlockTechnology("metallurgy", false, true);
-	HelixFoundries->UnlockTechnology("advanced-stations", false, true);
+
 
 	GhostWorksShipyards->UnlockTechnology("stations", false, true);
 	GhostWorksShipyards->UnlockTechnology("mining", false, true);
 	GhostWorksShipyards->UnlockTechnology("chemicals", false, true);
+	GhostWorksShipyards->UnlockTechnology("metallurgy", false, true);
+
 
 	Pirates->UnlockTechnology("pirate-tech", false, true);
 	Pirates->UnlockTechnology("quick-repair", false, true);

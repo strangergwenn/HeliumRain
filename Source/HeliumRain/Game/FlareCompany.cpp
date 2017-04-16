@@ -1249,12 +1249,12 @@ bool UFlareCompany::IsTechnologyUnlockedStation(const FFlareSpacecraftDescriptio
 	}
 	else if(Identifier == "station-steelworks" ||
 			Identifier == "station-tool-factory" ||
-			Identifier == "station-arsenal")
+			Identifier == "station-arsenal" ||
+			Identifier == "station-foundry")
 	{
 		return IsTechnologyUnlocked("metallurgy");
 	}
-	else if(Identifier == "station-foundry" ||
-			Identifier == "station-shipyard" ||
+	else if(Identifier == "station-shipyard" ||
 			Identifier == "station-tokamak" ||
 			Identifier == "station-telescope")
 	{
