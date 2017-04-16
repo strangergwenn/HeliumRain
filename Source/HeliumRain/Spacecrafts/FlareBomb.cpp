@@ -145,7 +145,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		LastTickRotation = GetActorRotation();
 	}
 
-	float GimbalRangeDot = 0.90;
+	float GimbalRangeDot = 0.99;
 	float DirectionCorrectionThresold = 0.999; // In dot
 
 
