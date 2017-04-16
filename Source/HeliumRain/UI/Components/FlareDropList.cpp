@@ -1,6 +1,7 @@
 
 #include "../../Flare.h"
 #include "FlareDropList.h"
+#include "../Widgets/SSimpleGradient.h"
 
 
 /*----------------------------------------------------
@@ -14,6 +15,7 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 	HasColorWheel = InArgs._ShowColorWheel;
 	LineSize = InArgs._LineSize;
 	OnItemPickedCallback = InArgs._OnItemPicked;
+	OnColorPickedCallback = InArgs._OnColorPicked;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	
 	// Layout
@@ -59,23 +61,17 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 					.WidthOverride(LineSize * Theme.ButtonWidth * InArgs._ItemWidth)
 					.HeightOverride(LineSize * Theme.ButtonWidth * InArgs._ItemWidth)
 					[
-						// TODO FRED
-						// See UEDIR\4.15\Engine\Source\Runtime\AppFramework\Private\Widgets\Colors\SColorPicker.cpp :) 
 						SAssignNew(ColorWheel, SColorWheel)
-						//.OnValueChanged(this, &SFlareDropList::HandleColorSpectrumValueChanged)
-						//.OnMouseCaptureBegin(this, &SFlareDropList::HandleInteractiveChangeBegin)
-						//.OnMouseCaptureEnd(this, &SFlareDropList::HandleInteractiveChangeEnd)
+						.SelectedColor(this, &SFlareDropList::GetCurrentColor)
+						.OnValueChanged(this, &SFlareDropList::HandleColorSpectrumValueChanged)
 					]
 				]
 
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
-					// TODO FRED
-					SAssignNew(ColorSlider, SSlider)
-					.Style(&Theme.SliderStyle)
-					.Value(0)
-					//.OnValueChanged(this, &SFlareDropList::OnBrightnessChanged)    // void SFlareDropList::OnBrightnessChanged(float Value)
+					// value slider
+					MakeColorSlider()
 				]
 			]
 		]
@@ -84,7 +80,7 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 	// Default settings
 	ItemArray->SetVisibility(EVisibility::Collapsed);
 	ColorWheel->SetVisibility(EVisibility::Collapsed);
-	ColorSlider->SetVisibility(EVisibility::Collapsed);
+	ColorPickerVisible = false;
 	HeaderButton->GetContainer()->SetHAlign(HAlign_Fill);
 	HeaderButton->GetContainer()->SetVAlign(VAlign_Fill);
 }
@@ -108,9 +104,22 @@ void SFlareDropList::SetSelectedIndex(int32 ItemIndex)
 	HeaderButton->GetContainer()->SetContent(ContentArray[ItemIndex]);
 }
 
+void SFlareDropList::SetColor(FLinearColor Color)
+{
+	CurrentColorHSV = Color.LinearRGBToHSV();
+	CurrentColorRGB = Color;
+
+	HeaderButton->GetContainer()->SetContent(SNew(SColorBlock).Color(CurrentColorRGB));
+}
+
 int32 SFlareDropList::GetSelectedIndex() const
 {
 	return ItemArray->GetSelectedIndex();
+}
+
+void SFlareDropList::HandleColorSpectrumValueChanged( FLinearColor NewValue )
+{
+	SetNewTargetColorHSV(NewValue);
 }
 
 TSharedRef<SWidget> SFlareDropList::GetItemContent(int32 ItemIndex) const
@@ -124,12 +133,13 @@ void SFlareDropList::OnHeaderClicked()
 	if (HasColorWheel)
 	{
 		ColorWheel->SetVisibility(IsDropped ? EVisibility::Collapsed : EVisibility::Visible);
-		ColorSlider->SetVisibility(IsDropped ? EVisibility::Collapsed : EVisibility::Visible);
+		ColorPickerVisible = !IsDropped;
+		//ColorSlider->SetVisibility(IsDropped ? EVisibility::Collapsed : EVisibility::Visible);
 	}
 	else
 	{
 		ColorWheel->SetVisibility(EVisibility::Collapsed);
-		ColorSlider->SetVisibility(EVisibility::Collapsed);
+		//ColorSlider->SetVisibility(EVisibility::Collapsed);
 	}
 	IsDropped = !IsDropped;
 }
@@ -146,5 +156,100 @@ void SFlareDropList::OnItemPicked(int32 ItemIndex)
 	IsDropped = false;
 	ItemArray->SetVisibility(EVisibility::Collapsed);
 	ColorWheel->SetVisibility(EVisibility::Collapsed);
-	ColorSlider->SetVisibility(EVisibility::Collapsed);
+	ColorPickerVisible = false;
+	//ColorSlider->SetVisibility(EVisibility::Collapsed);
 }
+
+FLinearColor SFlareDropList::HandleColorSliderEndColor() const
+{
+	return FLinearColor(CurrentColorHSV.R, CurrentColorHSV.G, 1.0f, 1.0f).HSVToLinearRGB();
+}
+
+FLinearColor SFlareDropList::HandleColorSliderStartColor() const
+{
+	return FLinearColor(CurrentColorHSV.R, CurrentColorHSV.G, 0.0f, 1.0f).HSVToLinearRGB();
+}
+
+bool SFlareDropList::SetNewTargetColorHSV( const FLinearColor& NewValue, bool bForceUpdate /*= false*/ )
+{
+	CurrentColorHSV = NewValue;
+	CurrentColorRGB = NewValue.HSVToLinearRGB();
+	CurrentColorRGB.A = 1;
+
+	HeaderButton->GetContainer()->SetContent(SNew(SColorBlock).Color(CurrentColorRGB));
+
+	if (OnColorPickedCallback.IsBound() == true)
+	{
+		OnColorPickedCallback.Execute(CurrentColorRGB);
+	}
+
+
+	return true;
+}
+
+float SFlareDropList::HandleColorSpinBoxValue() const
+{
+	return CurrentColorHSV.B;
+}
+
+void SFlareDropList::HandleColorSpinBoxValueChanged( float NewValue)
+{
+	int32 ComponentIndex;
+
+
+	ComponentIndex = 2;
+
+	FLinearColor& NewColor = CurrentColorHSV;
+
+	if (FMath::IsNearlyEqual(NewValue, NewColor.B, KINDA_SMALL_NUMBER))
+	{
+		return;
+	}
+
+	NewColor.Component(ComponentIndex) = NewValue;
+
+	// true as second param ?
+	SetNewTargetColorHSV(NewColor);
+}
+
+EVisibility SFlareDropList::GetColorPickerVisibility() const
+{
+	if (!ColorPickerVisible)
+	{
+		return EVisibility::Collapsed;
+	}
+	else
+	{
+		return EVisibility::Visible;
+	}
+}
+
+BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
+TSharedRef<SWidget> SFlareDropList::MakeColorSlider() const
+{
+	return SNew(SOverlay)
+
+	+ SOverlay::Slot()
+		.Padding(FMargin(4.0f, 0.0f))
+		[
+			SNew(SSimpleGradient)
+				.EndColor(this, &SFlareDropList::HandleColorSliderEndColor)
+				.StartColor(this, &SFlareDropList::HandleColorSliderStartColor)
+				.Orientation(Orient_Vertical)
+				.UseSRGB(false)
+		]
+
+	+ SOverlay::Slot()
+		[
+			SNew(SSlider)
+				.IndentHandle(false)
+				.Orientation(Orient_Horizontal)
+				.Visibility(this, &SFlareDropList::GetColorPickerVisibility)
+				.SliderBarColor(FLinearColor::Transparent)
+				.Value(this, &SFlareDropList::HandleColorSpinBoxValue)
+				//.OnMouseCaptureBegin(this, &SColorPicker::HandleInteractiveChangeBegin)
+				//.OnMouseCaptureEnd(this, &SColorPicker::HandleInteractiveChangeEnd)
+				.OnValueChanged(this, &SFlareDropList::HandleColorSpinBoxValueChanged)
+		];
+}
+END_SLATE_FUNCTION_BUILD_OPTIMIZATION

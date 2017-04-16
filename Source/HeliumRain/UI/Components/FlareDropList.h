@@ -24,6 +24,7 @@ class SFlareDropList : public SCompoundWidget
 	{}
 
 	SLATE_EVENT(FFlareItemPicked, OnItemPicked)
+	SLATE_EVENT(FFlareColorPicked, OnColorPicked)
 
 	SLATE_ARGUMENT(int32, LineSize)
 	SLATE_ARGUMENT(float, HeaderWidth)
@@ -53,6 +54,9 @@ public:
 	/** Force the selected item */
 	void SetSelectedIndex(int32 ItemIndex);
 
+	/** Force the color */
+	void SetColor(FLinearColor Color);
+
 	/** Selected index */
 	int32 GetSelectedIndex() const;
 
@@ -77,13 +81,39 @@ protected:
 	bool                          HasColorWheel;
 	int32                         LineSize;
 	FFlareItemPicked              OnItemPickedCallback;
+	FFlareColorPicked             OnColorPickedCallback;
 	
 	// Slate data
 	TSharedPtr<SFlareButton>      HeaderButton;
 	TSharedPtr<SFlareItemArray>   ItemArray;
 	TSharedPtr<SColorWheel>       ColorWheel;
-	TSharedPtr<SSlider>           ColorSlider;
+	//TSharedPtr<SWidget>           ColorSlider;
 	TArray< TSharedRef<SWidget> > ContentArray;
 	
+	// Callback for value changes in the color spectrum picker.
+	void HandleColorSpectrumValueChanged( FLinearColor NewValue );
 
+	TSharedRef<SWidget> MakeColorSlider() const;
+
+
+	bool SetNewTargetColorHSV( const FLinearColor& NewValue, bool bForceUpdate = false );
+	FLinearColor HandleColorSliderEndColor() const;
+	FLinearColor HandleColorSliderStartColor() const;
+	float HandleColorSpinBoxValue() const;
+	void HandleColorSpinBoxValueChanged( float NewValue);
+	EVisibility GetColorPickerVisibility() const;
+
+
+	FLinearColor GetCurrentColor() const
+	{
+		return CurrentColorHSV;
+	}
+
+	/** The current color being picked in HSV */
+	FLinearColor CurrentColorHSV;
+
+	/** The current color being picked in RGB */
+	FLinearColor CurrentColorRGB;
+
+	bool ColorPickerVisible;
 };

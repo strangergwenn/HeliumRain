@@ -5,6 +5,7 @@
 
 
 DECLARE_DELEGATE_OneParam(FFlareItemPicked, int32)
+DECLARE_DELEGATE_OneParam(FFlareColorPicked, FLinearColor)
 
 
 class SFlareItemArray : public SCompoundWidget

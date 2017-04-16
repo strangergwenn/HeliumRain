@@ -40,6 +40,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(BasePaintColorPicker, SFlareDropList)
 			.OnItemPicked(this, &SFlareColorPanel::OnBasePaintColorPickedByIndex)
+			.OnColorPicked(this, &SFlareColorPanel::OnBasePaintColorPicked)
 			.LineSize(3)
 			.ItemWidth(1)
 			.ItemHeight(1)
@@ -51,6 +52,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(PaintColorPicker, SFlareDropList)
 			.OnItemPicked(this, &SFlareColorPanel::OnPaintColorPickedByIndex)
+			.OnColorPicked(this, &SFlareColorPanel::OnPaintColorPicked)
 			.LineSize(3)
 			.ItemWidth(1)
 			.ItemHeight(1)
@@ -62,6 +64,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(OverlayColorPicker, SFlareDropList)
 			.OnItemPicked(this, &SFlareColorPanel::OnOverlayColorPickedByIndex)
+			.OnColorPicked(this, &SFlareColorPanel::OnOverlayColorPicked)
 			.LineSize(3)
 			.ItemWidth(1)
 			.ItemHeight(1)
@@ -73,6 +76,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(LightColorPicker, SFlareDropList)
 			.OnItemPicked(this, &SFlareColorPanel::OnLightColorPickedByIndex)
+			.OnColorPicked(this, &SFlareColorPanel::OnLightColorPicked)
 			.LineSize(3)
 			.ItemWidth(1)
 			.ItemHeight(1)
@@ -101,6 +105,11 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 	OverlayColorPicker->SetSelectedIndex(0);
 	LightColorPicker->SetSelectedIndex(0);
 	PatternPicker->SetSelectedIndex(0);
+
+	BasePaintColorPicker->SetColor(FLinearColor(0,0,0));
+	PaintColorPicker->SetColor(FLinearColor(0,0,0));
+	OverlayColorPicker->SetColor(FLinearColor(0,0,0));
+	LightColorPicker->SetColor(FLinearColor(0,0,0));
 }
 
 
@@ -121,6 +130,11 @@ void SFlareColorPanel::Setup(FFlarePlayerSave& PlayerData)
 		OverlayColorPicker->SetSelectedIndex(CustomizationCatalog->FindColor(Company->GetOverlayColor()));
 		LightColorPicker->SetSelectedIndex(CustomizationCatalog->FindColor(Company->GetLightColor()));
 		PatternPicker->SetSelectedIndex(Company->GetPatternIndex());
+
+		BasePaintColorPicker->SetColor(Company->GetBasePaintColor());
+		PaintColorPicker->SetColor(Company->GetPaintColor());
+		OverlayColorPicker->SetColor(Company->GetOverlayColor());
+		LightColorPicker->SetColor(Company->GetLightColor());
 	}
 }
 
@@ -185,6 +199,47 @@ void SFlareColorPanel::OnLightColorPickedByIndex(int32 Index)
 		UFlareCustomizationCatalog* CustomizationCatalog = Game->GetCustomizationCatalog();
 		FLOGV("SFlareColorPanel::OnLightColorPicked %d", Index);
 		PC->SetLightColor(CustomizationCatalog->GetColorByIndex(Index));
+		PC->GetMenuPawn()->UpdateCustomization();
+	}
+}
+
+void SFlareColorPanel::OnBasePaintColorPicked(FLinearColor Color)
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	if (PC)
+	{
+		PC->SetBasePaintColor(Color);
+		PC->GetMenuPawn()->UpdateCustomization();
+	}
+}
+
+
+void SFlareColorPanel::OnPaintColorPicked(FLinearColor Color)
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	if (PC)
+	{
+		PC->SetPaintColor(Color);
+		PC->GetMenuPawn()->UpdateCustomization();
+	}
+}
+
+void SFlareColorPanel::OnOverlayColorPicked(FLinearColor Color)
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	if (PC)
+	{
+		PC->SetOverlayColor(Color);
+		PC->GetMenuPawn()->UpdateCustomization();
+	}
+}
+
+void SFlareColorPanel::OnLightColorPicked(FLinearColor Color)
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	if (PC)
+	{
+		PC->SetLightColor(Color);
 		PC->GetMenuPawn()->UpdateCustomization();
 	}
 }

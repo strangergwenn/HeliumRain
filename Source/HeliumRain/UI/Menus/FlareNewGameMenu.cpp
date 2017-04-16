@@ -215,6 +215,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 						.HeaderHeight(2.5)
 						.ItemWidth(2.5)
 						.ItemHeight(2.225)
+						.ShowColorWheel(false)
 						.OnItemPicked(this, &SFlareNewGameMenu::OnEmblemPicked)
 					]
 

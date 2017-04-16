@@ -45,6 +45,18 @@ public:
 	/** Chose a color for the lights */
 	void OnLightColorPickedByIndex(int32 Index);
 
+	/** Chose a color for the paint base */
+	void OnBasePaintColorPicked(FLinearColor Color);
+
+	/** Chose a color for the paint */
+	void OnPaintColorPicked(FLinearColor Color);
+
+	/** Chose a color for the overlay */
+	void OnOverlayColorPicked(FLinearColor Color);
+
+	/** Chose a color for the lights */
+	void OnLightColorPicked(FLinearColor Color);
+
 	/** Chose a pattern */
 	void OnPatternPicked(int32 Index);
 	
