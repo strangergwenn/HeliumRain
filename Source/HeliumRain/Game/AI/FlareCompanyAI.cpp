@@ -242,7 +242,14 @@ void UFlareCompanyAI::UpdateTrading()
 					Request.Operation = EFlareTradeRouteOperation::LoadOrBuy;
 					Request.Client = Ship;
 					Request.CargoLimit = AI_NERF_RATIO;
-					Request.MaxQuantity = FMath::Min(BestDeal.BuyQuantity, Ship->GetCargoBay()->GetFreeSpaceForResource(BestDeal.Resource, Ship->GetCompany()));
+					if(BestDeal.Resource == GetGame()->GetScenarioTools()->FleetSupply)
+					{
+						Request.MaxQuantity = FMath::Min(BestDeal.BuyQuantity, Ship->GetCargoBay()->GetFreeSpaceForResource(BestDeal.Resource, Ship->GetCompany()));
+					}
+					else
+					{
+						Request.MaxQuantity = Ship->GetCargoBay()->GetFreeSpaceForResource(BestDeal.Resource, Ship->GetCompany());
+					}
 
 					UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
 
@@ -2919,7 +2926,7 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 			const struct ResourceVariation* Variation = &ThisSectorVariation->ResourceVariations[Resource];
 
 
-			int32 Consumption = Sector->GetPeople()->GetBasePopulation() / 10;
+			int32 Consumption = WorldStats[Resource].Consumption / Company->GetKnownSectors().Num();
 			//FLOGV("%s comsumption = %d", *Resource->Name.ToString(), Consumption);
 
 			float ReserveStock =  Variation->MaintenanceMaxStock;
@@ -3233,7 +3240,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					Variation->HighPriority = true;
 				}
 
-				int32 Flow = Factory->GetInputResourceQuantity(ResourceIndex) / ProductionDuration;
+				int32 Flow = FMath::CeilToInt(float(Factory->GetInputResourceQuantity(ResourceIndex)) / float(ProductionDuration));
 
 				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
 
@@ -3305,7 +3312,10 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					ProductionDuration = 10;
 				}
 
-				int32 Flow = Factory->GetOutputResourceQuantity(ResourceIndex) / ProductionDuration;
+
+
+				int32 Flow = FMath::CeilToInt(float(Factory->GetOutputResourceQuantity(ResourceIndex)) / float(ProductionDuration));
+
 
 				if (Flow == 0)
 				{
