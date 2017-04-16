@@ -30,6 +30,7 @@
 //#define DEBUG_AI_WAR_MILITARY_MOVEMENT
 //#define DEBUG_AI_BATTLE_STATES
 //#define DEBUG_AI_BUDGET
+#define LOCTEXT_NAMESPACE "FlareCompanyAI"
 
 /*----------------------------------------------------
 	Public API
@@ -1575,7 +1576,60 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 			if(SentShips > 0 && TravelDuration > 1)
 			{
 				Game->GetQuestManager()->GetQuestGenerator()->GenerateAttackQuests(Company, SentCombatPoints, Target, TravelDuration);
+
+				UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+				if(PlayerCompany->IsTechnologyUnlocked("early-warning") &&
+						Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+				{
+					// Check if the sector contain player ships or stations
+					bool Safe = true;
+					for(UFlareSimulatedSpacecraft* Candidate : Target.Sector->GetSectorSpacecrafts())
+					{
+						if(Candidate->GetCompany() == PlayerCompany)
+						{
+							Safe = false;
+							break;
+						}
+
+					}
+					if(!Safe)
+					{
+						FFlareMenuParameterData Data;
+						Data.Sector = Target.Sector;
+
+						if(GetGame()->GetPC()->GetCompany()->IsTechnologyUnlocked("advanced-radar"))
+						{
+
+							GetGame()->GetPC()->Notify(LOCTEXT("AIStartAttack", "Incoming attack"),
+								FText::Format(LOCTEXT("AIStartAttackFormat", "Your current sector {0} will be attacked in {1} days by {2} with a combat value of {3}."),
+									Target.Sector->GetSectorName(),
+									FText::AsNumber(TravelDuration - 1),
+									Company->GetCompanyName(),
+									SentCombatPoints),
+								FName("travel-raid"),
+								EFlareNotification::NT_Military,
+								false,
+								EFlareMenu::MENU_Sector,
+								Data);
+						}
+						else
+						{
+							GetGame()->GetPC()->Notify(LOCTEXT("AIStartAttack", "Incoming attack"),
+								FText::Format(LOCTEXT("AIStartAttackFormatNoRadar", "Your current sector {0} will be attacked in {1} days by {2}."),
+									Target.Sector->GetSectorName(),
+									FText::AsNumber(TravelDuration - 1),
+									Company->GetCompanyName()),
+								FName("travel-raid"),
+								EFlareNotification::NT_Military,
+								false,
+								EFlareMenu::MENU_Sector,
+								Data);
+						}
+					}
+
+				}
 			}
+
 
 			if (Sector.CombatPoints == 0)
 			{
@@ -4054,3 +4108,4 @@ TMap<FFlareResourceDescription*, int32> UFlareCompanyAI::ComputeWorldResourceFlo
 
 	return WorldResourceFlow;
 }
+#undef LOCTEXT_NAMESPACE

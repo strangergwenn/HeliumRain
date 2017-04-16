@@ -966,6 +966,7 @@ void UFlareWorld::ProcessIncomingPlayerEnemy()
 		int32 LightShipCount = 0;
 		int32 HeavyShipCount = 0;
 		FText CompanyName;
+		int32 CombatValue = 0;
 
 		// Count incoming ships
 		for (int32 TravelIndex = 0; TravelIndex < GetTravels().Num(); TravelIndex++)
@@ -979,49 +980,79 @@ void UFlareWorld::ProcessIncomingPlayerEnemy()
 				CompanyName = Travel->GetFleet()->GetFleetCompany()->GetCompanyName();
 				LightShipCount += Travel->GetFleet()->GetMilitaryShipCountBySize(EFlarePartSize::S);
 				HeavyShipCount += Travel->GetFleet()->GetMilitaryShipCountBySize(EFlarePartSize::L);
+				CombatValue += Travel->GetFleet()->GetCombatPoints(true);
 			}
 		}
 
 		// Warn player
 		if (LightShipCount > 0 || HeavyShipCount > 0)
 		{
-			// Fighters
-			FText LightShipText;
-			if (LightShipCount > 0)
-			{
-				LightShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} light {1}"),
-					FText::AsNumber(LightShipCount),
-					(LightShipCount > 1) ? MultipleShips : SingleShip);
-			}
-
-			// Heavies
-			FText HeavyShipText;
-			if (HeavyShipCount > 0)
-			{
-				HeavyShipText = FText::Format(LOCTEXT("PlayerAttackedHeaviesFormat", "{0} heavy {1}"),
-					FText::AsNumber(HeavyShipCount),
-					(HeavyShipCount > 1) ? MultipleShips : SingleShip);
-
-				if (LightShipCount > 0)
-				{
-					HeavyShipText = FText::FromString(", " + HeavyShipText.ToString());
-				}
-			}
-
 			// Notify
 			FFlareMenuParameterData Data;
 			Data.Sector = PlayerSector;
-			GetGame()->GetPC()->Notify(LOCTEXT("PlayerAttackedSoon", "Incoming attack"),
-				FText::Format(LOCTEXT("PlayerAttackedSoonFormat", "Your current sector {0} will be attacked tomorrow by {1} with {2}{3}. Prepare for battle."),
-					PlayerSector->GetSectorName(),
-					CompanyName,
-					LightShipText,
-					HeavyShipText),
-				FName("travel-raid-soon"),
-				EFlareNotification::NT_Military,
-				false,
-				EFlareMenu::MENU_Sector,
-				Data);
+
+			if(GetGame()->GetPC()->GetCompany()->IsTechnologyUnlocked("advanced-radar"))
+			{
+
+				// Fighters
+				FText LightShipText;
+				if (LightShipCount > 0)
+				{
+					LightShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} light {1}"),
+						FText::AsNumber(LightShipCount),
+						(LightShipCount > 1) ? MultipleShips : SingleShip);
+				}
+
+				// Heavies
+				FText HeavyShipText;
+				if (HeavyShipCount > 0)
+				{
+					HeavyShipText = FText::Format(LOCTEXT("PlayerAttackedHeaviesFormat", "{0} heavy {1}"),
+						FText::AsNumber(HeavyShipCount),
+						(HeavyShipCount > 1) ? MultipleShips : SingleShip);
+
+					if (LightShipCount > 0)
+					{
+						HeavyShipText = FText::FromString(", " + HeavyShipText.ToString());
+					}
+				}
+
+				FText ShipsText = FText::Format(LOCTEXT("PlayerAttackedSoonShipsFormat","{0}{1}"),
+												LightShipText,
+												HeavyShipText);
+
+				GetGame()->GetPC()->Notify(LOCTEXT("PlayerAttackedSoon", "Incoming attack"),
+					FText::Format(LOCTEXT("PlayerAttackedSoonFormat", "Your current sector {0} will be attacked tomorrow by {1} with {2} (Combat value: {3}). Prepare for battle."),
+						PlayerSector->GetSectorName(),
+						CompanyName,
+						ShipsText,
+						CombatValue),
+					FName("travel-raid-soon"),
+					EFlareNotification::NT_Military,
+					false,
+					EFlareMenu::MENU_Sector,
+					Data);
+			}
+			else
+			{
+				// Unknown
+				int32 UnknownShipCount = HeavyShipCount + LightShipCount;
+				FText UnknownShipText = FText::Format(LOCTEXT("PlayerAttackedUnknownFormat", "{0} {1}"),
+					FText::AsNumber(UnknownShipCount),
+					(UnknownShipCount > 1) ? MultipleShips : SingleShip);
+
+
+				GetGame()->GetPC()->Notify(LOCTEXT("PlayerAttackedSoon", "Incoming attack"),
+					FText::Format(LOCTEXT("PlayerAttackedSoonNoRadarFormat", "Your current sector {0} will be attacked tomorrow by {1} with {2}. Prepare for battle."),
+						PlayerSector->GetSectorName(),
+						CompanyName,
+						UnknownShipText),
+					FName("travel-raid-soon"),
+					EFlareNotification::NT_Military,
+					false,
+					EFlareMenu::MENU_Sector,
+					Data);
+			}
 		}
 	}
 }
