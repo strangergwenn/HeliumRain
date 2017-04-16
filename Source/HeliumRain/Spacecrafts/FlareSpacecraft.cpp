@@ -991,7 +991,7 @@ void AFlareSpacecraft::UpdateCustomization()
 		USpotLightComponent* Component = Cast<USpotLightComponent>(LightComponents[ComponentIndex]);
 		if (Component)
 		{
-			FLinearColor LightColor = GetGame()->GetCustomizationCatalog()->GetColor(Company->GetLightColorIndex());
+			FLinearColor LightColor = Company->GetLightColor();
 			LightColor = LightColor.Desaturate(0.5);
 			Component->SetLightColor(LightColor);
 		}
@@ -1013,7 +1013,7 @@ void AFlareSpacecraft::UpdateCustomization()
 				}
 				if (Company && ShipNameDecalMaterial)
 				{
-					FLinearColor BasePaintColor = GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
+					FLinearColor BasePaintColor = Company->GetPaintColor();
 					FLinearColor ShipNameColor = (BasePaintColor.GetLuminance() > 0.5) ? FLinearColor::Black : FLinearColor::White;
 					ShipNameDecalMaterial->SetVectorParameterValue("NameColor", ShipNameColor);
 					ShipNameDecalMaterial->SetTextureParameterValue("NameTexture", ShipNameTexture);

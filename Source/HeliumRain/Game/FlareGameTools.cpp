@@ -1576,6 +1576,11 @@ void UFlareGameTools::PrintCompanyList()
 	Helper
 ----------------------------------------------------*/
 
+FVector UFlareGameTools::ColorToVector(FLinearColor Color)
+{
+	return FVector(Color.R,Color.G,Color.B);
+}
+
 FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 {
 	if (Time < SECONDS_IN_MINUTE)

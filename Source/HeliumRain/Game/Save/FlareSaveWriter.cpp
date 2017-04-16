@@ -2,7 +2,7 @@
 #include "../../Flare.h"
 #include "../FlareSaveGame.h"
 #include "FlareSaveWriter.h"
-
+#include "Game/FlareGameTools.h"
 
 /*----------------------------------------------------
 	Constructor
@@ -168,10 +168,11 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompanyDescription(FFlareCompanyDe
 	JsonObject->SetStringField("Name", Data->Name.ToString());
 	JsonObject->SetStringField("ShortName", Data->ShortName.ToString());
 	JsonObject->SetStringField("Description", Data->Description.ToString());
-	JsonObject->SetStringField("CustomizationBasePaintColorIndex", FormatInt32(Data->CustomizationBasePaintColorIndex));
-	JsonObject->SetStringField("CustomizationPaintColorIndex", FormatInt32(Data->CustomizationPaintColorIndex));
-	JsonObject->SetStringField("CustomizationOverlayColorIndex", FormatInt32(Data->CustomizationOverlayColorIndex));
-	JsonObject->SetStringField("CustomizationLightColorIndex", FormatInt32(Data->CustomizationLightColorIndex));
+
+	JsonObject->SetStringField("CustomizationBasePaintColor", FormatVector(UFlareGameTools::ColorToVector(Data->CustomizationBasePaintColor)));
+	JsonObject->SetStringField("CustomizationPaintColor", FormatVector(UFlareGameTools::ColorToVector(Data->CustomizationPaintColor)));
+	JsonObject->SetStringField("CustomizationOverlayColor", FormatVector(UFlareGameTools::ColorToVector(Data->CustomizationOverlayColor)));
+	JsonObject->SetStringField("CustomizationLightColor", FormatVector(UFlareGameTools::ColorToVector(Data->CustomizationLightColor)));
 	JsonObject->SetStringField("CustomizationPatternIndex", FormatInt32(Data->CustomizationPatternIndex));
 
 	return JsonObject;

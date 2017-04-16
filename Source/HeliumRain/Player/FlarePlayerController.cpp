@@ -77,10 +77,10 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	PlayerShip = NULL;
 
 	// Default colors
-	CompanyData.CustomizationBasePaintColorIndex = 3;
-	CompanyData.CustomizationPaintColorIndex = 8;
-	CompanyData.CustomizationOverlayColorIndex = 4;
-	CompanyData.CustomizationLightColorIndex = 13;
+	CompanyData.CustomizationBasePaintColor = FLinearColor(0.147932,0.167765,0.185); //3
+	CompanyData.CustomizationPaintColor = FLinearColor(1.0,0.168576,0.01873); //8
+	CompanyData.CustomizationOverlayColor = FLinearColor(0.894444,0.892754,1.0); //4
+	CompanyData.CustomizationLightColor = FLinearColor(0.0,0.3,1.0); //13
 	CompanyData.CustomizationPatternIndex = 1;
 }
 
@@ -1226,9 +1226,9 @@ const FFlarePlayerObjectiveData* AFlarePlayerController::GetCurrentObjective() c
 	Customization
 ----------------------------------------------------*/
 
-void AFlarePlayerController::SetBasePaintColorIndex(int32 Index)
+void AFlarePlayerController::SetBasePaintColor(FLinearColor Color)
 {
-	CompanyData.CustomizationBasePaintColorIndex = Index;
+	CompanyData.CustomizationBasePaintColor = Color;
 
 	if (Company)
 	{
@@ -1236,9 +1236,9 @@ void AFlarePlayerController::SetBasePaintColorIndex(int32 Index)
 	}
 }
 
-void AFlarePlayerController::SetPaintColorIndex(int32 Index)
+void AFlarePlayerController::SetPaintColor(FLinearColor Color)
 {
-	CompanyData.CustomizationPaintColorIndex = Index;
+	CompanyData.CustomizationPaintColor = Color;
 
 	if (Company)
 	{
@@ -1246,9 +1246,9 @@ void AFlarePlayerController::SetPaintColorIndex(int32 Index)
 	}
 }
 
-void AFlarePlayerController::SetOverlayColorIndex(int32 Index)
+void AFlarePlayerController::SetOverlayColor(FLinearColor Color)
 {
-	CompanyData.CustomizationOverlayColorIndex = Index;
+	CompanyData.CustomizationOverlayColor = Color;
 
 	if (Company)
 	{
@@ -1256,9 +1256,9 @@ void AFlarePlayerController::SetOverlayColorIndex(int32 Index)
 	}
 }
 
-void AFlarePlayerController::SetLightColorIndex(int32 Index)
+void AFlarePlayerController::SetLightColor(FLinearColor Color)
 {
-	CompanyData.CustomizationLightColorIndex = Index;
+	CompanyData.CustomizationLightColor = Color;
 
 	if (Company)
 	{

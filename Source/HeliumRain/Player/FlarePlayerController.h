@@ -178,16 +178,16 @@ public:
 	----------------------------------------------------*/
 
 	/** Set the color of engine exhausts */
-	void SetBasePaintColorIndex(int32 Index);
+	void SetBasePaintColor(FLinearColor Color);
 
 	/** Set the color of ship paint */
-	void SetPaintColorIndex(int32 Index);
+	void SetPaintColor(FLinearColor Color);
 
 	/** Set the color of ship overlays */
-	void SetOverlayColorIndex(int32 Index);
+	void SetOverlayColor(FLinearColor Color);
 
 	/** Set the color of ship lights */
-	void SetLightColorIndex(int32 Index);
+	void SetLightColor(FLinearColor Color);
 
 	/** Set the pattern index for ship paint */
 	void SetPatternIndex(int32 Index);

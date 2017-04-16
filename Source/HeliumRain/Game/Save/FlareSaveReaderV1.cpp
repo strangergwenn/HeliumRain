@@ -3,7 +3,7 @@
 #include "../FlareSaveGame.h"
 #include "FlareSaveReaderV1.h"
 #include "FlareSaveWriter.h"
-
+#include "Game/FlareGameTools.h"
 
 /*----------------------------------------------------
 	Constructor
@@ -189,10 +189,17 @@ void UFlareSaveReaderV1::LoadCompanyDescription(const TSharedPtr<FJsonObject> Ob
 	LoadFText(Object, "Name", &Data->Name);
 	LoadFName(Object, "ShortName", &Data->ShortName);
 	LoadFText(Object, "Description", &Data->Description);
-	LoadInt32(Object, "CustomizationBasePaintColorIndex", &Data->CustomizationBasePaintColorIndex);
-	LoadInt32(Object, "CustomizationPaintColorIndex", &Data->CustomizationPaintColorIndex);
-	LoadInt32(Object, "CustomizationOverlayColorIndex", &Data->CustomizationOverlayColorIndex);
-	LoadInt32(Object, "CustomizationLightColorIndex", &Data->CustomizationLightColorIndex);
+
+	FVector Temp;
+	LoadVector(Object, "CustomizationBasePaintColor", &Temp);
+	Data->CustomizationBasePaintColor = FLinearColor(Temp);
+	LoadVector(Object, "CustomizationPaintColor", &Temp);
+	Data->CustomizationPaintColor = FLinearColor(Temp);
+	LoadVector(Object, "CustomizationOverlayColor", &Temp);
+	Data->CustomizationOverlayColor = FLinearColor(Temp);
+	LoadVector(Object, "CustomizationLightColor", &Temp);
+	Data->CustomizationLightColor = FLinearColor(Temp);
+
 	LoadInt32(Object, "CustomizationPatternIndex", &Data->CustomizationPatternIndex);
 }
 

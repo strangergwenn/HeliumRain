@@ -78,7 +78,7 @@ FLinearColor SFlareCompanyFlag::GetBasePaintColor() const
 {
 	if (PC && Company)
 	{
-		return PC->GetGame()->GetCustomizationCatalog()->GetColor(Company->GetBasePaintColorIndex());
+		return Company->GetBasePaintColor();
 	}
 	return FLinearColor::Black;
 }
@@ -87,7 +87,7 @@ FLinearColor SFlareCompanyFlag::GetPaintColor() const
 {
 	if (PC && Company)
 	{
-		return PC->GetGame()->GetCustomizationCatalog()->GetColor(Company->GetPaintColorIndex());
+		return Company->GetPaintColor();
 	}
 	return FLinearColor::Black;
 }
@@ -96,7 +96,7 @@ FLinearColor SFlareCompanyFlag::GetOverlayColor() const
 {
 	if (PC && Company)
 	{
-		return PC->GetGame()->GetCustomizationCatalog()->GetColor(Company->GetOverlayColorIndex());
+		return Company->GetOverlayColor();
 	}
 	return FLinearColor::Black;
 }

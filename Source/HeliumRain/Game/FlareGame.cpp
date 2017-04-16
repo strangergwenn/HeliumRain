@@ -396,10 +396,10 @@ void AFlareGame::ReadAllSaveSlots()
 				// Emblem material
 				SaveSlotInfo.Emblem = UMaterialInstanceDynamic::Create(BaseEmblemMaterial, GetWorld());
 				SaveSlotInfo.Emblem->SetTextureParameterValue("Emblem", GetCustomizationCatalog()->GetEmblem(Save->PlayerData.PlayerEmblemIndex));
-				SaveSlotInfo.Emblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(Desc->CustomizationBasePaintColorIndex));
-				SaveSlotInfo.Emblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(Desc->CustomizationPaintColorIndex));
-				SaveSlotInfo.Emblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(Desc->CustomizationOverlayColorIndex));
-				SaveSlotInfo.Emblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(Desc->CustomizationLightColorIndex));
+				SaveSlotInfo.Emblem->SetVectorParameterValue("BasePaintColor", Desc->CustomizationBasePaintColor);
+				SaveSlotInfo.Emblem->SetVectorParameterValue("PaintColor", Desc->CustomizationPaintColor);
+				SaveSlotInfo.Emblem->SetVectorParameterValue("OverlayColor", Desc->CustomizationOverlayColor);
+				SaveSlotInfo.Emblem->SetVectorParameterValue("GlowColor", Desc->CustomizationLightColor);
 
 				// Create the brush dynamically
 				SaveSlotInfo.EmblemBrush.SetResourceObject(SaveSlotInfo.Emblem);

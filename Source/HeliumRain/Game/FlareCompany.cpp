@@ -1138,10 +1138,10 @@ void UFlareCompany::CustomizeMaterial(UMaterialInstanceDynamic* Mat)
 
 	// Apply settings to the material instance
 	UFlareSpacecraftComponent::CustomizeMaterial(Mat, Game,
-		GetBasePaintColorIndex(),
-		GetPaintColorIndex(),
-		GetOverlayColorIndex(),
-		GetLightColorIndex(),
+		GetBasePaintColor(),
+		GetPaintColor(),
+		GetOverlayColor(),
+		GetLightColor(),
 		GetPatternIndex(),
 		CompanyDescription->Emblem);
 }
@@ -1156,10 +1156,10 @@ void UFlareCompany::SetupEmblem()
 
 	// Setup the material
 	CompanyEmblem->SetTextureParameterValue("Emblem", CompanyDescription->Emblem);
-	CompanyEmblem->SetVectorParameterValue("BasePaintColor", Catalog->GetColor(CompanyDescription->CustomizationBasePaintColorIndex));
-	CompanyEmblem->SetVectorParameterValue("PaintColor", Catalog->GetColor(CompanyDescription->CustomizationPaintColorIndex));
-	CompanyEmblem->SetVectorParameterValue("OverlayColor", Catalog->GetColor(CompanyDescription->CustomizationOverlayColorIndex));
-	CompanyEmblem->SetVectorParameterValue("GlowColor", Catalog->GetColor(CompanyDescription->CustomizationLightColorIndex));
+	CompanyEmblem->SetVectorParameterValue("BasePaintColor", CompanyDescription->CustomizationBasePaintColor);
+	CompanyEmblem->SetVectorParameterValue("PaintColor", CompanyDescription->CustomizationPaintColor);
+	CompanyEmblem->SetVectorParameterValue("OverlayColor", CompanyDescription->CustomizationOverlayColor);
+	CompanyEmblem->SetVectorParameterValue("GlowColor", CompanyDescription->CustomizationLightColor);
 
 	// Create the brush dynamically
 	CompanyEmblemBrush.ImageSize = EmblemSize;

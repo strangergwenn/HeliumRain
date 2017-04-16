@@ -252,6 +252,7 @@ public:
 	static const int64 SECONDS_IN_YEAR = DAYS_IN_YEAR * SECONDS_IN_DAY;
 	static const int64 START_YEAR = 0;
 
+	static FVector ColorToVector(FLinearColor Color);
 
 	static FString FormatTime(int64 Time, int Deep);
 

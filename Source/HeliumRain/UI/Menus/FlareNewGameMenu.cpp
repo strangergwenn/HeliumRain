@@ -374,10 +374,10 @@ void SFlareNewGameMenu::OnLaunch()
 		CompanyData.Name = CompanyNameData;
 		CompanyData.ShortName = CompanyIdentifierData;
 		CompanyData.Emblem = CustomizationCatalog->GetEmblem(EmblemIndex);
-		CompanyData.CustomizationBasePaintColorIndex = CurrentCompanyData->CustomizationBasePaintColorIndex;
-		CompanyData.CustomizationPaintColorIndex = CurrentCompanyData->CustomizationPaintColorIndex;
-		CompanyData.CustomizationOverlayColorIndex = CurrentCompanyData->CustomizationOverlayColorIndex;
-		CompanyData.CustomizationLightColorIndex = CurrentCompanyData->CustomizationLightColorIndex;
+		CompanyData.CustomizationBasePaintColor = CurrentCompanyData->CustomizationBasePaintColor;
+		CompanyData.CustomizationPaintColor = CurrentCompanyData->CustomizationPaintColor;
+		CompanyData.CustomizationOverlayColor = CurrentCompanyData->CustomizationOverlayColor;
+		CompanyData.CustomizationLightColor = CurrentCompanyData->CustomizationLightColor;
 		CompanyData.CustomizationPatternIndex = CurrentCompanyData->CustomizationPatternIndex;
 		
 		// Create game

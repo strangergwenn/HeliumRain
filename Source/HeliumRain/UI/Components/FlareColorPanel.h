@@ -34,16 +34,16 @@ public:
 	void SetupDefault();
 
 	/** Chose a color for the paint base */
-	void OnBasePaintColorPicked(int32 Index);
+	void OnBasePaintColorPickedByIndex(int32 Index);
 
 	/** Chose a color for the paint */
-	void OnPaintColorPicked(int32 Index);
+	void OnPaintColorPickedByIndex(int32 Index);
 
 	/** Chose a color for the overlay */
-	void OnOverlayColorPicked(int32 Index);
+	void OnOverlayColorPickedByIndex(int32 Index);
 
 	/** Chose a color for the lights */
-	void OnLightColorPicked(int32 Index);
+	void OnLightColorPickedByIndex(int32 Index);
 
 	/** Chose a pattern */
 	void OnPatternPicked(int32 Index);

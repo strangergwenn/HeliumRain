@@ -385,7 +385,7 @@ public:
 	virtual void UpdateCustomization();
 
 	/** Customize this material */
-	static void CustomizeMaterial(UMaterialInstanceDynamic* Mat, AFlareGame* Game, int32 BasePaint, int32 Paint, int32 Overlay, int32 Light, int32 Pattern, UTexture2D* Emblem);
+	static void CustomizeMaterial(UMaterialInstanceDynamic* Mat, AFlareGame* Game, FLinearColor BasePaint, FLinearColor Paint, FLinearColor Overlay, FLinearColor Light, int32 Pattern, UTexture2D* Emblem);
 	
 	/** Update light effect */
 	virtual void UpdateLight();

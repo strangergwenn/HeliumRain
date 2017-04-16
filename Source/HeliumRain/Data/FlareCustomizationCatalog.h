@@ -63,7 +63,9 @@ public:
 		return PlayerEmblems.Num();
 	}
 
-	FLinearColor GetColor(int32 Index) const;
+	FLinearColor GetColorByIndex(int32 Index) const;
+
+	int32 FindColor(FLinearColor Color) const;
 
 	UTexture2D* GetEmblem(int32 Index) const;
 

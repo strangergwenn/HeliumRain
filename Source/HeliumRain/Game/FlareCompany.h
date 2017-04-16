@@ -72,6 +72,22 @@ struct FFlareCompanyDescription
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 CustomizationLightColorIndex;
 
+	/** Base color in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FLinearColor CustomizationBasePaintColor;
+
+	/** Paint color in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FLinearColor CustomizationPaintColor;
+
+	/** Overlay color in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FLinearColor CustomizationOverlayColor;
+
+	/** Lights color in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FLinearColor CustomizationLightColor;
+
 	/** Pattern index in the customization catalog */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 CustomizationPatternIndex;
@@ -329,28 +345,28 @@ public:
 		return CompanyDescription->ShortName;
 	}
 
-	inline int32 GetBasePaintColorIndex() const
+	inline FLinearColor GetBasePaintColor() const
 	{
 		FCHECK(CompanyDescription);
-		return CompanyDescription->CustomizationBasePaintColorIndex;
+		return CompanyDescription->CustomizationBasePaintColor;
 	}
 
-	inline int32 GetPaintColorIndex() const
+	inline FLinearColor GetPaintColor() const
 	{
 		FCHECK(CompanyDescription);
-		return CompanyDescription->CustomizationPaintColorIndex;
+		return CompanyDescription->CustomizationPaintColor;
 	}
 
-	inline int32 GetOverlayColorIndex() const
+	inline FLinearColor GetOverlayColor() const
 	{
 		FCHECK(CompanyDescription);
-		return CompanyDescription->CustomizationOverlayColorIndex;
+		return CompanyDescription->CustomizationOverlayColor;
 	}
 
-	inline int32 GetLightColorIndex() const
+	inline FLinearColor GetLightColor() const
 	{
 		FCHECK(CompanyDescription);
-		return CompanyDescription->CustomizationLightColorIndex;
+		return CompanyDescription->CustomizationLightColor;
 	}
 
 	inline int32 GetPatternIndex() const

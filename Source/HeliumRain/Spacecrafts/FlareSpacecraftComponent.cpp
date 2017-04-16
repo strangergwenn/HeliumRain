@@ -341,10 +341,10 @@ void UFlareSpacecraftComponent::UpdateCustomization()
 			if (CurrentCompanyData)
 			{
 				CustomizeMaterial(ComponentMaterial, Game,
-					CurrentCompanyData->CustomizationBasePaintColorIndex,
-					CurrentCompanyData->CustomizationPaintColorIndex,
-					CurrentCompanyData->CustomizationOverlayColorIndex,
-					CurrentCompanyData->CustomizationLightColorIndex,
+					CurrentCompanyData->CustomizationBasePaintColor,
+					CurrentCompanyData->CustomizationPaintColor,
+					CurrentCompanyData->CustomizationOverlayColor,
+					CurrentCompanyData->CustomizationLightColor,
 					CurrentCompanyData->CustomizationPatternIndex,
 					CurrentCompanyData->Emblem);
 			}
@@ -352,21 +352,17 @@ void UFlareSpacecraftComponent::UpdateCustomization()
 	}
 }
 
-void UFlareSpacecraftComponent::CustomizeMaterial(UMaterialInstanceDynamic* Mat, AFlareGame* Game, int32 BasePaint, int32 Paint, int32 Overlay, int32 Light, int32 Pattern, UTexture2D* Emblem)
+void UFlareSpacecraftComponent::CustomizeMaterial(UMaterialInstanceDynamic* Mat, AFlareGame* Game, FLinearColor BasePaint, FLinearColor Paint, FLinearColor Overlay, FLinearColor Light, int32 Pattern, UTexture2D* Emblem)
 {
 	// Get data from storage
-	FLinearColor BasePaintColor = Game->GetCustomizationCatalog()->GetColor(BasePaint);
-	FLinearColor PaintColor = Game->GetCustomizationCatalog()->GetColor(Paint);
-	FLinearColor OverlayColor = Game->GetCustomizationCatalog()->GetColor(Overlay);
-	FLinearColor LightColor = Game->GetCustomizationCatalog()->GetColor(Light);
 	UTexture2D* PatternTexture = Game->GetCustomizationCatalog()->GetPattern(Pattern);
 
 	// Apply settings to the material instance
-	Mat->SetVectorParameterValue("BasePaintColor", BasePaintColor);
-	Mat->SetVectorParameterValue("PaintColor", PaintColor);
-	Mat->SetVectorParameterValue("OverlayColor", OverlayColor);
-	Mat->SetVectorParameterValue("LightColor", LightColor);
-	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(LightColor));
+	Mat->SetVectorParameterValue("BasePaintColor", BasePaint);
+	Mat->SetVectorParameterValue("PaintColor", Paint);
+	Mat->SetVectorParameterValue("OverlayColor", Overlay);
+	Mat->SetVectorParameterValue("LightColor", Light);
+	Mat->SetVectorParameterValue("GlowColor", NormalizeColor(Light));
 	Mat->SetTextureParameterValue("PaintPattern", PatternTexture);
 	Mat->SetTextureParameterValue("Emblem", Emblem);
 	Mat->SetScalarParameterValue("IsPainted", 1);

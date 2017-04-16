@@ -1,7 +1,7 @@
 
 #include "../Flare.h"
 #include "FlareCustomizationCatalog.h"
-
+#include "../Game/FlareGameTools.h"
 
 /*----------------------------------------------------
 	Constructor
@@ -17,7 +17,7 @@ UFlareCustomizationCatalog::UFlareCustomizationCatalog(const class FObjectInitia
 	Get & Set
 ----------------------------------------------------*/
 
-FLinearColor UFlareCustomizationCatalog::GetColor(int32 Index) const
+FLinearColor UFlareCustomizationCatalog::GetColorByIndex(int32 Index) const
 {
 	FLinearColor Result = FLinearColor();
 
@@ -28,6 +28,30 @@ FLinearColor UFlareCustomizationCatalog::GetColor(int32 Index) const
 
 	return Result;
 }
+
+int32 UFlareCustomizationCatalog::FindColor(FLinearColor Color) const
+{
+	float MinDistance;
+	int32 MinDistanceIndex = -1;
+	FVector SearchVector = UFlareGameTools::ColorToVector(Color);
+
+	int32 Index = 0;
+	for(const FLinearColor& PaintColor : PaintColors)
+	{
+		FVector CandidateVector = UFlareGameTools::ColorToVector(PaintColor);
+
+		float Distance = (CandidateVector-SearchVector).SizeSquared();
+		if(MinDistanceIndex < 0 || Distance < MinDistance)
+		{
+			MinDistanceIndex =  Index;
+			MinDistance = Distance;
+		}
+
+		Index++;
+	}
+	return MinDistanceIndex;
+}
+
 
 UTexture2D* UFlareCustomizationCatalog::GetEmblem(int32 Index) const
 {
