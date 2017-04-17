@@ -1127,7 +1127,8 @@ void AFlareHUD::DrawHUDInternal()
 	}
 
 	// Draw bomb marker
-	if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
+	if (WeaponType == EFlareWeaponGroupType::WG_BOMB
+		&& PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons[0]->GetDescription()->WeaponCharacteristics.BombCharacteristics.MaxBurnDuration == 0)
 	{
 		float AmmoVelocity = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup()->Weapons[0]->GetAmmoVelocity();
 		FRotator ShipAttitude = PlayerShip->GetActorRotation();
@@ -1313,15 +1314,18 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 				float Range = 100 * WeaponGroup->Weapons[0]->GetDescription()->WeaponCharacteristics.GunCharacteristics.AmmoRange;
 				float InterceptTime = Spacecraft->GetAimPosition(PlayerShip, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 
-
 				if (InterceptTime > 0 && ProjectWorldLocationToCockpit(AmmoIntersectionLocation, HelperScreenPosition) && (Range == 0 || Distance < Range))
 				{
-					// Draw
 					FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Spacecraft);
-					DrawHUDIcon(HelperScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
-					if(ScreenPositionValid)
+
+					// Draw aiming helper for ships
+					if (!Spacecraft->IsStation())
 					{
-						FlareDrawLine(ScreenPosition, HelperScreenPosition, HUDAimHelperColor);
+						DrawHUDIcon(HelperScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
+						if (ScreenPositionValid)
+						{
+							FlareDrawLine(ScreenPosition, HelperScreenPosition, HUDAimHelperColor);
+						}
 					}
 
 					// Snip helpers
@@ -1337,48 +1341,12 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 
 						DrawHUDIcon(AimOffset + CurrentViewportSize / 2, IconSize *0.75 , NoseIcon, AimOffsetColor, true);
 						FlareDrawLine(CurrentViewportSize / 2, AimOffset + CurrentViewportSize / 2, AimOffsetColor);
-
-						// Draw component outline
-						/*TArray<UActorComponent*> Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
-						for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
-						{
-							UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
-
-							if (!Component->GetDescription() || Component->IsBroken() )
-							{
-								continue;
-							}
-
-							if (Component->GetDescription()->Type != EFlarePartType::OrbitalEngine &&
-									Component->GetDescription()->Type != EFlarePartType::RCS &&
-									Component->GetDescription()->Type != EFlarePartType::Weapon)
-							{
-								continue;
-							}
-
-							FVector2D ComponentScreenPosition;
-
-							FVector ComponentLocation;
-							float ComponentRadius;
-							Component->GetBoundingSphere(ComponentLocation, ComponentRadius);
-							if (!ProjectWorldLocationToCockpit(Component->GetComponentLocation(), ComponentScreenPosition))
-							{
-								continue;
-							}
-
-							FLinearColor AimComponentColor = Color;
-							AimComponentColor.A = ZoomAlpha;
-
-							DrawHUDIcon(ComponentScreenPosition, IconSize , HUDNoseIcon, AimComponentColor, true);
-						}*/
 					}
-
-
-					// Bomber UI
+					
+					// Bomber UI (time display)
 					EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
 					if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
 					{
-						// Time display
 						FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");
 						FVector2D TimePosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(42,0);
 						FlareDrawText(TimeText, TimePosition, HUDAimHelperColor);
