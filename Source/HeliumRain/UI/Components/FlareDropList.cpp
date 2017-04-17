@@ -1,7 +1,6 @@
 
 #include "../../Flare.h"
 #include "FlareDropList.h"
-#include "../Widgets/SSimpleGradient.h"
 
 
 /*----------------------------------------------------
@@ -134,12 +133,10 @@ void SFlareDropList::OnHeaderClicked()
 	{
 		ColorWheel->SetVisibility(IsDropped ? EVisibility::Collapsed : EVisibility::Visible);
 		ColorPickerVisible = !IsDropped;
-		//ColorSlider->SetVisibility(IsDropped ? EVisibility::Collapsed : EVisibility::Visible);
 	}
 	else
 	{
 		ColorWheel->SetVisibility(EVisibility::Collapsed);
-		//ColorSlider->SetVisibility(EVisibility::Collapsed);
 	}
 	IsDropped = !IsDropped;
 }
@@ -157,7 +154,6 @@ void SFlareDropList::OnItemPicked(int32 ItemIndex)
 	ItemArray->SetVisibility(EVisibility::Collapsed);
 	ColorWheel->SetVisibility(EVisibility::Collapsed);
 	ColorPickerVisible = false;
-	//ColorSlider->SetVisibility(EVisibility::Collapsed);
 }
 
 FLinearColor SFlareDropList::HandleColorSliderEndColor() const

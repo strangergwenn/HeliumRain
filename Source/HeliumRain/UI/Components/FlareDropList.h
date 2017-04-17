@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 #include "../Components/FlareItemArray.h"
 #include "Runtime/Slate/Public/Widgets/Colors/SColorWheel.h"
+#include "SSimpleGradient.h"
 
 
 DECLARE_DELEGATE_OneParam(FFlareItemPicked, int32)
@@ -87,7 +88,6 @@ protected:
 	TSharedPtr<SFlareButton>      HeaderButton;
 	TSharedPtr<SFlareItemArray>   ItemArray;
 	TSharedPtr<SColorWheel>       ColorWheel;
-	//TSharedPtr<SWidget>           ColorSlider;
 	TArray< TSharedRef<SWidget> > ContentArray;
 	
 	// Callback for value changes in the color spectrum picker.

@@ -26,7 +26,8 @@ public class HeliumRain : ModuleRules
 				"Slate",
 				"SlateCore",
 				"HeliumRainLoadingScreen",
-			}
+                "AppFramework"
+            }
         );
 
         DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
