@@ -1298,10 +1298,8 @@ void AFlareSpacecraft::NextWeapon()
 		CurrentIndex = FMath::Clamp(CurrentIndex, 0, WeaponSystems->GetWeaponGroupCount() - 1);
 		FLOGV("AFlareSpacecraft::NextWeapon : %d", CurrentIndex);
 
-		WeaponSystems->ActivateWeaponGroup(CurrentIndex);
+		ActivateWeaponGroupByIndex(CurrentIndex);
 	}
-
-	GetPC()->SetSelectingWeapon();
 }
 
 void AFlareSpacecraft::PreviousWeapon()
@@ -1317,15 +1315,13 @@ void AFlareSpacecraft::PreviousWeapon()
 
 		if (CurrentIndex >= 0)
 		{
-			WeaponSystems->ActivateWeaponGroup(CurrentIndex);
+			ActivateWeaponGroupByIndex(CurrentIndex);
 		}
 		else
 		{
-			WeaponSystems->DeactivateWeapons();
+			DeactivateWeapon();
 		}
 	}
-
-	GetPC()->SetSelectingWeapon();
 }
 
 void AFlareSpacecraft::NextTarget()
