@@ -23,8 +23,8 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 	Game = MenuManager->GetPC()->GetGame();
 
 	// Game starts
-	ScenarioList.Add(MakeShareable(new FString(TEXT("Transport"))));
-	ScenarioList.Add(MakeShareable(new FString(TEXT("Defense"))));
+	//ScenarioList.Add(MakeShareable(new FString(TEXT("Transport"))));
+	//ScenarioList.Add(MakeShareable(new FString(TEXT("Defense"))));
 	//ScenarioList.Add(MakeShareable(new FString(TEXT("Debug"))));
 
 	// Color
@@ -74,7 +74,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 				]
 
 				// Scenario
-				+ SVerticalBox::Slot()
+				/*+ SVerticalBox::Slot()
 				.Padding(Theme.ContentPadding)
 				.AutoHeight()
 				.HAlign(HAlign_Fill)
@@ -115,7 +115,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 							]
 						]
 					]
-				]
+				]*/
 
 				// Company name
 				+ SVerticalBox::Slot()
@@ -366,7 +366,7 @@ void SFlareNewGameMenu::OnLaunch()
 		// Get data
 		FText CompanyNameData = FText::FromString(CompanyName->GetText().ToString().Left(25)); // FString needed here
 		FName CompanyIdentifierData = FName(*CompanyIdentifier->GetText().ToString().ToUpper().Left(3)); // FString needed here
-		int32 ScenarioIndex = ScenarioList.Find(ScenarioSelector->GetSelectedItem());
+		int32 ScenarioIndex = 0;// ScenarioList.Find(ScenarioSelector->GetSelectedItem());
 		int32 EmblemIndex = EmblemPicker->GetSelectedIndex();
 
 		FLOGV("SFlareNewGameMenu::OnLaunch '%s', ID '%s', ScenarioIndex %d", *CompanyNameData.ToString(), *CompanyIdentifierData.ToString(), ScenarioIndex);
