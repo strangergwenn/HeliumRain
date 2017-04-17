@@ -66,6 +66,9 @@ public:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Update the objective state */
+	void UpdateObjectiveInfo();
+
 	/** Update the construction state */
 	void UpdateConstructionInfo();
 

@@ -31,7 +31,7 @@ FLinearColor UFlareCustomizationCatalog::GetColorByIndex(int32 Index) const
 
 int32 UFlareCustomizationCatalog::FindColor(FLinearColor Color) const
 {
-	float MinDistance;
+	float MinDistance = 0;
 	int32 MinDistanceIndex = -1;
 	FVector SearchVector = UFlareGameTools::ColorToVector(Color);
 

@@ -480,6 +480,7 @@ void SFlareSpacecraftInfo::Show()
 
 	// Update message box
 	MessageBox->ClearChildren();
+	UpdateObjectiveInfo();
 	UpdateConstructionInfo();
 	UpdateCaptureList();
 
@@ -502,11 +503,20 @@ void SFlareSpacecraftInfo::Hide()
 	Callbacks
 ----------------------------------------------------*/
 
+void SFlareSpacecraftInfo::UpdateObjectiveInfo()
+{
+	// TODO #633 : "if this spacecraft is a target of the current objective"
+	/*if (TargetSpacecraft && PC->GetCurrentObjective() ... )
+	{
+		AddMessage(PC->GetCurrentObjective()->Name, NULL, 0);
+	}*/
+}
+
 void SFlareSpacecraftInfo::UpdateConstructionInfo()
 {
 	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel() && TargetSpacecraft->IsStation() && TargetSpacecraft->IsUnderConstruction())
 	{
-		FText ConstructionInfo = LOCTEXT("ConstructionInfo", "This station is under construction and needs resources to be completed. Open details to see the current construction status.");
+		FText ConstructionInfo = LOCTEXT("ConstructionInfo", "This station is under construction and needs resources to be completed.");
 		AddMessage(ConstructionInfo, NULL, 0);
 	}
 }
@@ -543,7 +553,7 @@ void SFlareSpacecraftInfo::AddMessage(FText Message, UFlareCompany* CaptureCompa
 	.Padding(Theme.SmallContentPadding)
 	[
 		SNew(SBorder)
-		.BorderImage(&Theme.BackgroundBrush)
+		.BorderImage(&Theme.NearInvisibleBrush)
 		.Padding(Theme.SmallContentPadding)
 		[
 			SAssignNew(Temp, SHorizontalBox)
@@ -776,6 +786,11 @@ FSlateColor SFlareSpacecraftInfo::GetTextColor() const
 		{
 			return Theme.ObjectiveColor;
 		}
+		// TODO #633 : "if this spacecraft is a target of the current objective"
+		/*else if ((PC->GetCurrentObjective() ... )
+		{
+			return Theme.ObjectiveColor;
+		}*/
 		else if (TargetSpacecraft->GetCurrentFleet() == PC->GetPlayerFleet())
 		{
 			return Theme.FriendlyColor;

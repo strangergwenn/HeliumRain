@@ -166,11 +166,21 @@ FSlateColor SFlareSectorButton::GetMainColor() const
 
 FSlateColor SFlareSectorButton::GetBorderColor() const
 {
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
 	FLinearColor Color = FLinearColor::White;
 
 	if (Sector)
 	{
-		Color = Sector->GetSectorFriendlynessColor(PlayerCompany);
+		// TODO #633 : "if a target of the current objective is in this sector"
+		/*if (MenuManager->GetPC()->GetCurrentObjective() ...)
+		{
+			return Theme.ObjectiveColor;
+		}
+		else*/
+		{
+			Color = Sector->GetSectorFriendlynessColor(PlayerCompany);
+		}
 	}
 
 	Color = (IsHovered() ? Color : Color.Desaturate(0.1));
