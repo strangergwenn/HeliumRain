@@ -691,7 +691,7 @@ FText SFlareSectorMenu::GetRefillText() const
 
 	if (IsRefillDisabled())
 	{
-		if (NeededFS > 0)
+		if (TotalNeededFS > 0)
 		{
 			// Refill needed
 			if(TargetSector->IsInDangerousBattle(MenuManager->GetPC()->GetCompany()))
@@ -706,8 +706,9 @@ FText SFlareSectorMenu::GetRefillText() const
 				return LOCTEXT("CantRefillNoMoney", "Can't refill here : not enough money !");
 			}
 		}
-		else if (TotalNeededFS > 0)
+		else if (SectorHelper::HasShipRefilling(TargetSector, MenuManager->GetPC()->GetCompany()))
 		{
+
 			// Refill in progress
 			return LOCTEXT("RefillInProgress", "Refill in progress...");
 		}
@@ -773,7 +774,7 @@ FText SFlareSectorMenu::GetRepairText() const
 
 	if (IsRepairDisabled())
 	{
-		if (NeededFS > 0)
+		if (TotalNeededFS > 0)
 		{
 			// Repair needed
 			if(TargetSector->IsInDangerousBattle(MenuManager->GetPC()->GetCompany()))
@@ -788,7 +789,7 @@ FText SFlareSectorMenu::GetRepairText() const
 				return LOCTEXT("CantRepairNoMoney", "Can't repair here : not enough money !");
 			}
 		}
-		else if (TotalNeededFS > 0)
+		else if (SectorHelper::HasShipRepairing(TargetSector, MenuManager->GetPC()->GetCompany()))
 		{
 			// Repair in progress
 			return LOCTEXT("RepairInProgress", "Repair in progress...");

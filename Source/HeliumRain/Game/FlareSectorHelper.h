@@ -22,10 +22,13 @@ struct SectorHelper
 
 	static float GetComponentMaxRepairRatio(FFlareSpacecraftComponentDescription* ComponentDescription);
 
+	static bool HasShipRefilling(UFlareSimulatedSector* TargetSector, UFlareCompany* Company);
+
+	static bool HasShipRepairing(UFlareSimulatedSector* TargetSector, UFlareCompany* Company);
+
 	static void GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration);
 
 	static void GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration);
-
 
 	static void RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Company);
 

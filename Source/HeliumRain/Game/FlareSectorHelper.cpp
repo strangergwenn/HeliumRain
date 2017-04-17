@@ -287,6 +287,40 @@ float SectorHelper::GetComponentMaxRepairRatio(FFlareSpacecraftComponentDescript
 	}
 }
 
+bool SectorHelper::HasShipRefilling(UFlareSimulatedSector* TargetSector, UFlareCompany* Company)
+{
+	for (UFlareSimulatedSpacecraft* Spacecraft : TargetSector->GetSectorSpacecrafts())
+	{
+		if (Company != Spacecraft->GetCompany()) {
+			continue;
+		}
+
+		if (Spacecraft->GetRefillStock() > 0 && Spacecraft->NeedRefill())
+		{
+			return true;
+		}
+
+	}
+	return false;
+}
+
+bool SectorHelper::HasShipRepairing(UFlareSimulatedSector* TargetSector, UFlareCompany* Company)
+{
+	for (UFlareSimulatedSpacecraft* Spacecraft : TargetSector->GetSectorSpacecrafts())
+	{
+		if (Company != Spacecraft->GetCompany()) {
+			continue;
+		}
+
+		if (Spacecraft->GetRepairStock() > 0 && Spacecraft->GetDamageSystem()->GetGlobalHealth() < 1.f)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
 void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration)
 {
 	float PreciseCurrentNeededFleetSupply = 0;
@@ -337,6 +371,16 @@ void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 	}
 
 	// Round to ceil
+
+	if(PreciseCurrentNeededFleetSupply < 0.001)
+	{
+		PreciseCurrentNeededFleetSupply = 0;
+	}
+
+	if(PreciseTotalNeededFleetSupply < 0.001)
+	{
+		PreciseTotalNeededFleetSupply = 0;
+	}
 	CurrentNeededFleetSupply = FMath::CeilToInt(PreciseCurrentNeededFleetSupply);
 	TotalNeededFleetSupply = FMath::CeilToInt(PreciseTotalNeededFleetSupply);
 }
