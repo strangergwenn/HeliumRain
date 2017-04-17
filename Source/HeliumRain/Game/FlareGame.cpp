@@ -318,6 +318,32 @@ void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatricula
 	ShipToScrap->GetCompany()->DestroySpacecraft(ShipToScrap);
 }
 
+float AFlareGame::GetAINerfRatio()
+{
+	if(AINerfRatioCacheDate != GetGameWorld()->GetDate())
+	{
+		// Compute ratio
+		float PlayerCompanyValue = GetPC()->GetCompany()->GetCompanyValue().TotalValue;
+		float MaxCompanyValue = 0;
+		for(UFlareCompany* Company: GetGameWorld()->GetCompanies())
+		{
+			float CompanyValue = Company->GetCompanyValue().TotalValue;
+			if(MaxCompanyValue < CompanyValue)
+			{
+				MaxCompanyValue = CompanyValue;
+			}
+		}
+		float ValueProportion = PlayerCompanyValue / MaxCompanyValue;
+
+
+		AINerfRatio = 1.f - FMath::Clamp( 0.5f + ValueProportion / 2.f,0.5f, 1.f);
+		AINerfRatioCacheDate = GetGameWorld()->GetDate();
+	}
+
+	return AINerfRatio;
+}
+
+
 void AFlareGame::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

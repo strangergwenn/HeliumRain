@@ -3,9 +3,6 @@
 
 #include "GameFramework/GameMode.h"
 
-// TODO, make it depend on player CA
-#define AI_NERF_RATIO 0.5
-
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareBomb.h"
 #include "../Player/FlareMenuPawn.h"
@@ -86,6 +83,8 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	virtual void Scrap(FName ShipImmatriculation, FName TargetStationImmatriculation);
+
+	virtual float GetAINerfRatio();
 
 	/*----------------------------------------------------
 		Save slots
@@ -221,6 +220,9 @@ protected:
 	UPROPERTY()
 	APostProcessVolume*                        PostProcessVolume;
 	
+
+	float                                      AINerfRatio;
+	int64                                      AINerfRatioCacheDate;
 
 	/*----------------------------------------------------
 		Catalogs

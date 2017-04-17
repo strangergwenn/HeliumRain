@@ -735,7 +735,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 				continue;
 			}
 
-			if (Slot.Quantity <= CandidateStation->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO)
+			if (Slot.Quantity <= CandidateStation->GetCargoBay()->GetSlotCapacity() * (Parent->GetGame()->GetAINerfRatio()))
 			{
 				// Not enought resources
 				continue;
@@ -783,7 +783,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 		}
 
 
-		int32 ExcessResourceQuantity = Slot.Quantity - Station->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO;
+		int32 ExcessResourceQuantity = Slot.Quantity - Station->GetCargoBay()->GetSlotCapacity() * (Parent->GetGame()->GetAINerfRatio());
 
 		if (ExcessResourceQuantity <= 0)
 		{
@@ -800,7 +800,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 		if (ExcessResourceQuantity > BestResourceExcessQuantity)
 		{
 			BestResourceExcessQuantity = ExcessResourceQuantity;
-			BestResourceQuantity = FMath::Min(Slot.Quantity, int32(Station->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO));
+			BestResourceQuantity = FMath::Min(Slot.Quantity, int32(Station->GetCargoBay()->GetSlotCapacity() * (1.f-Parent->GetGame()->GetAINerfRatio())));
 			BestResource = Slot.Resource;
 		}
 	}
@@ -909,7 +909,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 				continue;
 			}
 
-			if (Slot.Quantity >= CandidateStation->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO)
+			if (Slot.Quantity >= CandidateStation->GetCargoBay()->GetSlotCapacity() * (1.f-Parent->GetGame()->GetAINerfRatio()))
 			{
 				// Enought resources
 				continue;
@@ -957,7 +957,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 		}
 
 
-		int32 MissingResourceQuantity = Station->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO - Slot.Quantity;
+		int32 MissingResourceQuantity = Station->GetCargoBay()->GetSlotCapacity() * (1.f-Parent->GetGame()->GetAINerfRatio()) - Slot.Quantity;
 
 		if (MissingResourceQuantity <= 0)
 		{
@@ -974,7 +974,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 		if (MissingResourceQuantity > BestResourceQuantity)
 		{
 			BestResourceMissingQuantity = MissingResourceQuantity;
-			BestResourceQuantity = FMath::Min(Station->GetCargoBay()->GetSlotCapacity() - Slot.Quantity, int32(Station->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO));
+			BestResourceQuantity = FMath::Min(Station->GetCargoBay()->GetSlotCapacity() - Slot.Quantity, int32(Station->GetCargoBay()->GetSlotCapacity() * (1.f-Parent->GetGame()->GetAINerfRatio())));
 			BestResource = Slot.Resource;
 		}
 
@@ -1088,7 +1088,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 				continue;
 			}
 
-			int32 AvailableResourceQuantity = Slot.Quantity - CandidateStation->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO;
+			int32 AvailableResourceQuantity = Slot.Quantity - CandidateStation->GetCargoBay()->GetSlotCapacity() * (Parent->GetGame()->GetAINerfRatio());
 
 			if (AvailableResourceQuantity <= 0)
 			{
@@ -1133,7 +1133,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 				}
 
 
-				int32 MissingResourceQuantity = CandidateStation->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO - Slot.Quantity;
+				int32 MissingResourceQuantity = CandidateStation->GetCargoBay()->GetSlotCapacity() * (1.f-Parent->GetGame()->GetAINerfRatio()) - Slot.Quantity;
 
 				if (MissingResourceQuantity <= 0)
 				{
@@ -1185,8 +1185,8 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	}
 	Station1 = BestStationToBuyPerResource[BestResource];
 	Station2 = BestStationToSellPerResource[BestResource];
-	int32 BestBuyResourceQuantity = FMath::Min(Station1->GetCargoBay()->GetResourceQuantity(BestResource, PlayerCompany), int32(Station1->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO));
-	int32 BestSellResourceQuantity = FMath::Min(Station2->GetCargoBay()->GetSlotCapacity() - Station2->GetCargoBay()->GetResourceQuantity(BestResource, PlayerCompany), int32(Station2->GetCargoBay()->GetSlotCapacity() * AI_NERF_RATIO));
+	int32 BestBuyResourceQuantity = FMath::Min(Station1->GetCargoBay()->GetResourceQuantity(BestResource, PlayerCompany), int32(Station1->GetCargoBay()->GetSlotCapacity() * (1.f-Parent->GetGame()->GetAINerfRatio())));
+	int32 BestSellResourceQuantity = FMath::Min(Station2->GetCargoBay()->GetSlotCapacity() - Station2->GetCargoBay()->GetResourceQuantity(BestResource, PlayerCompany), int32(Station2->GetCargoBay()->GetSlotCapacity() * (1.f-Parent->GetGame()->GetAINerfRatio())));
 
 	int32 BestResourceQuantity = FMath::Min(BestBuyResourceQuantity, BestSellResourceQuantity);
 	int32 MinPlayerTransportCapacity = FMath::Max(100, PlayerCompany->GetTransportCapacity());

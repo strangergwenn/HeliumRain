@@ -279,7 +279,7 @@ void UFlareCompanyAI::UpdateTrading()
 					Request.Resource = BestDeal.Resource;
 					Request.Operation = EFlareTradeRouteOperation::LoadOrBuy;
 					Request.Client = Ship;
-					Request.CargoLimit = AI_NERF_RATIO;
+					Request.CargoLimit = (GetGame()->GetAINerfRatio());
 					if(BestDeal.Resource == GetGame()->GetScenarioTools()->FleetSupply)
 					{
 						Request.MaxQuantity = FMath::Min(BestDeal.BuyQuantity, Ship->GetCargoBay()->GetFreeSpaceForResource(BestDeal.Resource, Ship->GetCompany()));
@@ -379,7 +379,7 @@ void UFlareCompanyAI::UpdateTrading()
 				Request.Resource = BestDeal.Resource;
 				Request.Operation = EFlareTradeRouteOperation::UnloadOrSell;
 				Request.Client = Ship;
-				Request.CargoLimit = AI_NERF_RATIO;
+				Request.CargoLimit = (1.f - GetGame()->GetAINerfRatio());
 				Request.MaxQuantity = Ship->GetCargoBay()->GetResourceQuantity(BestDeal.Resource, Ship->GetCompany());
 #ifdef DEBUG_AI_TRADING
 				if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
@@ -3377,12 +3377,12 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				// Make the AI ignore the sector with not enought stock or to little capacity
 				if(!Station->IsUnderConstruction())
 				{
-					Variation->OwnedCapacity -= SlotCapacity * AI_NERF_RATIO;
+					Variation->OwnedCapacity -= SlotCapacity * (GetGame()->GetAINerfRatio());
 
 					float EmptyRatio = (float) Capacity / (float) SlotCapacity;
-					if (EmptyRatio > AI_NERF_RATIO/2)
+					if (EmptyRatio > (1.f - GetGame()->GetAINerfRatio())/2)
 					{
-						Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * AI_NERF_RATIO));
+						Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * (GetGame()->GetAINerfRatio())));
 					}
 				}
 				else
@@ -3437,7 +3437,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				// The AI don't let anything for the player : it's too hard
 				// Make the AI ignore the sector with not enought stock or to little capacity
-				Variation->OwnedStock -= SlotCapacity * AI_NERF_RATIO;
+				Variation->OwnedStock -= SlotCapacity * (GetGame()->GetAINerfRatio());
 			}
 
 
@@ -3479,13 +3479,13 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				// The AI don't let anything for the player : it's too hard
 				// Make the AI ignore the sector with not enought stock or to little capacity
-				Variation->OwnedCapacity -= SlotCapacity * AI_NERF_RATIO;
+				Variation->OwnedCapacity -= SlotCapacity * (GetGame()->GetAINerfRatio());
 				Variation->ConsumerMaxStock += Station->GetCargoBay()->GetSlotCapacity();
 
 				float EmptyRatio = (float) Capacity / (float) SlotCapacity;
-				if (EmptyRatio > AI_NERF_RATIO/2)
+				if (EmptyRatio > (1.f - GetGame()->GetAINerfRatio())/2)
 				{
-					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * AI_NERF_RATIO));
+					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * (GetGame()->GetAINerfRatio())));
 				}
 
 			}
@@ -3521,12 +3521,12 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				// The AI don't let anything for the player : it's too hard
 				// Make the AI ignore the sector with not enought stock or to little capacity
-				Variation->OwnedCapacity -= SlotCapacity * AI_NERF_RATIO;
+				Variation->OwnedCapacity -= SlotCapacity * (GetGame()->GetAINerfRatio());
 
 				float EmptyRatio = (float) Capacity / (float) SlotCapacity;
-				if (EmptyRatio > AI_NERF_RATIO/2)
+				if (EmptyRatio > (1.f - GetGame()->GetAINerfRatio()))
 				{
-					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * AI_NERF_RATIO));
+					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * GetGame()->GetAINerfRatio()));
 				}
 
 				// The owned resell its own FS
@@ -3539,7 +3539,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				// The AI don't let anything for the player : it's too hard
 				// Make the AI ignore the sector with not enought stock or to little capacity
-				Variation->OwnedStock -= SlotCapacity * AI_NERF_RATIO;
+				Variation->OwnedStock -= SlotCapacity * (GetGame()->GetAINerfRatio());
 
 			}
 		}
