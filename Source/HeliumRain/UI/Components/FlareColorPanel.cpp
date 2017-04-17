@@ -163,9 +163,12 @@ void SFlareColorPanel::OnBasePaintColorPickedByIndex(int32 Index)
 	{
 		AFlareGame* Game = Cast<AFlareGame>(MenuManager->GetWorld()->GetAuthGameMode());
 		UFlareCustomizationCatalog* CustomizationCatalog = Game->GetCustomizationCatalog();
+		const FFlareCompanyDescription* CurrentCompanyData = MenuManager->GetPC()->GetCompanyDescription();
+
 		FLOGV("SFlareColorPanel::OnBasePaintColorPicked %d", Index);
 		PC->SetBasePaintColor(CustomizationCatalog->GetColorByIndex(Index));
 		PC->GetMenuPawn()->UpdateCustomization();
+		BasePaintColorPicker->SetColor(CurrentCompanyData->CustomizationBasePaintColor);
 	}
 }
 
@@ -176,9 +179,12 @@ void SFlareColorPanel::OnPaintColorPickedByIndex(int32 Index)
 	{
 		AFlareGame* Game = Cast<AFlareGame>(MenuManager->GetWorld()->GetAuthGameMode());
 		UFlareCustomizationCatalog* CustomizationCatalog = Game->GetCustomizationCatalog();
+		const FFlareCompanyDescription* CurrentCompanyData = MenuManager->GetPC()->GetCompanyDescription();
+
 		FLOGV("SFlareColorPanel::OnPaintColorPicked %d", Index);
 		PC->SetPaintColor(CustomizationCatalog->GetColorByIndex(Index));
 		PC->GetMenuPawn()->UpdateCustomization();
+		PaintColorPicker->SetColor(CurrentCompanyData->CustomizationPaintColor);
 	}
 }
 
@@ -189,9 +195,12 @@ void SFlareColorPanel::OnOverlayColorPickedByIndex(int32 Index)
 	{
 		AFlareGame* Game = Cast<AFlareGame>(MenuManager->GetWorld()->GetAuthGameMode());
 		UFlareCustomizationCatalog* CustomizationCatalog = Game->GetCustomizationCatalog();
+		const FFlareCompanyDescription* CurrentCompanyData = MenuManager->GetPC()->GetCompanyDescription();
+
 		FLOGV("SFlareColorPanel::OnOverlayColorPicked %d", Index);
 		PC->SetOverlayColor(CustomizationCatalog->GetColorByIndex(Index));
 		PC->GetMenuPawn()->UpdateCustomization();
+		OverlayColorPicker->SetColor(CurrentCompanyData->CustomizationOverlayColor);
 	}
 }
 
@@ -202,9 +211,12 @@ void SFlareColorPanel::OnLightColorPickedByIndex(int32 Index)
 	{
 		AFlareGame* Game = Cast<AFlareGame>(MenuManager->GetWorld()->GetAuthGameMode());
 		UFlareCustomizationCatalog* CustomizationCatalog = Game->GetCustomizationCatalog();
+		const FFlareCompanyDescription* CurrentCompanyData = MenuManager->GetPC()->GetCompanyDescription();
+
 		FLOGV("SFlareColorPanel::OnLightColorPicked %d", Index);
 		PC->SetLightColor(CustomizationCatalog->GetColorByIndex(Index));
 		PC->GetMenuPawn()->UpdateCustomization();
+		LightColorPicker->SetColor(CurrentCompanyData->CustomizationLightColor);
 	}
 }
 

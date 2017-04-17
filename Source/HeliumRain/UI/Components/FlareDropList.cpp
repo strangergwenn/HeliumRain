@@ -243,8 +243,6 @@ TSharedRef<SWidget> SFlareDropList::MakeColorSlider() const
 				.Visibility(this, &SFlareDropList::GetColorPickerVisibility)
 				.SliderBarColor(FLinearColor::Transparent)
 				.Value(this, &SFlareDropList::HandleColorSpinBoxValue)
-				//.OnMouseCaptureBegin(this, &SColorPicker::HandleInteractiveChangeBegin)
-				//.OnMouseCaptureEnd(this, &SColorPicker::HandleInteractiveChangeEnd)
 				.OnValueChanged(this, &SFlareDropList::HandleColorSpinBoxValueChanged)
 		];
 }
