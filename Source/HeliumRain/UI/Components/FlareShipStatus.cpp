@@ -23,30 +23,6 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 	[
 		SNew(SHorizontalBox)
 
-		// Refilling icon
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.HAlign(HAlign_Left)
-		.VAlign(VAlign_Center)
-		.Padding(FMargin(5, 0, 5, 0))
-		[
-			SNew(SImage)
-			.Image(FFlareStyleSet::GetIcon("Tank"))
-			.Visibility(this, &SFlareShipStatus::GetRefillingVisibility)
-		]
-
-		// Reparing icon
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		.HAlign(HAlign_Left)
-		.VAlign(VAlign_Center)
-		.Padding(FMargin(5, 0, 5, 0))
-		[
-			SNew(SImage)
-			.Image(FFlareStyleSet::GetIcon("Repair"))
-			.Visibility(this, &SFlareShipStatus::GetRepairingVisibility)
-		]
-
 		// Power icon
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
@@ -72,6 +48,30 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 			SAssignNew(WeaponIndicator, SImage)
 			.Image(FFlareStyleSet::GetIcon("Shell"))
 			.ColorAndOpacity(this, &SFlareShipStatus::GetIconColor, EFlareSubsystem::SYS_Weapon)
+		]
+
+		// Refilling icon
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Center)
+		.Padding(FMargin(5, 0, 5, 0))
+		[
+			SNew(SImage)
+			.Image(FFlareStyleSet::GetIcon("Tank"))
+			.Visibility(this, &SFlareShipStatus::GetRefillingVisibility)
+		]
+
+		// Reparing icon
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Center)
+		.Padding(FMargin(5, 0, 5, 0))
+		[
+			SNew(SImage)
+			.Image(FFlareStyleSet::GetIcon("Repair"))
+			.Visibility(this, &SFlareShipStatus::GetRepairingVisibility)
 		]
 
 		// Health
@@ -146,19 +146,26 @@ void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerE
 		// Ship-specific damage
 		else
 		{
+			// Status info
 			if (DamageSystem->IsStranded())
 			{
 				Info = FText::Format(LOCTEXT("ShipStrandedFormat", "{0}This ship is stranded and can't exit the sector !\n"), Info);
 			}
-
 			if (DamageSystem->IsUncontrollable())
 			{
 				Info = FText::Format(LOCTEXT("ShipUncontrollableFormat", "{0}This ship is uncontrollable and can't move in the local space !\n"), Info);
 			}
-
 			if (TargetShip->IsMilitary() && DamageSystem->IsDisarmed())
 			{
 				Info = FText::Format(LOCTEXT("ShipDisarmedFormat", "{0}This ship is disarmed and unable to fight back !\n"), Info);
+			}
+			if (TargetShip->GetRefillStock() > 0 && TargetShip->NeedRefill())
+			{
+				Info = FText::Format(LOCTEXT("ShipRefillingFormat", "{0}This ship is being refilled with ammunition and fuel.\n"), Info);
+			}
+			if (TargetShip->GetRepairStock() > 0 && TargetShip->GetDamageSystem()->GetGlobalHealth() < 1.f)
+			{
+				Info = FText::Format(LOCTEXT("ShipRepairormat", "{0}This ship is being repaired.\n"), Info);
 			}
 
 			if (TargetShip->IsMilitary())
