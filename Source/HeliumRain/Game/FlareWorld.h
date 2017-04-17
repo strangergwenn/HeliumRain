@@ -8,6 +8,14 @@
 #include "FlareWorld.generated.h"
 
 
+
+#define MAX_RCS_REPAIR_RATIO_BY_DAY 0.5f
+#define MAX_REPAIR_RATIO_BY_DAY 0.25f
+#define MAX_ENGINE_REPAIR_RATIO_BY_DAY 0.3f
+#define MAX_WEAPON_REPAIR_RATIO_BY_DAY 0.2f
+#define MAX_REFILL_RATIO_BY_DAY 0.4f
+
+
 struct FFlareSectorSave;
 struct FFlareSectorDescription;
 

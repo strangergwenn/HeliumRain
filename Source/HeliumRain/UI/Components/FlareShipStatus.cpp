@@ -23,6 +23,30 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 	[
 		SNew(SHorizontalBox)
 
+		// Refilling icon
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Center)
+		.Padding(FMargin(5, 0, 5, 0))
+		[
+			SNew(SImage)
+			.Image(FFlareStyleSet::GetIcon("Tank"))
+			.Visibility(this, &SFlareShipStatus::GetRefillingVisibility)
+		]
+
+		// Reparing icon
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Center)
+		.Padding(FMargin(5, 0, 5, 0))
+		[
+			SNew(SImage)
+			.Image(FFlareStyleSet::GetIcon("Repair"))
+			.Visibility(this, &SFlareShipStatus::GetRepairingVisibility)
+		]
+
 		// Power icon
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
@@ -232,5 +256,34 @@ FSlateColor SFlareShipStatus::GetIconColor(EFlareSubsystem::Type Type) const
 	return Result;
 }
 
+
+EVisibility SFlareShipStatus::GetRefillingVisibility() const
+{
+
+	if (TargetShip && TargetShip->IsValidLowLevel())
+	{
+		//FLOGV("%s need refill ? %d stock : %f", *TargetShip->GetImmatriculation().ToString(), TargetShip->NeedRefill(), TargetShip->GetRefillStock());
+		if (TargetShip->GetRefillStock() > 0 && TargetShip->NeedRefill())
+		{
+			return EVisibility::Visible;
+		}
+	}
+	return EVisibility::Collapsed;
+}
+
+EVisibility SFlareShipStatus::GetRepairingVisibility() const
+{
+
+	if (TargetShip && TargetShip->IsValidLowLevel())
+	{
+		//FLOGV("%s need repair ? %f stock : %f", *TargetShip->GetImmatriculation().ToString(), TargetShip->GetDamageSystem()->GetGlobalHealth(), TargetShip->GetRepairStock());
+		if (TargetShip->GetRepairStock() > 0 && TargetShip->GetDamageSystem()->GetGlobalHealth() < 1.f)
+		{
+			return EVisibility::Visible;
+		}
+	}
+
+	return EVisibility::Collapsed;
+}
 
 #undef LOCTEXT_NAMESPACE

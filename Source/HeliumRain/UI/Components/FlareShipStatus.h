@@ -49,6 +49,9 @@ protected:
 	/** Get the current color */
 	FSlateColor GetIconColor(EFlareSubsystem::Type Type) const;
 
+	EVisibility GetRefillingVisibility() const;
+
+	EVisibility GetRepairingVisibility() const;
 
 protected:
 

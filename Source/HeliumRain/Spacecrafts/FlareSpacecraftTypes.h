@@ -425,11 +425,12 @@ struct FFlareSpacecraftSave
 	/** Is ship intercepted */
 	bool IsIntercepted;
 
-	/** Is a repair in progress */
-	bool IsRepairing;
+	/** Resource refill stock */
+	float RepairStock;
 
-	/** Is a refill in progress */
-	bool IsRefilling;
+	/** Resource refill stock */
+	float RefillStock;
+
 
 	/** Company that harpooned us */
 	UPROPERTY(EditAnywhere, Category = Save)

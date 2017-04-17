@@ -684,8 +684,9 @@ FText SFlareSectorMenu::GetRefillText() const
 	int32 AffordableFS;
 	int32 NeededFS;
 	int32 TotalNeededFS;
+	int64 MaxDuration;
 
-	SectorHelper::GetRefillFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS);
+	SectorHelper::GetRefillFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS, MaxDuration);
 	SectorHelper::GetAvailableFleetSupplyCount(TargetSector, MenuManager->GetPC()->GetCompany(), OwnedFS, AvailableFS, AffordableFS);
 
 	if (IsRefillDisabled())
@@ -747,8 +748,9 @@ FText SFlareSectorMenu::GetRefillText() const
 
 		FText CostText = FText::Format(LOCTEXT("RefillCostFormat", "{0}{1}{2}"), OwnedCostText, CostSeparatorText, NotOwnedCostText);
 
-		return FText::Format(LOCTEXT("RefillOkayFormat", "Refill all fleets ({0})"),
-			CostText);
+		return FText::Format(LOCTEXT("RefillOkayFormat", "Refill all fleets ({0}, {1} days)"),
+			CostText,
+			FText::AsNumber(MaxDuration));
 	}
 }
 
@@ -764,8 +766,9 @@ FText SFlareSectorMenu::GetRepairText() const
 	int32 AffordableFS;
 	int32 NeededFS;
 	int32 TotalNeededFS;
+	int64 MaxDuration;
 
-	SectorHelper::GetRepairFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS);
+	SectorHelper::GetRepairFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS, MaxDuration);
 	SectorHelper::GetAvailableFleetSupplyCount(TargetSector, MenuManager->GetPC()->GetCompany(), OwnedFS, AvailableFS, AffordableFS);
 
 	if (IsRepairDisabled())
@@ -827,8 +830,9 @@ FText SFlareSectorMenu::GetRepairText() const
 
 		FText CostText = FText::Format(LOCTEXT("RepairCostFormat", "{0}{1}{2}"), OwnedCostText, CostSeparatorText, NotOwnedCostText);
 
-		return FText::Format(LOCTEXT("RepairOkayFormat", "Repair all fleets ({0})"),
-			CostText);
+		return FText::Format(LOCTEXT("RepairOkayFormat", "Repair all fleets ({0}, {1} days)"),
+			CostText,
+			FText::AsNumber(MaxDuration));
 	}
 }
 
@@ -850,8 +854,10 @@ bool SFlareSectorMenu::IsRefillDisabled() const
 
 	int32 NeededFS;
 	int32 TotalNeededFS;
+	int64 MaxDuration;
 
-	SectorHelper::GetRefillFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS);
+	SectorHelper::GetRefillFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS, MaxDuration);
+
 	if (NeededFS > 0)
 	{
 		// Refill needed
@@ -885,8 +891,9 @@ bool SFlareSectorMenu::IsRepairDisabled() const
 
 	int32 NeededFS;
 	int32 TotalNeededFS;
+	int64 MaxDuration;
 
-	SectorHelper::GetRepairFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS);
+	SectorHelper::GetRepairFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS, MaxDuration);
 	if (NeededFS > 0)
 	{
 		// Repair needed

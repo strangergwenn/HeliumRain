@@ -214,8 +214,8 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	ShipData.DynamicComponentStateProgress = 0.f;
 	ShipData.IsTrading = false;
 	ShipData.IsIntercepted = false;
-	ShipData.IsRepairing = false;
-	ShipData.IsRefilling = false;
+	ShipData.RepairStock = 0;
+	ShipData.RefillStock = 0;
 	ShipData.IsReserve = false;
 	ShipData.Level = 1;
 	ShipData.HarpoonCompany = NAME_None;

@@ -96,9 +96,9 @@ public:
 
 	void SetIntercepted(bool Intercept);
 
-	void SetRepairing(bool Repairing);
+	void Repair();
 
-	void SetRefilling(bool Refilling);
+	void Refill();
 
 	void SetReserve(bool InReserve);
 
@@ -131,6 +131,12 @@ public:
 
 
 	void FinishConstruction();
+
+	void OrderRepairStock(float FS);
+	void OrderRefillStock(float FS);
+
+	bool NeedRefill();
+
 
 	/*----------------------------------------------------
 		Resources
@@ -256,14 +262,14 @@ public:
 	}
 
 
-	inline bool IsRepairing() const
+	inline float GetRepairStock() const
 	{
-		return SpacecraftData.IsRepairing;
+		return SpacecraftData.RepairStock;
 	}
 
-	inline bool IsRefilling() const
+	inline float GetRefillStock() const
 	{
-		return SpacecraftData.IsRefilling;
+		return SpacecraftData.RefillStock;
 	}
 
 	inline bool IsReserve() const
@@ -306,3 +312,4 @@ public:
 		return SpacecraftData.IsUnderConstruction;
 	}
 };
+

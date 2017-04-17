@@ -522,8 +522,8 @@ void UFlareWorld::Simulate()
 				Spacecraft->SetTrading(false);
 				Spacecraft->SetIntercepted(false);
 			}
-			Spacecraft->SetRepairing(false);
-			Spacecraft->SetRefilling(false);
+			Spacecraft->Repair();
+			Spacecraft->Refill();
 		}
 	}
 

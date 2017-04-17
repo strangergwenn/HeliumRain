@@ -1656,11 +1656,12 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 		int32 TotalNeededFS;
 
 		int32 CumulatedTotalNeededFS = 0;
+		int64 MaxDuration;
 
-		SectorHelper::GetRefillFleetSupplyNeeds(Sector.Sector, Company, NeededFS, TotalNeededFS);
+		SectorHelper::GetRefillFleetSupplyNeeds(Sector.Sector, Company, NeededFS, TotalNeededFS, MaxDuration);
 		CumulatedTotalNeededFS += TotalNeededFS;
 
-		SectorHelper::GetRepairFleetSupplyNeeds(Sector.Sector, Company, NeededFS, TotalNeededFS);
+		SectorHelper::GetRepairFleetSupplyNeeds(Sector.Sector, Company, NeededFS, TotalNeededFS, MaxDuration);
 		CumulatedTotalNeededFS += TotalNeededFS;
 
 		if (CumulatedTotalNeededFS > 0)
@@ -3621,11 +3622,12 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 			int32 NeededFS;
 			int32 TotalNeededFS;
+			int64 MaxDuration;
 
-			SectorHelper::GetRefillFleetSupplyNeeds(Sector, OtherCompany, NeededFS, TotalNeededFS);
+			SectorHelper::GetRefillFleetSupplyNeeds(Sector, OtherCompany, NeededFS, TotalNeededFS, MaxDuration);
 			Variation->MaintenanceCapacity += TotalNeededFS;
 
-			SectorHelper::GetRepairFleetSupplyNeeds(Sector, OtherCompany, NeededFS, TotalNeededFS);
+			SectorHelper::GetRepairFleetSupplyNeeds(Sector, OtherCompany, NeededFS, TotalNeededFS, MaxDuration);
 			Variation->MaintenanceCapacity += TotalNeededFS;
 		}
 	}
