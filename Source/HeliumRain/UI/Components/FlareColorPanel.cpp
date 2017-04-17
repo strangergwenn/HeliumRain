@@ -149,6 +149,11 @@ void SFlareColorPanel::SetupDefault()
 	OverlayColorPicker->SetSelectedIndex(CustomizationCatalog->FindColor(CurrentCompanyData->CustomizationOverlayColor));
 	LightColorPicker->SetSelectedIndex(CustomizationCatalog->FindColor(CurrentCompanyData->CustomizationLightColor));
 	PatternPicker->SetSelectedIndex(CurrentCompanyData->CustomizationPatternIndex);
+
+	BasePaintColorPicker->SetColor(CurrentCompanyData->CustomizationBasePaintColor);
+	PaintColorPicker->SetColor(CurrentCompanyData->CustomizationPaintColor);
+	OverlayColorPicker->SetColor(CurrentCompanyData->CustomizationOverlayColor);
+	LightColorPicker->SetColor(CurrentCompanyData->CustomizationLightColor);
 }
 
 void SFlareColorPanel::OnBasePaintColorPickedByIndex(int32 Index)
