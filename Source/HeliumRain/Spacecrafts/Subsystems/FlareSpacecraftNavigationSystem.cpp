@@ -313,7 +313,7 @@ static float GetApproachVelocityLimit(float Distance)
 	// Approch cone :
 	//  At 1 m -> 5 m/s
 	//  At 100 m -> 40 m/s
-	return Distance / 2.5 + 460;
+	return (Distance / 2.5 + 460) * 100;
 }
 
 void UFlareSpacecraftNavigationSystem::CheckCollisionDocking(AFlareSpacecraft* DockingCandidate)
@@ -643,7 +643,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 		case EFlareDockingPhase::RendezVous:
 		case EFlareDockingPhase::Distant:
 			// Rendez-vous
-			MaxVelocity = LinearMaxVelocity;
+			MaxVelocity = LinearMaxVelocity * 100;
 			LocationTarget += DockingParameters.StationDockAxis * (ApproachDockToDockDistanceLimit / 2);
 			if (DockingParameters.DockToDockDistance > ApproachDockToDockDistanceLimit)
 			{
@@ -661,7 +661,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 			Anticollision = true;
 		break;
 		case EFlareDockingPhase::Approach:
-			MaxVelocity = GetApproachVelocityLimit(DockingParameters.DockToDockDistance) / 200 ;
+			MaxVelocity = GetApproachVelocityLimit(DockingParameters.DockToDockDistance) /*/ 200*/ ;
 			LocationTarget += DockingParameters.StationDockAxis * (FinalApproachDockToDockDistanceLimit / 2);
 		break;
 
@@ -682,7 +682,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 	}
 
 	// Not in approach, just go to the docking entrance point
-	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity, 0.25);
+	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity, 0.3);
 	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), AxisTarget, AngularVelocityTarget, DeltaSeconds);
 
 	if (Anticollision)
