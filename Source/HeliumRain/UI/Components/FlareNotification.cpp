@@ -106,7 +106,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 										[
 											SNew(STextBlock)
 											.Text(InArgs._Text)
-											.WrapTextAt(NotificationTextWidth)
+											.WrapTextAt(NotificationTextWidth - 40)
 											.TextStyle(&Theme.NameFont)
 											.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
 											.ShadowColorAndOpacity(ShadowColor)
