@@ -505,11 +505,10 @@ void SFlareSpacecraftInfo::Hide()
 
 void SFlareSpacecraftInfo::UpdateObjectiveInfo()
 {
-	// TODO #633 : "if this spacecraft is a target of the current objective"
-	/*if (TargetSpacecraft && PC->GetCurrentObjective() ... )
+	if (TargetSpacecraft && PC->GetCurrentObjective() && PC->GetCurrentObjective()->IsTarget(TargetSpacecraft))
 	{
 		AddMessage(PC->GetCurrentObjective()->Name, NULL, 0);
-	}*/
+	}
 }
 
 void SFlareSpacecraftInfo::UpdateConstructionInfo()
@@ -786,11 +785,10 @@ FSlateColor SFlareSpacecraftInfo::GetTextColor() const
 		{
 			return Theme.ObjectiveColor;
 		}
-		// TODO #633 : "if this spacecraft is a target of the current objective"
-		/*else if ((PC->GetCurrentObjective() ... )
+		else if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->IsTarget(TargetSpacecraft))
 		{
 			return Theme.ObjectiveColor;
-		}*/
+		}
 		else if (TargetSpacecraft->GetCurrentFleet() == PC->GetPlayerFleet())
 		{
 			return Theme.FriendlyColor;

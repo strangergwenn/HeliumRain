@@ -320,6 +320,7 @@ void UFlareQuestConditionSectorActive::AddConditionObjectives(FFlarePlayerObject
 		ObjectiveCondition.Counter = (IsCompleted()) ? 1 : 0;
 		ObjectiveCondition.MaxCounter = 1;
 
+		ObjectiveData->TargetSectors.Add(Sector);
 		ObjectiveData->ConditionList.Add(ObjectiveCondition);
 	}
 }
@@ -367,6 +368,7 @@ void UFlareQuestConditionSectorVisited::AddConditionObjectives(FFlarePlayerObjec
 		ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
 		ObjectiveCondition.MaxCounter = 0;
 
+		ObjectiveData->TargetSectors.Add(Sector);
 		ObjectiveData->ConditionList.Add(ObjectiveCondition);
 	}
 }
@@ -932,6 +934,12 @@ void UFlareQuestConditionShipAlive::AddConditionObjectives(FFlarePlayerObjective
 	ObjectiveCondition.Counter = IsShipAlive() ? 1 : 0;
 	ObjectiveCondition.MaxCounter = 1;
 
+	UFlareSimulatedSpacecraft* TargetSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(ShipIdentifier);
+	if(TargetSpacecraft)
+	{
+		ObjectiveData->AddTargetSpacecraft(TargetSpacecraft);
+	}
+
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
 
@@ -1496,8 +1504,19 @@ void UFlareQuestConditionDockAt::AddConditionObjectives(FFlarePlayerObjectiveDat
 	ObjectiveCondition.Progress = 0;
 	ObjectiveCondition.MaxProgress = 0;
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
-}
+	ObjectiveData->AddTargetSpacecraft(TargetStation);
 
+	if (TargetShipMatchId != NAME_None)
+	{
+		FName ShipName = Quest->GetSaveBundle().GetName(TargetShipMatchId);
+		UFlareSimulatedSpacecraft* TargetShip = GetGame()->GetGameWorld()->FindSpacecraft(ShipName);
+
+		if (TargetShip)
+		{
+			ObjectiveData->AddTargetSpacecraft(TargetShip);
+		}
+	}
+}
 
 /*----------------------------------------------------
 	At war condition
@@ -1747,6 +1766,7 @@ void UFlareQuestConditionBuyAtStation::AddConditionObjectives(FFlarePlayerObject
 	ObjectiveCondition.Counter = CurrentProgression;
 	ObjectiveCondition.Progress = CurrentProgression;
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+	ObjectiveData->AddTargetSpacecraft(TargetStation);
 }
 
 void UFlareQuestConditionBuyAtStation::OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* TradeResource, int32 TradeQuantity)
@@ -1857,6 +1877,7 @@ void UFlareQuestConditionSellAtStation::AddConditionObjectives(FFlarePlayerObjec
 	ObjectiveCondition.Counter = CurrentProgression;
 	ObjectiveCondition.Progress = CurrentProgression;
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+	ObjectiveData->AddTargetSpacecraft(TargetStation);
 }
 
 void UFlareQuestConditionSellAtStation::OnTradeDone(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* TradeResource, int32 TradeQuantity)
@@ -2036,6 +2057,8 @@ void UFlareQuestConditionMinArmyCombatPointsInSector::AddConditionObjectives(FFl
 	ObjectiveCondition.MaxCounter = TargetArmyPoints;
 
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+	ObjectiveData->TargetSectors.Add(TargetSector);
+
 }
 
 /*----------------------------------------------------
@@ -2103,6 +2126,7 @@ void UFlareQuestConditionMaxArmyCombatPointsInSector::AddConditionObjectives(FFl
 	ObjectiveCondition.MaxCounter = TargetArmyPoints;
 
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+	ObjectiveData->TargetSectors.Add(TargetSector);
 }
 
 /*----------------------------------------------------
@@ -2160,6 +2184,7 @@ void UFlareQuestConditionNoBattleInSector::AddConditionObjectives(FFlarePlayerOb
 	ObjectiveCondition.MaxCounter = 1;
 
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+	ObjectiveData->TargetSectors.Add(TargetSector);
 }
 
 /*----------------------------------------------------
@@ -2329,6 +2354,7 @@ void UFlareQuestConditionNoCapturingStationInSector::AddConditionObjectives(FFla
 	ObjectiveCondition.MaxCounter = 0;
 
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+	ObjectiveData->TargetSectors.Add(TargetSector);
 }
 
 

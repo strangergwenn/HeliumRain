@@ -48,6 +48,32 @@ struct FFlarePlayerObjectiveData
 
 	TArray<FFlarePlayerObjectiveTarget> TargetList;
 	TArray<FFlarePlayerObjectiveCondition> ConditionList;
+	TArray<UFlareSimulatedSector*> TargetSectors;
+	TArray<UFlareSimulatedSpacecraft*> TargetSpacecrafts;
+
+	bool IsTarget(UFlareSimulatedSector* Spacecraft) const
+	{
+		return TargetSectors.Contains(Spacecraft);
+	}
+
+	bool IsTarget(UFlareSimulatedSpacecraft* Spacecraft) const
+	{
+		return TargetSpacecrafts.Contains(Spacecraft);
+	}
+
+	void AddTargetSpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
+	{
+		if(Spacecraft)
+		{
+			TargetSpacecrafts.Add(Spacecraft);
+			if(Spacecraft->GetCurrentSector())
+			{
+				TargetSectors.Add(Spacecraft->GetCurrentSector());
+			}
+		}
+	}
+
+
 };
 
 /** Game save data */

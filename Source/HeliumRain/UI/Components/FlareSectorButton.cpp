@@ -172,12 +172,11 @@ FSlateColor SFlareSectorButton::GetBorderColor() const
 
 	if (Sector)
 	{
-		// TODO #633 : "if a target of the current objective is in this sector"
-		/*if (MenuManager->GetPC()->GetCurrentObjective() ...)
+		if (MenuManager->GetPC()->GetCurrentObjective() && MenuManager->GetPC()->GetCurrentObjective()->IsTarget(Sector))
 		{
 			return Theme.ObjectiveColor;
 		}
-		else*/
+		else
 		{
 			Color = Sector->GetSectorFriendlynessColor(PlayerCompany);
 		}
