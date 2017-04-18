@@ -1480,8 +1480,11 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("AlignRetrograde", "Align to reverse")))
 		->AddActionMapping("FaceBackward")
 		->AddDefaults(EKeys::Z)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Start Autopilot", "Engage autopilot")))
+		->AddActionMapping("EnablePilot")
+		->AddDefaults(EKeys::P)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Disengage Autopilot", "Disengage autopilot")))
-		->AddActionMapping("Manual")
+		->AddActionMapping("DisengagePilot")
 		->AddDefaults(EKeys::M)));
 
 	// Weapons

@@ -376,7 +376,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	// Setup everything
 	ShipPawn = Ship;
 	SetExternalCamera(false);
-	ShipPawn->ForceManual();
+	ShipPawn->GetNavigationSystem()->AbortAllCommands();
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	CockpitManager->OnFlyShip(ShipPawn);
@@ -1292,7 +1292,8 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("BackMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::BackMenu);
 	InputComponent->BindAction("Simulate", EInputEvent::IE_Released, this, &AFlarePlayerController::Simulate);
 	InputComponent->BindAction("ToggleCombat", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCombat);
-	InputComponent->BindAction("TooglePilot", EInputEvent::IE_Released, this, &AFlarePlayerController::TogglePilot);
+	InputComponent->BindAction("EnablePilot", EInputEvent::IE_Released, this, &AFlarePlayerController::EnablePilot);
+	InputComponent->BindAction("DisengagePilot", EInputEvent::IE_Released, this, &AFlarePlayerController::DisengagePilot);
 	InputComponent->BindAction("ToggleHUD", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleHUD);
 	InputComponent->BindAction("QuickSwitch", EInputEvent::IE_Released, this, &AFlarePlayerController::QuickSwitch);
 	InputComponent->BindAction("TogglePerformance", EInputEvent::IE_Released, this, &AFlarePlayerController::TogglePerformance);
@@ -1562,20 +1563,29 @@ void AFlarePlayerController::ToggleCombat()
 	{
 		FLOG("AFlarePlayerController::ToggleCombat");
 		ShipPawn->GetWeaponsSystem()->ToogleWeaponActivation();
-		if(ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_MISSILE || ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
+		if (ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_MISSILE || ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
 		{
 			SetExternalCamera(false);
 		}
 	}
 }
 
-void AFlarePlayerController::TogglePilot()
+void AFlarePlayerController::EnablePilot()
 {
-	if (!IsTyping())
+	if (ShipPawn && !IsTyping() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
 	{
-		bool NewState = !ShipPawn->GetStateManager()->IsPilotMode();
-		FLOGV("AFlarePlayerController::TooglePilot : new state is %d", NewState);
-		ShipPawn->GetStateManager()->EnablePilot(NewState, true);
+		FLOGV("AFlarePlayerController::EnablePilot");
+		ShipPawn->GetStateManager()->EnablePilot(true);
+	}
+}
+
+void AFlarePlayerController::DisengagePilot()
+{
+	if (ShipPawn && !IsTyping() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
+	{
+		FLOGV("AFlarePlayerController::DisengagePilot");
+		ShipPawn->GetStateManager()->EnablePilot(false);
+		ShipPawn->GetNavigationSystem()->AbortAllCommands();
 	}
 }
 
@@ -1817,7 +1827,7 @@ void AFlarePlayerController::AlignToSpeed()
 {
 	if (ShipPawn)
 	{
-		ShipPawn->ForceManual();
+		DisengagePilot();
 		ShipPawn->FaceForward();
 	}
 }
@@ -1826,7 +1836,7 @@ void AFlarePlayerController::AlignToReverse()
 {
 	if (ShipPawn)
 	{
-		ShipPawn->ForceManual();
+		DisengagePilot();
 		ShipPawn->FaceBackward();
 	}
 }
@@ -1835,7 +1845,7 @@ void AFlarePlayerController::Brake()
 {
 	if (ShipPawn)
 	{
-		ShipPawn->ForceManual();
+		DisengagePilot();
 		ShipPawn->Brake();
 	}
 }
@@ -1895,7 +1905,7 @@ void AFlarePlayerController::MatchSpeedWithTargetSpacecraft()
 		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
 		if (TargetSpacecraft)
 		{
-			ShipPawn->ForceManual();
+			DisengagePilot();
 			ShipPawn->BrakeToVelocity(TargetSpacecraft->GetLinearVelocity());
 		}
 	}
@@ -1909,7 +1919,7 @@ void AFlarePlayerController::LookAtTargetSpacecraft()
 		if (TargetSpacecraft)
 		{
 			FVector TargetDirection = (TargetSpacecraft->GetActorLocation() - ShipPawn->GetActorLocation());
-			ShipPawn->ForceManual();
+			DisengagePilot();
 			ShipPawn->GetNavigationSystem()->PushCommandRotation(TargetDirection, FVector(1, 0, 0));
 		}
 	}

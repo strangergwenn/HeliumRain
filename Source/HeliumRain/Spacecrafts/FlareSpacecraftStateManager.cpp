@@ -172,7 +172,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 
 	if (!IsPiloted && PlayerManualVelocityCommandActive)
 	{
-		Spacecraft->ForceManual();
+		Spacecraft->GetNavigationSystem()->AbortAllCommands();
 	}
 
 	// Mouse control
@@ -294,19 +294,14 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 	}
 }
 
-void UFlareSpacecraftStateManager::EnablePilot(bool PilotEnabled, bool Force)
+void UFlareSpacecraftStateManager::EnablePilot(bool PilotEnabled)
 {
 	if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
 	{
 		PilotEnabled = true;
 	}
 
-	if(Force)
-	{
-			PilotForced = PilotEnabled;
-	}
-
-	IsPiloted = PilotEnabled || PilotForced;
+	IsPiloted = PilotEnabled;
 }
 
 void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
@@ -322,7 +317,6 @@ void UFlareSpacecraftStateManager::SetExternalCamera(bool NewState)
 
 	// Reset state
 	Spacecraft->GetWeaponsSystem()->DeactivateWeapons();
-	EnablePilot(false);
 
 	// Put the camera at the right spot
 	if (ExternalCamera)

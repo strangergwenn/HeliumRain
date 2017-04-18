@@ -1175,7 +1175,6 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("Brake", EInputEvent::IE_Released, this, &AFlareSpacecraft::Brake);
 	PlayerInputComponent->BindAction("LockDirection", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::LockDirectionOn);
 	PlayerInputComponent->BindAction("LockDirection", EInputEvent::IE_Released, this, &AFlareSpacecraft::LockDirectionOff);
-	PlayerInputComponent->BindAction("Manual", EInputEvent::IE_Released, this, &AFlareSpacecraft::ForceManual);
 
 	PlayerInputComponent->BindAction("StartFire", EInputEvent::IE_Pressed, this, &AFlareSpacecraft::StartFire);
 	PlayerInputComponent->BindAction("StartFire", EInputEvent::IE_Released, this, &AFlareSpacecraft::StopFire);
@@ -1524,15 +1523,6 @@ void AFlareSpacecraft::LockDirectionOn()
 void AFlareSpacecraft::LockDirectionOff()
 {
 	StateManager->SetPlayerLockDirection(false);
-}
-
-void AFlareSpacecraft::ForceManual()
-{
-	// TODO do better
-	if (!StateManager->IsPilotMode() && NavigationSystem->GetStatus() != EFlareShipStatus::SS_Docked)
-	{
-		NavigationSystem->AbortAllCommands();
-	}
 }
 
 void AFlareSpacecraft::FindTarget()

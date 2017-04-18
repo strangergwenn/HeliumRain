@@ -241,8 +241,11 @@ public:
 	/** Toggle the combat mode */
 	void ToggleCombat();
 
-	/** Toggle the pilot mode */
-	void TogglePilot();
+	/** Force the pilot mode */
+	void EnablePilot();
+
+	/** Force the pilot mode */
+	void DisengagePilot();
 
 	/** Toggle the HUD's presence */
 	void ToggleHUD();

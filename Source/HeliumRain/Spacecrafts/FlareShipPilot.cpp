@@ -231,7 +231,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 		// There is at least one hostile enemy
 		if (Distance < 4000)
 		{
-			Ship->ForceManual(); // TODO make independant command channel
+			Ship->GetNavigationSystem()->AbortAllCommands();
 			if(Ship->GetNavigationSystem()->IsDocked())
 			{
 				Ship->GetNavigationSystem()->Undock();
@@ -945,7 +945,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 		// There is at least one hostile enemy
 		if (Distance < 10000) // 10 km
 		{
-			Ship->ForceManual(); // TODO make independant command channel
+			Ship->GetNavigationSystem()->AbortAllCommands();
 			LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 
 			UseOrbitalBoost = true;

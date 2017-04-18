@@ -231,8 +231,6 @@ public:
 
 	virtual void LockDirectionOff();
 
-	virtual void ForceManual();
-
 	virtual void FindTarget();
 
 protected:
