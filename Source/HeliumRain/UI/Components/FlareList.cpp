@@ -169,18 +169,28 @@ void SFlareList::RefreshList()
 			{
 				return false;
 			}
-
-			if (A->IsStation())
-			{
-				return true;
-			}
-			else if (B->IsStation())
-			{
-				return false;
-			}
 			else
 			{
-				if (A->GetSize() > B->GetSize())
+				if (A->IsStation() && B->IsStation())
+				{
+					if (A->GetDescription()->IsSubstation && !B->GetDescription()->IsSubstation)
+					{
+						return true;
+					}
+					else if (!A->GetDescription()->IsSubstation && B->GetDescription()->IsSubstation)
+					{
+						return false;
+					}
+				}
+				else if (A->IsStation() && !B->IsStation())
+				{
+					return true;
+				}
+				else if (!A->IsStation() && B->IsStation())
+				{
+					return false;
+				}
+				else if (A->GetSize() > B->GetSize())
 				{
 					return true;
 				}
