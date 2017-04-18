@@ -1537,14 +1537,14 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open orbital map", "Open orbital map")))
 		->AddActionMapping("OrbitMenu")
 		->AddDefaults(EKeys::F3)));
-	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open leaderboard", "Open leaderboard")))
-		->AddActionMapping("LeaderboardMenu")
-		->AddDefaults(EKeys::F4)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open company menu", "Open company menu")))
 		->AddActionMapping("CompanyMenu")
-		->AddDefaults(EKeys::F5)));
+		->AddDefaults(EKeys::F4)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open fleet menu", "Open fleet menu")))
 		->AddActionMapping("FleetMenu")
+		->AddDefaults(EKeys::F5)));
+	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open leaderboard", "Open diplomacy menu")))
+		->AddActionMapping("LeaderboardMenu")
 		->AddDefaults(EKeys::F6)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open technology menu", "Open technology menu")))
 		->AddActionMapping("TechnologyMenu")

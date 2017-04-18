@@ -974,7 +974,7 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 		case EFlareMenu::MENU_Main:           Name = LOCTEXT("MainMenuName", "Main menu");                 break;
 		case EFlareMenu::MENU_NewGame:        Name = LOCTEXT("NewGameMenuName", "New game");               break;
 		case EFlareMenu::MENU_Company:        Name = LOCTEXT("CompanyMenuName", "Company");                break;
-		case EFlareMenu::MENU_Leaderboard:    Name = LOCTEXT("LeaderboardMenuName", "Leaderboard");        break;
+		case EFlareMenu::MENU_Leaderboard:    Name = LOCTEXT("LeaderboardMenuName", "Diplomacy");          break;
 		case EFlareMenu::MENU_ResourcePrices: Name = LOCTEXT("ResourcePricesMenuName", "Local prices");    break;
 		case EFlareMenu::MENU_WorldEconomy:   Name = LOCTEXT("WorldEconomyMenuName", "World prices");      break;
 		case EFlareMenu::MENU_Technology:     Name = LOCTEXT("TechnologyMenuName", "Technology");          break;
