@@ -102,6 +102,9 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	ShipSolen = "ship-solen";
 	ShipOmen = "ship-omen";
 	ShipGhoul = "ship-ghoul";
+	ShipOrca = "ship-orca";
+	ShipDragon = "ship-dragon";
+	ShipInvader = "ship-invader";
 
 	// Stations
 	StationFarm = "station-farm";
@@ -247,24 +250,27 @@ void UFlareScenarioTools::SetupWorld()
 	Pirates->UnlockTechnology("quick-repair", false, true);
 
 	// Population setup
-	BlueHeart->GetPeople()->GiveBirth(3000);
-	FrozenRealm->GetPeople()->GiveBirth(1000);
-	TheForge->GetPeople()->GiveBirth(500);
+	BlueHeart->GetPeople()->GiveBirth(5000);
+	FrozenRealm->GetPeople()->GiveBirth(2000);
+	MinersHome->GetPeople()->GiveBirth(2000);
+	TheForge->GetPeople()->GiveBirth(1000);
 	
 	// Nema main economy
-	CreateStations(StationIceMine, MiningSyndicate, TheDepths, 3);
-	CreateStations(StationFarm, UnitedFarmsChemicals, Lighthouse, 2);
-	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 2, 2);
-	CreateStations(StationIronMine, MiningSyndicate, MinersHome, 2);
-	CreateStations(StationSteelworks, NemaHeavyWorks, MinersHome, 1);
-	CreateStations(StationToolFactory, NemaHeavyWorks, MinersHome, 1);
-	CreateStations(StationMethanePump, UnitedFarmsChemicals, TheSpire, 2);
-	CreateStations(StationHydrogenPump, NemaHeavyWorks, TheSpire, 1, 2);
-	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 1);
-	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 2, 2);
+	CreateStations(StationIceMine, MiningSyndicate, TheDepths, 5);
+	CreateStations(StationFarm, UnitedFarmsChemicals, Lighthouse, 3, 2);
+	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 3, 3);
+	CreateStations(StationIronMine, MiningSyndicate, MinersHome, 5);
+	CreateStations(StationSteelworks, NemaHeavyWorks, MinersHome, 2);
+	CreateStations(StationToolFactory, NemaHeavyWorks, MinersHome, 2);
+	CreateStations(StationHabitation, MiningSyndicate, MinersHome, 2, 2);
+	CreateStations(StationMethanePump, UnitedFarmsChemicals, TheSpire, 2, 2);
+	CreateStations(StationHydrogenPump, NemaHeavyWorks, TheSpire, 2, 2);
+	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 2);
+	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 1, 3);
 
 	// Labo
-	CreateStations(StationResearch, Sunwatch, Lighthouse, 1, 1);
+	CreateStations(StationResearch, Sunwatch, BlueShores, 1, 1);
+	CreateStations(StationResearch, IonLane, Lighthouse, 1, 1);
 
 
 	// Create Blue Heart capital station
@@ -302,9 +308,9 @@ void UFlareScenarioTools::SetupWorld()
 	}
 	
 	// Anka HFR factory
-	CreateStations(StationSteelworks, HelixFoundries, TheForge, 2);
-	CreateStations(StationToolFactory, HelixFoundries, TheForge, 2);
-	CreateStations(StationHabitation, Sunwatch, TheForge, 1);
+	CreateStations(StationSteelworks, HelixFoundries, TheForge, 4);
+	CreateStations(StationToolFactory, HelixFoundries, TheForge, 3);
+	CreateStations(StationHabitation, Sunwatch, TheForge, 3);
 
 	// Create Night's Home capital station
 	{
@@ -332,15 +338,15 @@ void UFlareScenarioTools::SetupWorld()
 	
 	// Hela secondary economy
 	CreateStations(StationArsenal, AxisSupplies, FrozenRealm, 1, 2);
-	CreateStations(StationFarm, GhostWorksShipyards, FrozenRealm, 1);
-	CreateStations(StationSolarPlant, GhostWorksShipyards, FrozenRealm, 1, 2);
-	CreateStations(StationIceMine, GhostWorksShipyards, ShoreOfIce, 2);
+	CreateStations(StationFarm, GhostWorksShipyards, FrozenRealm, 2, 2);
+	CreateStations(StationSolarPlant, GhostWorksShipyards, FrozenRealm, 2, 3);
+	CreateStations(StationIceMine, GhostWorksShipyards, ShoreOfIce, 3);
 	CreateStations(StationHub, GhostWorksShipyards, FrozenRealm, 1);
 
 	// Asta pirate base
 	CreateStations(StationShipyard, Pirates, Boneyard, 1);
-	CreateStations(StationSolarPlant, Pirates, Boneyard, 1, 1);
-	CreateStations(StationArsenal, Pirates, Boneyard, 1);
+	CreateStations(StationSolarPlant, Pirates, Boneyard, 2);
+	CreateStations(StationArsenal, Pirates, Boneyard, 2);
 	CreateStations(StationOutpost, Pirates, Boneyard, 1);
 
 	// Create hubs
@@ -348,7 +354,7 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationHub, IonLane, Lighthouse, 1);
 	CreateStations(StationHub, IonLane, BlueHeart, 1);
 	CreateStations(StationHub, IonLane, MinersHome, 1);
-	CreateStations(StationHub, IonLane, TheForge, 1);
+	CreateStations(StationHub, IonLane, TheForge, 2);
 	CreateStations(StationHub, IonLane, TheSpire, 1);
 	
 	// Create outposts
@@ -366,21 +372,31 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationOutpost, AxisSupplies, Tranquility, 1);
 
 	// Create cargos
-	CreateShips(ShipSolen, GhostWorksShipyards, FrozenRealm, 3);
-	CreateShips(ShipSolen, IonLane, Lighthouse, 3);
-	CreateShips(ShipOmen, IonLane, MinersHome, 2);
+	CreateShips(ShipSolen, GhostWorksShipyards, NightsHome, 5);
+	CreateShips(ShipSolen, IonLane, Lighthouse, 5);
+	CreateShips(ShipOmen, IonLane, MinersHome, 4);
 	CreateShips(ShipOmen, IonLane, FrozenRealm, 1);
-	CreateShips(ShipSolen, MiningSyndicate, MinersHome, 2);
-	CreateShips(ShipSolen, NemaHeavyWorks, MinersHome, 2);
-	CreateShips(ShipSolen, UnitedFarmsChemicals, TheSpire, 3);
-	CreateShips(ShipOmen, UnitedFarmsChemicals, TheSpire, 1);
-	CreateShips(ShipSolen, Sunwatch, Lighthouse, 4);
-	CreateShips(ShipSolen, HelixFoundries, TheForge, 3);
-	CreateShips(ShipOmen, HelixFoundries, TheForge, 1);
-	CreateShips(ShipSolen, Pirates, Boneyard, 1);
+	CreateShips(ShipSolen, MiningSyndicate, MinersHome, 3);
+	CreateShips(ShipSolen, NemaHeavyWorks, MinersHome, 3);
+	CreateShips(ShipSolen, UnitedFarmsChemicals, TheSpire, 4);
+	CreateShips(ShipOmen, UnitedFarmsChemicals, TheSpire, 2);
+	CreateShips(ShipSolen, Sunwatch, Lighthouse, 6);
+	CreateShips(ShipSolen, HelixFoundries, TheForge, 5);
+	CreateShips(ShipOmen, HelixFoundries, TheForge, 2);
+	CreateShips(ShipSolen, Pirates, Boneyard, 2);
 
 	// Create military ships
-	CreateShips(ShipGhoul, Pirates, Boneyard, 1);
+	CreateShips(ShipGhoul, IonLane, MinersHome, 2);
+	CreateShips(ShipGhoul, MiningSyndicate, MinersHome, 3);
+	CreateShips(ShipOrca, MiningSyndicate, MinersHome, 2);
+	CreateShips(ShipGhoul, NemaHeavyWorks, BlueHeart, 4);
+	CreateShips(ShipInvader, NemaHeavyWorks, BlueHeart, 1);
+	CreateShips(ShipGhoul, HelixFoundries, TheForge, 2);
+	CreateShips(ShipDragon, HelixFoundries, TheForge, 1);
+	CreateShips(ShipGhoul, GhostWorksShipyards, NightsHome, 2);
+	CreateShips(ShipInvader, GhostWorksShipyards, NightsHome, 1);
+	CreateShips(ShipGhoul, Pirates, Boneyard, 5);
+	CreateShips(ShipDragon, Pirates, Boneyard, 1);
 }
 
 void UFlareScenarioTools::SetupAsteroids()

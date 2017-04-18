@@ -151,6 +151,9 @@ public:
 	FName                                      ShipSolen;
 	FName                                      ShipOmen;
 	FName                                      ShipGhoul;
+	FName                                      ShipOrca;
+	FName                                      ShipDragon;
+	FName                                      ShipInvader;
 
 	// Stations
 	FName                                      StationFarm;
