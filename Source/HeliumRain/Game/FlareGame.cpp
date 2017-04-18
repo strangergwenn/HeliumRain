@@ -391,6 +391,8 @@ void AFlareGame::ReadAllSaveSlots()
 
 		if (Save)
 		{
+			SaveSlotInfo.UUID = Save->PlayerData.UUID;
+
 			// Basic setup
 			UFlareCustomizationCatalog* Catalog = GetCustomizationCatalog();
 			FLOGV("AFlareGame::ReadAllSaveSlots : found valid save data in slot %d", Index);
@@ -500,6 +502,21 @@ UFlareSaveGame* AFlareGame::ReadSaveSlot(int32 Index)
 bool AFlareGame::DeleteSaveSlot(int32 Index)
 {
 	FString SaveFile = "SaveSlot" + FString::FromInt(Index);
+
+	FLOGV("AFlareGame::DeleteSaveSlot %d", Index);
+
+	if (DoesSaveSlotExist(Index))
+	{
+		const FFlareSaveSlotInfo& SaveSlotInfo = GetSaveSlotInfo(Index);
+		FString FileName1 = FString::Printf(TEXT("%s/SaveGames/Combat-%s.log"), *FPaths::GameSavedDir(), *SaveSlotInfo.UUID.ToString());
+		FLOGV("Delete %s", *FileName1);
+
+		IFileManager::Get().Delete(*FileName1, true);
+		FString FileName2 = FString::Printf(TEXT("%s/SaveGames/Game-%s.log"), *FPaths::GameSavedDir(), *SaveSlotInfo.UUID.ToString());
+		FLOGV("Delete %s", *FileName2);
+		IFileManager::Get().Delete(*FileName2, true);
+	}
+
 	bool Deleted = false;
 	if (UGameplayStatics::DoesSaveGameExist(SaveFile, 0))
 	{

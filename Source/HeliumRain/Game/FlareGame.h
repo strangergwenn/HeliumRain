@@ -50,6 +50,7 @@ struct FFlareSaveSlotInfo
 	int32                      CompanyShipCount;
 	int32                      CompanyValue;
 	FText                      CompanyName;
+	FName                      UUID;
 };
 
 
