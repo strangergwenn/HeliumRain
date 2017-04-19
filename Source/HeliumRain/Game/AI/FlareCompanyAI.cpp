@@ -95,6 +95,29 @@ void UFlareCompanyAI::Simulate()
 		Behavior->Simulate();
 
 		PurchaseResearch();
+
+		// Check if at war
+		if(Company->AtWar())
+		{
+			AIData.Pacifism += Behavior->PacifismIncrementRate;
+		}
+		else
+		{
+			AIData.Pacifism -= Behavior->PacifismDecrementRate;
+		}
+
+		for(UFlareSimulatedSpacecraft* Spacecraft : Company->GetCompanySpacecrafts())
+		{
+			if(Spacecraft->GetDamageSystem()->GetGlobalHealth() < 0.99)
+			{
+				AIData.Pacifism+= Behavior->PacifismIncrementRate * 0.5;
+			}
+		}
+
+		AIData.Pacifism = FMath::Clamp(AIData.Pacifism, 0.f,100.f);
+
+		FLOGV("Pacifism for %s : %f", *Company->GetCompanyName().ToString(), AIData.Pacifism);
+
 	}
 }
 

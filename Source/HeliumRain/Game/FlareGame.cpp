@@ -634,6 +634,8 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	CompanyData.AI.BudgetStation = 0;
 	CompanyData.AI.BudgetTechnology = 0;
 	CompanyData.AI.BudgetTrade = 0;
+	CompanyData.AI.Caution = 0;
+	CompanyData.AI.Pacifism = 50;
 	// Create company
 	Company = World->LoadCompany(CompanyData);
 	FLOGV("AFlareGame::CreateCompany : Created company '%s'", *Company->GetName());

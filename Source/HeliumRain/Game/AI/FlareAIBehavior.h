@@ -103,6 +103,9 @@ public:
 
 	float DiplomaticReactivity;
 
+	float PacifismIncrementRate;
+	float PacifismDecrementRate;
+
 	bool ProposeTributeToPlayer = false;
 
 

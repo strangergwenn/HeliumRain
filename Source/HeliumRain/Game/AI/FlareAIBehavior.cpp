@@ -80,7 +80,6 @@ void UFlareAIBehavior::Simulate()
 		{
 			Company->GiveReputation(OtherCompany, -1, false);
 		}
-
 	}
 
 
@@ -160,7 +159,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			bool CancelWar = false;
 			if (OtherCompany == Game->GetPC()->GetCompany())
 			{
-				// Check if has quest to provide a partial huminity
+				// Check if has quest to provide a partial imminity
 				bool HasQuest = false;
 				for (UFlareQuest* Quest : Game->GetQuestManager()->GetOngoingQuests())
 				{
@@ -172,6 +171,11 @@ void UFlareAIBehavior::UpdateDiplomacy()
 				}
 
 				if(HasQuest && Company->GetReputation(OtherCompany) > -180)
+				{
+					CancelWar = true;
+				}
+
+				if (Company->GetAI()->GetData()->Pacifism > 0)
 				{
 					CancelWar = true;
 				}
@@ -187,6 +191,11 @@ void UFlareAIBehavior::UpdateDiplomacy()
 					OtherCompany->SetHostilityTo(Company, true);
 				}
 			}
+		}
+
+		if (!LockInWar && Company->GetAI()->GetData()->Pacifism >= 100)
+		{
+			Company->SetHostilityTo(OtherCompany, false);
 		}
 
 		if (!LockInWar && Company->GetWarState(OtherCompany) == EFlareHostility::Hostile
@@ -260,6 +269,9 @@ void UFlareAIBehavior::GenerateAffilities()
 	ArmySize = 5.0;
 	DiplomaticReactivity = 1;
 
+	PacifismIncrementRate = 2.0;
+	PacifismDecrementRate = 1.0;
+
 	// Pirate base
 	SetSectorAffility(ST->Boneyard, 0.f);
 
@@ -316,6 +328,9 @@ void UFlareAIBehavior::GenerateAffilities()
 		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 0.0;
 		BudgetTradeWeight = 0.1;
+
+		PacifismIncrementRate = 3.f;
+		PacifismDecrementRate = 4.f;
 
 	}
 	else if(Company == ST->GhostWorksShipyards)

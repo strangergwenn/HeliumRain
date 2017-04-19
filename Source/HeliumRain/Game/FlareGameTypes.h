@@ -242,6 +242,7 @@ struct FFlareCompanyAISave
 
 	/* Modify AttackThreshold */
 	float Caution;
+	float Pacifism;
 
 	FName ResearchProject;
 };
