@@ -1574,7 +1574,7 @@ void AFlarePlayerController::EnablePilot()
 {
 	if (ShipPawn && !IsTyping() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
 	{
-		FLOGV("AFlarePlayerController::EnablePilot");
+		FLOG("AFlarePlayerController::EnablePilot");
 		ShipPawn->GetStateManager()->EnablePilot(true);
 	}
 }
@@ -1583,7 +1583,7 @@ void AFlarePlayerController::DisengagePilot()
 {
 	if (ShipPawn && !IsTyping() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
 	{
-		FLOGV("AFlarePlayerController::DisengagePilot");
+		FLOG("AFlarePlayerController::DisengagePilot");
 		ShipPawn->GetStateManager()->EnablePilot(false);
 		ShipPawn->GetNavigationSystem()->AbortAllCommands();
 	}
