@@ -283,7 +283,7 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		InternalCameraPitchTarget = 0;
 
 		float Speed = FMath::Clamp(DeltaSeconds * 8, 0.f, 1.f);
-
+		
 		Spacecraft->DisableImmersiveCamera();
 		InternalCameraYaw = InternalCameraYaw * (1 - Speed) + InternalCameraYawTarget * Speed;
 		InternalCameraPitch = InternalCameraPitch * (1 - Speed) + InternalCameraPitchTarget * Speed;
@@ -349,8 +349,8 @@ void UFlareSpacecraftStateManager::SetPlayerAimMouse(FVector2D Val)
 	// External camera : panning with mouse clicks
 	if (ExternalCamera)
 	{
-		ExternalCameraYawTarget += Val.X * Spacecraft->GetCameraPanSpeed();
-		ExternalCameraPitchTarget += Val.Y * Spacecraft->GetCameraPanSpeed();
+		ExternalCameraYawTarget += FMath::Sign(Val.X) * Spacecraft->GetCameraPanSpeed();
+		ExternalCameraPitchTarget += FMath::Sign(Val.Y) * Spacecraft->GetCameraPanSpeed();
 		PlayerAim = FVector2D::ZeroVector;
 	}
 		
