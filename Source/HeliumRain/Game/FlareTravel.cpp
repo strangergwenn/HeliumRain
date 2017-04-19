@@ -301,7 +301,7 @@ int64 UFlareTravel::ComputeTravelDuration(UFlareWorld* World, UFlareSimulatedSec
 		TravelDuration /= 2;
 	}
 
-	return FMath::Max((int64) 1, TravelDuration);
+	return FMath::Max((int64) 2, TravelDuration+1);
 }
 
 double UFlareTravel::ComputeSphereOfInfluenceAltitude(UFlareWorld* World, FFlareCelestialBody* CelestialBody)
