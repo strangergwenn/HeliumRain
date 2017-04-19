@@ -1505,17 +1505,6 @@ void UFlareQuestConditionDockAt::AddConditionObjectives(FFlarePlayerObjectiveDat
 	ObjectiveCondition.MaxProgress = 0;
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 	ObjectiveData->AddTargetSpacecraft(TargetStation);
-
-	if (TargetShipMatchId != NAME_None)
-	{
-		FName ShipName = Quest->GetSaveBundle().GetName(TargetShipMatchId);
-		UFlareSimulatedSpacecraft* TargetShip = GetGame()->GetGameWorld()->FindSpacecraft(ShipName);
-
-		if (TargetShip)
-		{
-			ObjectiveData->AddTargetSpacecraft(TargetShip);
-		}
-	}
 }
 
 /*----------------------------------------------------
