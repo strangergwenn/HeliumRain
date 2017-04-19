@@ -30,7 +30,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	MaxShipsInSector = 20;
 
 	// Sound
-	MusicVolume = 8;
+	MusicVolume = 10;
 	MasterVolume = 10;
 }
 
