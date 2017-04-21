@@ -165,14 +165,14 @@ public:
 
 	FName GenerateIdentifier(FName BaseName);
 
-	/** Fill the database with capital ship names */
-	void InitCapitalShipNameDatabase();
+	/** Fill the database with station or capital ship names */
+	void InitSpacecraftNameDatabase();
 
 	/** Convert a number to roman */
 	static FString ConvertToRoman(uint32 Val);
 
-	/** Get a capship name */
-	FText PickCapitalShipName();
+	/** Get a spacecraft name */
+	FText PickSpacecraftName(UFlareCompany* Owner, bool IsStation, FString BaseSuffix);
 
 
 protected:
@@ -280,7 +280,8 @@ protected:
 
 	int32                                      CurrentImmatriculationIndex;
 	int32                                      CurrentIdentifierIndex;
-	TArray<FText>                              BaseImmatriculationNameList;
+	TArray<FText>                              CapitalShipNameList;
+	TArray<FText>                              StationNameList;
 
 	FName                                      DefaultWeaponIdentifier;
 	FName                                      DefaultTurretIdentifier;

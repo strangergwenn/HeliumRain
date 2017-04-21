@@ -269,7 +269,7 @@ public:
 	}
 
 	/** Format an immatriculation for display */
-	static FText DisplaySpacecraftName(UFlareSimulatedSpacecraft* Spacecraft, bool ForceHidePrefix = false);
+	static FText DisplaySpacecraftName(UFlareSimulatedSpacecraft* Spacecraft, bool ToUpper = false, bool ForceHidePrefix = false);
 
 
 	/*----------------------------------------------------

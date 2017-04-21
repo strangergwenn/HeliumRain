@@ -655,6 +655,9 @@ struct FFlareSpacecraftDescription
 	/** Spacecraft name */
 	UPROPERTY(EditAnywhere, Category = Content) FText Name;
 
+	/** Spacecraft name */
+	UPROPERTY(EditAnywhere, Category = Content) FText ShortName;
+
 	/** Spacecraft description */
 	UPROPERTY(EditAnywhere, Category = Content) FText Description;
 

@@ -704,9 +704,8 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
 		if (TargetShip && TargetShip->IsValidLowLevel())
 		{
-			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Targeting {0} ({1})"),
-				UFlareGameTools::DisplaySpacecraftName(TargetShip->GetParent()),
-				FText::FromString(TargetShip->GetCompany()->GetShortName().ToString()));
+			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Targeting {0}"),
+				UFlareGameTools::DisplaySpacecraftName(TargetShip->GetParent()));
 			FlareDrawText(ShipText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 
 			CurrentPos += FVector2D(InstrumentSize.X, 0) * 0.8;

@@ -358,9 +358,8 @@ FText SFlareHUDMenu::GetInfoText() const
 		AFlareSpacecraft* TargetShip = PlayerShip->GetActive()->GetCurrentTarget();
 		if (TargetShip && TargetShip->IsValidLowLevel())
 		{
-			TargetText = FText::Format(LOCTEXT("CurrentTargetFormat", "Targeting {0} ({1})"),
-				UFlareGameTools::DisplaySpacecraftName(TargetShip->GetParent()),
-				FText::FromString(TargetShip->GetCompany()->GetShortName().ToString()));
+			TargetText = FText::Format(LOCTEXT("CurrentTargetFormat", "Targeting {0}"),
+				UFlareGameTools::DisplaySpacecraftName(TargetShip->GetParent()));
 		}
 		else
 		{

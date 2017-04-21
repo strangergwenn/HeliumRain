@@ -1057,7 +1057,7 @@ void AFlareSpacecraft::DrawShipName(UCanvas* TargetCanvas, int32 Width, int32 He
 	{
 		// Cleanup immatriculation on capitals
 		bool HidePrefix = GetDescription()->Size == EFlarePartSize::L;
-		FText Text = UFlareGameTools::DisplaySpacecraftName(GetParent(), HidePrefix);
+		FText Text = UFlareGameTools::DisplaySpacecraftName(GetParent(), true, HidePrefix);
 		
 		// Centering
 		float XL, YL;
