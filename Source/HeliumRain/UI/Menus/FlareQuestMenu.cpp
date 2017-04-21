@@ -321,7 +321,7 @@ void SFlareQuestMenu::FillOngoingQuestList()
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
-			.Text(LOCTEXT("NoOngoingQuest", "No ongoing contract."))
+			.Text(LOCTEXT("NoOngoingQuest", "No ongoing contract. Travel the world to find contracts !"))
 		];
 	}
 }
