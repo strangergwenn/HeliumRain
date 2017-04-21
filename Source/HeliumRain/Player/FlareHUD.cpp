@@ -1485,7 +1485,7 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 		FVector2D CameraTargetScreenPosition;
 		if (ProjectWorldLocationToCockpit(DockingParameters.ShipCameraTargetLocation, CameraTargetScreenPosition))
 		{
-			FLinearColor HelperColor = HudColorEnemy;
+			FLinearColor HelperColor = HudColorNeutral;
 			DrawHUDIcon(CameraTargetScreenPosition, DockingIconSize, HUDDockingCircleTexture, HelperColor, true);
 			
 			// Distance display
@@ -1671,6 +1671,11 @@ bool AFlareHUD::IsInScreen(FVector2D ScreenPosition) const
 
 FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpacecraft* Target)
 {
+	if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->TargetSpacecrafts.Find(Target->GetParent()) != INDEX_NONE)
+	{
+		return HudColorObjective;
+	}
+
 	EFlareHostility::Type Hostility = Target->GetParent()->GetPlayerWarState();
 	switch (Hostility)
 	{
