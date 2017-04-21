@@ -312,6 +312,10 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 					LinearTargetVelocity = -DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 				}
 			}
+			else if (Distance < 200)
+			{
+				LinearTargetVelocity = FVector::ZeroVector;
+			}
 			else
 			{
 				LinearTargetVelocity = DeltaLocation.GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
