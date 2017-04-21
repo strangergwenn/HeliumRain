@@ -2458,16 +2458,16 @@ void UFlareQuestConditionDestroySpacecraft::Load(UFlareQuest* ParentQuest,
 	{
 		InitialLabel = FText::Format(LOCTEXT("DestroySpacecraftLabel","Destroy {0} {1} {2} to {3}"),
 									 FText::AsNumber(Quantity),
-									 MilitaryTarget? LOCTEXT("TargetMilitay","military") : LOCTEXT("TargetCargo","cargo"),
 									 TargetSize == EFlarePartSize::L? LOCTEXT("TargetLarge","large") : LOCTEXT("TargetSmall","small"),
+									 MilitaryTarget? LOCTEXT("TargetMilitay","military") : LOCTEXT("TargetCargo","cargo"),
 									 TargetCompany->GetCompanyName());
 	}
 	else
 	{
 		InitialLabel = FText::Format(LOCTEXT("UncontrollableSpacecraftLabel","Make uncontrollable {0} {1} {2} to {3}"),
 										 FText::AsNumber(Quantity),
-										 MilitaryTarget? LOCTEXT("TargetMilitay","military") : LOCTEXT("TargetCargo","cargo"),
 										 TargetSize == EFlarePartSize::L? LOCTEXT("TargetLarge","large") : LOCTEXT("TargetSmall","small"),
+										 MilitaryTarget? LOCTEXT("TargetMilitay","military") : LOCTEXT("TargetCargo","cargo"),
 										 TargetCompany->GetCompanyName());
 
 	}
