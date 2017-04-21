@@ -268,6 +268,10 @@ public:
 		return Money/100;
 	}
 
+	/** Format an immatriculation for display */
+	static FText DisplaySpacecraftName(UFlareSimulatedSpacecraft* Spacecraft, bool ForceHidePrefix = false);
+
+
 	/*----------------------------------------------------
 		Getter
 	----------------------------------------------------*/

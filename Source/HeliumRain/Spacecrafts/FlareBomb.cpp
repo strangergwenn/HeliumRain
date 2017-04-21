@@ -486,7 +486,7 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 			Data.Spacecraft = HitSpacecraft->GetParent();
 			PC->Notify(LOCTEXT("HeavyShipHarpooned", "Ship harpooned !"),
 				FText::Format(LOCTEXT("HeavyShipHarpoonedFormat", "If it is uncontrollable, you will retrieve {0} on the next day, if you are still in this sector."),
-					FText::FromString(HitSpacecraft->GetImmatriculation().ToString())),
+					UFlareGameTools::DisplaySpacecraftName(HitSpacecraft->GetParent())),
 				FName("ship-harpooned"),
 				EFlareNotification::NT_Military,
 				false,

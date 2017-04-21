@@ -41,7 +41,7 @@ FText UFlareFleet::GetName()
 {
 	if (GetShips().Num() > 0)
 	{
-		return FText::FromString(GetShips()[0]->GetImmatriculation().ToString());// TODO Clean with GetFleetName
+		return UFlareGameTools::DisplaySpacecraftName(GetShips()[0]);// TODO Clean with GetFleetName
 	}
 	else
 	{

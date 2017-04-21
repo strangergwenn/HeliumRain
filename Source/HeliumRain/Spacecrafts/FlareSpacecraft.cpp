@@ -1055,24 +1055,18 @@ void AFlareSpacecraft::DrawShipName(UCanvas* TargetCanvas, int32 Width, int32 He
 {
 	if (TargetCanvas)
 	{
-		FString Text = GetImmatriculation().ToString().ToUpper();
-		
 		// Cleanup immatriculation on capitals
-		if (GetDescription()->Size == EFlarePartSize::L)
-		{
-			int32 Index = Text.Find(*FString("-")) + 1;
-			Text = Text.RightChop(Index);
-			Text = Text.Replace(*FString("-"), *FString(" "));
-		}
-
+		bool HidePrefix = GetDescription()->Size == EFlarePartSize::L;
+		FText Text = UFlareGameTools::DisplaySpacecraftName(GetParent(), HidePrefix);
+		
 		// Centering
 		float XL, YL;
-		TargetCanvas->TextSize(ShipNameFont, Text, XL, YL);
+		TargetCanvas->TextSize(ShipNameFont, Text.ToString(), XL, YL);
 		float X = TargetCanvas->ClipX / 2.0f - XL / 2.0f;
 		float Y = TargetCanvas->ClipY / 2.0f - YL / 2.0f;
 
 		// Drawing
-		FCanvasTextItem TextItem(FVector2D(X, Y), FText::FromString(Text), ShipNameFont, FLinearColor::White);
+		FCanvasTextItem TextItem(FVector2D(X, Y), Text, ShipNameFont, FLinearColor::White);
 		TextItem.Scale = FVector2D(1, 1);
 		TextItem.bOutlined = true;
 		TextItem.OutlineColor = FLinearColor::Green;
@@ -1134,7 +1128,7 @@ void AFlareSpacecraft::OnUndocked(AFlareSpacecraft* DockStation)
 
 		PC->Notify(
 			LOCTEXT("Undocked", "Undocked"),
-			FText::Format(LOCTEXT("UndockedInfoFormat", "Undocked from {0}"), FText::FromName(DockStation->GetImmatriculation())),
+			FText::Format(LOCTEXT("UndockedInfoFormat", "Undocked from {0}"), UFlareGameTools::DisplaySpacecraftName(DockStation->GetParent())),
 			"undocking-success",
 			EFlareNotification::NT_Info);
 	}
@@ -1633,7 +1627,7 @@ FText AFlareSpacecraft::GetShipStatus() const
 		AFlareSpacecraft* Target = Command.ActionTarget;
 
 		ModeText = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"),
-			FText::FromName(Target->GetImmatriculation()));
+			UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
 	}
 	else if (!Paused)
 	{

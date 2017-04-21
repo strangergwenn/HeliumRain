@@ -1483,13 +1483,13 @@ FText UFlareQuestConditionDockAt::GetInitialLabel()
 		if (TargetShip)
 		{
 			return FText::Format(LOCTEXT("DockShipAtFormat", "Dock at {0} in {1} with a the ship {2}"),
-															FText::FromName(TargetStation->GetImmatriculation()),
+															UFlareGameTools::DisplaySpacecraftName(TargetStation),
 															TargetStation->GetCurrentSector()->GetSectorName(),
-															FText::FromName(TargetShip->GetImmatriculation()));
+															UFlareGameTools::DisplaySpacecraftName(TargetShip));
 		}
 	}
 	return FText::Format(LOCTEXT("DockAtFormat", "Dock at {0} in {1} with a ship"),
-													FText::FromName(TargetStation->GetImmatriculation()),
+													UFlareGameTools::DisplaySpacecraftName(TargetStation),
 													TargetStation->GetCurrentSector()->GetSectorName());
 }
 
@@ -1702,12 +1702,12 @@ void UFlareQuestConditionBuyAtStation::Load(UFlareQuest* ParentQuest, FName Cond
 	if (TargetStation->IsDestroyed())
 	{
 		InitialLabel = FText::Format(LOCTEXT("BuyAtStationDestroyed", "Buy {0} {1} from {2} (destroyed)"),
-								 FText::AsNumber(Quantity), Resource->Name, FText::FromName(TargetStation->GetImmatriculation()));
+								 FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(TargetStation));
 	}
 	else
 	{
 		InitialLabel = FText::Format(LOCTEXT("BuyAtStation", "Buy {0} {1} from {2} at {3}"),
-								 FText::AsNumber(Quantity), Resource->Name, FText::FromName(TargetStation->GetImmatriculation()), TargetStation->GetCurrentSector()->GetSectorName());
+								 FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(TargetStation), TargetStation->GetCurrentSector()->GetSectorName());
 	}
 }
 
@@ -1813,12 +1813,12 @@ void UFlareQuestConditionSellAtStation::Load(UFlareQuest* ParentQuest, FName Con
 	if (TargetStation->IsDestroyed())
 	{
 		InitialLabel = FText::Format(LOCTEXT("SellAtStationDestroyed", "Sell {0} {1} to {2} (destroyed)"),
-								 FText::AsNumber(Quantity), Resource->Name, FText::FromName(TargetStation->GetImmatriculation()));
+								 FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(TargetStation));
 	}
 	else
 	{
 		InitialLabel = FText::Format(LOCTEXT("SellAtStation", "Sell {0} {1} to {2} at {3}"),
-								 FText::AsNumber(Quantity), Resource->Name, FText::FromName(TargetStation->GetImmatriculation()), TargetStation->GetCurrentSector()->GetSectorName());
+								 FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(TargetStation), TargetStation->GetCurrentSector()->GetSectorName());
 	}
 }
 

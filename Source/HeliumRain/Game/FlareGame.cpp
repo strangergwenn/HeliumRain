@@ -303,14 +303,14 @@ void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatricula
 		ScrapingStation->GetCompany()->TakeMoney(ScrapRevenue);
 		ShipToScrap->GetCompany()->GiveMoney(ScrapRevenue);
 		GetPC()->Notify(LOCTEXT("ShipSellScrap", "Ship scrap complete"),
-			FText::Format(LOCTEXT("ShipSellScrapFormat", "Your ship {0} has been scrapped for {1} credits!"), FText::FromString(ShipToScrap->GetImmatriculation().ToString()), FText::AsNumber(UFlareGameTools::DisplayMoney(ScrapRevenue))),
+			FText::Format(LOCTEXT("ShipSellScrapFormat", "Your ship {0} has been scrapped for {1} credits!"), UFlareGameTools::DisplaySpacecraftName(ShipToScrap), FText::AsNumber(UFlareGameTools::DisplayMoney(ScrapRevenue))),
 			FName("ship-own-scraped"),
 			EFlareNotification::NT_Economy);
 	}
 	else
 	{
 		GetPC()->Notify(LOCTEXT("ShipOwnScrap", "Ship scrap complete"),
-			FText::Format(LOCTEXT("ShipOwnScrapFormat", "Your ship {0} has been scrapped !"), FText::FromString(ShipToScrap->GetImmatriculation().ToString())),
+			FText::Format(LOCTEXT("ShipOwnScrapFormat", "Your ship {0} has been scrapped !"), UFlareGameTools::DisplaySpacecraftName(ShipToScrap)),
 			FName("ship-own-scraped"),
 			EFlareNotification::NT_Economy);
 	}
@@ -954,11 +954,11 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 
 	// Name
 	if (SpacecraftDesc->Size == EFlarePartSize::L && !IsStation)
-	{
-		NickName = PickCapitalShipName().ToString();
-	}
-	else
-	{
+		{
+			NickName = PickCapitalShipName().ToString();
+		}
+		else
+		{
 		NickName = FString::Printf(TEXT("%04d"), CurrentImmatriculationIndex);
 	}
 	Immatriculation += FString::Printf(TEXT("-%s"), *NickName);

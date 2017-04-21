@@ -598,7 +598,7 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 			if (PC && Spacecraft && Spacecraft->GetCompany() == PC->GetCompany())
 			{
 				PC->Notify(LOCTEXT("ShipBuilt", "Ship production complete"),
-					FText::Format(LOCTEXT("ShipBuiltFormat", "Your ship {0} is ready to use !"), FText::FromString(Spacecraft->GetImmatriculation().ToString())),
+					FText::Format(LOCTEXT("ShipBuiltFormat", "Your ship {0} is ready to use !"), UFlareGameTools::DisplaySpacecraftName(Spacecraft)),
 					FName("ship-production-complete"),
 					EFlareNotification::NT_Economy,
 					false,

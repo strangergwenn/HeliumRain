@@ -495,7 +495,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	int32 MaxTemperature = PlayerShip->GetParent()->GetDamageSystem()->GetOverheatTemperature();
 
 	// Ship name
-	FString FlyingText = PlayerShip->GetParent()->GetImmatriculation().ToString();
+	FString FlyingText = UFlareGameTools::DisplaySpacecraftName(PlayerShip->GetParent()).ToString();
 	FlareDrawText(FlyingText, CurrentPos, Theme.FriendlyColor, false, true);
 	CurrentPos += 2 * InstrumentLine;
 
@@ -705,7 +705,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		if (TargetShip && TargetShip->IsValidLowLevel())
 		{
 			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Targeting {0} ({1})"),
-				FText::FromString(TargetShip->GetParent()->GetImmatriculation().ToString()),
+				UFlareGameTools::DisplaySpacecraftName(TargetShip->GetParent()),
 				FText::FromString(TargetShip->GetCompany()->GetShortName().ToString()));
 			FlareDrawText(ShipText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 
@@ -726,7 +726,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 			if (Threat)
 			{
 				FText WarningText = FText::Format(LOCTEXT("ThreatFiredUponFormat", "UNDER FIRE FROM {0} ({1})"),
-					FText::FromString(Threat->GetImmatriculation().ToString()),
+					UFlareGameTools::DisplaySpacecraftName(Threat),
 					FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
 				FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
 			}
@@ -755,7 +755,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		else if (Targeted)
 		{
 			FText WarningText = FText::Format(LOCTEXT("ThreatTargetFormat", "TARGETED BY {0} ({1})"),
-				FText::FromString(Threat->GetImmatriculation().ToString()),
+				UFlareGameTools::DisplaySpacecraftName(Threat),
 				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
 			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
 		}

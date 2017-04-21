@@ -658,7 +658,7 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"PickUp"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Pick {0} up at {1} in {2}"), VIPName, FText::FromString(Station1->GetImmatriculation().ToString()), FText::FromString(Sector1->GetSectorName().ToString()));
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Pick {0} up at {1} in {2}"), VIPName, UFlareGameTools::DisplaySpacecraftName(Station1), FText::FromString(Sector1->GetSectorName().ToString()));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pick-up", Description);
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station1);
@@ -674,7 +674,7 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Drop-off"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Drop {0} off at {1} in {2}"), VIPName, FText::FromString(Station2->GetImmatriculation().ToString()), FText::FromString(Sector2->GetSectorName().ToString()));
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Drop {0} off at {1} in {2}"), VIPName, UFlareGameTools::DisplaySpacecraftName(Station2), FText::FromString(Sector2->GetSectorName().ToString()));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "drop-off", Description);
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station2);
@@ -844,14 +844,14 @@ void UFlareQuestGeneratedResourceSale::Load(UFlareQuestGenerator* Parent, const 
 	Identifier = InitData.GetName("identifier");
 	QuestName = FText::Format(LOCTEXT(QUEST_TAG"Name","{0} sale in {1}"), Resource->Name, Sector->GetSectorName());
 	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionFormat","Buy {0} {1} from {2} at {3}."),
-									 FText::AsNumber(Quantity), Resource->Name, FText::FromName(Station->GetImmatriculation()), Sector->GetSectorName());
+									 FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(Station), Sector->GetSectorName());
 	QuestCategory = EFlareQuestCategory::SECONDARY;
 
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"BuyResource"
 		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Buy {0} {1} from {2} at {3}"),
-										  FText::AsNumber(Quantity), Resource->Name, FText::FromName(Station->GetImmatriculation()), Sector->GetSectorName());
+										  FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(Station), Sector->GetSectorName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "buy", Description);
 
 		UFlareQuestConditionBuyAtStation* Condition = UFlareQuestConditionBuyAtStation::Create(this, QUEST_TAG"cond1", Station, Resource, Quantity);
@@ -1020,14 +1020,14 @@ void UFlareQuestGeneratedResourcePurchase::Load(UFlareQuestGenerator* Parent, co
 	Identifier = InitData.GetName("identifier");
 	QuestName = FText::Format(LOCTEXT(QUEST_TAG"Name","{0} purchase in {1}"), Resource->Name, Sector->GetSectorName());
 	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionFormat","Sell {0} {1} to {2} at {3}."),
-									 FText::AsNumber(Quantity), Resource->Name, FText::FromName(Station->GetImmatriculation()), Sector->GetSectorName());
+									 FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(Station), Sector->GetSectorName());
 	QuestCategory = EFlareQuestCategory::SECONDARY;
 
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"BuyResource"
 		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Sell {0} {1} to {2} at {3}"),
-										  FText::AsNumber(Quantity), Resource->Name, FText::FromName(Station->GetImmatriculation()), Sector->GetSectorName());
+										  FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(Station), Sector->GetSectorName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "sell", Description);
 
 		UFlareQuestConditionSellAtStation* Condition = UFlareQuestConditionSellAtStation::Create(this, QUEST_TAG"cond1", Station, Resource, Quantity);

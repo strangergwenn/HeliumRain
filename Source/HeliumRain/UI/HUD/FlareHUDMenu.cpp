@@ -359,7 +359,7 @@ FText SFlareHUDMenu::GetInfoText() const
 		if (TargetShip && TargetShip->IsValidLowLevel())
 		{
 			TargetText = FText::Format(LOCTEXT("CurrentTargetFormat", "Targeting {0} ({1})"),
-				FText::FromString(TargetShip->GetParent()->GetImmatriculation().ToString()),
+				UFlareGameTools::DisplaySpacecraftName(TargetShip->GetParent()),
 				FText::FromString(TargetShip->GetCompany()->GetShortName().ToString()));
 		}
 		else
@@ -407,7 +407,7 @@ FText SFlareHUDMenu::GetWarningText() const
 			if (Threat)
 			{
 				FText WarningText = FText::Format(LOCTEXT("ThreatFiredUponFormat", "UNDER FIRE FROM {0} ({1})"),
-					FText::FromString(Threat->GetImmatriculation().ToString()),
+					UFlareGameTools::DisplaySpacecraftName(Threat),
 					FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
 				Info = WarningText.ToString();
 			}
@@ -436,7 +436,7 @@ FText SFlareHUDMenu::GetWarningText() const
 		else if (Targeted)
 		{
 			FText WarningText = FText::Format(LOCTEXT("ThreatTargetFormat", "TARGETED BY {0} ({1})"),
-				FText::FromString(Threat->GetImmatriculation().ToString()),
+				UFlareGameTools::DisplaySpacecraftName(Threat),
 				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
 			Info = WarningText.ToString();
 		}

@@ -137,7 +137,7 @@ FText SFlareContextMenu::GetText() const
 
 	if (TargetSpacecraft && PlayerShip)
 	{
-		Info = FText::Format(Info, FText::FromName(TargetSpacecraft->GetParent()->GetImmatriculation()));
+		Info = FText::Format(Info, UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft->GetParent()));
 	}
 
 	return Info;

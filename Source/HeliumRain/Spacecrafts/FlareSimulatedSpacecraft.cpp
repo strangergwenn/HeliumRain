@@ -474,7 +474,7 @@ void UFlareSimulatedSpacecraft::SetTrading(bool Trading)
 		Data.Spacecraft = this;
 		Game->GetPC()->Notify(LOCTEXT("TradingStateEnd", "Trading complete"),
 			FText::Format(LOCTEXT("TravelEndedFormat", "{0} finished trading in {1}"),
-				FText::FromString(GetImmatriculation().ToString()),
+				UFlareGameTools::DisplaySpacecraftName(this),
 				GetCurrentSector()->GetSectorName()),
 			FName("trading-state-end"),
 			EFlareNotification::NT_Economy,

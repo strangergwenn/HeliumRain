@@ -521,7 +521,7 @@ FText SFlareTradeMenu::GetLeftSpacecraftName() const
 {
 	if (TargetLeftSpacecraft)
 	{
-		return FText::FromName(TargetLeftSpacecraft->GetImmatriculation());
+		return UFlareGameTools::DisplaySpacecraftName(TargetLeftSpacecraft);
 	}
 	else
 	{
@@ -533,7 +533,7 @@ FText SFlareTradeMenu::GetRightSpacecraftName() const
 {
 	if (TargetRightSpacecraft)
 	{
-		return FText::FromName(TargetRightSpacecraft->GetImmatriculation());
+		return UFlareGameTools::DisplaySpacecraftName(TargetRightSpacecraft);
 	}
 	else
 	{
@@ -548,8 +548,8 @@ FText SFlareTradeMenu::GetTransactionDetails() const
 		return FText::Format(LOCTEXT("TradeInfoFormat", "Trading {0}x {1} from {2} to {3}."),
 			FText::AsNumber(TransactionQuantity),
 			TransactionResource->Name,
-			FText::FromName(TransactionSourceSpacecraft->GetImmatriculation()),
-			FText::FromName(TransactionDestinationSpacecraft->GetImmatriculation()));
+			UFlareGameTools::DisplaySpacecraftName(TransactionSourceSpacecraft),
+			UFlareGameTools::DisplaySpacecraftName(TransactionDestinationSpacecraft));
 	}
 	else
 	{
@@ -563,8 +563,8 @@ FText SFlareTradeMenu::GetTransactionInvalidDetails() const
 	{
 		return FText::Format(LOCTEXT("TradeInvalidInfoFormat", "Trading of {0} is unauthorized from {1} to {2} !"),
 			TransactionResource->Name,
-			FText::FromName(TransactionSourceSpacecraft->GetImmatriculation()),
-			FText::FromName(TransactionDestinationSpacecraft->GetImmatriculation()));
+			UFlareGameTools::DisplaySpacecraftName(TransactionSourceSpacecraft),
+			UFlareGameTools::DisplaySpacecraftName(TransactionDestinationSpacecraft));
 	}
 	else
 	{

@@ -215,7 +215,8 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"DockAt"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "You can now dock at stations to trade resources or upgrade your spacecraft ! While flying, use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}, and then press <input-action:Wheel> to select the docking option. Your ship will dock automatically - but you can brake to disengage the autopilot. Use the wheel menu to undock too !"), FText::FromString(Station->GetImmatriculation().ToString()));
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "You can now dock at stations to trade resources or upgrade your spacecraft ! While flying, use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}, and then press <input-action:Wheel> to select the docking option. Your ship will dock automatically - but you can brake to disengage the autopilot. Use the wheel menu to undock too !"),
+			UFlareGameTools::DisplaySpacecraftName(Station));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pick-up", Description);
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station);

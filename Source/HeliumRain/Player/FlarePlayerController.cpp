@@ -1107,7 +1107,7 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 			LOCTEXT("DockingGranted", "Docking granted"),
 			FText::Format(
 				LOCTEXT("DockingGrantedInfoFormat", "Your ship is now automatically docking at {0}. Using manual controls will abort docking."),
-				FText::FromName(Target->GetImmatriculation())),
+				UFlareGameTools::DisplaySpacecraftName(Target)),
 			"docking-granted",
 			EFlareNotification::NT_Info,
 			false);
@@ -1116,7 +1116,7 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 	{
 		Notify(
 			LOCTEXT("DockingDenied", "Docking denied"),
-			FText::Format(LOCTEXT("DockingDeniedInfoFormat", "{0} denied your docking request"), FText::FromName(Target->GetImmatriculation())),
+			FText::Format(LOCTEXT("DockingDeniedInfoFormat", "{0} denied your docking request"), UFlareGameTools::DisplaySpacecraftName(Target)),
 			"docking-denied",
 			EFlareNotification::NT_Info,
 			false);
@@ -1141,7 +1141,7 @@ void AFlarePlayerController::NotifyDockingComplete(AFlareSpacecraft* DockStation
 	{
 		Notify(
 			LOCTEXT("DockingSuccess", "Docking successful"),
-			FText::Format(LOCTEXT("DockingSuccessInfoFormat", "Your ship is now docked at {0}"), FText::FromName(DockStation->GetImmatriculation())),
+			FText::Format(LOCTEXT("DockingSuccessInfoFormat", "Your ship is now docked at {0}"), UFlareGameTools::DisplaySpacecraftName(DockStation->GetParent())),
 			"docking-success",
 			EFlareNotification::NT_Info);
 	}
@@ -1767,18 +1767,18 @@ void AFlarePlayerController::WheelPressed()
 			if (Target)
 			{
 				// Inspect
-				FText Text = FText::Format(LOCTEXT("InspectTargetFormat", "Inspect {0}"), FText::FromName(Target->GetParent()->GetImmatriculation()));
+				FText Text = FText::Format(LOCTEXT("InspectTargetFormat", "Inspect {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
 				MouseMenu->AddWidget(Target->GetParent()->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
 
 				// Look at
-				Text = FText::Format(LOCTEXT("LookAtTargetFormat", "Focus on {0}"), FText::FromName(Target->GetParent()->GetImmatriculation()));
+				Text = FText::Format(LOCTEXT("LookAtTargetFormat", "Focus on {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
 				MouseMenu->AddWidget("Mouse_LookAt", Text, FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::LookAtTargetSpacecraft));
 
 				// Fly
 				if (Target->GetParent()->GetCompany() == GetCompany() && !Target->GetParent()->IsStation())
 				{
-					Text = FText::Format(LOCTEXT("FlyTargetFormat", "Fly {0}"), FText::FromName(Target->GetParent()->GetImmatriculation()));
+					Text = FText::Format(LOCTEXT("FlyTargetFormat", "Fly {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
 					MouseMenu->AddWidget("Mouse_Fly", Text,	FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::FlyTargetSpacecraft));
 				}
 
@@ -1787,7 +1787,7 @@ void AFlarePlayerController::WheelPressed()
 				 && !IsBattleInProgress
 				 && Target->GetParent()->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral)
 				{
-					Text = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), FText::FromName(Target->GetParent()->GetImmatriculation()));
+					Text = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
 					MouseMenu->AddWidget("Mouse_DockAt", Text, FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::DockAtTargetSpacecraft));
 				}
 			}
