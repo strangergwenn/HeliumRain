@@ -247,7 +247,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 	}
 
 	// Docking wait time
-	if (!PilotAvoidShip && Ship->GetNavigationSystem()->IsDocked())
+	if (!PilotAvoidShip && Ship->GetNavigationSystem()->IsDocked() && Ship->GetParent()->GetCompany() != Ship->GetGame()->GetPC()->GetCompany())
 	{
 		// Dock
 		if (CurrentWaitTime <= 0)
@@ -282,7 +282,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 	}
 
 	// If no station target, find a target : a random friendly station different from the last station
-	else
+	else if(Ship->GetParent()->GetCompany() != Ship->GetGame()->GetPC()->GetCompany())
 	{
 		if (!PilotTargetStation)
 		{

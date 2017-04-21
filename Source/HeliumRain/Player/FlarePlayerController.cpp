@@ -376,7 +376,7 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 	// Setup everything
 	ShipPawn = Ship;
 	SetExternalCamera(false);
-	ShipPawn->GetNavigationSystem()->AbortAllCommands();
+	//ShipPawn->GetNavigationSystem()->AbortAllCommands();
 	ShipPawn->GetStateManager()->EnablePilot(false);
 	ShipPawn->GetWeaponsSystem()->DeactivateWeapons();
 	CockpitManager->OnFlyShip(ShipPawn);
@@ -1585,7 +1585,7 @@ void AFlarePlayerController::DisengagePilot()
 	{
 		FLOG("AFlarePlayerController::DisengagePilot");
 		ShipPawn->GetStateManager()->EnablePilot(false);
-		ShipPawn->GetNavigationSystem()->AbortAllCommands();
+		//ShipPawn->GetNavigationSystem()->AbortAllCommands();
 	}
 }
 
