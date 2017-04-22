@@ -240,7 +240,7 @@ void UFlareQuest::NextStep(bool Silent)
 				if (!Silent)
 				{
 					FText MessageText = FormatTags(Step->GetStepDescription());
-					SendQuestNotification(MessageText, GetQuestNotificationTag());
+					SendQuestNotification(MessageText, GetQuestNotificationTag(), GetQuestCategory() == EFlareQuestCategory::TUTORIAL);
 				}
 
 				QuestManager->LoadCallbacks(this);
@@ -490,9 +490,6 @@ void UFlareQuest::StartObjectiveTracking()
 	TrackObjectives = true;
 	QuestManager->GetGame()->GetPC()->CompleteObjective();
 	UpdateObjectiveTracker();
-
-	FText MessageText = FormatTags(CurrentStep->GetStepDescription());
-	SendQuestNotification(MessageText, GetQuestNotificationTag());
 }
 
 void UFlareQuest::StopObjectiveTracking()
