@@ -1196,7 +1196,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 
 	// Setup reward
 	int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Parent->GetGame()->GetGameWorld(), Station1->GetCurrentSector(), Station2->GetCurrentSector(), NULL);
-	int64 QuestValue = 2000 * QuestResourceQuantity * TravelDuration;
+	int64 QuestValue = 500 * QuestResourceQuantity * TravelDuration;
 
 	// Create the quest
 	UFlareQuestGeneratedResourceTrade* Quest = NewObject<UFlareQuestGeneratedResourceTrade>(Parent, UFlareQuestGeneratedResourceTrade::StaticClass());
