@@ -34,40 +34,45 @@ void SFlareTooltip::Construct(const FArguments& InArgs)
 			SAssignNew(ContentBox, SBox)
 			.WidthOverride(Theme.ContentWidth / 2)
 			[
-				SNew(SBorder)
-				.BorderImage(&Theme.BackgroundBrush)
-				.BorderBackgroundColor(this, &SFlareTooltip::GetTooltipColor)
+				SNew(SBackgroundBlur)
+				.BlurRadius(this, &SFlareTooltip::GetToolTipBlurRadius)
+				.BlurStrength(this, &SFlareTooltip::GetToolTipBlurStrength)
 				[
 					SNew(SBorder)
 					.BorderImage(&Theme.BackgroundBrush)
 					.BorderBackgroundColor(this, &SFlareTooltip::GetTooltipColor)
 					[
-						SNew(SVerticalBox)
-
-						// Title
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
+						SNew(SBorder)
+						.BorderImage(&Theme.BackgroundBrush)
+						.BorderBackgroundColor(this, &SFlareTooltip::GetTooltipColor)
 						[
-							SNew(STextBlock)
-							.Text(this, &SFlareTooltip::GetTitleText)
-							.TextStyle(&Theme.NameFont)
-							.ShadowColorAndOpacity(this, &SFlareTooltip::GetTooltipShadowColor)
-							.ColorAndOpacity(this, &SFlareTooltip::GetTooltipColor)
-							.WrapTextAt(Theme.ContentWidth / 2)
-						]
+							SNew(SVerticalBox)
 
-						// Content
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareTooltip::GetHelpText)
-							.TextStyle(&Theme.SmallFont)
-							.ShadowColorAndOpacity(this, &SFlareTooltip::GetTooltipShadowColor)
-							.ColorAndOpacity(this, &SFlareTooltip::GetTooltipColor)
-							.WrapTextAt(Theme.ContentWidth / 2 - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
+							// Title
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareTooltip::GetTitleText)
+								.TextStyle(&Theme.NameFont)
+								.ShadowColorAndOpacity(this, &SFlareTooltip::GetTooltipShadowColor)
+								.ColorAndOpacity(this, &SFlareTooltip::GetTooltipColor)
+								.WrapTextAt(Theme.ContentWidth / 2)
+							]
+
+							// Content
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareTooltip::GetHelpText)
+								.TextStyle(&Theme.SmallFont)
+								.ShadowColorAndOpacity(this, &SFlareTooltip::GetTooltipShadowColor)
+								.ColorAndOpacity(this, &SFlareTooltip::GetTooltipColor)
+								.WrapTextAt(Theme.ContentWidth / 2 - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
+							]
 						]
 					]
 				]
@@ -146,6 +151,18 @@ void SFlareTooltip::HideTooltipForce()
 	Callbacks
 ----------------------------------------------------*/
 
+TOptional<int32> SFlareTooltip::GetToolTipBlurRadius() const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	return Theme.BlurRadius * TooltipCurrentAlpha;
+}
+
+float SFlareTooltip::GetToolTipBlurStrength() const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	return Theme.BlurStrength * TooltipCurrentAlpha;
+}
+
 FMargin SFlareTooltip::GetTooltipPosition() const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
@@ -159,7 +176,7 @@ FMargin SFlareTooltip::GetTooltipPosition() const
 		MousePos.X = (MousePos.X > ScreenSize.X - WidgetSize.X) ? MousePos.X - WidgetSize.X : MousePos.X;
 		MousePos.Y = (MousePos.Y > ScreenSize.Y - WidgetSize.Y) ? MousePos.Y - WidgetSize.Y : MousePos.Y;
 
-		return FMargin(MousePos.X, MousePos.Y, 0, 0);
+		return FMargin(MousePos.X, MousePos.Y + 50, 0, 0);
 	}
 
 	return FMargin(0);

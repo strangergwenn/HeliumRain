@@ -50,6 +50,12 @@ public:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Blur settings */
+	TOptional<int32> GetToolTipBlurRadius() const;
+
+	/** Blur settings */
+	float GetToolTipBlurStrength() const;
+
 	/** Get the current position */
 	FMargin GetTooltipPosition() const;
 
