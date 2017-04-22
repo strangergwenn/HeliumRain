@@ -8,6 +8,57 @@
 	Constructor
 ----------------------------------------------------*/
 
+struct FSortByEntrySize
+{
+	FORCEINLINE bool operator()(const UFlareSpacecraftCatalogEntry& EntryA, const UFlareSpacecraftCatalogEntry& EntryB) const
+	{
+		const FFlareSpacecraftDescription* A = &EntryA.Data;
+		const FFlareSpacecraftDescription* B = &EntryB.Data;
+
+		if (A->IsStation() && B->IsStation())
+		{
+			if (A->IsSubstation && !B->IsSubstation)
+			{
+				return true;
+			}
+			else if (!A->IsSubstation && B->IsSubstation)
+			{
+				return false;
+			}
+		}
+		else if (A->IsStation() && !B->IsStation())
+		{
+			return true;
+		}
+		else if (!A->IsStation() && B->IsStation())
+		{
+			return false;
+		}
+		else if (A->IsMilitary() && B->IsMilitary())
+		{
+			return A->WeaponGroups.Num() > B->WeaponGroups.Num();
+		}
+		else if (A->IsMilitary() && !B->IsMilitary())
+		{
+			return true;
+		}
+		else if (!A->IsMilitary() && B->IsMilitary())
+		{
+			return false;
+		}
+		else if (A->Mass > B->Mass)
+		{
+			return true;
+		}
+		else if (A->Mass < B->Mass)
+		{
+			return false;
+		}
+
+		return false;
+	}
+};
+
 UFlareSpacecraftCatalog::UFlareSpacecraftCatalog(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
@@ -30,6 +81,9 @@ UFlareSpacecraftCatalog::UFlareSpacecraftCatalog(const class FObjectInitializer&
 			ShipCatalog.Add(Spacecraft);
 		}
 	}
+
+	StationCatalog.Sort(FSortByEntrySize());
+	ShipCatalog.Sort(FSortByEntrySize());
 }
 
 
