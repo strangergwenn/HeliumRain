@@ -18,21 +18,28 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	int32 ObjectiveInfoWidth = 400;
+	int32 ObjectiveInfoWidth = 370;
 	FLinearColor ObjectiveColor = Theme.ObjectiveColor;
 	ObjectiveColor.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
 
 	// Create the layout
 	ChildSlot
-	.VAlign(VAlign_Top)
+	.VAlign(VAlign_Bottom)
 	.HAlign(HAlign_Right)
-	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight() + 5, 0, 0))
+	.Padding(FMargin(0))
 	[
 		SNew(SBox)
 		.HeightOverride(800)
-		.VAlign(VAlign_Top)
+		.VAlign(VAlign_Bottom)
 		[
 			SNew(SVerticalBox)
+
+			// Notifications
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				SAssignNew(NotificationContainer, SVerticalBox)
+			]
 
 			// Objective
 			+ SVerticalBox::Slot()
@@ -81,13 +88,6 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 					]
 				]
 			]
-
-			// Notifications
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SAssignNew(NotificationContainer, SVerticalBox)
-			]
 		]
 	];
 }
@@ -104,7 +104,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Identifier, EFlareNoti
 
 	// Add notification
 	TSharedPtr<SFlareNotification> NotificationEntry;
-	NotificationContainer->AddSlot()
+	NotificationContainer->InsertSlot(0)
 		.AutoHeight()
 		[
 			SAssignNew(NotificationEntry, SFlareNotification)
@@ -197,7 +197,12 @@ EVisibility SFlareNotifier::GetObjectiveVisibility() const
 {
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 
-	if (!MenuManager->IsMenuOpen() && QuestManager->GetSelectedQuest())
+	if (MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Story
+		&& MenuManager->GetNextMenu() != EFlareMenu::MENU_Story
+		&& MenuManager->GetCurrentMenu() != EFlareMenu::MENU_GameOver
+		&& MenuManager->GetNextMenu() != EFlareMenu::MENU_GameOver
+		&& QuestManager
+		&& QuestManager->GetSelectedQuest())
 	{
 		return EVisibility::SelfHitTestInvisible;
 	}

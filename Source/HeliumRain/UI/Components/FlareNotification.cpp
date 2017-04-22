@@ -18,7 +18,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 	NotificationScroll = 150;
 	NotificationEnterDuration = 0.4;
 	NotificationExitDuration = 0.7;
-	int32 NotificatioNWidth = 400;
+	int32 NotificatioNWidth = 370;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 NotificationTextWidth = NotificatioNWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
 	FLinearColor ShadowColor = FLinearColor::Black;
@@ -101,7 +101,8 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 
 										// Title
 										+ SHorizontalBox::Slot()
-										.HAlign(HAlign_Fill)
+										.HAlign(HAlign_Left)
+										.AutoWidth()
 										[
 											SNew(STextBlock)
 											.Text(InArgs._Text)
@@ -328,7 +329,7 @@ FMargin SFlareNotification::GetNotificationMargins() const
 {
 	FMargin Result(0);
 
-	Result.Top = CurrentMargin + 1;
+	Result.Bottom = CurrentMargin + 1;
 
 	return Result;
 }

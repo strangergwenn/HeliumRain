@@ -150,83 +150,58 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 						SAssignNew(AnkaBox, SFlarePlanetaryBox)
 					]
 
-					// Travels
+					// Asta
 					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Top)
-					.HAlign(HAlign_Right)
-					.Padding(Theme.ContentPadding)
 					[
-						SNew(SVerticalBox)
-
-						// Travel list title
-						+ SVerticalBox::Slot()
-						.Padding(Theme.TitlePadding)
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("Travels", "Travels & Orders"))
-							.TextStyle(&Theme.SubTitleFont)
-						]
-
-						// Travel list
-						+ SVerticalBox::Slot()
-						.Padding(Theme.TitlePadding)
-						[
-							SNew(SScrollBox)
-							.Style(&Theme.ScrollBoxStyle)
-							.ScrollBarStyle(&Theme.ScrollBarStyle)
-							+ SScrollBox::Slot()
-							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(this, &SFlareOrbitalMenu::GetTravelText)
-								.WrapTextAt(0.8 * Theme.ContentWidth)
-							]
-						]
+						SAssignNew(AstaBox, SFlarePlanetaryBox)
 					]
 
-					// Travels
+					// Trade routes
 					+ SHorizontalBox::Slot()
 					.VAlign(VAlign_Top)
 					.HAlign(HAlign_Right)
 					.Padding(Theme.ContentPadding)
 					[
-						SNew(SVerticalBox)
-
-						// Trade routes title
-						+ SVerticalBox::Slot()
-						.Padding(Theme.TitlePadding)
-						.AutoHeight()
+						SNew(SBox)
+						.WidthOverride(Theme.ContentWidth / 2)
 						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("Trade routes", "Trade routes"))
-							.TextStyle(&Theme.SubTitleFont)
-						]
+							SNew(SVerticalBox)
 
-						// New trade route button
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.SmallContentPadding)
-						.HAlign(HAlign_Left)
-						[
-							SNew(SFlareButton)
-							.Width(8)
-							.Text(LOCTEXT("NewTradeRouteButton", "Add new trade route"))
-							.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route and edit it"))
-							.Icon(FFlareStyleSet::GetIcon("New"))
-							.OnClicked(this, &SFlareOrbitalMenu::OnNewTradeRouteClicked)
-						]
-
-						// Trade route list
-						+ SVerticalBox::Slot()
-						.HAlign(HAlign_Left)
-						[
-							SNew(SScrollBox)
-							.Style(&Theme.ScrollBoxStyle)
-							.ScrollBarStyle(&Theme.ScrollBarStyle)
-							+ SScrollBox::Slot()
+							// Trade routes title
+							+ SVerticalBox::Slot()
+							.Padding(Theme.TitlePadding)
+							.AutoHeight()
 							[
-								SAssignNew(TradeRouteList, SVerticalBox)
+								SNew(STextBlock)
+								.Text(LOCTEXT("Trade routes", "Trade routes"))
+								.TextStyle(&Theme.SubTitleFont)
+							]
+
+							// New trade route button
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.SmallContentPadding)
+							.HAlign(HAlign_Left)
+							[
+								SNew(SFlareButton)
+								.Width(8)
+								.Text(LOCTEXT("NewTradeRouteButton", "Add new trade route"))
+								.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route and edit it"))
+								.Icon(FFlareStyleSet::GetIcon("New"))
+								.OnClicked(this, &SFlareOrbitalMenu::OnNewTradeRouteClicked)
+							]
+
+							// Trade route list
+							+ SVerticalBox::Slot()
+							.HAlign(HAlign_Left)
+							[
+								SNew(SScrollBox)
+								.Style(&Theme.ScrollBoxStyle)
+								.ScrollBarStyle(&Theme.ScrollBarStyle)
+								+ SScrollBox::Slot()
+								[
+									SAssignNew(TradeRouteList, SVerticalBox)
+								]
 							]
 						]
 					]
@@ -239,12 +214,6 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SHorizontalBox)
 
-					// Asta
-					+ SHorizontalBox::Slot()
-					[
-						SAssignNew(AstaBox, SFlarePlanetaryBox)
-					]
-
 					// Hela
 					+ SHorizontalBox::Slot()
 					[
@@ -255,6 +224,45 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					+ SHorizontalBox::Slot()
 					[
 						SAssignNew(AdenaBox, SFlarePlanetaryBox)
+					]
+
+					// Travels
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Top)
+					.HAlign(HAlign_Right)
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(Theme.ContentWidth / 2)
+						[
+							SNew(SVerticalBox)
+
+							// Travel list title
+							+ SVerticalBox::Slot()
+							.Padding(Theme.TitlePadding)
+							.AutoHeight()
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("Travels", "Travels & Orders"))
+								.TextStyle(&Theme.SubTitleFont)
+							]
+
+							// Travel list
+							+ SVerticalBox::Slot()
+							.Padding(Theme.TitlePadding)
+							[
+								SNew(SScrollBox)
+								.Style(&Theme.ScrollBoxStyle)
+								.ScrollBarStyle(&Theme.ScrollBarStyle)
+								+ SScrollBox::Slot()
+								[
+									SNew(STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(this, &SFlareOrbitalMenu::GetTravelText)
+									.WrapTextAt(0.8 * Theme.ContentWidth)
+								]
+							]
+						]
 					]
 				]
 			]
