@@ -1696,7 +1696,7 @@ void AFlarePlayerController::Test1()
 void AFlarePlayerController::Test2()
 {
 	IsTest2 = !IsTest2;
-	FLOGV("AFlarePlayerController::Test2 (benchmark) %d", IsTest2);
+	FLOGV("AFlarePlayerController::Test2 (benchmark) %d", IsTest2);/*
 
 	if (IsTest2)
 	{
@@ -1705,7 +1705,7 @@ void AFlarePlayerController::Test2()
 	else
 	{
 		ConsoleCommand("stat stopfile");
-	}
+	}*/
 }
 
 
