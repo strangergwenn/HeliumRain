@@ -855,6 +855,11 @@ bool UFlareSimulatedSpacecraft::NeedRefill()
 	return false;
 }
 
+bool UFlareSimulatedSpacecraft::IsShipyard()
+{
+	return GetFactories().Num() && GetFactories()[0]->IsShipyard();
+}
+
 int64 UFlareSimulatedSpacecraft::GetUpgradeCost(FFlareSpacecraftComponentDescription* NewPart, FFlareSpacecraftComponentDescription* OldPart)
 {
 	return NewPart->Cost - OldPart->Cost;

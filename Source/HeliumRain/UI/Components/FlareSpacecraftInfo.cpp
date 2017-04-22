@@ -311,6 +311,16 @@ void SFlareSpacecraftInfo::SetSpacecraft(UFlareSimulatedSpacecraft* Target)
 				];
 			}
 		}
+
+		// Set "details" text
+		if (Target->IsShipyard())
+		{
+			InspectButton->SetText(LOCTEXT("InspectShipyard", "BUY SHIP"));
+		}
+		else
+		{
+			InspectButton->SetText(LOCTEXT("InspectRegular", "DETAILS"));
+		}
 	}
 }
 

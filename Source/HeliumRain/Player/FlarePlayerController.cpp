@@ -1741,21 +1741,18 @@ void AFlarePlayerController::WheelPressed()
 		{
 			AFlareSpacecraft* Target = ShipPawn->GetNavigationSystem()->GetDockStation();
 
-			// Buy ship
-			if (Target->GetParent()->GetFactories().Num() && Target->GetParent()->GetFactories()[0]->IsShipyard())
+			// Buy ship / details
+			if (Target->GetParent()->IsShipyard())
 			{
 				MouseMenu->AddWidget("Mouse_Fly", LOCTEXT("Buy ship", "Buy ship"),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
 			}
-
-			// Inspect
 			else
 			{
 				FText Text = FText::Format(LOCTEXT("InspectDockedFormat", "Details for {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
 				MouseMenu->AddWidget(Target->GetParent()->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
 			}
-
 
 			// Trade if possible
 			if (ShipPawn->GetParent()->GetDescription()->CargoBayCount > 0)

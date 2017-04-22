@@ -137,6 +137,8 @@ public:
 
 	bool NeedRefill();
 
+	bool IsShipyard();
+
 
 	/*----------------------------------------------------
 		Resources
