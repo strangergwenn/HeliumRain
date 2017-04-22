@@ -1425,6 +1425,7 @@ void AFlarePlayerController::MarkAsBusy()
 void AFlarePlayerController::Simulate()
 {
 	if (GetGame()->IsLoadedOrCreated() && !GetNavHUD()->IsWheelMenuOpen() && !IsTyping())
+	if (GetGame()->IsLoadedOrCreated() && !MenuManager->IsSwitchingMenu() && !GetNavHUD()->IsWheelMenuOpen() && !IsTyping())
 	{
 		FLOG("AFlarePlayerController::Simulate");
 		bool CanGoAhead = ConfirmFastForward(FSimpleDelegate::CreateUObject(this, &AFlarePlayerController::SimulateConfirmed));
