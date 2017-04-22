@@ -809,7 +809,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, MinPlayerTransportCapacity);
 
 	// Setup reward
-	int64 QuestValue = 1000 * QuestResourceQuantity;
+	int64 QuestValue = 50000 + 5000 * FMath::Sqrt(QuestResourceQuantity);
 
 	// Create the quest
 	UFlareQuestGeneratedResourceSale* Quest = NewObject<UFlareQuestGeneratedResourceSale>(Parent, UFlareQuestGeneratedResourceSale::StaticClass());
@@ -986,7 +986,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 
 
 	// Setup reward
-	int64 QuestValue = 1000 * QuestResourceQuantity;
+	int64 QuestValue = 50000 + 5000 * FMath::Sqrt(QuestResourceQuantity);
 
 	// Create the quest
 	UFlareQuestGeneratedResourcePurchase* Quest = NewObject<UFlareQuestGeneratedResourcePurchase>(Parent, UFlareQuestGeneratedResourcePurchase::StaticClass());
@@ -1196,7 +1196,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 
 	// Setup reward
 	int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Parent->GetGame()->GetGameWorld(), Station1->GetCurrentSector(), Station2->GetCurrentSector(), NULL);
-	int64 QuestValue = 500 * QuestResourceQuantity * TravelDuration;
+	int64 QuestValue = 100000 + FMath::Sqrt(TravelDuration) * 50000 + 5000 * FMath::Sqrt(QuestResourceQuantity);
 
 	// Create the quest
 	UFlareQuestGeneratedResourceTrade* Quest = NewObject<UFlareQuestGeneratedResourceTrade>(Parent, UFlareQuestGeneratedResourceTrade::StaticClass());
