@@ -133,7 +133,7 @@ const FSlateBrush* SFlareContextMenu::GetIcon() const
 
 FText SFlareContextMenu::GetText() const
 {
-	FText Info = LOCTEXT("Inspect", "Inspect");
+	FText Info = LOCTEXT("Details", "Details");
 
 	if (TargetSpacecraft && PlayerShip)
 	{

@@ -1739,6 +1739,24 @@ void AFlarePlayerController::WheelPressed()
 		// Docked controls
 		if (ShipPawn->GetNavigationSystem()->IsDocked() && !IsBattleInProgress)
 		{
+			AFlareSpacecraft* Target = ShipPawn->GetNavigationSystem()->GetDockStation();
+
+			// Buy ship
+			if (Target->GetParent()->GetFactories().Num() && Target->GetParent()->GetFactories()[0]->IsShipyard())
+			{
+				MouseMenu->AddWidget("Mouse_Fly", LOCTEXT("Buy ship", "Buy ship"),
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
+			}
+
+			// Inspect
+			else
+			{
+				FText Text = FText::Format(LOCTEXT("InspectDockedFormat", "Details for {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
+				MouseMenu->AddWidget(Target->GetParent()->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
+					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
+			}
+
+
 			// Trade if possible
 			if (ShipPawn->GetParent()->GetDescription()->CargoBayCount > 0)
 			{
@@ -1768,7 +1786,7 @@ void AFlarePlayerController::WheelPressed()
 			if (Target)
 			{
 				// Inspect
-				FText Text = FText::Format(LOCTEXT("InspectTargetFormat", "Inspect {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
+				FText Text = FText::Format(LOCTEXT("InspectTargetFormat", "Details for {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
 				MouseMenu->AddWidget(Target->GetParent()->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
 
@@ -1856,6 +1874,11 @@ void AFlarePlayerController::InspectTargetSpacecraft()
 	if (ShipPawn)
 	{
 		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
+		if (ShipPawn->GetNavigationSystem()->IsDocked())
+		{
+			TargetSpacecraft = ShipPawn->GetNavigationSystem()->GetDockStation();
+		}
+
 		if (TargetSpacecraft)
 		{
 			FFlareMenuParameterData Data;
