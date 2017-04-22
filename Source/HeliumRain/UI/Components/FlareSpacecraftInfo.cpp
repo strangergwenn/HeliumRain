@@ -765,7 +765,16 @@ void SFlareSpacecraftInfo::OnScrap()
 
 			OnRemoved.ExecuteIfBound(TargetSpacecraft);
 			PC->GetGame()->Scrap(TargetSpacecraft->GetImmatriculation(), TargetStation->GetImmatriculation());
-			PC->GetMenuManager()->Back();
+			if(PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Ship ||
+					PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_ShipConfig)
+			{
+				PC->GetMenuManager()->Back();
+			}
+			else
+			{
+				PC->GetMenuManager()->Reload();
+			}
+
 		}
 		else
 		{
