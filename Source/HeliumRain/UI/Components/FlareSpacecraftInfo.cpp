@@ -890,7 +890,7 @@ EVisibility SFlareSpacecraftInfo::GetCombatValueVisibility() const
 	{
 		if (TargetSpacecraft->IsStation() || !TargetSpacecraft->IsMilitary())
 		{
-			return EVisibility::Hidden;
+			return EVisibility::Collapsed;
 		}
 	}
 
@@ -973,6 +973,12 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 		{
 			DistanceText = LOCTEXT("PlayerShipText", "Player ship - ");
 		}
+		// Class text
+		FText ClassText;
+		if (TargetSpacecraft->IsStation())
+		{
+			ClassText = FText::FromString(TargetSpacecraft->GetDescription()->Name.ToString() + " - ");
+		}
 		
 		// Our company
 		UFlareCompany* TargetCompany = TargetSpacecraft->GetCompany();
@@ -998,13 +1004,16 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 							Factory->GetFactoryStatus());
 					}
 
-					return FText::Format(LOCTEXT("StationInfoFormat", "{0}{1}"),
+					return FText::Format(LOCTEXT("StationInfoFormat", "{0}{1}{2}"),
 						DistanceText,
+						ClassText,
 						ProductionStatusText);
 				}
 				else
 				{
-					return FText::Format(LOCTEXT("StationInfoFormatNoFactories", "{0}No factories"), DistanceText);
+					return FText::Format(LOCTEXT("StationInfoFormatNoFactories", "{0}{1}No factories"),
+						DistanceText,
+						ClassText);
 				}
 			}
 
@@ -1039,8 +1048,9 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 		// Other company
 		else if (TargetCompany)
 		{
-			return FText::Format(LOCTEXT("OwnedByFormat", "{0}Owned by {1} ({2})"),
+			return FText::Format(LOCTEXT("OwnedByFormat", "{0}{1}{2} ({3})"),
 				DistanceText,
+				ClassText,
 				TargetCompany->GetCompanyName(),
 				TargetCompany->GetPlayerHostilityText());
 		}

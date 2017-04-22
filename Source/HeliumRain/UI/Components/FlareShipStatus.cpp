@@ -19,7 +19,7 @@ void SFlareShipStatus::Construct(const FArguments& InArgs)
 	ChildSlot
 	.VAlign(VAlign_Fill)
 	.HAlign(HAlign_Fill)
-	.Padding(FMargin(8, 8, 32, 8))
+	.Padding(FMargin(8))
 	[
 		SNew(SHorizontalBox)
 
