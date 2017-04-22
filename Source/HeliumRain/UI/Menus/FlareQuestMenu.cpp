@@ -421,7 +421,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.WrapTextAt(0.8 * Theme.ContentWidth)
+					.WrapTextAt(0.75 * Theme.ContentWidth)
 					.Text(SelectedQuest->GetQuestDescription())
 				]
 
