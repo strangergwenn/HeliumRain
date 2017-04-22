@@ -1769,7 +1769,7 @@ int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSe
 	return FMath::Max((int64) 0, Cost) * (WithMargin ? 1.2f : 1.0f);
 }
 
-FText UFlareGameTools::DisplaySpacecraftName(UFlareSimulatedSpacecraft* Spacecraft, bool ToUpper, bool ForceHidePrefix)
+FText UFlareGameTools::DisplaySpacecraftName(UFlareSimulatedSpacecraft* Spacecraft, bool ForceHidePrefix, bool ToUpper)
 {
 	FString Text = Spacecraft->GetNickName().ToString();
 	FString ImmatText = Spacecraft->GetImmatriculation().ToString().ToUpper();

@@ -1057,7 +1057,7 @@ void AFlareSpacecraft::DrawShipName(UCanvas* TargetCanvas, int32 Width, int32 He
 	{
 		// Cleanup immatriculation on capitals
 		bool HidePrefix = GetDescription()->Size == EFlarePartSize::L;
-		FText Text = UFlareGameTools::DisplaySpacecraftName(GetParent(), true, HidePrefix);
+		FText Text = UFlareGameTools::DisplaySpacecraftName(GetParent(), HidePrefix, true);
 		
 		// Centering
 		float XL, YL;
@@ -1627,7 +1627,7 @@ FText AFlareSpacecraft::GetShipStatus() const
 		AFlareSpacecraft* Target = Command.ActionTarget;
 
 		ModeText = FText::Format(LOCTEXT("DockingAtFormat", "Docking at {0}"),
-			UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
+			UFlareGameTools::DisplaySpacecraftName(Target->GetParent(), true));
 	}
 	else if (!Paused)
 	{
