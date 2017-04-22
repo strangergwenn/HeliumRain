@@ -120,23 +120,23 @@ FText SFlareSectorButton::GetSectorText() const
 
 		if (PlayerCompany->HasVisitedSector(Sector))
 		{
-			if (Sector->GetSectorShips().Num() > 0)
-			{
-				ShipText = Sector->GetSectorShips().Num() == 1 ? LOCTEXT("Ship", "{0} ship") : LOCTEXT("Ships", "{0} ships");
-				ShipText = FText::Format(ShipText, FText::AsNumber(Sector->GetSectorShips().Num()));
-			}
-
 			if (Sector->GetSectorStations().Num() > 0)
 			{
-				FText CommaText = (Sector->GetSectorShips().Num() > 0) ? LOCTEXT("Comma", ",") : FText();
-				StationText = Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", "{0} {1} station") : LOCTEXT("Stations", "{0} {1} stations");
-				StationText = FText::Format(StationText, CommaText, FText::AsNumber(Sector->GetSectorStations().Num()));
+				StationText = Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", "{0} station") : LOCTEXT("Stations", "{0} stations");
+				StationText = FText::Format(StationText, FText::AsNumber(Sector->GetSectorStations().Num()));
+			}
+
+			if (Sector->GetSectorShips().Num() > 0)
+			{
+				FText CommaText = (Sector->GetSectorStations().Num() > 0) ? LOCTEXT("Return", "\n") : FText();
+				ShipText = Sector->GetSectorShips().Num() == 1 ? LOCTEXT("Ship", "{0} {1} ship") : LOCTEXT("Ships", "{0} {1} ships");
+				ShipText = FText::Format(ShipText, CommaText, FText::AsNumber(Sector->GetSectorShips().Num()));
 			}
 
 			BattleStatusText = Sector->GetSectorBattleStateText(PlayerCompany);
 		}
 
-		SectorText = FText::Format(LOCTEXT("SectorTextFormat", "{0}\n{1}{2}\n{3}"), SectorTitle, ShipText, StationText, BattleStatusText);
+		SectorText = FText::Format(LOCTEXT("SectorTextFormat", "{0}\n{1}{2}\n{3}"), SectorTitle, StationText, ShipText, BattleStatusText);
 	}
 
 	return SectorText;
