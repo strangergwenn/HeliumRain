@@ -146,13 +146,14 @@ bool UFlareSimulatedSpacecraftWeaponsSystem::HasAntiSmallShipWeapon()
 }
 
 
-void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollableCivil, float* IsUncontrollableMilitary, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned)
+void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollableCivil, float* IsUncontrollableSmallMilitary, float* IsUncontrollableLargeMilitary, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned)
 {
 	float LargePool = 0;
 	float SmallPool = 0;
 	float StationPool = 0;
 	float UncontrollableCivilPool = 0;
-	float UncontrollableMilitaryPool = 0;
+	float UncontrollableSmallMilitaryPool = 0;
+	float UncontrollableLargeMilitaryPool = 0;
 	float NotUncontrollablePool = 0;
 	float HarpoonedPool = 0;
 
@@ -166,15 +167,21 @@ void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall,
 			continue;
 		}
 
-		if(DamageType == EFlareShellDamageType::LightSalvage || DamageType == EFlareShellDamageType::HeavySalvage)
+		if(DamageType == EFlareShellDamageType::LightSalvage)
 		{
 			UncontrollableCivilPool += 1.0;
-			UncontrollableMilitaryPool += 1.0;
+			UncontrollableSmallMilitaryPool += 1.0;
+		}
+		else if (DamageType == EFlareShellDamageType::HeavySalvage)
+		{
+			UncontrollableCivilPool += 1.0;
+			UncontrollableLargeMilitaryPool += 1.0;
 		}
 		else
 		{
 			NotUncontrollablePool += 1.0;
-			UncontrollableMilitaryPool += 0.01;
+			UncontrollableSmallMilitaryPool += 0.01;
+			UncontrollableLargeMilitaryPool += 0.01;
 			HarpoonedPool += 1.0;
 		}
 
@@ -196,13 +203,15 @@ void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall,
 	HarpoonedPool = FMath::Clamp(HarpoonedPool, 0.f, 0.1f);
 	NotUncontrollablePool = FMath::Clamp(NotUncontrollablePool, 0.f, 0.1f);
 	UncontrollableCivilPool = FMath::Clamp(UncontrollableCivilPool, 0.f, 0.1f);
-	UncontrollableMilitaryPool = FMath::Clamp(UncontrollableMilitaryPool, 0.f, 0.1f);
+	UncontrollableSmallMilitaryPool = FMath::Clamp(UncontrollableSmallMilitaryPool, 0.f, 0.1f);
+	UncontrollableLargeMilitaryPool = FMath::Clamp(UncontrollableLargeMilitaryPool, 0.f, 0.1f);
 
 	*IsLarge  = LargePool;
 	*IsSmall  = SmallPool;
 	*IsNotUncontrollable  = NotUncontrollablePool;
 	*IsUncontrollableCivil  = UncontrollableCivilPool;
-	*IsUncontrollableMilitary  = UncontrollableMilitaryPool;
+	*IsUncontrollableSmallMilitary  = UncontrollableSmallMilitaryPool;
+	*IsUncontrollableLargeMilitary  = UncontrollableLargeMilitaryPool;
 	*IsStation = StationPool;
 	*IsHarpooned = HarpoonedPool;
 }

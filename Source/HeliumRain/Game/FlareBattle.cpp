@@ -19,7 +19,8 @@ struct BattleTargetPreferences
         float IsStranded;
         float IsNotStranded;
 		float IsUncontrollableCivil;
-		float IsUncontrollableMilitary;
+		float IsUncontrollableSmallMilitary;
+		float IsUncontrollableLargeMilitary;
 		float IsNotUncontrollable;
         float IsHarpooned;
         float TargetStateWeight;
@@ -205,12 +206,13 @@ bool UFlareBattle::SimulateSmallShipTurn(UFlareSimulatedSpacecraft* Ship)
     TargetPreferences.IsStranded = 1;
     TargetPreferences.IsNotStranded = 0.5;
 	TargetPreferences.IsUncontrollableCivil = 0.0;
-	TargetPreferences.IsUncontrollableMilitary = 0.01;
+	TargetPreferences.IsUncontrollableSmallMilitary = 0.01;
+	TargetPreferences.IsUncontrollableLargeMilitary = 0.;
 	TargetPreferences.IsNotUncontrollable = 1;
     TargetPreferences.IsHarpooned = 0;
     TargetPreferences.TargetStateWeight = 1;
 
-	Ship->GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrollableCivil, &TargetPreferences.IsUncontrollableMilitary, &TargetPreferences.IsNotUncontrollable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned);
+	Ship->GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrollableCivil, &TargetPreferences.IsUncontrollableSmallMilitary, &TargetPreferences.IsUncontrollableLargeMilitary, &TargetPreferences.IsNotUncontrollable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned);
 
 	Target = GetBestTarget(Ship, TargetPreferences);
 
@@ -275,7 +277,8 @@ bool UFlareBattle::SimulateLargeShipTurn(UFlareSimulatedSpacecraft* Ship)
 		TargetPreferences.IsStranded = 1;
 		TargetPreferences.IsNotStranded = 0.5;
 		TargetPreferences.IsUncontrollableCivil = 0.0;
-		TargetPreferences.IsUncontrollableMilitary = 0.01;
+		TargetPreferences.IsUncontrollableSmallMilitary = 0.01;
+		TargetPreferences.IsUncontrollableLargeMilitary = 0.0;
 		TargetPreferences.IsNotUncontrollable = 1;
 		TargetPreferences.IsHarpooned = 0;
 		TargetPreferences.TargetStateWeight = 1;
@@ -391,7 +394,14 @@ UFlareSimulatedSpacecraft* UFlareBattle::GetBestTarget(UFlareSimulatedSpacecraft
 		{
 			if(ShipCandidate->IsMilitary())
 			{
-				StateScore *= Preferences.IsUncontrollableMilitary;
+				if (ShipCandidate->GetSize() == EFlarePartSize::S)
+				{
+					StateScore *= Preferences.IsUncontrollableSmallMilitary;
+				}
+				else
+				{
+					StateScore *= Preferences.IsUncontrollableLargeMilitary;
+				}
 			}
 			else
 			{

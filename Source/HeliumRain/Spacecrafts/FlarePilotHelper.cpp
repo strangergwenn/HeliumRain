@@ -383,7 +383,14 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 		{
 			if (ShipCandidate->IsMilitary())
 			{
-				StateScore *= Preferences.IsUncontrollableMilitary;
+				if (ShipCandidate->GetSize() == EFlarePartSize::S)
+				{
+					StateScore *= Preferences.IsUncontrollableSmallMilitary;
+				}
+				else
+				{
+					StateScore *= Preferences.IsUncontrollableLargeMilitary;
+				}
 			}
 			else
 			{

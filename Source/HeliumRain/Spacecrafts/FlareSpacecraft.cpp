@@ -1535,7 +1535,8 @@ void AFlareSpacecraft::FindTarget()
 	TargetPreferences.IsStranded = 1;
 	TargetPreferences.IsNotStranded = 0.5;
 	TargetPreferences.IsUncontrollableCivil = 0.0;
-	TargetPreferences.IsUncontrollableMilitary = 0.01;
+	TargetPreferences.IsUncontrollableSmallMilitary = 0.01;
+	TargetPreferences.IsUncontrollableLargeMilitary = 0.0;
 	TargetPreferences.IsNotUncontrollable = 1;
 	TargetPreferences.IsHarpooned = 0;
 	TargetPreferences.TargetStateWeight = 1;
@@ -1554,7 +1555,8 @@ void AFlareSpacecraft::FindTarget()
 		&TargetPreferences.IsSmall,
 		&TargetPreferences.IsLarge,
 		&TargetPreferences.IsUncontrollableCivil,
-		&TargetPreferences.IsUncontrollableMilitary,
+		&TargetPreferences.IsUncontrollableSmallMilitary,
+		&TargetPreferences.IsUncontrollableLargeMilitary,
 		&TargetPreferences.IsNotUncontrollable,
 		&TargetPreferences.IsStation,
 		&TargetPreferences.IsHarpooned,
