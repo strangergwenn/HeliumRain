@@ -561,7 +561,7 @@ FText SFlareTradeMenu::GetTransactionInvalidDetails() const
 {
 	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
 	{
-		return FText::Format(LOCTEXT("TradeInvalidInfoFormat", "Trading of {0} is unauthorized from {1} to {2} !"),
+		return FText::Format(LOCTEXT("TradeInvalidInfoFormat", "Can't trade {0} from {1} to {2} ! \n\u2022Input resources are never sold. \n\u2022Output resources are never bought."),
 			TransactionResource->Name,
 			UFlareGameTools::DisplaySpacecraftName(TransactionSourceSpacecraft),
 			UFlareGameTools::DisplaySpacecraftName(TransactionDestinationSpacecraft));
