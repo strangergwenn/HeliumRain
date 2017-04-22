@@ -461,7 +461,14 @@ FVector2D SFlareMainOverlay::GetOverlaySize() const
 
 bool SFlareMainOverlay::IsBackDisabled() const
 {
-	return (MenuManager->HasPreviousMenu() == false);
+	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main)
+	{
+		return true;
+	}
+	else
+	{
+		return !MenuManager->GetPC()->GetShipPawn() && !MenuManager->HasPreviousMenu();
+	}
 }
 
 bool SFlareMainOverlay::IsCloseDisabled() const
@@ -565,8 +572,15 @@ void SFlareMainOverlay::OnOpenMenu(EFlareMenu::Type Menu)
 
 void SFlareMainOverlay::OnBack()
 {
-	MenuManager->Back();
-	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
+	if (MenuManager->HasPreviousMenu())
+	{
+		MenuManager->Back();
+		MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
+	}
+	else if (MenuManager->GetPC()->GetShipPawn())
+	{
+		OnCloseMenu();
+	}
 }
 
 void SFlareMainOverlay::OnCloseMenu()
