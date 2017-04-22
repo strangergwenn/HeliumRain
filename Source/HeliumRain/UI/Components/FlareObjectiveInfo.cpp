@@ -34,7 +34,6 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 		// Header
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.Padding(Theme.SmallContentPadding)
 		[
 			SNew(STextBlock)
 			.Text(this, &SFlareObjectiveInfo::GetName)

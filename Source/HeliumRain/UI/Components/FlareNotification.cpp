@@ -102,14 +102,31 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 										// Title
 										+ SHorizontalBox::Slot()
 										.HAlign(HAlign_Fill)
-										.Padding(Theme.SmallContentPadding)
 										[
 											SNew(STextBlock)
 											.Text(InArgs._Text)
-											.WrapTextAt(NotificationTextWidth - 40)
+											.WrapTextAt(NotificationTextWidth - 60)
 											.TextStyle(&Theme.NameFont)
 											.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
 											.ShadowColorAndOpacity(ShadowColor)
+										]
+
+										// Lifetime
+										+ SHorizontalBox::Slot()
+										.HAlign(HAlign_Right)
+										.VAlign(VAlign_Center)
+										[
+											SNew(SBox)
+											.WidthOverride(this, &SFlareNotification::GetLifetimeSize)
+											.HeightOverride(this, &SFlareNotification::GetLifetimeSize)
+											.Visibility(this, &SFlareNotification::GetLifetimeIconVisibility)
+											.HAlign(HAlign_Fill)
+											.VAlign(VAlign_Fill)
+											[
+												SNew(SImage)
+												.Image(FFlareStyleSet::GetIcon("Lifetime"))
+												.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
+											]
 										]
 
 										// Close button
@@ -138,44 +155,6 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 										.TextStyle(&Theme.TextFont)
 										.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
 										.ShadowColorAndOpacity(ShadowColor)
-									]
-
-									// Icons
-									+ SVerticalBox::Slot()
-									.AutoHeight()
-									.HAlign(HAlign_Left)
-									.VAlign(VAlign_Center)
-									.Padding(NotificatioNWidth - 55, Theme.SmallContentPadding.Top, Theme.SmallContentPadding.Right, Theme.SmallContentPadding.Bottom)
-									[
-										SNew(SHorizontalBox)
-
-										// Clickable
-										+ SHorizontalBox::Slot()
-										.AutoWidth()
-										[
-											SNew(SImage)
-											.Image(FFlareStyleSet::GetIcon("Clickable"))
-											.Visibility(this, &SFlareNotification::GetClickableIconVisibility)
-											.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
-										]
-
-										// Lifetime
-										+ SHorizontalBox::Slot()
-										.HAlign(HAlign_Center)
-										.VAlign(VAlign_Center)
-										[
-											SNew(SBox)
-											.WidthOverride(this, &SFlareNotification::GetLifetimeSize)
-											.HeightOverride(this, &SFlareNotification::GetLifetimeSize)
-											.Visibility(this, &SFlareNotification::GetLifetimeIconVisibility)
-											.HAlign(HAlign_Fill)
-											.VAlign(VAlign_Fill)
-											[
-												SNew(SImage)
-												.Image(FFlareStyleSet::GetIcon("Lifetime"))
-												.ColorAndOpacity(this, &SFlareNotification::GetNotificationTextColor)
-											]
-										]
 									]
 								]
 							]
