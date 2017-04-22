@@ -6,8 +6,6 @@ rem =======================================================
 
 set Platform=Win64
 set BuildMode=Development
-set SessioName=Release
-set SessionOwner=AutoBuild
 
 
 rem =======================================================
