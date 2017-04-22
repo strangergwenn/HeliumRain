@@ -26,7 +26,7 @@ HeliumRainSource.pri
 Makefile
 core
 Binaries/
-Build/
+Build/WindowsNoEditor/
 DerivedDataCache/
 Intermediate/
 Releases/
