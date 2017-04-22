@@ -496,7 +496,7 @@ EVisibility SFlareTradeMenu::GetBackToSelectionVisibility() const
 
 	// First-person trading override
 	AFlareSpacecraft* PhysicalSpacecraft = TargetLeftSpacecraft->GetActive();
-	if (!PhysicalSpacecraft && PhysicalSpacecraft->GetNavigationSystem()->IsDocked())
+	if (PhysicalSpacecraft && PhysicalSpacecraft->GetNavigationSystem()->IsDocked())
 	{
 		return EVisibility::Collapsed;
 	}
