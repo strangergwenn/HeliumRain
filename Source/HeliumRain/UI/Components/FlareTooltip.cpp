@@ -3,6 +3,7 @@
 #include "FlareTooltip.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
 
 #define LOCTEXT_NAMESPACE "FlareTooltip"
 
@@ -68,7 +69,7 @@ void SFlareTooltip::Construct(const FArguments& InArgs)
 							[
 								SNew(STextBlock)
 								.Text(this, &SFlareTooltip::GetHelpText)
-								.TextStyle(&Theme.SmallFont)
+								.TextStyle(&Theme.TextFont)
 								.ShadowColorAndOpacity(this, &SFlareTooltip::GetTooltipShadowColor)
 								.ColorAndOpacity(this, &SFlareTooltip::GetTooltipColor)
 								.WrapTextAt(Theme.ContentWidth / 2 - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
@@ -101,11 +102,11 @@ void SFlareTooltip::Tick(const FGeometry& AllottedGeometry, const double InCurre
 	// Animate
 	else
 	{
-		float Delay = TooltipVisible ? TooltipDelay : 0;
+		float CurrentDelay = TooltipVisible ? TooltipDelay : 0;
 
 		TooltipCurrentTime += (TooltipVisible ? InDeltaTime : -InDeltaTime);
-		TooltipCurrentTime = FMath::Clamp(TooltipCurrentTime, 0.0f, 2 * Delay + TooltipFadeDuration);
-		TooltipCurrentAlpha = FMath::Clamp((TooltipCurrentTime - Delay) / TooltipFadeDuration, 0.0f, 1.0f);
+		TooltipCurrentTime = FMath::Clamp(TooltipCurrentTime, 0.0f, 2 * CurrentDelay + TooltipFadeDuration);
+		TooltipCurrentAlpha = FMath::Clamp((TooltipCurrentTime - TooltipDelay) / TooltipFadeDuration, 0.0f, 1.0f);
 	}
 }
 
@@ -172,11 +173,12 @@ FMargin SFlareTooltip::GetTooltipPosition() const
 		FVector2D MousePos = PC->GetMousePosition();
 		FVector2D ScreenSize = PC->GetNavHUD()->GetViewportSize();
 		FVector2D WidgetSize = ContentBox->GetDesiredSize();
+		float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ScreenSize.X, ScreenSize.Y));
 
-		MousePos.X = (MousePos.X > ScreenSize.X - WidgetSize.X) ? MousePos.X - WidgetSize.X : MousePos.X;
-		MousePos.Y = (MousePos.Y > ScreenSize.Y - WidgetSize.Y) ? MousePos.Y - WidgetSize.Y : MousePos.Y;
+		MousePos.X = (MousePos.X > ViewportScale * ScreenSize.X - WidgetSize.X) ? MousePos.X - WidgetSize.X : MousePos.X;
+		MousePos.Y = (MousePos.Y > ViewportScale * ScreenSize.Y - WidgetSize.Y) ? MousePos.Y - WidgetSize.Y : MousePos.Y;
 
-		return FMargin(MousePos.X, MousePos.Y + 50, 0, 0);
+		return FMargin(MousePos.X + 30, MousePos.Y + 40, 0, 0);
 	}
 
 	return FMargin(0);
