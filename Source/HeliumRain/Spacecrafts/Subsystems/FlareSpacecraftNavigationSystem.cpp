@@ -40,6 +40,7 @@ UFlareSpacecraftNavigationSystem::UFlareSpacecraftNavigationSystem(const class F
 	, LinearMaxDockingVelocity(10)
 	, NegligibleSpeedRatio(0.0005)
 	, HasUsedOrbitalBoost(false)
+	, TimeSinceUndock(10)
 {
 	AnticollisionAngle = FMath::FRandRange(0, 360);
 	DockConstraint = NULL;
@@ -53,6 +54,8 @@ UFlareSpacecraftNavigationSystem::UFlareSpacecraftNavigationSystem(const class F
 void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 {
 	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_Tick);
+
+	TimeSinceUndock += DeltaSeconds;
 
 	UpdateCOM();
 
@@ -141,6 +144,11 @@ bool UFlareSpacecraftNavigationSystem::IsManualPilot()
 bool UFlareSpacecraftNavigationSystem::IsAutoPilot()
 {
 	return (Status == EFlareShipStatus::SS_AutoPilot);
+}
+
+float UFlareSpacecraftNavigationSystem::GetTimeSinceUndock()
+{
+	return TimeSinceUndock;
 }
 
 bool UFlareSpacecraftNavigationSystem::IsDocked()
@@ -271,6 +279,8 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 		// Hack for bug #195: for ue4 to reweld all.
 		Spacecraft->Airframe->SetSimulatePhysics(false);
 		Spacecraft->Airframe->SetSimulatePhysics(true);
+
+		TimeSinceUndock = 0;
 
 		return true;
 	}
@@ -852,6 +862,11 @@ void UFlareSpacecraftNavigationSystem::AbortAllCommands()
 			Station->GetDockingSystem()->ReleaseDock(Spacecraft, Command.ActionTargetParam);
 		}
 	}
+	if(IsDocked())
+	{
+		Undock();
+	}
+
 	SetStatus(EFlareShipStatus::SS_Manual);
 }
 
