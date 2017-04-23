@@ -63,6 +63,9 @@ UFlareSaveGame* UFlareSaveReaderV1::LoadGame(TSharedPtr< FJsonObject > GameObjec
 		LoadWorld(*World, &SaveGame->WorldData);
 	}
 
+	SaveGame->AutoSave = true;
+	GameObject->TryGetBoolField("AutoSave", SaveGame->AutoSave);
+
 	return SaveGame;
 }
 

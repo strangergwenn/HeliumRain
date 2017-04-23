@@ -669,6 +669,7 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
         World->Load(Save->WorldData);
 		CurrentImmatriculationIndex = Save->CurrentImmatriculationIndex;
 		CurrentIdentifierIndex = Save->CurrentIdentifierIndex;
+		AutoSave = Save->AutoSave;
 				
         // TODO check if load is ok for ship event before the PC load
 
@@ -732,7 +733,7 @@ protected:
 	}
 };
 
-bool AFlareGame::SaveGame(AFlarePlayerController* PC, bool Async)
+bool AFlareGame::SaveGame(AFlarePlayerController* PC, bool Async, bool Force)
 {
 	if (!IsLoadedOrCreated())
 	{
@@ -740,7 +741,7 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC, bool Async)
 		return false;
 	}
 
-	if(!AutoSave)
+	if(!AutoSave && !Force)
 	{
 		FLOG("AFlareGame::SaveGame : skip save because autosave is saved");
 		return true;
@@ -758,6 +759,7 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC, bool Async)
 		Save->CurrentImmatriculationIndex = CurrentImmatriculationIndex;
 		Save->CurrentIdentifierIndex = CurrentIdentifierIndex;
 		Save->PlayerData.QuestData = *QuestManager->Save();
+		Save->AutoSave = AutoSave;
 
 		FLOGV("AFlareGame::SaveGame date=%lld", Save->WorldData.Date);
 		// Save

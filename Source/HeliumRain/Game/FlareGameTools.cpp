@@ -338,6 +338,12 @@ void UFlareGameTools::SetAutoSave(bool Autosave)
 	GetGame()->AutoSave = Autosave;
 }
 
+void UFlareGameTools::DisableAutoSave()
+{
+	SetAutoSave(false);
+	GetGame()->SaveGame(GetGame()->GetPC(), false, true);
+}
+
 void UFlareGameTools::ReloadGameWithoutSave()
 {
 	//bool Autosave = GetGame()->AutoSave;

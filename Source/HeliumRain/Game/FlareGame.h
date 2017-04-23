@@ -130,7 +130,7 @@ public:
     virtual bool LoadGame(AFlarePlayerController* PC);
 
 	/** Save the world to this save file */
-	virtual bool SaveGame(AFlarePlayerController* PC, bool Async);
+	virtual bool SaveGame(AFlarePlayerController* PC, bool Async, bool Force = false);
 
 	/** Unload the game*/
 	virtual void UnloadGame();

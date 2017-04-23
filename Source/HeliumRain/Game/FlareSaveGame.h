@@ -137,5 +137,8 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	int32 CurrentIdentifierIndex;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	bool AutoSave;
 };
 

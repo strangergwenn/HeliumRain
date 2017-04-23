@@ -45,6 +45,9 @@ public:
 	void SetAutoSave(bool Autosave);
 
 	UFUNCTION(exec)
+	void DisableAutoSave();
+
+	UFUNCTION(exec)
 	void ReloadGameWithoutSave();
 
 	/*----------------------------------------------------

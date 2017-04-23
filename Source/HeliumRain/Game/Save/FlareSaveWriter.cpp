@@ -20,6 +20,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveGame(UFlareSaveGame* Data)
 	// General stuff
 	JsonObject->SetStringField("Game", "Helium Rain");
 	JsonObject->SetStringField("SaveFormat", FormatInt32(1));
+	JsonObject->SetBoolField("AutoSave", Data->AutoSave);
 
 	// Game data
 	JsonObject->SetObjectField("Player", SavePlayer(&Data->PlayerData));
@@ -27,6 +28,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveGame(UFlareSaveGame* Data)
 	JsonObject->SetStringField("CurrentImmatriculationIndex", FormatInt32(Data->CurrentImmatriculationIndex));
 	JsonObject->SetStringField("CurrentIdentifierIndex", FormatInt32(Data->CurrentIdentifierIndex));
 	JsonObject->SetObjectField("World", SaveWorld(&Data->WorldData));
+
 
 	return JsonObject;
 }
