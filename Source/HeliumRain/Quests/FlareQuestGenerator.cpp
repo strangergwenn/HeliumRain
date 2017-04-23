@@ -2222,12 +2222,20 @@ void UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const 
 	QuestClass = UFlareQuestGeneratedMilitaryHunt::GetClass();
 	Identifier = InitData.GetName("identifier");
 
-	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","Attack {0}'s military ships"), HostileCompany->GetCompanyName());
+	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal", "Attack {0}'s military ships"), HostileCompany->GetCompanyName());
+	if (RequestDestroyTarget)
+	{
+		QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat1", "Destroy some of {0}'s ships to lower its combat value by {1} combats points"),
+			HostileCompany->GetCompanyName(),
+			FText::AsNumber(RequestedArmyCombatPoints));
+	}
+	else
+	{
+		QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat1", "Render some of {0}'s ships uncontrollable to lower its combat value by {1} combats points"),
+			HostileCompany->GetCompanyName(),
+			FText::AsNumber(RequestedArmyCombatPoints));
+	}
 
-	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat","{0} ships up to {1} combat value of {2}."),
-								 RequestDestroyTarget? LOCTEXT("RequestDestroyTarget","Destroy") : LOCTEXT("RequestUncotrollableTarget","Make uncontrollable"),
-									 FText::AsNumber(RequestedArmyCombatPoints),
-									 HostileCompany->GetCompanyName());
 
 	QuestCategory = EFlareQuestCategory::SECONDARY;
 

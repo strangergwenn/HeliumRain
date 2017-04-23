@@ -238,31 +238,6 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 						[
 							SNew(SHorizontalBox)
 
-							// Reputation text
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							[
-								SNew(STextBlock)
-								.Text(this, &SFlareCompanyInfo::GetReputationText)
-								.TextStyle(&Theme.TextFont)
-							]
-
-							// Reputation value
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							[
-								SNew(STextBlock)
-								.Text(this, &SFlareCompanyInfo::GetReputationTextValue)
-								.ColorAndOpacity(this, &SFlareCompanyInfo::GetReputationColor)
-								.TextStyle(&Theme.TextFont)
-							]
-						]
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SNew(SHorizontalBox)
-
 							// Confidence text
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
@@ -279,6 +254,31 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 								SNew(STextBlock)
 								.Text(this, &SFlareCompanyInfo::GetConfidenceTextValue)
 								.ColorAndOpacity(this, &SFlareCompanyInfo::GetConfidenceColor)
+								.TextStyle(&Theme.TextFont)
+							]
+						]
+
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
+
+							// Reputation text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareCompanyInfo::GetReputationText)
+								.TextStyle(&Theme.TextFont)
+							]
+
+							// Reputation value
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareCompanyInfo::GetReputationTextValue)
+								.ColorAndOpacity(this, &SFlareCompanyInfo::GetReputationColor)
 								.TextStyle(&Theme.TextFont)
 							]
 						]
@@ -451,7 +451,7 @@ FText SFlareCompanyInfo::GetReputationText() const
 
 	if (Player && Player->GetCompany() != Company)
 	{
-		return LOCTEXT("ReputationInfo", "Reputation level : ");
+		return LOCTEXT("ReputationInfo", "Your reputation : ");
 	}
 
 	return Result;

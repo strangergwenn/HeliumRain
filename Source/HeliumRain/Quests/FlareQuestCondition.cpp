@@ -2456,7 +2456,7 @@ void UFlareQuestConditionDestroySpacecraft::Load(UFlareQuest* ParentQuest,
 
 	if(DestroyTarget)
 	{
-		InitialLabel = FText::Format(LOCTEXT("DestroySpacecraftLabel","Destroy {0} {1} {2} to {3}"),
+		InitialLabel = FText::Format(LOCTEXT("DestroySpacecraftLabel","Destroy {0} of {3}'s {1} {2} ships"),
 									 FText::AsNumber(Quantity),
 									 TargetSize == EFlarePartSize::L? LOCTEXT("TargetLarge","large") : LOCTEXT("TargetSmall","small"),
 									 MilitaryTarget? LOCTEXT("TargetMilitay","military") : LOCTEXT("TargetCargo","cargo"),
@@ -2464,7 +2464,7 @@ void UFlareQuestConditionDestroySpacecraft::Load(UFlareQuest* ParentQuest,
 	}
 	else
 	{
-		InitialLabel = FText::Format(LOCTEXT("UncontrollableSpacecraftLabel","Make uncontrollable {0} {1} {2} to {3}"),
+		InitialLabel = FText::Format(LOCTEXT("UncontrollableSpacecraftLabel","Render {0} of {3}'s {1} {2} ships uncontrollable"),
 										 FText::AsNumber(Quantity),
 										 TargetSize == EFlarePartSize::L? LOCTEXT("TargetLarge","large") : LOCTEXT("TargetSmall","small"),
 										 MilitaryTarget? LOCTEXT("TargetMilitay","military") : LOCTEXT("TargetCargo","cargo"),
@@ -2592,13 +2592,13 @@ void UFlareQuestConditionDestroyCombatValue::Load(UFlareQuest* ParentQuest,
 
 	if(DestroyTarget)
 	{
-		InitialLabel = FText::Format(LOCTEXT("DestroySpacecraftLabel","Destroy ships up to {0} combats points to {1}"),
+		InitialLabel = FText::Format(LOCTEXT("DestroySpacecraftLabel","Destroy some of {1}'s ships to lower its combat value by {0} combats points"),
 									 FText::AsNumber(Quantity),
 									 TargetCompany->GetCompanyName());
 	}
 	else
 	{
-		InitialLabel = FText::Format(LOCTEXT("UncontrollableSpacecraftLabel","Make uncontrollable ships up to {0} combats points to {1}"),
+		InitialLabel = FText::Format(LOCTEXT("UncontrollableSpacecraftLabel","Render some of {1}'s ships uncontrollable to lower its combat value by {0} combats points"),
 										 FText::AsNumber(Quantity),
 										 TargetCompany->GetCompanyName());
 
