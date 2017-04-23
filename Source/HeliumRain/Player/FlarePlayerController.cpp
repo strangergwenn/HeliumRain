@@ -165,7 +165,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 
 	// Mouse cursor
 	bool NewShowMouseCursor = true;
-	if (!MenuManager->IsUIOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor())
+	if ((!MenuManager->IsUIOpen() && ShipPawn && !ShipPawn->GetStateManager()->IsWantCursor()) || GetNavHUD()->IsWheelMenuOpen())
 	{
 		NewShowMouseCursor = false;
 	}
