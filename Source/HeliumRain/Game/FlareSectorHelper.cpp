@@ -338,6 +338,10 @@ void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 			continue;
 		}
 
+		if (!Spacecraft->GetDamageSystem()->IsAlive()) {
+			continue;
+		}
+
 		float SpacecraftPreciseCurrentNeededFleetSupply = 0;
 		float SpacecraftPreciseTotalNeededFleetSupply = 0;
 
@@ -397,6 +401,10 @@ void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
 
 		if (Company != Spacecraft->GetCompany()) {
+			continue;
+		}
+
+		if (!Spacecraft->GetDamageSystem()->IsAlive()) {
 			continue;
 		}
 
