@@ -333,6 +333,23 @@ void UFlareGameTools::PrintEconomyStatus()
 	FLOGV("- People dept: %lld $ (%f %%)", PeopleDept/100, 100.f * (float)PeopleDept / (float) PeopleMoney);
 }
 
+void UFlareGameTools::SetAutoSave(bool Autosave)
+{
+	GetGame()->AutoSave = Autosave;
+}
+
+void UFlareGameTools::ReloadGameWithoutSave()
+{
+	//bool Autosave = GetGame()->AutoSave;
+	//GetGame()->AutoSave = false;
+
+	GetGame()->UnloadGame();
+	GetGame()->GetPC()->GetMenuManager()->OpenMenu(EFlareMenu::MENU_LoadGame);
+
+
+
+	//GetGame()->AutoSave = Autosave;
+}
 
 /*----------------------------------------------------
 	World tools

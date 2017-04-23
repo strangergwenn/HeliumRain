@@ -295,6 +295,12 @@ protected:
 	UPROPERTY()
 	TArray<FFlareSaveSlotInfo>                 SaveSlots;
 
+public:
+	/*----------------------------------------------------
+		Debug
+	----------------------------------------------------*/
+	bool                                       AutoSave;
+
 
 public:
 	
@@ -439,6 +445,7 @@ public:
 	{
 		return IsLoadingStreamingLevel;
 	}
+
 
 
 };

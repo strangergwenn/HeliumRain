@@ -41,6 +41,12 @@ public:
 	UFUNCTION(exec)
 	void PrintEconomyStatus();
 
+	UFUNCTION(exec)
+	void SetAutoSave(bool Autosave);
+
+	UFUNCTION(exec)
+	void ReloadGameWithoutSave();
+
 	/*----------------------------------------------------
 		World tools
 	----------------------------------------------------*/

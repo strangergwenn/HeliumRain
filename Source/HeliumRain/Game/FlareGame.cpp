@@ -34,6 +34,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	, LoadedOrCreated(false)
 	, SaveSlotCount(3)
 	, CurrentStreamingLevelIndex(0)
+	, AutoSave(true)
 {
 	// Game classes
 	HUDClass = AFlareHUD::StaticClass();
@@ -737,6 +738,12 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC, bool Async)
 	{
 		FLOG("AFlareGame::SaveGame : no game loaded, aborting");
 		return false;
+	}
+
+	if(!AutoSave)
+	{
+		FLOG("AFlareGame::SaveGame : skip save because autosave is saved");
+		return true;
 	}
 
 	FLOGV("AFlareGame::SaveGame : saving to slot %d", CurrentSaveIndex);
