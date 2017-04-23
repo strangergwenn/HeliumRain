@@ -78,7 +78,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 	CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, CurrentFadeTime, 2);
 
 	const FFlarePlayerObjectiveData* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
-	if (Objective)
+	if (Objective && PC->HasNewObjective())
 	{
 		ConditionBox->ClearChildren();
 
