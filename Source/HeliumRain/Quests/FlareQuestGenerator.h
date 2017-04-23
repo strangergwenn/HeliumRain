@@ -54,6 +54,9 @@ public:
 
 	FName GenerateHarassTag(UFlareCompany* OwnerCompany, UFlareCompany* HostileCompany);
 
+	bool IsGenerationEnabled();
+
+
 protected:
 
    /*----------------------------------------------------

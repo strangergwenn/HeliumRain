@@ -133,6 +133,18 @@ FText UFlareQuestGenerator::GeneratePersonName()
 	return Names[FMath::RandHelper(Names.Num() - 1)];
 }
 
+bool UFlareQuestGenerator::IsGenerationEnabled()
+{
+	UFlareQuest* Target = QuestManager->FindQuest("tutorial-navigation");
+
+	if (Target)
+	{
+		return QuestManager->IsQuestSuccessfull(Target);
+	}
+	return true;
+}
+
+
 void UFlareQuestGenerator::GenerateIdentifer(FName QuestClass, FFlareBundle& Data)
 {
 	FName Identifier = FName(*(QuestClass.ToString() + "-" + FString::FromInt(NextQuestIndex++)));
@@ -175,6 +187,11 @@ float UFlareQuestGenerator::ComputeQuestProbability(UFlareCompany* Company)
 
 void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 {
+	if(!IsGenerationEnabled())
+	{
+		return;
+	}
+
 	TArray<UFlareCompany*> CompaniesToProcess =  Game->GetGameWorld()->GetCompanies();
 	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
 
@@ -239,6 +256,11 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 
 void UFlareQuestGenerator::GenerateAttackQuests(UFlareCompany* AttackCompany, int32 AttackCombatPoints, WarTarget& Target, int64 TravelDuration)
 {
+	if(!IsGenerationEnabled())
+	{
+		return;
+	}
+
 	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
 
 	if(Target.ArmedDefenseCompanies.Num() == 1 && Target.ArmedDefenseCompanies[0] == PlayerCompany)
@@ -270,6 +292,11 @@ void UFlareQuestGenerator::GenerateAttackQuests(UFlareCompany* AttackCompany, in
 
 void UFlareQuestGenerator::GenerateMilitaryQuests()
 {
+	if(!IsGenerationEnabled())
+	{
+		return;
+	}
+
 	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
 
 	// Defense quests
@@ -377,6 +404,11 @@ void UFlareQuestGenerator::GenerateMilitaryQuests()
 
 void UFlareQuestGenerator::RegisterQuest(UFlareQuestGenerated* Quest)
 {
+	if(!IsGenerationEnabled())
+	{
+		return;
+	}
+
 	if (Quest)
 	{
 		QuestManager->AddQuest(Quest);

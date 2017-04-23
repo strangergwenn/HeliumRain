@@ -605,6 +605,14 @@ UFlareQuest* UFlareQuestManager::FindQuest(FName QuestIdentifier)
 		}
 	}
 
+	for(UFlareQuest* Quest: PendingQuests)
+	{
+		if (Quest->GetIdentifier() == QuestIdentifier)
+		{
+			return Quest;
+		}
+	}
+
 	return NULL;
 }
 
