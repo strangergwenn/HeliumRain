@@ -718,6 +718,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 			continue;
 		}
 
+		if (CandidateStation->IsUnderConstruction())
+		{
+			continue;
+		}
+
 		// Check friendlyness
 		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
 		{
@@ -888,6 +893,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 	for (UFlareSimulatedSpacecraft* CandidateStation : Sector->GetSectorStations())
 	{
 		if (CandidateStation->GetCompany() != Company)
+		{
+			continue;
+		}
+
+		if (CandidateStation->IsUnderConstruction())
 		{
 			continue;
 		}
@@ -1078,6 +1088,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 			continue;
 		}
 
+		if (CandidateStation->IsUnderConstruction())
+		{
+			continue;
+		}
+
 		// Check if have too much stock there is another distant station
 
 		for (FFlareCargo& Slot : CandidateStation->GetCargoBay()->GetSlots())
@@ -1123,6 +1138,10 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 		{
 
 			// Check if have too much stock there is another distant station
+			if (CandidateStation->IsUnderConstruction())
+			{
+				continue;
+			}
 
 			for (FFlareCargo& Slot : CandidateStation->GetCargoBay()->GetSlots())
 			{
@@ -1131,7 +1150,6 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 					// Not an input resource
 					continue;
 				}
-
 
 				int32 MissingResourceQuantity = CandidateStation->GetCargoBay()->GetSlotCapacity() * (1.f-Parent->GetGame()->GetAINerfRatio()) - Slot.Quantity;
 
