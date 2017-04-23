@@ -706,8 +706,24 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		{
 			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Targeting {0}"),
 				UFlareGameTools::DisplaySpacecraftName(TargetShip->GetParent()));
-			FlareDrawText(ShipText.ToString(), CurrentPos, Theme.FriendlyColor, false);
 
+			// Get target color
+			FLinearColor TargetColor;
+			if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->TargetSpacecrafts.Find(TargetShip->GetParent()) != INDEX_NONE)
+			{
+				TargetColor = Theme.ObjectiveColor;
+			}
+			else if (TargetShip->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile)
+			{
+				TargetColor = Theme.EnemyColor;
+			}
+			else
+			{
+				TargetColor = Theme.FriendlyColor;
+			}
+
+			// Draw
+			FlareDrawText(ShipText.ToString(), CurrentPos, TargetColor, false);
 			CurrentPos += FVector2D(InstrumentSize.X, 0) * 0.8;
 			DrawHUDDesignatorStatus(CurrentPos, IconSize, TargetShip);
 			CurrentPos -= FVector2D(InstrumentSize.X, 0) * 0.8;
