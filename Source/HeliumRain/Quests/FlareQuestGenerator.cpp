@@ -244,7 +244,7 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 			Quest = UFlareQuestGeneratedResourceSale::Create(this, Sector, Company);
 		}
 
-		if (!Quest && FMath::FRand() < 0.3)
+		if (!Quest && (FMath::FRand() < 0.3 || QuestManager->GetVisibleQuestCount() == 0) )
 		{
 			Quest = UFlareQuestGeneratedVipTransport::Create(this, Sector, Company);
 		}
