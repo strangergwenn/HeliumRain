@@ -170,7 +170,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		}
 	}
 
-	if (!IsPiloted && PlayerManualVelocityCommandActive)
+	if (!IsPiloted && PlayerManualVelocityCommandActive && !Spacecraft->GetNavigationSystem()->IsDocked())
 	{
 		Spacecraft->GetNavigationSystem()->AbortAllCommands();
 	}

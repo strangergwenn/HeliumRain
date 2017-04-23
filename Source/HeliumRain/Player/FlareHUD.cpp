@@ -1524,8 +1524,7 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 					&& (DockingParameters.DockingPhase == EFlareDockingPhase::Dockable ||
 					DockingParameters.DockingPhase == EFlareDockingPhase::FinalApproach ||
 					DockingParameters.DockingPhase == EFlareDockingPhase::Approach)
-					&& DockingParameters.DockToDockDistance < (PC->GetShipPawn()->GetSize() == EFlarePartSize::S ? 500: 1500)
-					&& PC->GetShipPawn()->GetNavigationSystem()->GetTimeSinceUndock() > 5)
+					&& DockingParameters.DockToDockDistance < (PC->GetShipPawn()->GetSize() == EFlarePartSize::S ? 500: 1500))
 			{
 				PC->GetShipPawn()->GetNavigationSystem()->DockAt(Spacecraft);
 			}

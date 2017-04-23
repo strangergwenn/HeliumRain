@@ -146,9 +146,6 @@ public:
 
 	virtual bool IsDocked();
 
-	float GetTimeSinceUndock();
-
-
 	/** Set the new flight status */
 	virtual void SetStatus(EFlareShipStatus::Type NewStatus);
 
@@ -282,7 +279,6 @@ protected:
 	TQueue <FFlareShipCommandData>           CommandData;
 	float                                    AnticollisionAngle;
 	bool                                     HasUsedOrbitalBoost;
-	float                                    TimeSinceUndock;
 
 	// Physics simulation
 	FVector                                  LinearTargetVelocity;
