@@ -1450,9 +1450,11 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddAxisMapping("MoveHorizontalInput", 1.0f)
 		->AddDefaults(EKeys::D)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveUp", "Move up")))
-		->AddAxisMapping("MoveVerticalInput", 1.0f)));
+		->AddAxisMapping("MoveVerticalInput", 1.0f)
+		->AddDefaults(EKeys::LeftShift)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveDown", "Move down")))
-		->AddAxisMapping("MoveVerticalInput", -1.0f)));
+		->AddAxisMapping("MoveVerticalInput", -1.0f)
+		->AddDefaults(EKeys::LeftControl)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCW", "Roll right")))
 		->AddAxisMapping("NormalRollInput", 1.0f)
 		->AddDefaults(EKeys::A)));
@@ -1502,8 +1504,7 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddActionMapping("WeaponGroup3")
 		->AddDefaults(EKeys::Four)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Fire Weapon", "Fire")))
-		->AddActionMapping("StartFire")
-		->AddDefaults(EKeys::LeftControl)));
+		->AddActionMapping("StartFire")));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Weapons", "Toogle weapons")))
 		->AddActionMapping("ToggleCombat")
 		->AddDefaults(EKeys::F)));
