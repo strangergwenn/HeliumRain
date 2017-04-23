@@ -16,7 +16,7 @@
 AFlareSpacecraftPawn::AFlareSpacecraftPawn(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, PresentationMode(false)
-	, CameraPanSpeed(2)
+	, CameraPanSpeed(250)
 	, CameraMaxPitch(60)
 	, CameraMaxYaw(180)
 	, Company(NULL)

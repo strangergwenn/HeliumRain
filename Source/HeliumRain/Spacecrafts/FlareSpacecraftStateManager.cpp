@@ -349,8 +349,8 @@ void UFlareSpacecraftStateManager::SetPlayerAimMouse(FVector2D Val)
 	// External camera : panning with mouse clicks
 	if (ExternalCamera)
 	{
-		ExternalCameraYawTarget += FMath::Sign(Val.X) * Spacecraft->GetCameraPanSpeed();
-		ExternalCameraPitchTarget += FMath::Sign(Val.Y) * Spacecraft->GetCameraPanSpeed();
+		ExternalCameraYawTarget += FMath::Sign(Val.X) * Spacecraft->GetCameraPanSpeed() * Spacecraft->GetWorld()->GetDeltaSeconds();
+		ExternalCameraPitchTarget += FMath::Sign(Val.Y) * Spacecraft->GetCameraPanSpeed() * Spacecraft->GetWorld()->GetDeltaSeconds();
 		PlayerAim = FVector2D::ZeroVector;
 	}
 		
