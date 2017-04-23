@@ -104,6 +104,7 @@ protected:
 	float                                    CockpitPowerPeriod;
 	float                                    CameraSwitchTimer;
 	float                                    CameraSwitchPeriod;
+	float                                    LastCockpitScale;
 
 
 	/*----------------------------------------------------
