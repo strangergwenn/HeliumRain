@@ -561,7 +561,7 @@ FText SFlareTradeMenu::GetTransactionInvalidDetails() const
 {
 	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
 	{
-		return FText::Format(LOCTEXT("TradeInvalidInfoFormat", "Can't trade {0} from {1} to {2} ! \n\u2022Input resources are never sold. \n\u2022Output resources are never bought."),
+		return FText::Format(LOCTEXT("TradeInvalidInfoFormat", "Can't trade {0} from {1} to {2} !\n\u2022 The buyer needs an empty slot, or one with the matching resource.\n\u2022 Input resources are never sold.\n\u2022 Output resources are never bought."),
 			TransactionResource->Name,
 			UFlareGameTools::DisplaySpacecraftName(TransactionSourceSpacecraft),
 			UFlareGameTools::DisplaySpacecraftName(TransactionDestinationSpacecraft));
