@@ -253,7 +253,10 @@ void SFlareWorldEconomyMenu::Enter(FFlareResourceDescription* Resource, UFlareSi
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
-	TargetResource = Resource;
+	if (Resource)
+	{
+		TargetResource = Resource;
+	}
 	WorldStats = WorldHelper::ComputeWorldResourceStats(MenuManager->GetGame());
 
 	// Update resource selector
@@ -402,7 +405,6 @@ void SFlareWorldEconomyMenu::Exit()
 	SetEnabled(false);
 	SetVisibility(EVisibility::Collapsed);
 	SectorList->ClearChildren();
-	TargetResource = NULL;
 }
 
 
