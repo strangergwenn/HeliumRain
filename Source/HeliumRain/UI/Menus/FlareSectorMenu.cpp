@@ -720,7 +720,7 @@ FText SFlareSectorMenu::GetRefillText() const
 	}
 	else
 	{
-		int32 UsedFs = FMath::Min (AffordableFS, NeededFS);
+		int32 UsedFs = FMath::Min (AffordableFS, TotalNeededFS);
 		int32 UsedOwnedFs  = FMath::Min (OwnedFS, UsedFs);
 		int32 UsedNotOwnedFs  = UsedFs - UsedOwnedFs;
 		FFlareResourceDescription* FleetSupply = TargetSector->GetGame()->GetScenarioTools()->FleetSupply;
@@ -802,7 +802,7 @@ FText SFlareSectorMenu::GetRepairText() const
 	}
 	else
 	{
-		int32 UsedFs = FMath::Min (AffordableFS, NeededFS);
+		int32 UsedFs = FMath::Min (AffordableFS, TotalNeededFS);
 		int32 UsedOwnedFs  = FMath::Min (OwnedFS, UsedFs);
 		int32 UsedNotOwnedFs  = UsedFs - UsedOwnedFs;
 		FFlareResourceDescription* FleetSupply = TargetSector->GetGame()->GetScenarioTools()->FleetSupply;
@@ -859,7 +859,7 @@ bool SFlareSectorMenu::IsRefillDisabled() const
 
 	SectorHelper::GetRefillFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS, MaxDuration);
 
-	if (NeededFS > 0)
+	if (TotalNeededFS > 0)
 	{
 		// Refill needed
 
@@ -895,7 +895,7 @@ bool SFlareSectorMenu::IsRepairDisabled() const
 	int64 MaxDuration;
 
 	SectorHelper::GetRepairFleetSupplyNeeds(TargetSector, MenuManager->GetPC()->GetCompany(), NeededFS, TotalNeededFS, MaxDuration);
-	if (NeededFS > 0)
+	if (TotalNeededFS > 0)
 	{
 		// Repair needed
 

@@ -498,13 +498,14 @@ void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 			float DamageRatio = Spacecraft->GetDamageSystem()->GetDamageRatio(ComponentDescription, ComponentData);
 			float TotalRepairRatio = 1.f - DamageRatio;
 
-			SpacecraftPreciseTotalNeededFleetSupply += RepairRatio * TotalRepairRatio * UFlareSimulatedSpacecraftDamageSystem::GetRepairCost(ComponentDescription);
-
+			SpacecraftPreciseTotalNeededFleetSupply += TotalRepairRatio * UFlareSimulatedSpacecraftDamageSystem::GetRepairCost(ComponentDescription);
 
 
 		}
 
-		float ConsumedFS = FMath::Min(RemainingFS, SpacecraftPreciseTotalNeededFleetSupply - Spacecraft->GetRepairStock());
+		float SpacecraftNeededWithoutStock = SpacecraftPreciseTotalNeededFleetSupply - Spacecraft->GetRepairStock();
+		float SpacecraftNeededWithoutStockScaled = FMath::Max(0.f, SpacecraftNeededWithoutStock * RepairRatio);
+		float ConsumedFS = FMath::Min(RemainingFS, SpacecraftNeededWithoutStockScaled);
 		Spacecraft->OrderRepairStock(ConsumedFS);
 		RemainingFS -= ConsumedFS;
 
@@ -569,11 +570,14 @@ void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 
 				float TotalRefillRatio = 1.f - FillRatio;
 
-				SpacecraftPreciseTotalNeededFleetSupply += MaxRefillRatio * TotalRefillRatio * UFlareSimulatedSpacecraftDamageSystem::GetRefillCost(ComponentDescription);
+				SpacecraftPreciseTotalNeededFleetSupply += TotalRefillRatio * UFlareSimulatedSpacecraftDamageSystem::GetRefillCost(ComponentDescription);
 			}
 		}
 
-		float ConsumedFS = FMath::Min(RemainingFS, SpacecraftPreciseTotalNeededFleetSupply - Spacecraft->GetRefillStock());
+		float SpacecraftNeededWithoutStock = SpacecraftPreciseTotalNeededFleetSupply - Spacecraft->GetRefillStock();
+		float SpacecraftNeededWithoutStockScaled = FMath::Max(0.f, SpacecraftNeededWithoutStock * MaxRefillRatio);
+
+		float ConsumedFS = FMath::Min(RemainingFS, SpacecraftNeededWithoutStockScaled);
 
 		Spacecraft->OrderRefillStock(ConsumedFS);
 		RemainingFS -= ConsumedFS;
