@@ -133,14 +133,7 @@ const FSlateBrush* SFlareContextMenu::GetIcon() const
 
 FText SFlareContextMenu::GetText() const
 {
-	FText Info = LOCTEXT("Details", "Details");
-
-	if (TargetSpacecraft && PlayerShip)
-	{
-		Info = FText::Format(Info, UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft->GetParent()));
-	}
-
-	return Info;
+	return LOCTEXT("Details", "Details");
 }
 
 #undef LOCTEXT_NAMESPACE
