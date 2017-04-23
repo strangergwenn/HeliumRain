@@ -134,10 +134,10 @@ void AFlareHUD::BeginPlay()
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	// Get HUD colors
-	HudColorNeutral = Theme.NeutralColor;
-	HudColorFriendly = Theme.HUDFriendlyColor;
-	HudColorEnemy = Theme.EnemyColor;
-	HudColorObjective = Theme.ObjectiveColor;
+	HudColorNeutral = Theme.NeutralColor.Desaturate(0.2f);
+	HudColorFriendly = Theme.FriendlyColor.Desaturate(0.2f);
+	HudColorEnemy = Theme.EnemyColor.Desaturate(0.2f);
+	HudColorObjective = Theme.ObjectiveColor.Desaturate(0.2f);
 	HudColorNeutral.A = 1;
 	HudColorFriendly.A = 1;
 	HudColorEnemy.A = 1;
