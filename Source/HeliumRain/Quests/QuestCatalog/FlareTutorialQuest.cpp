@@ -43,7 +43,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"GoForward"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Spaceships have a lot of small engines that make up the RCS (Reaction Control System), allowing them to move around. To go forward press <input-axis:NormalThrustInput,1.0> slightly. You can modify the key binding in the settings menu (<input-action:SettingsMenu>).");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Spaceships feature small maneuvering engines called the RCS, and large orbital engines for accelerating. To go forward press <input-axis:NormalThrustInput,1.0> slightly. You can modify the key binding in the settings menu (<input-action:SettingsMenu>).");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "go-forward", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -54,7 +54,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"GoBackward"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","There is no air to brake in space. Your ship will keep its velocity and direction if you don't use your engines. Braking will use as much energy as accelerating, so it can take a long time if you're going fast.<br>Press <input-axis:NormalThrustInput,-1.0> to brake.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","There is no air to brake in space. Your ship will keep its velocity and direction if you don't brake with your RCS. Press <input-axis:NormalThrustInput,-1.0> to brake.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "go-backward", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -195,8 +195,18 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 
 	{
 		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"OpenTravelMenu"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You need to learn how to travel between sectors. To start a travel, open the menu bar with <input-action:ToggleOverlay> and click on the orbital map.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-travel-menu", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Orbit));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Travel"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","To start a travel, open the menu bar with <input-action:ToggleOverlay> and click on the orbital map. Select the sector \"The Depths\" and click \"Travel\".<br>Then, use the \"Fast Forward\" button to complete the travel.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Select the sector \"The Depths\" and click \"Travel\". Then, on the orbital map, use the \"Fast Forward\" button to wait for the end of the travel.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "travel", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionSectorVisited::Create(this, Sector));
@@ -308,10 +318,10 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"FinishQuest"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Complete three contracts to start your mercenary career.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Complete five contracts to start your mercenary career.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "track-quest", Description);
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialFinishQuest::Create(this, QUEST_TAG"cond1", 3));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialFinishQuest::Create(this, QUEST_TAG"cond1", 5));
 		Steps.Add(Step);
 	}
 }
