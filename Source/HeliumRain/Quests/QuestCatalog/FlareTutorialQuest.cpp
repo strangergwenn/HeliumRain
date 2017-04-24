@@ -225,8 +225,31 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 
 	{
 		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"CloseMenu"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can now dock at stations to trade resources or upgrade your spacecraft ! Close the menu to go back to your ship.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "close-menu", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_FlyShip));
+		Steps.Add(Step);
+	}
+
+	// TODO #682 Split up this last step into 5 different steps
+	// 
+	// TODO quest step condition = select station A. 
+	//					message = "You can use the targeting system to interact with objects. Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}."
+	// TODO quest step condition = select station B. 
+	//					message = "Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}."
+	// TODO quest step condition = select station C. 
+	//					message = "Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}."
+	// TODO quest step condition = start docking. 
+	//					message = "Press <input-action:Wheel> to select the docking option"
+	// TODO quest step condition = wait for docking to end. 
+	//					message = "Your ship is now docking automatically, but you can brake to disengage the autopilot. Use the wheel menu to undock, trade, or upgrade your ship."
+
+	{
+		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"DockAt"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "You can now dock at stations to trade resources or upgrade your spacecraft ! Close the menu and use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}, and then press <input-action:Wheel> to select the docking option. Your ship will dock automatically - but you can brake to disengage the autopilot. Use the wheel menu to undock too !"),
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "You can use the targeting system to interact with objects. Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}, and then press <input-action:Wheel> to select the docking option. Your ship will dock automatically, but you can brake to disengage the autopilot. Use the wheel menu to undock, trade, or upgrade your ship"),
 			UFlareGameTools::DisplaySpacecraftName(Station));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pick-up", Description);
 
@@ -319,7 +342,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"FinishQuest"
 		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Complete five contracts to start your mercenary career.");
-		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "track-quest", Description);
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "complete-quest", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialFinishQuest::Create(this, QUEST_TAG"cond1", 5));
 		Steps.Add(Step);
@@ -400,9 +423,14 @@ void UFlareQuestConditionTutorialOpenMenu::Load(UFlareQuest* ParentQuest, EFlare
 	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 	Completed = false;
 	MenuType = Menu;
-
-
+	
 	switch (MenuType) {
+	case EFlareMenu::MENU_FlyShip:
+		InitialLabel = LOCTEXT("MenuNone", "Close the menu");
+		break;
+	case EFlareMenu::MENU_Orbit:
+		InitialLabel = LOCTEXT("MenuOrbit", "Open the orbital map");
+		break;
 	case EFlareMenu::MENU_Quest:
 		InitialLabel =  LOCTEXT("MenuQuest", "Open the contract menu");
 		break;
