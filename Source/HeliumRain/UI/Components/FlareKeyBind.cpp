@@ -98,7 +98,7 @@ FReply SFlareKeyBind::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& In
 
 FReply SFlareKeyBind::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-	if (bWaitingForKey)
+	if (bWaitingForKey && MouseEvent.GetEffectingButton() != EKeys::LeftMouseButton)
 	{
 		SetKey(MouseEvent.GetEffectingButton());
 		return FReply::Handled();
