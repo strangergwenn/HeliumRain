@@ -737,10 +737,21 @@ FText UFlareQuest::GetQuestExpiration()
 
 	for (auto Condition : ExpirationCondition->GetAllConditions())
 	{
-		Result += Condition->GetInitialLabel().ToString();
+		if (Result.Len())
+		{
+			Result += "\n";
+		}
+		Result += LOCTEXT("QuestExpirationSymbol", "\u2022 ").ToString() + Condition->GetInitialLabel().ToString();
 	}
 
-	return FText::FromString(Result);
+	if (Result.Len())
+	{
+		return FText::FromString(Result);
+	}
+	else
+	{
+		return LOCTEXT("QuestExpirationNone", "\u2022 This contract never expires.");
+	}
 }
 
 

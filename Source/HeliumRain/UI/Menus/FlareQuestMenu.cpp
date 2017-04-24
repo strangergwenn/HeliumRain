@@ -432,7 +432,9 @@ void SFlareQuestMenu::FillQuestDetails()
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text((ClientCompany ? FText::Format(LOCTEXT("QuestInfoFormat", "This contract is offered by {0}."), ClientCompany->GetCompanyName()):FText()))
+					.Text((ClientCompany ?
+						FText::Format(LOCTEXT("QuestInfoFormat", "This contract is offered by {0}."), ClientCompany->GetCompanyName())
+						            : LOCTEXT("QuestInfoNoCOmpany", "This contract is offered by the Helium Rain team.")))
 				]
 			]
 
@@ -589,7 +591,17 @@ void SFlareQuestMenu::FillQuestDetails()
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.SubTitleFont)
-				.Text(LOCTEXT("ExpirationTitle", "Time left to accept this contract"))
+				.Text(LOCTEXT("ExpirationTitle", "Contract expiration"))
+			];
+
+			QuestDetails->AddSlot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(STextBlock)
+				.WrapTextAt(0.9 * Theme.ContentWidth)
+				.TextStyle(&Theme.TextFont)
+				.Text(LOCTEXT("ExpirationDetails", "This contract will be offered until you accept it, or one of the following conditions is met."))
 			];
 
 			QuestDetails->AddSlot()
