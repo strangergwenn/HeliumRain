@@ -755,17 +755,21 @@ bool AFlarePlayerController::SwitchToNextShip(bool Instant)
 			int32 OffsetIndex = 0;
 			int32 QuickSwitchOffset = QuickSwitchNextOffset;
 			AFlareSpacecraft* SeletedCandidate = NULL;
+			FFlareSectorBattleState BattleState = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(Company);
 
 			// First loop in military armed alive ships
-			for (int32 ShipIndex = 0; ShipIndex < CompanyShips.Num(); ShipIndex++)
+			if (BattleState.InBattle)
 			{
-				OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
-				AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
-
-				if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->CanBeFlown(CantFlyReasons) && Candidate->GetParent()->CanFight())
+				for (int32 ShipIndex = 0; ShipIndex < CompanyShips.Num(); ShipIndex++)
 				{
-					SeletedCandidate = Candidate;
-					break;
+					OffsetIndex = (ShipIndex + QuickSwitchOffset) % CompanyShips.Num();
+					AFlareSpacecraft* Candidate = CompanyShips[OffsetIndex];
+
+					if (Candidate && Candidate != ShipPawn && Candidate->GetParent()->CanBeFlown(CantFlyReasons) && Candidate->GetParent()->CanFight())
+					{
+						SeletedCandidate = Candidate;
+						break;
+					}
 				}
 			}
 
