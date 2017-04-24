@@ -55,7 +55,8 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 
 	PlayerManualLinearVelocity = FVector::ZeroVector;
 	PlayerManualAngularVelocity = FVector::ZeroVector;
-	float ForwardVelocity = FVector::DotProduct(ParentSpacecraft->GetLinearVelocity(), FVector(1, 0, 0));
+	FVector FrontVector = Spacecraft->Airframe->ComponentToWorld.TransformVector(FVector(1, 0, 0));
+	float ForwardVelocity = FVector::DotProduct(ParentSpacecraft->GetLinearVelocity(), FrontVector);
 	PlayerManualVelocityCommand = ForwardVelocity;
 
 	InternalCameraPitch = 0;
@@ -559,8 +560,9 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 void UFlareSpacecraftStateManager::OnStatusChanged()
 {
 	// Maybe set to manual, in this case, forgot the old command
-	float ForwardVelocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), FVector(1, 0, 0));
-	PlayerManualVelocityCommand = ForwardVelocity;
+	FVector FrontVector = Spacecraft->Airframe->ComponentToWorld.TransformVector(FVector(1, 0, 0));
+	float ForwardVelocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), FrontVector);
+	PlayerManualVelocityCommand = ForwardVelocity / Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
 }
 
 FVector UFlareSpacecraftStateManager::GetAngularTargetVelocity() const
