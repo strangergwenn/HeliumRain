@@ -876,7 +876,8 @@ void AFlareHUD::UpdateContextMenu(AFlareSpacecraft* PlayerShip)
 				FVector2D ScreenPosition;
 				AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 				FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
-				FVector TargetLocation = Spacecraft->GetActorLocation();
+				FVector TargetLocation, TargetSize;
+				Spacecraft->GetActorBounds(false, TargetLocation, TargetSize);
 
 				if (PC->ProjectWorldLocationToScreen(TargetLocation, ScreenPosition))
 				{
