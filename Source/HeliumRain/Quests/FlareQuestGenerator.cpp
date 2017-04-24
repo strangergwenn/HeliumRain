@@ -415,6 +415,8 @@ void UFlareQuestGenerator::RegisterQuest(UFlareQuestGenerated* Quest)
 		GeneratedQuests.Add(Quest);
 		QuestManager->LoadCallbacks(Quest);
 		Quest->UpdateState();
+
+		QuestManager->OnEvent(FFlareBundle().PutTag("get-contract"));
 	}
 }
 

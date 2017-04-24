@@ -39,6 +39,8 @@ public:
 
 	virtual void OnTravelStarted(UFlareTravel* Travel) {}
 
+	virtual void OnEvent(FFlareBundle& Bundle) {}
+
 	virtual TArray<UFlareQuestCondition*> GetAllConditions(bool OnlyLeaf = true);
 
 	virtual void SetConditionIndex(int32 Index)

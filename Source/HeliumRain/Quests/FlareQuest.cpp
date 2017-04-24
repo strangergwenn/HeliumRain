@@ -643,6 +643,15 @@ void UFlareQuest::OnTravelStarted(UFlareTravel* Travel)
 	}
 }
 
+void UFlareQuest::OnEvent(FFlareBundle& Bundle)
+{
+	for (UFlareQuestCondition* Condition : GetCurrentConditions())
+	{
+		Condition->OnEvent(Bundle);
+	}
+}
+
+
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/

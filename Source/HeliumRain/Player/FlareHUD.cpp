@@ -1016,11 +1016,13 @@ void AFlareHUD::DrawHUDInternal()
 				DrawDockingHelper(Spacecraft);
 			}
 
+			bool IsObjective = (PC->GetCurrentObjective() && PC->GetCurrentObjective()->TargetSpacecrafts.Find(Spacecraft->GetParent()) != INDEX_NONE);
+
 			// Draw search markers for alive ships or highlighted stations when not in external camera
 			if (!IsExternalCamera && ShouldDrawSearchMarker
 				&& PlayerShip->GetParent()->GetDamageSystem()->IsAlive()
 				&& Spacecraft->GetParent()->GetDamageSystem()->IsAlive()
-				&& (Highlighted || !Spacecraft->IsStation())
+				&& (Highlighted || IsObjective || !Spacecraft->IsStation())
 			)
 			{
 				DrawSearchArrow(Spacecraft->GetActorLocation(), GetHostilityColor(PC, Spacecraft), Highlighted, FocusDistance);

@@ -243,6 +243,12 @@ bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterDat
 	{
 		FadeOut();
 	}
+
+	if(GetGame() && GetGame()->GetQuestManager())
+	{
+		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("open-menu").PutInt32("menu", (Target+0)));
+	}
+
 	return true;
 }
 

@@ -42,6 +42,7 @@ namespace EFlareQuestCallback
 		NEXT_DAY, // Trig after a simulate
 		SPACECRAFT_CAPTURED, // Trig when a spacecraft is captured
 		TRAVEL_STARTED, // Trig when a fleet start a travel
+		QUEST_EVENT, // Trig when a quest event is send
 	};
 }
 
@@ -203,6 +204,8 @@ public:
 	virtual void OnTravelStarted(UFlareTravel* Travel);
 
 	virtual void OnTravelEnded(UFlareFleet* Fleet);
+
+	virtual void OnEvent(FFlareBundle& Bundle);
 
 	virtual void OnQuestStatusChanged(UFlareQuest* Quest);
 

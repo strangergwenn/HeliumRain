@@ -435,14 +435,14 @@ struct FFlareBundle
 	TArray<FName> GetNameArray(FName Key) const;
 	FString GetString(FName Key) const;
 
-	void PutFloat(FName Key, float Value);
-	void PutInt32(FName Key, int32 Value);
-	void PutTransform(FName Key, const FTransform Value);
-	void PutVectorArray(FName Key, const TArray<FVector> Value);
-	void PutName(FName Key, FName Value);
-	void PutNameArray(FName Key, const TArray<FName> Value);
-	void PutString(FName Key, FString Value);
-	void PutTag(FName Tag);
+	FFlareBundle& PutFloat(FName Key, float Value);
+	FFlareBundle& PutInt32(FName Key, int32 Value);
+	FFlareBundle& PutTransform(FName Key, const FTransform Value);
+	FFlareBundle& PutVectorArray(FName Key, const TArray<FVector> Value);
+	FFlareBundle& PutName(FName Key, FName Value);
+	FFlareBundle& PutNameArray(FName Key, const TArray<FName> Value);
+	FFlareBundle& PutString(FName Key, FString Value);
+	FFlareBundle& PutTag(FName Tag);
 
 	void Clear();
 };

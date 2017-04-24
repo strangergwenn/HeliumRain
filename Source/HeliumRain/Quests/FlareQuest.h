@@ -103,6 +103,7 @@ public:
 
 	virtual void OnTravelStarted(UFlareTravel* Travel);
 
+	virtual void OnEvent(FFlareBundle& Bundle);
 
 protected:
 

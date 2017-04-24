@@ -264,49 +264,56 @@ FString FFlareBundle::GetString(FName Key) const
 	return "";
 }
 
-void FFlareBundle::PutFloat(FName Key, float Value)
+FFlareBundle& FFlareBundle::PutFloat(FName Key, float Value)
 {
 	FloatValues.Add(Key, Value);
+	return *this;
 }
 
-void FFlareBundle::PutInt32(FName Key, int32 Value)
+FFlareBundle& FFlareBundle::PutInt32(FName Key, int32 Value)
 {
 	Int32Values.Add(Key, Value);
+	return *this;
 }
 
-void FFlareBundle::PutTransform(FName Key, const FTransform Value)
+FFlareBundle& FFlareBundle::PutTransform(FName Key, const FTransform Value)
 {
 	TransformValues.Add(Key, Value);
+	return *this;
 }
 
-void FFlareBundle::PutVectorArray(FName Key, const TArray<FVector> Value)
+FFlareBundle& FFlareBundle::PutVectorArray(FName Key, const TArray<FVector> Value)
 {
 	FVectorArray Array;
 	Array.Entries = Value;
 	VectorArrayValues.Add(Key, Array);
+	return *this;
 }
 
-void FFlareBundle::PutName(FName Key, FName Value)
+FFlareBundle& FFlareBundle::PutName(FName Key, FName Value)
 {
 	NameValues.Add(Key, Value);
+	return *this;
 }
 
-void FFlareBundle::PutNameArray(FName Key, const TArray<FName> Value)
+FFlareBundle& FFlareBundle::PutNameArray(FName Key, const TArray<FName> Value)
 {
 	FNameArray Array;
 	Array.Entries = Value;
 	NameArrayValues.Add(Key, Array);
+	return *this;
 }
 
-
-void FFlareBundle::PutString(FName Key, FString Value)
+FFlareBundle& FFlareBundle::PutString(FName Key, FString Value)
 {
 	StringValues.Add(Key, Value);
+	return *this;
 }
 
-void FFlareBundle::PutTag(FName Tag)
+FFlareBundle& FFlareBundle::PutTag(FName Tag)
 {
 	Tags.Add(Tag);
+	return *this;
 }
 
 void FFlareBundle::Clear()

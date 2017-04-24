@@ -65,6 +65,7 @@ void UFlareQuestManager::LoadBuildinQuest()
 {
 	AddQuest(UFlareQuestTutorialFlying::Create(this));
 	AddQuest(UFlareQuestTutorialNavigation::Create(this));
+	AddQuest(UFlareQuestTutorialContracts::Create(this));
 }
 
 void UFlareQuestManager::LoadCatalogQuests()
@@ -209,6 +210,11 @@ void UFlareQuestManager::AcceptQuest(UFlareQuest* Quest)
 	FLOGV("Accept quest %s", *Quest->GetIdentifier().ToString());
 
 	Quest->Accept();
+
+	if(Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
+	{
+		OnEvent(FFlareBundle().PutTag("accept-contract"));
+	}
 }
 
 void UFlareQuestManager::AbandonQuest(UFlareQuest* Quest)
@@ -234,6 +240,8 @@ void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)
 
 	SelectedQuest = Quest;
 	SelectedQuest->StartObjectiveTracking();
+
+	OnEvent(FFlareBundle().PutTag("track-contract"));
 }
 
 void UFlareQuestManager::AutoSelectQuest()
@@ -408,6 +416,22 @@ void UFlareQuestManager::OnTravelStarted(UFlareTravel* Travel)
 	OnCallbackEvent(EFlareQuestCallback::SPACECRAFT_CAPTURED);
 }
 
+void UFlareQuestManager::OnEvent(FFlareBundle& Bundle)
+{
+	if (CallbacksMap.Contains(EFlareQuestCallback::QUEST_EVENT))
+	{
+		TArray<UFlareQuest*> Callbacks = CallbacksMap[EFlareQuestCallback::QUEST_EVENT];
+		for (UFlareQuest* Quest: Callbacks)
+		{
+			Quest->OnEvent(Bundle);
+			Quest->UpdateState();
+		}
+	}
+
+	OnCallbackEvent(EFlareQuestCallback::SPACECRAFT_CAPTURED);
+}
+
+
 void UFlareQuestManager::OnNextDay()
 {
 	QuestGenerator->GenerateMilitaryQuests();
@@ -447,6 +471,7 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 
 		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status")),
 			EFlareNotification::NT_Quest, false, EFlareMenu::MENU_Quest, Data);
+		OnEvent(FFlareBundle().PutTag("success-contract"));
 	}
 
 	if (Quest == SelectedQuest)
@@ -455,7 +480,6 @@ void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 	}
 
 	OnQuestStatusChanged(Quest);
-
 }
 
 void UFlareQuestManager::OnQuestFail(UFlareQuest* Quest, bool Notify)

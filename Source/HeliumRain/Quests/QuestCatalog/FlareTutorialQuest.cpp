@@ -9,6 +9,7 @@
 
 #define LOCTEXT_NAMESPACE "FlareTutorialQuest"
 
+static FName TUTORIAL_CURRENT_PROGRESSION_TAG("current-progression");
 
 /*----------------------------------------------------
 	Tutorial Flying
@@ -227,5 +228,404 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		Steps.Add(Step);
 	}
 }
+
+/*----------------------------------------------------
+	Tutorial Contracts
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "TutorialContracts"
+UFlareQuestTutorialContracts::UFlareQuestTutorialContracts(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuest* UFlareQuestTutorialContracts::Create(UFlareQuestManager* Parent)
+{
+	UFlareQuestTutorialContracts* Quest = NewObject<UFlareQuestTutorialContracts>(Parent, UFlareQuestTutorialContracts::StaticClass());
+	Quest->Load(Parent);
+	return Quest;
+}
+
+void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
+{
+	LoadInternal(Parent);
+
+	Identifier = "tutorial-contracts";
+	QuestName = LOCTEXT(QUEST_TAG"Name","Contracts tutorial");
+	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to use contracts.");
+	QuestCategory = EFlareQuestCategory::TUTORIAL;
+
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-navigation"));
+
+
+	UFlareSimulatedSector* Sector = FindSector("blue-heart");
+
+	if (!Sector)
+	{
+		return;
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"FindContract"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Other company in this solar system can give you some contracts. You can ignore them, but they a are good way to earn money, research or discover new sector...\nVisit others sectors to get a contract from another company.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "find-contract", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGetContrat::Create(this));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"OpenQuestMenu"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","A company proposed you a contract.\nOpen the contracts menu (<input-action:QuestMenu>).");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-quest-menu", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Quest));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"AcceptQuest"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","In this menu you can manage your contract. You can select contract to have more details, accept or abandon contracts. You have few days to accept contracts but once you accepted it, you can often take your time to finish it.\nNow accept a contract.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "accept-quest", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialAcceptQuest::Create(this));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"TrackQuest"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Track a contract make its instructions visible everywhere.\nNow, track a contract. Don't hesitate to return the contract menu and select or track this tutorial contract (or others contract) to kwown what to do.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "track-quest", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialTrackQuest::Create(this));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"FinishQuest"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You known the basics about contract.\nTime to try. Finish 3 contracts.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "track-quest", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialFinishQuest::Create(this, QUEST_TAG"cond1", 3));
+		Steps.Add(Step);
+	}
+}
+
+/*----------------------------------------------------
+	Tutorial get contrat condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialGetContrat::UFlareQuestConditionTutorialGetContrat(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialGetContrat* UFlareQuestConditionTutorialGetContrat::Create(UFlareQuest* ParentQuest)
+{
+	UFlareQuestConditionTutorialGetContrat* Condition = NewObject<UFlareQuestConditionTutorialGetContrat>(ParentQuest, UFlareQuestConditionTutorialGetContrat::StaticClass());
+	Condition->Load(ParentQuest);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialGetContrat::Load(UFlareQuest* ParentQuest)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	Completed = false;
+	InitialLabel = LOCTEXT("TutorialGetContrat", "Get a contract");
+}
+
+void UFlareQuestConditionTutorialGetContrat::OnEvent(FFlareBundle& Bundle)
+{
+	if(Completed)
+	{
+		return;
+	}
+
+	if (Bundle.HasTag("get-contract"))
+	{
+		Completed = true;
+	}
+}
+
+bool UFlareQuestConditionTutorialGetContrat::IsCompleted()
+{
+	return Completed;
+}
+
+void UFlareQuestConditionTutorialGetContrat::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = 1;
+	ObjectiveCondition.MaxProgress = 1;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.Progress =IsCompleted() ? 1 : 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+	Tutorial open menu condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialOpenMenu::UFlareQuestConditionTutorialOpenMenu(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialOpenMenu* UFlareQuestConditionTutorialOpenMenu::Create(UFlareQuest* ParentQuest, EFlareMenu::Type Menu)
+{
+	UFlareQuestConditionTutorialOpenMenu* Condition = NewObject<UFlareQuestConditionTutorialOpenMenu>(ParentQuest, UFlareQuestConditionTutorialOpenMenu::StaticClass());
+	Condition->Load(ParentQuest, Menu);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialOpenMenu::Load(UFlareQuest* ParentQuest, EFlareMenu::Type Menu)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	Completed = false;
+	MenuType = Menu;
+
+
+	switch (MenuType) {
+	case EFlareMenu::MENU_Quest:
+		InitialLabel =  LOCTEXT("MenuQuest", "Open contract menu");
+		break;
+	default:
+		break;
+	}
+}
+
+void UFlareQuestConditionTutorialOpenMenu::OnEvent(FFlareBundle& Bundle)
+{
+	if(Completed)
+	{
+		return;
+	}
+
+	if (Bundle.HasTag("open-menu") && Bundle.GetInt32("menu") == (MenuType+0))
+	{
+		Completed = true;
+	}
+}
+
+bool UFlareQuestConditionTutorialOpenMenu::IsCompleted()
+{
+	return Completed;
+}
+
+void UFlareQuestConditionTutorialOpenMenu::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = 1;
+	ObjectiveCondition.MaxProgress = 1;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.Progress =IsCompleted() ? 1 : 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+	Accept quest condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialAcceptQuest::UFlareQuestConditionTutorialAcceptQuest(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialAcceptQuest* UFlareQuestConditionTutorialAcceptQuest::Create(UFlareQuest* ParentQuest)
+{
+	UFlareQuestConditionTutorialAcceptQuest* Condition = NewObject<UFlareQuestConditionTutorialAcceptQuest>(ParentQuest, UFlareQuestConditionTutorialAcceptQuest::StaticClass());
+	Condition->Load(ParentQuest);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialAcceptQuest::Load(UFlareQuest* ParentQuest)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	Completed = false;
+	InitialLabel = LOCTEXT("TutorialAcceptContrat", "Accept a contract");
+}
+
+void UFlareQuestConditionTutorialAcceptQuest::OnEvent(FFlareBundle& Bundle)
+{
+	if(Completed)
+	{
+		return;
+	}
+
+	if (Bundle.HasTag("accept-contract"))
+	{
+		Completed = true;
+	}
+}
+
+bool UFlareQuestConditionTutorialAcceptQuest::IsCompleted()
+{
+	return Completed;
+}
+
+void UFlareQuestConditionTutorialAcceptQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = 1;
+	ObjectiveCondition.MaxProgress = 1;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.Progress =IsCompleted() ? 1 : 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+	Track quest condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialTrackQuest::UFlareQuestConditionTutorialTrackQuest(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialTrackQuest* UFlareQuestConditionTutorialTrackQuest::Create(UFlareQuest* ParentQuest)
+{
+	UFlareQuestConditionTutorialTrackQuest* Condition = NewObject<UFlareQuestConditionTutorialTrackQuest>(ParentQuest, UFlareQuestConditionTutorialTrackQuest::StaticClass());
+	Condition->Load(ParentQuest);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialTrackQuest::Load(UFlareQuest* ParentQuest)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	Completed = false;
+	InitialLabel = LOCTEXT("TutorialTrackContrat", "Track a contract");
+}
+
+void UFlareQuestConditionTutorialTrackQuest::OnEvent(FFlareBundle& Bundle)
+{
+	if(Completed)
+	{
+		return;
+	}
+
+	if (Bundle.HasTag("track-contract"))
+	{
+		Completed = true;
+	}
+}
+
+bool UFlareQuestConditionTutorialTrackQuest::IsCompleted()
+{
+	return Completed;
+}
+
+void UFlareQuestConditionTutorialTrackQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = 1;
+	ObjectiveCondition.MaxProgress = 1;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.Progress =IsCompleted() ? 1 : 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+	Finish quest condition
+----------------------------------------------------*/
+
+UFlareQuestConditionTutorialFinishQuest::UFlareQuestConditionTutorialFinishQuest(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialFinishQuest* UFlareQuestConditionTutorialFinishQuest::Create(UFlareQuest* ParentQuest,
+																					 FName ConditionIdentifierParam,
+																					 int32 Count)
+{
+	UFlareQuestConditionTutorialFinishQuest*Condition = NewObject<UFlareQuestConditionTutorialFinishQuest>(ParentQuest, UFlareQuestConditionTutorialFinishQuest::StaticClass());
+	Condition->Load(ParentQuest, ConditionIdentifierParam, Count);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialFinishQuest::Load(UFlareQuest* ParentQuest,
+												 FName ConditionIdentifierParam,
+												 int32 Count)
+{
+	if (ConditionIdentifierParam == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionTutorialFinishQuest need identifier for state saving");
+	}
+	LoadInternal(ParentQuest, ConditionIdentifierParam);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+
+	QuestCount = Count;
+
+	InitialLabel = FText::Format(LOCTEXT("FinishQuestLabel","Finish {0} contracts"),
+									 FText::AsNumber(QuestCount));
+}
+
+void UFlareQuestConditionTutorialFinishQuest::Restore(const FFlareBundle* Bundle)
+{
+	bool HasSave = true;
+	if(Bundle)
+	{
+		HasSave &= Bundle->HasInt32(TUTORIAL_CURRENT_PROGRESSION_TAG);
+	}
+	else
+	{
+		HasSave = false;
+	}
+
+	if(HasSave)
+	{
+		CurrentProgression = Bundle->GetInt32(TUTORIAL_CURRENT_PROGRESSION_TAG);
+	}
+	else
+	{
+		CurrentProgression = 0;
+	}
+
+}
+
+void UFlareQuestConditionTutorialFinishQuest::Save(FFlareBundle* Bundle)
+{
+	Bundle->PutInt32(TUTORIAL_CURRENT_PROGRESSION_TAG, CurrentProgression);
+}
+
+
+bool UFlareQuestConditionTutorialFinishQuest::IsCompleted()
+{
+	return CurrentProgression >= QuestCount;
+}
+
+void UFlareQuestConditionTutorialFinishQuest::OnEvent(FFlareBundle& Bundle)
+{
+	if (Bundle.HasTag("success-contract"))
+	{
+		CurrentProgression++;
+	}
+}
+
+void UFlareQuestConditionTutorialFinishQuest::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = QuestCount;
+	ObjectiveCondition.MaxProgress = QuestCount;
+	ObjectiveCondition.Counter = CurrentProgression;
+	ObjectiveCondition.Progress = CurrentProgression;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+
 
 #undef LOCTEXT_NAMESPACE
