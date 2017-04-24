@@ -196,7 +196,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Travel"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","To start a travel, open the overlay with <input-action:ToggleOverlay> and click on the orbital map. Select the sector \"The Depths\" and click \"Travel\".<br>Then, use the \"Fast Forward\" button to complete the travel.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","To start a travel, open the menu bar with <input-action:ToggleOverlay> and click on the orbital map. Select the sector \"The Depths\" and click \"Travel\".<br>Then, use the \"Fast Forward\" button to complete the travel.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "travel", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionSectorVisited::Create(this, Sector));
@@ -252,7 +252,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 
 	Identifier = "tutorial-contracts";
 	QuestName = LOCTEXT(QUEST_TAG"Name","Contracts tutorial");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to use contracts.");
+	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to complete contracts for other companies.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-navigation"));
@@ -268,7 +268,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"FindContract"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Other company in this solar system can give you some contracts. You can ignore them, but they a are good way to earn money, research or discover new sector...\nVisit others sectors to get a contract from another company.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Other companies in this system can give you contracts to carry out. You can ignore them, but they are a very good way to earn money or research, or to discover new sectors. Keep traveling between sectors to find contracts.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "find-contract", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGetContrat::Create(this));
@@ -278,7 +278,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"OpenQuestMenu"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","A company proposed you a contract.\nOpen the contracts menu (<input-action:QuestMenu>).");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","A company has made a new contract available to you.\nOpen the contracts menu with (<input-action:QuestMenu>), or from the menu bar with <input-action:ToggleOverlay>.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-quest-menu", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Quest));
@@ -288,7 +288,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"AcceptQuest"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","In this menu you can manage your contract. You can select contract to have more details, accept or abandon contracts. You have few days to accept contracts but once you accepted it, you can often take your time to finish it.\nNow accept a contract.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can manage contracts here. You have only a few days to accept a contract, but once you do, you can usually take your time to finish it. Accept your first contract now !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "accept-quest", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialAcceptQuest::Create(this));
@@ -298,7 +298,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"TrackQuest"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Track a contract make its instructions visible everywhere.\nNow, track a contract. Don't hesitate to return the contract menu and select or track this tutorial contract (or others contract) to kwown what to do.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Tracking a contract makes its instructions visible permanently. Track a contract now - you can return to this menu to track the tutorial contract at any time if you are lost.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "track-quest", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialTrackQuest::Create(this));
@@ -308,7 +308,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"FinishQuest"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You known the basics about contract.\nTime to try. Finish 3 contracts.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Complete three contracts to start your mercenary career.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "track-quest", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialFinishQuest::Create(this, QUEST_TAG"cond1", 3));
@@ -336,7 +336,7 @@ void UFlareQuestConditionTutorialGetContrat::Load(UFlareQuest* ParentQuest)
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 	Completed = false;
-	InitialLabel = LOCTEXT("TutorialGetContrat", "Get a contract");
+	InitialLabel = LOCTEXT("TutorialGetContrat", "Accept a contract");
 }
 
 void UFlareQuestConditionTutorialGetContrat::OnEvent(FFlareBundle& Bundle)
@@ -394,7 +394,7 @@ void UFlareQuestConditionTutorialOpenMenu::Load(UFlareQuest* ParentQuest, EFlare
 
 	switch (MenuType) {
 	case EFlareMenu::MENU_Quest:
-		InitialLabel =  LOCTEXT("MenuQuest", "Open contract menu");
+		InitialLabel =  LOCTEXT("MenuQuest", "Open the contract menu");
 		break;
 	default:
 		break;
@@ -568,7 +568,7 @@ void UFlareQuestConditionTutorialFinishQuest::Load(UFlareQuest* ParentQuest,
 
 	QuestCount = Count;
 
-	InitialLabel = FText::Format(LOCTEXT("FinishQuestLabel","Finish {0} contracts"),
+	InitialLabel = FText::Format(LOCTEXT("FinishQuestLabel","Complete {0} contracts"),
 									 FText::AsNumber(QuestCount));
 }
 
