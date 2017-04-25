@@ -961,9 +961,10 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 			//UseOrbitalBoost = false;
 		}
 	}
-	else
+
+	// If not, and outside the player fleet, find a leader and follow it
+	else if (Ship->GetCompany() != Ship->GetGame()->GetPC()->GetCompany())
 	{
-		// If not, find a leader
 		AFlareSpacecraft* LeaderShip = Ship;
 
 		TArray<AFlareSpacecraft*> Spacecrafts = Ship->GetGame()->GetActiveSector()->GetCompanySpacecrafts(Ship->GetCompany());
