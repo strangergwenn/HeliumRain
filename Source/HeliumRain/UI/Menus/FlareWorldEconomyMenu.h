@@ -70,6 +70,15 @@ protected:
 	/** Get the sector info color */
 	FSlateColor GetSectorTextColor(UFlareSimulatedSector* Sector) const;
 
+	/** Get the resource production info */
+	FText GetResourceProductionInfo(UFlareSimulatedSector* Sector) const;
+
+	/** Get the resource consumption info */
+	FText GetResourceConsumptionInfo(UFlareSimulatedSector* Sector) const;
+
+	/** Get the resource stock info */
+	FText GetResourceStockInfo(UFlareSimulatedSector* Sector) const;
+
 	/** Get the resource price info */
 	FText GetResourcePriceInfo(UFlareSimulatedSector* Sector) const;
 

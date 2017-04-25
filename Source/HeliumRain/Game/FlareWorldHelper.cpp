@@ -7,6 +7,7 @@
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "FlareScenarioTools.h"
 
+
 TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::ComputeWorldResourceStats(AFlareGame* Game)
 {
 	TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldStats;
@@ -28,82 +29,23 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 	{
 		UFlareSimulatedSector* Sector = Game->GetGameWorld()->GetSectors()[SectorIndex];
 
-		for (int SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorStats;
+
+		SectorStats = SectorHelper::ComputeSectorResourceStats(Sector);
+
+
+		for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
 		{
-			UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
 
-			// Stock
-			TArray<FFlareCargo>& CargoBaySlots = Spacecraft->GetCargoBay()->GetSlots();
-			for (int CargoIndex = 0; CargoIndex < CargoBaySlots.Num(); CargoIndex++)
-			{
-				FFlareCargo& Cargo = CargoBaySlots[CargoIndex];
+			WorldHelper::FlareResourceStats& SectorResourceStats = SectorStats[Resource];
+			WorldHelper::FlareResourceStats& ResourceStats = WorldStats[Resource];
+			ResourceStats.Production += SectorResourceStats.Production;
+			ResourceStats.Consumption += SectorResourceStats.Consumption;
+			ResourceStats.Balance += SectorResourceStats.Balance;
+			ResourceStats.Stock += SectorResourceStats.Stock;
 
-				if (!Cargo.Resource)
-				{
-					continue;
-				}
-
-				WorldHelper::FlareResourceStats *ResourceStats = &WorldStats[Cargo.Resource];
-
-				ResourceStats->Stock += Cargo.Quantity;
-			}
-
-			for (int32 FactoryIndex = 0; FactoryIndex < Spacecraft->GetFactories().Num(); FactoryIndex++)
-			{
-				UFlareFactory* Factory = Spacecraft->GetFactories()[FactoryIndex];
-				if ((!Factory->IsActive() || !Factory->IsNeedProduction()))
-				{
-					// No resources needed
-					break;
-				}
-
-				// Input flow
-				for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetInputResourcesCount(); ResourceIndex++)
-				{
-					FFlareResourceDescription* Resource = Factory->GetInputResource(ResourceIndex);
-					WorldHelper::FlareResourceStats *ResourceStats = &WorldStats[Resource];
-
-					int64 ProductionDuration = Factory->GetProductionDuration();
-
-					float Flow = 0;
-
-					if (ProductionDuration == 0)
-					{
-						Flow = 1;
-					}
-					else
-					{
-						Flow = (float) Factory->GetInputResourceQuantity(ResourceIndex) / float(ProductionDuration);
-					}
-
-					ResourceStats->Consumption += Flow;
-				}
-
-				// Ouput flow
-				for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetOutputResourcesCount(); ResourceIndex++)
-				{
-					FFlareResourceDescription* Resource = Factory->GetOutputResource(ResourceIndex);
-					WorldHelper::FlareResourceStats *ResourceStats = &WorldStats[Resource];
-
-					int64 ProductionDuration = Factory->GetProductionDuration();
-					if (ProductionDuration == 0)
-					{
-						ProductionDuration = 10;
-					}
-
-					float Flow = (float) Factory->GetOutputResourceQuantity(ResourceIndex) / float(ProductionDuration);
-					ResourceStats->Production+= Flow;
-				}
-			}
-		}
-
-		// Customer flow
-		for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
-		{
-			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
-			WorldHelper::FlareResourceStats *ResourceStats = &WorldStats[Resource];
-
-			ResourceStats->Consumption += Sector->GetPeople()->GetRessourceConsumption(Resource, false);
+			WorldStats.Add(Resource, ResourceStats);
 		}
 	}
 
@@ -129,8 +71,6 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 			  ResourceStats->Balance,
 			  ResourceStats->Stock);*/
 	}
-
-
 
 	return WorldStats;
 }

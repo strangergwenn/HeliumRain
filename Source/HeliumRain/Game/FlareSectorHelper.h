@@ -42,4 +42,6 @@ struct SectorHelper
 
 	static int32 GetCompanyArmyCombatPoints(UFlareSimulatedSector* Sector, UFlareCompany* Company, bool ReduceByDamage);
 
+	static TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> ComputeSectorResourceStats(UFlareSimulatedSector* Sector);
+
 };
