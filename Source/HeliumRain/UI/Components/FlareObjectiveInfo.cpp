@@ -23,6 +23,7 @@ void SFlareObjectiveInfo::Construct(const FArguments& InArgs)
 	CurrentAlpha = 1;
 	ObjectiveEnterTime = 0.5;
 	CurrentFadeTime = 0;
+	CurrentObjectiveConditionNumber = 0;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 ObjectiveInfoTextWidth = Width - Theme.SmallContentPadding.Left - Theme.SmallContentPadding.Right;
 	
@@ -78,7 +79,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 	CurrentAlpha = FMath::InterpEaseOut(0.0f, 1.0f, CurrentFadeTime, 2);
 
 	const FFlarePlayerObjectiveData* Objective = QuestStep ? &QuestObjective : PC->GetCurrentObjective();
-	if (Objective && PC->HasNewObjective())
+	if (Objective && Objective->ConditionList.Num() != CurrentObjectiveConditionNumber)
 	{
 		ConditionBox->ClearChildren();
 
@@ -156,6 +157,7 @@ void SFlareObjectiveInfo::Tick(const FGeometry& AllottedGeometry, const double I
 		}
 
 		SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
+		CurrentObjectiveConditionNumber = Objective->ConditionList.Num();
 	}
 }
 

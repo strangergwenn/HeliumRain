@@ -169,9 +169,6 @@ public:
 	/** Check if there is an objective yet */
 	bool HasObjective() const;
 
-	/** Check if there is a new objective */
-	bool HasNewObjective() const;
-
 	/** Get the raw objective data */
 	const FFlarePlayerObjectiveData* GetCurrentObjective() const;
 
@@ -421,7 +418,6 @@ protected:
 
 	bool                                     RightMousePressed;
 	bool                                     HasCurrentObjective;
-	bool                                     HasUpdatedObjective;
 	bool                                     IsBusy;
 
 	FFlareSectorBattleState                  LastBattleState;

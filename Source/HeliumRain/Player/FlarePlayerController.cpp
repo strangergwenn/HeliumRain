@@ -67,7 +67,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	// Gameplay
 	QuickSwitchNextOffset = 0;
 	HasCurrentObjective = false;
-	HasUpdatedObjective = false;
 	RightMousePressed = false;
 	IsTest1 = false;
 	IsTest2 = false;
@@ -127,7 +126,6 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	Super::PlayerTick(DeltaSeconds);
 	AFlareHUD* HUD = GetNavHUD();
 	TimeSinceWeaponSwitch += DeltaSeconds;
-	HasUpdatedObjective = false;
 	IsBusy = false;
 	
 	// We are flying
@@ -1209,24 +1207,17 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 void AFlarePlayerController::StartObjective(FText Name, FFlarePlayerObjectiveData Data)
 {
 	HasCurrentObjective = true;
-	HasUpdatedObjective = true;
 	CurrentObjective = Data;
 }
 
 void AFlarePlayerController::CompleteObjective()
 {
 	HasCurrentObjective = false;
-	HasUpdatedObjective = true;
 }
 
 bool AFlarePlayerController::HasObjective() const
 {
 	return HasCurrentObjective;
-}
-
-bool AFlarePlayerController::HasNewObjective() const
-{
-	return HasUpdatedObjective;
 }
 
 const FFlarePlayerObjectiveData* AFlarePlayerController::GetCurrentObjective() const
