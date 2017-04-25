@@ -35,8 +35,11 @@ public:
 	/** Add a menu link */
 	void AddMenuLink(EFlareMenu::Type Menu);
 
+	/** Setup a button (simple) */
+	void SetupMenuLink(TSharedPtr<SFlareButton> Button, EFlareMenu::Type Menu);
+
 	/** Setup a button */
-	void SetupMenuLink(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text, FString Key, bool Small = false);
+	void SetupMenuLinkSmall(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text, FString Key);
 
 
 	/*----------------------------------------------------
@@ -82,6 +85,9 @@ public:
 
 	/** Get the key binding for the mouse */
 	FText GetHelperText() const;
+
+	/** Get the key binding for this menu */
+	FText GetMenuKey(EFlareMenu::Type Menu) const;
 
 	/** Get the name of the current menu */
 	FText GetCurrentMenuName() const;

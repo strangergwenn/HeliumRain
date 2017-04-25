@@ -171,11 +171,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, EFlareMenu::MENU_Main)
 		.Visibility(this, &SFlareMainOverlay::GetGameButtonVisibility)
 	];
-	SetupMenuLink(MainButton,
-		AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Main),
-		AFlareMenuManager::GetMenuName(EFlareMenu::MENU_Main),
-		AFlareMenuManager::GetMenuKey(EFlareMenu::MENU_Main),
-		false);
+	SetupMenuLink(MainButton, EFlareMenu::MENU_Main);
 	
 	// Settings
 	TSharedPtr<SFlareButton> SettingsButton;
@@ -189,11 +185,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		.Transparent(true)
 		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, EFlareMenu::MENU_Settings)
 	];
-	SetupMenuLink(SettingsButton,
-		AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Settings),
-		AFlareMenuManager::GetMenuName(EFlareMenu::MENU_Settings),
-		AFlareMenuManager::GetMenuKey(EFlareMenu::MENU_Settings),
-		false);
+	SetupMenuLink(SettingsButton, EFlareMenu::MENU_Settings);
 	
 	// Back, exit
 	TSharedPtr<SFlareButton> BackButton;
@@ -230,7 +222,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	];
 
 	// Back, exit config
-	SetupMenuLink(BackButton, FFlareStyleSet::GetIcon("Back"), FText(), FString(), true);
+	SetupMenuLinkSmall(BackButton, FFlareStyleSet::GetIcon("Back"), FText(), FString());
 	ExitButton->GetContainer()->SetHAlign(HAlign_Center);
 	ExitButton->GetContainer()->SetVAlign(VAlign_Fill);
 	ExitButton->GetContainer()->SetPadding(FMargin(0, 5));
@@ -274,20 +266,63 @@ void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu)
 	];
 
 	// Fill button contents
-	SetupMenuLink(Button,
-		AFlareMenuManager::GetMenuIcon(Menu),
-		AFlareMenuManager::GetMenuName(Menu),
-		AFlareMenuManager::GetMenuKey(Menu),
-		false);
+	SetupMenuLink(Button, Menu);
 }
 
-void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text, FString Key, bool Small)
+void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, EFlareMenu::Type Menu)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	Button->GetContainer()->SetHAlign(HAlign_Center);
 	Button->GetContainer()->SetVAlign(VAlign_Fill);
-	Button->GetContainer()->SetPadding(FMargin(0, Small ? 5 : 25));
+	Button->GetContainer()->SetPadding(FMargin(0, 25));
+
+	Button->GetContainer()->SetContent(
+		SNew(SVerticalBox)
+
+		// Icon
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		[
+			SNew(SBox)
+			.WidthOverride(64)
+			.HeightOverride(64)
+			[
+				SNew(SImage)
+				.Image(AFlareMenuManager::GetMenuIcon(Menu))
+			]
+		]
+
+		// Text
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.SmallFont)
+			.Text(AFlareMenuManager::GetMenuName(Menu))
+		]
+
+		// Shortcut
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.SmallFont)
+			.Text(this, &SFlareMainOverlay::GetMenuKey, Menu)
+		]
+	);
+}
+
+void SFlareMainOverlay::SetupMenuLinkSmall(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text, FString Key)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	Button->GetContainer()->SetHAlign(HAlign_Center);
+	Button->GetContainer()->SetVAlign(VAlign_Fill);
+	Button->GetContainer()->SetPadding(FMargin(0, 5));
 
 	Button->GetContainer()->SetContent(
 		SNew(SVerticalBox)
@@ -327,7 +362,6 @@ void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, const FSl
 		]
 	);
 }
-
 
 /*----------------------------------------------------
 	Interaction
@@ -497,6 +531,11 @@ const FSlateBrush* SFlareMainOverlay::GetCloseIcon() const
 	{
 		return FFlareStyleSet::GetIcon("Close");
 	}
+}
+
+FText SFlareMainOverlay::GetMenuKey(EFlareMenu::Type Menu) const
+{
+	return FText::Format(LOCTEXT("MenuKeyFormat", "<{0}>"), FText::FromString(AFlareMenuManager::GetMenuKey(Menu)));
 }
 
 FText SFlareMainOverlay::GetHelperText() const
