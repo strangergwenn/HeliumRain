@@ -198,6 +198,8 @@ bool UFlareSpacecraftNavigationSystem::DockAt(AFlareSpacecraft* TargetStation)
 	// Docking granted
 	if (DockingInfo.Granted)
 	{
+		AbortAllCommands();
+
 		if (IsDocked())
 		{
 			FLOG("UFlareSpacecraftNavigationSystem::DockAt : leaving current dock");
@@ -205,7 +207,6 @@ bool UFlareSpacecraftNavigationSystem::DockAt(AFlareSpacecraft* TargetStation)
 		}
 
 		FLOG("UFlareSpacecraftNavigationSystem::DockAt : access granted");
-		AbortAllCommands();
 		PushCommandDock(DockingInfo);
 		return true;
 	}
