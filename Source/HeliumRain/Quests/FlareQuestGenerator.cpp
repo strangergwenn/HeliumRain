@@ -14,8 +14,8 @@
 
 #define LOCTEXT_NAMESPACE "FlareQuestGenerator"
 
-#define MAX_QUEST_COUNT 20
-#define MAX_QUEST_PER_COMPANY_COUNT 5
+#define MAX_QUEST_COUNT 40
+#define MAX_QUEST_PER_COMPANY_COUNT 10
 
 /*----------------------------------------------------
 	Constructor
@@ -160,8 +160,8 @@ float UFlareQuestGenerator::ComputeQuestProbability(UFlareCompany* Company)
 	// 0 % if quest count = MAX_QUEST_COUNT
 	// With early quick drop
 	// So pow(1-questCount/MAX_QUEST_COUNT, 2)
-	float CompanyQuestProbability = FMath::Pow (1.f - (float) QuestManager->GetVisibleQuestCount(Company)/ (float) MAX_QUEST_PER_COMPANY_COUNT, 2);
-	float GlobalQuestProbability = FMath::Pow (1.f - (float) QuestManager->GetVisibleQuestCount()/ (float) MAX_QUEST_COUNT, 2);
+	float CompanyQuestProbability = 1.f - (float) QuestManager->GetVisibleQuestCount(Company)/ (float) MAX_QUEST_PER_COMPANY_COUNT;
+	float GlobalQuestProbability = 1.f - (float) QuestManager->GetVisibleQuestCount()/ (float) MAX_QUEST_COUNT;
 
 	float QuestProbability = GlobalQuestProbability * CompanyQuestProbability;
 
