@@ -205,6 +205,7 @@ bool UFlareSpacecraftNavigationSystem::DockAt(AFlareSpacecraft* TargetStation)
 		}
 
 		FLOG("UFlareSpacecraftNavigationSystem::DockAt : access granted");
+		AbortAllCommands();
 		PushCommandDock(DockingInfo);
 		return true;
 	}
