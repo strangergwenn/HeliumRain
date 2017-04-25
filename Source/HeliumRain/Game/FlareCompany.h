@@ -56,22 +56,6 @@ struct FFlareCompanyDescription
 	UPROPERTY(EditAnywhere, Category = Company)
 	UTexture2D* Emblem;
 
-	/** Base color index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationBasePaintColorIndex;
-	
-	/** Paint color index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationPaintColorIndex;
-
-	/** Lights color index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationOverlayColorIndex;
-
-	/** Lights color index in the customization catalog */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 CustomizationLightColorIndex;
-
 	/** Base color in the customization catalog */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FLinearColor CustomizationBasePaintColor;

@@ -1223,7 +1223,6 @@ UFlareCompany* UFlareWorld::FindCompany(FName Identifier) const
 		}
 	}
 
-	FCHECK(false);
 	return NULL;
 }
 
@@ -1239,7 +1238,6 @@ UFlareCompany* UFlareWorld::FindCompanyByShortName(FName CompanyShortName) const
 		}
 	}
 
-	FCHECK(false);
 	return NULL;
 }
 

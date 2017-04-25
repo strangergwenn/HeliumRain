@@ -81,6 +81,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	NemaHeavyWorks =       World->FindCompanyByShortName("NHW");
 	Pirates =              World->FindCompanyByShortName("PIR");
 	AxisSupplies =         World->FindCompanyByShortName("AXS");
+	BrokenMoon =           World->FindCompanyByShortName("BRM");
 
 	// Resources
 	Water =    Game->GetResourceCatalog()->Get("h2o");
@@ -312,6 +313,10 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationToolFactory, HelixFoundries, TheForge, 3);
 	CreateStations(StationHabitation, Sunwatch, TheForge, 3);
 
+	// Anka bases for Broken Moon
+	CreateStations(StationOutpost, BrokenMoon, Colossus, 1);
+
+
 	// Create Night's Home capital station
 	{
 		float StationRadius = 22480;
@@ -397,6 +402,7 @@ void UFlareScenarioTools::SetupWorld()
 	CreateShips(ShipInvader, GhostWorksShipyards, NightsHome, 1);
 	CreateShips(ShipGhoul, Pirates, Boneyard, 5);
 	CreateShips(ShipDragon, Pirates, Boneyard, 1);
+	CreateShips(ShipGhoul, BrokenMoon, Colossus, 2);
 }
 
 void UFlareScenarioTools::SetupAsteroids()

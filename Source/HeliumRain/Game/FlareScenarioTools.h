@@ -130,6 +130,7 @@ public:
 	UFlareCompany*                             NemaHeavyWorks;
 	UFlareCompany*                             AxisSupplies;
 	UFlareCompany*                             Pirates;
+	UFlareCompany*                             BrokenMoon;
 
 	// Resources
 	FFlareResourceDescription*                 Water;
