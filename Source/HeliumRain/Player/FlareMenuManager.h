@@ -75,6 +75,9 @@ public:
 	/** Close the main overlay */
 	void CloseMainOverlay();
 
+	/** Open target menu if not open, close otherwise */
+	bool ToogleMenu(EFlareMenu::Type Target);
+
 	/** Asynchronously switch to a target menu, with optional data */
 	bool OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData Data = FFlareMenuParameterData(), bool AddToHistory = true, bool OpenDirectly = false);
 	

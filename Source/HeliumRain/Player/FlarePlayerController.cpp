@@ -1474,73 +1474,73 @@ void AFlarePlayerController::TogglePerformance()
 
 void AFlarePlayerController::ShipMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Ship)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::ShipMenu");
-		MenuManager->OpenMenu(EFlareMenu::MENU_Ship);
+		MenuManager->ToogleMenu(EFlareMenu::MENU_Ship);
 	}
 }
 
 void AFlarePlayerController::SectorMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Sector)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::SectorMenu");
-		MenuManager->OpenMenu(EFlareMenu::MENU_Sector);
+		MenuManager->ToogleMenu(EFlareMenu::MENU_Sector);
 	}
 }
 
 void AFlarePlayerController::OrbitMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Orbit)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::OrbitMenu");
-		MenuManager->OpenMenu(EFlareMenu::MENU_Orbit);
+		MenuManager->ToogleMenu(EFlareMenu::MENU_Orbit);
 	}
 }
 
 void AFlarePlayerController::LeaderboardMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Leaderboard)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::LeaderboardMenu");
-		MenuManager->OpenMenu(EFlareMenu::MENU_Leaderboard);
+		MenuManager->ToogleMenu(EFlareMenu::MENU_Leaderboard);
 	}
 }
 
 void AFlarePlayerController::CompanyMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Company)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::CompanyMenu");
-		MenuManager->OpenMenu(EFlareMenu::MENU_Company);
+		MenuManager->ToogleMenu(EFlareMenu::MENU_Company);
 	}
 }
 
 void AFlarePlayerController::FleetMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Fleet)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::FleetMenu");
-		MenuManager->OpenMenu(EFlareMenu::MENU_Fleet);
+		MenuManager->ToogleMenu(EFlareMenu::MENU_Fleet);
 	}
 }
 
 void AFlarePlayerController::TechnologyMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Technology)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::TechnologyMenu");
-		MenuManager->OpenMenu(EFlareMenu::MENU_Technology);
+		MenuManager->ToogleMenu(EFlareMenu::MENU_Technology);
 	}
 }
 
 void AFlarePlayerController::QuestMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Quest)
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::QuestMenu");
-		MenuManager->OpenMenu(EFlareMenu::MENU_Quest);
+		MenuManager->ToogleMenu(EFlareMenu::MENU_Quest);
 	}
 }
 
@@ -1555,10 +1555,10 @@ void AFlarePlayerController::MainMenu()
 
 void AFlarePlayerController::SettingsMenu()
 {
-	if (!IsTyping() && !MenuManager->IsFading() && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Settings)
+	if (!IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::SettingsMenu");
-		MenuManager->OpenMenu(EFlareMenu::MENU_Settings);
+		MenuManager->ToogleMenu(EFlareMenu::MENU_Settings);
 	}
 }
 

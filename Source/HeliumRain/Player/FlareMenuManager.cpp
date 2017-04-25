@@ -210,6 +210,21 @@ void AFlareMenuManager::CloseMainOverlay()
 	}
 }
 
+bool AFlareMenuManager::ToogleMenu(EFlareMenu::Type Target)
+{
+	if(GetCurrentMenu() != Target)
+	{
+		return OpenMenu(Target);
+	}
+	else
+	{
+		CloseMenu();
+		return true;
+	}
+}
+
+
+
 bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData Data, bool AddToHistory, bool OpenDirectly)
 {
 	// Filters
