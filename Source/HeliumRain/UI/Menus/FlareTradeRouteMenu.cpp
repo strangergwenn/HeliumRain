@@ -11,7 +11,6 @@
 #define LOCTEXT_NAMESPACE "FlareTradeRouteMenu"
 
 #define MAX_WAIT_LIMIT 29
-#define MAX_QUANTITY_LIMIT 2000
 
 
 /*----------------------------------------------------
@@ -1247,7 +1246,7 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 		else
 		{
 			QuantityLimitButton->SetActive(true);
-			QuantityLimitSlider->SetValue((float) (SelectedOperation->MaxQuantity - 1) / (float) MAX_QUANTITY_LIMIT);
+			QuantityLimitSlider->SetValue((float) (SelectedOperation->MaxQuantity - 1) / (float) TargetTradeRoute->GetFleet()->GetFleetCapacity());
 		}
 
 		if (SelectedOperation->MaxWait == -1)
@@ -1324,7 +1323,7 @@ void SFlareTradeRouteMenu::OnQuantityLimitToggle()
 	{
 		if (QuantityLimitButton->IsActive())
 		{
-			SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * MAX_QUANTITY_LIMIT;
+			SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * TargetTradeRoute->GetFleet()->GetFleetCapacity();
 		}
 		else
 		{
@@ -1352,7 +1351,7 @@ void SFlareTradeRouteMenu::OnQuantityLimitChanged(float Value)
 {
 	if (SelectedOperation)
 	{
-		SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * MAX_QUANTITY_LIMIT;
+		SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * TargetTradeRoute->GetFleet()->GetFleetCapacity();
 	}
 }
 
