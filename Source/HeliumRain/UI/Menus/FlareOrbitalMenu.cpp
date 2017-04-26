@@ -460,7 +460,7 @@ void SFlareOrbitalMenu::UpdateTradeRouteList()
 				.AutoWidth()
 				[
 					SNew(SFlareButton)
-					.Width(8)
+					.Width(7)
 					.Text(TradeRoute->GetTradeRouteName())
 					.HelpText(FText(LOCTEXT("InspectHelp", "Edit this trade route")))
 					.OnClicked(this, &SFlareOrbitalMenu::OnInspectTradeRouteClicked, TradeRoute)
