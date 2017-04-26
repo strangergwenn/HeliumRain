@@ -80,6 +80,9 @@ public:
 	/** Can we close the overlay */
 	bool IsCloseDisabled() const;
 
+	/** Can we close the overlay */
+	EVisibility GetCloseVisibility() const;
+
 	/** Get icon for the close button */
 	const FSlateBrush* GetCloseIcon() const;
 

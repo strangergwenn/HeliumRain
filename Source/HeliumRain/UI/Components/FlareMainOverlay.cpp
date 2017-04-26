@@ -218,6 +218,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 			.Transparent(true)
 			.OnClicked(this, &SFlareMainOverlay::OnCloseMenu)
 			.IsDisabled(this, &SFlareMainOverlay::IsCloseDisabled)
+			.Visibility(this, &SFlareMainOverlay::GetCloseVisibility)
 		]
 	];
 
@@ -518,6 +519,18 @@ bool SFlareMainOverlay::IsCloseDisabled() const
 	else
 	{
 		return true;
+	}
+}
+
+EVisibility SFlareMainOverlay::GetCloseVisibility() const
+{
+	if (MenuManager->GetGame()->IsLoadedOrCreated() || MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main)
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Hidden;
 	}
 }
 
