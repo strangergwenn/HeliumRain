@@ -1558,7 +1558,14 @@ void AFlarePlayerController::SettingsMenu()
 	if (!IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::SettingsMenu");
-		MenuManager->ToogleMenu(EFlareMenu::MENU_Settings);
+		if (GetGame()->IsLoadedOrCreated())
+		{
+			MenuManager->ToogleMenu(EFlareMenu::MENU_Settings);
+		}
+		else if (MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Settings)
+		{
+			MenuManager->OpenMenu(EFlareMenu::MENU_Settings);
+		}
 	}
 }
 
