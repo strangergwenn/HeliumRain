@@ -6,6 +6,7 @@
 #include "../../Player/FlarePlayerController.h"
 #include "../../Economy/FlareFactory.h"
 #include "../../Economy/FlareCargoBay.h"
+#include "../../Data/FlareSpacecraftCatalog.h"
 
 #define LOCTEXT_NAMESPACE "FlareFactoryInfo"
 

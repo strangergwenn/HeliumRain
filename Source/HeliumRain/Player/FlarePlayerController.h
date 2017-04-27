@@ -1,22 +1,17 @@
 #pragma once
 
 #include "../Flare.h"
-
-#include "FlareHUD.h"
-#include "FlareMenuPawn.h"
-#include "FlareSoundManager.h"
-#include "FlareCockpitManager.h"
-
-#include "../Game/FlareGame.h"
 #include "../Game/FlareSaveGame.h"
-#include "../Data/FlareCameraShakeCatalog.h"
-#include "../UI/Components/FlareMainOverlay.h"
-
+#include "../Game/FlareGameTypes.h"
+#include "../UI/FlareUITypes.h"
 #include "FlarePlayerController.generated.h"
 
 
-class AFlareMenuManager;
 class AFlareHUD;
+class AFlareMenuPawn;
+class AFlareCockpitManager;
+class AFlareMenuManager;
+class UFlareCameraShakeCatalog;
 
 
 UCLASS(MinimalAPI)
@@ -481,10 +476,7 @@ public:
 		return ShipPawn;
 	}
 
-	inline AFlareGame* GetGame() const
-	{
-		return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
-	}
+	AFlareGame* GetGame() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline AFlareMenuManager* GetMenuManager() const
@@ -493,10 +485,7 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "Flare")
-	inline AFlareHUD* GetNavHUD() const
-	{
-		return Cast<AFlareHUD>(GetHUD());
-	}
+		AFlareHUD* GetNavHUD() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Flare")
 	inline AFlareCockpitManager* GetCockpitManager()

@@ -2,12 +2,11 @@
 
 #include "GameFramework/HUD.h"
 #include "FlareMenuManager.h"
-#include "../UI/HUD/FlareHUDMenu.h"
-#include "../UI/HUD/FlareContextMenu.h"
 #include "FlareHUD.generated.h"
 
 
 class SFlareHUDMenu;
+class SFlareContextMenu;
 class SFlareMouseMenu;
 class UFlareWeapon;
 

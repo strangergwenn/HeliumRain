@@ -5,9 +5,11 @@
 #include "FlareWorld.h"
 #include "FlareFleet.h"
 #include "FlareGameUserSettings.h"
+#include "../Game/FlareGameTools.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../Player/FlarePlayerController.h"
+#include "../Data/FlareSpacecraftCatalog.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareSector SimulatePriceVariation"), STAT_FlareSector_SimulatePriceVariation, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorFriendlyness"), STAT_FlareSector_GetSectorFriendlyness, STATGROUP_Flare);

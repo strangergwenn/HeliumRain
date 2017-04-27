@@ -2,8 +2,10 @@
 #include "FlareColorPanel.h"
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"
+#include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../../Data/FlareCustomizationCatalog.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareColorPanel"

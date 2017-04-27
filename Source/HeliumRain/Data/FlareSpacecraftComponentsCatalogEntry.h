@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/DataAsset.h"
+#include "../Flare.h"
 #include "../Spacecrafts/FlareSpacecraftComponent.h"
 #include "FlareSpacecraftComponentsCatalogEntry.generated.h"
 

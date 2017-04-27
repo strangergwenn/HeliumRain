@@ -12,10 +12,13 @@
 #include "Particles/ParticleSystemComponent.h"
 
 #include "../Player/FlarePlayerController.h"
+#include "../Player/FlareMenuManager.h"
+
 #include "../Game/FlareGame.h"
 #include "../Game/FlareAsteroid.h"
 #include "../Game/AI/FlareCompanyAI.h"
 #include "../Game/FlareGameUserSettings.h"
+#include "../Game/FlareGameTools.h"
 
 #include "../UI/Menus/FlareShipMenu.h"
 

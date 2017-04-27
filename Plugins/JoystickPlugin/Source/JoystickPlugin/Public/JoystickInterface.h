@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine.h"
 #include "JoystickInterface.generated.h"
 
 struct FDeviceIndex

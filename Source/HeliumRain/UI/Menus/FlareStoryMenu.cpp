@@ -1,14 +1,17 @@
 
 #include "FlareStoryMenu.h"
+
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
+
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
 #include "Runtime/Engine/Classes/Engine/RendererSettings.h"
+#include "SBackgroundBlur.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareStoryMenu"

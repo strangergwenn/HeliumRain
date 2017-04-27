@@ -2,7 +2,9 @@
 #include "FlareCockpitManager.h"
 #include "../Flare.h"
 
-#include "../Player/FlarePlayerController.h"
+#include "FlareHUD.h"
+#include "FlarePlayerController.h"
+
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareSpacecraftComponent.h"
 #include "../Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"

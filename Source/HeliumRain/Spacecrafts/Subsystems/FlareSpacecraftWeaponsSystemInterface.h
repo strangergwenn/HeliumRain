@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../Flare.h"
 #include "FlareSpacecraftWeaponsSystemInterface.generated.h"
 
 

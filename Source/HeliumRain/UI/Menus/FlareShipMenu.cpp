@@ -1,13 +1,22 @@
 
 #include "FlareShipMenu.h"
+
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"
+#include "../../Game/FlareSector.h"
+#include "../../Game/FlareGameTools.h"
+
+#include "../../Data/FlareSpacecraftCatalog.h"
+#include "../../Data/FlareResourceCatalog.h"
+
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlarePlayerController.h"
+
+#include "../Components/FlareRoundButton.h"
 #include "../Components/FlarePartInfo.h"
 #include "../Components/FlareFactoryInfo.h"
-#include "../../Game/FlareSector.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareShipMenu"
 

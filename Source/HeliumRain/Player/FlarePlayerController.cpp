@@ -1,20 +1,35 @@
 
 #include "FlarePlayerController.h"
 #include "../Flare.h"
+
+#include "FlareHUD.h"
+#include "FlareMenuPawn.h"
 #include "FlareSoundManager.h"
+#include "FlareMenuManager.h"
+#include "FlareCockpitManager.h"
+
+#include "../UI/Menus/FlareOrbitalMenu.h"
+#include "../UI/Menus/FlareSectorMenu.h"
+#include "../UI/HUD/FlareMouseMenu.h"
+
+#include "../Data/FlareCameraShakeCatalog.h"
+#include "../Data/FlareCustomizationCatalog.h"
+
+#include "../Game/FlareGame.h"
 #include "../Game/FlareGameTools.h"
+#include "../Game/FlarePlanetarium.h"
+#include "../Game/FlareGameUserSettings.h"
+#include "../Game/Planetarium/FlareSimulatedPlanetarium.h"
+#include "../Game/AI/FlareCompanyAI.h"
+
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareTurret.h"
 #include "../Spacecrafts/FlareShipPilot.h"
 #include "../Spacecrafts/FlarePilotHelper.h"
 #include "../Spacecrafts/FlareTurretPilot.h"
-#include "../Game/Planetarium/FlareSimulatedPlanetarium.h"
-#include "../Game/FlareGameUserSettings.h"
-#include "../Game/AI/FlareCompanyAI.h"
-#include "FlareMenuManager.h"
-#include "../UI/Menus/FlareOrbitalMenu.h"
-#include "../UI/Menus/FlareSectorMenu.h"
+
 #include "EngineUtils.h"
+
 
 DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick ControlGroups"), STAT_FlarePlayerTick_ControlGroups, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Battle"), STAT_FlarePlayerTick_Battle, STATGROUP_Flare);
@@ -2077,5 +2092,14 @@ UFlareSimulatedSpacecraft* AFlarePlayerController::GetPlayerShip()
 	return Result;
 }
 
+AFlareGame* AFlarePlayerController::GetGame() const
+{
+	return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+}
+
+AFlareHUD* AFlarePlayerController::GetNavHUD() const
+{
+	return Cast<AFlareHUD>(GetHUD());
+}
 
 #undef LOCTEXT_NAMESPACE

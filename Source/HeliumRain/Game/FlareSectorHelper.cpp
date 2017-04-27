@@ -5,9 +5,10 @@
 #include "FlareCompany.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareWorld.h"
+#include "../Game/FlareScenarioTools.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Player/FlarePlayerController.h"
-#include "../Game/FlareScenarioTools.h"
+#include "../Data/FlareSpacecraftComponentsCatalog.h"
 
 UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Request)
 {

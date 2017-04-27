@@ -11,9 +11,6 @@ class UFlareSimulatedSector;
 class AFlareMenuManager;
 
 
-DECLARE_DELEGATE_OneParam(FOrderDelegate, FFlareSpacecraftDescription*)
-
-
 class SFlareSpacecraftOrderOverlay : public SCompoundWidget
 {
 	/*----------------------------------------------------

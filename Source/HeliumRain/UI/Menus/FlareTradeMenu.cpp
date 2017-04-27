@@ -1,13 +1,17 @@
 
 #include "FlareTradeMenu.h"
+
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSectorHelper.h"
+#include "../../Game/FlareGameTools.h"
+#include "../../Economy/FlareCargoBay.h"
+
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+
 #include "../Components/FlareRoundButton.h"
 #include "../Components/FlareCargoInfo.h"
-#include "../../Economy/FlareCargoBay.h"
 
 #define LOCTEXT_NAMESPACE "FlareTradeMenu"
 

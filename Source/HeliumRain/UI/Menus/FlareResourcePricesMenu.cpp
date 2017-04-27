@@ -6,6 +6,7 @@
 #include "../../Economy/FlareResource.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../../Data/FlareResourceCatalog.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareResourcePricesMenu"

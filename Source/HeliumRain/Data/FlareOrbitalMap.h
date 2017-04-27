@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/DataAsset.h"
+#include "../Flare.h"
 #include "../Game/FlareSimulatedSector.h"
 #include "FlareOrbitalMap.generated.h"
 

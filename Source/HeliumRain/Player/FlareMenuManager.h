@@ -1,16 +1,20 @@
 #pragma once
 
-#include "../UI/Components/FlareTooltip.h"
-#include "../UI/Components/FlareNotifier.h"
-#include "../UI/Components/FlareMainOverlay.h"
-#include "../UI/Components/FlareSpacecraftOrderOverlay.h"
-#include "../UI/Components/FlareConfirmationOverlay.h"
+#include "../Flare.h"
+#include "../UI/FlareUITypes.h"
 #include "FlareMenuManager.generated.h"
 
 
 /*----------------------------------------------------
 	Definitions
 ----------------------------------------------------*/
+
+// Widgets
+class SFlareTooltip;
+class SFlareNotifier;
+class SFlareMainOverlay;
+class SFlareConfirmationOverlay;
+class SFlareSpacecraftOrderOverlay;
 
 // Menus
 class SFlareMainMenu;
@@ -297,12 +301,6 @@ public:
 	inline float GetFadeDuration() const
 	{
 		return FadeDuration;
-	}
-
-	/** Get the main overlay */
-	TSharedPtr<SFlareMainOverlay> GetMainOverlay()
-	{
-		return MainOverlay;
 	}
 
 	/** Get orbit menu */

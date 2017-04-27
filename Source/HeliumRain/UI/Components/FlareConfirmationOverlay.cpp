@@ -2,6 +2,7 @@
 #include "FlareConfirmationOverlay.h"
 #include "../../Flare.h"
 #include "../../Player/FlareMenuManager.h"
+#include "SBackgroundBlur.h"
 
 #define LOCTEXT_NAMESPACE "FlareConfirmationOverlay"
 

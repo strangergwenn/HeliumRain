@@ -3,8 +3,8 @@
 #include "FlareCompany.h"
 #include "FlareWorld.h"
 #include "../Quests/FlareQuestManager.h"
-
 #include "FlareSaveGame.generated.h"
+
 
 /** Player objective condition data */
 USTRUCT()

@@ -5,6 +5,7 @@
 #include "../../Game/FlareTradeRoute.h"
 #include "../../Economy/FlareCargoBay.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../../Data/FlareSpacecraftCatalog.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftInfo"
 

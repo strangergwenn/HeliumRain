@@ -1,89 +1,15 @@
 #pragma once
 
-#include "../Spacecrafts/FlareSpacecraftTypes.h"
+#include "../Flare.h"
 #include "FlareFleet.h"
 #include "FlareTradeRoute.h"
+#include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareGameTypes.generated.h"
 
-/** Possible menu targets */
-UENUM()
-namespace EFlareMenu
-{
-	enum Type
-	{
-		MENU_None,
 
-		// Boot menus
-		MENU_Main,
-		MENU_NewGame,
-
-		// Special "menus" for async transitions
-		MENU_CreateGame,
-		MENU_LoadGame,
-		MENU_FlyShip,
-		MENU_Travel,
-		MENU_ReloadSector,
-		MENU_FastForwardSingle,
-		MENU_GameOver,
-
-		// Main gameplay menus
-		MENU_Story,
-		MENU_Company,
-		MENU_Fleet,
-		MENU_Quest,
-		MENU_Ship,
-		MENU_ShipConfig,
-		MENU_Station,
-		MENU_Sector,
-		MENU_Trade,
-		MENU_TradeRoute,
-		MENU_Orbit,
-		MENU_Leaderboard,
-		MENU_ResourcePrices,
-		MENU_WorldEconomy,
-		MENU_Technology,
-
-		// Support menus
-		MENU_Settings,
-		MENU_Credits,
-		MENU_EULA,
-		MENU_Quit
-	};
-}
-
-
-/** Menu parameter structure storing commands + data for async processing */
-struct FFlareMenuParameterData
-{
-	FFlareMenuParameterData()
-		: Company(NULL)
-		, Factory(NULL)
-		, Fleet(NULL)
-		, Quest(NULL)
-		, Route(NULL)
-		, Sector(NULL)
-		, Spacecraft(NULL)
-		, Travel(NULL)
-		, Resource(NULL)
-		, ScenarioIndex(0)
-		, PlayerEmblemIndex(0)
-	{}
-
-	class UFlareCompany*                        Company;
-	class UFlareFactory*                        Factory;
-	class UFlareFleet*                          Fleet;
-	class UFlareQuest*                          Quest;
-	class UFlareTradeRoute*                     Route;
-	class UFlareSimulatedSector*                Sector;
-	class UFlareSimulatedSpacecraft*            Spacecraft;
-	class UFlareTravel*                         Travel;
-	struct FFlareResourceDescription*           Resource;
-
-	struct FFlareCompanyDescription*            CompanyDescription;
-	int32                                       ScenarioIndex;
-	int32                                       PlayerEmblemIndex;
-	bool                                        PlayTutorial;
-};
+/*----------------------------------------------------
+	General gameplay enums
+----------------------------------------------------*/
 
 /** Hostility status */
 UENUM()
@@ -176,6 +102,11 @@ namespace EFlareTechnologyCategory
 		Military /** Military tech */
 	};
 }
+
+
+/*----------------------------------------------------
+General gameplay data
+----------------------------------------------------*/
 
 /** Company sector knowledge data */
 USTRUCT()
@@ -341,6 +272,117 @@ struct FFlareCompanySave
 	int32 ResearchSpent;
 };
 
+/** Catalog data */
+USTRUCT()
+struct FFlareCompanyDescription
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Name */
+	UPROPERTY(EditAnywhere, Category = Company)
+	FText Name;
+
+	/** Short name */
+	UPROPERTY(EditAnywhere, Category = Company)
+	FName ShortName;
+
+	/** Name */
+	UPROPERTY(EditAnywhere, Category = Company)
+	FText Description;
+
+	/** Emblem */
+	UPROPERTY(EditAnywhere, Category = Company)
+	UTexture2D* Emblem;
+
+	/** Base color in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FLinearColor CustomizationBasePaintColor;
+
+	/** Paint color in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FLinearColor CustomizationPaintColor;
+
+	/** Overlay color in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FLinearColor CustomizationOverlayColor;
+
+	/** Lights color in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FLinearColor CustomizationLightColor;
+
+	/** Pattern index in the customization catalog */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 CustomizationPatternIndex;
+
+};
+
+/** Incoming event description */
+USTRUCT()
+struct FFlareIncomingEvent
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Event text */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FText Text;
+
+	/** Days until event */
+	UPROPERTY(EditAnywhere, Category = Content)
+	int64 RemainingDuration;
+};
+
+
+/*----------------------------------------------------
+	Basic structures
+----------------------------------------------------*/
+
+struct CompanyValue
+{
+	int64 MoneyValue;
+	int64 StockValue;
+	int64 ShipsValue;
+	int64 ArmyValue;
+	int32 ArmyTotalCombatPoints;
+	int32 ArmyCurrentCombatPoints;
+
+	int64 StationsValue;
+
+	/** Ships + Stations*/
+	int64 SpacecraftsValue;
+
+	/** Money + Spacecrafts + Stock */
+	int64 TotalValue;
+};
+
+struct WarTargetIncomingFleet
+{
+	int64 TravelDuration;
+	int32 ArmyCombatPoints;
+};
+
+struct WarTarget
+{
+	UFlareSimulatedSector* Sector;
+	int32 EnemyArmyCombatPoints;
+	int32 EnemyArmyLCombatPoints;
+	int32 EnemyArmySCombatPoints;
+	int64 EnemyStationCount;
+	int64 EnemyCargoCount;
+	int32 OwnedArmyCombatPoints;
+	int32 OwnedArmyAntiSCombatPoints;
+	int32 OwnedArmyAntiLCombatPoints;
+	int64 OwnedStationCount;
+	int64 OwnedCargoCount;
+	int64 OwnedMilitaryCount;
+	TArray<WarTargetIncomingFleet> WarTargetIncomingFleets; // List player company fleets
+	TArray<UFlareCompany*> ArmedDefenseCompanies;
+};
+
+
+/*----------------------------------------------------
+	Low-level tools
+----------------------------------------------------*/
+
 /** Game save data */
 USTRUCT()
 struct FFlareFloatBuffer
@@ -447,48 +489,10 @@ struct FFlareBundle
 	void Clear();
 };
 
-/** Incoming event description */
-USTRUCT()
-struct FFlareIncomingEvent
-{
-	GENERATED_USTRUCT_BODY()
 
-	/** Event text */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FText Text;
-
-	/** Days until event */
-	UPROPERTY(EditAnywhere, Category = Content)
-	int64 RemainingDuration;
-};
-
-
-struct WarTargetIncomingFleet
-{
-	int64 TravelDuration;
-	int32 ArmyCombatPoints;
-};
-
-
-
-struct WarTarget
-{
-	UFlareSimulatedSector* Sector;
-	int32 EnemyArmyCombatPoints;
-	int32 EnemyArmyLCombatPoints;
-	int32 EnemyArmySCombatPoints;
-	int64 EnemyStationCount;
-	int64 EnemyCargoCount;
-	int32 OwnedArmyCombatPoints;
-	int32 OwnedArmyAntiSCombatPoints;
-	int32 OwnedArmyAntiLCombatPoints;
-	int64 OwnedStationCount;
-	int64 OwnedCargoCount;
-	int64 OwnedMilitaryCount;
-	TArray<WarTargetIncomingFleet> WarTargetIncomingFleets; // List player company fleets
-	TArray<UFlareCompany*> ArmedDefenseCompanies;
-};
-
+/*----------------------------------------------------
+	Helper class
+----------------------------------------------------*/
 
 UCLASS()
 class HELIUMRAIN_API UFlareGameTypes : public UObject

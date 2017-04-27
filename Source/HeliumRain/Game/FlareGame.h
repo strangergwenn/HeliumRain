@@ -1,32 +1,27 @@
 #pragma once
 
 
-#include "GameFramework/GameMode.h"
-
 #include "../Spacecrafts/FlareSpacecraft.h"
-#include "../Spacecrafts/FlareBomb.h"
-#include "../Player/FlareMenuPawn.h"
-
 #include "FlareGameTypes.h"
-#include "FlarePlanetarium.h"
-#include "FlareGameTools.h"
 #include "FlareCompany.h"
-#include "FlareWorld.h"
 #include "FlareSector.h"
 #include "Log/FlareLogApi.h"
 
-#include "../Data/FlareSpacecraftCatalog.h"
-#include "../Data/FlareSpacecraftComponentsCatalog.h"
-#include "../Data/FlareCustomizationCatalog.h"
-#include "../Data/FlareAsteroidCatalog.h"
-#include "../Data/FlareCompanyCatalog.h"
-#include "../Data/FlareResourceCatalog.h"
-#include "../Data/FlareTechnologyCatalog.h"
-#include "../Data/FlareOrbitalMap.h"
-
+#include "GameFramework/GameMode.h"
 #include "FlareGame.generated.h"
 
 
+class UFlareSpacecraftCatalog;
+class UFlareSpacecraftComponentsCatalog;
+class UFlareCustomizationCatalog;
+class UFlareAsteroidCatalog;
+class UFlareCompanyCatalog;
+class UFlareResourceCatalog;
+class UFlareTechnologyCatalog;
+class UFlareOrbitalMap;
+
+class UFlarePlanetarium;
+class UFlareSector;
 class UFlareSaveGame;
 class UFlareSaveGameSystem;
 class UFlareQuestManager;
@@ -296,6 +291,7 @@ protected:
 	TArray<FFlareSaveSlotInfo>                 SaveSlots;
 
 public:
+
 	/*----------------------------------------------------
 		Debug
 	----------------------------------------------------*/
@@ -344,17 +340,11 @@ public:
 		return QuestManager;
 	}
 
-	inline const FFlareCompanyDescription* GetCompanyDescription(int32 Index) const
-	{
-		return (CompanyCatalog ? &CompanyCatalog->Companies[Index] : NULL);
-	}
+	const FFlareCompanyDescription* GetCompanyDescription(int32 Index) const;
 
-	inline const FFlareCompanyDescription* GetPlayerCompanyDescription() const;
+	const FFlareCompanyDescription* GetPlayerCompanyDescription() const;
 	
-	inline const int32 GetCompanyCatalogCount() const
-	{
-		return (CompanyCatalog ? CompanyCatalog->Companies.Num() : 0);
-	}
+	const int32 GetCompanyCatalogCount() const;
 
 	inline UFlareSpacecraftCatalog* GetSpacecraftCatalog() const
 	{

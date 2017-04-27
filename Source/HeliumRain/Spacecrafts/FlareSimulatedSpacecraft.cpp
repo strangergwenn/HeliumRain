@@ -1,15 +1,22 @@
 
 #include "FlareSimulatedSpacecraft.h"
 #include "../Flare.h"
+
 #include "../Game/FlareSimulatedSector.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareFleet.h"
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareSectorHelper.h"
+#include "../Game/FlareGameTools.h"
+
 #include "../Player/FlarePlayerController.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Economy/FlareFactory.h"
+
+#include "../Data/FlareResourceCatalog.h"
 #include "../Data/FlareFactoryCatalogEntry.h"
+#include "../Data/FlareSpacecraftCatalog.h"
+#include "../Data/FlareSpacecraftComponentsCatalog.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareSimulatedSpacecraft"

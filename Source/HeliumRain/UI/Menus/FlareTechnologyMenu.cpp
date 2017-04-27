@@ -6,6 +6,7 @@
 #include "../../Game/FlareCompany.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../../Data/FlareTechnologyCatalog.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareTechnologyMenu"

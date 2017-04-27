@@ -5,6 +5,7 @@
 #include "FlareInternalComponent.h"
 #include "../Player/FlareMenuPawn.h"
 #include "../Player/FlarePlayerController.h"
+#include "../Data/FlareCustomizationCatalog.h"
 #include "FlareOrbitalEngine.h"
 
 #include "StaticMeshResources.h"

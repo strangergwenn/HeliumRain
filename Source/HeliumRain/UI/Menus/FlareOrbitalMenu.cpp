@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareGameTools.h"
+#include "../../Data/FlareOrbitalMap.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"

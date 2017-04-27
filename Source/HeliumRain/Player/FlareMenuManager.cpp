@@ -2,6 +2,12 @@
 #include "FlareMenuManager.h"
 #include "../Flare.h"
 
+#include "../UI/Components/FlareTooltip.h"
+#include "../UI/Components/FlareNotifier.h"
+#include "../UI/Components/FlareMainOverlay.h"
+#include "../UI/Components/FlareSpacecraftOrderOverlay.h"
+#include "../UI/Components/FlareConfirmationOverlay.h"
+
 #include "../UI/Menus/FlareMainMenu.h"
 #include "../UI/Menus/FlareSettingsMenu.h"
 #include "../UI/Menus/FlareNewGameMenu.h"
@@ -22,8 +28,13 @@
 #include "../UI/Menus/FlareTechnologyMenu.h"
 #include "../UI/Menus/FlareGameOverMenu.h"
 
+#include "../Game/FlareGame.h"
+#include "../Game/FlareGameTools.h"
+
+#include "../Player/FlareHUD.h"
+#include "../Player/FlareMenuPawn.h"
 #include "../Player/FlarePlayerController.h"
-#include "../Game/FlareScenarioTools.h"
+
 #include "../HeliumRainLoadingScreen/FlareLoadingScreen.h"
 
 

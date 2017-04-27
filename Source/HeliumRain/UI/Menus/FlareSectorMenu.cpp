@@ -4,9 +4,10 @@
 
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSectorHelper.h"
+#include "../../Game/FlareScenarioTools.h"
+#include "../../Game/FlareGameTools.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
-#include "../../Game/FlareScenarioTools.h"
 
 #define LOCTEXT_NAMESPACE "FlareSectorMenu"
 

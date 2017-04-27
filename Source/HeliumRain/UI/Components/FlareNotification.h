@@ -2,13 +2,13 @@
 
 #include "../../Flare.h"
 #include "../../Game/FlareGameTypes.h"
-#include "FlareNotification.generated.h"
 
 
 class SFlareNotifier;
 class AFlareMenuManager;
 
 
+<<<<<<< HEAD
 /** Possible notification types */
 UENUM()
 namespace EFlareNotification
@@ -24,6 +24,8 @@ namespace EFlareNotification
 }
 
 
+=======
+>>>>>>> Refactor includes
 class SFlareNotification : public SCompoundWidget
 {
 	/*----------------------------------------------------

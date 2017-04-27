@@ -1,9 +1,13 @@
 
 #include "FlareCargoInfo.h"
+
 #include "../../Flare.h"
+#include "../../Game/FlareGame.h"
+
+#include "../../Economy/FlareCargoBay.h"
+
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
-#include "../../Economy/FlareCargoBay.h"
 
 #define LOCTEXT_NAMESPACE "FlareCargoInfo"
 

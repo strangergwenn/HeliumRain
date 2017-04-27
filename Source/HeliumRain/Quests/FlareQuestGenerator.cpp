@@ -3,6 +3,7 @@
 #include "Flare.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSimulatedSector.h"
+#include "../Game/FlareSectorHelper.h"
 #include "../Player/FlarePlayerController.h"
 #include "FlareQuestManager.h"
 #include "FlareQuestCondition.h"
@@ -10,7 +11,7 @@
 #include "FlareQuestStep.h"
 #include "FlareQuestAction.h"
 #include "../Economy/FlareCargoBay.h"
-#include "../Game/FlareSectorHelper.h"
+#include "../Data/FlareResourceCatalog.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestGenerator"
 

@@ -2,7 +2,7 @@
 #ifndef __FLARE_H__
 #define __FLARE_H__
 
-#include "Engine.h"
+#include "EngineMinimal.h"
 #include "UI/Style/FlareStyleSet.h"
 
 

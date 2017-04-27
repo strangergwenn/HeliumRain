@@ -1,11 +1,16 @@
 
 #include "FlareSettingsMenu.h"
+
 #include "../../Flare.h"
 #include "../../Game/FlareGameUserSettings.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
+
+#include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../../Data/FlareSpacecraftComponentsCatalog.h"
+
 #include "STextComboBox.h"
 #include "Internationalization/Culture.h"
 

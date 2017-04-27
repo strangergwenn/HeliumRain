@@ -1,22 +1,39 @@
 
 #include "FlareGame.h"
 #include "../Flare.h"
+
 #include "FlareSaveGame.h"
+#include "FlareWorld.h"
 #include "FlareAsteroid.h"
 #include "FlareDebrisField.h"
+#include "FlarePlanetarium.h"
 #include "FlareGameTools.h"
 #include "FlareScenarioTools.h"
 
-#include "../Player/FlareMenuManager.h"
+#include "Save/FlareSaveGameSystem.h"
+
+#include "../Data/FlareSpacecraftCatalog.h"
+#include "../Data/FlareSpacecraftComponentsCatalog.h"
+#include "../Data/FlareCustomizationCatalog.h"
+#include "../Data/FlareAsteroidCatalog.h"
+#include "../Data/FlareCompanyCatalog.h"
+#include "../Data/FlareResourceCatalog.h"
+#include "../Data/FlareTechnologyCatalog.h"
+#include "../Data/FlareOrbitalMap.h"
+#include "../Data/FlareQuestCatalog.h"
+#include "../Data/FlareSectorCatalogEntry.h"
+
 #include "../Player/FlareHUD.h"
+#include "../Player/FlareMenuPawn.h"
+#include "../Player/FlareMenuManager.h"
 #include "../Player/FlarePlayerController.h"
+
+#include "../Spacecrafts/FlareBomb.h"
 #include "../Spacecrafts/FlareShell.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
+
 #include "../Quests/FlareQuestManager.h"
-#include "../Data/FlareQuestCatalog.h"
-#include "../Data/FlareResourceCatalog.h"
-#include "../Data/FlareSectorCatalogEntry.h"
-#include "Save/FlareSaveGameSystem.h"
+
 #include "AssetRegistryModule.h"
 #include "Log/FlareLogWriter.h"
 
@@ -1296,10 +1313,20 @@ void AFlareGame::InitSpacecraftNameDatabase()
 	Getters
 ----------------------------------------------------*/
 
-inline const FFlareCompanyDescription* AFlareGame::GetPlayerCompanyDescription() const
+const FFlareCompanyDescription*  AFlareGame::GetCompanyDescription(int32 Index) const
+{
+	return (CompanyCatalog ? &CompanyCatalog->Companies[Index] : NULL);
+}
+
+const FFlareCompanyDescription* AFlareGame::GetPlayerCompanyDescription() const
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	return PC->GetCompanyDescription();
+}
+
+const int32  AFlareGame::GetCompanyCatalogCount() const
+{
+	return (CompanyCatalog ? CompanyCatalog->Companies.Num() : 0);
 }
 
 
