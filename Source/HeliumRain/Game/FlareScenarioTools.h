@@ -131,6 +131,8 @@ public:
 	UFlareCompany*                             AxisSupplies;
 	UFlareCompany*                             Pirates;
 	UFlareCompany*                             BrokenMoon;
+	UFlareCompany*                             InfiniteOrbit;
+	UFlareCompany*                             Quantalium;
 
 	// Resources
 	FFlareResourceDescription*                 Water;

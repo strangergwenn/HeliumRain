@@ -82,6 +82,8 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	Pirates =              World->FindCompanyByShortName("PIR");
 	AxisSupplies =         World->FindCompanyByShortName("AXS");
 	BrokenMoon =           World->FindCompanyByShortName("BRM");
+	InfiniteOrbit =        World->FindCompanyByShortName("IFO");
+	Quantalium =           World->FindCompanyByShortName("QNT");
 
 	// Resources
 	Water =    Game->GetResourceCatalog()->Get("h2o");
@@ -204,8 +206,7 @@ void UFlareScenarioTools::SetupWorld()
 	SetupKnownSectors(NemaHeavyWorks);
 	SetupKnownSectors(Pirates);
 	
-	// Company setup
-	PlayerCompany->GiveMoney(500000);
+	// Company setup main
 	MiningSyndicate->GiveMoney(100000000);
 	HelixFoundries->GiveMoney(100000000);
 	Sunwatch->GiveMoney(100000000);
@@ -213,7 +214,13 @@ void UFlareScenarioTools::SetupWorld()
 	IonLane->GiveMoney(100000000);
 	GhostWorksShipyards->GiveMoney(100000000);
 	NemaHeavyWorks->GiveMoney(100000000);
+
+	// Company setup secondary
+	PlayerCompany->GiveMoney(500000);
 	Pirates->GiveMoney(1000000);
+	BrokenMoon->GiveMoney(1000000);
+	InfiniteOrbit->GiveMoney(1000000);
+	Quantalium->GiveMoney(1000000);
 
 	// Give technology
 	IonLane->UnlockTechnology("stations", false, true);
@@ -224,8 +231,7 @@ void UFlareScenarioTools::SetupWorld()
 	UnitedFarmsChemicals->UnlockTechnology("stations", false, true);
 	UnitedFarmsChemicals->UnlockTechnology("orbital-pumps", false, true);
 	UnitedFarmsChemicals->UnlockTechnology("chemicals", false, true);
-
-
+	
 	Sunwatch->UnlockTechnology("instruments", false, true);
 	Sunwatch->UnlockTechnology("stations", false, true);
 	Sunwatch->UnlockTechnology("metallurgy", false, true);
@@ -239,16 +245,22 @@ void UFlareScenarioTools::SetupWorld()
 
 	HelixFoundries->UnlockTechnology("stations", false, true);
 	HelixFoundries->UnlockTechnology("metallurgy", false, true);
-
-
+	
 	GhostWorksShipyards->UnlockTechnology("stations", false, true);
 	GhostWorksShipyards->UnlockTechnology("mining", false, true);
 	GhostWorksShipyards->UnlockTechnology("chemicals", false, true);
 	GhostWorksShipyards->UnlockTechnology("metallurgy", false, true);
-
-
+	
 	Pirates->UnlockTechnology("pirate-tech", false, true);
 	Pirates->UnlockTechnology("quick-repair", false, true);
+
+	BrokenMoon->UnlockTechnology("quick-repair", false, true);
+
+	InfiniteOrbit->UnlockTechnology("fast-travel", false, true);
+
+	Quantalium->UnlockTechnology("stations", false, true);
+	Quantalium->UnlockTechnology("mining", false, true);
+	Quantalium->UnlockTechnology("metallurgy", false, true);
 
 	// Population setup
 	BlueHeart->GetPeople()->GiveBirth(5000);
@@ -272,6 +284,7 @@ void UFlareScenarioTools::SetupWorld()
 	// Labo
 	CreateStations(StationResearch, Sunwatch, BlueShores, 1, 1);
 	CreateStations(StationResearch, IonLane, Lighthouse, 1, 1);
+	CreateStations(StationResearch, Quantalium, Anomaly, 1, 1);
 
 
 	// Create Blue Heart capital station
@@ -389,7 +402,9 @@ void UFlareScenarioTools::SetupWorld()
 	CreateShips(ShipSolen, HelixFoundries, TheForge, 5);
 	CreateShips(ShipOmen, HelixFoundries, TheForge, 2);
 	CreateShips(ShipSolen, Pirates, Boneyard, 2);
+	CreateShips(ShipOmen, InfiniteOrbit, Tranquility, 1);
 
+	
 	// Create military ships
 	CreateShips(ShipGhoul, IonLane, MinersHome, 2);
 	CreateShips(ShipGhoul, MiningSyndicate, MinersHome, 3);
