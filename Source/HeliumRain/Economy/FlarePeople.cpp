@@ -1,11 +1,10 @@
 
+#include "FlarePeople.h"
 #include "../Flare.h"
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSimulatedSector.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
-
-#include "FlarePeople.h"
 
 
 #define LOCTEXT_NAMESPACE "FlarePeopleInfo"

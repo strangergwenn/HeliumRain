@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareFactoryCatalogEntry.h"
+#include "../Flare.h"
 
 
 /*----------------------------------------------------

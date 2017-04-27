@@ -1,6 +1,6 @@
 
-#include "Flare.h"
 #include "FlareQuestAction.h"
+#include "Flare.h"
 #include "../Game/FlareSimulatedSector.h"
 #include "../Game/FlareCompany.h"
 

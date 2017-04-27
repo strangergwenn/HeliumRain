@@ -1,7 +1,7 @@
 #if WITH_EDITOR
 
-#include <Engine.h>
 #include "InputSettingsCustomization.h"
+#include <Engine.h>
 
 #include <Editor.h>
 #include <DetailCustomizations.h>

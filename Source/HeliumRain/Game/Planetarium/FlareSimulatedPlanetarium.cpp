@@ -1,5 +1,6 @@
-#include "../../Flare.h"
+
 #include "FlareSimulatedPlanetarium.h"
+#include "../../Flare.h"
 #include "../FlareGame.h"
 
 const FPreciseVector FPreciseVector::ZeroVector = FPreciseVector();

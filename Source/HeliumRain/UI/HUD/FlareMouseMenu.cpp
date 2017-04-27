@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareMouseMenu.h"
+#include "../../Flare.h"
 #include "../Components/FlareRoundButton.h"
 #include "../../Player/FlarePlayerController.h"
 

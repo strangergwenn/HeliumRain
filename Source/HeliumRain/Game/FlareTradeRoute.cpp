@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareTradeRoute.h"
+#include "../Flare.h"
 #include "FlareCompany.h"
 #include "FlareSimulatedSector.h"
 #include "FlareFleet.h"

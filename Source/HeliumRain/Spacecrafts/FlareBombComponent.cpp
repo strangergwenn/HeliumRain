@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareBombComponent.h"
+#include "../Flare.h"
 
 /*----------------------------------------------------
 	Constructor

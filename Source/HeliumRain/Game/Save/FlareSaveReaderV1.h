@@ -99,7 +99,7 @@ public:
 				{
 				  return EnumType(0);
 				}
-			return (EnumType)Enum->FindEnumIndex(FName(*DataString));
+			return (EnumType)Enum->GetIndexByName(FName(*DataString));
 		}
 		return EnumType(0);
 	}

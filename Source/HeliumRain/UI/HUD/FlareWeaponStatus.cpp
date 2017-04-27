@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareWeaponStatus.h"
+#include "../../Flare.h"
 #include "../Components/FlareRoundButton.h"
 #include "../../Spacecrafts/FlareWeapon.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"

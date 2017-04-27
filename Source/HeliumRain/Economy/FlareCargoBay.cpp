@@ -1,7 +1,7 @@
 
+#include "FlareCargoBay.h"
 #include "../Flare.h"
 #include "../Game/FlareGame.h"
-#include "FlareCargoBay.h"
 
 
 /*----------------------------------------------------

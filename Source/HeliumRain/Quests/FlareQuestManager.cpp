@@ -1,11 +1,11 @@
 
+#include "FlareQuestManager.h"
 #include "Flare.h"
 #include "../Game/FlareGame.h"
 #include "../Data/FlareQuestCatalog.h"
 #include "../Data/FlareQuestCatalogEntry.h"
 #include "../Player/FlarePlayerController.h"
 #include "FlareQuestGenerator.h"
-#include "FlareQuestManager.h"
 #include "FlareCatalogQuest.h"
 #include "QuestCatalog/FlareTutorialQuest.h"
 #include "QuestCatalog/FlareHistoryQuest.h"

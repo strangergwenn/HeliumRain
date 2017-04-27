@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareTradeRouteMenu.h"
+#include "../../Flare.h"
 #include "../Components/FlareButton.h"
 #include "../Components/FlareSectorButton.h"
 

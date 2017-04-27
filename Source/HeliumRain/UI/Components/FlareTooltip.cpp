@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareTooltip.h"
+#include "../../Flare.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"

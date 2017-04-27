@@ -7,8 +7,8 @@
 * of the BSD license.  See the LICENSE file for details.
 */
 
-#include <Engine.h>
 #include "DeviceSDL.h"
+#include <Engine.h>
 #include "JoystickDevice.h"
 
 // @third party code - BEGIN SDL

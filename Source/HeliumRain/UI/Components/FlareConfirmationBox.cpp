@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareConfirmationBox.h"
+#include "../../Flare.h"
 #include "../../Player/FlarePlayerController.h"
 
 

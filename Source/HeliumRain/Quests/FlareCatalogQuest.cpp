@@ -1,7 +1,7 @@
 
+#include "FlareCatalogQuest.h"
 #include "Flare.h"
 #include "../Game/FlareGame.h"
-#include "FlareCatalogQuest.h"
 #include "FlareQuestCondition.h"
 #include "FlareQuestAction.h"
 #include "FlareQuestStep.h"

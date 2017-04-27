@@ -1,7 +1,7 @@
 
+#include "FlareConfirmationOverlay.h"
 #include "../../Flare.h"
 #include "../../Player/FlareMenuManager.h"
-#include "FlareConfirmationOverlay.h"
 
 #define LOCTEXT_NAMESPACE "FlareConfirmationOverlay"
 

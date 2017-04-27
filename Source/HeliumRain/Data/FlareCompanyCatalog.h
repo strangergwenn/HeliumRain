@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/DataAsset.h"
 #include "../Game/FlareCompany.h"
 #include "FlareCompanyCatalog.generated.h"
 

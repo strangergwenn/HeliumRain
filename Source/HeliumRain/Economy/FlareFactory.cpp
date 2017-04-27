@@ -1,4 +1,5 @@
 
+#include "FlareFactory.h"
 #include "../Flare.h"
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareGame.h"
@@ -7,7 +8,6 @@
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Economy/FlareCargoBay.h"
-#include "FlareFactory.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareFactoryInfo"

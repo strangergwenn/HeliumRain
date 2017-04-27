@@ -1,5 +1,6 @@
-#include "../../Flare.h"
+
 #include "FlareAIBehavior.h"
+#include "../../Flare.h"
 
 #include "../FlareGame.h"
 #include "../FlareCompany.h"

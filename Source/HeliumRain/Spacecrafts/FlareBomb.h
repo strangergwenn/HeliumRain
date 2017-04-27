@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FlareWeapon.h"
+#include "../Flare.h"
 #include "FlareBomb.generated.h"
 
 class UFlareBombComponent;

@@ -1,5 +1,6 @@
-#include <Engine.h>
+
 #include "JoystickPlugin.h"
+#include <Engine.h>
 
 #if WITH_EDITOR
 	#include "InputSettingsCustomization.h"

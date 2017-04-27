@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareStationDock.h"
+#include "../Flare.h"
 
 
 /*----------------------------------------------------

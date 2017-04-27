@@ -1,7 +1,7 @@
 
 
-#include "../Flare.h"
 #include "FlareTravel.h"
+#include "../Flare.h"
 #include "FlareWorld.h"
 #include "FlareGame.h"
 #include "FlareGameTools.h"

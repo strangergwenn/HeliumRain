@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareSpacecraftCatalog.h"
+#include "../Flare.h"
 #include "AssetRegistryModule.h"
 
 

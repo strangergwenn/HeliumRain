@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareList.h"
+#include "../../Flare.h"
 
 #include "../../Game/FlareGame.h"
 #include "../../Player/FlareMenuManager.h"

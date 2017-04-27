@@ -1,5 +1,6 @@
-#include "../Flare.h"
+
 #include "FlareWorldHelper.h"
+#include "../Flare.h"
 #include "FlareGame.h"
 #include "FlareWorld.h"
 #include "../Economy/FlareCargoBay.h"

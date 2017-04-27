@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareSpacecraftComponentsCatalogEntry.h"
+#include "../Flare.h"
 
 
 /*----------------------------------------------------

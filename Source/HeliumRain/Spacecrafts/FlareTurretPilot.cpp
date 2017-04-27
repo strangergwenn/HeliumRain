@@ -1,10 +1,10 @@
 
+#include "FlareTurretPilot.h"
 #include "../Flare.h"
 
 #include "FlarePilotHelper.h"
 #include "FlareTurret.h"
 #include "FlareRCS.h"
-#include "FlareTurretPilot.h"
 #include "FlareSpacecraft.h"
 #include "FlareSpacecraftComponent.h"
 

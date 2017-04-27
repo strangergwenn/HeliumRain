@@ -1,7 +1,7 @@
 
+#include "FlareSpacecraftDockingSystem.h"
 #include "../../Flare.h"
 
-#include "FlareSpacecraftDockingSystem.h"
 #include "../FlareStationDock.h"
 #include "../FlareSpacecraft.h"
 #include "../../Game/FlareGame.h"

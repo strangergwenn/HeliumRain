@@ -1,11 +1,13 @@
-// Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
+// Helium Rain Project - http://helium-rain.com
 
 using UnrealBuildTool;
 
 public class HeliumRain : ModuleRules
 {
-	public HeliumRain(TargetInfo Target)
-	{
+	public HeliumRain(ReadOnlyTargetRules Target) : base(Target)
+    {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
         PublicDependencyModuleNames.AddRange(
             new string[] {
 				"Core",

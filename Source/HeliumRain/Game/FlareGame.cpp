@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareGame.h"
+#include "../Flare.h"
 #include "FlareSaveGame.h"
 #include "FlareAsteroid.h"
 #include "FlareDebrisField.h"

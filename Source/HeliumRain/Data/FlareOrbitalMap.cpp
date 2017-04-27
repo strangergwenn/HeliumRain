@@ -1,5 +1,6 @@
-#include "../Flare.h"
+
 #include "FlareOrbitalMap.h"
+#include "../Flare.h"
 
 
 /*----------------------------------------------------

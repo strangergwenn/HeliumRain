@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareTechnologyCatalog.h"
+#include "../Flare.h"
 #include "AssetRegistryModule.h"
 
 

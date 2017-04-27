@@ -1,26 +1,14 @@
-// Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
+// Helium Rain Project - http://helium-rain.com
 
 using UnrealBuildTool;
 using System.Collections.Generic;
 
 public class HeliumRainTarget : TargetRules
 {
-	public HeliumRainTarget(TargetInfo Target)
-	{
+	public HeliumRainTarget(TargetInfo Target) : base(Target)
+    {
         Type = TargetType.Game;
         bUsesSteam = true;
-	}
-
-	//
-	// TargetRules interface.
-	//
-
-	public override void SetupBinaries(
-		TargetInfo Target,
-		ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-		ref List<string> OutExtraModuleNames
-		)
-	{
-		OutExtraModuleNames.Add("HeliumRain");
-	}
+        ExtraModuleNames.Add("HeliumRain");
+    }
 }

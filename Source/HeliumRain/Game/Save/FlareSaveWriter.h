@@ -180,6 +180,6 @@ public:
 			return FString("Invalid");
 		}
 
-		return enumPtr->GetEnumName((int32)Value);
+		return enumPtr->GetNameStringByIndex((int32)Value);
 	}
 };

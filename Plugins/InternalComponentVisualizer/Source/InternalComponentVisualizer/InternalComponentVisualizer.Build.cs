@@ -1,10 +1,14 @@
+// Helium Rain Project - http://helium-rain.com
+
 using UnrealBuildTool;
 using System.IO;
 
 public class InternalComponentVisualizer : ModuleRules
 {
-    public InternalComponentVisualizer(TargetInfo Target)
+    public InternalComponentVisualizer(ReadOnlyTargetRules Target) : base(Target)
     {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
         PrivateIncludePaths.AddRange(new string[] { "InternalComponentVisualizer/Private" });
         PublicIncludePaths.AddRange(new string[] { "InternalComponentVisualizer/Public" });
 

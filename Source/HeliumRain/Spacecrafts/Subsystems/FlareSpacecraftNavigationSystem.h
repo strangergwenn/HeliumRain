@@ -24,7 +24,7 @@ namespace EFlareShipStatus
 	inline FString ToString(EFlareShipStatus::Type EnumValue)
 	{
 		const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EFlareShipStatus"), true);
-		return EnumPtr->GetEnumName(EnumValue);
+		return EnumPtr->GetNameStringByIndex(EnumValue);
 	}
 }
 
@@ -48,7 +48,7 @@ namespace EFlareCommandDataType
 	inline FString ToString(EFlareCommandDataType::Type EnumValue)
 	{
 		const UEnum* EnumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EFlareCommandDataType"), true);
-		return EnumPtr->GetEnumName(EnumValue);
+		return EnumPtr->GetNameStringByIndex(EnumValue);
 	}
 }
 

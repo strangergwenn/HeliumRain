@@ -1,6 +1,6 @@
 
-#include <Engine.h>
 #include "JoystickFunctions.h"
+#include <Engine.h>
 #include "IJoystickPlugin.h"
 #include "JoystickInterface.h"
 #include "JoystickDevice.h"

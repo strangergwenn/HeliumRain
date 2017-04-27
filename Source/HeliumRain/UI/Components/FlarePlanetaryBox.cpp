@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlarePlanetaryBox.h"
+#include "../../Flare.h"
 
 
 void SFlarePlanetaryBox::Construct(const SFlarePlanetaryBox::FArguments& InArgs)

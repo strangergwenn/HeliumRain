@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareSectorButton.h"
+#include "../../Flare.h"
 
 #include "../../Game/FlareCompany.h"
 #include "../../Game/FlareSimulatedSector.h"

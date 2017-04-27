@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareMenuManager.h"
+#include "../Flare.h"
 
 #include "../UI/Menus/FlareMainMenu.h"
 #include "../UI/Menus/FlareSettingsMenu.h"

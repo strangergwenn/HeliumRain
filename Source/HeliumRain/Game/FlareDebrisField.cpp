@@ -1,7 +1,7 @@
 
+#include "FlareDebrisField.h"
 #include "../Flare.h"
 #include "FlareGame.h"
-#include "FlareDebrisField.h"
 #include "FlareSimulatedSector.h"
 
 #include "StaticMeshResources.h"

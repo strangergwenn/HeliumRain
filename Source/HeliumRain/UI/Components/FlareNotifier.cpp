@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareNotifier.h"
+#include "../../Flare.h"
 #include "../Components/FlareObjectiveInfo.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"

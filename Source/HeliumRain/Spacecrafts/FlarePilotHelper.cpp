@@ -1,3 +1,5 @@
+
+#include "FlarePilotHelper.h"
 #include "../Flare.h"
 #include "../Game/FlareCompany.h"
 #include "../Game/FlareSector.h"
@@ -7,7 +9,6 @@
 #include "FlareOrbitalEngine.h"
 #include "FlareWeapon.h"
 #include "FlareShipPilot.h"
-#include "FlarePilotHelper.h"
 
 
 DECLARE_CYCLE_STAT(TEXT("PilotHelper CheckFriendlyFire"), STAT_PilotHelper_CheckFriendlyFire, STATGROUP_Flare);

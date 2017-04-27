@@ -1,6 +1,6 @@
+#include "InternalComponentVisualizer.h"
 #include "InternalComponentVisualizerPCH.h"
 #include "HeliumRain/Spacecrafts/FlareInternalComponent.h"
-#include "InternalComponentVisualizer.h"
 #include "UnrealEd.h"
 #include "ComponentVisualizer.h"
 

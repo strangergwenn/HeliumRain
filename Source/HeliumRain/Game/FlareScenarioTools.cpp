@@ -1,4 +1,5 @@
 
+#include "FlareScenarioTools.h"
 #include "../Flare.h"
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareGame.h"
@@ -6,8 +7,6 @@
 #include "../Economy/FlareCargoBay.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
-
-#include "FlareScenarioTools.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareScenarioToolsInfo"

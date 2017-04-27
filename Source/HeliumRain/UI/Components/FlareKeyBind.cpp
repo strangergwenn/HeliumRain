@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../Flare.h"
 #include "FlareKeyBind.h"
+#include "../../Flare.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareKeyBind"

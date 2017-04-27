@@ -1,7 +1,8 @@
+
+#include "FlareSector.h"
 #include "../Flare.h"
 #include "FlareGame.h"
 #include "FlareSimulatedSector.h"
-#include "FlareSector.h"
 #include "FlareCollider.h"
 #include "../Spacecrafts/FlareShell.h"
 #include "../Spacecrafts/FlareSpacecraft.h"

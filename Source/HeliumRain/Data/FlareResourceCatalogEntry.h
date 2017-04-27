@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/DataAsset.h"
 #include "../Economy/FlareResource.h"
 #include "FlareResourceCatalogEntry.generated.h"
 

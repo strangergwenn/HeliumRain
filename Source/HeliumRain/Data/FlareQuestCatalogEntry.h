@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/DataAsset.h"
 #include "../Quests/FlareQuest.h"
 #include "FlareQuestCatalogEntry.generated.h"
 

@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareObjectiveInfo.h"
+#include "../../Flare.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Quests/FlareQuestStep.h"
 

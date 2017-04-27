@@ -1,5 +1,6 @@
-#include "../Flare.h"
+
 #include "FlareResource.h"
+#include "../Flare.h"
 
 /*----------------------------------------------------
 	Constructor

@@ -1,7 +1,7 @@
 
+#include "FlareSaveWriter.h"
 #include "../../Flare.h"
 #include "../FlareSaveGame.h"
-#include "FlareSaveWriter.h"
 #include "Game/FlareGameTools.h"
 
 /*----------------------------------------------------

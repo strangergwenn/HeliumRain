@@ -1,4 +1,5 @@
 
+#include "FlareBomb.h"
 #include "../Flare.h"
 #include "FlareSpacecraft.h"
 #include "../Game/FlareAsteroid.h"
@@ -6,7 +7,6 @@
 #include "../Player/FlarePlayerController.h"
 #include "FlareWeapon.h"
 #include "FlareBombComponent.h"
-#include "FlareBomb.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareBomb"

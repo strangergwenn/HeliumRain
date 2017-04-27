@@ -1,13 +1,13 @@
-// Copyright 1998-2014 Epic Games, Inc. All Rights Reserved.
+// Helium Rain Project - http://helium-rain.com
 
 using UnrealBuildTool;
 
-// This module must be loaded "PreLoadingScreen" in the .uproject file, otherwise it will not hook in time!
-
 public class HeliumRainLoadingScreen : ModuleRules
 {
-    public HeliumRainLoadingScreen(TargetInfo Target)
-	{
+    public HeliumRainLoadingScreen(ReadOnlyTargetRules Target) : base(Target)
+    {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
         PrivateIncludePaths.Add("../Source/HeliumRainLoadingScreen");
 
         PrivateDependencyModuleNames.AddRange(

@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareSectorCatalogEntry.h"
+#include "../Flare.h"
 
 
 /*----------------------------------------------------

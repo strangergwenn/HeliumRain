@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareCargoInfo.h"
+#include "../../Flare.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Economy/FlareCargoBay.h"

@@ -1,7 +1,7 @@
 
+#include "FlareSpacecraft.h"
 #include "../Flare.h"
 
-#include "FlareSpacecraft.h"
 #include "FlareOrbitalEngine.h"
 #include "FlareRCS.h"
 #include "FlareWeapon.h"

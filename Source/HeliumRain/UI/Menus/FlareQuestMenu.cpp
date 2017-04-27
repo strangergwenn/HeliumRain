@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareQuestMenu.h"
+#include "../../Flare.h"
 
 #include "../../Game/FlareGame.h"
 #include "../../Quests/FlareQuest.h"

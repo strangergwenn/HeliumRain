@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareInternalComponent.h"
+#include "../Flare.h"
 
 
 /*----------------------------------------------------

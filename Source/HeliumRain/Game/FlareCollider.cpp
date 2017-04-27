@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareCollider.h"
+#include "../Flare.h"
 
 
 /*----------------------------------------------------

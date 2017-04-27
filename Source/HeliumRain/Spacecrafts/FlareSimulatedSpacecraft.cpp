@@ -1,4 +1,5 @@
 
+#include "FlareSimulatedSpacecraft.h"
 #include "../Flare.h"
 #include "../Game/FlareSimulatedSector.h"
 #include "../Game/FlareGame.h"
@@ -9,7 +10,6 @@
 #include "../Economy/FlareCargoBay.h"
 #include "../Economy/FlareFactory.h"
 #include "../Data/FlareFactoryCatalogEntry.h"
-#include "FlareSimulatedSpacecraft.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareSimulatedSpacecraft"

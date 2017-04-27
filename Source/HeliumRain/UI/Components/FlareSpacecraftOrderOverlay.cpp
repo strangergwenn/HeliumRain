@@ -1,7 +1,7 @@
 
+#include "FlareSpacecraftOrderOverlay.h"
 #include "../../Flare.h"
 #include "FlareFactoryInfo.h"
-#include "FlareSpacecraftOrderOverlay.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Economy/FlareFactory.h"

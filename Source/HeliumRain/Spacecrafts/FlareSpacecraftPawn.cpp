@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareSpacecraftPawn.h"
+#include "../Flare.h"
 #include "FlareRCS.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareGame.h"

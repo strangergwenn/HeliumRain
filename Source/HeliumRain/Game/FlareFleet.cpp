@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareFleet.h"
+#include "../Flare.h"
 #include "FlareCompany.h"
 #include "FlareGame.h"
 #include "../Player/FlarePlayerController.h"

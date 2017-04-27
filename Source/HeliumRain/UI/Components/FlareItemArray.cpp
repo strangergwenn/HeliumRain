@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareItemArray.h"
+#include "../../Flare.h"
 
 
 /*----------------------------------------------------

@@ -1,9 +1,9 @@
 
+#include "FlareQuestGenerator.h"
 #include "Flare.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSimulatedSector.h"
 #include "../Player/FlarePlayerController.h"
-#include "FlareQuestGenerator.h"
 #include "FlareQuestManager.h"
 #include "FlareQuestCondition.h"
 #include "FlareQuest.h"

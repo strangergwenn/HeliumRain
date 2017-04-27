@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareShipStatus.h"
+#include "../../Flare.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Data/FlareSpacecraftComponentsCatalog.h"
 

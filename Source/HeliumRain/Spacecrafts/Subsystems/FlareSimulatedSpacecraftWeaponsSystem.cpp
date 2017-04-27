@@ -1,7 +1,7 @@
 
+#include "FlareSimulatedSpacecraftWeaponsSystem.h"
 #include "../../Flare.h"
 
-#include "FlareSimulatedSpacecraftWeaponsSystem.h"
 #include "../FlareSpacecraftTypes.h"
 #include "../FlareSpacecraftComponent.h"
 #include "../FlareSimulatedSpacecraft.h"

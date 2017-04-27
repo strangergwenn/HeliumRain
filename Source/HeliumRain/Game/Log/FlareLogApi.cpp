@@ -1,5 +1,6 @@
-#include "../../Flare.h"
+
 #include "FlareLogApi.h"
+#include "../../Flare.h"
 #include "FlareLogWriter.h"
 
 #include "../FlareCompany.h"

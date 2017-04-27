@@ -1,6 +1,6 @@
 
-#include "Flare.h"
 #include "FlareQuestStep.h"
+#include "Flare.h"
 #include "FlareQuestCondition.h"
 #include "FlareQuestAction.h"
 #include "../Player/FlarePlayerController.h"

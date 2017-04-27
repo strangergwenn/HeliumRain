@@ -1,7 +1,7 @@
 
+#include "FlareSpacecraftStateManager.h"
 #include "../Flare.h"
 
-#include "FlareSpacecraftStateManager.h"
 #include "../Game/FlareGameUserSettings.h"
 #include "../Player/FlareCockpitManager.h"
 #include "../Player/FlarePlayerController.h"

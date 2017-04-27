@@ -1,5 +1,6 @@
-#include "../Flare.h"
+
 #include "FlareCameraShakeCatalog.h"
+#include "../Flare.h"
 
 
 /*----------------------------------------------------
