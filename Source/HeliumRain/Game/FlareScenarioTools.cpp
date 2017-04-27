@@ -284,7 +284,7 @@ void UFlareScenarioTools::SetupWorld()
 	// Labo
 	CreateStations(StationResearch, Sunwatch, BlueShores, 1, 1);
 	CreateStations(StationResearch, IonLane, Lighthouse, 1, 1);
-	CreateStations(StationResearch, Quantalium, Anomaly, 1, 1);
+	CreateStations(StationResearch, Quantalium, Outpost, 1, 1);
 
 
 	// Create Blue Heart capital station
