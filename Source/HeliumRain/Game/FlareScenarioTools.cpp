@@ -224,6 +224,7 @@ void UFlareScenarioTools::SetupWorld()
 
 	// Give technology
 	IonLane->UnlockTechnology("stations", false, true);
+	IonLane->UnlockTechnology("chemicals", false, true);
 
 	MiningSyndicate->UnlockTechnology("stations", false, true);
 	MiningSyndicate->UnlockTechnology("mining", false, true);
@@ -263,30 +264,43 @@ void UFlareScenarioTools::SetupWorld()
 	Quantalium->UnlockTechnology("metallurgy", false, true);
 
 	// Population setup
-	BlueHeart->GetPeople()->GiveBirth(5000);
+	BlueHeart->GetPeople()->GiveBirth(4000);
+	NightsHome->GetPeople()->GiveBirth(2000);
 	FrozenRealm->GetPeople()->GiveBirth(2000);
 	MinersHome->GetPeople()->GiveBirth(2000);
-	TheForge->GetPeople()->GiveBirth(1000);
+	TheForge->GetPeople()->GiveBirth(2000);
+	BlueShores->GetPeople()->GiveBirth(1000);
 	
-	// Nema main economy
-	CreateStations(StationIceMine, MiningSyndicate, TheDepths, 5);
+	// The Depths (ice mines)
+	CreateStations(StationIceMine, MiningSyndicate, TheDepths, 4);
+	CreateStations(StationIceMine, GhostWorksShipyards, TheDepths, 1);
+
+	// Lighthouse (food and power)
 	CreateStations(StationFarm, UnitedFarmsChemicals, Lighthouse, 3, 2);
+	CreateStations(StationFarm, IonLane, Lighthouse, 1, 2);
 	CreateStations(StationSolarPlant, Sunwatch, Lighthouse, 3, 3);
+	CreateStations(StationSolarPlant, IonLane, Lighthouse, 1, 2);
+	CreateStations(StationResearch, IonLane, Lighthouse, 1, 1);
+
+	// Miner's Home (mines)
+	CreateStations(StationHabitation, MiningSyndicate, MinersHome, 2, 2);
 	CreateStations(StationIronMine, MiningSyndicate, MinersHome, 5);
 	CreateStations(StationSteelworks, NemaHeavyWorks, MinersHome, 2);
-	CreateStations(StationToolFactory, NemaHeavyWorks, MinersHome, 2);
-	CreateStations(StationHabitation, MiningSyndicate, MinersHome, 2, 2);
+	CreateStations(StationToolFactory, NemaHeavyWorks, MinersHome, 1, 2);
+
+	// The Spire (pumps, refineries)
 	CreateStations(StationMethanePump, UnitedFarmsChemicals, TheSpire, 2, 2);
 	CreateStations(StationHydrogenPump, NemaHeavyWorks, TheSpire, 2, 2);
-	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 2);
-	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 1, 3);
+	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 1);
+	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 1, 2);
 
-	// Labo
+	// Blue Shores (refineries)
+	CreateStations(StationHabitation, MiningSyndicate, MinersHome, 1, 1);
+	CreateStations(StationPlasticsRefinery, NemaHeavyWorks, BlueShores, 1, 2);
+	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, BlueShores, 1);
+	CreateStations(StationToolFactory, NemaHeavyWorks, BlueShores, 1, 2);
 	CreateStations(StationResearch, Sunwatch, BlueShores, 1, 1);
-	CreateStations(StationResearch, IonLane, Lighthouse, 1, 1);
-	CreateStations(StationResearch, Quantalium, Outpost, 1, 1);
-
-
+		
 	// Create Blue Heart capital station
 	{
 		float StationRadius = 50000;
@@ -326,10 +340,12 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationToolFactory, HelixFoundries, TheForge, 3);
 	CreateStations(StationHabitation, Sunwatch, TheForge, 3);
 
+	// Laboratories
+	CreateStations(StationResearch, Quantalium, Crossroads, 1, 1);
+
 	// Anka bases for Broken Moon
-	CreateStations(StationOutpost, BrokenMoon, Colossus, 1);
-
-
+	CreateStations(StationOutpost, BrokenMoon, Crossroads, 1);
+	
 	// Create Night's Home capital station
 	{
 		float StationRadius = 22480;
@@ -358,15 +374,16 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationArsenal, AxisSupplies, FrozenRealm, 1, 2);
 	CreateStations(StationFarm, GhostWorksShipyards, FrozenRealm, 2, 2);
 	CreateStations(StationSolarPlant, GhostWorksShipyards, FrozenRealm, 2, 3);
-	CreateStations(StationIceMine, GhostWorksShipyards, ShoreOfIce, 3);
 	CreateStations(StationHub, GhostWorksShipyards, FrozenRealm, 1);
+	CreateStations(StationIceMine, GhostWorksShipyards, ShoreOfIce, 3);
+	CreateStations(StationIceMine, MiningSyndicate, ShoreOfIce, 1);
 
-	// Asta pirate base
+	// Boneyard (pirate base)
 	CreateStations(StationShipyard, Pirates, Boneyard, 1);
 	CreateStations(StationSolarPlant, Pirates, Boneyard, 2);
 	CreateStations(StationArsenal, Pirates, Boneyard, 2);
 	CreateStations(StationOutpost, Pirates, Boneyard, 1);
-
+	
 	// Create hubs
 	CreateStations(StationHub, IonLane, Crossroads, 2);
 	CreateStations(StationHub, IonLane, Lighthouse, 1);
