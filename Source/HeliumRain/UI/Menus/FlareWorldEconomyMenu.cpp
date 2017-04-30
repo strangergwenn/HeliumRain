@@ -325,7 +325,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 		return;
 	}
 
-	// Natural order is sorted bay discovery
+	// Natural order is sorted by discovery
 	TArray<UFlareSimulatedSector*>& Sectors = MenuManager->GetPC()->GetCompany()->GetVisitedSectors();
 
 	// Sector list
@@ -349,29 +349,15 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.4 * Theme.ContentWidth)
+					.WidthOverride(0.45 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
-						SNew(SHorizontalBox)
-
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(STextBlock)
-							.Text(Sector->GetSectorName())
-							.TextStyle(&Theme.TextFont)
-						]
-
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareWorldEconomyMenu::GetSectorText, Sector)
-							.ColorAndOpacity(this, &SFlareWorldEconomyMenu::GetSectorTextColor, Sector)
-							.TextStyle(&Theme.TextFont)
-						]
+						SNew(SFlareButton)
+						.Width(6)
+						.Text(this, &SFlareWorldEconomyMenu::GetSectorText, Sector)
+						.Color(this, &SFlareWorldEconomyMenu::GetSectorTextColor, Sector)
+						.Icon(FFlareStyleSet::GetIcon("Travel"))
+						.OnClicked(this, &SFlareWorldEconomyMenu::OnOpenSector, Sector)
 					]
 				]
 
@@ -483,7 +469,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 						SNew(SFlareButton)
 						.Text(LOCTEXT("DetailButton", "Details"))
 						.Icon(FFlareStyleSet::GetIcon("Travel"))
-						.OnClicked(this, &SFlareWorldEconomyMenu::OnOpenSector, Sector)
+						.OnClicked(this, &SFlareWorldEconomyMenu::OnOpenSectorPrices, Sector)
 					]
 				]
 			]
@@ -602,7 +588,8 @@ FText SFlareWorldEconomyMenu::GetResourceInfo() const
 
 FText SFlareWorldEconomyMenu::GetSectorText(UFlareSimulatedSector* Sector) const
 {
-	return FText::Format(LOCTEXT("SectorInfoFormat", "({0})"),
+	return FText::Format(LOCTEXT("SectorInfoFormat", "{0} ({1})"),
+		Sector->GetSectorName(),
 		Sector->GetSectorFriendlynessText(MenuManager->GetPC()->GetCompany()));
 }
 
@@ -744,6 +731,13 @@ void SFlareWorldEconomyMenu::OnResourceComboLineSelectionChanged(UFlareResourceC
 }
 
 void SFlareWorldEconomyMenu::OnOpenSector(UFlareSimulatedSector* Sector)
+{
+	FFlareMenuParameterData Data;
+	Data.Sector = Sector;
+	MenuManager->OpenMenu(EFlareMenu::MENU_Sector, Data);
+}
+
+void SFlareWorldEconomyMenu::OnOpenSectorPrices(UFlareSimulatedSector* Sector)
 {
 	FFlareMenuParameterData Data;
 	Data.Sector = Sector;

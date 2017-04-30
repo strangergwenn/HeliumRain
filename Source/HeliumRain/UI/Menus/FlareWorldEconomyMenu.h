@@ -93,6 +93,9 @@ protected:
 
 	void OnOpenSector(UFlareSimulatedSector* Sector);
 
+	void OnOpenSectorPrices(UFlareSimulatedSector* Sector);
+
+
 protected:
 
 	/*----------------------------------------------------
