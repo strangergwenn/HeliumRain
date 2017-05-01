@@ -1,6 +1,7 @@
 
 #include "../Flare.h"
 #include "FlareSpacecraftComponentsCatalog.h"
+#include "../Player/FlarePlayerController.h"
 #include "AssetRegistryModule.h"
 
 
@@ -133,35 +134,41 @@ FFlareSpacecraftComponentDescription* UFlareSpacecraftComponentsCatalog::Get(FNa
 	return Part;
 }
 
-const void UFlareSpacecraftComponentsCatalog::GetEngineList(TArray<FFlareSpacecraftComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
+const void UFlareSpacecraftComponentsCatalog::GetEngineList(TArray<FFlareSpacecraftComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size, UFlareCompany* FilterCompany)
 {
 	for (int32 i = 0; i < EngineCatalog.Num(); i++)
 	{
-		if (EngineCatalog[i]->Data.Size == Size)
+		FFlareSpacecraftComponentDescription& Candidate = EngineCatalog[i]->Data;
+
+		if (Candidate.Size == Size && (FilterCompany == NULL || FilterCompany->IsTechnologyUnlockedPart(&Candidate)))
 		{
-			OutData.Add(&(EngineCatalog[i])->Data);
+			OutData.Add(&Candidate);
 		}
 	}
 }
 
-const void UFlareSpacecraftComponentsCatalog::GetRCSList(TArray<FFlareSpacecraftComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
+const void UFlareSpacecraftComponentsCatalog::GetRCSList(TArray<FFlareSpacecraftComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size, UFlareCompany* FilterCompany)
 {
 	for (int32 i = 0; i < RCSCatalog.Num(); i++)
 	{
-		if (RCSCatalog[i]->Data.Size == Size)
+		FFlareSpacecraftComponentDescription& Candidate = RCSCatalog[i]->Data;
+
+		if (Candidate.Size == Size && (FilterCompany == NULL || FilterCompany->IsTechnologyUnlockedPart(&Candidate)))
 		{
-			OutData.Add(&(RCSCatalog[i])->Data);
+			OutData.Add(&Candidate);
 		}
 	}
 }
 
-const void UFlareSpacecraftComponentsCatalog::GetWeaponList(TArray<FFlareSpacecraftComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size)
+const void UFlareSpacecraftComponentsCatalog::GetWeaponList(TArray<FFlareSpacecraftComponentDescription*>& OutData, TEnumAsByte<EFlarePartSize::Type> Size, UFlareCompany* FilterCompany)
 {
 	for (int32 i = 0; i < WeaponCatalog.Num(); i++)
 	{
-		if (WeaponCatalog[i]->Data.Size == Size)
+		FFlareSpacecraftComponentDescription& Candidate = WeaponCatalog[i]->Data;
+
+		if (Candidate.Size == Size && (FilterCompany == NULL || FilterCompany->IsTechnologyUnlockedPart(&Candidate)))
 		{
-			OutData.Add(&(WeaponCatalog[i])->Data);
+			OutData.Add(&Candidate);
 		}
 	}
 }
