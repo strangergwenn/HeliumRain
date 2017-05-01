@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Game/FlareGameTypes.h"
 #include "FlareQuestManager.generated.h"
 
 class UFlareQuest;

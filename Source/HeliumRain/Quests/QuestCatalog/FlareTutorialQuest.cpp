@@ -1,4 +1,6 @@
 
+#include "FlareTutorialQuest.h"
+
 #include "Flare.h"
 #include "../../Game/FlareGame.h"
 #include "../FlareQuestCondition.h"
@@ -6,11 +8,12 @@
 #include "../FlareQuestStep.h"
 #include "../FlareQuest.h"
 #include "../../Game/FlareSaveGame.h"
+#include "../../Game/FlareGameTools.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../../Data/FlareTechnologyCatalog.h"
+#include "../../Data/FlareSpacecraftCatalog.h"
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"
-
-#include "FlareTutorialQuest.h"
 
 #define LOCTEXT_NAMESPACE "FlareTutorialQuest"
 

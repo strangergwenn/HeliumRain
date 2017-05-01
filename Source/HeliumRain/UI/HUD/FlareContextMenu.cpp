@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 #include "../../Player/FlareHUD.h"
 #include "../../Player/FlareMenuManager.h"
+#include "../../Spacecrafts/FlareSpacecraft.h"
 
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
 #include "Runtime/Engine/Classes/Engine/RendererSettings.h"

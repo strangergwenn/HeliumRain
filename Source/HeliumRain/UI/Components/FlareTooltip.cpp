@@ -1,9 +1,11 @@
 
 #include "FlareTooltip.h"
 #include "../../Flare.h"
+#include "../../Player/FlareHUD.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
+#include "SBackgroundBlur.h"
 
 #define LOCTEXT_NAMESPACE "FlareTooltip"
 

@@ -8,6 +8,7 @@
 
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
 #include "Runtime/Engine/Classes/Engine/RendererSettings.h"
+#include "SBackgroundBlur.h"
 
 #define LOCTEXT_NAMESPACE "FlareMainOverlay"
 

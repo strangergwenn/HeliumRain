@@ -1,7 +1,7 @@
 
-#include "Flare.h"
 #include "FlareHistoryQuest.h"
 
+#include "Flare.h"
 #include "../FlareQuestCondition.h"
 #include "Game/FlareGame.h"
 #include "Game/FlareScenarioTools.h"

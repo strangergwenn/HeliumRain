@@ -2,6 +2,8 @@
 
 #include <functional>
 #include "../FlareQuest.h"
+#include "../FlareQuestCondition.h"
+#include "../../UI/FlareUItypes.h"
 #include "FlareTutorialQuest.generated.h"
 
 

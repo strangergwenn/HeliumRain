@@ -4,6 +4,7 @@
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
 #include "../../Data/FlareCompanyCatalog.h"
+#include "../../Data/FlareCustomizationCatalog.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "STextComboBox.h"

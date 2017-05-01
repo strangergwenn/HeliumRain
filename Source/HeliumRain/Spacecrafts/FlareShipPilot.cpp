@@ -5,6 +5,8 @@
 #include "FlareSpacecraft.h"
 #include "FlarePilotHelper.h"
 
+#include "../Data/FlareSpacecraftComponentsCatalog.h"
+
 #include "../Game/FlareCompany.h"
 #include "../Game/FlareGame.h"
 #include "../Game/AI/FlareCompanyAI.h"

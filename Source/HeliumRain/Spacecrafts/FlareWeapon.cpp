@@ -5,6 +5,7 @@
 #include "FlareSpacecraft.h"
 #include "FlareShell.h"
 #include "FlareBomb.h"
+#include "../Game/FlareGame.h"
 #include "../Player/FlarePlayerController.h"
 #include "Engine/StaticMeshSocket.h"
 

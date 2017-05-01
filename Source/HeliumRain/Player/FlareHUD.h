@@ -9,6 +9,7 @@ class SFlareHUDMenu;
 class SFlareContextMenu;
 class SFlareMouseMenu;
 class UFlareWeapon;
+class UCanvasRenderTarget2D;
 
 
 /** Navigation HUD */

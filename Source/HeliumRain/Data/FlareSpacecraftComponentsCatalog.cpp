@@ -1,6 +1,6 @@
 
-#include "../Flare.h"
 #include "FlareSpacecraftComponentsCatalog.h"
+#include "../Flare.h"
 #include "../Player/FlarePlayerController.h"
 #include "AssetRegistryModule.h"
 

@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 #include "../Components/FlarePartInfo.h"
 #include "../Components/FlareCompanyInfo.h"
+#include "../../Data/FlareSpacecraftComponentsCatalog.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareCompany.h"
 #include "../../Player/FlareMenuManager.h"

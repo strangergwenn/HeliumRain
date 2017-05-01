@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+#include "SBackgroundBlur.h"
 
 #define LOCTEXT_NAMESPACE "FlareNotification"
 
