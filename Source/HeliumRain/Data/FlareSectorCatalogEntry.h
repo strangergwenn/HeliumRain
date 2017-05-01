@@ -2,6 +2,7 @@
 
 #include "../Flare.h"
 #include "../Game/FlareSector.h"
+#include "Engine/DataAsset.h"
 #include "FlareSectorCatalogEntry.generated.h"
 
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Flare.h"
+#include "Engine/DataAsset.h"
 #include "FlareAsteroidCatalog.generated.h"
 
 

@@ -37,6 +37,8 @@
 #include "AssetRegistryModule.h"
 #include "Log/FlareLogWriter.h"
 
+#include "Engine/PostProcessVolume.h"
+
 #define LOCTEXT_NAMESPACE "FlareGame"
 
 

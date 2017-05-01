@@ -2,6 +2,7 @@
 
 #include "../Flare.h"
 #include "../Economy/FlareResource.h"
+#include "Engine/DataAsset.h"
 #include "FlareResourceCatalogEntry.generated.h"
 
 

@@ -9,6 +9,8 @@
 #include "../Spacecrafts/FlareSpacecraftComponent.h"
 #include "../Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 
+#include "Engine/CanvasRenderTarget2D.h"
+
 #define LOCTEXT_NAMESPACE "FlareCockpitManager"
 
 

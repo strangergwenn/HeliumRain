@@ -2,6 +2,7 @@
 
 #include "../Flare.h"
 #include "../Spacecrafts/FlareSpacecraftComponent.h"
+#include "Engine/DataAsset.h"
 #include "FlareSpacecraftComponentsCatalogEntry.generated.h"
 
 

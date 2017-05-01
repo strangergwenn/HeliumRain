@@ -4,8 +4,8 @@
 #include "FlareGame.h"
 #include "FlareSimulatedSector.h"
 
+#include "Engine/StaticMeshActor.h"
 #include "StaticMeshResources.h"
-
 
 #define LOCTEXT_NAMESPACE "FlareDebrisField"
 

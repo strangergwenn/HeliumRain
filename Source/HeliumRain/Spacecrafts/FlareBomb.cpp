@@ -7,6 +7,7 @@
 #include "../Player/FlarePlayerController.h"
 #include "FlareWeapon.h"
 #include "FlareBombComponent.h"
+#include "Components/DecalComponent.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareBomb"

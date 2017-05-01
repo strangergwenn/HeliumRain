@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Flare.h"
+#include "GameFramework/GameUserSettings.h"
 #include "FlareGameUserSettings.generated.h"
 
 

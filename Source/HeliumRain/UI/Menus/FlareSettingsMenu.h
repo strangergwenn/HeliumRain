@@ -5,6 +5,7 @@
 #include "../Components/FlareColorPanel.h"
 #include "SlateMaterialBrush.h"
 #include "../Components/FlareKeyBind.h"
+#include "GameFramework/PlayerInput.h"
 
 class AFlareGame;
 class AFlareMenuManager;

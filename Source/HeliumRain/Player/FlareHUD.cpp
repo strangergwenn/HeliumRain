@@ -16,6 +16,8 @@
 #include "../UI/HUD/FlareHUDMenu.h"
 #include "../UI/HUD/FlareContextMenu.h"
 
+#include "Engine/Canvas.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareNavigationHUD"
 

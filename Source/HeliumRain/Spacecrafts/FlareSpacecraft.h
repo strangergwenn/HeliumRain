@@ -14,6 +14,9 @@
 class UFlareShipPilot;
 class AFlareSpacecraft;
 
+class UCanvasRenderTarget2D;
+
+
 /** Target info */
 USTRUCT()
 struct FFlareScreenTarget

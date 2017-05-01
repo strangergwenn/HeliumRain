@@ -28,6 +28,7 @@
 #include "../Spacecrafts/FlarePilotHelper.h"
 #include "../Spacecrafts/FlareTurretPilot.h"
 
+#include "Engine/PostProcessVolume.h"
 #include "EngineUtils.h"
 
 

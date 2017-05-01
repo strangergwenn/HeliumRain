@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../Flare.h"
+#include "GameFramework/CheatManager.h"
 #include "FlareGameTools.generated.h"
 
 class UFlareWorld;

@@ -4,6 +4,7 @@
 #include "FlareSpacecraft.h"
 #include "../Game/FlareGame.h"
 #include "../Player/FlarePlayerController.h"
+#include "Components/DecalComponent.h"
 
 
 /*----------------------------------------------------

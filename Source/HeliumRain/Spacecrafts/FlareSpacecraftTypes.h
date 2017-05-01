@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Engine.h"
+#include "EngineMinimal.h"
+#include "Styling/SlateBrush.h"
+#include "Sound/SoundCue.h"
 #include "FlareSpacecraftTypes.generated.h"
 
 

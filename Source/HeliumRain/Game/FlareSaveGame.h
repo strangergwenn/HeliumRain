@@ -3,6 +3,7 @@
 #include "FlareCompany.h"
 #include "FlareWorld.h"
 #include "../Quests/FlareQuestManager.h"
+#include "GameFramework/SaveGame.h"
 #include "FlareSaveGame.generated.h"
 
 

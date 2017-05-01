@@ -22,6 +22,12 @@
 
 #include "../UI/Menus/FlareShipMenu.h"
 
+#include "Engine/CanvasRenderTarget2D.h"
+#include "Engine/Canvas.h"
+#include "Components/DecalComponent.h"
+#include "EngineUtils.h"
+
+
 DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Systems"), STAT_FlareSpacecraft_Systems, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Player"), STAT_FlareSpacecraft_PlayerShip, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Hit"), STAT_FlareSpacecraft_Hit, STATGROUP_Flare);

@@ -37,6 +37,8 @@
 
 #include "../HeliumRainLoadingScreen/FlareLoadingScreen.h"
 
+#include "GameFramework/InputSettings.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareMenuManager"
 

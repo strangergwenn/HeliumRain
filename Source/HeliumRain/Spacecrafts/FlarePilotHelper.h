@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine.h"
+#include "EngineMinimal.h"
 
 class UFlareCompany;
 class UFlareSector;

@@ -4,6 +4,9 @@
 #include "FlareGame.h"
 #include "../Player/FlarePlayerController.h"
 
+#include "EngineUtils.h"
+#include "Materials/MaterialInstanceConstant.h"
+
 
 //#define PLANETARIUM_DEBUG
 

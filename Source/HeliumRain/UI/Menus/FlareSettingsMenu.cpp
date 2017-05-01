@@ -13,6 +13,7 @@
 
 #include "STextComboBox.h"
 #include "Internationalization/Culture.h"
+#include "GameFramework/InputSettings.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareSettingsMenu"

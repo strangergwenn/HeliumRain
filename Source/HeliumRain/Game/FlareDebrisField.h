@@ -7,6 +7,8 @@
 class AFlareGame;
 class UFlareSimulatedSector;
 
+class AStaticMeshActor;
+
 
 UCLASS()
 class HELIUMRAIN_API UFlareDebrisField : public UObject

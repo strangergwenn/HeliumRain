@@ -7,6 +7,7 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "STextComboBox.h"
+#include "GameFramework/PlayerState.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareNewGameMenu"

@@ -6,6 +6,8 @@ class AFlareSpacecraft;
 class UFlareSpacecraftComponent;
 class AFlarePlayerController;
 
+class UCanvasRenderTarget2D;
+
 
 /** Cockpit manager class */
 UCLASS()

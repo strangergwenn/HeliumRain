@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Engine.h"
 #include "FlareSpacecraftComponent.h"
 #include "FlareSpacecraftSpinningComponent.generated.h"
 

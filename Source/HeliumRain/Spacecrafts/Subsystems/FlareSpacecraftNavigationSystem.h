@@ -5,7 +5,7 @@
 
 class AFlareSpacecraft;
 
-
+class UPhysicsConstraintComponent;
 
 
 /** Status of the ship */

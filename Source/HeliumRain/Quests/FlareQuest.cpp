@@ -7,6 +7,8 @@
 #include "FlareQuestCondition.h"
 #include "FlareQuestAction.h"
 
+#include "GameFramework/InputSettings.h"
+
 #define LOCTEXT_NAMESPACE "FlareQuest"
 
 

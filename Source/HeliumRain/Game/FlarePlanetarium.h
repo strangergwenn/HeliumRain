@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../Game/Planetarium/FlareSimulatedPlanetarium.h"
+#include "Components/DirectionalLightComponent.h"
 #include "FlarePlanetarium.generated.h"
-
 
 
 struct CelestialBodyPosition

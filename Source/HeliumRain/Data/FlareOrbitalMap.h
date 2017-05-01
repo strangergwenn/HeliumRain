@@ -2,6 +2,7 @@
 
 #include "../Flare.h"
 #include "../Game/FlareSimulatedSector.h"
+#include "Engine/DataAsset.h"
 #include "FlareOrbitalMap.generated.h"
 
 
