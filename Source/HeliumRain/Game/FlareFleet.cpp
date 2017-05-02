@@ -349,9 +349,9 @@ void UFlareFleet::Disband()
 	FleetCompany->RemoveFleet(this);
 }
 
-bool UFlareFleet::CanMerge(UFlareFleet* Fleet, FText& OutInfo)
+bool UFlareFleet::CanMerge(UFlareFleet* OtherFleet, FText& OutInfo)
 {
-	if (GetShipCount() + Fleet->GetShipCount() > GetMaxShipCount())
+	if (GetShipCount() + OtherFleet->GetShipCount() > GetMaxShipCount())
 	{
 		OutInfo = LOCTEXT("MergeFleetMaxShips", "Can't merge, max ships reached");
 		return false;
@@ -363,13 +363,19 @@ bool UFlareFleet::CanMerge(UFlareFleet* Fleet, FText& OutInfo)
 		return false;
 	}
 
-	if (Fleet->IsTraveling())
+	if (OtherFleet == Game->GetPC()->GetPlayerFleet())
 	{
-		OutInfo = LOCTEXT("MergeOtherFleetTravel", "Can't merge travelling ships");
+		OutInfo = LOCTEXT("MergeFleetPlayer", "Can't merge the player fleet into another");
 		return false;
 	}
 
-	if (GetCurrentSector() != Fleet->GetCurrentSector())
+	if (OtherFleet->IsTraveling())
+	{
+		OutInfo = LOCTEXT("MergeOtherFleetTravel", "Can't merge traveling ships");
+		return false;
+	}
+
+	if (GetCurrentSector() != OtherFleet->GetCurrentSector())
 	{
 		OutInfo = LOCTEXT("MergeFleetDifferenSector", "Can't merge from a different sector");
 		return false;
