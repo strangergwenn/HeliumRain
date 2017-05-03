@@ -146,6 +146,9 @@ public:
 	/** Get an info string for this company */
 	virtual FText GetShortInfoText();
 
+	/** Get a new fleet color */
+	FLinearColor PickFleetColor() const;
+
 	/** Create a new fleet in a sector */
 	virtual UFlareFleet* CreateFleet(FText FleetName, UFlareSimulatedSector* FleetSector);
 

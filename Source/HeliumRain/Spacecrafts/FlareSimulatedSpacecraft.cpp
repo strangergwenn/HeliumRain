@@ -968,6 +968,11 @@ int32 UFlareSimulatedSpacecraft::GetCombatPoints(bool ReduceByDamage)
 	return SpacecraftCombatPoints;
 }
 
+bool UFlareSimulatedSpacecraft::IsPlayerShip()
+{
+	return (this == GetGame()->GetPC()->GetPlayerShip());
+}
+
 const FSlateBrush* FFlareSpacecraftDescription::GetIcon(FFlareSpacecraftDescription* Characteristic)
 {
 	if (Characteristic)

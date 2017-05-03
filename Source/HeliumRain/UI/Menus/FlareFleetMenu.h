@@ -72,6 +72,9 @@ protected:
 	/** Get hint text about renaming a fleet */
 	FText GetRenameHintText() const;
 
+	/** Get hue value */
+	float GetColorSpinBoxValue() const;
+
 
 	/*----------------------------------------------------
 		Action callbacks
@@ -94,6 +97,9 @@ protected:
 
 	/** Rename the selected fleet */
 	void OnRenameFleet();
+
+	/** Hue value changed */
+	void OnColorSpinBoxValueChanged(float NewValue);
 
 
 protected:

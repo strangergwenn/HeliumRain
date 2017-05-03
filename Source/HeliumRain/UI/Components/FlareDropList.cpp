@@ -220,7 +220,6 @@ EVisibility SFlareDropList::GetColorPickerVisibility() const
 	}
 }
 
-BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION
 TSharedRef<SWidget> SFlareDropList::MakeColorSlider() const
 {
 	return SNew(SOverlay)
@@ -246,4 +245,4 @@ TSharedRef<SWidget> SFlareDropList::MakeColorSlider() const
 				.OnValueChanged(this, &SFlareDropList::HandleColorSpinBoxValueChanged)
 		];
 }
-END_SLATE_FUNCTION_BUILD_OPTIMIZATION
+

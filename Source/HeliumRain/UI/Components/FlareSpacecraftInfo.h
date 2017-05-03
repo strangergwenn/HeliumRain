@@ -142,6 +142,12 @@ public:
 
 	/** Get the company name or the current fleet's name or the production status */
 	FText GetSpacecraftInfo() const;
+
+	/** Get the current fleet's name */
+	FText GetSpacecraftInfoAdditional() const;
+
+	/** Get the text color */
+	FSlateColor GetAdditionalTextColor() const;
 	
 
 protected:
@@ -175,6 +181,7 @@ protected:
 	TSharedPtr<SFlareButton>          OrderHeavyShipButton;
 
 	// Slate data (various)
+	TSharedPtr<STextBlock>            SpacecraftName;
 	TSharedPtr<SWidget>               OwnerWidget;
 	TSharedPtr<SFlareShipStatus>      ShipStatus;
 	TSharedPtr<SFlareCompanyFlag>     CompanyFlag;

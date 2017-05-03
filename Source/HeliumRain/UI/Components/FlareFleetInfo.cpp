@@ -47,7 +47,7 @@ void SFlareFleetInfo::Construct(const FArguments& InArgs)
 					.Padding(Theme.SmallContentPadding)
 					.VAlign(VAlign_Center)
 					[
-						SNew(STextBlock)
+						SAssignNew(FleetName, STextBlock)
 						.Text(this, &SFlareFleetInfo::GetName)
 						.TextStyle(&Theme.NameFont)
 						.ColorAndOpacity(this, &SFlareFleetInfo::GetTextColor)
@@ -159,6 +159,15 @@ void SFlareFleetInfo::SetFleet(UFlareFleet* Fleet)
 		CompanyFlag->SetCompany(TargetFleet->GetFleetCompany());
 		TargetName = TargetFleet->GetFleetName();
 	}
+
+	// Text font
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	const FTextBlockStyle* TextFont = &Theme.NameFont;
+	if (TargetFleet && TargetFleet == PC->GetPlayerShip()->GetCurrentFleet())
+	{
+		TextFont = &Theme.NameFontBold;
+	}
+	FleetName->SetTextStyle(TextFont);
 }
 
 void SFlareFleetInfo::SetMinimized(bool NewState)
@@ -224,9 +233,9 @@ FSlateColor SFlareFleetInfo::GetTextColor() const
 
 	if (TargetFleet && TargetFleet->IsValidLowLevel())
 	{
-		if (TargetFleet == PC->GetPlayerFleet())
+		if (TargetFleet->GetFleetCompany()->GetWarState(PC->GetCompany()) == EFlareHostility::Owned)
 		{
-			return Theme.FriendlyColor;
+			return TargetFleet->GetFleetColor();
 		}
 		else if (TargetFleet->GetFleetCompany()->GetWarState(PC->GetCompany()) == EFlareHostility::Hostile)
 		{

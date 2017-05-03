@@ -313,5 +313,8 @@ public:
 	{
 		return SpacecraftData.IsUnderConstruction;
 	}
+
+	bool IsPlayerShip();
+
 };
 

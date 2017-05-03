@@ -80,7 +80,7 @@ public:
 	void LoadFNameArray(TSharedPtr< FJsonObject > Object, FString Key, TArray<FName>* Data);
 	void LoadFloatArray(TSharedPtr< FJsonObject > Object, FString Key, TArray<float>* Data);
 	void LoadTransform(TSharedPtr< FJsonObject > Object, FString Key, FTransform* Data);
-	void LoadVector(TSharedPtr< FJsonObject > Object, FString Key, FVector* Data);
+	bool LoadVector(TSharedPtr< FJsonObject > Object, FString Key, FVector* Data);
 	void LoadRotator(TSharedPtr< FJsonObject > Object, FString Key, FRotator* Data);
 	void LoadFloatBuffer(TSharedPtr< FJsonObject > Object, FString Key, FFlareFloatBuffer* Data);
 	void LoadBundle(const TSharedPtr<FJsonObject> Object, FString Key, FFlareBundle* Data);

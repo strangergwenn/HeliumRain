@@ -613,6 +613,17 @@ void UFlareSaveReaderV1::LoadFleet(const TSharedPtr<FJsonObject> Object, FFlareF
 	LoadFText(Object, "Name", &Data->Name);
 	LoadFName(Object, "Identifier", &Data->Identifier);
 	LoadFNameArray(Object, "ShipImmatriculations", &Data->ShipImmatriculations);
+
+	FVector Temp;
+	if (LoadVector(Object, "FleetColor", &Temp))
+	{
+		Data->FleetColor = FLinearColor(Temp);
+	}
+	else
+	{
+		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+		Data->FleetColor = Theme.NeutralColor;
+	}
 }
 
 
@@ -1042,7 +1053,7 @@ static bool ParseVector(const FString& DataString, FVector* Data)
 }
 
 
-void UFlareSaveReaderV1::LoadVector(TSharedPtr< FJsonObject > Object, FString Key, FVector* Data)
+bool UFlareSaveReaderV1::LoadVector(TSharedPtr< FJsonObject > Object, FString Key, FVector* Data)
 {
 	FString DataString;
 	if(Object->TryGetStringField(Key, DataString))
@@ -1050,12 +1061,16 @@ void UFlareSaveReaderV1::LoadVector(TSharedPtr< FJsonObject > Object, FString Ke
 		if (!ParseVector(DataString, Data))
 		{
 			FLOGV("WARNING: Fail to load FVector key '%s'. No 3 values in '%s'. Save corrupted", *Key, *DataString);
+			return false;
 		}
 	}
 	else
 	{
 		FLOGV("WARNING: Fail to load FVector key '%s'. Save corrupted", *Key);
+		return false;
 	}
+
+	return true;
 }
 
 void UFlareSaveReaderV1::LoadRotator(TSharedPtr< FJsonObject > Object, FString Key, FRotator* Data)

@@ -66,7 +66,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						.Padding(Theme.SmallContentPadding)
 						.VAlign(VAlign_Center)
 						[
-							SNew(STextBlock)
+							SAssignNew(SpacecraftName, STextBlock)
 							.Text(this, &SFlareSpacecraftInfo::GetName)
 							.TextStyle(&Theme.NameFont)
 							.ColorAndOpacity(this, &SFlareSpacecraftInfo::GetTextColor)
@@ -138,6 +138,18 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.Text(this, &SFlareSpacecraftInfo::GetSpacecraftInfo)
+							.TextStyle(&Theme.TextFont)
+							.Visibility(this, &SFlareSpacecraftInfo::GetSpacecraftInfoVisibility)
+						]
+
+						// Spacecraft info 2
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareSpacecraftInfo::GetSpacecraftInfoAdditional)
+							.ColorAndOpacity(this, &SFlareSpacecraftInfo::GetAdditionalTextColor)
 							.TextStyle(&Theme.TextFont)
 							.Visibility(this, &SFlareSpacecraftInfo::GetSpacecraftInfoVisibility)
 						]
@@ -322,6 +334,15 @@ void SFlareSpacecraftInfo::SetSpacecraft(UFlareSimulatedSpacecraft* Target)
 			InspectButton->SetText(LOCTEXT("InspectRegular", "DETAILS"));
 		}
 	}
+
+	// Text font
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	const FTextBlockStyle* TextFont = &Theme.NameFont;
+	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel() && TargetSpacecraft == PC->GetPlayerShip())
+	{
+		TextFont = &Theme.NameFontBold;
+	}
+	SpacecraftName->SetTextStyle(TextFont);
 }
 
 void SFlareSpacecraftInfo::SetNoInspect(bool NewState)
@@ -795,20 +816,15 @@ FText SFlareSpacecraftInfo::GetName() const
 
 FSlateColor SFlareSpacecraftInfo::GetTextColor() const
 {
-	FLinearColor Result;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
 	{
-		if (TargetSpacecraft == PC->GetPlayerShip())
+		if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->IsTarget(TargetSpacecraft))
 		{
 			return Theme.ObjectiveColor;
 		}
-		else if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->IsTarget(TargetSpacecraft))
-		{
-			return Theme.ObjectiveColor;
-		}
-		else if (TargetSpacecraft->GetCurrentFleet() == PC->GetPlayerFleet())
+		else if (TargetSpacecraft == PC->GetPlayerShip())
 		{
 			return Theme.FriendlyColor;
 		}
@@ -816,13 +832,9 @@ FSlateColor SFlareSpacecraftInfo::GetTextColor() const
 		{
 			return Theme.EnemyColor;
 		}
-		else
-		{
-			return Theme.NeutralColor;
-		}
 	}
 
-	return Result;
+	return Theme.NeutralColor;
 }
 
 FText SFlareSpacecraftInfo::GetDescription() const
@@ -982,6 +994,7 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 		{
 			DistanceText = LOCTEXT("PlayerShipText", "Player ship - ");
 		}
+
 		// Class text
 		FText ClassText;
 		if (TargetSpacecraft->IsStation())
@@ -1026,29 +1039,13 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 				}
 			}
 
-			// Ship : show fleet info
+			// Ship : show fleet info - GetSpacecraftInfoAdditional() will feed the rest
 			else
 			{
 				UFlareFleet* Fleet = TargetSpacecraft->GetCurrentFleet();
 				if (Fleet)
 				{
-					FText FleetAssignedText;
-					if (Fleet->GetCurrentTradeRoute())
-					{
-						FleetAssignedText = FText::Format(LOCTEXT("FleetAssignedFormat", " - {0}"),
-							Fleet->GetCurrentTradeRoute()->GetTradeRouteName());
-					}
-
-					FText FleetDescriptionText = FText::Format(LOCTEXT("FleetFormat", "{0} ({1} / {2}){3}"),
-						Fleet->GetFleetName(),
-						FText::AsNumber(Fleet->GetShipCount()),
-						FText::AsNumber(Fleet->GetMaxShipCount()),
-						FleetAssignedText);
-
-					return FText::Format(LOCTEXT("SpacecraftInfoFormat", "{0}{1} - {2}"),
-						DistanceText,
-						Fleet->GetStatusInfo(),
-						FleetDescriptionText);
+					return FText::Format(LOCTEXT("SpacecraftInfoFormat", "{0}{1} - "), DistanceText, Fleet->GetStatusInfo());
 				}
 				return FText();
 			}
@@ -1068,5 +1065,54 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 	return FText();
 }
 
+FText SFlareSpacecraftInfo::GetSpacecraftInfoAdditional() const
+{
+	// Crash mitigation - If parent is hidden, so are we, don't try to use the target (#178)
+	if ((OwnerWidget.IsValid() && OwnerWidget->GetVisibility() != EVisibility::Visible)
+		|| (PC && !PC->GetMenuManager()->IsUIOpen()))
+	{
+		return FText();
+	}
+
+	// Fleet info
+	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
+	{
+		UFlareCompany* TargetCompany = TargetSpacecraft->GetCompany();
+		UFlareFleet* Fleet = TargetSpacecraft->GetCurrentFleet();
+
+		if (TargetCompany && PC && TargetCompany == PC->GetCompany() && !TargetSpacecraft->IsStation() && Fleet)
+		{
+			FText FleetAssignedText;
+			if (Fleet->GetCurrentTradeRoute())
+			{
+				FleetAssignedText = FText::Format(LOCTEXT("FleetAssignedFormat", " - {0}"),
+					Fleet->GetCurrentTradeRoute()->GetTradeRouteName());
+			}
+
+			return FText::Format(LOCTEXT("FleetFormat", "{0} ({1} / {2}){3}"),
+				Fleet->GetFleetName(),
+				FText::AsNumber(Fleet->GetShipCount()),
+				FText::AsNumber(Fleet->GetMaxShipCount()),
+				FleetAssignedText);
+		}
+	}
+
+	return FText();
+}
+
+FSlateColor SFlareSpacecraftInfo::GetAdditionalTextColor() const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel() && TargetSpacecraft->GetCurrentFleet())
+	{
+		if (TargetSpacecraft->GetCompany()->GetWarState(PC->GetCompany()) == EFlareHostility::Owned)
+		{
+			return TargetSpacecraft->GetCurrentFleet()->GetFleetColor();
+		}
+	}
+
+	return Theme.NeutralColor;
+}
 
 #undef LOCTEXT_NAMESPACE

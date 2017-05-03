@@ -7,6 +7,8 @@
 class AFlareMenuManager;
 struct FFlareResourceDescription;
 
+class UFlareSimulatedSector;
+
 
 class SFlareResourcePricesMenu : public SCompoundWidget
 {

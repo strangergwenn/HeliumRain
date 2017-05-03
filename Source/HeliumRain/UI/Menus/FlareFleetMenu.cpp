@@ -8,6 +8,8 @@
 #include "../../Player/FlarePlayerController.h"
 #include "../Components/FlareRoundButton.h"
 
+#include "SComplexGradient.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareFleetMenu"
 
@@ -26,6 +28,13 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 	FleetToAdd = NULL;
 	FleetToEdit = NULL;
 	ShipToRemove = NULL;
+
+	// Gradient
+	TArray<FLinearColor> HueGradientColors;
+	for (int32 i = 0; i < 7; ++i)
+	{
+		HueGradientColors.Add(FLinearColor((i % 6) * 60.f, 1.f, 1.f).HSVToLinearRGB());
+	}
 
 	// Build structure
 	ChildSlot
@@ -101,11 +110,39 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SFlareButton)
 						.Width(4)
-						.Icon(FFlareStyleSet::GetIcon("OK"))
-						.Text(LOCTEXT("DoneEditing", "Done"))
+						.Icon(FFlareStyleSet::GetIcon("Stop"))
+						.Text(LOCTEXT("DoneEditing", "Back"))
 						.HelpText(LOCTEXT("DoneEditingInfo", "Finish editing this fleet"))
 						.OnClicked(this, &SFlareFleetMenu::OnEditFinished)
 						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+					]
+				]
+
+				// Color box
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SOverlay)
+
+					+ SOverlay::Slot()
+					.Padding(FMargin(4.0f, 0.0f))
+					[
+						SNew(SComplexGradient)
+						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+						.GradientColors(HueGradientColors)
+						.Orientation(Orient_Vertical)
+					]
+
+					+ SOverlay::Slot()
+					[
+						SNew(SSlider)
+						.IndentHandle(false)
+						.Orientation(Orient_Horizontal)
+						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+						.SliderBarColor(FLinearColor::Transparent)
+						.Value(this, &SFlareFleetMenu::GetColorSpinBoxValue)
+						.OnValueChanged(this, &SFlareFleetMenu::OnColorSpinBoxValueChanged)
 					]
 				]
 
@@ -417,6 +454,11 @@ FText SFlareFleetMenu::GetRenameHintText() const
 	}
 }
 
+float SFlareFleetMenu::GetColorSpinBoxValue() const
+{
+	return FleetToEdit->GetFleetColor().LinearRGBToHSV().R / 360.0f;
+}
+
 
 /*----------------------------------------------------
 	Action callbacks
@@ -495,6 +537,11 @@ void SFlareFleetMenu::OnRenameFleet()
 	FleetToEdit->SetFleetName(NewText);
 }
 
+void SFlareFleetMenu::SFlareFleetMenu::OnColorSpinBoxValueChanged(float NewValue)
+{
+	FLinearColor Color = FLinearColor(360.0f * NewValue, 1.0f, 1.0f, 1.0f).HSVToLinearRGB();
+	FleetToEdit->SetFleetColor(Color);
+}
 
 #undef LOCTEXT_NAMESPACE
 

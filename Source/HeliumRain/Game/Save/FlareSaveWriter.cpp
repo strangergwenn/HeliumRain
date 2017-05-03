@@ -533,6 +533,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveFleet(FFlareFleetSave* Data)
 		ShipImmatriculations.Add(MakeShareable(new FJsonValueString(Data->ShipImmatriculations[i].ToString())));
 	}
 	JsonObject->SetArrayField("ShipImmatriculations", ShipImmatriculations);
+	JsonObject->SetStringField("FleetColor", FormatVector(UFlareGameTools::ColorToVector(Data->FleetColor)));
 
 	return JsonObject;
 }

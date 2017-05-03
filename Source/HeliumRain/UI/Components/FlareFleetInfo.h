@@ -109,6 +109,7 @@ protected:
 	TSharedPtr<SFlareButton>          InspectButton;
 
 	// Slate data (various)
+	TSharedPtr<STextBlock>            FleetName;
 	TSharedPtr<SWidget>               OwnerWidget;
 	TSharedPtr<SFlareCompanyFlag>     CompanyFlag;
 

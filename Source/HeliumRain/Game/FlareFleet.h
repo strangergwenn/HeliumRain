@@ -30,6 +30,10 @@ struct FFlareFleetSave
 	/** Fleet ships */
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FName> ShipImmatriculations;
+
+	/** Fleet color */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FLinearColor FleetColor;
 };
 
 UCLASS()
@@ -94,6 +98,10 @@ public:
 	virtual void InitShipList();
 
 	void RemoveImmobilizedShips();
+
+	void SetFleetColor(FLinearColor Color);
+
+	FLinearColor GetFleetColor() const;
 
 protected:
 

@@ -384,6 +384,25 @@ FText UFlareCompany::GetShortInfoText()
 	return FText::Format(LOCTEXT("ShortInfoFormat", "{0} ({1} credits, {2})"), GetCompanyName(), FText::AsNumber(UFlareGameTools::DisplayMoney(GetMoney())), ShipDescriptionText);
 }
 
+inline static bool SortByColor(const FLinearColor& A, const FLinearColor& B)
+{
+	return (A.LinearRGBToHSV().R < B.LinearRGBToHSV().R);
+}
+
+FLinearColor UFlareCompany::PickFleetColor() const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	
+	TArray<FLinearColor> FleetColors;
+	FleetColors.Add(Theme.FriendlyColor);
+	for (int32 i = 0; i < 7; ++i)
+	{
+		FleetColors.Add(FLinearColor((i % 6) * 60.f, 1.f, 1.f).HSVToLinearRGB());
+	}
+	
+	return FleetColors[(CompanyFleets.Num() - 1) % (FleetColors.Num() - 1)];
+}
+
 UFlareFleet* UFlareCompany::CreateFleet(FText FleetName, UFlareSimulatedSector* FleetSector)
 {
 	// Create the fleet
@@ -442,10 +461,10 @@ UFlareFleet* UFlareCompany::CreateAutomaticFleet(UFlareSimulatedSpacecraft* Spac
 			break;
 		}
 	}
-
-
+	
 	UFlareFleet* NewFleet = CreateFleet(FleetName, Spacecraft->GetCurrentSector());
 	NewFleet->AddShip(Spacecraft);
+	NewFleet->SetFleetColor(PickFleetColor());
 
 	return NewFleet;
 }

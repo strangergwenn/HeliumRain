@@ -248,6 +248,16 @@ void UFlareFleet::RemoveImmobilizedShips()
 	}
 }
 
+void UFlareFleet::SetFleetColor(FLinearColor Color)
+{
+	FleetData.FleetColor = Color;
+}
+
+FLinearColor UFlareFleet::GetFleetColor() const
+{
+	return FleetData.FleetColor;
+}
+
 int32 UFlareFleet::InterceptShips()
 {
 	// Intercept half of ships at maximum and min 1

@@ -101,6 +101,7 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Fonts) FTextBlockStyle SubTitleFont;
 	UPROPERTY(EditAnywhere, Category = Fonts) FTextBlockStyle InvertedSubTitleFont;
 	UPROPERTY(EditAnywhere, Category = Fonts) FTextBlockStyle NameFont;
+	UPROPERTY(EditAnywhere, Category = Fonts) FTextBlockStyle NameFontBold;
 	UPROPERTY(EditAnywhere, Category = Fonts) FTextBlockStyle InvertedNameFont;
 	UPROPERTY(EditAnywhere, Category = Fonts) FTextBlockStyle TextFont;
 	UPROPERTY(EditAnywhere, Category = Fonts) FTextBlockStyle InvertedTextFont;

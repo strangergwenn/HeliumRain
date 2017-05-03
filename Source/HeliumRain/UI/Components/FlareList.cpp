@@ -151,14 +151,25 @@ void SFlareList::RefreshList()
 		{
 			FCHECK(PtrA.IsValid());
 			FCHECK(PtrB.IsValid());
-			UFlareSimulatedSpacecraft* A = PtrA->SpacecraftPtr;
-			UFlareSimulatedSpacecraft* B = PtrB->SpacecraftPtr;
 
 			if (PtrA->FleetPtr)
 			{
 				if (PtrB->FleetPtr)
 				{
-					return (PtrA->FleetPtr->GetShips().Num() > PtrB->FleetPtr->GetShips().Num());
+					UFlareFleet* PlayerFleet = PtrA->FleetPtr->GetGame()->GetPC()->GetPlayerFleet();
+
+					if (PtrA->FleetPtr == PlayerFleet)
+					{
+						return true;
+					}
+					else if (PtrB->FleetPtr == PlayerFleet)
+					{
+						return false;
+					}
+					else
+					{
+						return (PtrA->FleetPtr->GetShips().Num() > PtrB->FleetPtr->GetShips().Num());
+					}
 				}
 				else
 				{
@@ -171,7 +182,14 @@ void SFlareList::RefreshList()
 			}
 			else
 			{
-				if (A->IsStation() && B->IsStation())
+				UFlareSimulatedSpacecraft* A = PtrA->SpacecraftPtr;
+				UFlareSimulatedSpacecraft* B = PtrB->SpacecraftPtr;
+
+				if (A->IsPlayerShip() != B->IsPlayerShip())
+				{
+					return A->IsPlayerShip();
+				}
+				else if (A->IsStation() && B->IsStation())
 				{
 					if (A->GetDescription()->IsSubstation && !B->GetDescription()->IsSubstation)
 					{
