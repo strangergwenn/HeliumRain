@@ -267,7 +267,8 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 		Spacecraft->OnUndocked(DockStation);
 
 		// Leave
-		PushCommandLocation(Spacecraft->GetRootComponent()->GetComponentTransform().TransformPositionNoScale(5000 * FVector(-1, 0, 0)));
+		FVector UndockDestination = 10000 * FVector(-1, 0, 0) + 5000 * FMath::VRand();
+		PushCommandLocation(Spacecraft->GetRootComponent()->GetComponentTransform().TransformPositionNoScale(UndockDestination));
 		FLOG("UFlareSpacecraftNavigationSystem::Undock : successful");
 
 		// Hack for bug #195: for ue4 to reweld all.
