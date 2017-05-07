@@ -5,11 +5,17 @@
 #include "../FlareQuestAction.h"
 #include "../FlareQuestStep.h"
 #include "../FlareQuest.h"
+#include "../../Game/FlareSaveGame.h"
+#include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
+#include "../../Spacecrafts/FlareSpacecraft.h"
+
 #include "FlareTutorialQuest.h"
 
 #define LOCTEXT_NAMESPACE "FlareTutorialQuest"
 
 static FName TUTORIAL_CURRENT_PROGRESSION_TAG("current-progression");
+static FName TUTORIAL_LAST_TARGET_CHANGE_TS("last-target-change-ts");
+
 
 /*----------------------------------------------------
 	Tutorial Flying
@@ -186,7 +192,10 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 
 	FName PickUpShipId = "dock-at-ship-id";
 	UFlareSimulatedSector* Sector = FindSector("the-depths");
-	UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations().Num() ? Sector->GetSectorStations()[0] : NULL;
+	UFlareSimulatedSpacecraft* StationA = Sector->GetSectorStations().Num() > 0 ? Sector->GetSectorStations()[0] : NULL;
+	UFlareSimulatedSpacecraft* StationB= Sector->GetSectorStations().Num() > 1 ? Sector->GetSectorStations()[1] : NULL;
+	UFlareSimulatedSpacecraft* StationC = Sector->GetSectorStations().Num() > 2 ? Sector->GetSectorStations()[2] : NULL;
+
 
 	if (!Sector)
 	{
@@ -233,27 +242,57 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		Steps.Add(Step);
 	}
 
-	// TODO #682 Split up this last step into 5 different steps
-	// 
-	// TODO quest step condition = select station A. 
-	//					message = "You can use the targeting system to interact with objects. Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}."
-	// TODO quest step condition = select station B. 
-	//					message = "Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}."
-	// TODO quest step condition = select station C. 
-	//					message = "Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}."
-	// TODO quest step condition = start docking. 
-	//					message = "Press <input-action:Wheel> to select the docking option"
-	// TODO quest step condition = wait for docking to end. 
-	//					message = "Your ship is now docking automatically, but you can brake to disengage the autopilot. Use the wheel menu to undock, trade, or upgrade your ship."
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"TargetA"
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "You can use the targeting system to interact with objects. Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}."),
+			UFlareGameTools::DisplaySpacecraftName(StationA));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "target-station-a", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialTargetSpacecraft::Create(this, QUEST_TAG"cond1", StationA, 3.0));
+		Steps.Add(Step);
+	}
+
 
 	{
 		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"TargetB"
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}. The targets are sort by distance to your nose."),
+			UFlareGameTools::DisplaySpacecraftName(StationB));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "target-station-b", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialTargetSpacecraft::Create(this, QUEST_TAG"cond1", StationB, 3.0));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"TargetC"
+		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}."),
+			UFlareGameTools::DisplaySpacecraftName(StationC));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "target-station-C", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialTargetSpacecraft::Create(this, QUEST_TAG"cond1", StationC, 3.0));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"CommandDock"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "Press <input-action:Wheel> to select the docking option");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "command-dock", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialCommandDock::Create(this, StationC));
+		Steps.Add(Step);
+	}
+	
+	{
+		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"DockAt"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "You can use the targeting system to interact with objects. Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}, and then press <input-action:Wheel> to select the docking option. Your ship will dock automatically, but you can brake to disengage the autopilot. Use the wheel menu to undock, trade, or upgrade your ship"),
-			UFlareGameTools::DisplaySpacecraftName(Station));
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "Your ship is now docking automatically, but you can brake to disengage the autopilot. Use the wheel menu to undock, trade, or upgrade your ship.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pick-up", Description);
 
-		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station);
+		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, StationC);
 		Condition->TargetShipSaveId = PickUpShipId;
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
@@ -662,6 +701,196 @@ void UFlareQuestConditionTutorialFinishQuest::AddConditionObjectives(FFlarePlaye
 	ObjectiveCondition.Counter = CurrentProgression;
 	ObjectiveCondition.Progress = CurrentProgression;
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+
+
+/*----------------------------------------------------
+Tutorial command dock condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialCommandDock::UFlareQuestConditionTutorialCommandDock(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialCommandDock* UFlareQuestConditionTutorialCommandDock::Create(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* SpacecraftParam)
+{
+	UFlareQuestConditionTutorialCommandDock* Condition = NewObject<UFlareQuestConditionTutorialCommandDock>(ParentQuest, UFlareQuestConditionTutorialCommandDock::StaticClass());
+	Condition->Load(ParentQuest, SpacecraftParam);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialCommandDock::Load(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* SpacecraftParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	Completed = false;
+	Target = SpacecraftParam;
+
+	InitialLabel = FText::Format(LOCTEXT("MenuNone", "Start docking at {0}"), UFlareGameTools::DisplaySpacecraftName(Target));
+}
+
+void UFlareQuestConditionTutorialCommandDock::OnEvent(FFlareBundle& Bundle)
+{
+	if (Completed)
+	{
+		return;
+	}
+
+	if (Bundle.HasTag("start-docking") && Bundle.GetName("target") == Target->GetImmatriculation())
+	{
+		Completed = true;
+	}
+}
+
+bool UFlareQuestConditionTutorialCommandDock::IsCompleted()
+{
+	return Completed;
+}
+
+void UFlareQuestConditionTutorialCommandDock::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = 1;
+	ObjectiveCondition.MaxProgress = 1;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.Progress = IsCompleted() ? 1 : 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+Target spacecraftcondition
+----------------------------------------------------*/
+
+UFlareQuestConditionTutorialTargetSpacecraft::UFlareQuestConditionTutorialTargetSpacecraft(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialTargetSpacecraft* UFlareQuestConditionTutorialTargetSpacecraft::Create(UFlareQuest* ParentQuest,
+	FName ConditionIdentifierParam,
+	UFlareSimulatedSpacecraft* Spacecraft,
+	float Duration)
+{
+	UFlareQuestConditionTutorialTargetSpacecraft*Condition = NewObject<UFlareQuestConditionTutorialTargetSpacecraft>(ParentQuest, UFlareQuestConditionTutorialTargetSpacecraft::StaticClass());
+	Condition->Load(ParentQuest, ConditionIdentifierParam, Spacecraft, Duration);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialTargetSpacecraft::Load(UFlareQuest* ParentQuest,
+	FName ConditionIdentifierParam,
+	UFlareSimulatedSpacecraft* Spacecraft,
+	float Duration)
+{
+	if (ConditionIdentifierParam == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionTutorialTargetSpacecraft need identifier for state saving");
+	}
+	LoadInternal(ParentQuest, ConditionIdentifierParam);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+
+	TargetDuration = Duration;
+	TargetSpacecraft = Spacecraft;
+
+	InitialLabel = FText::Format(LOCTEXT("FinishQuestLabel", "Target {0} for {1} seconds"),
+		UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft),
+		FText::AsNumber(int32(TargetDuration)));
+}
+
+void UFlareQuestConditionTutorialTargetSpacecraft::Restore(const FFlareBundle* Bundle)
+{
+	bool HasSave = true;
+	if (Bundle)
+	{
+		HasSave &= Bundle->HasFloat(TUTORIAL_LAST_TARGET_CHANGE_TS);
+	}
+	else
+	{
+		HasSave = false;
+	}
+
+	if (HasSave)
+	{
+		LastTargetChangeTimestamp = Bundle->GetFloat(TUTORIAL_LAST_TARGET_CHANGE_TS);
+	}
+	else
+	{
+		LastTargetChangeTimestamp = FPlatformTime::Seconds();
+	}
+
+}
+
+void UFlareQuestConditionTutorialTargetSpacecraft::Save(FFlareBundle* Bundle)
+{
+	Bundle->PutFloat(TUTORIAL_LAST_TARGET_CHANGE_TS, LastTargetChangeTimestamp);
+}
+
+
+bool UFlareQuestConditionTutorialTargetSpacecraft::IsCompleted()
+{
+	AFlareSpacecraft* SpacecraftActive = GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetCurrentTarget();
+	UFlareSimulatedSpacecraft* Spacecraft = SpacecraftActive ? SpacecraftActive->GetParent() : NULL;
+
+	if (TargetSpacecraft == Spacecraft)
+	{
+		double CurrentDuration =  FPlatformTime::Seconds() - LastTargetChangeTimestamp;
+		if (CurrentDuration > TargetDuration)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void UFlareQuestConditionTutorialTargetSpacecraft::OnEvent(FFlareBundle& Bundle)
+{
+	if (Bundle.HasTag("target-changed"))
+	{
+		LastTargetChangeTimestamp = FPlatformTime::Seconds();
+	}
+}
+
+void UFlareQuestConditionTutorialTargetSpacecraft::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxProgress = TargetDuration;
+	ObjectiveCondition.MaxCounter = TargetDuration;
+
+	AFlareSpacecraft* SpacecraftActive = GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetCurrentTarget();
+	UFlareSimulatedSpacecraft* Spacecraft = SpacecraftActive ? SpacecraftActive->GetParent() : NULL;
+
+
+	if (TargetSpacecraft == Spacecraft)
+	{
+		double CurrentDuration = FPlatformTime::Seconds() - LastTargetChangeTimestamp;
+		if (CurrentDuration > TargetDuration)
+		{
+			ObjectiveCondition.Counter = TargetDuration;
+			ObjectiveCondition.Progress = TargetDuration;
+		}
+		else
+		{
+			ObjectiveCondition.Counter = CurrentDuration;
+			ObjectiveCondition.Progress = CurrentDuration;
+		}
+	}
+	else
+	{
+		ObjectiveCondition.Counter = 0;
+		ObjectiveCondition.Progress = 0;
+	}
+	
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+
+	if (TargetSpacecraft)
+	{
+		ObjectiveData->AddTargetSpacecraft(TargetSpacecraft);
+	}
 }
 
 

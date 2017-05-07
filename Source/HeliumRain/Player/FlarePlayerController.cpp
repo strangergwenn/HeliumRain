@@ -1921,6 +1921,10 @@ void AFlarePlayerController::DockAtTargetSpacecraft()
 		{
 			bool DockingConfirmed = ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft);
 			NotifyDockingResult(DockingConfirmed, TargetSpacecraft->GetParent());
+			if (DockingConfirmed)
+			{
+				GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("start-docking").PutName("target", TargetSpacecraft->GetImmatriculation()));
+			}
 		}
 	}
 }

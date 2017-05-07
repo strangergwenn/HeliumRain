@@ -145,3 +145,49 @@ protected:
 	int32 QuestCount;
 	int32 CurrentProgression;
 };
+
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialCommandDock : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionTutorialCommandDock* Create(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* TargetParam);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* TargetParam);
+
+	virtual bool IsCompleted();
+	virtual void OnEvent(FFlareBundle& Bundle);
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+protected:
+	UFlareSimulatedSpacecraft* Target;
+	bool Completed;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialTargetSpacecraft : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionTutorialTargetSpacecraft* Create(UFlareQuest* ParentQuest, FName ConditionIdentifierParam, UFlareSimulatedSpacecraft* Spacecraft,  float Duration);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifierParam, UFlareSimulatedSpacecraft* Spacecraft, float Duration);
+
+	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
+
+	virtual bool IsCompleted();
+	virtual void OnEvent(FFlareBundle& Bundle);
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+protected:
+	float TargetDuration;
+	UFlareSimulatedSpacecraft* TargetSpacecraft;
+	float LastTargetChangeTimestamp;
+	int32 CurrentProgression;
+};

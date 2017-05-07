@@ -229,7 +229,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				if (ScreenTargets.Num())
 				{
 					int32 ActualIndex = TargetIndex % ScreenTargets.Num();
-					CurrentTarget = ScreenTargets[ActualIndex].Spacecraft;
+					SetCurrentTarget(ScreenTargets[ActualIndex].Spacecraft);
 				}
 			}
 
@@ -242,6 +242,16 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 
 	// The FlareSpacecraftPawn do the camera effective update in its Tick so call it after camera order update
 	Super::Tick(DeltaSeconds);
+}
+
+void AFlareSpacecraft::SetCurrentTarget(AFlareSpacecraft* Target)
+{
+	if (CurrentTarget != Target)
+	{
+		CurrentTarget = Target;
+		FName TargetName = Target ? Target->GetImmatriculation() : NAME_None;
+		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("target-changed").PutName("target", TargetName));
+	}
 }
 
 inline static bool IsCloserToCenter(const FFlareScreenTarget& TargetA, const FFlareScreenTarget& TargetB)
@@ -547,7 +557,7 @@ float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity,
 
 void AFlareSpacecraft::ResetCurrentTarget()
 {
-	CurrentTarget = NULL;
+	SetCurrentTarget(NULL);
 }
 
 AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const

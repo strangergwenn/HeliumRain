@@ -106,7 +106,7 @@ public:
 	virtual UFlareSpacecraftDamageSystem* GetDamageSystem() const;
 
 	virtual UFlareSpacecraftNavigationSystem* GetNavigationSystem() const;
-
+	
 	virtual UFlareSpacecraftDockingSystem* GetDockingSystem() const;
 
 	virtual UFlareSpacecraftWeaponsSystem* GetWeaponsSystem() const;
@@ -123,11 +123,9 @@ public:
 	void UpdateDynamicComponents();
 	
 	UFlareSimulatedSector* GetOwnerSector();
-	
-	void SetCurrentTarget(AFlareSpacecraft* Target)
-	{
-		CurrentTarget = Target;
-	}
+
+
+	void SetCurrentTarget(AFlareSpacecraft* Target);
 
 public:
 
@@ -325,7 +323,6 @@ protected:
 	TArray<FFlareScreenTarget> Targets;
 
 	TArray<FFlareScreenTarget>& GetCurrentTargets();
-
 
 public:
 
