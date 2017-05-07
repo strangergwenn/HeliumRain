@@ -727,7 +727,7 @@ void UFlareQuestConditionTutorialCommandDock::Load(UFlareQuest* ParentQuest, UFl
 	Completed = false;
 	Target = SpacecraftParam;
 
-	InitialLabel = FText::Format(LOCTEXT("MenuNone", "Start docking at {0}"), UFlareGameTools::DisplaySpacecraftName(Target));
+	InitialLabel = FText::Format(LOCTEXT("StartDocking", "Start docking at {0}"), UFlareGameTools::DisplaySpacecraftName(Target));
 }
 
 void UFlareQuestConditionTutorialCommandDock::OnEvent(FFlareBundle& Bundle)
@@ -758,6 +758,10 @@ void UFlareQuestConditionTutorialCommandDock::AddConditionObjectives(FFlarePlaye
 	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
 	ObjectiveCondition.Progress = IsCompleted() ? 1 : 0;
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+	if (Target)
+	{
+		ObjectiveData->AddTargetSpacecraft(Target);
+	}
 }
 
 /*----------------------------------------------------
@@ -859,7 +863,8 @@ void UFlareQuestConditionTutorialTargetSpacecraft::AddConditionObjectives(FFlare
 	ObjectiveCondition.InitialLabel = InitialLabel;
 	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
 	ObjectiveCondition.MaxProgress = TargetDuration;
-	ObjectiveCondition.MaxCounter = TargetDuration;
+	ObjectiveCondition.MaxCounter = 0;
+	ObjectiveCondition.Counter = 0;
 
 	AFlareSpacecraft* SpacecraftActive = GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetCurrentTarget();
 	UFlareSimulatedSpacecraft* Spacecraft = SpacecraftActive ? SpacecraftActive->GetParent() : NULL;
@@ -870,18 +875,15 @@ void UFlareQuestConditionTutorialTargetSpacecraft::AddConditionObjectives(FFlare
 		double CurrentDuration = FPlatformTime::Seconds() - LastTargetChangeTimestamp;
 		if (CurrentDuration > TargetDuration)
 		{
-			ObjectiveCondition.Counter = TargetDuration;
 			ObjectiveCondition.Progress = TargetDuration;
 		}
 		else
 		{
-			ObjectiveCondition.Counter = CurrentDuration;
 			ObjectiveCondition.Progress = CurrentDuration;
 		}
 	}
 	else
 	{
-		ObjectiveCondition.Counter = 0;
 		ObjectiveCondition.Progress = 0;
 	}
 	
@@ -892,7 +894,5 @@ void UFlareQuestConditionTutorialTargetSpacecraft::AddConditionObjectives(FFlare
 		ObjectiveData->AddTargetSpacecraft(TargetSpacecraft);
 	}
 }
-
-
 
 #undef LOCTEXT_NAMESPACE

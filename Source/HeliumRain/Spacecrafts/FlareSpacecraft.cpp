@@ -1341,7 +1341,7 @@ void AFlareSpacecraft::NextTarget()
 	{
 		TargetIndex++;
 		TargetIndex = FMath::Min(TargetIndex, ScreenTargets.Num() - 1);
-		CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
+		SetCurrentTarget(ScreenTargets[TargetIndex].Spacecraft);
 		FLOGV("AFlareSpacecraft::NextTarget : %d", TargetIndex);
 	}
 
@@ -1349,7 +1349,7 @@ void AFlareSpacecraft::NextTarget()
 	else
 	{
 		TargetIndex = 0;
-		CurrentTarget = NULL;
+		SetCurrentTarget(NULL);
 		FLOG("AFlareSpacecraft::NextTarget : reset to center");
 	}
 
@@ -1370,7 +1370,7 @@ void AFlareSpacecraft::PreviousTarget()
 	{
 		TargetIndex--;
 		TargetIndex = FMath::Max(TargetIndex, 0);
-		CurrentTarget = ScreenTargets[TargetIndex].Spacecraft;
+		SetCurrentTarget(ScreenTargets[TargetIndex].Spacecraft);
 		FLOGV("AFlareSpacecraft::PreviousTarget : %d", TargetIndex);
 	}
 
@@ -1576,7 +1576,7 @@ void AFlareSpacecraft::FindTarget()
 
 	if (TargetCandidate)
 	{
-		CurrentTarget = TargetCandidate;
+		SetCurrentTarget(TargetCandidate);
 	}
 	else
 	{
