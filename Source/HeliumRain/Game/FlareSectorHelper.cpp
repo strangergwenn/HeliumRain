@@ -736,14 +736,17 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::
 
 			switch (Spacecraft->GetResourceUseType(Cargo.Resource))
 			{
-					case EFlareResourcePriceContext::FactoryInput:
-					case EFlareResourcePriceContext::ConsumerConsumption:
-						ResourceStats->Capacity += Spacecraft->GetCargoBay()->GetSlotCapacity() - Cargo.Quantity;
-					break;
-					case EFlareResourcePriceContext::FactoryOutput:
-					case EFlareResourcePriceContext::MaintenanceConsumption:
-						ResourceStats->Stock += Cargo.Quantity;
-					break;
+				case EFlareResourcePriceContext::FactoryInput:
+				case EFlareResourcePriceContext::ConsumerConsumption:
+					ResourceStats->Capacity += Spacecraft->GetCargoBay()->GetSlotCapacity() - Cargo.Quantity;
+				break;
+				case EFlareResourcePriceContext::FactoryOutput:
+					ResourceStats->Stock += Cargo.Quantity;
+				break;
+				case EFlareResourcePriceContext::MaintenanceConsumption:
+					ResourceStats->Capacity += Spacecraft->GetCargoBay()->GetSlotCapacity() - Cargo.Quantity;
+					ResourceStats->Stock += Cargo.Quantity;
+				break;
 			}
 		}
 
