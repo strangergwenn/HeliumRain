@@ -144,7 +144,7 @@ public:
 		Resources
 	----------------------------------------------------*/
 
-	bool CanTradeWith(UFlareSimulatedSpacecraft* OtherSpacecraft);
+	bool CanTradeWith(UFlareSimulatedSpacecraft* OtherSpacecraft, FText& Reason);
 
 	EFlareResourcePriceContext::Type GetResourceUseType(FFlareResourceDescription* Resource);
 	void LockResources();

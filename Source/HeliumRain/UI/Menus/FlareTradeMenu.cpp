@@ -509,12 +509,14 @@ EVisibility SFlareTradeMenu::GetBackToSelectionVisibility() const
 
 EVisibility SFlareTradeMenu::GetTransactionDetailsVisibility() const
 {
-	return IsEnabled() && IsTransactionValid() ? EVisibility::Visible : EVisibility::Collapsed;
+	FText Unused;
+	return IsEnabled() && IsTransactionValid(Unused) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 EVisibility SFlareTradeMenu::GetTransactionInvalidVisibility() const
 {
-	return (IsEnabled() && !IsTransactionValid() && TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource) ? EVisibility::Visible : EVisibility::Collapsed;
+	FText Unused;
+	return (IsEnabled() && !IsTransactionValid(Unused) && TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 FText SFlareTradeMenu::GetLeftSpacecraftName() const
@@ -545,11 +547,25 @@ FText SFlareTradeMenu::GetTransactionDetails() const
 {
 	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
 	{
-		return FText::Format(LOCTEXT("TradeInfoFormat", "Trading {0}x {1} from {2} to {3}."),
+		FText MainInfo = FText::Format(LOCTEXT("TradeInfoFormat", "Trading {0}x {1} from {2} to {3}."),
 			FText::AsNumber(TransactionQuantity),
 			TransactionResource->Name,
 			UFlareGameTools::DisplaySpacecraftName(TransactionSourceSpacecraft),
 			UFlareGameTools::DisplaySpacecraftName(TransactionDestinationSpacecraft));
+
+		// Add buyer capability if it's not the player
+		if (TransactionDestinationSpacecraft->GetCompany() != MenuManager->GetPC()->GetCompany())
+		{
+			FText AffordableInfo;
+			AffordableInfo = FText::Format(LOCTEXT("TradeAffordableFormat", "The buyer has {0} credits available."),
+				UFlareGameTools::DisplayMoney(TransactionDestinationSpacecraft->GetCompany()->GetMoney()));
+
+			return FText::FromString(MainInfo.ToString() + "\n" + AffordableInfo.ToString());
+		}
+		else
+		{
+			return MainInfo;
+		}
 	}
 	else
 	{
@@ -561,10 +577,19 @@ FText SFlareTradeMenu::GetTransactionInvalidDetails() const
 {
 	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
 	{
-		return FText::Format(LOCTEXT("TradeInvalidInfoFormat", "Can't trade {0} from {1} to {2} !\n\u2022 The buyer needs an empty slot, or one with the matching resource.\n\u2022 Input resources are never sold.\n\u2022 Output resources are never bought."),
+		FText Reason;
+		IsTransactionValid(Reason);
+
+		if (Reason.IsEmptyOrWhitespace())
+		{
+			Reason = LOCTEXT("TradeInvalidDefaultError", "The buyer needs an empty slot, or one with the matching resource.\n\u2022 Input resources are never sold.\n\u2022 Output resources are never bought");
+		}
+
+		return FText::Format(LOCTEXT("TradeInvalidInfoFormat", "Can't trade {0} from {1} to {2} !\n\u2022 {3}"),
 			TransactionResource->Name,
 			UFlareGameTools::DisplaySpacecraftName(TransactionSourceSpacecraft),
-			UFlareGameTools::DisplaySpacecraftName(TransactionDestinationSpacecraft));
+			UFlareGameTools::DisplaySpacecraftName(TransactionDestinationSpacecraft),
+			Reason);
 	}
 	else
 	{
@@ -640,8 +665,7 @@ void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpace
 		TransactionSourceSpacecraft = SourceSpacecraft;
 		TransactionDestinationSpacecraft = DestinationSpacecraft;
 		TransactionResource = Resource;
-		TransactionQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource, MenuManager->GetPC()->GetCompany()),
-									TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource, MenuManager->GetPC()->GetCompany()));
+		TransactionQuantity = GetMaxTransactionAmount();
 		QuantitySlider->SetValue(1.0f);
 		QuantityText->SetText(FText::AsNumber(TransactionQuantity));
 
@@ -651,12 +675,10 @@ void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpace
 
 void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
 {
-	// Force slider value, update quantity
-	int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource, MenuManager->GetPC()->GetCompany()),
-									  TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource, MenuManager->GetPC()->GetCompany()));
+	int32 ResourceMaxQuantity = GetMaxTransactionAmount();
 
+	// Calculate transaction amount, depending on max value (step mechanism)
 	TransactionQuantity = FMath::Lerp((int32)1, ResourceMaxQuantity, Value);
-
 	if (ResourceMaxQuantity >= 1000 && (TransactionQuantity - ResourceMaxQuantity) > 50)
 	{
 		TransactionQuantity = (TransactionQuantity / 50) * 50;
@@ -665,7 +687,8 @@ void SFlareTradeMenu::OnResourceQuantityChanged(float Value)
 	{
 		TransactionQuantity = (TransactionQuantity / 10) * 10;
 	}
-
+	
+	// Force slider value, update quantity
 	if (ResourceMaxQuantity == 1)
 	{
 		QuantitySlider->SetValue(1.0f);
@@ -684,8 +707,7 @@ void SFlareTradeMenu::OnResourceQuantityEntered(const FText& TextValue)
 {
 	if (TextValue.ToString().IsNumeric())
 	{
-		int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource, MenuManager->GetPC()->GetCompany()),
-			TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource, MenuManager->GetPC()->GetCompany()));
+		int32 ResourceMaxQuantity = GetMaxTransactionAmount();
 		
 		TransactionQuantity = FMath::Clamp(FCString::Atoi(*TextValue.ToString()), 0, ResourceMaxQuantity);
 		FLOGV("SFlareTradeMenu::OnResourceQuantityEntered number %d / %d", TransactionQuantity, ResourceMaxQuantity)
@@ -772,7 +794,8 @@ void SFlareTradeMenu::UpdatePrice()
 			TransactionResource);
 	}
 
-	if (IsTransactionValid())
+	FText Unused;
+	if (IsTransactionValid(Unused))
 	{
 		if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft->GetCompany() != TransactionSourceSpacecraft->GetCompany() && ResourceUnitPrice > 0)
 		{
@@ -791,20 +814,67 @@ void SFlareTradeMenu::UpdatePrice()
 	}
 }
 
-bool SFlareTradeMenu::IsTransactionValid() const
+bool SFlareTradeMenu::IsTransactionValid(FText& Reason) const
 {
+	// Possible transaction
 	if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft && TransactionResource)
 	{
+		int32 ResourcePrice = TransactionSourceSpacecraft->GetCurrentSector()->GetTransfertResourcePrice(TransactionSourceSpacecraft, TransactionDestinationSpacecraft, TransactionResource);
+		int32 MaxAffordableQuantity = TransactionDestinationSpacecraft->GetCompany()->GetMoney() / ResourcePrice;
+		int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource, MenuManager->GetPC()->GetCompany()),
+			TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource, MenuManager->GetPC()->GetCompany()));
+
+		// Special exception for same company
 		if (TransactionSourceSpacecraft->GetCompany() == TransactionDestinationSpacecraft->GetCompany())
 		{
 			return true;
 		}
-		if (TransactionSourceSpacecraft->GetCargoBay()->WantSell(TransactionResource, MenuManager->GetPC()->GetCompany()) && TransactionDestinationSpacecraft->GetCargoBay()->WantBuy(TransactionResource, MenuManager->GetPC()->GetCompany()))
+
+		// Cases of failure + reason
+		else if (!TransactionSourceSpacecraft->CanTradeWith(TransactionDestinationSpacecraft, Reason))
 		{
-			return true;
+			return false;
+		}
+		else if (!TransactionSourceSpacecraft->GetCargoBay()->WantSell(TransactionResource, MenuManager->GetPC()->GetCompany()))
+		{
+			Reason = LOCTEXT("CantTradeSell", "This resource isn't sold by the seller. Input resources are never sold.");
+			return false;
+		}
+		else if (!TransactionDestinationSpacecraft->GetCargoBay()->WantBuy(TransactionResource, MenuManager->GetPC()->GetCompany()))
+		{
+			Reason = LOCTEXT("CantTradeBuy", "This resource isn't bought by the buyer. Output resources are never bought. The buyer needs an empty slot, or one with the matching resource.");
+			return false;
+		}
+		else if (MaxAffordableQuantity == 0)
+		{
+			Reason = LOCTEXT("CantTradePrice", "The buyer can't afford to buy any of this resource.");
+			return false;
+		}
+		else if (ResourceMaxQuantity == 0)
+		{
+			Reason = LOCTEXT("CantTradeQuantity", "The buyer doesn't have any space left to buy any of this resource.");
+			return false;
 		}
 	}
-	return false;
+
+	// No possible transaction
+	else
+	{
+		return false;
+	}
+
+	return true;
+}
+
+int32 SFlareTradeMenu::GetMaxTransactionAmount() const
+{
+	int32 ResourcePrice = TransactionSourceSpacecraft->GetCurrentSector()->GetTransfertResourcePrice(TransactionSourceSpacecraft, TransactionDestinationSpacecraft, TransactionResource);
+	int32 MaxAffordableQuantity = TransactionDestinationSpacecraft->GetCompany()->GetMoney() / ResourcePrice;
+
+	int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource, MenuManager->GetPC()->GetCompany()),
+		TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource, MenuManager->GetPC()->GetCompany()));
+
+	return FMath::Min(MaxAffordableQuantity, ResourceMaxQuantity);
 }
 
 #undef LOCTEXT_NAMESPACE

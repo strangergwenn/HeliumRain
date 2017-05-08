@@ -104,7 +104,10 @@ protected:
 	void UpdatePrice();
 
 	/** Return true if the transaction is valid*/
-	bool IsTransactionValid() const;
+	bool IsTransactionValid(FText& Reason) const;
+
+	/** How much of this can we afford */
+	int32 GetMaxTransactionAmount() const;
 
 protected:
 

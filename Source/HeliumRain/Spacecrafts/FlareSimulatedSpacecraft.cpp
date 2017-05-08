@@ -264,40 +264,47 @@ void UFlareSimulatedSpacecraft::SetCurrentSector(UFlareSimulatedSector* Sector)
 ----------------------------------------------------*/
 
 
-bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpacecraft)
+bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpacecraft, FText& Reason)
 {
 	// Check if both spacecraft are in the same sector
-	if(GetCurrentSector() != OtherSpacecraft->GetCurrentSector())
+	if (GetCurrentSector() != OtherSpacecraft->GetCurrentSector())
 	{
+		Reason = LOCTEXT("CantTradeSector", "Can't trade between different sectors");
 		return false;
 	}
 
-	if(GetDamageSystem()->IsUncontrollable() || OtherSpacecraft->GetDamageSystem()->IsUncontrollable())
+	// Damaged
+	if (GetDamageSystem()->IsUncontrollable() || OtherSpacecraft->GetDamageSystem()->IsUncontrollable())
 	{
+		Reason = LOCTEXT("CantTradeUncontrollable", "Can't trade with incontrollable ships");
 		return false;
 	}
 
-	// Check if spacecraft are not both stations
-	if(IsStation() && OtherSpacecraft->IsStation())
+	// Check if spacecraft are both stations
+	if (IsStation() && OtherSpacecraft->IsStation())
 	{
+		Reason = LOCTEXT("CantTradeStations", "Can't trade between two stations");
 		return false;
 	}
 
 	// Check if spacecraft are not both ships
-	if(!IsStation() && !OtherSpacecraft->IsStation())
+	if (!IsStation() && !OtherSpacecraft->IsStation())
 	{
+		Reason = LOCTEXT("CantTradeShips", "Can't trade between two ships");
 		return false;
 	}
 
 	// Check if spacecraft are are not already trading
-	if(IsTrading() || OtherSpacecraft->IsTrading())
+	if (IsTrading() || OtherSpacecraft->IsTrading())
 	{
+		Reason = LOCTEXT("CantTradeAlreadyTrading", "Can't trade with spacecrafts that are already in a trading transaction");
 		return false;
 	}
 
 	// Check if both spacecraft are not at war
-	if(GetCompany()->GetWarState(OtherSpacecraft->GetCompany()) == EFlareHostility::Hostile)
+	if (GetCompany()->GetWarState(OtherSpacecraft->GetCompany()) == EFlareHostility::Hostile)
 	{
+		Reason = LOCTEXT("CantTradeWar", "Can't trade between enemies");
 		return false;
 	}
 

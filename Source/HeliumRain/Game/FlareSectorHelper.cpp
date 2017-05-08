@@ -73,7 +73,8 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
 
-		if(!Request.Client->CanTradeWith(Station))
+		FText Unused;
+		if(!Request.Client->CanTradeWith(Station, Unused))
 		{
 			continue;
 		}
@@ -173,9 +174,10 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 	return BestStation;
 }
 
-int32 SectorHelper::Trade(UFlareSimulatedSpacecraft*  SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 MaxQuantity)
+int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 MaxQuantity)
 {
-	if(!SourceSpacecraft->CanTradeWith(DestinationSpacecraft))
+	FText Unused;
+	if(!SourceSpacecraft->CanTradeWith(DestinationSpacecraft, Unused))
 	{
 		FLOG("Both spacecraft cannot trade");
 		return 0;
