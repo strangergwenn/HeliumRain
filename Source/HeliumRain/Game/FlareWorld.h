@@ -55,12 +55,6 @@ struct FFlareWorldSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareTravelSave> TravelData;
-
-	UPROPERTY(VisibleAnywhere, Category = Save)
-	FFlareFloatBuffer FleetSupplyConsumptionStats;
-
-	UPROPERTY(VisibleAnywhere, Category = Save)
-	int32 DailyFleetSupplyConsumption;
 };
 
 
@@ -144,8 +138,6 @@ public:
 
 	/** Add a factory to world */
 	void AddFactory(UFlareFactory* Factory);
-
-	void OnFleetSupplyConsumed(int32 Quantity);
 
 protected:
 

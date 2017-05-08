@@ -13,6 +13,9 @@ DECLARE_CYCLE_STAT(TEXT("FlareSector SimulatePriceVariation"), STAT_FlareSector_
 DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorFriendlyness"), STAT_FlareSector_GetSectorFriendlyness, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorBattleState"), STAT_FlareSector_GetSectorBattleState, STATGROUP_Flare);
 
+#define FLEET_SUPPLY_CONSUMPTION_STATS 50
+
+
 #define LOCTEXT_NAMESPACE "FlareSimulatedSector"
 
 
@@ -95,6 +98,11 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 			FLOGV("UFlareSimulatedSector::Load : Missing fleet %s in sector %s", *SectorData.FleetIdentifiers[i].ToString(), *GetSectorName().ToString());
 		}
 
+	}
+
+	if (SectorData.FleetSupplyConsumptionStats.MaxSize != FLEET_SUPPLY_CONSUMPTION_STATS)
+	{
+		SectorData.FleetSupplyConsumptionStats.Resize(FLEET_SUPPLY_CONSUMPTION_STATS);
 	}
 
 	LoadResourcePrices();
@@ -1402,6 +1410,17 @@ static bool ReserveShipComparator (UFlareSimulatedSpacecraft& Ship1, UFlareSimul
 	}
 
 	return FMath::RandBool();
+}
+
+void UFlareSimulatedSector::UpdateFleetSupplyConsumptionStats()
+{
+	SectorData.FleetSupplyConsumptionStats.Append(SectorData.DailyFleetSupplyConsumption);
+	SectorData.DailyFleetSupplyConsumption = 0;
+}
+
+void UFlareSimulatedSector::OnFleetSupplyConsumed(int32 Quantity)
+{
+	SectorData.DailyFleetSupplyConsumption += Quantity;
 }
 
 static const int32 MIN_SPAWN = 1;

@@ -243,9 +243,6 @@ void UFlareSaveReaderV1::LoadWorld(const TSharedPtr<FJsonObject> Object, FFlareW
 			Data->TravelData.Add(ChildData);
 		}
 	}
-
-	LoadFloatBuffer(Object, "FleetSupplyConsumptionStats", &Data->FleetSupplyConsumptionStats);
-	LoadInt32(Object, "DailyFleetSupplyConsumption", &Data->DailyFleetSupplyConsumption);
 }
 
 
@@ -819,6 +816,8 @@ void UFlareSaveReaderV1::LoadSector(const TSharedPtr<FJsonObject> Object, FFlare
 		Data->IsTravelSector = false;
 	}
 
+	LoadFloatBuffer(Object, "FleetSupplyConsumptionStats", &Data->FleetSupplyConsumptionStats);
+	LoadInt32(Object, "DailyFleetSupplyConsumption", &Data->DailyFleetSupplyConsumption);
 }
 
 

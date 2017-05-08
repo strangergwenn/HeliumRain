@@ -294,6 +294,12 @@ struct FFlareSectorSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	bool IsTravelSector;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	FFlareFloatBuffer FleetSupplyConsumptionStats;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
+	int32 DailyFleetSupplyConsumption;
 };
 
 
@@ -516,6 +522,10 @@ public:
 	void SwapPrices();
 
 	void SetPreciseResourcePrice(FFlareResourceDescription* Resource, float NewPrice);
+
+	void UpdateFleetSupplyConsumptionStats();
+
+	void OnFleetSupplyConsumed(int32 Quantity);
 
 	void UpdateReserveShips();
 

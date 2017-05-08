@@ -207,9 +207,6 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveWorld(FFlareWorldSave* Data)
 	}
 	JsonObject->SetArrayField("Travels", Travels);
 
-	JsonObject->SetObjectField("FleetSupplyConsumptionStats", SaveFloatBuffer(&Data->FleetSupplyConsumptionStats));
-	JsonObject->SetStringField("DailyFleetSupplyConsumption", FormatInt32(Data->DailyFleetSupplyConsumption));
-
 	return JsonObject;
 }
 
@@ -662,6 +659,9 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSector(FFlareSectorSave* Data)
 	JsonObject->SetArrayField("ResourcePrices", ResourcePrices);
 
 	JsonObject->SetBoolField("IsTravelSector", Data->IsTravelSector);
+
+	JsonObject->SetObjectField("FleetSupplyConsumptionStats", SaveFloatBuffer(&Data->FleetSupplyConsumptionStats));
+	JsonObject->SetStringField("DailyFleetSupplyConsumption", FormatInt32(Data->DailyFleetSupplyConsumption));
 
 	return JsonObject;
 }

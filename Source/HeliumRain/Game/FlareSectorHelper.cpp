@@ -467,7 +467,9 @@ void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 
 
 	// Note not available fleet supply as consumed
-	Sector->GetGame()->GetGameWorld()->OnFleetSupplyConsumed(FMath::Max(0, TotalNeededFleetSupply - AvailableFS));
+	Sector->OnFleetSupplyConsumed(FMath::Max(0, TotalNeededFleetSupply - AvailableFS));
+
+
 
 	if(Sector->IsInDangerousBattle(Company) || AffordableFS == 0 || TotalNeededFleetSupply == 0)
 	{
@@ -535,7 +537,7 @@ void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 
 
 	// Note not available fleet supply as consumed
-	Sector->GetGame()->GetGameWorld()->OnFleetSupplyConsumed(FMath::Max(0, TotalNeededFleetSupply - AvailableFS));
+	Sector->OnFleetSupplyConsumed(FMath::Max(0, TotalNeededFleetSupply - AvailableFS));
 
 	if(Sector->IsInDangerousBattle(Company) || AffordableFS == 0 || TotalNeededFleetSupply == 0)
 	{
@@ -598,7 +600,7 @@ void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 ConsumedFS)
 {
 	// First check for owned FS
-	Sector->GetGame()->GetGameWorld()->OnFleetSupplyConsumed(ConsumedFS);
+	Sector->OnFleetSupplyConsumed(ConsumedFS);
 
 	FFlareResourceDescription* FleetSupply = Sector->GetGame()->GetScenarioTools()->FleetSupply;
 
@@ -782,6 +784,14 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::
 			}
 		}
 	}
+
+	// FS
+	FFlareResourceDescription* FleetSupply = Sector->GetGame()->GetScenarioTools()->FleetSupply;
+	WorldHelper::FlareResourceStats *FSResourceStats = &WorldStats[FleetSupply];
+	FFlareFloatBuffer* Stats = &Sector->GetData()->FleetSupplyConsumptionStats;
+	float MeanConsumption = Stats->GetMean(0, 0);
+	FSResourceStats->Consumption = MeanConsumption;
+
 
 	// Customer flow
 	for (int32 ResourceIndex = 0; ResourceIndex < Sector->GetGame()->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)

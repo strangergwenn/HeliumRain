@@ -49,12 +49,6 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 		}
 	}
 
-	// FS
-	FFlareResourceDescription* FleetSupply = Game->GetScenarioTools()->FleetSupply;
-	WorldHelper::FlareResourceStats *FSResourceStats = &WorldStats[FleetSupply];
-	FFlareFloatBuffer* Stats = &Game->GetGameWorld()->GetData()->FleetSupplyConsumptionStats;
-	float MeanConsumption = Stats->GetMean(0, Stats->MaxSize-1);
-	FSResourceStats->Consumption = MeanConsumption;
 
 	// Balance
 	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
