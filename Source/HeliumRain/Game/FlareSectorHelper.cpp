@@ -712,6 +712,7 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::
 		ResourceStats.Consumption = 0;
 		ResourceStats.Balance = 0;
 		ResourceStats.Stock = 0;
+		ResourceStats.Capacity = 0;
 
 		WorldStats.Add(Resource, ResourceStats);
 	}
@@ -733,7 +734,17 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::
 
 			WorldHelper::FlareResourceStats *ResourceStats = &WorldStats[Cargo.Resource];
 
-			ResourceStats->Stock += Cargo.Quantity;
+			switch (Spacecraft->GetResourceUseType(Cargo.Resource))
+			{
+					case EFlareResourcePriceContext::FactoryInput:
+					case EFlareResourcePriceContext::ConsumerConsumption:
+						ResourceStats->Capacity += Spacecraft->GetCargoBay()->GetSlotCapacity() - Cargo.Quantity;
+					break;
+					case EFlareResourcePriceContext::FactoryOutput:
+					case EFlareResourcePriceContext::MaintenanceConsumption:
+						ResourceStats->Stock += Cargo.Quantity;
+					break;
+			}
 		}
 
 		for (int32 FactoryIndex = 0; FactoryIndex < Spacecraft->GetFactories().Num(); FactoryIndex++)
@@ -790,7 +801,8 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::
 	WorldHelper::FlareResourceStats *FSResourceStats = &WorldStats[FleetSupply];
 	FFlareFloatBuffer* Stats = &Sector->GetData()->FleetSupplyConsumptionStats;
 	float MeanConsumption = Stats->GetMean(0, 0);
-	FSResourceStats->Consumption = MeanConsumption;
+	FSResourceStats->Consumption += MeanConsumption;
+	FSResourceStats->Capacity += MeanConsumption;
 
 
 	// Customer flow

@@ -10,6 +10,7 @@ struct WorldHelper
 		float Consumption;
 		float Balance;
 		int32 Stock;
+		int32 Capacity;
 	};
 
 	static TMap<FFlareResourceDescription*, FlareResourceStats> ComputeWorldResourceStats(AFlareGame* Game);

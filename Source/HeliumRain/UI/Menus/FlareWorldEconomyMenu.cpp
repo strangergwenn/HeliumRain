@@ -167,7 +167,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.4 * Theme.ContentWidth)
+							.WidthOverride(0.3 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -182,7 +182,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.18 * Theme.ContentWidth)
+							.WidthOverride(0.16 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -197,7 +197,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.18 * Theme.ContentWidth)
+							.WidthOverride(0.16 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -212,12 +212,27 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.18 * Theme.ContentWidth)
+							.WidthOverride(0.16 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
 								.TextStyle(&Theme.NameFont)
 								.Text(LOCTEXT("ResourceStockColumnTitleInfo", "Stock"))
+							]
+						]
+
+						// Capacity
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.16 * Theme.ContentWidth)
+							.HAlign(HAlign_Left)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.NameFont)
+								.Text(LOCTEXT("ResourceCapacityColumnTitleInfo", "Needs"))
 							]
 						]
 
@@ -227,7 +242,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.2 * Theme.ContentWidth)
+							.WidthOverride(0.16 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -349,7 +364,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.45 * Theme.ContentWidth)
+					.WidthOverride(0.30 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(SFlareButton)
@@ -368,7 +383,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.18 * Theme.ContentWidth)
+					.WidthOverride(0.16 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -384,7 +399,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.18 * Theme.ContentWidth)
+					.WidthOverride(0.16 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -400,12 +415,28 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.18 * Theme.ContentWidth)
+					.WidthOverride(0.16 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
 						.Text(this, &SFlareWorldEconomyMenu::GetResourceStockInfo, Sector)
+					]
+				]
+
+				// Capacity
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.16 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareWorldEconomyMenu::GetResourceCapacityInfo, Sector)
 					]
 				]
 
@@ -416,7 +447,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
+					.WidthOverride(0.16 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -573,12 +604,19 @@ FText SFlareWorldEconomyMenu::GetResourceInfo() const
 					FText::AsNumber(Balance, &Format));
 			}
 			
+
+			FText Part1 = FText::Format(LOCTEXT("StockInfoFormatPart1", "\u2022 Worldwide stock: {0}\n\u2022 Worldwide needs: {1}\n"),
+										FText::AsNumber(WorldStats[TargetResource].Stock),
+										FText::AsNumber(WorldStats[TargetResource].Capacity));
+			FText Part2 = FText::Format(LOCTEXT("StockInfoFormatPart2", "\u2022 Worldwide production: {0} / day\n\u2022 Worldwide usage : {1} / day\n"),
+										FText::AsNumber(WorldStats[TargetResource].Production, &Format),
+										FText::AsNumber(WorldStats[TargetResource].Consumption, &Format));
+
 			// Generate info
 			return FText::Format(LOCTEXT("StockInfoFormat",
-					"\u2022 Worldwide stock: {0}\n\u2022 Worldwide production: {1} / day\n\u2022 Worldwide usage : {2} / day\n\u2022 Balance: {3}"),
-				FText::AsNumber(WorldStats[TargetResource].Stock),
-				FText::AsNumber(WorldStats[TargetResource].Production, &Format),
-				FText::AsNumber(WorldStats[TargetResource].Consumption, &Format),
+					"{0}{1}\u2022 Balance: {2}"),
+				Part1,
+				Part2,
 				BalanceText);
 		}
 	}
@@ -632,10 +670,23 @@ FText SFlareWorldEconomyMenu::GetResourceStockInfo(UFlareSimulatedSector* Sector
 {
 	if (TargetResource)
 	{
-
 		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(Sector);
 		return FText::Format(LOCTEXT("ResourceMainStockFormat", "{0}"),
 			FText::AsNumber(Stats[TargetResource].Stock));
+	}
+
+	return FText();
+}
+
+
+FText SFlareWorldEconomyMenu::GetResourceCapacityInfo(UFlareSimulatedSector* Sector) const
+{
+	if (TargetResource)
+	{
+
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(Sector);
+		return FText::Format(LOCTEXT("ResourceMainCapacityFormat", "{0}"),
+			FText::AsNumber(Stats[TargetResource].Capacity));
 	}
 
 	return FText();

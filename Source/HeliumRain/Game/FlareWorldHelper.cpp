@@ -21,6 +21,7 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 		ResourceStats.Consumption = 0;
 		ResourceStats.Balance = 0;
 		ResourceStats.Stock = 0;
+		ResourceStats.Capacity = 0;
 
 		WorldStats.Add(Resource, ResourceStats);
 	}
@@ -44,6 +45,7 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 			ResourceStats.Consumption += SectorResourceStats.Consumption;
 			ResourceStats.Balance += SectorResourceStats.Balance;
 			ResourceStats.Stock += SectorResourceStats.Stock;
+			ResourceStats.Capacity += SectorResourceStats.Capacity;
 
 			WorldStats.Add(Resource, ResourceStats);
 		}

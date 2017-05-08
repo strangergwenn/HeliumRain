@@ -79,6 +79,9 @@ protected:
 	/** Get the resource stock info */
 	FText GetResourceStockInfo(UFlareSimulatedSector* Sector) const;
 
+	/** Get the resource capacity info */
+	FText GetResourceCapacityInfo(UFlareSimulatedSector* Sector) const;
+
 	/** Get the resource price info */
 	FText GetResourcePriceInfo(UFlareSimulatedSector* Sector) const;
 
