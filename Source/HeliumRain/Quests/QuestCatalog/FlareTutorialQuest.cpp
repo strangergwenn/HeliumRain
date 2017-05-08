@@ -411,7 +411,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 
 	Identifier = "tutorial-technology";
 	QuestName = LOCTEXT(QUEST_TAG"Name","Technology tutorial");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to complete use technologies.");
+	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to use technologies.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-contracts"));
@@ -419,9 +419,9 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"GainResearchPoint"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can develop technologies to increase your possibilities and company performance."
-									"\nTo develop a technology, you need need research points. The companies with a higher research value than you sometimes offers you contracts with research points as reward (you will learn a more efficient way to get research points in a future tutorial)."
-									"\nGain some research points.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can develop technologies to increase your capabilities and your company's performance. "
+									"To develop a technology, you need research points. Companies with a high research value sometimes offer you contracts with research points as a reward. You will learn a more efficient way to get research points in the future !"
+									"\nGain some research points to move forward.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "gain-research-points", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 50));
@@ -431,7 +431,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"OpenTechnologyMenu"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You have enought research points.\nOpen the technology menu with (<input-action:TechnologyMenu>), or from the menu bar with <input-action:ToggleOverlay>.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You have enough research points to research technology. Open the technology menu with (<input-action:TechnologyMenu>), or from the menu bar with <input-action:ToggleOverlay>.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-technology-menu", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Technology));
@@ -441,9 +441,8 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ResearchTechnology"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","In the technology menu you can manage research. At the right, you have your research point count."
-									"\nSelect a level 1 technology and research it!"
-									"\nWarning: choose carefuly, the price of all technology is increased after each research.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can manage research in the technology menu. Select a level 1 technology and research it !"
+									"\nChoose wisely, for the price of all technology is increased after each research.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-technology", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchTechnology::Create(this, 1));
@@ -453,7 +452,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ReachLevelTechnology2"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","For high level technology, you need to increase your technologie level. You technology level raise by 1 every 2 technologies you research."
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","High level technology require an increased technology level. Your technology level is incremented every 2 new technologies."
 																"\nResearch more technologies to unlock level 2 technologies.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "track-quest", Description);
 
@@ -464,7 +463,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ResearchTechnologyLevel2"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Now research a level 2 technology.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You are now ready to research a level 2 technology.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-technology-2", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchTechnology::Create(this, 2));
