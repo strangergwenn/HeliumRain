@@ -41,6 +41,19 @@ public:
 	static UFlareQuest* Create(UFlareQuestManager* Parent);
 };
 
+UCLASS()
+class HELIUMRAIN_API UFlareQuestTutorialTechnology: public UFlareQuest
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestManager* Parent);
+	static UFlareQuest* Create(UFlareQuestManager* Parent);
+};
+
+
 
 // Conditions
 
@@ -190,4 +203,60 @@ protected:
 	UFlareSimulatedSpacecraft* TargetSpacecraft;
 	float LastTargetChangeTimestamp;
 	int32 CurrentProgression;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialResearchValue: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionTutorialResearchValue* Create(UFlareQuest* ParentQuest, int32 Count);
+	void Load(UFlareQuest* ParentQuest,  int32 Count);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	int32 TargetResearchPoints;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialTechnologyLevel: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionTutorialTechnologyLevel* Create(UFlareQuest* ParentQuest, int32 Level);
+	void Load(UFlareQuest* ParentQuest,  int32 Level);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	int32 TargetLevel;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialResearchTechnology : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionTutorialResearchTechnology* Create(UFlareQuest* ParentQuest, int32 MinLevel);
+	void Load(UFlareQuest* ParentQuest, int32 MinLevel);
+
+	virtual bool IsCompleted();
+	virtual void OnEvent(FFlareBundle& Bundle);
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+protected:
+	int32 TargetMinLevel;
+	bool Completed;
 };

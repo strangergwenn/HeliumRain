@@ -661,6 +661,12 @@ void UFlareCompany::GiveResearch(int64 Amount)
 	}
 
 	CompanyData.ResearchAmount += Amount;
+
+
+	if (this == Game->GetPC()->GetCompany())
+	{
+		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("gain-research").PutInt32("amount", Amount));
+	}
 }
 
 #define REPUTATION_RANGE 200.f
@@ -1382,6 +1388,7 @@ void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave, bool Force
 					FName(*UniqueId),
 					EFlareNotification::NT_Info,
 					false);
+				GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("unlock-technology").PutName("technology", Identifier).PutInt32("level", Technology->Level));
 			}
 
 			GameLog::UnlockResearch(this, Technology);
