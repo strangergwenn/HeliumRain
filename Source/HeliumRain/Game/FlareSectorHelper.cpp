@@ -187,7 +187,7 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft*  SourceSpacecraft, UFlareSi
 	if (SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
 	{
 		// Limit transaction bay available money
-		int32 MaxAffordableQuantity = DestinationSpacecraft->GetCompany()->GetMoney() / ResourcePrice;
+		int32 MaxAffordableQuantity = FMath::Max(0, int32(DestinationSpacecraft->GetCompany()->GetMoney() / ResourcePrice));
 		QuantityToTake = FMath::Min(QuantityToTake, MaxAffordableQuantity);
 	}
 	int32 ResourceCapacity = DestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(Resource, SourceSpacecraft->GetCompany());
@@ -264,7 +264,7 @@ void SectorHelper::GetAvailableFleetSupplyCount(UFlareSimulatedSector* Sector, U
 	AvailableFS = OwnedFS + NotOwnedFS;
 	int32 ResourcePrice = Sector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::MaintenanceConsumption);
 
-	int32 MaxAffordableQuantity = Company->GetMoney() / ResourcePrice;
+	int32 MaxAffordableQuantity = FMath::Max(0, int32(Company->GetMoney() / ResourcePrice));
 
 	AffordableFS = OwnedFS + FMath::Min(MaxAffordableQuantity, NotOwnedFS);
 }

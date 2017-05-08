@@ -499,7 +499,7 @@ void UFlareSimulatedSpacecraft::SetReserve(bool InReserve)
 
 void UFlareSimulatedSpacecraft::Repair()
 {
-	if(GetRepairStock() == 0 || (GetCurrentSector() && GetCurrentSector()->IsInDangerousBattle(GetCompany())))
+	if(GetRepairStock() <= 0 || (GetCurrentSector() && GetCurrentSector()->IsInDangerousBattle(GetCompany())))
 	{
 		// No repair possible
 		return;

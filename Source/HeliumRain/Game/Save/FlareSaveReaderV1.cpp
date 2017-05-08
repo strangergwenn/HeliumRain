@@ -398,6 +398,19 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	Object->TryGetBoolField(TEXT("IsIntercepted"), Data->IsIntercepted);
 	LoadFloat(Object, "RefillStock", &Data->RefillStock);
 	LoadFloat(Object, "RepairStock", &Data->RepairStock);
+
+	if(Data->RepairStock < 0)
+	{
+		FLOGV("WARNING: UFlareSaveReaderV1::LoadSpacecraft fix invalid RepairStock (%f) for %s", Data->RepairStock, *Data->Immatriculation.ToString());
+		Data->RepairStock = 0;
+	}
+
+	if(Data->RefillStock < 0)
+	{
+		FLOGV("WARNING: UFlareSaveReaderV1::LoadSpacecraft fix invalid RefillStock (%f) for %s", Data->RefillStock, *Data->Immatriculation.ToString());
+		Data->RefillStock = 0;
+	}
+
 	Object->TryGetBoolField(TEXT("IsReserve"), Data->IsReserve);
 
 	LoadInt32(Object, "Level", &Data->Level);
