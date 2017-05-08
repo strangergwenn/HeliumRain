@@ -493,8 +493,8 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "tutorial-build-ship";
-	QuestName = LOCTEXT(QUEST_TAG"Name","Build ship tutorial");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to build a ship.");
+	QuestName = LOCTEXT(QUEST_TAG"Name","Ship-building tutorial");
+	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to build ships.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 
@@ -526,8 +526,7 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"GainMoney"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can buy ship to increase our trading force or to defend your estate."
-									"\nShip are expensive, save some money.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can buy ships to increase your trading force or to defend your estate. Ships are expensive, save some money first !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "gain-money", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialMoney::Create(this, 3000000));
@@ -537,8 +536,7 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"DockAt"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You can order ships at shipyards."
-																 "\nDock your ship to the Blue Hearth shipyard.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You can order ships at shipyards. Dock your ship at the Blue Heart shipyard.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "dock", Description);
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Shipyard);
@@ -552,8 +550,8 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"OrderShip"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Open the shipyard details with wheel menu or the sector menu. Here you have the production line details."
-									"\nChoose a production line for small ships and queue 1 ship of your choice.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Open the shipyard details, either with the wheel menu or through the sector menu. You will have the details of production lines."
+									"\nPick a production line for small ships and order a ship of your choice.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "order-ship", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOrderShip::Create(this, EFlarePartSize::S));
@@ -563,7 +561,7 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"BuildShip"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Ship construction may be long. Continue to play until the ship is build.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Ship construction may be long. Continue playing until your ship is ready !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "build-ship", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildShip::Create(this, EFlarePartSize::S));
