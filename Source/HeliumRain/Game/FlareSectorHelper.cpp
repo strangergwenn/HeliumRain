@@ -800,9 +800,9 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::
 	FFlareResourceDescription* FleetSupply = Sector->GetGame()->GetScenarioTools()->FleetSupply;
 	WorldHelper::FlareResourceStats *FSResourceStats = &WorldStats[FleetSupply];
 	FFlareFloatBuffer* Stats = &Sector->GetData()->FleetSupplyConsumptionStats;
-	float MeanConsumption = Stats->GetMean(0, 0);
+	float MeanConsumption = Stats->GetMean(0, Stats->MaxSize-1);
 	FSResourceStats->Consumption += MeanConsumption;
-	FSResourceStats->Capacity += MeanConsumption;
+	FSResourceStats->Capacity += Stats->GetValue(0);
 
 
 	// Customer flow

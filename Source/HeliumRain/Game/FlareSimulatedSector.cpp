@@ -103,6 +103,7 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 	if (SectorData.FleetSupplyConsumptionStats.MaxSize != FLEET_SUPPLY_CONSUMPTION_STATS)
 	{
 		SectorData.FleetSupplyConsumptionStats.Resize(FLEET_SUPPLY_CONSUMPTION_STATS);
+		SectorData.DailyFleetSupplyConsumption = 0;
 	}
 
 	LoadResourcePrices();
