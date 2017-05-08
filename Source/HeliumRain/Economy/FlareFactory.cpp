@@ -257,6 +257,21 @@ void UFlareFactory::OrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier)
 	FactoryData.OrderShipClass = ShipIdentifier;
 	FactoryData.OrderShipCompany = OrderCompany->GetIdentifier();
 	FactoryData.OrderShipAdvancePayment = ShipPrice;
+
+	if (OrderCompany == Game->GetPC()->GetCompany())
+	{
+		FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(ShipIdentifier);
+
+		int32 Size = 0;
+		if (Desc)
+		{
+			Size = Desc->Size;
+		}
+
+
+		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("order-ship").PutInt32("size", Size));
+	}
+
 }
 
 void UFlareFactory::CancelOrder()
@@ -604,6 +619,8 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 					false,
 					EFlareMenu::MENU_Ship,
 					Data);
+
+				Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("build-ship").PutInt32("size", Spacecraft->GetSize()));
 			}
 		}
 	}

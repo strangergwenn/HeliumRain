@@ -640,6 +640,12 @@ void UFlareCompany::GiveMoney(int64 Amount)
 	}
 
 	CompanyData.Money += Amount;
+
+	if (this == Game->GetPC()->GetCompany())
+	{
+		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("gain-money").PutInt32("amount", Amount));
+	}
+
 	/*if (Amount > 0)
 	{
 		FLOGV("$ %s + %lld -> %llu", *GetCompanyName().ToString(), Amount, CompanyData.Money);

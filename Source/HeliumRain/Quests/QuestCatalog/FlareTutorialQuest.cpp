@@ -192,15 +192,14 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 
 	FName PickUpShipId = "dock-at-ship-id";
 	UFlareSimulatedSector* Sector = FindSector("the-depths");
-	UFlareSimulatedSpacecraft* StationA = Sector->GetSectorStations().Num() > 0 ? Sector->GetSectorStations()[0] : NULL;
-	UFlareSimulatedSpacecraft* StationB= Sector->GetSectorStations().Num() > 1 ? Sector->GetSectorStations()[1] : NULL;
-	UFlareSimulatedSpacecraft* StationC = Sector->GetSectorStations().Num() > 2 ? Sector->GetSectorStations()[2] : NULL;
-
-
 	if (!Sector)
 	{
 		return;
 	}
+
+	UFlareSimulatedSpacecraft* StationA = Sector->GetSectorStations().Num() > 0 ? Sector->GetSectorStations()[0] : NULL;
+	UFlareSimulatedSpacecraft* StationB= Sector->GetSectorStations().Num() > 1 ? Sector->GetSectorStations()[1] : NULL;
+	UFlareSimulatedSpacecraft* StationC = Sector->GetSectorStations().Num() > 2 ? Sector->GetSectorStations()[2] : NULL;
 
 	{
 		#undef QUEST_STEP_TAG
@@ -467,6 +466,107 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-technology-2", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchTechnology::Create(this, 2));
+		Steps.Add(Step);
+	}
+}
+
+
+/*----------------------------------------------------
+	Tutorial build ship
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "TutorialBuildShip"
+UFlareQuestTutorialBuildShip::UFlareQuestTutorialBuildShip(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuest* UFlareQuestTutorialBuildShip::Create(UFlareQuestManager* Parent)
+{
+	UFlareQuestTutorialBuildShip* Quest = NewObject<UFlareQuestTutorialBuildShip>(Parent, UFlareQuestTutorialBuildShip::StaticClass());
+	Quest->Load(Parent);
+	return Quest;
+}
+
+void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
+{
+	LoadInternal(Parent);
+
+	Identifier = "tutorial-build-ship";
+	QuestName = LOCTEXT(QUEST_TAG"Name","Build ship tutorial");
+	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to build a ship.");
+	QuestCategory = EFlareQuestCategory::TUTORIAL;
+
+
+	UFlareSimulatedSector* Sector = FindSector("blue-heart");
+
+	if (!Sector)
+	{
+		return;
+	}
+
+	FName PickUpShipId = "dock-at-ship-id";
+	UFlareSimulatedSpacecraft* Shipyard = NULL;
+	for(UFlareSimulatedSpacecraft* Station: Sector->GetSectorStations())
+	{
+			if(Station->IsShipyard())
+			{
+				Shipyard = Station;
+				break;
+			}
+	}
+
+	if (!Shipyard)
+	{
+		return;
+	}
+
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-contracts"));
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"GainMoney"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can buy ship to increase our trading force or to defend your estate."
+									"\nShip are expensive, save some money.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "gain-money", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialMoney::Create(this, 3000000));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"DockAt"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You can order ships at shipyards."
+																 "\nDock your ship to the Blue Hearth shipyard.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "dock", Description);
+
+		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Shipyard);
+		Condition->TargetShipSaveId = PickUpShipId;
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"OrderShip"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Open the shipyard details with wheel menu or the sector menu. Here you have the production line details."
+									"\nChoose a production line for small ships and queue 1 ship of your choice.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "order-ship", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOrderShip::Create(this, EFlarePartSize::S));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"BuildShip"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Ship construction may be long. Continue to play until the ship is build.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "build-ship", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildShip::Create(this, EFlarePartSize::S));
 		Steps.Add(Step);
 	}
 }
@@ -1132,5 +1232,176 @@ void UFlareQuestConditionTutorialResearchTechnology::AddConditionObjectives(FFla
 	ObjectiveCondition.Progress = IsCompleted() ? 1 : 0;
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
+
+/*----------------------------------------------------
+	Tutorial money value condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialMoney::UFlareQuestConditionTutorialMoney(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialMoney* UFlareQuestConditionTutorialMoney::Create(UFlareQuest* ParentQuest, int32 Count)
+{
+	UFlareQuestConditionTutorialMoney* Condition = NewObject<UFlareQuestConditionTutorialMoney>(ParentQuest, UFlareQuestConditionTutorialMoney::StaticClass());
+	Condition->Load(ParentQuest, Count);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialMoney::Load(UFlareQuest* ParentQuest, int32 Count)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	TargetMoney = Count;
+
+	FText InitialLabelText = LOCTEXT("PlayerMoney", "Save {0} credits");
+	InitialLabel = FText::Format(InitialLabelText, FText::AsNumber(UFlareGameTools::DisplayMoney(TargetMoney)));
+}
+
+bool UFlareQuestConditionTutorialMoney::IsCompleted()
+{
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+	return PlayerCompany->GetMoney() >= TargetMoney;
+}
+
+void UFlareQuestConditionTutorialMoney::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = UFlareGameTools::DisplayMoney(PlayerCompany->GetMoney());
+	ObjectiveCondition.MaxCounter = UFlareGameTools::DisplayMoney(TargetMoney);
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+Tutorial order ship condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialOrderShip::UFlareQuestConditionTutorialOrderShip(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialOrderShip* UFlareQuestConditionTutorialOrderShip::Create(UFlareQuest* ParentQuest, EFlarePartSize::Type Size)
+{
+	UFlareQuestConditionTutorialOrderShip* Condition = NewObject<UFlareQuestConditionTutorialOrderShip>(ParentQuest, UFlareQuestConditionTutorialOrderShip::StaticClass());
+	Condition->Load(ParentQuest, Size);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialOrderShip::Load(UFlareQuest* ParentQuest, EFlarePartSize::Type Size)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	Completed = false;
+	TargetSize = Size;
+
+	if(Size == EFlarePartSize::S)
+	{
+		InitialLabel = LOCTEXT("OrderSmallShip", "Order a small ship");
+	}
+	else
+	{
+		InitialLabel = LOCTEXT("OrderLargeShip", "Order a large ship");
+	}
+}
+
+void UFlareQuestConditionTutorialOrderShip::OnEvent(FFlareBundle& Bundle)
+{
+	if (Completed)
+	{
+		return;
+	}
+
+	if (Bundle.HasTag("order-ship") && Bundle.GetInt32("size") == int32(TargetSize))
+	{
+		Completed = true;
+	}
+}
+
+bool UFlareQuestConditionTutorialOrderShip::IsCompleted()
+{
+	return Completed;
+}
+
+void UFlareQuestConditionTutorialOrderShip::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = 1;
+	ObjectiveCondition.MaxProgress = 1;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.Progress = IsCompleted() ? 1 : 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+Tutorial build ship condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialBuildShip::UFlareQuestConditionTutorialBuildShip(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialBuildShip* UFlareQuestConditionTutorialBuildShip::Create(UFlareQuest* ParentQuest, EFlarePartSize::Type Size)
+{
+	UFlareQuestConditionTutorialBuildShip* Condition = NewObject<UFlareQuestConditionTutorialBuildShip>(ParentQuest, UFlareQuestConditionTutorialBuildShip::StaticClass());
+	Condition->Load(ParentQuest, Size);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialBuildShip::Load(UFlareQuest* ParentQuest, EFlarePartSize::Type Size)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	Completed = false;
+	TargetSize = Size;
+
+	if(Size == EFlarePartSize::S)
+	{
+		InitialLabel = LOCTEXT("BuildSmallShip", "Build a small ship");
+	}
+	else
+	{
+		InitialLabel = LOCTEXT("BuildLargeShip", "Build a large ship");
+	}
+}
+
+void UFlareQuestConditionTutorialBuildShip::OnEvent(FFlareBundle& Bundle)
+{
+	if (Completed)
+	{
+		return;
+	}
+
+	if (Bundle.HasTag("build-ship") && Bundle.GetInt32("size") == int32(TargetSize))
+	{
+		Completed = true;
+	}
+}
+
+bool UFlareQuestConditionTutorialBuildShip::IsCompleted()
+{
+	return Completed;
+}
+
+void UFlareQuestConditionTutorialBuildShip::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = 1;
+	ObjectiveCondition.MaxProgress = 1;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.Progress = IsCompleted() ? 1 : 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
 
 #undef LOCTEXT_NAMESPACE

@@ -67,6 +67,7 @@ void UFlareQuestManager::LoadBuildinQuest()
 	AddQuest(UFlareQuestTutorialNavigation::Create(this));
 	AddQuest(UFlareQuestTutorialContracts::Create(this));
 	AddQuest(UFlareQuestTutorialTechnology::Create(this));
+	AddQuest(UFlareQuestTutorialBuildShip::Create(this));
 }
 
 void UFlareQuestManager::LoadCatalogQuests()

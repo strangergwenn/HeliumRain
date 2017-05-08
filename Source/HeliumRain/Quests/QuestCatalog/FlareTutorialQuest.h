@@ -53,7 +53,17 @@ public:
 	static UFlareQuest* Create(UFlareQuestManager* Parent);
 };
 
+UCLASS()
+class HELIUMRAIN_API UFlareQuestTutorialBuildShip: public UFlareQuest
+{
+	GENERATED_UCLASS_BODY()
 
+public:
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestManager* Parent);
+	static UFlareQuest* Create(UFlareQuestManager* Parent);
+};
 
 // Conditions
 
@@ -260,3 +270,62 @@ protected:
 	int32 TargetMinLevel;
 	bool Completed;
 };
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialMoney: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionTutorialMoney* Create(UFlareQuest* ParentQuest, int32 Count);
+	void Load(UFlareQuest* ParentQuest,  int32 Count);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+
+	int32 TargetMoney;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialOrderShip : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionTutorialOrderShip* Create(UFlareQuest* ParentQuest, EFlarePartSize::Type Size);
+	void Load(UFlareQuest* ParentQuest, EFlarePartSize::Type Size);
+
+	virtual bool IsCompleted();
+	virtual void OnEvent(FFlareBundle& Bundle);
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+protected:
+	int32 TargetSize;
+	bool Completed;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialBuildShip : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionTutorialBuildShip* Create(UFlareQuest* ParentQuest, EFlarePartSize::Type Size);
+	void Load(UFlareQuest* ParentQuest, EFlarePartSize::Type Size);
+
+	virtual bool IsCompleted();
+	virtual void OnEvent(FFlareBundle& Bundle);
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+protected:
+	int32 TargetSize;
+	bool Completed;
+};
+
