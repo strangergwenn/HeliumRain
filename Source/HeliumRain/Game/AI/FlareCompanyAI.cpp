@@ -3401,12 +3401,14 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				// Make the AI ignore the sector with not enought stock or to little capacity
 				if(!Station->IsUnderConstruction())
 				{
-					Variation->OwnedCapacity -= SlotCapacity * (GetGame()->GetAINerfRatio());
+					float BaseSlotCapacity = SlotCapacity / Station->GetLevel();
 
-					float EmptyRatio = (float) Capacity / (float) SlotCapacity;
+					Variation->OwnedCapacity -=  BaseSlotCapacity * GetGame()->GetAINerfRatio();
+
+					float EmptyRatio = (float) (Capacity - BaseSlotCapacity * (Station->GetLevel()-1) ) / (float) BaseSlotCapacity;
 					if (EmptyRatio > (1.f - GetGame()->GetAINerfRatio())/2)
 					{
-						Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * (GetGame()->GetAINerfRatio())));
+						Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - BaseSlotCapacity * (GetGame()->GetAINerfRatio())));
 					}
 				}
 				else
@@ -3461,7 +3463,9 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				// The AI don't let anything for the player : it's too hard
 				// Make the AI ignore the sector with not enought stock or to little capacity
-				Variation->OwnedStock -= SlotCapacity * (GetGame()->GetAINerfRatio());
+				float BaseSlotCapacity = SlotCapacity / Station->GetLevel();
+
+				Variation->OwnedStock -= BaseSlotCapacity * (GetGame()->GetAINerfRatio());
 			}
 
 
@@ -3503,13 +3507,15 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				// The AI don't let anything for the player : it's too hard
 				// Make the AI ignore the sector with not enought stock or to little capacity
-				Variation->OwnedCapacity -= SlotCapacity * (GetGame()->GetAINerfRatio());
+				float BaseSlotCapacity = SlotCapacity / Station->GetLevel();
+
+				Variation->OwnedCapacity -= BaseSlotCapacity * (GetGame()->GetAINerfRatio());
 				Variation->ConsumerMaxStock += Station->GetCargoBay()->GetSlotCapacity();
 
-				float EmptyRatio = (float) Capacity / (float) SlotCapacity;
+				float EmptyRatio = (float) (Capacity - BaseSlotCapacity * (Station->GetLevel()-1) ) / (float) BaseSlotCapacity;
 				if (EmptyRatio > (1.f - GetGame()->GetAINerfRatio())/2)
 				{
-					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * (GetGame()->GetAINerfRatio())));
+					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - BaseSlotCapacity * (GetGame()->GetAINerfRatio())));
 				}
 
 			}
@@ -3545,12 +3551,14 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				// The AI don't let anything for the player : it's too hard
 				// Make the AI ignore the sector with not enought stock or to little capacity
-				Variation->OwnedCapacity -= SlotCapacity * (GetGame()->GetAINerfRatio());
+				float BaseSlotCapacity = SlotCapacity / Station->GetLevel();
 
-				float EmptyRatio = (float) Capacity / (float) SlotCapacity;
+				Variation->OwnedCapacity -= BaseSlotCapacity * (GetGame()->GetAINerfRatio());
+
+				float EmptyRatio = (float) (Capacity - BaseSlotCapacity * (Station->GetLevel()-1) ) / (float) BaseSlotCapacity;
 				if (EmptyRatio > (1.f - GetGame()->GetAINerfRatio()))
 				{
-					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - SlotCapacity * GetGame()->GetAINerfRatio()));
+					Variation->MinCapacity = FMath::Max(Variation->MinCapacity, (int32) (Capacity - BaseSlotCapacity * GetGame()->GetAINerfRatio()));
 				}
 
 				// The owned resell its own FS
@@ -3563,7 +3571,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				// The AI don't let anything for the player : it's too hard
 				// Make the AI ignore the sector with not enought stock or to little capacity
-				Variation->OwnedStock -= SlotCapacity * (GetGame()->GetAINerfRatio());
+				Variation->OwnedStock -= BaseSlotCapacity * (GetGame()->GetAINerfRatio());
 
 			}
 		}

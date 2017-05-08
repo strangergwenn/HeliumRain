@@ -111,12 +111,12 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		if(!Station->IsUnderConstruction())
 		{
 			// Check cargo limit
-			if(NeedOutput && Request.CargoLimit != -1 && FullRatio < Request.CargoLimit)
+			if(NeedOutput && Request.CargoLimit != -1 && FullRatio < Request.CargoLimit / Station->GetLevel())
 			{
 				continue;
 			}
 
-			if(NeedInput && Request.CargoLimit != -1 && FullRatio > Request.CargoLimit)
+			if(NeedInput && Request.CargoLimit != -1 && FullRatio > (1.f - (1.f - Request.CargoLimit) / Station->GetLevel()))
 			{
 				continue;
 			}
