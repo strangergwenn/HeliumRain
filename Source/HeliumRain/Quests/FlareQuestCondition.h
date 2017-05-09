@@ -81,6 +81,10 @@ public:
 
 	virtual FText GetInitialLabel()
 	{
+		/*if(InitialLabel.ToString() == "")
+		{
+			FLOGV("Empty label for %s", *this->GetClass()->GetName());
+		}*/
 		return InitialLabel;
 	}
 
@@ -582,6 +586,8 @@ public:
 	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* TargetSpacecraftParam, FName TargetSpacecraftIdParam);
 
 	virtual bool IsCompleted();
+	virtual FText GetInitialLabel();
+
 	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
 
 protected:

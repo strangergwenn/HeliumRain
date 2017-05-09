@@ -763,6 +763,80 @@ FText UFlareQuest::GetQuestExpiration()
 	}
 }
 
+TArray<UFlareQuestCondition*> UFlareQuest::GetGlobalFailConditions()
+{
+	TArray<UFlareQuestCondition*> GlobalFailConditions;
+
+	for(UFlareQuestStep* Step : Steps)
+	{
+		TArray<UFlareQuestCondition*> StepFailConditions = Step->GetFailCondition()->GetAllConditions();
+
+		if(Step == Steps[0])
+		{
+			GlobalFailConditions.Append(StepFailConditions);
+		}
+		else
+		{
+			TArray<UFlareQuestCondition*> ConditionsToRemove;
+
+			// Remove missing conditions
+			for (auto Condition : GlobalFailConditions)
+			{
+				if(!StepFailConditions.Contains(Condition))
+				{
+					ConditionsToRemove.Add(Condition);
+				}
+			}
+
+			for (auto Condition : ConditionsToRemove)
+			{
+				GlobalFailConditions.Remove(Condition);
+			}
+		}
+	}
+	return GlobalFailConditions;
+}
+
+
+FText UFlareQuest::GetQuestFailure()
+{
+	FString Result;
+
+	TArray<UFlareQuestCondition*> FailConditions;
+	// TODO: uncomment if you want failure to be constant instead of exact
+	//TArray<UFlareQuestCondition*> FailConditions = GetGlobalFailConditions();
+
+	// TODO: comment if you want failure to be constant instead of exact
+	if(CurrentStep)
+	{
+		for(auto Condition: CurrentStep->GetFailCondition()->GetAllConditions())
+		{
+			FailConditions.AddUnique(Condition);
+		}
+	}
+	else
+	{
+		FailConditions = GetGlobalFailConditions();
+	}
+
+	for (auto Condition : FailConditions)
+	{
+		if (Result.Len())
+		{
+			Result += "\n";
+		}
+		Result += LOCTEXT("QuestFailureSymbol", "\u2022 ").ToString() + Condition->GetInitialLabel().ToString();
+	}
+
+	if (Result.Len())
+	{
+		return FText::FromString(Result);
+	}
+	else
+	{
+		return LOCTEXT("QuestFailureNone", "\u2022 This contract cannot fail.");
+	}
+}
 
 FName UFlareQuest::GetQuestNotificationTag() const
 {

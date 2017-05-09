@@ -174,6 +174,8 @@ public:
 
 	FText GetQuestExpiration();
 
+	FText GetQuestFailure();
+
 	inline EFlareQuestCategory::Type GetQuestCategory() const
 	{
 		return QuestCategory;
@@ -248,4 +250,6 @@ public:
 	bool IsActive();
 
 	UFlareSimulatedSector* FindSector(FName SectorIdentifier);
+
+	TArray<UFlareQuestCondition*> GetGlobalFailConditions();
 };

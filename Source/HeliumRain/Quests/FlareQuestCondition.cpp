@@ -1666,6 +1666,23 @@ bool UFlareQuestConditionSpacecraftNoMoreExist::IsCompleted()
 	}
 }
 
+
+FText UFlareQuestConditionSpacecraftNoMoreExist::GetInitialLabel()
+{
+	if(TargetSpacecraftId != NAME_None)
+	{
+		FName SpacecraftName = Quest->GetSaveBundle().GetName(TargetSpacecraftId);
+		TargetSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(SpacecraftName);
+	}
+
+	if (TargetSpacecraft)
+	{
+		return FText::Format(LOCTEXT("SpacecraftNoMoreExist", "{0} is destroyed"),
+							 UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft));
+	}
+	return FText();
+}
+
 void UFlareQuestConditionSpacecraftNoMoreExist::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
 }
@@ -2198,6 +2215,9 @@ void UFlareQuestConditionStationLostInSector::Load(UFlareQuest* ParentQuest, UFl
 	Completed = false;
 	TargetSector = TargetSectorParam;
 	TargetCompany = TargetCompanyParam;
+
+	InitialLabel = FText::Format(LOCTEXT("StationLostInSector", "A station is lost by {0} in {1}"),
+										 TargetCompany->GetCompanyName(), TargetSector->GetSectorName());
 }
 
 void UFlareQuestConditionStationLostInSector::OnSpacecraftCaptured(UFlareSimulatedSpacecraft* CapturedSpacecraftBefore, UFlareSimulatedSpacecraft* CapturedSpacecraftAfter)
@@ -2369,6 +2389,19 @@ void UFlareQuestConditionRetreatDangerousShip::Load(UFlareQuest* ParentQuest, UF
 	Completed = false;
 	TargetSector = TargetSectorParam;
 	TargetCompany = TargetCompanyParam;
+
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	if (TargetCompany == PlayerCompany)
+	{
+		InitialLabel = FText::Format(LOCTEXT("PlayerRetreatDangerousShip", "Retreat combat-ready ship from {0}"), TargetSector->GetSectorName());
+	}
+	else
+	{
+		InitialLabel = FText::Format(LOCTEXT("PlayerRetreatDangerousShip", "{0} retreat combat-ready ship from {1}"),
+									 TargetCompany->GetCompanyName(),
+									 TargetSector->GetSectorName());
+	}
 }
 
 void UFlareQuestConditionRetreatDangerousShip::OnTravelStarted(UFlareTravel* Travel)

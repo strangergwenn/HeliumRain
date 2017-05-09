@@ -1510,8 +1510,6 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 	}
 
 
-	AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, PlayerCompany, FriendlyCompany));
-
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionStationLostInSector::Create(this,  Sector, FriendlyCompany));
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionNoCapturingStationInSector::Create(this,  Sector, FriendlyCompany, HostileCompany));
 
@@ -1733,8 +1731,6 @@ void UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FF
 	}
 
 
-	AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, PlayerCompany, FriendlyCompany));
-
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAfterDate::Create(this, AttackDate));
 
 	SetupQuestGiver(FriendlyCompany, true);
@@ -1940,9 +1936,6 @@ void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const
 		Steps.Add(Step);
 	}
 
-
-	AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, PlayerCompany, FriendlyCompany));
-
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAfterDate::Create(this, AttackDate));
 
 	SetupQuestGiver(FriendlyCompany, true);
@@ -2127,8 +2120,6 @@ void UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFl
 		Steps.Add(Step);
 	}
 
-	AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, PlayerCompany, FriendlyCompany));
-
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAtWar::Create(this,  PlayerCompany, FriendlyCompany));
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
 
@@ -2264,8 +2255,6 @@ void UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const 
 
 		Steps.Add(Step);
 	}
-
-	AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, PlayerCompany, FriendlyCompany));
 
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAtWar::Create(this,  PlayerCompany, FriendlyCompany));
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
