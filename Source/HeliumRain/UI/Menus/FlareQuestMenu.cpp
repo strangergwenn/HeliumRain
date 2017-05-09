@@ -582,38 +582,6 @@ void SFlareQuestMenu::FillQuestDetails()
 			}
 		}
 
-		// Failure warning
-		{
-			QuestDetails->AddSlot()
-			.AutoHeight()
-			.Padding(Theme.TitlePadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.SubTitleFont)
-				.Text(LOCTEXT("FailureTitle", "Contract failure"))
-			];
-
-			QuestDetails->AddSlot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(STextBlock)
-				.WrapTextAt(0.9 * Theme.ContentWidth)
-				.TextStyle(&Theme.TextFont)
-				.Text(LOCTEXT("FailureDetails", "This contract will be fail if one of the following conditions is met."))
-			];
-
-			QuestDetails->AddSlot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(STextBlock)
-				.WrapTextAt(0.9 * Theme.ContentWidth)
-				.TextStyle(&Theme.TextFont)
-				.Text(SelectedQuest->GetQuestFailure())
-			];
-		}
-
 		// Expiration warning
 		if (SelectedQuest->GetStatus() == EFlareQuestStatus::AVAILABLE)
 		{
@@ -644,6 +612,38 @@ void SFlareQuestMenu::FillQuestDetails()
 				.WrapTextAt(0.9 * Theme.ContentWidth)
 				.TextStyle(&Theme.TextFont)
 				.Text(SelectedQuest->GetQuestExpiration())
+			];
+		}
+
+		// Failure warning
+		{
+			QuestDetails->AddSlot()
+			.AutoHeight()
+			.Padding(Theme.TitlePadding)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.SubTitleFont)
+				.Text(LOCTEXT("FailureTitle", "Contract failure"))
+			];
+
+			QuestDetails->AddSlot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(STextBlock)
+				.WrapTextAt(0.9 * Theme.ContentWidth)
+				.TextStyle(&Theme.TextFont)
+				.Text(LOCTEXT("FailureDetails", "This contract will be considered failed if one of the following conditions is met."))
+			];
+
+			QuestDetails->AddSlot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(STextBlock)
+				.WrapTextAt(0.9 * Theme.ContentWidth)
+				.TextStyle(&Theme.TextFont)
+				.Text(SelectedQuest->GetQuestFailure())
 			];
 		}
 				
