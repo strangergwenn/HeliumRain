@@ -641,7 +641,7 @@ void UFlareCompany::GiveMoney(int64 Amount)
 
 	CompanyData.Money += Amount;
 
-	if (this == Game->GetPC()->GetCompany())
+	if (this == Game->GetPC()->GetCompany() && GetGame()->GetQuestManager())
 	{
 		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("gain-money").PutInt32("amount", Amount));
 	}
@@ -669,7 +669,7 @@ void UFlareCompany::GiveResearch(int64 Amount)
 	CompanyData.ResearchAmount += Amount;
 
 
-	if (this == Game->GetPC()->GetCompany())
+	if (this == Game->GetPC()->GetCompany() && GetGame()->GetQuestManager())
 	{
 		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("gain-research").PutInt32("amount", Amount));
 	}
