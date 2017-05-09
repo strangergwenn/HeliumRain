@@ -1937,7 +1937,7 @@ FText UFlareQuestConditionTimeAfterAvailableDate::GetInitialLabel()
 	int64 AvailabilityDate = Quest->GetAvailableDate();
 	int64 RemainingDuration = DurationLimit - (GetGame()->GetGameWorld()->GetDate()- AvailabilityDate);
 
-	return FText::Format(LOCTEXT("RemainingDurationFormat", "{0} left"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 2)));
+	return FText::Format(LOCTEXT("RemainingDurationFormat", "{0} left"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration+1, 2)));
 }
 
 bool UFlareQuestConditionTimeAfterAvailableDate::IsCompleted()
@@ -1985,7 +1985,7 @@ FText UFlareQuestConditionAfterDate::GetInitialLabel()
 {
 	int64 RemainingDuration = DateLimit - GetGame()->GetGameWorld()->GetDate();
 
-	return FText::Format(LOCTEXT("RemainingDurationFormat", "{0} remaining"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 2)));
+	return FText::Format(LOCTEXT("RemainingDurationFormat", "{0} remaining"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration+1, 2)));
 }
 
 bool UFlareQuestConditionAfterDate::IsCompleted()

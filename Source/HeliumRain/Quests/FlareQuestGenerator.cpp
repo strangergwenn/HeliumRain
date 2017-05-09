@@ -1710,7 +1710,7 @@ void UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FF
 		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));
 
 		{
-			UFlareQuestConditionAfterDate* Condition = UFlareQuestConditionAfterDate::Create(this, AttackDate+1);
+			UFlareQuestConditionAfterDate* Condition = UFlareQuestConditionAfterDate::Create(this, AttackDate);
 			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		}
 
@@ -1917,7 +1917,7 @@ void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const
 		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));
 
 		{
-			UFlareQuestConditionAfterDate* Condition = UFlareQuestConditionAfterDate::Create(this, AttackDate+1);
+			UFlareQuestConditionAfterDate* Condition = UFlareQuestConditionAfterDate::Create(this, AttackDate);
 			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		}
 
