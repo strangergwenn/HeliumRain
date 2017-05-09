@@ -1425,7 +1425,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 	QuestClass = UFlareQuestGeneratedStationDefense::GetClass();
 	Identifier = InitData.GetName("identifier");
 
-	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","Defend {0} against {1}"), Sector->GetSectorName(), HostileCompany->GetCompanyName());
+	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","Defend {0} stations against {1}"), Sector->GetSectorName(), HostileCompany->GetCompanyName());
 	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat","Defend stations of {0} in {1} against {2} with at least {3} combat value."),
 								 FriendlyCompany->GetCompanyName(), Sector->GetSectorName(), HostileCompany->GetCompanyName(), FText::AsNumber(ArmyCombatPoints ));
 
@@ -1501,7 +1501,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		}
 
-		UFlareQuestConditionRetreatDangerousShip* FailCondition1 = UFlareQuestConditionRetreatDangerousShip::Create(this, Sector, FriendlyCompany);
+		UFlareQuestConditionRetreatDangerousShip* FailCondition1 = UFlareQuestConditionRetreatDangerousShip::Create(this, Sector, PlayerCompany);
 		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition1);
 		UFlareQuestConditionAtPeace* FailCondition2 = UFlareQuestConditionAtPeace::Create(this, PlayerCompany, HostileCompany);
 		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition2);
@@ -1710,7 +1710,7 @@ void UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FF
 		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));
 
 		{
-			UFlareQuestConditionNoBattleInSector* Condition = UFlareQuestConditionNoBattleInSector::Create(this, Sector, PlayerCompany);
+			UFlareQuestConditionAfterDate* Condition = UFlareQuestConditionAfterDate::Create(this, AttackDate+1);
 			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		}
 
@@ -1720,7 +1720,7 @@ void UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FF
 			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		}
 
-		UFlareQuestConditionRetreatDangerousShip* FailCondition1 = UFlareQuestConditionRetreatDangerousShip::Create(this, Sector, FriendlyCompany);
+		UFlareQuestConditionRetreatDangerousShip* FailCondition1 = UFlareQuestConditionRetreatDangerousShip::Create(this, Sector, PlayerCompany);
 		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition1);
 
 		for(UFlareCompany* HostileCompany: HostileCompanies)
@@ -1833,7 +1833,7 @@ void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const
 	QuestClass = UFlareQuestGeneratedSectorDefense::GetClass();
 	Identifier = InitData.GetName("identifier");
 
-	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","Defend {0} against {1}"),
+	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","Defend {0} against {1}'s attack"),
 		Sector->GetSectorName(),
 		HostileCompany->GetCompanyName());
 
@@ -1917,7 +1917,7 @@ void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const
 		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));
 
 		{
-			UFlareQuestConditionNoBattleInSector* Condition = UFlareQuestConditionNoBattleInSector::Create(this, Sector, PlayerCompany);
+			UFlareQuestConditionAfterDate* Condition = UFlareQuestConditionAfterDate::Create(this, AttackDate+1);
 			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		}
 
@@ -1927,7 +1927,7 @@ void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const
 			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		}
 
-		UFlareQuestConditionRetreatDangerousShip* FailCondition1 = UFlareQuestConditionRetreatDangerousShip::Create(this, Sector, FriendlyCompany);
+		UFlareQuestConditionRetreatDangerousShip* FailCondition1 = UFlareQuestConditionRetreatDangerousShip::Create(this, Sector, PlayerCompany);
 		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition1);
 
 		{
@@ -2122,7 +2122,6 @@ void UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFl
 		Steps.Add(Step);
 	}
 
-	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAtWar::Create(this,  PlayerCompany, FriendlyCompany));
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
 
 	SetupQuestGiver(FriendlyCompany, true);
@@ -2258,7 +2257,6 @@ void UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const 
 		Steps.Add(Step);
 	}
 
-	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAtWar::Create(this,  PlayerCompany, FriendlyCompany));
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
 
 	SetupQuestGiver(FriendlyCompany, true);
