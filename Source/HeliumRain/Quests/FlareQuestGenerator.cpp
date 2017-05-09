@@ -535,6 +535,7 @@ void UFlareQuestGenerated::SetupQuestGiver(UFlareCompany* Company, bool AddWarCo
 	if (AddWarCondition)
 	{
 		AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Company));
+		Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAtWar::Create(this, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Company));
 	}
 }
 
@@ -1465,6 +1466,9 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 			// Failed to defend
 			UFlareQuestConditionStationLostInSector* FailCondition = UFlareQuestConditionStationLostInSector::Create(this, Sector, FriendlyCompany);
 			Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition);
+
+			UFlareQuestConditionAtPeace* FailCondition2 = UFlareQuestConditionAtPeace::Create(this, PlayerCompany, HostileCompany);
+			Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition2);
 		}
 
 		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
