@@ -667,25 +667,25 @@ FText UFlareQuest::GetQuestReward()
 		UFlareQuestActionGiveMoney* MoneyAction = Cast<UFlareQuestActionGiveMoney>(Action);
 		if (MoneyAction)
 		{
-			Result += FText::Format(LOCTEXT("QuestRewardMoneyFormat", "Payment of {0} credits\n"), FText::AsNumber(UFlareGameTools::DisplayMoney(MoneyAction->GetAmount()))).ToString();
+			Result += FText::Format(LOCTEXT("QuestRewardMoneyFormat", "\u2022 Payment of {0} credits\n"), FText::AsNumber(UFlareGameTools::DisplayMoney(MoneyAction->GetAmount()))).ToString();
 		}
 
 		UFlareQuestActionGiveResearch* ResearchAction = Cast<UFlareQuestActionGiveResearch>(Action);
 		if (ResearchAction)
 		{
-			Result += FText::Format(LOCTEXT("QuestRewardResearchFormat", "Gain of {0} research\n"), FText::AsNumber(ResearchAction->GetAmount())).ToString();
+			Result += FText::Format(LOCTEXT("QuestRewardResearchFormat", "\u2022 Gain of {0} research\n"), FText::AsNumber(ResearchAction->GetAmount())).ToString();
 		}
 
 		UFlareQuestActionDiscoverSector* SectorAction = Cast<UFlareQuestActionDiscoverSector>(Action);
 		if (SectorAction)
 		{
-			Result += FText::Format(LOCTEXT("QuestRewardSectorFormat", "Coordinates to sector {0}\n"), SectorAction->GetSector()->GetSectorName()).ToString();
+			Result += FText::Format(LOCTEXT("QuestRewardSectorFormat", "\u2022 Coordinates to sector {0}\n"), SectorAction->GetSector()->GetSectorName()).ToString();
 		}
 
 		UFlareQuestActionReputationChange* ReputationAction = Cast<UFlareQuestActionReputationChange>(Action);
 		if (ReputationAction)
 		{
-			Result += FText::Format(LOCTEXT("QuestRewardReputationFormat", "Gain of {0} reputation\n"), FText::AsNumber(ReputationAction->GetAmount())).ToString();
+			Result += FText::Format(LOCTEXT("QuestRewardReputationFormat", "\u2022 Gain of {0} reputation\n"), FText::AsNumber(ReputationAction->GetAmount())).ToString();
 		}
 	}
 
@@ -693,11 +693,11 @@ FText UFlareQuest::GetQuestReward()
 	{
 		if (Actions.Num() == 0)
 		{
-			return LOCTEXT("QuestRewardNone", "None");
+			return LOCTEXT("QuestRewardNone", "\u2022 No rewards");
 		}
 		else
 		{
-			return LOCTEXT("QuestRewardUnknown", "Unknown");
+			return LOCTEXT("QuestRewardUnknown", "\u2022 Unknown rewards");
 		}
 	}
 
@@ -715,13 +715,13 @@ FText UFlareQuest::GetQuestPenalty()
 		UFlareQuestActionGiveMoney* MoneyAction = Cast<UFlareQuestActionGiveMoney>(Action);
 		if (MoneyAction)
 		{
-			Result += FText::Format(LOCTEXT("QuestPenaltyMoneyFormat", "Fine of {0} credits\n"), FText::AsNumber(UFlareGameTools::DisplayMoney(-MoneyAction->GetAmount()))).ToString();
+			Result += FText::Format(LOCTEXT("QuestPenaltyMoneyFormat", "\u2022 Fine of {0} credits\n"), FText::AsNumber(UFlareGameTools::DisplayMoney(-MoneyAction->GetAmount()))).ToString();
 		}
 
 		UFlareQuestActionReputationChange* ReputationAction = Cast<UFlareQuestActionReputationChange>(Action);
 		if (ReputationAction)
 		{
-			Result += FText::Format(LOCTEXT("QuestPenaltyReputationFormat", "Loss of {0} reputation\n"), FText::AsNumber(-ReputationAction->GetAmount())).ToString();
+			Result += FText::Format(LOCTEXT("QuestPenaltyReputationFormat", "\u2022 Loss of {0} reputation\n"), FText::AsNumber(-ReputationAction->GetAmount())).ToString();
 		}
 	}
 
@@ -729,11 +729,11 @@ FText UFlareQuest::GetQuestPenalty()
 	{
 		if (Actions.Num() == 0)
 		{
-			return LOCTEXT("QuestPenaltyNone", "None");
+			return LOCTEXT("QuestPenaltyNone", "\u2022 No penalties");
 		}
 		else
 		{
-			return LOCTEXT("QuestPenaltyUnknown", "Unknown");
+			return LOCTEXT("QuestPenaltyUnknown", "\u2022 Unknown penalties");
 		}
 	}
 
