@@ -251,6 +251,70 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 
 		// Register quest
 		RegisterQuest(Quest);
+
+		CompanyValue Value = Company->GetCompanyValue();
+
+
+		// Hunt quests
+		for(UFlareCompany* OtherCompany : GetGame()->GetGameWorld()->GetCompanies())
+		{
+			if(OtherCompany == PlayerCompany)
+			{
+				continue;
+			}
+
+			if(Company == OtherCompany)
+			{
+				continue;
+			}
+
+			CompanyValue OtherValue = OtherCompany->GetCompanyValue();
+
+			if(OtherValue.TotalValue > Value.TotalValue*1.1)
+			{
+				// 1% per day per negative reputation point
+				float CargoHuntQuestProbability = FMath::Clamp((-50 - Company->GetReputation(OtherCompany)) * 0.0001f, 0.f, 1.f);
+
+
+				//FLOGV("CargoHuntQuestProbability for %s to %s: %f", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString(), CargoHuntQuestProbability);
+
+				float rand = FMath::FRand();
+
+				//FLOGV("rand %f", rand);
+
+				// Rand
+				if (rand > CargoHuntQuestProbability)
+				{
+					// No luck, no quest this time
+					continue;
+				}
+
+				RegisterQuest(UFlareQuestGeneratedCargoHunt::Create(this, Company, OtherCompany));
+			}
+
+			if(OtherValue.ArmyCurrentCombatPoints > Value.ArmyCurrentCombatPoints*1.1)
+			{
+				// 1% per day per negative reputation point
+				float MilitaryHuntQuestProbability = FMath::Clamp((-50 - Company->GetReputation(OtherCompany)) * 0.001f, 0.f, 1.f);
+
+
+				//FLOGV("CargoHuntQuestProbability for %s to %s: %f", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString(), CargoHuntQuestProbability);
+
+				float rand = FMath::FRand();
+
+				//FLOGV("rand %f", rand);
+
+				// Rand
+				if (rand > MilitaryHuntQuestProbability)
+				{
+					// No luck, no quest this time
+					continue;
+				}
+
+				RegisterQuest(UFlareQuestGeneratedMilitaryHunt::Create(this, Company, OtherCompany));
+			}
+		}
+
 	}
 }
 
@@ -335,68 +399,6 @@ void UFlareQuestGenerator::GenerateMilitaryQuests()
 				{
 					RegisterQuest(UFlareQuestGeneratedStationDefense::Create(this, Station->GetCurrentSector(), Station->GetCompany(), HostileCompany));
 				}
-			}
-		}
-
-
-
-		// Cargo hunt
-		for(UFlareCompany* OtherCompany : GetGame()->GetGameWorld()->GetCompanies())
-		{
-			if(OtherCompany == PlayerCompany)
-			{
-				continue;
-			}
-
-			if(Company == OtherCompany)
-			{
-				continue;
-			}
-
-			CompanyValue OtherValue = OtherCompany->GetCompanyValue();
-
-			if(OtherValue.TotalValue > Value.TotalValue*1.1)
-			{
-				// 1% per day per negative reputation point
-				float CargoHuntQuestProbability = FMath::Clamp((-50 - Company->GetReputation(OtherCompany)) * 0.0001f, 0.f, 1.f);
-
-
-				//FLOGV("CargoHuntQuestProbability for %s to %s: %f", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString(), CargoHuntQuestProbability);
-
-				float rand = FMath::FRand();
-
-				//FLOGV("rand %f", rand);
-
-				// Rand
-				if (rand > CargoHuntQuestProbability)
-				{
-					// No luck, no quest this time
-					continue;
-				}
-
-				RegisterQuest(UFlareQuestGeneratedCargoHunt::Create(this, Company, OtherCompany));
-			}
-
-			if(OtherValue.ArmyCurrentCombatPoints > Value.ArmyCurrentCombatPoints*1.1)
-			{
-				// 1% per day per negative reputation point
-				float MilitaryHuntQuestProbability = FMath::Clamp((-50 - Company->GetReputation(OtherCompany)) * 0.001f, 0.f, 1.f);
-
-
-				//FLOGV("CargoHuntQuestProbability for %s to %s: %f", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString(), CargoHuntQuestProbability);
-
-				float rand = FMath::FRand();
-
-				//FLOGV("rand %f", rand);
-
-				// Rand
-				if (rand > MilitaryHuntQuestProbability)
-				{
-					// No luck, no quest this time
-					continue;
-				}
-
-				RegisterQuest(UFlareQuestGeneratedMilitaryHunt::Create(this, Company, OtherCompany));
 			}
 		}
 	}
