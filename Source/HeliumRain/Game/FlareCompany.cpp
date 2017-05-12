@@ -1292,12 +1292,17 @@ bool UFlareCompany::IsTechnologyUnlockedStation(const FFlareSpacecraftDescriptio
 	{
 		return IsTechnologyUnlocked("metallurgy");
 	}
-	else if(Identifier == "station-shipyard" ||
-			Identifier == "station-tokamak" ||
+	else if(Identifier == "station-shipyard")
+	{
+		return IsTechnologyUnlocked("shipyard-station");
+	}
+	else if(Identifier == "station-tokamak" ||
 			Identifier == "station-telescope")
 	{
 		return IsTechnologyUnlocked("advanced-stations");
 	}
+
+
 
 	FLOGV("WARNING: station %s don't need technology", *Description->Identifier.ToString());
 	return true;
@@ -1337,11 +1342,11 @@ int32 UFlareCompany::GetTechnologyCost(const FFlareTechnologyDescription* Techno
 int32 UFlareCompany::GetTechnologyLevel() const
 {
 	// 0 technologies -> Level 1
-	// 2 technologies -> Level 2
-	// 4 technologies -> Level 3
-	// 6 technologies -> Level 4
+	// 1 technologies -> Level 2
+	// 2 technologies -> Level 3
+	// 3 technologies -> Level 4
 
-	return 1 + FMath::FloorToInt(UnlockedTechnologies.Num() / 2);
+	return 1 + UnlockedTechnologies.Num();
 }
 
 int32 UFlareCompany::GetResearchAmount() const

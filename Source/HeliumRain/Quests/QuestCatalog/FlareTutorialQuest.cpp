@@ -450,22 +450,22 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 
 	{
 		#undef QUEST_STEP_TAG
-		#define QUEST_STEP_TAG QUEST_TAG"ReachLevelTechnology2"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","High level technology require an increased technology level. Your technology level is incremented every 2 new technologies."
-																"\nResearch more technologies to unlock level 2 technologies.");
+		#define QUEST_STEP_TAG QUEST_TAG"ReachLevelTechnology3"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","High level technology require an increased technology level. Your technology level is incremented every new technology."
+																"\nResearch more technologies to unlock level 3 technologies.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "track-quest", Description);
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialTechnologyLevel::Create(this, 2));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialTechnologyLevel::Create(this, 3));
 		Steps.Add(Step);
 	}
 
 	{
 		#undef QUEST_STEP_TAG
-		#define QUEST_STEP_TAG QUEST_TAG"ResearchTechnologyLevel2"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You are now ready to research a level 2 technology.");
-		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-technology-2", Description);
+		#define QUEST_STEP_TAG QUEST_TAG"ResearchTechnologyLevel3"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You are now ready to research a level 3 technology.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-technology-3", Description);
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchTechnology::Create(this, 2));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchTechnology::Create(this, 3));
 		Steps.Add(Step);
 	}
 }
