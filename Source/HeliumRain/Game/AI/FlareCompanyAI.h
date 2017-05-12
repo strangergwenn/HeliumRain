@@ -245,9 +245,6 @@ protected:
 	void DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* Variation) const;
 
 	SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat);
-	
-	TMap<FFlareResourceDescription*, int32> ComputeWorldResourceFlow() const;
-
 
 protected:
 
@@ -263,7 +260,6 @@ protected:
 	UFlareAIBehavior*                      Behavior;
 	
 	// Cache
-	TMap<FFlareResourceDescription*, int32>  ResourceFlow;
 	TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldStats;
 	TArray<UFlareSimulatedSpacecraft*>       Shipyards;
 	TMap<UFlareSimulatedSector*, SectorVariation> WorldResourceVariation;

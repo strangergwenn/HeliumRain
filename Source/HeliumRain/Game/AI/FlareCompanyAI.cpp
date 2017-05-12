@@ -76,8 +76,7 @@ void UFlareCompanyAI::Simulate()
 
 		CheckBattleResolution();
 		UpdateDiplomacy();
-	
-		ResourceFlow = ComputeWorldResourceFlow();
+
 		WorldStats = WorldHelper::ComputeWorldResourceStats(Game);
 		Shipyards = FindShipyards();
 
@@ -3357,8 +3356,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				int32 Flow = FMath::CeilToInt(float(Factory->GetInputResourceQuantity(ResourceIndex)) / float(ProductionDuration));
 
-				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
-
+				int32 CanBuyQuantity =  FMath::Max(0, (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput)));
 
 				if (Flow == 0)
 				{
@@ -3491,6 +3489,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
 				int32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
+				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
 				int32 Capacity = SlotCapacity - ResourceQuantity;
 				// Dept are allowed for sell to customers
 				if (ResourceQuantity < SlotCapacity)
@@ -3501,6 +3500,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					}
 					else
 					{
+						Capacity = FMath::Min(Capacity, CanBuyQuantity);
 						Variation->FactoryCapacity += Capacity * Behavior->TradingSell;
 					}
 				}
@@ -3618,7 +3618,12 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			{
 				continue;
 			}
-			SectorVariation.IncomingCapacity += Ship->GetCargoBay()->GetCapacity() / RemainingTravelDuration;
+
+			if( Ship->GetCompany()->GetMoney() > 0)
+			{
+				SectorVariation.IncomingCapacity += Ship->GetCargoBay()->GetCapacity() / RemainingTravelDuration;
+			}
+
 
 			TArray<FFlareCargo>& CargoBaySlots = Ship->GetCargoBay()->GetSlots();
 			for (int32 CargoIndex = 0; CargoIndex < CargoBaySlots.Num(); CargoIndex++)
@@ -3654,12 +3659,25 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			int32 NeededFS;
 			int32 TotalNeededFS;
 			int64 MaxDuration;
+			int32 NeededFSSum = 0;
 
 			SectorHelper::GetRefillFleetSupplyNeeds(Sector, OtherCompany, NeededFS, TotalNeededFS, MaxDuration);
-			Variation->MaintenanceCapacity += TotalNeededFS;
+			NeededFSSum += TotalNeededFS;
 
 			SectorHelper::GetRepairFleetSupplyNeeds(Sector, OtherCompany, NeededFS, TotalNeededFS, MaxDuration);
-			Variation->MaintenanceCapacity += TotalNeededFS;
+			NeededFSSum += TotalNeededFS;
+
+			if(OtherCompany == Company)
+			{
+				Variation->MaintenanceCapacity += NeededFSSum;
+			}
+			else
+			{
+				FFlareResourceDescription* FleetSupply = Sector->GetGame()->GetScenarioTools()->FleetSupply;
+				int32 CanBuyQuantity =  (int32) (OtherCompany->GetMoney() / Sector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::FactoryInput));
+
+				Variation->MaintenanceCapacity += FMath::Min(CanBuyQuantity, NeededFSSum);
+			}
 		}
 	}
 
@@ -4054,91 +4072,4 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 	return BestDeal;
 }
 
-TMap<FFlareResourceDescription*, int32> UFlareCompanyAI::ComputeWorldResourceFlow() const
-{
-	TMap<FFlareResourceDescription*, int32> WorldResourceFlow;
-	for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
-	{
-		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
-
-		WorldResourceFlow.Add(Resource, 0);
-	}
-
-	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
-	{
-		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
-		int32 CustomerStation = 0;
-
-
-		for (int32 StationIndex = 0; StationIndex < Sector->GetSectorStations().Num(); StationIndex++)
-		{
-			UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations()[StationIndex];
-
-
-			if (Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
-			{
-				continue;
-			}
-
-			if (Station->HasCapability(EFlareSpacecraftCapability::Consumer))
-			{
-				CustomerStation++;
-			}
-
-			for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
-			{
-				UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
-				if ((!Factory->IsActive() || !Factory->IsNeedProduction()))
-				{
-					// No resources needed
-					break;
-				}
-
-				// Input flow
-				for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetInputResourcesCount(); ResourceIndex++)
-				{
-					FFlareResourceDescription* Resource = Factory->GetInputResource(ResourceIndex);
-
-					int64 ProductionDuration = Factory->GetProductionDuration();
-					if (ProductionDuration == 0)
-					{
-						ProductionDuration = 10;
-					}
-
-					int32 Flow = Factory->GetInputResourceQuantity(ResourceIndex) / ProductionDuration;
-					WorldResourceFlow[Resource] -= Flow;
-				}
-
-				// Ouput flow
-				for (int32 ResourceIndex = 0; ResourceIndex < Factory->GetOutputResourcesCount(); ResourceIndex++)
-				{
-					FFlareResourceDescription* Resource = Factory->GetOutputResource(ResourceIndex);
-
-					int64 ProductionDuration = Factory->GetProductionDuration();
-					if (ProductionDuration == 0)
-					{
-						ProductionDuration = 10;
-					}
-
-					int32 Flow = Factory->GetOutputResourceQuantity(ResourceIndex) / ProductionDuration;
-					WorldResourceFlow[Resource] += Flow;
-				}
-			}
-		}
-
-		if (CustomerStation)
-		{
-			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
-			{
-				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
-
-				int32 Consumption = Sector->GetPeople()->GetRessourceConsumption(Resource, false);
-				WorldResourceFlow[Resource] -= Consumption;
-			}
-		}
-
-	}
-
-	return WorldResourceFlow;
-}
 #undef LOCTEXT_NAMESPACE
