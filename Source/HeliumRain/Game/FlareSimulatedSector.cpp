@@ -349,7 +349,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 		ShipData.DynamicComponentStateIdentifier = CapturedSpacecraft->DynamicComponentStateIdentifier;
 		ShipData.DynamicComponentStateProgress = CapturedSpacecraft->DynamicComponentStateProgress;
 		ShipData.Level = CapturedSpacecraft->Level;
-		ShipData.SpawnMode = EFlareSpawnMode::Safe;
+		ShipData.SpawnMode = CapturedSpacecraft->SpawnMode;
 		ShipData.AttachActorName = CapturedSpacecraft->AttachActorName;
 		ShipData.IsUnderConstruction = CapturedSpacecraft->IsUnderConstruction;
 		ShipData.CargoBackup = CapturedSpacecraft->CargoBackup;
