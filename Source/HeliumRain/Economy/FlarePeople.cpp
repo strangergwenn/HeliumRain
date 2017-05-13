@@ -191,63 +191,81 @@ void UFlarePeople::SimulateResourcePurchase()
 		//TODO reputation
 	}
 
-	uint32 FuelConsumption = GetRessourceConsumption(Fuel, true);
-	uint32 BoughtFuel = BuyResourcesInSector(Fuel, FuelConsumption); // In Tons
-	//if(BoughtFuel)
-	//	FLOGV("People in %s bought %u fuel", *Parent->GetSectorName().ToString(), BoughtFuel);
-	PeopleData.FuelStock += BoughtFuel * 1000; // In kg
 
-	if(FuelConsumption == BoughtFuel)
+	float FuelPrice = Parent->GetResourcePrice(Fuel, EFlareResourcePriceContext::Default);
+	float FuelPriceRatio = (FuelPrice - Fuel->MinPrice) / (float)(Fuel->MaxPrice - Fuel->MinPrice);
+	if(FuelPriceRatio < 0.75)
 	{
-		PeopleData.FuelConsumption += 0.01 * FUEL_MIN_CONSUMPTION / PeopleData.FuelConsumption;
-	}
-	else
-	{
-		PeopleData.FoodConsumption -= 0.1f /FOOD_NEED_STOCK * FOOD_MIN_CONSUMPTION;
-		PeopleData.FuelConsumption -= 1.f /FUEL_NEED_STOCK * FUEL_MIN_CONSUMPTION;
-		PeopleData.ToolConsumption -= 1.f /TOOL_NEED_STOCK * TOOL_MIN_CONSUMPTION;
-		PeopleData.TechConsumption -= 1.f /TECH_NEED_STOCK * TECH_MIN_CONSUMPTION;
 
-		//TODO reputation
-	}
+		uint32 FuelConsumption = GetRessourceConsumption(Fuel, true);
+		uint32 BoughtFuel = BuyResourcesInSector(Fuel, FuelConsumption); // In Tons
+		//if(BoughtFuel)
+		//	FLOGV("People in %s bought %u fuel", *Parent->GetSectorName().ToString(), BoughtFuel);
+		PeopleData.FuelStock += BoughtFuel * 1000; // In kg
 
-	uint32 ToolConsumption = GetRessourceConsumption(Tool, true);
-	uint32 BoughtTool = BuyResourcesInSector(Tool, ToolConsumption); // In Tons
-	//if(BoughtTool)
-	//	FLOGV("People in %s bought %u tool", *Parent->GetSectorName().ToString(), BoughtTool);
-	PeopleData.ToolStock += BoughtTool * 1000; // In kg
+		if(FuelConsumption == BoughtFuel)
+		{
+			PeopleData.FuelConsumption += 0.01 * FUEL_MIN_CONSUMPTION / PeopleData.FuelConsumption;
+		}
+		else
+		{
+			PeopleData.FoodConsumption -= 0.1f /FOOD_NEED_STOCK * FOOD_MIN_CONSUMPTION;
+			PeopleData.FuelConsumption -= 1.f /FUEL_NEED_STOCK * FUEL_MIN_CONSUMPTION;
+			PeopleData.ToolConsumption -= 1.f /TOOL_NEED_STOCK * TOOL_MIN_CONSUMPTION;
+			PeopleData.TechConsumption -= 1.f /TECH_NEED_STOCK * TECH_MIN_CONSUMPTION;
 
-	if(ToolConsumption == BoughtTool)
-	{
-		PeopleData.ToolConsumption += 0.01 * TOOL_MIN_CONSUMPTION / PeopleData.ToolConsumption;
-	}
-	else
-	{
-		PeopleData.FoodConsumption -= 0.1f /FOOD_NEED_STOCK * FOOD_MIN_CONSUMPTION;
-		PeopleData.FuelConsumption -= 0.1f /FUEL_NEED_STOCK * FUEL_MIN_CONSUMPTION;
-		PeopleData.ToolConsumption -= 1.f /TOOL_NEED_STOCK * TOOL_MIN_CONSUMPTION;
-		PeopleData.TechConsumption -= 1.f /TECH_NEED_STOCK * TECH_MIN_CONSUMPTION;
-
-		//TODO reputation
+			//TODO reputation
+		}
 	}
 
-	uint32 TechConsumption = GetRessourceConsumption(Tech, true);
-	uint32 BoughtTech = BuyResourcesInSector(Tech, TechConsumption); // In Tons
-	//if(BoughtTech)
-	//	FLOGV("People in %s bought %u tech", *Parent->GetSectorName().ToString(), BoughtTech);
-	PeopleData.TechStock += BoughtTech * 1000; // In kg
+	float ToolPrice = Parent->GetResourcePrice(Tool, EFlareResourcePriceContext::Default);
+	float ToolPriceRatio = (ToolPrice - Tool->MinPrice) / (float)(Tool->MaxPrice - Tool->MinPrice);
+	if(ToolPriceRatio < 0.5)
+	{
+		uint32 ToolConsumption = GetRessourceConsumption(Tool, true);
+		uint32 BoughtTool = BuyResourcesInSector(Tool, ToolConsumption); // In Tons
+		//if(BoughtTool)
+		//	FLOGV("People in %s bought %u tool", *Parent->GetSectorName().ToString(), BoughtTool);
+		PeopleData.ToolStock += BoughtTool * 1000; // In kg
 
-	if(TechConsumption == BoughtTech)
-	{
-		PeopleData.TechConsumption += 0.01 * TECH_MIN_CONSUMPTION / PeopleData.TechConsumption;
+		if(ToolConsumption == BoughtTool)
+		{
+			PeopleData.ToolConsumption += 0.01 * TOOL_MIN_CONSUMPTION / PeopleData.ToolConsumption;
+		}
+		else
+		{
+			PeopleData.FoodConsumption -= 0.1f /FOOD_NEED_STOCK * FOOD_MIN_CONSUMPTION;
+			PeopleData.FuelConsumption -= 0.1f /FUEL_NEED_STOCK * FUEL_MIN_CONSUMPTION;
+			PeopleData.ToolConsumption -= 1.f /TOOL_NEED_STOCK * TOOL_MIN_CONSUMPTION;
+			PeopleData.TechConsumption -= 1.f /TECH_NEED_STOCK * TECH_MIN_CONSUMPTION;
+
+			//TODO reputation
+		}
 	}
-	else
+
+
+	float TechPrice = Parent->GetResourcePrice(Tech, EFlareResourcePriceContext::Default);
+	float TechPriceRatio = (TechPrice - Tech->MinPrice) / (float)(Tech->MaxPrice - Tech->MinPrice);
+	if(TechPriceRatio < 0.25)
 	{
-		PeopleData.FoodConsumption -= 0.1f /FOOD_NEED_STOCK * FOOD_MIN_CONSUMPTION;
-		PeopleData.FuelConsumption -= 0.1f /FUEL_NEED_STOCK * FUEL_MIN_CONSUMPTION;
-		PeopleData.ToolConsumption -= 0.1f /TOOL_NEED_STOCK * TOOL_MIN_CONSUMPTION;
-		PeopleData.TechConsumption -= 1.f /TOOL_NEED_STOCK * TOOL_MIN_CONSUMPTION;
-		//TODO reputation
+		uint32 TechConsumption = GetRessourceConsumption(Tech, true);
+		uint32 BoughtTech = BuyResourcesInSector(Tech, TechConsumption); // In Tons
+		//if(BoughtTech)
+		//	FLOGV("People in %s bought %u tech", *Parent->GetSectorName().ToString(), BoughtTech);
+		PeopleData.TechStock += BoughtTech * 1000; // In kg
+
+		if(TechConsumption == BoughtTech)
+		{
+			PeopleData.TechConsumption += 0.01 * TECH_MIN_CONSUMPTION / PeopleData.TechConsumption;
+		}
+		else
+		{
+			PeopleData.FoodConsumption -= 0.1f /FOOD_NEED_STOCK * FOOD_MIN_CONSUMPTION;
+			PeopleData.FuelConsumption -= 0.1f /FUEL_NEED_STOCK * FUEL_MIN_CONSUMPTION;
+			PeopleData.ToolConsumption -= 0.1f /TOOL_NEED_STOCK * TOOL_MIN_CONSUMPTION;
+			PeopleData.TechConsumption -= 1.f /TOOL_NEED_STOCK * TOOL_MIN_CONSUMPTION;
+			//TODO reputation
+		}
 	}
 
 	// TODO use setter to set consumption
