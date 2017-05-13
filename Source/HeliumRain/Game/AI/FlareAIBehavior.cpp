@@ -76,7 +76,7 @@ void UFlareAIBehavior::Simulate()
 			Company->GiveReputation(OtherCompany, Intensity, false);
 		}
 
-		if(Company == ST->Pirates && OtherCompany != ST->AxisSupplies)
+		if(Company == ST->Pirates)
 		{
 			Company->GiveReputation(OtherCompany, -1, false);
 		}
@@ -127,11 +127,11 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			continue;
 		}
 
-		if(Company == ST->AxisSupplies)
+		/*if(Company == ST->AxisSupplies)
 		{
 			// Never declare war
 			continue;
-		}
+		}*/
 
 		// Lock war with player for 10 days
 		int64 DaySinceWarWithPlayer = Game->GetGameWorld()->GetDate() - Company->GetLastWarDate();
@@ -253,7 +253,7 @@ void UFlareAIBehavior::GenerateAffilities()
 
 	// Budget
 	BudgetTechnologyWeight = 0.2;
-	BudgetMilitaryWeight = 1.0;
+	BudgetMilitaryWeight = 0.5;
 	BudgetStationWeight = 1.0;
 	BudgetTradeWeight = 1.0;
 
@@ -325,8 +325,8 @@ void UFlareAIBehavior::GenerateAffilities()
 
 		// Budget
 		BudgetTechnologyWeight = 0.0;
-		BudgetMilitaryWeight = 1.0;
-		BudgetStationWeight = 0.0;
+		BudgetMilitaryWeight = 0.5;
+		BudgetStationWeight = 0.1;
 		BudgetTradeWeight = 0.1;
 
 		PacifismIncrementRate = 3.f;
@@ -344,7 +344,7 @@ void UFlareAIBehavior::GenerateAffilities()
 
 		// Budget
 		BudgetTechnologyWeight = 0.2;
-		BudgetMilitaryWeight = 2.0;
+		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 1.0;
 		BudgetTradeWeight = 1.0;
 	}
@@ -360,7 +360,7 @@ void UFlareAIBehavior::GenerateAffilities()
 
 		// Budget
 		BudgetTechnologyWeight = 0.2;
-		BudgetMilitaryWeight = 1.0;
+		BudgetMilitaryWeight = 0.5;
 		BudgetStationWeight = 2.0;
 		BudgetTradeWeight = 2.0;
 	}
@@ -376,7 +376,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		
 		// Budget
 		BudgetTechnologyWeight = 0.4;
-		BudgetMilitaryWeight = 1.0;
+		BudgetMilitaryWeight = 0.5;
 		BudgetStationWeight = 2.0;
 		BudgetTradeWeight = 2.0;
 	}
@@ -388,14 +388,14 @@ void UFlareAIBehavior::GenerateAffilities()
 		
 		// Budget
 		BudgetTechnologyWeight = 0.6;
-		BudgetMilitaryWeight = 1.0;
+		BudgetMilitaryWeight = 0.5;
 		BudgetStationWeight = 2.0;
 		BudgetTradeWeight = 2.0;
 	}
 	else if(Company == ST->IonLane)
 	{
 		BudgetTechnologyWeight = 0.2;
-		BudgetMilitaryWeight = 2.0;
+		BudgetMilitaryWeight = 1.0;
 		BudgetStationWeight = 0.1;
 		BudgetTradeWeight = 2.0;
 
@@ -413,7 +413,7 @@ void UFlareAIBehavior::GenerateAffilities()
 
 		// Budget
 		BudgetTechnologyWeight = 0.4;
-		BudgetMilitaryWeight = 1.0;
+		BudgetMilitaryWeight = 0.5;
 		BudgetStationWeight = 2.0;
 		BudgetTradeWeight = 2.0;
 	}
@@ -430,7 +430,7 @@ void UFlareAIBehavior::GenerateAffilities()
 
 		// Budget
 		BudgetTechnologyWeight = 0.4;
-		BudgetMilitaryWeight = 1.0;
+		BudgetMilitaryWeight = 0.5;
 		BudgetStationWeight = 2.0;
 		BudgetTradeWeight = 2.0;
 	}
@@ -446,7 +446,7 @@ void UFlareAIBehavior::GenerateAffilities()
 
 		// Budget
 		BudgetTechnologyWeight = 0.2;
-		BudgetMilitaryWeight = 0.5;
+		BudgetMilitaryWeight = 0.25;
 		BudgetStationWeight = 2.0;
 		BudgetTradeWeight = 2.0;
 
@@ -455,7 +455,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		RequestPeaceConfidence = 0.0;
 		PayTributeConfidence = -0.1;
 
-		DiplomaticReactivity = 0;
+		DiplomaticReactivity = 0.1;
 	}
 
 }
