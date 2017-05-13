@@ -3996,7 +3996,7 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 
 			if (VariationB->HighPriority)
 			{
-				Score *= 10000;
+				Score *= 1000;
 			}
 #ifdef DEBUG_AI_TRADING
 			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY

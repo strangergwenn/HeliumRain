@@ -294,6 +294,7 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationHydrogenPump, NemaHeavyWorks, TheSpire, 2, 2);
 	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 1);
 	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 1, 2);
+	CreateStations(StationHeliumPump, IonLane, TheSpire, 1, 2);
 
 	// Blue Shores (refineries)
 	CreateStations(StationHabitation, MiningSyndicate, MinersHome, 1, 1);
