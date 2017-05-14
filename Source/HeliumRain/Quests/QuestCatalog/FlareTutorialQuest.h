@@ -77,6 +77,18 @@ public:
 	static UFlareQuest* Create(UFlareQuestManager* Parent);
 };
 
+UCLASS()
+class HELIUMRAIN_API UFlareQuestTutorialResearchStation: public UFlareQuest
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestManager* Parent);
+	static UFlareQuest* Create(UFlareQuestManager* Parent);
+};
+
 // Conditions
 
 
@@ -375,23 +387,64 @@ protected:
 	bool Completed;
 };
 
-	//////////////////////////////////////////////////////
-	UCLASS()
-	class HELIUMRAIN_API UFlareQuestConditionTutorialBuildStation : public UFlareQuestCondition
-	{
-		GENERATED_UCLASS_BODY()
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialBuildStation : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
 
 
-	public:
+public:
 
-		static UFlareQuestConditionTutorialBuildStation* Create(UFlareQuest* ParentQuest, bool Upgrade);
-		void Load(UFlareQuest* ParentQuest, bool Upgrade);
+	static UFlareQuestConditionTutorialBuildStation* Create(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier = NAME_None);
+	void Load(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier);
 
-		virtual bool IsCompleted();
-		virtual void OnEvent(FFlareBundle& Bundle);
-		virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
-	protected:
-		bool TargetUpgrade;
-		bool Completed;
-	};
+	virtual bool IsCompleted();
+	virtual void OnEvent(FFlareBundle& Bundle);
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+protected:
+	FName TargetStationIdentifier;
+	bool TargetUpgrade;
+	bool Completed;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialUnlockTechnology: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionTutorialUnlockTechnology* Create(UFlareQuest* ParentQuest, FName Identifier);
+	void Load(UFlareQuest* ParentQuest, FName Identifier);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+protected:
+	FName TargetIdentifier;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialProduceResearch: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	static UFlareQuestConditionTutorialProduceResearch* Create(UFlareQuest* ParentQuest, FName ConditionIdentifierParam, int32 QuantityParam);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifierParam, int32 QuantityParam);
+
+	virtual bool IsCompleted();
+	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
+
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual void OnEvent(FFlareBundle& Bundle);
+
+protected:
+
+	int32 Quantity;
+	int32 CurrentProgression;
+};
 

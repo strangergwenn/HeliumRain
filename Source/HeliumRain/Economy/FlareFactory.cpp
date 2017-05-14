@@ -735,6 +735,13 @@ void UFlareFactory::PerformGainResearchAction(const FFlareFactoryAction* Action)
 	UFlareCompany* Company = Parent->GetCompany();
 
 	Company->GiveResearch(Action->Quantity);
+	AFlarePlayerController* PC = Parent->GetGame()->GetPC();
+
+	// Notify PC
+	if (Parent->GetCompany() == PC->GetCompany())
+	{
+		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("produce-research").PutInt32("amount", Action->Quantity));
+	}
 }
 
 
@@ -760,7 +767,9 @@ void UFlareFactory::PerformBuildStationAction(const FFlareFactoryAction* Action)
 			EFlareMenu::MENU_Ship,
 			Data);
 
-		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("finish-station-construction").PutInt32("upgrade", int32(Parent->GetLevel() > 1)));
+		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("finish-station-construction")
+										 .PutInt32("upgrade", int32(Parent->GetLevel() > 1))
+										 .PutName("identifier", Parent->GetDescription()->Identifier));
 	}
 
 }

@@ -669,6 +669,66 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 }
 
 /*----------------------------------------------------
+	Tutorial research station
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "TutorialResearchStation"
+UFlareQuestTutorialResearchStation::UFlareQuestTutorialResearchStation(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuest* UFlareQuestTutorialResearchStation::Create(UFlareQuestManager* Parent)
+{
+	UFlareQuestTutorialResearchStation* Quest = NewObject<UFlareQuestTutorialResearchStation>(Parent, UFlareQuestTutorialResearchStation::StaticClass());
+	Quest->Load(Parent);
+	return Quest;
+}
+
+void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
+{
+	LoadInternal(Parent);
+
+	Identifier = "tutorial-research-station";
+	QuestName = LOCTEXT(QUEST_TAG"Name","Reseach station tutorial");
+	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to build and use research stations.");
+	QuestCategory = EFlareQuestCategory::TUTORIAL;
+
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-technology"));
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-build-station"));
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"ResearchStationTechnology"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","A good way to get technology is to build research stations. First unlock the technology to build research stations.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-station-technology", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialUnlockTechnology::Create(this, "stations"));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"BuildReasearchStation"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You have the technology to build research stations. Build one research station in the sector of your choose");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "build-research-station", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, false, "station-research"));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"ProduceResearch"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your research station is ready. Make sure you provide it input resource to produce research points.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "produce-peseach", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialProduceResearch::Create(this, QUEST_TAG"cond1", 50));
+		Steps.Add(Step);
+	}
+}
+
+/*----------------------------------------------------
 	Tutorial get contrat condition
 ----------------------------------------------------*/
 UFlareQuestConditionTutorialGetContrat::UFlareQuestConditionTutorialGetContrat(const FObjectInitializer& ObjectInitializer)
@@ -1500,7 +1560,7 @@ void UFlareQuestConditionTutorialBuildShip::AddConditionObjectives(FFlarePlayerO
 }
 
 /*----------------------------------------------------
-	Tutorial money value condition
+	Tutorial unlock station condition
 ----------------------------------------------------*/
 UFlareQuestConditionTutorialUnlockStation::UFlareQuestConditionTutorialUnlockStation(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -1615,27 +1675,45 @@ UFlareQuestConditionTutorialBuildStation::UFlareQuestConditionTutorialBuildStati
 {
 }
 
-UFlareQuestConditionTutorialBuildStation* UFlareQuestConditionTutorialBuildStation::Create(UFlareQuest* ParentQuest, bool Upgrade)
+UFlareQuestConditionTutorialBuildStation* UFlareQuestConditionTutorialBuildStation::Create(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier)
 {
 	UFlareQuestConditionTutorialBuildStation* Condition = NewObject<UFlareQuestConditionTutorialBuildStation>(ParentQuest, UFlareQuestConditionTutorialBuildStation::StaticClass());
-	Condition->Load(ParentQuest, Upgrade);
+	Condition->Load(ParentQuest, Upgrade, StationIdentifier);
 	return Condition;
 }
 
-void UFlareQuestConditionTutorialBuildStation::Load(UFlareQuest* ParentQuest, bool Upgrade)
+void UFlareQuestConditionTutorialBuildStation::Load(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier)
 {
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 	Completed = false;
 	TargetUpgrade = Upgrade;
+	TargetStationIdentifier = StationIdentifier;
+
+	FFlareSpacecraftDescription* Desc = GetGame()->GetSpacecraftCatalog()->Get(TargetStationIdentifier);
+
 
 	if(!Upgrade)
 	{
-		InitialLabel = LOCTEXT("FinishStationConstructionNew", "Finish a station construction");
+		if(Desc)
+		{
+			InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionNew", "Build a {0} "), Desc->Name);
+		}
+		else
+		{
+			InitialLabel = LOCTEXT("FinishStationConstructionNew", "Finish a station construction");
+		}
 	}
 	else
 	{
-		InitialLabel = LOCTEXT("FinishStationConstructionUprade", "Fishish a station upgrade");
+		if(Desc)
+		{
+				InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionUpgrade", "Upgrade a {0} "), Desc->Name);
+		}
+		else
+		{
+			InitialLabel = LOCTEXT("FinishStationConstructionUpgrade", "Fishish a station upgrade");
+		}
 	}
 }
 
@@ -1648,7 +1726,10 @@ void UFlareQuestConditionTutorialBuildStation::OnEvent(FFlareBundle& Bundle)
 
 	if (Bundle.HasTag("finish-station-construction") && Bundle.GetInt32("upgrade") == int32(TargetUpgrade))
 	{
-		Completed = true;
+		if(TargetStationIdentifier == NAME_None || TargetStationIdentifier == Bundle.GetName("identifier"))
+		{
+			Completed = true;
+		}
 	}
 }
 bool UFlareQuestConditionTutorialBuildStation::IsCompleted()
@@ -1667,5 +1748,150 @@ void UFlareQuestConditionTutorialBuildStation::AddConditionObjectives(FFlarePlay
 	ObjectiveCondition.Progress = IsCompleted() ? 1 : 0;
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
+
+
+/*----------------------------------------------------
+	Tutorial unlock technology condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialUnlockTechnology::UFlareQuestConditionTutorialUnlockTechnology(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialUnlockTechnology* UFlareQuestConditionTutorialUnlockTechnology::Create(UFlareQuest* ParentQuest, FName Identifier)
+{
+	UFlareQuestConditionTutorialUnlockTechnology* Condition = NewObject<UFlareQuestConditionTutorialUnlockTechnology>(ParentQuest, UFlareQuestConditionTutorialUnlockTechnology::StaticClass());
+	Condition->Load(ParentQuest, Identifier);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialUnlockTechnology::Load(UFlareQuest* ParentQuest, FName Identifier)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	TargetIdentifier = Identifier;
+
+	FFlareTechnologyDescription* Technology = GetGame()->GetTechnologyCatalog()->Get(TargetIdentifier);
+
+	if(Technology)
+	{
+		FText InitialLabelText = LOCTEXT("PlayerUnlockTech", "Unlock '{0}' technology");
+		InitialLabel = FText::Format(InitialLabelText, Technology->Name);
+	}
+}
+
+bool UFlareQuestConditionTutorialUnlockTechnology::IsCompleted()
+{
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	return PlayerCompany->IsTechnologyUnlocked(TargetIdentifier);
+}
+
+void UFlareQuestConditionTutorialUnlockTechnology::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = 0;
+	ObjectiveCondition.MaxCounter = 0;
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+
+/*----------------------------------------------------
+	Buy at station condition
+----------------------------------------------------*/
+
+UFlareQuestConditionTutorialProduceResearch::UFlareQuestConditionTutorialProduceResearch(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialProduceResearch* UFlareQuestConditionTutorialProduceResearch::Create(UFlareQuest* ParentQuest, FName ConditionIdentifierParam, int32 QuantityParam)
+{
+	UFlareQuestConditionTutorialProduceResearch*Condition = NewObject<UFlareQuestConditionTutorialProduceResearch>(ParentQuest, UFlareQuestConditionTutorialProduceResearch::StaticClass());
+	Condition->Load(ParentQuest, ConditionIdentifierParam, QuantityParam);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialProduceResearch::Load(UFlareQuest* ParentQuest, FName ConditionIdentifierParam, int32 QuantityParam)
+{
+	if (ConditionIdentifierParam == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionBuyAtStation need identifier for state saving");
+	}
+	LoadInternal(ParentQuest, ConditionIdentifierParam);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	Quantity = QuantityParam;
+
+
+	InitialLabel = FText::Format(LOCTEXT("BuyAtStationDestroyed", "Produce {0} research points"),
+								 FText::AsNumber(Quantity));
+}
+
+void UFlareQuestConditionTutorialProduceResearch::Restore(const FFlareBundle* Bundle)
+{
+	bool HasSave = true;
+	if(Bundle)
+	{
+		HasSave &= Bundle->HasInt32(CURRENT_PROGRESSION_TAG);
+	}
+	else
+	{
+		HasSave = false;
+	}
+
+	if(HasSave)
+	{
+		CurrentProgression = Bundle->GetInt32(CURRENT_PROGRESSION_TAG);
+	}
+	else
+	{
+		CurrentProgression = 0;
+	}
+
+}
+
+void UFlareQuestConditionTutorialProduceResearch::Save(FFlareBundle* Bundle)
+{
+	Bundle->PutInt32(CURRENT_PROGRESSION_TAG, CurrentProgression);
+}
+
+
+bool UFlareQuestConditionTutorialProduceResearch::IsCompleted()
+{
+	return CurrentProgression >= Quantity;
+}
+
+void UFlareQuestConditionTutorialProduceResearch::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = Quantity;
+	ObjectiveCondition.MaxProgress = Quantity;
+	ObjectiveCondition.Counter = CurrentProgression;
+	ObjectiveCondition.Progress = CurrentProgression;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+void UFlareQuestConditionTutorialProduceResearch::OnEvent(FFlareBundle& Bundle)
+{
+	if (Bundle.HasTag("produce-research"))
+	{
+		CurrentProgression+=Bundle.GetInt32("amount");
+	}
+
+	if (CurrentProgression >= Quantity)
+	{
+		CurrentProgression = Quantity;
+	}
+}
+
 
 #undef LOCTEXT_NAMESPACE
