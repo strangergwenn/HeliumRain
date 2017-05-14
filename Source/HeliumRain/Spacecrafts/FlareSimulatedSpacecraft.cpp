@@ -452,6 +452,11 @@ void UFlareSimulatedSpacecraft::Upgrade()
 	SpacecraftData.Cargo.Empty();
 	Load(SpacecraftData);
 
+	if(GetCompany() == Game->GetPC()->GetCompany())
+	{
+		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("start-station-construction").PutInt32("upgrade", 1));
+	}
+
 	FLOGV("UFlareSimulatedSpacecraft::Upgrade %s to level %d done", *GetImmatriculation().ToString(), SpacecraftData.Level);
 }
 

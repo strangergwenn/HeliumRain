@@ -741,6 +741,28 @@ void UFlareFactory::PerformGainResearchAction(const FFlareFactoryAction* Action)
 void UFlareFactory::PerformBuildStationAction(const FFlareFactoryAction* Action)
 {
 	Parent->FinishConstruction();
+
+	AFlarePlayerController* PC = Parent->GetGame()->GetPC();
+
+	// Notify PC
+	if (Parent->GetCompany() == PC->GetCompany())
+	{
+		// Get data
+		FFlareMenuParameterData Data;
+		Data.Spacecraft = Parent;
+
+
+		PC->Notify(LOCTEXT("StationBuild", "Station build"),
+			FText::Format(LOCTEXT("StationBuiltFormat", "Your station {0} is ready to use !"), UFlareGameTools::DisplaySpacecraftName(Parent)),
+			FName("station-production-complete"),
+			EFlareNotification::NT_Economy,
+			false,
+			EFlareMenu::MENU_Ship,
+			Data);
+
+		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("finish-station-construction").PutInt32("upgrade", int32(Parent->GetLevel() > 1)));
+	}
+
 }
 
 

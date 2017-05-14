@@ -174,6 +174,11 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationCla
 			FCHECK(SpawnParameters.AttachActorName != NAME_None);
 			AttachStationToActor(Station, SpawnParameters.AttachActorName);
 		}
+
+		if(UnderConstruction && Company == GetGame()->GetPC()->GetCompany())
+		{
+			Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("start-station-construction").PutInt32("upgrade", 0));
+		}
 	}
 
 	return Station;
@@ -482,7 +487,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	}
 
 	// Station technology
-	if (!Company->IsTechnologyUnlocked("stations"))
+	if (!Company->IsTechnologyUnlockedStation(StationDescription))
 	{
 		OutReasons.Add(LOCTEXT("StationTechnologyRequired", "You need to unlock station technolgy first"));
 		Result = false;

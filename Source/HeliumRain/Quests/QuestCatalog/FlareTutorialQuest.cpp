@@ -569,6 +569,104 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	}
 }
 
+/*----------------------------------------------------
+	Tutorial build station
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "TutorialBuildStation"
+UFlareQuestTutorialBuildStation::UFlareQuestTutorialBuildStation(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuest* UFlareQuestTutorialBuildStation::Create(UFlareQuestManager* Parent)
+{
+	UFlareQuestTutorialBuildStation* Quest = NewObject<UFlareQuestTutorialBuildStation>(Parent, UFlareQuestTutorialBuildStation::StaticClass());
+	Quest->Load(Parent);
+	return Quest;
+}
+
+void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
+{
+	LoadInternal(Parent);
+
+	Identifier = "tutorial-build-station";
+	QuestName = LOCTEXT(QUEST_TAG"Name","Station-building tutorial");
+	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to build stations.");
+	QuestCategory = EFlareQuestCategory::TUTORIAL;
+
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 50));
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-build-ship"));
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"ResearchStationTechnology"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Like other companies, you can have stations. To build them, you need to unlock some stations by researching corresponding technologies.\n"
+																"Research one of the technology unlocking station contruction.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-station-technology", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialUnlockStation::Create(this));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"SectorMenu"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You have now unlock some station contruction possibility. You can build stations on any sector but there is various limitations depending on the kind of station you want to by and the sector."
+																 "\nOpen the current sector menu (<input-action:SectorMenu>), or another visited sector from the orbital menu");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "dock", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Sector));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"StartConstuction"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Open the build station menu using the button on the top left part of the sector menu."
+																"\nStart a station construction will cost you a large amount of administrative fees. This cost depend of the number of stations in the sector : the more there is stations, the more the fees will be expensive."
+																"\nChoose a station and start the construction");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "order-station", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialStartStationConstruction::Create(this, false));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"BuildStation"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","New your station is under construction. Bring missing construction resources to finish the construction."
+																"\nNote that others companies can sell some resources directly to the station."
+																"\nFinish the station building.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "build-station", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, false));
+		Steps.Add(Step);
+	}
+
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"StartUpgrade"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your station is now operational. You can inspect it to see its production needs. "
+																"\nYou can upgrade your station to increase its productivity and cargo bay size. Upgrading a station will make it in construction again until you bring the missing resources."
+																"\nUpgrade a station (using upgrade button in the station details)");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-upgrade", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialStartStationConstruction::Create(this, true));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"FinishUpgrade"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Bring missing construction resources to finish the upgrade.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "finish-upgrade", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, true));
+		Steps.Add(Step);
+	}
+}
 
 /*----------------------------------------------------
 	Tutorial get contrat condition
@@ -1401,5 +1499,173 @@ void UFlareQuestConditionTutorialBuildShip::AddConditionObjectives(FFlarePlayerO
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
 
+/*----------------------------------------------------
+	Tutorial money value condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialUnlockStation::UFlareQuestConditionTutorialUnlockStation(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialUnlockStation* UFlareQuestConditionTutorialUnlockStation::Create(UFlareQuest* ParentQuest)
+{
+	UFlareQuestConditionTutorialUnlockStation* Condition = NewObject<UFlareQuestConditionTutorialUnlockStation>(ParentQuest, UFlareQuestConditionTutorialUnlockStation::StaticClass());
+	Condition->Load(ParentQuest);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialUnlockStation::Load(UFlareQuest* ParentQuest)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+
+	FText InitialLabelText = LOCTEXT("PlayerUnloackStationTech", "Unlock at least one station  technology");
+	InitialLabel = InitialLabelText;
+}
+
+bool UFlareQuestConditionTutorialUnlockStation::IsCompleted()
+{
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	return PlayerCompany->HasStationTechnologyUnlocked();
+}
+
+void UFlareQuestConditionTutorialUnlockStation::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = 0;
+	ObjectiveCondition.MaxCounter = 0;
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+Tutorial start station construction condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialStartStationConstruction::UFlareQuestConditionTutorialStartStationConstruction(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialStartStationConstruction* UFlareQuestConditionTutorialStartStationConstruction::Create(UFlareQuest* ParentQuest, bool Upgrade)
+{
+	UFlareQuestConditionTutorialStartStationConstruction* Condition = NewObject<UFlareQuestConditionTutorialStartStationConstruction>(ParentQuest, UFlareQuestConditionTutorialStartStationConstruction::StaticClass());
+	Condition->Load(ParentQuest, Upgrade);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialStartStationConstruction::Load(UFlareQuest* ParentQuest, bool Upgrade)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	Completed = false;
+	TargetUpgrade = Upgrade;
+
+	if(!Upgrade)
+	{
+		InitialLabel = LOCTEXT("StartStationConstructionNew", "Start a station construction");
+	}
+	else
+	{
+		InitialLabel = LOCTEXT("StartStationConstructionUprade", "Start a station upgrade");
+	}
+}
+
+void UFlareQuestConditionTutorialStartStationConstruction::OnEvent(FFlareBundle& Bundle)
+{
+	if (Completed)
+	{
+		return;
+	}
+
+	if (Bundle.HasTag("start-station-construction") && Bundle.GetInt32("upgrade") == int32(TargetUpgrade))
+	{
+		Completed = true;
+	}
+}
+
+bool UFlareQuestConditionTutorialStartStationConstruction::IsCompleted()
+{
+	return Completed;
+}
+
+void UFlareQuestConditionTutorialStartStationConstruction::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = 1;
+	ObjectiveCondition.MaxProgress = 1;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.Progress = IsCompleted() ? 1 : 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+Tutorial build station condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialBuildStation::UFlareQuestConditionTutorialBuildStation(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialBuildStation* UFlareQuestConditionTutorialBuildStation::Create(UFlareQuest* ParentQuest, bool Upgrade)
+{
+	UFlareQuestConditionTutorialBuildStation* Condition = NewObject<UFlareQuestConditionTutorialBuildStation>(ParentQuest, UFlareQuestConditionTutorialBuildStation::StaticClass());
+	Condition->Load(ParentQuest, Upgrade);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialBuildStation::Load(UFlareQuest* ParentQuest, bool Upgrade)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	Completed = false;
+	TargetUpgrade = Upgrade;
+
+	if(!Upgrade)
+	{
+		InitialLabel = LOCTEXT("FinishStationConstructionNew", "Finish a station construction");
+	}
+	else
+	{
+		InitialLabel = LOCTEXT("FinishStationConstructionUprade", "Fishish a station upgrade");
+	}
+}
+
+void UFlareQuestConditionTutorialBuildStation::OnEvent(FFlareBundle& Bundle)
+{
+	if (Completed)
+	{
+		return;
+	}
+
+	if (Bundle.HasTag("finish-station-construction") && Bundle.GetInt32("upgrade") == int32(TargetUpgrade))
+	{
+		Completed = true;
+	}
+}
+bool UFlareQuestConditionTutorialBuildStation::IsCompleted()
+{
+	return Completed;
+}
+
+void UFlareQuestConditionTutorialBuildStation::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = 1;
+	ObjectiveCondition.MaxProgress = 1;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.Progress = IsCompleted() ? 1 : 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
 
 #undef LOCTEXT_NAMESPACE

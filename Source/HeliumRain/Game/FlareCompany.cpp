@@ -1246,12 +1246,17 @@ bool UFlareCompany::IsTechnologyAvailable(FName Identifier, FText& Reason, bool 
 
 bool UFlareCompany::HasStationTechnologyUnlocked() const
 {
-	return IsTechnologyUnlocked("stations") ||
-	IsTechnologyUnlocked("mining") ||
-	IsTechnologyUnlocked("orbital-pumps") ||
-	IsTechnologyUnlocked("chemicals") ||
-	IsTechnologyUnlocked("advanced-stations") ||
-	IsTechnologyUnlocked("metallurgy");
+	TArray<UFlareSpacecraftCatalogEntry*>& StationCatalog = GetGame()->GetSpacecraftCatalog()->StationCatalog;
+
+	// Loop on catalog
+	for (UFlareSpacecraftCatalogEntry* Entry : StationCatalog)
+	{
+		if (!Entry->Data.IsSubstation && IsTechnologyUnlockedStation(&Entry->Data))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 

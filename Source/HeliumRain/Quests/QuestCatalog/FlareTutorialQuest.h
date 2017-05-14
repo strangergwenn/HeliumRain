@@ -65,6 +65,18 @@ public:
 	static UFlareQuest* Create(UFlareQuestManager* Parent);
 };
 
+UCLASS()
+class HELIUMRAIN_API UFlareQuestTutorialBuildStation: public UFlareQuest
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestManager* Parent);
+	static UFlareQuest* Create(UFlareQuestManager* Parent);
+};
+
 // Conditions
 
 
@@ -328,4 +340,58 @@ protected:
 	int32 TargetSize;
 	bool Completed;
 };
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialUnlockStation: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionTutorialUnlockStation* Create(UFlareQuest* ParentQuest);
+	void Load(UFlareQuest* ParentQuest);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialStartStationConstruction : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionTutorialStartStationConstruction* Create(UFlareQuest* ParentQuest, bool Upgrade);
+	void Load(UFlareQuest* ParentQuest, bool Upgrade);
+
+	virtual bool IsCompleted();
+	virtual void OnEvent(FFlareBundle& Bundle);
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+protected:
+	bool TargetUpgrade;
+	bool Completed;
+};
+
+	//////////////////////////////////////////////////////
+	UCLASS()
+	class HELIUMRAIN_API UFlareQuestConditionTutorialBuildStation : public UFlareQuestCondition
+	{
+		GENERATED_UCLASS_BODY()
+
+
+	public:
+
+		static UFlareQuestConditionTutorialBuildStation* Create(UFlareQuest* ParentQuest, bool Upgrade);
+		void Load(UFlareQuest* ParentQuest, bool Upgrade);
+
+		virtual bool IsCompleted();
+		virtual void OnEvent(FFlareBundle& Bundle);
+		virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	protected:
+		bool TargetUpgrade;
+		bool Completed;
+	};
 
