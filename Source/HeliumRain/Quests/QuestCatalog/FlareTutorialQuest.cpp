@@ -601,8 +601,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ResearchStationTechnology"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Like other companies, you can have stations. To build them, you need to unlock some stations by researching corresponding technologies.\n"
-																"Research one of the technology unlocking station contruction.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Stations are important to gain long-term economic power. Different stations have different technological requirements. Research a technology that unlocks contruction of stations.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-station-technology", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialUnlockStation::Create(this));
@@ -612,8 +611,8 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"SectorMenu"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You have now unlock some station contruction possibility. You can build stations on any sector but there is various limitations depending on the kind of station you want to by and the sector."
-																 "\nOpen the current sector menu (<input-action:SectorMenu>), or another visited sector from the orbital menu");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You have now unlocked some station-building capabilities. You can build stations in any sector, but there are various limitations depending on the kind of station you want to build, and the sector itself. You can't build solar stations in clouds uf dust !"
+																 "\nOpen the current sector menu (<input-action:SectorMenu>), or another known sector from the orbital menu");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "dock", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Sector));
@@ -623,9 +622,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"StartConstuction"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Open the build station menu using the button on the top left part of the sector menu."
-																"\nStart a station construction will cost you a large amount of administrative fees. This cost depend of the number of stations in the sector : the more there is stations, the more the fees will be expensive."
-																"\nChoose a station and start the construction");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Open the station-building menu using the button on the top left part of the sector menu to build a station. Starting a station construction will cost you administrative fees depending of the number of stations in the sector - the more stations, the higher the fee.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "order-station", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialStartStationConstruction::Create(this, false));
@@ -635,9 +632,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"BuildStation"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","New your station is under construction. Bring missing construction resources to finish the construction."
-																"\nNote that others companies can sell some resources directly to the station."
-																"\nFinish the station building.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your station is now under construction. Bring the missing construction resources to finish the construction ! Other companies can sell resources directly to the station too.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "build-station", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, false));
@@ -648,9 +643,8 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"StartUpgrade"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your station is now operational. You can inspect it to see its production needs. "
-																"\nYou can upgrade your station to increase its productivity and cargo bay size. Upgrading a station will make it in construction again until you bring the missing resources."
-																"\nUpgrade a station (using upgrade button in the station details)");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your station is now ready, you can inspect it to see its production needs. You can upgrade stations to increase their productivity and cargo bay. Upgrading a station will put it back in construction until you bring the missing resources."
+																"\nUpgrade a station using the upgrade button in the station details");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-upgrade", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialStartStationConstruction::Create(this, true));
@@ -700,7 +694,7 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ResearchStationTechnology"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","A good way to get technology is to build research stations. First unlock the technology to build research stations.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","The fastest way to research technology is by building research stations. First, unlock the technology to build research stations.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-station-technology", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialUnlockTechnology::Create(this, "stations"));
@@ -710,7 +704,7 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"BuildReasearchStation"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You have the technology to build research stations. Build one research station in the sector of your choose");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You now have the technology to build research stations. Build one anywhere you'd like.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "build-research-station", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, false, "station-research"));
@@ -720,7 +714,7 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ProduceResearch"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your research station is ready. Make sure you provide it input resource to produce research points.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your research station is now ready. Make sure you provide it the input resources it needs to produce research points !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "produce-peseach", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialProduceResearch::Create(this, QUEST_TAG"cond1", 50));
