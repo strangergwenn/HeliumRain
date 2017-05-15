@@ -1765,11 +1765,11 @@ UFlareQuestConditionTutorialUnlockTechnology* UFlareQuestConditionTutorialUnlock
 	return Condition;
 }
 
-void UFlareQuestConditionTutorialUnlockTechnology::Load(UFlareQuest* ParentQuest, FName Identifier)
+void UFlareQuestConditionTutorialUnlockTechnology::Load(UFlareQuest* ParentQuest, FName TechIdentifier)
 {
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
-	TargetIdentifier = Identifier;
+	TargetIdentifier = TechIdentifier;
 
 	FFlareTechnologyDescription* Technology = GetGame()->GetTechnologyCatalog()->Get(TargetIdentifier);
 
