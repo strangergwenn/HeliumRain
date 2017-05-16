@@ -253,7 +253,7 @@ void UFlareSpacecraftWeaponsSystem::Start()
 		}
 	}
 
-	// init last fired ammo with the one with the most ammo count
+	// init last fired ammo with the one before the one with the most ammo count
 	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
 	{
 
@@ -262,20 +262,53 @@ void UFlareSpacecraftWeaponsSystem::Start()
 		//FLOGV("Group %d : component=%s", GroupIndex, *WeaponGroup->Description->Identifier.ToString())
 		//FLOGV("Group %d : type=%d", GroupIndex, (int32)WeaponGroup->Type.GetValue());
 		//FLOGV("Group %d : count=%d", GroupIndex, WeaponGroup->Weapons.Num());
-		int MinAmmo = 0;
-		int MinAmmoIndex = -1;
+		int MaxAmmo = 0;
+		int MinAmmo = -1;
+		int MaxAmmoIndex = -1;
 
 		for (int32 WeaponIndex = 0; WeaponIndex < WeaponGroup->Weapons.Num(); WeaponIndex++)
 		{
 			int32 CurrentAmmo = WeaponGroup->Weapons[WeaponIndex]->GetCurrentAmmo();
-			if (MinAmmoIndex == -1 || CurrentAmmo < MinAmmo)
+			//FLOGV("WeaponIndex %d", WeaponIndex);
+			//FLOGV("CurrentAmmo %d", CurrentAmmo);
+
+			if (MaxAmmoIndex == -1 || CurrentAmmo > MaxAmmo)
+			{
+				MaxAmmo = CurrentAmmo;
+				MaxAmmoIndex = WeaponIndex;
+
+			}
+
+			if (MinAmmo == -1 || CurrentAmmo < MinAmmo)
 			{
 				MinAmmo = CurrentAmmo;
-				MinAmmoIndex = WeaponIndex;
 			}
 		}
 
-		WeaponGroup->LastFiredWeaponIndex = MinAmmoIndex;
+		//FLOGV("MinAmmo %d", MinAmmo);
+		//FLOGV("MaxAmmo %d", MaxAmmo);
+		//FLOGV("MaxAmmoIndex %d", MaxAmmoIndex);
+
+		WeaponGroup->LastFiredWeaponIndex = MaxAmmoIndex - 1;
+		if(WeaponGroup->LastFiredWeaponIndex < 0)
+		{
+			WeaponGroup->LastFiredWeaponIndex = WeaponGroup->Weapons.Num() - 1;
+		}
+		//FLOGV("LastFiredWeaponIndex %d", WeaponGroup->LastFiredWeaponIndex);
+
+		if(MinAmmo != MaxAmmo)
+		{
+			// Find first max
+			while (WeaponGroup->Weapons[WeaponGroup->LastFiredWeaponIndex]->GetCurrentAmmo() == MaxAmmo)
+			{
+				WeaponGroup->LastFiredWeaponIndex--;
+				if(WeaponGroup->LastFiredWeaponIndex < 0)
+				{
+					WeaponGroup->LastFiredWeaponIndex = WeaponGroup->Weapons.Num() - 1;
+				}
+			}
+			//FLOGV("First LastFiredWeaponIndex %d", WeaponGroup->LastFiredWeaponIndex);
+		}
 	}
 
 	// Sort group
