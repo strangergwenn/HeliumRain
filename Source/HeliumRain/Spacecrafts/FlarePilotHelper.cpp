@@ -216,27 +216,39 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 				AvoidanceAxis = AvoidanceVector.GetUnsafeNormal();
 			}
 
-			/*DrawDebugLine(Ship->GetWorld(), CurrentLocation, MinDistancePoint , FColor::Yellow, true);
-			DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Ship->Airframe->GetPhysicsLinearVelocity(), FColor::White, true);
-			DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + AvoidanceAxis *1000 , FColor::Green, true);
-			DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + InitialVelocity *10 , FColor::Blue, true);
-			FLOGV("MostDangerousHitTime %f", MostDangerousHitTime);
-			FLOGV("MostDangerousInterCollisionTravelTime %f", MostDangerousInterCollisionTravelTime);*/
+			//UKismetSystemLibrary::DrawDebugLine(Ship->GetWorld(), CurrentLocation, MinDistancePoint , FColor::Yellow, true);
+			//UKismetSystemLibrary::DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Ship->Airframe->GetPhysicsLinearVelocity(), FColor::White, true);
+			//UKismetSystemLibrary::DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + AvoidanceAxis *1000 , FColor::Green, true);
+			//UKismetSystemLibrary::DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + InitialVelocity *10 , FColor::Blue, true);
+			//FLOGV("MostDangerousHitTime %f", MostDangerousHitTime);
+			//FLOGV("MostDangerousInterCollisionTravelTime %f", MostDangerousInterCollisionTravelTime);
 
 			// Below few second begin avoidance maneuver
 			float Alpha = 1 - FMath::Max(0.0f, MostDangerousHitTime - MostDangerousInterCollisionTravelTime)/PreventionDuration;
 
-			FVector Temp = InitialVelocity.GetUnsafeNormal() * (1.f - Alpha) + Alpha * AvoidanceAxis;
-			Temp *= InitialVelocity.Size();
-			//DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Temp * 10, FColor::Magenta, true);
+			//FLOGV("InitialVelocity=%s", *InitialVelocity.ToString());
+			//FLOGV("InitialVelocity.GetUnsafeNormal()=%s", *InitialVelocity.GetUnsafeNormal().ToString());
 
-			return Temp;
+
+			if(InitialVelocity.IsNearlyZero())
+			{
+				return AvoidanceAxis * Alpha  * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 100;
+			}
+			else
+			{
+				FVector Temp = InitialVelocity.GetUnsafeNormal() * (1.f - Alpha) + Alpha * AvoidanceAxis;
+				Temp *= InitialVelocity.Size();
+				//UKismetSystemLibrary::DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Temp * 10, FColor::Magenta, true);
+				return Temp;
+			}
+
+
 		}
 		else
 		{
 			FVector Temp = (CurrentLocation - MostDangerousLocation).GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 
-			//DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Temp * 10, FColor::Red, true);
+			//UKismetSystemLibrary::DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Temp * 10, FColor::Red, true);
 			return Temp;
 		}
 	}
@@ -657,20 +669,7 @@ bool PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector Curre
 		return false;
 	}
 
-	//FLOGV("DistanceToMinDistancePoint %f", DistanceToMinDistancePoint)
-	//FLOGV("TimeToMinDistance %f", TimeToMinDistance)	
-	//FLOGV("InterCollisionTravelTime %f", InterCollisionTravelTime)
 
-	//DrawDebugLine(Ship->GetWorld(), CandidateLocation, Box.Max , FColor::Yellow, true);
-	//DrawDebugLine(Ship->GetWorld(), CandidateLocation, Box.Min , FColor::Green, true);
-	//DrawDebugSphere(Ship->GetWorld(), CandidateLocation, 10, 12, FColor::White, true);
-	
-	//DrawDebugBox(Ship->GetWorld(), BoxLocation, BoxSize, FQuat(FRotator::ZeroRotator), FColor::Blue, 1.f);
-	//DrawDebugBox(Ship->GetWorld(), Box2Location, Box2Size, FQuat(FRotator::ZeroRotator), FColor::Cyan, 1.f);
-
-	//DrawDebugSphere(Ship->GetWorld(), CandidateLocation, CandidateSize, 12, FColor::Red, true);
-	//DrawDebugSphere(Ship->GetWorld(), CurrentLocation, Ship->GetMeshScale(), 12, FColor::Green, true);
-	//DrawDebugSphere(Ship->GetWorld(), Box2Location, CandidateSize * 2.f, 12, FColor::Magenta, true);
 	
 	// Keep only most imminent hit
 	if (!*MostDangerousCandidateActor || *MostDangerousHitTime > TimeToMinDistance)
@@ -679,6 +678,34 @@ bool PilotHelper::CheckRelativeDangerosity(AActor* CandidateActor, FVector Curre
 		*MostDangerousHitTime = TimeToMinDistance;
 		*MostDangerousInterCollisionTravelTime = InterCollisionTravelTime;
 		*MostDangerousLocation = CandidateLocation;
+
+		/*FLOGV("CandidateActor %s", *CandidateActor->GetName());
+		FLOGV("CandidateActor %s", *CandidateActor->GetName());
+
+
+
+		FLOGV("DistanceToMinDistancePoint %f", DistanceToMinDistancePoint)
+		FLOGV("DeltaLocation %s", *DeltaLocation.ToString())
+		FLOGV("MinDistance %f", MinDistance)
+		FLOGV("DeltaVelocity %s", *DeltaVelocity.ToString())
+		FLOGV("TargetVelocity %s", *TargetVelocity.ToString())
+		FLOGV("CurrentVelocity %s", *CurrentVelocity.ToString())
+
+		FLOGV("TimeToMinDistance %f", TimeToMinDistance)
+		FLOGV("InterCollisionTravelTime %f", InterCollisionTravelTime)*/
+
+
+
+		//UKismetSystemLibrary::DrawDebugLine(CandidateActor->GetWorld(), CandidateLocation, Box.Max , FColor::Yellow, true);
+		//UKismetSystemLibrary::DrawDebugLine(CandidateActor->GetWorld(), CandidateLocation, Box.Min , FColor::Green, true);
+		//UKismetSystemLibrary::DrawDebugSphere(CandidateActor->GetWorld(), CandidateLocation, 10, 12, FColor::White, true);
+
+		//DrawDebugBox(CandidateActor->GetWorld(), BoxLocation, BoxSize, FQuat(FRotator::ZeroRotator), FColor::Blue, 1.f);
+		//DrawDebugBox(CandidateActor->GetWorld(), Box2Location, Box2Size, FQuat(FRotator::ZeroRotator), FColor::Cyan, 1.f);
+
+		//UKismetSystemLibrary::DrawDebugSphere(CandidateActor->GetWorld(), CandidateLocation, CandidateSize, 12, FColor::Red, true);
+		//UKismetSystemLibrary::DrawDebugSphere(CandidateActor->GetWorld(), CurrentLocation, CandidateActor->GetMeshScale(), 12, FColor::Green, true);
+		//UKismetSystemLibrary::DrawDebugSphere(CandidateActor->GetWorld(), Box2Location, CandidateSize * 2.f, 12, FColor::Magenta, true);
 	}
 	return true;
 }
