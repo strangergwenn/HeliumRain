@@ -292,8 +292,6 @@ void UFlareScenarioTools::SetupWorld()
 	// The Spire (pumps, refineries)
 	CreateStations(StationMethanePump, UnitedFarmsChemicals, TheSpire, 2, 2);
 	CreateStations(StationHydrogenPump, NemaHeavyWorks, TheSpire, 2, 2);
-	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, TheSpire, 1);
-	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, TheSpire, 1, 2);
 	CreateStations(StationHeliumPump, IonLane, TheSpire, 1, 2);
 
 	// Blue Shores (refineries)
@@ -335,6 +333,9 @@ void UFlareScenarioTools::SetupWorld()
 		StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, -7168);
 		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 0));
 		CreateStations("station-bh-habitation", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
+
+		CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, BlueHeart, 1);
+		CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, BlueHeart, 1, 2);
 	}
 	
 	// Anka HFR factory
