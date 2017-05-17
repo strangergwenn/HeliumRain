@@ -385,33 +385,29 @@ void UFlareScenarioTools::SetupWorld()
 		float CoreLength = 4096;
 		float BoneLength = -16384;
 		float BoneHeight = 8192;
-
 		FVector FrontVector(1, 0, 0);
 		FVector BaseLocation = FVector(-200000.0, 0, 0);
 		FFlareStationSpawnParameters StationParams;
+		StationParams.AttachActorName = FName("BoneyardCore");
 
 		// BY Shipyard
 		StationParams.Location = BaseLocation + FVector(CoreLength, 0, 0);
 		StationParams.Rotation = FRotator::ZeroRotator;
-		StationParams.AttachActorName = FName("BoneyardCore");
 		CreateStations("station-by-shipyard", Pirates, Boneyard, 1, 1, StationParams);
 
 		// BY Arsenal
 		StationParams.Location = BaseLocation + FVector(BoneLength, 0, BoneHeight).RotateAngleAxis(120, FrontVector);
 		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 210, 90));
-		StationParams.AttachActorName = FName("Bone1");
 		CreateStations("station-by-arsenal", Pirates, Boneyard, 1, 1, StationParams);
 
 		// BY Hub
 		StationParams.Location = BaseLocation + FVector(2 * BoneLength, 0, BoneHeight).RotateAngleAxis(-120, FrontVector);
 		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, -150, -90));
-		StationParams.AttachActorName = FName("Bone2");
 		CreateStations("station-by-hub", Pirates, Boneyard, 1, 1, StationParams);
 
 		// BY Habitation
 		StationParams.Location = BaseLocation + FVector(3 * BoneLength, 0, BoneHeight);
 		StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 90, 0));
-		StationParams.AttachActorName = FName("Bone3");
 		CreateStations("station-by-habitation", Pirates, Boneyard, 1, 1, StationParams);
 	}
 
