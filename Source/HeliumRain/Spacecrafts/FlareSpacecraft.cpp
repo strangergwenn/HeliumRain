@@ -1574,6 +1574,27 @@ void AFlareSpacecraft::FindTarget()
 
 	TargetCandidate = PilotHelper::GetBestTarget(this, TargetPreferences);
 
+	if (!TargetCandidate && GetPC()->GetCurrentObjective() && GetPC()->GetCurrentObjective()->TargetSpacecrafts.Num())
+	{
+		for(UFlareSimulatedSpacecraft* Candidate : GetPC()->GetCurrentObjective()->TargetSpacecrafts)
+		{
+			if(!Candidate->IsActive())
+			{
+				continue;
+			}
+
+			AFlareSpacecraft* ActiveCandidate = Candidate->GetActive();
+
+			if(ActiveCandidate == this || ActiveCandidate == CurrentTarget)
+			{
+				continue;
+			}
+
+			CurrentTarget = ActiveCandidate;
+			break;
+		}
+	}
+
 	if (TargetCandidate)
 	{
 		SetCurrentTarget(TargetCandidate);
