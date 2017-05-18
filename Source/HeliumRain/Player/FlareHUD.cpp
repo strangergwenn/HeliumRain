@@ -1036,7 +1036,7 @@ void AFlareHUD::DrawHUDInternal()
 	DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipSmoothedVelocity);
 
 	// Draw objective
-	if (PC->HasObjective() && PC->GetCurrentObjective()->TargetList.Num() > 0)
+	if (PC->HasObjective() && PC->GetCurrentObjective()->TargetList.Num() > 0 && (PC->GetCurrentObjective()->TargetSectors.Num() == 0 || PC->GetCurrentObjective()->TargetSectors.Contains(PlayerShip->GetParent()->GetCurrentSector())))
 	{
 		FVector2D ScreenPosition;
 

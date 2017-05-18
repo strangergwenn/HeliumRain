@@ -769,7 +769,8 @@ void UFlareFactory::PerformBuildStationAction(const FFlareFactoryAction* Action)
 
 		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("finish-station-construction")
 										 .PutInt32("upgrade", int32(Parent->GetLevel() > 1))
-										 .PutName("identifier", Parent->GetDescription()->Identifier));
+										 .PutName("identifier", Parent->GetDescription()->Identifier)
+										 .PutName("sector", Parent->GetCurrentSector()->GetIdentifier()));
 	}
 
 }

@@ -203,6 +203,8 @@ void UFlareTravel::EndTravel()
 			false,
 			EFlareMenu::MENU_Sector,
 			Data);
+
+		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("travel-end").PutName("sector", DestinationSector->GetIdentifier()));
 	}
 
 	// Update game

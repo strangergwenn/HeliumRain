@@ -396,8 +396,8 @@ class HELIUMRAIN_API UFlareQuestConditionTutorialBuildStation : public UFlareQue
 
 public:
 
-	static UFlareQuestConditionTutorialBuildStation* Create(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier = NAME_None);
-	void Load(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier);
+	static UFlareQuestConditionTutorialBuildStation* Create(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier = NAME_None, UFlareSimulatedSector* Sector = NULL);
+	void Load(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier, UFlareSimulatedSector* Sector);
 
 	virtual bool IsCompleted();
 	virtual void OnEvent(FFlareBundle& Bundle);
@@ -405,6 +405,7 @@ public:
 protected:
 	FName TargetStationIdentifier;
 	bool TargetUpgrade;
+	UFlareSimulatedSector* TargetSector;
 	bool Completed;
 };
 

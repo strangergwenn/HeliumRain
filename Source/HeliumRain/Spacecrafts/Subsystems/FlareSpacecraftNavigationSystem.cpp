@@ -704,10 +704,10 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(AFlareSpacecraft* DockStation
 	ClearCurrentCommand();
 
 	// Set as docked
-	DockStation->GetDockingSystem()->Dock(Spacecraft, DockId);
 	SetStatus(EFlareShipStatus::SS_Docked);
 	Data->DockedTo = DockStation->GetImmatriculation();
 	Data->DockedAt = DockId;
+	DockStation->GetDockingSystem()->Dock(Spacecraft, DockId);
 
 	if(DockConstraint)
 	{

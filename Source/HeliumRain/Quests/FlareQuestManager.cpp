@@ -8,6 +8,7 @@
 #include "FlareQuestManager.h"
 #include "FlareCatalogQuest.h"
 #include "QuestCatalog/FlareTutorialQuest.h"
+#include "QuestCatalog/FlareHistoryQuest.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestManager"
 
@@ -70,6 +71,8 @@ void UFlareQuestManager::LoadBuildinQuest()
 	AddQuest(UFlareQuestTutorialBuildShip::Create(this));
 	AddQuest(UFlareQuestTutorialBuildStation::Create(this));
 	AddQuest(UFlareQuestTutorialResearchStation::Create(this));
+
+	AddQuest(UFlareQuestPendulum::Create(this));
 }
 
 void UFlareQuestManager::LoadCatalogQuests()

@@ -1669,44 +1669,72 @@ UFlareQuestConditionTutorialBuildStation::UFlareQuestConditionTutorialBuildStati
 {
 }
 
-UFlareQuestConditionTutorialBuildStation* UFlareQuestConditionTutorialBuildStation::Create(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier)
+UFlareQuestConditionTutorialBuildStation* UFlareQuestConditionTutorialBuildStation::Create(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier, UFlareSimulatedSector* Sector)
 {
 	UFlareQuestConditionTutorialBuildStation* Condition = NewObject<UFlareQuestConditionTutorialBuildStation>(ParentQuest, UFlareQuestConditionTutorialBuildStation::StaticClass());
-	Condition->Load(ParentQuest, Upgrade, StationIdentifier);
+	Condition->Load(ParentQuest, Upgrade, StationIdentifier, Sector);
 	return Condition;
 }
 
-void UFlareQuestConditionTutorialBuildStation::Load(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier)
+void UFlareQuestConditionTutorialBuildStation::Load(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier, UFlareSimulatedSector* Sector)
 {
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 	Completed = false;
 	TargetUpgrade = Upgrade;
 	TargetStationIdentifier = StationIdentifier;
+	TargetSector = Sector;
 
 	FFlareSpacecraftDescription* Desc = GetGame()->GetSpacecraftCatalog()->Get(TargetStationIdentifier);
 
-
-	if(!Upgrade)
+	if(TargetSector)
 	{
-		if(Desc)
+		if(!Upgrade)
 		{
-			InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionNew", "Build a {0} "), Desc->Name);
+			if(Desc)
+			{
+				InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionNewInSector", "Build a {0} in {1}"), Desc->Name, TargetSector->GetSectorName());
+			}
+			else
+			{
+				InitialLabel = FText::Format(LOCTEXT("FinishStationConstructionNewInSector", "Finish a station construction in {0}"),  TargetSector->GetSectorName());
+			}
 		}
 		else
 		{
-			InitialLabel = LOCTEXT("FinishStationConstructionNew", "Finish a station construction");
+			if(Desc)
+			{
+					InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionUpgradeInSector", "Upgrade a {0}  in {1}"), Desc->Name, TargetSector->GetSectorName());
+			}
+			else
+			{
+				InitialLabel = FText::Format(LOCTEXT("FinishStationConstructionUpgradeInSector", "Fishish a station upgrade in {0}"),  TargetSector->GetSectorName());
+			}
 		}
 	}
 	else
 	{
-		if(Desc)
+		if(!Upgrade)
 		{
-				InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionUpgrade", "Upgrade a {0} "), Desc->Name);
+			if(Desc)
+			{
+				InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionNew", "Build a {0} "), Desc->Name);
+			}
+			else
+			{
+				InitialLabel = LOCTEXT("FinishStationConstructionNew", "Finish a station construction");
+			}
 		}
 		else
 		{
-			InitialLabel = LOCTEXT("FinishStationConstructionUpgrade", "Fishish a station upgrade");
+			if(Desc)
+			{
+					InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionUpgrade", "Upgrade a {0} "), Desc->Name);
+			}
+			else
+			{
+				InitialLabel = LOCTEXT("FinishStationConstructionUpgrade", "Fishish a station upgrade");
+			}
 		}
 	}
 }
@@ -1718,7 +1746,9 @@ void UFlareQuestConditionTutorialBuildStation::OnEvent(FFlareBundle& Bundle)
 		return;
 	}
 
-	if (Bundle.HasTag("finish-station-construction") && Bundle.GetInt32("upgrade") == int32(TargetUpgrade))
+	if (Bundle.HasTag("finish-station-construction")
+			&& Bundle.GetInt32("upgrade") == int32(TargetUpgrade)
+			&& (TargetSector == NULL || TargetSector->GetIdentifier() == Bundle.GetName("sector")))
 	{
 		if(TargetStationIdentifier == NAME_None || TargetStationIdentifier == Bundle.GetName("identifier"))
 		{
