@@ -1012,12 +1012,24 @@ FText SFlareSectorMenu::GetSectorLocation() const
 				AttributeString = "- " + AttributeString;
 			}
 
-			// Result
-			Result = FText::Format(LOCTEXT("SectorLocation",  "Orbiting {0} - Altitude: {1} km - {2} light {3}"),
+			// Add orbital parameters
+			Result = FText::Format(LOCTEXT("SectorLocation",  "Orbiting {0} at {1} km - {2} light {3}"),
 				Body->Name,
 				FText::AsNumber(TargetSector->GetOrbitParameters()->Altitude),
 				LightRatioString,
 				FText::FromString(AttributeString));
+
+			// Add people
+			if (TargetSector->GetPeople()->GetPopulation())
+			{
+				Result = FText::Format(LOCTEXT("SectorPopulation", "{0} - Population of {1}"),
+					Result, FText::AsNumber(TargetSector->GetPeople()->GetPopulation()));
+			}
+			else
+			{
+				Result = FText::Format(LOCTEXT("SectorPopulationEmpty", "{0} - No population"),
+					Result);
+			}
 		}
 	}
 
