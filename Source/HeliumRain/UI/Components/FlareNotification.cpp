@@ -102,7 +102,6 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 										// Title
 										+ SHorizontalBox::Slot()
 										.HAlign(HAlign_Left)
-										.AutoWidth()
 										[
 											SNew(STextBlock)
 											.Text(InArgs._Text)
@@ -116,6 +115,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 										+ SHorizontalBox::Slot()
 										.HAlign(HAlign_Right)
 										.VAlign(VAlign_Center)
+										.AutoWidth()
 										[
 											SNew(SBox)
 											.WidthOverride(this, &SFlareNotification::GetLifetimeSize)
