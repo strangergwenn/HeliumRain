@@ -32,6 +32,15 @@
 //#define DEBUG_AI_BUDGET
 #define LOCTEXT_NAMESPACE "FlareCompanyAI"
 
+
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateDiplomacy"), STAT_FlareCompanyAI_UpdateDiplomacy, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading"), STAT_FlareCompanyAI_UpdateTrading, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI CargosEvasion"), STAT_FlareCompanyAI_CargosEvasion, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI RepairAndRefill"), STAT_FlareCompanyAI_RepairAndRefill, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI ProcessBudget"), STAT_FlareCompanyAI_ProcessBudget, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateMilitaryMovement"), STAT_FlareCompanyAI_UpdateMilitaryMovement, STATGROUP_Flare);
+
+
 /*----------------------------------------------------
 	Public API
 ----------------------------------------------------*/
@@ -164,6 +173,8 @@ void UFlareCompanyAI::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 
 void UFlareCompanyAI::UpdateDiplomacy()
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_UpdateDiplomacy);
+
 	Behavior->Load(Company);
 	Behavior->UpdateDiplomacy();
 }
@@ -175,6 +186,8 @@ void UFlareCompanyAI::UpdateDiplomacy()
 
 void UFlareCompanyAI::UpdateTrading()
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_UpdateTrading);
+
 	IdleCargoCapacity = 0;
 	TArray<UFlareSimulatedSpacecraft*> IdleCargos = FindIdleCargos();
 #ifdef DEBUG_AI_TRADING
@@ -445,6 +458,8 @@ void UFlareCompanyAI::UpdateTrading()
 
 void UFlareCompanyAI::RepairAndRefill()
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_RepairAndRefill);
+
 	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 	{
 		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
@@ -570,6 +585,8 @@ void UFlareCompanyAI::ModifyBudget(EFlareBudget::Type Type, int64 Amount)
 
 void UFlareCompanyAI::ProcessBudget(TArray<EFlareBudget::Type> BudgetToProcess)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_ProcessBudget);
+
 	// Find
 #ifdef DEBUG_AI_BUDGET
 	FLOGV("Process budget for %s (%d projects)", *Company->GetCompanyName().ToString(), BudgetToProcess.Num());
@@ -915,6 +932,8 @@ int64 UFlareCompanyAI::UpdateWarShipAcquisition(bool limitToOne)
 
 void UFlareCompanyAI::UpdateMilitaryMovement()
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_UpdateMilitaryMovement);
+
 	if (Company->AtWar())
 	{
 		UpdateWarMilitaryMovement();
@@ -2785,6 +2804,8 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleCargos() const
 
 void UFlareCompanyAI::CargosEvasion()
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_CargosEvasion);
+
 	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 	{
 		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];

@@ -351,14 +351,7 @@ float AFlareGame::GetAINerfRatio()
 void AFlareGame::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
-	// This should never fail
-	for (FConstPawnIterator Iterator = GetWorld()->GetPawnIterator(); Iterator; ++Iterator)
-	{
-		APawn* Pawn = Iterator->Get();
-		FCHECK(Pawn);
-	}
-
+	
 	if (QuestManager)
 	{
 		QuestManager->OnTick(DeltaSeconds);

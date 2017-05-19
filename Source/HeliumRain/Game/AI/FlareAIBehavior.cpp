@@ -11,6 +11,13 @@
 
 //#define DEBUG_AI_NO_WAR
 
+DECLARE_CYCLE_STAT(TEXT("FlareAIBehavior Load"), STAT_FlareAIBehavior_Load, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareAIBehavior Simulate"), STAT_FlareAIBehavior_Simulate, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareAIBehavior SimulateGeneralBehavior"), STAT_FlareAIBehavior_SimulateGeneralBehavior, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareAIBehavior SimulatePirateBehavior"), STAT_FlareAIBehavior_SimulatePirateBehavior, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareAIBehavior UpdateDiplomacy"), STAT_FlareAIBehavior_UpdateDiplomacy, STATGROUP_Flare);
+
+
 /*----------------------------------------------------
 	Public API
 ----------------------------------------------------*/
@@ -22,6 +29,8 @@ UFlareAIBehavior::UFlareAIBehavior(const FObjectInitializer& ObjectInitializer)
 
 void UFlareAIBehavior::Load(UFlareCompany* ParentCompany)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareAIBehavior_Load);
+
 	if(!Company)
 	{
 		Company = ParentCompany;
@@ -44,6 +53,8 @@ inline static bool CompanyValueComparator(const UFlareCompany& ip1, const UFlare
 
 void UFlareAIBehavior::Simulate()
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareAIBehavior_Simulate);
+
 	TArray<UFlareCompany*> SortedCompany = Game->GetGameWorld()->GetCompanies();
 	SortedCompany.Sort(&CompanyValueComparator);
 	int32 AICompanyIndex = SortedCompany.IndexOfByKey(Company);
@@ -96,6 +107,8 @@ void UFlareAIBehavior::Simulate()
 
 void UFlareAIBehavior::SimulateGeneralBehavior()
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareAIBehavior_SimulateGeneralBehavior);
+
 	// First make cargo evasion to avoid them to lock themselve trading
 	Company->GetAI()->CargosEvasion();
 
@@ -115,6 +128,8 @@ void UFlareAIBehavior::SimulateGeneralBehavior()
 
 void UFlareAIBehavior::UpdateDiplomacy()
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareAIBehavior_UpdateDiplomacy);
+
 	ProposeTributeToPlayer = false;
 
 	// Simulate company attitude towards others
@@ -216,6 +231,8 @@ void UFlareAIBehavior::UpdateDiplomacy()
 
 void UFlareAIBehavior::SimulatePirateBehavior()
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareAIBehavior_SimulatePirateBehavior);
+
 	// Repair and refill ships and stations
 	Company->GetAI()->RepairAndRefill();
 

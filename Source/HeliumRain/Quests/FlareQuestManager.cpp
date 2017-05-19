@@ -12,6 +12,8 @@
 
 #define LOCTEXT_NAMESPACE "FlareQuestManager"
 
+DECLARE_CYCLE_STAT(TEXT("FlareQuestManager OnCallbackEvent"), STAT_FlareQuestManager_OnCallbackEvent, STATGROUP_Flare);
+
 
 /*----------------------------------------------------
 	Constructor
@@ -318,6 +320,8 @@ void UFlareQuestManager::ClearCallbacks(UFlareQuest* Quest)
 
 void UFlareQuestManager::OnCallbackEvent(EFlareQuestCallback::Type EventType)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareQuestManager_OnCallbackEvent);
+	
 	if (CallbacksMap.Contains(EventType))
 	{
 		TArray<UFlareQuest*> Callbacks = CallbacksMap[EventType];
