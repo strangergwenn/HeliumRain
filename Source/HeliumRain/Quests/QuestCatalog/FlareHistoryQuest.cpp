@@ -37,7 +37,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 
 	Identifier = "pendulum";
 	QuestName = LOCTEXT(QUEST_TAG"Name","Pendulum");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","A request from the Nema Colonial Administration.");
+	QuestDescription = LOCTEXT(QUEST_TAG"Description","Help has been requested to all companies around Nema.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 	UFlareSimulatedSector* Pendulum = FindSector("pendulum");

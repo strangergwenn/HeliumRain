@@ -434,7 +434,7 @@ void SFlareQuestMenu::FillQuestDetails()
 					.TextStyle(&Theme.TextFont)
 					.Text((ClientCompany ?
 						FText::Format(LOCTEXT("QuestInfoFormat", "This contract is offered by {0}."), ClientCompany->GetCompanyName())
-						            : LOCTEXT("QuestInfoNoCOmpany", "This contract is offered by the Helium Rain team.")))
+						            : LOCTEXT("QuestInfoNoCOmpany", "This contract is offered by the Nema Colonial Administration.")))
 				]
 			]
 
