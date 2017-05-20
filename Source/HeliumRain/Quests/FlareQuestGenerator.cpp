@@ -170,18 +170,6 @@ float UFlareQuestGenerator::ComputeQuestProbability(UFlareCompany* Company)
 	FLOGV("GlobalQuestProbability %f", GlobalQuestProbability);
 	FLOGV("QuestProbability before rep %f", QuestProbability);*/
 
-
-	// Then make proba variable with the reputation :
-	// if rep > 0 : 100 %
-	// if rep < 0 : 100 % + rep (negative, so 0% at 0)
-
-	if(Company->GetReputation(PlayerCompany) < 0)
-	{
-		QuestProbability += Company->GetReputation(PlayerCompany) / 100.f;
-	}
-	//FLOGV("QuestProbability %f", QuestProbability);
-
-
 	return QuestProbability;
 }
 
@@ -254,6 +242,16 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 
 		CompanyValue Value = Company->GetCompanyValue();
 
+		int64 TotalValue = 0;
+		int64 TotalCombatValue = 0;
+
+		for(UFlareCompany* OtherCompany : GetGame()->GetGameWorld()->GetCompanies())
+		{
+			const CompanyValue& OtherValue = OtherCompany->GetCompanyValue();
+			TotalValue += OtherValue.TotalValue;
+			TotalCombatValue += OtherValue.ArmyCurrentCombatPoints;
+		}
+
 
 		// Hunt quests
 		for(UFlareCompany* OtherCompany : GetGame()->GetGameWorld()->GetCompanies())
@@ -273,7 +271,9 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 			if(OtherValue.TotalValue > Value.TotalValue*1.1)
 			{
 				// 1% per day per negative reputation point
-				float CargoHuntQuestProbability = FMath::Clamp((-50 - Company->GetReputation(OtherCompany)) * 0.0001f, 0.f, 1.f);
+				float ValueRatio = float(OtherValue.TotalValue) / TotalValue;
+
+				float CargoHuntQuestProbability = FMath::Clamp(ValueRatio * 0.0001f, 0.f, 1.f);
 
 
 				//FLOGV("CargoHuntQuestProbability for %s to %s: %f", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString(), CargoHuntQuestProbability);
@@ -294,8 +294,11 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 
 			if(OtherValue.ArmyCurrentCombatPoints > Value.ArmyCurrentCombatPoints*1.1)
 			{
+				float ValueRatio = float(OtherValue.ArmyCurrentCombatPoints) / TotalCombatValue;
+
+
 				// 1% per day per negative reputation point
-				float MilitaryHuntQuestProbability = FMath::Clamp((-50 - Company->GetReputation(OtherCompany)) * 0.001f, 0.f, 1.f);
+				float MilitaryHuntQuestProbability = FMath::Clamp(ValueRatio * 0.001f, 0.f, 1.f);
 
 
 				//FLOGV("CargoHuntQuestProbability for %s to %s: %f", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString(), CargoHuntQuestProbability);
@@ -559,13 +562,13 @@ void UFlareQuestGenerated::SetupGenericReward(const FFlareBundle& Data)
 	if (Data.HasInt32("reward-reputation"))
 	{
 		int64 Amount = Data.GetInt32("reward-reputation");
-		GetSuccessActions().Add(UFlareQuestActionReputationChange::Create(this, Client, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Amount));
+		GetSuccessActions().Add(UFlareQuestActionReputationChange::Create(this, Client, Amount));
 	}
 
 	if (Data.HasInt32("penalty-reputation"))
 	{
 		int64 Amount = Data.GetInt32("penalty-reputation");
-		GetFailActions().Add(UFlareQuestActionReputationChange::Create(this, Client, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Amount));
+		GetFailActions().Add(UFlareQuestActionReputationChange::Create(this, Client, Amount));
 	}
 }
 
@@ -1375,7 +1378,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGene
 	}
 	else
 	{
-		WarPrice = 2000 * (HostileCompany->GetReputation(PlayerCompany) + 100);
+		WarPrice = 2000 * (HostileCompany->GetPlayerReputation() + 100);
 	}
 
 	int32 PreferredPlayerCombatPoints= FMath::Max(5, int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5)));
@@ -1552,7 +1555,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedJoinAttack::Create(UFlareQuestGenerato
 	{
 		if (HostileCompany->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
 		{
-			WarPrice += 2000 * (HostileCompany->GetReputation(PlayerCompany) + 100);
+			WarPrice += 2000 * (HostileCompany->GetPlayerReputation() + 100);
 		}
 	}
 
@@ -1773,7 +1776,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedSectorDefense::Create(UFlareQuestGener
 
 	if (HostileCompany->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
 	{
-		WarPrice += 2000 * (HostileCompany->GetReputation(PlayerCompany) + 100);
+		WarPrice += 2000 * (HostileCompany->GetPlayerReputation() + 100);
 	}
 
 	int32 PreferredPlayerCombatPoints= FMath::Max(5, int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5)));
@@ -1980,7 +1983,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt::Create(UFlareQuestGenerator
 	}
 	else
 	{
-		WarPrice = 500 * (HostileCompany->GetReputation(PlayerCompany) + 100);
+		WarPrice = 500 * (HostileCompany->GetPlayerReputation() + 100);
 	}
 
 	int32 PreferredPlayerCombatPoints= FMath::Max(10, int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints));
@@ -2163,7 +2166,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt::Create(UFlareQuestGenera
 	}
 	else
 	{
-		WarPrice = 500 * (HostileCompany->GetReputation(PlayerCompany) + 100);
+		WarPrice = 500 * (HostileCompany->GetPlayerReputation() + 100);
 	}
 
 	int32 PreferredPlayerCombatPoints= FMath::Max(10, int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints));

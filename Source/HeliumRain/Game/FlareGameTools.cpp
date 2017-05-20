@@ -548,6 +548,7 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 
 	TArray<UFlareCompany*> Companies = GetGame()->GetGameWorld()->GetCompanies();
 	FLOG("  > Diplomacy");
+	FLOGV("  > - Player reputation %f", Company->GetPlayerReputation());
 	for (int i = 0; i < Companies.Num(); i++)
 	{
 		UFlareCompany* OtherCompany = Companies[i];
@@ -555,16 +556,14 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 		{
 			continue;
 		}
-		FLOGV("   - %s want %s with %s (reputation: %f, confidence: %f). %s want %s with %s (reputation: %f, confidence: %f)",
+		FLOGV("   - %s want %s with %s (confidence: %f). %s want %s with %s (confidence: %f)",
 			  *Company->GetCompanyName().ToString(),
 			  (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile ? *FString("war") : *FString("peace")),
 			  *OtherCompany->GetCompanyName().ToString(),
-			  Company->GetReputation(OtherCompany),
 			  Company->GetConfidenceLevel(OtherCompany),
 			  *OtherCompany->GetCompanyName().ToString(),
 			  (OtherCompany->GetHostility(Company) == EFlareHostility::Hostile ? *FString("war") : *FString("peace")),
 			  *Company->GetCompanyName().ToString(),
-			  OtherCompany->GetReputation(Company),
 			  OtherCompany->GetConfidenceLevel(Company));
 	}
 }
@@ -587,29 +586,22 @@ void UFlareGameTools::PrintCompanyByIndex(int32 Index)
 	PrintCompany(Companies[Index]->GetShortName());
 }
 
-void UFlareGameTools::GiveReputation(FName CompanyShortName1, FName CompanyShortName2, float Amount)
+void UFlareGameTools::GivePlayerReputation(FName CompanyShortName, float Amount)
 {
 	if (!GetGameWorld())
 	{
-		FLOG("UFlareGameTools::GiveReputation failed: no loaded world");
+		FLOG("UFlareGameTools::GivePlayerReputation failed: no loaded world");
 		return;
 	}
 
-	UFlareCompany* Company1 = GetGameWorld()->FindCompanyByShortName(CompanyShortName1);
-	if (!Company1)
+	UFlareCompany* Company = GetGameWorld()->FindCompanyByShortName(CompanyShortName);
+	if (!Company)
 	{
-		FLOGV("UFlareGameTools::GiveReputation failed: no company with short name '%s'", * CompanyShortName1.ToString());
+		FLOGV("UFlareGameTools::GivePlayerReputation failed: no company with short name '%s'", * CompanyShortName.ToString());
 		return;
 	}
 
-	UFlareCompany* Company2 = GetGameWorld()->FindCompanyByShortName(CompanyShortName2);
-	if (!Company2)
-	{
-		FLOGV("UFlareGameTools::GiveReputation failed: no company with short name '%s'", * CompanyShortName2.ToString());
-		return;
-	}
-
-	Company1->GiveReputation(Company2, Amount, false);
+	Company->GivePlayerReputation(Amount);
 }
 
 

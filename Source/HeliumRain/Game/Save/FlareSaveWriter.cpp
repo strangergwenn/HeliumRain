@@ -287,12 +287,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompany(FFlareCompanySave* Data)
 	}
 	JsonObject->SetArrayField("SectorsKnowledge", SectorsKnowledge);
 
-	TArray< TSharedPtr<FJsonValue> > CompaniesReputation;
-	for(int i = 0; i < Data->CompaniesReputation.Num(); i++)
-	{
-		CompaniesReputation.Add(MakeShareable(new FJsonValueObject(SaveCompanyReputation(&Data->CompaniesReputation[i]))));
-	}
-	JsonObject->SetArrayField("CompaniesReputation", CompaniesReputation);
+	SaveFloat(JsonObject,"PlayerReputation", Data->PlayerReputation);
 
 	return JsonObject;
 }

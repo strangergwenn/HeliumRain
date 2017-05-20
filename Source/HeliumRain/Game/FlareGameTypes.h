@@ -301,9 +301,9 @@ struct FFlareCompanySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FFlareCompanyAISave AI;
 
-	/** List of others companies's reputation */
+	/** Player reputation */
 	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FFlareCompanyReputationSave> CompaniesReputation;
+	float PlayerReputation;
 
 	/** Value of all company assets */
 	UPROPERTY(EditAnywhere, Category = Save)

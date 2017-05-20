@@ -283,6 +283,30 @@ void SFlareCompanyInfo::Construct(const FArguments& InArgs)
 							]
 						]
 
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
+
+							// Pacifism text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareCompanyInfo::GetPacifismText)
+								.TextStyle(&Theme.TextFont)
+							]
+
+							// Pacifism value
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareCompanyInfo::GetPacifismTextValue)
+								.TextStyle(&Theme.TextFont)
+							]
+						]
+
 						// Hostility
 						+ SVerticalBox::Slot()
 						.AutoHeight()
@@ -457,29 +481,53 @@ FText SFlareCompanyInfo::GetReputationText() const
 	return Result;
 }
 
+FText SFlareCompanyInfo::GetPacifismText() const
+{
+	FText Result;
+
+	if (Player && Player->GetCompany() != Company)
+	{
+		return LOCTEXT("PacifismInfo", "Pacifism : ");
+	}
+
+	return Result;
+}
+
 FText SFlareCompanyInfo::GetReputationTextValue() const
 {
 	FText Result;
 
 	if (Player && Company && Player->GetCompany() != Company)
 	{
-		int32 Reputation = Company->GetReputation(Player->GetCompany());
+		int32 Reputation = Company->GetPlayerReputation();
 		return FText::AsNumber(Reputation);
 	}
 
 	return Result;
 }
 
+FText SFlareCompanyInfo::GetPacifismTextValue() const
+{
+	FText Result;
+
+	if (Player && Company && Player->GetCompany() != Company)
+	{
+		int32 Pacifism = Company->GetAI()->GetData()->Pacifism;
+		return FText::AsNumber(Pacifism);
+	}
+
+	return Result;
+}
 FSlateColor SFlareCompanyInfo::GetReputationColor() const
 {
 	FLinearColor Result;
 
 	if (Player && Company)
 	{
-		float Reputation = Company->GetReputation(Player->GetCompany());
+		float Reputation = Company->GetPlayerReputation();
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-		if (Reputation <= -100)
+		if (Reputation <= 0)
 		{
 			return Theme.EnemyColor;
 		}
@@ -527,7 +575,7 @@ FSlateColor SFlareCompanyInfo::GetConfidenceColor() const
 
 	if (Player && Company)
 	{
-		float Reputation = Company->GetReputation(Player->GetCompany());
+		float Reputation = Company->GetPlayerReputation();
 		float Confidence = Company->GetConfidenceLevel(Player->GetCompany());
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 

@@ -158,10 +158,10 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		if(Station->IsUnderConstruction())
 		{
 			Score *= 10000;
-			FLOGV("Station %s is under construction. Score %f, BestScore %f",
+			/*FLOGV("Station %s is under construction. Score %f, BestScore %f",
 				  *Station->GetImmatriculation().ToString(),
 				  Score,
-				  BestScore)
+				  BestScore)*/
 		}
 
 		if(Score > 0 && Score > BestScore)
@@ -206,8 +206,17 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSim
 		DestinationSpacecraft->GetCompany()->TakeMoney(Price);
 		SourceSpacecraft->GetCompany()->GiveMoney(Price);
 
-		SourceSpacecraft->GetCompany()->GiveReputation(DestinationSpacecraft->GetCompany(), 0.0001f, false);
-		DestinationSpacecraft->GetCompany()->GiveReputation(SourceSpacecraft->GetCompany(), 0.0001f, false);
+		UFlareCompany* PlayerCompany = SourceSpacecraft->GetGame()->GetPC()->GetCompany();
+
+		if(SourceSpacecraft->GetCompany() == PlayerCompany && DestinationSpacecraft->GetCompany() != PlayerCompany)
+		{
+			DestinationSpacecraft->GetCompany()->GivePlayerReputation(GivenResources * 0.01f, 100);
+		}
+
+		if(DestinationSpacecraft->GetCompany() == PlayerCompany && SourceSpacecraft->GetCompany() != PlayerCompany)
+		{
+			SourceSpacecraft->GetCompany()->GivePlayerReputation(GivenResources * 0.01f, 100);
+		}
 	}
 	
 	// Set the trading state if not player fleet

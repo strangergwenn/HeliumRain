@@ -17,6 +17,8 @@ DECLARE_CYCLE_STAT(TEXT("FlareAIBehavior SimulateGeneralBehavior"), STAT_FlareAI
 DECLARE_CYCLE_STAT(TEXT("FlareAIBehavior SimulatePirateBehavior"), STAT_FlareAIBehavior_SimulatePirateBehavior, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareAIBehavior UpdateDiplomacy"), STAT_FlareAIBehavior_UpdateDiplomacy, STATGROUP_Flare);
 
+#define LOCTEXT_NAMESPACE "UFlareAIBehavior"
+
 
 /*----------------------------------------------------
 	Public API
@@ -47,7 +49,7 @@ void UFlareAIBehavior::Load(UFlareCompany* ParentCompany)
 
 inline static bool CompanyValueComparator(const UFlareCompany& ip1, const UFlareCompany& ip2)
 {
-	return ip1.GetCompanyValue().TotalValue < ip2.GetCompanyValue().TotalValue;
+	return ip1.GetCompanyValue().ArmyCurrentCombatPoints < ip2.GetCompanyValue().ArmyCurrentCombatPoints;
 }
 
 
@@ -57,42 +59,18 @@ void UFlareAIBehavior::Simulate()
 
 	TArray<UFlareCompany*> SortedCompany = Game->GetGameWorld()->GetCompanies();
 	SortedCompany.Sort(&CompanyValueComparator);
-	int32 AICompanyIndex = SortedCompany.IndexOfByKey(Company);
 
-	// Reputation changes
-	for (int32 CompanyIndex = 0; CompanyIndex < SortedCompany.Num(); CompanyIndex++)
+	int32 PlayerCompanyIndex = SortedCompany.IndexOfByKey(GetGame()->GetPC()->GetCompany());
+
+	if(Company == ST->Pirates)
 	{
-		UFlareCompany* OtherCompany = SortedCompany[CompanyIndex];
-
-		if (OtherCompany == Company)
-		{
-			continue;
-		}
-
-		int IndexDelta = FMath::Abs(CompanyIndex - AICompanyIndex);
-
-
-		int64 OtherCompanyValue = OtherCompany->GetCompanyValue().TotalValue;
-		int64 CompanyValue = Company->GetCompanyValue().TotalValue;
-		if(CompanyValue > OtherCompanyValue)
-		{
-			// Like more the most distant opponent
-			float Intensity = IndexDelta * (1.f / SortedCompany.Num());
-			Company->GiveReputation(OtherCompany, Intensity, false);
-		}
-		else
-		{
-			// Dislike more the closest opponent
-			float Intensity = -1.f / IndexDelta;
-			Company->GiveReputation(OtherCompany, Intensity, false);
-		}
-
-		if(Company == ST->Pirates)
-		{
-			Company->GiveReputation(OtherCompany, -1, false);
-		}
+		Company->GivePlayerReputation(-1);
 	}
 
+	if(GetGame()->GetPC()->GetCompany()->GetCompanyValue().ArmyCurrentCombatPoints > 0)
+	{
+		Company->GivePlayerReputation(-PlayerCompanyIndex);
+	}
 
 	if(Company == ST->Pirates)
 	{
@@ -130,102 +108,178 @@ void UFlareAIBehavior::UpdateDiplomacy()
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareAIBehavior_UpdateDiplomacy);
 
-	ProposeTributeToPlayer = false;
+	TArray<UFlareCompany*> OtherCompanies = Company->GetOtherCompanies(true); // true for Shuffle
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
 
-	// Simulate company attitude towards others
-	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
+	int32 MaxCombatPoint = 0;
+	int32 TotalWorldCombatPoint = 0;
+	UFlareCompany* MaxCombatPointCompany = NULL;
+
+	for (UFlareCompany* OtherCompany : GetGame()->GetGameWorld()->GetCompanies())
 	{
-		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
+		struct CompanyValue Value = OtherCompany->GetCompanyValue();
 
-		if (OtherCompany == Company)
+		if (MaxCombatPoint < Value.ArmyCurrentCombatPoints)
 		{
-			continue;
+			MaxCombatPoint = Value.ArmyCurrentCombatPoints;
+			MaxCombatPointCompany = OtherCompany;
 		}
+		TotalWorldCombatPoint += Value.ArmyCurrentCombatPoints;
+	}
 
-		/*if(Company == ST->AxisSupplies)
-		{
-			// Never declare war
-			continue;
-		}*/
+	float MaxCombatPointRatio = float(MaxCombatPoint) / TotalWorldCombatPoint;
 
-		// Lock war with player for 10 days
-		int64 DaySinceWarWithPlayer = Game->GetGameWorld()->GetDate() - Company->GetLastWarDate();
-		bool LockInWar = Company->GetLastWarDate() > 0 && DaySinceWarWithPlayer < 10;
-		if (OtherCompany == Game->GetPC()->GetCompany() && LockInWar)
+	FLOGV("MaxCombatPointRatio %f", MaxCombatPointRatio);
+	FLOGV("MaxCombatPoint %d", MaxCombatPoint);
+	FLOGV("TotalWorldCombatPoint %d", TotalWorldCombatPoint);
+
+
+	// If the a company is not far from half world power, a global alliance is formed
+	if(MaxCombatPointCompany != Company &&  MaxCombatPointRatio > 0.3 && MaxCombatPoint > 500)
+	{
+		bool NewWar = false;
+
+		for (UFlareCompany* OtherCompany : OtherCompanies)
 		{
-			if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile)
+			if(MaxCombatPointCompany == OtherCompany && Company->GetCompanyValue().ArmyCurrentCombatPoints > 0)
 			{
-#ifndef DEBUG_AI_NO_WAR
+				if(Company->GetWarState(OtherCompany) != EFlareHostility::Hostile)
+				{
+					NewWar = true;
+				}
+
+				Company->GetAI()->GetData()->Pacifism = 0;
 				Company->SetHostilityTo(OtherCompany, true);
-#endif
-			}
-			continue;
-		}
-
-		if (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile
-				&& (Company->GetReputation(OtherCompany) > -100 || Company->GetConfidenceLevel(OtherCompany) < RequestPeaceConfidence))
-		{
-			Company->SetHostilityTo(OtherCompany, false);
-		}
-		else if (Company->GetHostility(OtherCompany) != EFlareHostility::Hostile
-				 && Company->GetAI()->HasHealthyTradeFleet()
-				 && Company->GetReputation(OtherCompany) <= -100 && Company->GetConfidenceLevel(OtherCompany) > DeclareWarConfidence)
-		{
-			bool CancelWar = false;
-			if (OtherCompany == Game->GetPC()->GetCompany())
-			{
-				// Check if has quest to provide a partial imminity
-				bool HasQuest = false;
-				for (UFlareQuest* Quest : Game->GetQuestManager()->GetOngoingQuests())
-				{
-					if (Quest->GetClient() == Company)
-					{
-						HasQuest = true;
-						break;
-					}
-				}
-
-				if(HasQuest && Company->GetReputation(OtherCompany) > -180)
-				{
-					CancelWar = true;
-				}
-
-				if (Company->GetAI()->GetData()->Pacifism > 0)
-				{
-					CancelWar = true;
-				}
-			}
-
-			if(!CancelWar)
-			{
-#ifndef DEBUG_AI_NO_WAR
-				Company->SetHostilityTo(OtherCompany, true);
-#endif
-				if (OtherCompany == Game->GetPC()->GetCompany())
-				{
-					OtherCompany->SetHostilityTo(Company, true);
-				}
-			}
-		}
-
-		if (!LockInWar && Company->GetAI()->GetData()->Pacifism >= 100)
-		{
-			Company->SetHostilityTo(OtherCompany, false);
-		}
-
-		if (!LockInWar && Company->GetWarState(OtherCompany) == EFlareHostility::Hostile
-				&& Company->GetConfidenceLevel(OtherCompany) < PayTributeConfidence)
-		{
-			if (OtherCompany == Game->GetPC()->GetCompany())
-			{
-				ProposeTributeToPlayer = true;
 			}
 			else
 			{
-				Company->PayTribute(OtherCompany, true);
+				Company->SetHostilityTo(OtherCompany, false);
 			}
 		}
 
+		if(MaxCombatPointCompany == PlayerCompany && NewWar)
+		{
+			GetGame()->GetPC()->Notify(LOCTEXT("GlobalWar", "Global War"),
+				LOCTEXT("AIStartGlobalWar", "All the companies formed an alliance to stop your militarisation."),
+				FName("global-war"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Leaderboard);
+		}
+
+		return;
+	}
+
+
+	// Not global war
+
+	if(Company->GetAI()->GetData()->Pacifism >= 100)
+	{
+		// Want peace
+		for (UFlareCompany* OtherCompany : OtherCompanies)
+		{
+			Company->SetHostilityTo(OtherCompany, false);
+
+			if (Company->GetWarState(OtherCompany) == EFlareHostility::Hostile && Company->GetConfidenceLevel(OtherCompany) < PayTributeConfidence)
+			{
+				if (OtherCompany == PlayerCompany)
+				{
+					ProposeTributeToPlayer = true;
+				}
+				else
+				{
+					Company->PayTribute(OtherCompany, true);
+				}
+			}
+		}
+	}
+	else if (Company->GetAI()->GetData()->Pacifism == 0)
+	{
+		//Want war
+
+		// First player war
+		if(Company->GetPlayerReputation() < 0)
+		{
+			Company->SetHostilityTo(PlayerCompany, true);
+		}
+
+		// Not player war only if the player is not too powerfull
+		if (PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints > TotalWorldCombatPoint / 4)
+		{
+			// Player too powerfull dont fight each other
+		}
+		else
+		{
+			TArray<TPair<UFlareCompany*, float>> TargetCompanies;
+
+			CompanyValue MyValue = Company->GetCompanyValue();
+
+
+			float MyWeight = (MyValue.TotalValue + MyValue .ArmyCurrentCombatPoints * 10);
+			float CompanyWarTotalWeight = 0;
+
+			FLOGV("%s MyWeight=%f", *Company->GetCompanyName().ToString(), MyWeight);
+			FLOGV("DeclareWarConfidence=%f", DeclareWarConfidence);
+
+			for (UFlareCompany* OtherCompany : OtherCompanies)
+			{
+				if(OtherCompany == PlayerCompany)
+				{
+					continue;
+				}
+
+				CompanyValue Value = OtherCompany->GetCompanyValue();
+
+				float Weight = (Value.TotalValue + Value.ArmyCurrentCombatPoints * 10) * FMath::Pow(1.5f, OtherCompany->GetShame());
+
+				FLOGV("- %s Weight=%f", *OtherCompany->GetCompanyName().ToString(), Weight);
+				FLOGV("-    GetConfidenceLevel=%f", Company->GetConfidenceLevel(OtherCompany));
+
+
+				if(Weight > MyWeight && Company->GetConfidenceLevel(OtherCompany) > DeclareWarConfidence)
+				{
+					TargetCompanies.Add(TPairInitializer<UFlareCompany*, float>(OtherCompany, Weight));
+					CompanyWarTotalWeight += Weight;
+				}
+			}
+
+			FLOGV("%s CompanyWarTotalWeight=%f", *Company->GetCompanyName().ToString(), CompanyWarTotalWeight);
+
+
+			TargetCompanies.Sort([](const TPair<UFlareCompany*, float>& Lhs, const TPair<UFlareCompany*, float>& Rhs){ return Lhs.Value > Rhs.Value; });
+
+
+			for(TPair<UFlareCompany*, float> Target : TargetCompanies)
+			{
+				FLOGV("- %s Value=%f", *Target.Key->GetCompanyName().ToString(), Target.Value);
+			}
+
+			if(TargetCompanies.Num())
+			{
+				float TargetWeight = FMath::FRandRange(0, CompanyWarTotalWeight);
+
+				float CurrentWeight = 0;
+				int TargetIndex = 0;
+
+				for(TPair<UFlareCompany*, float> Target : TargetCompanies)
+				{
+					if(CurrentWeight + Target.Value >= TargetWeight)
+					{
+						break;
+					}
+
+					TargetIndex++;
+					CurrentWeight += Target.Value;
+				}
+
+				UFlareCompany* TargetCompany = TargetCompanies[TargetIndex].Key;
+
+				FLOGV("Target %s", *TargetCompany->GetCompanyName().ToString());
+
+				// Declare war
+				Company->SetHostilityTo(TargetCompany, true);
+			}
+		}
 	}
 }
 
@@ -580,3 +634,5 @@ float UFlareAIBehavior::GetAttackThreshold()
 {
 	return AttackThreshold + Company->GetAI()->GetData()->Caution;
 }
+
+#undef LOCTEXT_NAMESPACE

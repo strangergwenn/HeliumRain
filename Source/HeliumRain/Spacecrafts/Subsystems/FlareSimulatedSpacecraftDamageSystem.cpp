@@ -242,7 +242,9 @@ float UFlareSimulatedSpacecraftDamageSystem::Repair(FFlareSpacecraftComponentDes
 		SetDamageDirty(ComponentDescription);
 		RepairCost = RepairRatio * GetRepairCost(ComponentDescription);
 
-		FLOGV("%s %s repair %f for %f fs (damage ratio: %f)",  *Spacecraft->GetImmatriculation().ToString(),  *ComponentData->ShipSlotIdentifier.ToString(), RepairRatio, RepairCost, GetDamageRatio(ComponentDescription, ComponentData));
+		//FLOGV("%s %s repair %f for %f fs (damage ratio: %f)",  *Spacecraft->GetImmatriculation().ToString(),  *ComponentData->ShipSlotIdentifier.ToString(), RepairRatio, RepairCost, GetDamageRatio(ComponentDescription, ComponentData));
+
+		Spacecraft->GetCompany()->InvalidateCompanyValueCache();
 
 		if (Spacecraft->IsActive())
 		{
@@ -287,18 +289,20 @@ float UFlareSimulatedSpacecraftDamageSystem::Refill(FFlareSpacecraftComponentDes
 
 		RefillCost = RefillRatio * GetRefillCost(ComponentDescription);
 
-		FLOGV("%s %s refill %f for %f fs (fill ratio: %f)",
+		/*FLOGV("%s %s refill %f for %f fs (fill ratio: %f)",
 			  *Spacecraft->GetImmatriculation().ToString(),
 			  *ComponentData->ShipSlotIdentifier.ToString(),
 			  RefillRatio,
 			  RefillCost,
-			  ((float)(MaxAmmo - ComponentData->Weapon.FiredAmmo) / (float) MaxAmmo));
+			  ((float)(MaxAmmo - ComponentData->Weapon.FiredAmmo) / (float) MaxAmmo));*/
 
-		FLOGV("RefillRatio %f,",RefillRatio);
+		/*FLOGV("RefillRatio %f,",RefillRatio);
 		FLOGV("MaxAmmo %d,",MaxAmmo);
 		FLOGV("CurrentAmmo %d,",CurrentAmmo);
 		FLOGV("NewAmmoCount %d,",NewAmmoCount);
 		FLOGV("ComponentData->Weapon.FiredAmmo %d,",ComponentData->Weapon.FiredAmmo);
+*/
+		Spacecraft->GetCompany()->InvalidateCompanyValueCache();
 
 		if (Spacecraft->IsActive())
 		{
@@ -363,25 +367,25 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 				ReputationCost = -InflictedDamageRatio * 2;
 			}
 
-			if (ReputationCost != 0)
+			UFlareCompany* PlayerCompany = Spacecraft->GetGame()->GetPC()->GetCompany();
+
+			if (ReputationCost != 0 && DamageSource == PlayerCompany && Spacecraft->GetCompany() != PlayerCompany)
 			{
 				// Being shot by enemies is pretty much expected
-				if (Spacecraft->GetCompany()->GetWarState(DamageSource) == EFlareHostility::Hostile)
+				if (Spacecraft->GetCompany()->GetWarState(DamageSource) != EFlareHostility::Hostile)
 				{
-					ReputationCost /= 1000;
+					// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
+
+					// Lower attacker's reputation on victim
+					Spacecraft->GetCompany()->GivePlayerReputationToOthers(ReputationCost/2);
+					Spacecraft->GetCompany()->GivePlayerReputation(ReputationCost);
 				}
 
-				// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
-				else
-				{
-					Spacecraft->GetCompany()->GiveReputationToOthers(-0.1 * ReputationCost, false);
-					DamageSource->GiveReputationToOthers(ReputationCost, false);
-				}
 
-				// Lower attacker's reputation on victim
-				Spacecraft->GetCompany()->GiveReputation(DamageSource, ReputationCost, true);
 			}
 		}
+
+		Spacecraft->GetCompany()->InvalidateCompanyValueCache();
 	}
 
 	LastDamageCauser = DamageSource;

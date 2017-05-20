@@ -562,10 +562,17 @@ void UFlareWorld::Simulate()
 
 	FLOG("* Simulate > Reputation");
 	// Reputation stabilization
-	for (UFlareCompany* Company : Companies)
+	if(Game->GetPC()->GetCompany()->GetGame() > 0)
 	{
-		Company->GiveReputationToOthers(-Company->GetShame(), false);
+		for (UFlareCompany* Company : Companies)
+		{
+			if(Company != Game->GetPC()->GetCompany())
+			{
+				Company->GivePlayerReputation(Game->GetPC()->GetCompany()->GetShame());
+			}
+		}
 	}
+
 
 	FLOG("* Simulate > Prices");
 	// Price variation.
@@ -596,6 +603,11 @@ void UFlareWorld::Simulate()
 
 	// Lets AI check if in battle
 	CheckAIBattleState();
+
+	for (UFlareCompany* Company : Companies)
+	{
+		Company->InvalidateCompanyValueCache();
+	}
 
 	
 	double EndTs = FPlatformTime::Seconds();
@@ -681,12 +693,15 @@ void UFlareWorld::ProcessShipCapture()
 
 		GetGame()->GetQuestManager()->OnSpacecraftCaptured(Spacecraft, NewShip);
 
-		Owner->GiveReputationToOthers(5, false);
-		Owner->GiveReputation(HarpoonOwner, -10, false);
-		HarpoonOwner->GiveReputationToOthers(-5, false);
+
 
 		if (GetGame()->GetPC()->GetCompany() == HarpoonOwner)
 		{
+			Owner->GivePlayerReputation(-10);
+			HarpoonOwner->GivePlayerReputationToOthers(-5);
+
+
+
 			FFlareMenuParameterData MenuData;
 			MenuData.Sector = Sector;
 
@@ -817,10 +832,6 @@ void UFlareWorld::ProcessStationCapture()
 
 		GetGame()->GetQuestManager()->OnSpacecraftCaptured(Spacecraft, NewShip);
 
-		Owner->GiveReputationToOthers(30, false);
-		Owner->GiveReputation(Capturer, -40, false);
-		Capturer->GiveReputationToOthers(-50, false);
-
 		// Shame - Shame - Shame - Dingdingding
 		float Shame = 0.1 * NewShip->GetLevel();
 		Capturer->GiveShame(Shame);
@@ -828,6 +839,11 @@ void UFlareWorld::ProcessStationCapture()
 
 		if (GetGame()->GetPC()->GetCompany() == Capturer)
 		{
+			Owner->GivePlayerReputation(-40);
+			GetGame()->GetPC()->GetCompany()->GivePlayerReputationToOthers(-50);
+
+
+
 			FFlareMenuParameterData MenuData;
 			MenuData.Sector = Sector;
 

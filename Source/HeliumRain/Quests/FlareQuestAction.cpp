@@ -187,24 +187,23 @@ UFlareQuestActionReputationChange::UFlareQuestActionReputationChange(const FObje
 {
 }
 
-UFlareQuestActionReputationChange* UFlareQuestActionReputationChange::Create(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam)
+UFlareQuestActionReputationChange* UFlareQuestActionReputationChange::Create(UFlareQuest* ParentQuest, UFlareCompany* CompanyParam, int64 AmountParam)
 {
 	UFlareQuestActionReputationChange* Action = NewObject<UFlareQuestActionReputationChange>(ParentQuest, UFlareQuestActionReputationChange::StaticClass());
-	Action->Load(ParentQuest, FromCompanyParam, ToCompanyParam, AmountParam);
+	Action->Load(ParentQuest, CompanyParam, AmountParam);
 	return Action;
 }
 
-void UFlareQuestActionReputationChange::Load(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam)
+void UFlareQuestActionReputationChange::Load(UFlareQuest* ParentQuest, UFlareCompany* CompanyParam, int64 AmountParam)
 {
 	LoadInternal(ParentQuest);
-	FromCompany = FromCompanyParam;
-	ToCompany = ToCompanyParam;
+	Company = CompanyParam;
 	Amount = AmountParam;
 }
 
 void UFlareQuestActionReputationChange::Perform()
 {
-	FromCompany->GiveReputation(ToCompany, Amount, true);
+	Company->GivePlayerReputation(Amount);
 }
 
 

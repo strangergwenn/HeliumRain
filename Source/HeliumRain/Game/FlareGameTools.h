@@ -98,9 +98,9 @@ public:
 	UFUNCTION(exec)
 	void PrintCompanyByIndex(int32 Index);
 
-	/** Give reputation to a company, can be negative */
+	/** Give player reputation to a company, can be negative */
 	UFUNCTION(exec)
-	void GiveReputation(FName CompanyShortName1, FName CompanyShortName2, float Amount);
+	void GivePlayerReputation(FName CompanyShortName, float Amount);
 
 	UFUNCTION(exec)
 	void TakeCompanyControl(FName CompanyShortName);

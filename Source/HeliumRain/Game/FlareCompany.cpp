@@ -85,6 +85,8 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 
 	// Load emblem
 	SetupEmblem();
+
+	InvalidateCompanyValueCache();
 }
 
 void UFlareCompany::PostLoad()
@@ -123,6 +125,7 @@ void UFlareCompany::PostLoad()
 	}
 
 	CompanyAI->Load(this, CompanyData.AI);
+
 }
 
 FFlareCompanySave* UFlareCompany::Save()
@@ -289,7 +292,7 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 		if (Hostile && !WasHostile)
 		{
 			CompanyData.HostileCompanies.AddUnique(TargetCompany->GetIdentifier());
-			TargetCompany->GiveReputation(this, -50, true);
+
 
 			UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
 			if (TargetCompany == PlayerCompany)
@@ -310,19 +313,8 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 
 			if (this == PlayerCompany)
 			{
-				int64 DaySincePeace = Game->GetGameWorld()->GetDate() - TargetCompany->GetLastPeaceDate();
-				int64 DaySinceTribute = Game->GetGameWorld()->GetDate() - TargetCompany->GetLastTributeDate();
-				if (TargetCompany->GetLastPeaceDate() > 0 && DaySincePeace < 20)
-				{
-					float PenaltyRatio = 1 - ((float)DaySincePeace / 20);
-					PlayerCompany->GiveReputationToOthers(PenaltyRatio * -70, false);
-				}
-
-				if (TargetCompany->GetLastTributeDate() > 0 && DaySinceTribute < 50)
-				{
-					float PenaltyRatio = 1 - ((float)DaySinceTribute / 50);
-					PlayerCompany->GiveReputationToOthers(PenaltyRatio * -30, false);
-				}
+				TargetCompany->GivePlayerReputation(-50);
+				TargetCompany->GetAI()->GetData()->Pacifism = FMath::Min(50.f, TargetCompany->GetAI()->GetData()->Pacifism);
 
 				TargetCompany->SetLastWarDate();
 			}
@@ -626,6 +618,9 @@ bool UFlareCompany::TakeMoney(int64 Amount, bool AllowDepts)
 
 			FLOGV("$ %s - %lld -> %llu", *GetCompanyName().ToString(), Amount, CompanyData.Money);
 		}*/
+
+		InvalidateCompanyValueCache();
+
 		return true;
 	}
 }
@@ -645,6 +640,8 @@ void UFlareCompany::GiveMoney(int64 Amount)
 	{
 		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("gain-money").PutInt32("amount", Amount));
 	}
+
+	InvalidateCompanyValueCache();
 
 	/*if (Amount > 0)
 	{
@@ -675,119 +672,23 @@ void UFlareCompany::GiveResearch(int64 Amount)
 	}
 }
 
-#define REPUTATION_RANGE 200.f
-void UFlareCompany::GiveReputation(UFlareCompany* Company, float Amount, bool Propagate)
+void UFlareCompany::GivePlayerReputation(float Amount, float Max)
 {
-	FFlareCompanyReputationSave* CompanyReputation = NULL;
-
-	if (Amount == 0)
+	if(Max < -100)
 	{
-		return;
-	}
-
-	//FLOGV("%s : change reputation for %s by %f", *GetCompanyName().ToString(), *Company->GetCompanyName().ToString(), Amount);
-
-	if (Company == this)
-	{
-		//FLOG("UFlareCompany::GiveReputation : A company doesn't have reputation for itself");
-		return;
-	}
-
-	for (int32 CompanyIndex = 0; CompanyIndex < CompanyData.CompaniesReputation.Num(); CompanyIndex++)
-	{
-		if(Company->GetIdentifier() == CompanyData.CompaniesReputation[CompanyIndex].CompanyIdentifier)
-		{
-			CompanyReputation = &CompanyData.CompaniesReputation[CompanyIndex];
-			break;
-		}
-	}
-
-	if (CompanyReputation == NULL)
-	{
-		FFlareCompanyReputationSave NewCompanyReputation;
-		NewCompanyReputation.CompanyIdentifier = Company->GetIdentifier();
-		NewCompanyReputation.Reputation = 0;
-		CompanyData.CompaniesReputation.Add(NewCompanyReputation);
-		CompanyReputation = &CompanyData.CompaniesReputation[CompanyData.CompaniesReputation.Num()-1];
-	}
-
-
-	if(Amount < 0 && Company->IsTechnologyUnlocked("diplomacy"))
-	{
-		Amount /= 2;
-	}
-
-
-	// Gain reputation is easier with low reputation and loose reputation is easier with hight reputation.
-	// Reputation vary between -200 and 200
-	// 0% if reputation in variation direction = 200
-	// 10% if reputation in variation direction = 100
-	// 100% if reputation in variation direction = 0
-	// 200% if reputation in variation direction = -100
-	// 1000% if reputation in variation direction = -200
-
-	// -200 = 0, 200 = 1
-	float ReputationRatioInVarationDirection = (CompanyReputation->Reputation * FMath::Sign(Amount) + REPUTATION_RANGE) / (2*REPUTATION_RANGE);
-	float ReputationGainFactor = 1.f;
-
-	if (ReputationRatioInVarationDirection < 0.25f)
-	{
-		ReputationGainFactor = - 32.f * ReputationRatioInVarationDirection + 10.f;
-	}
-	else if (ReputationRatioInVarationDirection < 0.50f)
-	{
-		ReputationGainFactor = - 4.f * ReputationRatioInVarationDirection + 3.f;
-	}
-	else if (ReputationRatioInVarationDirection < 0.75f)
-	{
-		ReputationGainFactor = - 3.6f * ReputationRatioInVarationDirection + 2.8f;
+		CompanyData.PlayerReputation = FMath::Max(-100.f, CompanyData.PlayerReputation + Amount);
 	}
 	else
 	{
-		ReputationGainFactor = - 0.4f * ReputationRatioInVarationDirection + 0.4f;
+		// Clamp
+		float MaxReputation = FMath::Max(Max, CompanyData.PlayerReputation);
+
+		CompanyData.PlayerReputation = FMath::Max(-100.f, CompanyData.PlayerReputation + Amount);
+		CompanyData.PlayerReputation = FMath::Min(MaxReputation, CompanyData.PlayerReputation);
 	}
-
-
-	float ReputationScaledGain = Amount * ReputationGainFactor;
-
-	float DiplomaticReactivity = 1.0;
-	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
-
-	if(this != PC->GetCompany())
-	{
-		DiplomaticReactivity = GetAI()->GetBehavior()->DiplomaticReactivity;
-	}
-
-	CompanyReputation->Reputation = FMath::Clamp(CompanyReputation->Reputation + Amount * DiplomaticReactivity, -200.f, 200.f);
-
-	if (Propagate)
-	{
-		// Other companies gain a part of reputation gain according to their affinity :
-		// 200 = 50 % of the gain
-		// -200 = -50 % of the gain
-		// 0 = 0% the the gain
-
-
-		for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
-		{
-			UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
-
-			if (OtherCompany == Company || OtherCompany == this)
-			{
-				continue;
-			}
-
-			float OtherReputation = OtherCompany->GetReputation(this);
-			float PropagationRatio = 0.5 * OtherReputation / 200.f;
-			OtherCompany->GiveReputation(Company, PropagationRatio * ReputationScaledGain, false);
-		}
-
-
-	}
-
 }
 
-void UFlareCompany::GiveReputationToOthers(float Amount, bool Propagate)
+void UFlareCompany::GivePlayerReputationToOthers(float Amount)
 {
 	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
 	{
@@ -795,41 +696,11 @@ void UFlareCompany::GiveReputationToOthers(float Amount, bool Propagate)
 
 		if (OtherCompany != this)
 		{
-			OtherCompany->GiveReputation(this, Amount, Propagate);
+			OtherCompany->GivePlayerReputation(Amount);
 		}
 	}
 }
 
-void UFlareCompany::ForceReputation(UFlareCompany* Company, float Amount)
-{
-	FFlareCompanyReputationSave* CompanyReputation = NULL;
-
-	if (Company == this)
-	{
-		FLOG("UFlareCompany::ForceReputation : A company don't have reputation for itself!");
-		return;
-	}
-
-	for (int32 CompanyIndex = 0; CompanyIndex < CompanyData.CompaniesReputation.Num(); CompanyIndex++)
-	{
-		if(Company->GetIdentifier() == CompanyData.CompaniesReputation[CompanyIndex].CompanyIdentifier)
-		{
-			CompanyReputation = &CompanyData.CompaniesReputation[CompanyIndex];
-			break;
-		}
-	}
-
-	if (CompanyReputation == NULL)
-	{
-		FFlareCompanyReputationSave NewCompanyReputation;
-		NewCompanyReputation.CompanyIdentifier = Company->GetIdentifier();
-		NewCompanyReputation.Reputation = 0;
-		CompanyData.CompaniesReputation.Add(NewCompanyReputation);
-		CompanyReputation = &CompanyData.CompaniesReputation[CompanyData.CompaniesReputation.Num()-1];
-	}
-
-	CompanyReputation->Reputation = Amount;
-}
 //#define DEBUG_CONFIDENCE
 float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 {
@@ -868,11 +739,6 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 			IsEnemy = true;
 		}
 
-		if (OtherCompany->GetReputation(this) <= -100)
-		{
-			IsEnemy = true;
-		}
-
 		if (IsEnemy)
 		{
 			Enemies.Add(OtherCompany);
@@ -902,12 +768,6 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 
 
 			if (OtherCompany->GetWarState(EnemyCompany) == EFlareHostility::Hostile)
-			{
-				IsAlly = true;
-				break;
-			}
-
-			if (OtherCompany->GetReputation(EnemyCompany) <= -100)
 			{
 				IsAlly = true;
 				break;
@@ -958,12 +818,6 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 				UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
 
 				if (AllyCompany->GetWarState(EnemyCompany) == EFlareHostility::Hostile)
-				{
-					MaxArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCurrentCombatPoints;
-					continue;
-				}
-
-				if (AllyCompany->GetReputation(EnemyCompany) <= -100)
 				{
 					MaxArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCurrentCombatPoints;
 					continue;
@@ -1052,6 +906,34 @@ int32 UFlareCompany::GetTransportCapacity()
 	return CompanyCapacity;
 }
 
+TArray<UFlareCompany*> UFlareCompany::GetOtherCompanies(bool Shuffle)
+{
+	TArray<UFlareCompany*> OtherCompanies;
+	for(UFlareCompany* Company : GetGame()->GetGameWorld()->GetCompanies())
+	{
+		if(Company !=  this)
+		{
+			OtherCompanies.Add(Company);
+		}
+	}
+
+	if(Shuffle)
+	{
+		TArray<UFlareCompany*> ShuffleCompanies;
+		while(OtherCompanies.Num())
+		{
+			int32 Index = FMath::RandRange(0, OtherCompanies.Num() - 1);
+			ShuffleCompanies.Add(OtherCompanies[Index]);
+			OtherCompanies.RemoveAt(Index);
+		}
+		return ShuffleCompanies;
+	}
+	else
+	{
+		return OtherCompanies;
+	}
+}
+
 bool UFlareCompany::HasKnowResourceInput(FFlareResourceDescription* Resource)
 {
 	for(UFlareSimulatedSector* Sector : VisitedSectors)
@@ -1119,9 +1001,10 @@ void UFlareCompany::PayTribute(UFlareCompany* Company, bool AllowDepts)
 		TakeMoney(Cost, AllowDepts);
 		Company->GiveMoney(Cost);
 
-		// Reset target reputation
-		ForceReputation(Company, 0);
-		Company->ForceReputation(this, 0);
+		// Reset pacifism
+		GetAI()->GetData()->Pacifism = FMath::Max(50.f, GetAI()->GetData()->Pacifism);
+		Company->GetAI()->GetData()->Pacifism = FMath::Max(50.f, Company->GetAI()->GetData()->Pacifism);
+
 
 		// Reset hostilities
 		SetHostilityTo(Company, false);
@@ -1417,22 +1300,29 @@ void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave, bool Force
 	Getters
 ----------------------------------------------------*/
 
-struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* SectorFilter, bool IncludeIncoming) const
+
+const struct CompanyValue& UFlareCompany::GetCompanyValue(UFlareSimulatedSector* SectorFilter, bool IncludeIncoming) const
 {
+
+
+	if(CompanyValueCacheValid)
+	{
+		return CompanyValueCache;
+	}
+
+
 	// Company value is the sum of :
 	// - money
 	// - value of its spacecraft
 	// - value of the stock in these spacecraft
 	// - value of the resources used in factory
-
-	struct CompanyValue Value;
-	Value.MoneyValue = GetMoney();
-	Value.StockValue = 0;
-	Value.ShipsValue = 0;
-	Value.ArmyValue = 0;
-	Value.ArmyCurrentCombatPoints = 0;
-	Value.ArmyTotalCombatPoints = 0;
-	Value.StationsValue = 0;
+	CompanyValueCache.MoneyValue = GetMoney();
+	CompanyValueCache.StockValue = 0;
+	CompanyValueCache.ShipsValue = 0;
+	CompanyValueCache.ArmyValue = 0;
+	CompanyValueCache.ArmyCurrentCombatPoints = 0;
+	CompanyValueCache.ArmyTotalCombatPoints = 0;
+	CompanyValueCache.StationsValue = 0;
 
 	for (int SpacecraftIndex = 0; SpacecraftIndex < CompanySpacecrafts.Num(); SpacecraftIndex++)
 	{
@@ -1471,18 +1361,18 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 
 		if(Spacecraft->IsStation())
 		{
-			Value.StationsValue += SpacecraftPrice;
+			CompanyValueCache.StationsValue += SpacecraftPrice;
 		}
 		else
 		{
-			Value.ShipsValue += SpacecraftPrice;
+			CompanyValueCache.ShipsValue += SpacecraftPrice;
 		}
 
 		if(Spacecraft->IsMilitary())
 		{
-			Value.ArmyValue += SpacecraftPrice;
-			Value.ArmyTotalCombatPoints += Spacecraft->GetCombatPoints(false);
-			Value.ArmyCurrentCombatPoints += Spacecraft->GetCombatPoints(true);
+			CompanyValueCache.ArmyValue += SpacecraftPrice;
+			CompanyValueCache.ArmyTotalCombatPoints += Spacecraft->GetCombatPoints(false);
+			CompanyValueCache.ArmyCurrentCombatPoints += Spacecraft->GetCombatPoints(true);
 		}
 
 		// Value of the stock
@@ -1496,7 +1386,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 				continue;
 			}
 
-			Value.StockValue += ReferenceSector->GetResourcePrice(Cargo.Resource, EFlareResourcePriceContext::Default) * Cargo.Quantity;
+			CompanyValueCache.StockValue += ReferenceSector->GetResourcePrice(Cargo.Resource, EFlareResourcePriceContext::Default) * Cargo.Quantity;
 		}
 
 		// Value of factory stock
@@ -1512,7 +1402,7 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 				FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourceIdentifier);
 				if (Resource)
 				{
-					Value.StockValue += ReferenceSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * Quantity;
+					CompanyValueCache.StockValue += ReferenceSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * Quantity;
 				}
 				else
 				{
@@ -1522,10 +1412,12 @@ struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* Sector
 		}
 	}
 
-	Value.SpacecraftsValue = Value.ShipsValue + Value.StationsValue;
-	Value.TotalValue = Value.MoneyValue + Value.StockValue + Value.SpacecraftsValue;
+	CompanyValueCache.SpacecraftsValue = CompanyValueCache.ShipsValue + CompanyValueCache.StationsValue;
+	CompanyValueCache.TotalValue = CompanyValueCache.MoneyValue + CompanyValueCache.StockValue + CompanyValueCache.SpacecraftsValue;
 
-	return Value;
+	CompanyValueCacheValid = true;
+
+	return CompanyValueCache;
 }
 
 UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraft(FName ShipImmatriculation, bool Destroyed)
@@ -1557,19 +1449,6 @@ UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraft(FName ShipImmatriculati
 bool UFlareCompany::HasVisitedSector(const UFlareSimulatedSector* Sector) const
 {
 	return Sector && VisitedSectors.Contains(Sector);
-}
-
-float UFlareCompany::GetReputation(UFlareCompany* Company)
-{
-	for (int32 CompanyIndex = 0; CompanyIndex < CompanyData.CompaniesReputation.Num(); CompanyIndex++)
-	{
-		if(Company->GetIdentifier() == CompanyData.CompaniesReputation[CompanyIndex].CompanyIdentifier)
-		{
-			return CompanyData.CompaniesReputation[CompanyIndex].Reputation;
-		}
-	}
-
-	return 0;
 }
 
 FText UFlareCompany::GetPlayerHostilityText() const

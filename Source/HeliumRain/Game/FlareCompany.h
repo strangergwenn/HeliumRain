@@ -183,11 +183,9 @@ public:
 	/** Give a research amount to the company */
 	virtual void GiveResearch(int64 Amount);
 	
-	virtual void GiveReputation(UFlareCompany* Company, float Amount, bool Propagate);
+	virtual void GivePlayerReputation(float Amount, float Max = -200);
 
-	void GiveReputationToOthers(float Amount, bool Propagate);
-
-	virtual void ForceReputation(UFlareCompany* Company, float Amount);
+	void GivePlayerReputationToOthers(float Amount);
 
 	/** Compute how much will be necessary to reset reputation with Company */
 	int64 GetTributeCost(UFlareCompany* Company);
@@ -295,12 +293,19 @@ protected:
 	int32                                   ResearchAmount;
 	TMap<FName, FFlareTechnologyDescription*> UnlockedTechnologies;
 
-
+	mutable struct CompanyValue						CompanyValueCache;
+	mutable bool									CompanyValueCacheValid;
 public:
 
 	/*----------------------------------------------------
 		Getters
 	----------------------------------------------------*/
+
+
+	void InvalidateCompanyValueCache()
+	{
+		CompanyValueCacheValid = false;
+	}
 
 	/** Get the hostility text */
 	FText GetPlayerHostilityText() const;
@@ -367,7 +372,7 @@ public:
 		return CompanyData.Money;
 	}
 
-	struct CompanyValue GetCompanyValue(UFlareSimulatedSector* SectorFilter = NULL, bool IncludeIncoming = true) const;
+	const struct CompanyValue& GetCompanyValue(UFlareSimulatedSector* SectorFilter = NULL, bool IncludeIncoming = true) const;
 
 	inline TArray<UFlareSimulatedSpacecraft*>& GetCompanyStations()
 	{
@@ -442,7 +447,10 @@ public:
 
 	bool HasVisitedSector(const UFlareSimulatedSector* Sector) const;
 
-	float GetReputation(UFlareCompany* Company);
+	float GetPlayerReputation()
+	{
+		return CompanyData.PlayerReputation;
+	}
 
 	inline UFlareCompanyAI* GetAI()
 	{
@@ -473,6 +481,8 @@ public:
 	{
 		return CompanyData.Shame;
 	}
+
+	TArray<UFlareCompany*> GetOtherCompanies(bool Shuffle = false);
 
 	float GetConfidenceLevel(UFlareCompany* ReferenceCompany);
 

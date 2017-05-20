@@ -77,6 +77,12 @@ protected:
 	/** Reputation info color */
 	FSlateColor GetReputationColor() const;
 
+	/** Pacifism info */
+	FText GetPacifismText() const;
+
+	/** Pacifism value */
+	FText GetPacifismTextValue() const;
+
 	/** Confidence info */
 	FText GetConfidenceText() const;
 

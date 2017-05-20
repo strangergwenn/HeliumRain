@@ -346,17 +346,7 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 		}
 	}
 
-
-	const TArray<TSharedPtr<FJsonValue>>* CompaniesReputation;
-	if(Object->TryGetArrayField("CompaniesReputation", CompaniesReputation))
-	{
-		for (TSharedPtr<FJsonValue> Item : *CompaniesReputation)
-		{
-			FFlareCompanyReputationSave ChildData;
-			LoadCompanyReputation(Item->AsObject(), &ChildData);
-			Data->CompaniesReputation.Add(ChildData);
-		}
-	}
+	LoadFloat(Object, "PlayerReputation", &Data->PlayerReputation);
 }
 
 

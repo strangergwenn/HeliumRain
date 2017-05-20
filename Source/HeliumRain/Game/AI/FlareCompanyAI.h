@@ -49,6 +49,11 @@ struct SectorVariation
 	TMap<FFlareResourceDescription*, ResourceVariation> ResourceVariations;
 };
 
+struct FFlareDiplomacyStats
+{
+
+};
+
 
 struct DefenseSector
 {

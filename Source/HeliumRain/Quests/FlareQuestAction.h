@@ -205,8 +205,8 @@ public:
 	/*----------------------------------------------------
 		Gameplay
 	----------------------------------------------------*/
-	static UFlareQuestActionReputationChange* Create(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam);
-	void Load(UFlareQuest* ParentQuest, UFlareCompany* FromCompanyParam, UFlareCompany* ToCompanyParam, int64 AmountParam);
+	static UFlareQuestActionReputationChange* Create(UFlareQuest* ParentQuest, UFlareCompany* CompanyParam, int64 AmountParam);
+	void Load(UFlareQuest* ParentQuest, UFlareCompany* CompanyParam, int64 AmountParam);
 
 	virtual void Perform();
 
@@ -221,7 +221,6 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	UFlareCompany* FromCompany;
-	UFlareCompany* ToCompany;
+	UFlareCompany* Company;
 	int64 Amount;
 };

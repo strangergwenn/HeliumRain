@@ -73,7 +73,6 @@ void UFlareCompanyAI::Tick()
 {
 	if (Game && Company != Game->GetPC()->GetCompany())
 	{
-		UpdateDiplomacy();
 	}
 }
 
@@ -105,7 +104,7 @@ void UFlareCompanyAI::Simulate()
 		PurchaseResearch();
 
 		// Check if at war
-		if(Company->AtWar())
+		if(Company->AtWar() || IdleCargoCapacity == 0)
 		{
 			AIData.Pacifism += Behavior->PacifismIncrementRate;
 		}
@@ -124,7 +123,7 @@ void UFlareCompanyAI::Simulate()
 
 		AIData.Pacifism = FMath::Clamp(AIData.Pacifism, 0.f,100.f);
 
-		FLOGV("Pacifism for %s : %f", *Company->GetCompanyName().ToString(), AIData.Pacifism);
+		FLOGV("Pacifism for %s : %f (IdleCargoCapacity=%d)", *Company->GetCompanyName().ToString(), AIData.Pacifism, IdleCargoCapacity);
 
 	}
 }
@@ -670,12 +669,6 @@ void UFlareCompanyAI::ProcessBudgetMilitary(int64 BudgetAmount, bool& Lock, bool
 			continue;
 		}
 
-		if (OtherCompany->GetReputation(Company) > 0)
-		{
-			// Friendly
-			continue;
-		}
-
 		float ConfidenceLevel = Company->GetConfidenceLevel(OtherCompany);
 		if (MinConfidenceLevel > ConfidenceLevel)
 		{
@@ -847,6 +840,7 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool Technology, 
 #endif
 		float StationPrice = ComputeStationPrice(BestSector, BestStationDescription, BestStation);
 		UFlareSimulatedSpacecraft* BuiltStation = NULL;
+		TArray<FText> Reasons;
 		if(BestStation)
 		{
 			if(BestSector->UpgradeStation(BestStation))
@@ -854,7 +848,7 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool Technology, 
 				BuiltStation = BestStation;
 			}
 		}
-		else
+		else if (BestSector->CanBuildStation(BestStationDescription, Company, Reasons))
 		{
 			BuiltStation = BestSector->BuildStation(BestStationDescription, Company);
 		}

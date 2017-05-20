@@ -248,10 +248,7 @@ void AFlareGame::Recovery()
 		OtherCompany->SetHostilityTo(PlayerCompany, false);
 		PlayerCompany->SetHostilityTo(OtherCompany, false);
 
-		if (OtherCompany->GetReputation(PlayerCompany) < 0)
-		{
-			OtherCompany->ForceReputation(PlayerCompany, 0);
-		}
+		OtherCompany->GetAI()->GetData()->Pacifism = FMath::Max(50.f, OtherCompany->GetAI()->GetData()->Pacifism);
 	}
 }
 
@@ -633,6 +630,7 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	CompanyData.AI.BudgetTrade = 0;
 	CompanyData.AI.Caution = 0;
 	CompanyData.AI.Pacifism = 50;
+	CompanyData.PlayerReputation = 50;
 	// Create company
 	Company = World->LoadCompany(CompanyData);
 	FLOGV("AFlareGame::CreateCompany : Created company '%s'", *Company->GetName());

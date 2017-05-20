@@ -264,28 +264,36 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 																	LastDamageCauser ? LastDamageCauser->GetCompany() : NULL);
 
 	// This ship has been damaged and someone is to blame
-	if (LastDamageCauser != NULL && LastDamageCauser->GetCompany() != Spacecraft->GetCompany())
+
+	UFlareCompany* PlayerCompany = PC->GetCompany();
+
+	if (LastDamageCauser != NULL && LastDamageCauser->GetCompany() != Spacecraft->GetCompany() && LastDamageCauser->GetCompany() == PlayerCompany)
 	{
 		// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
-		if (Spacecraft->GetCompany()->GetWarState(LastDamageCauser->GetCompany()) != EFlareHostility::Hostile)
+		if (Spacecraft->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
 		{
 			float ReputationCost = -40;
 
-			Spacecraft->GetCompany()->GiveReputationToOthers(-0.3 * ReputationCost, false);
-			LastDamageCauser->GetCompany()->GiveReputationToOthers(0.5*ReputationCost, false);
-
 			// Lower attacker's reputation on victim
-			Spacecraft->GetCompany()->GiveReputation(LastDamageCauser->GetCompany(), ReputationCost, true);
+			Spacecraft->GetCompany()->GivePlayerReputation(ReputationCost);
+			Spacecraft->GetCompany()->GivePlayerReputationToOthers(0.5*ReputationCost);
+
 			if(LastDamageCauser->GetCompany() == PC->GetCompany())
 			{
 				for(UFlareCompany* Company : PC->GetGame()->GetGameWorld()->GetCompanies())
 				{
-					if(Company->GetReputation(PC->GetCompany()) < -100)
+					if(Company->GetPlayerReputation() < 0)
 					{
 						// Consider player just declare war
 						Company->SetHostilityTo(PC->GetCompany(), true);
 						PC->GetCompany()->SetHostilityTo(Company, true);
+						Company->GetAI()->GetData()->Pacifism = FMath::Min(50.f, Company->GetAI()->GetData()->Pacifism);
 					}
+
+					PC->Notify(LOCTEXT("Betrayal", "Betrayal"),
+						FText::Format(LOCTEXT("OnSpacecraftDestroyedBetrayal", "You betray {0}"), Company->GetCompanyName()),
+						FName("betrayal"),
+						EFlareNotification::NT_Military);
 				}
 			}
 		}
@@ -351,30 +359,36 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 																	LastDamageCauser ? LastDamageCauser->GetCompany() : NULL);
 
 
-	// This ship has been damaged and someone is to blame
-	if (LastDamageCauser != NULL && LastDamageCauser->GetCompany() != Spacecraft->GetCompany())
+	UFlareCompany* PlayerCompany = PC->GetCompany();
+
+	if (LastDamageCauser != NULL && LastDamageCauser->GetCompany() != Spacecraft->GetCompany() && LastDamageCauser->GetCompany() == PlayerCompany)
 	{
 		// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
-		if (Spacecraft->GetCompany()->GetWarState(LastDamageCauser->GetCompany()) != EFlareHostility::Hostile)
+		if (Spacecraft->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
 		{
 			float ReputationCost = -30;
 
-			Spacecraft->GetCompany()->GiveReputationToOthers(-0.2 * ReputationCost, false);
-			LastDamageCauser->GetCompany()->GiveReputationToOthers(0.5*ReputationCost, false);
-
 			// Lower attacker's reputation on victim
-			Spacecraft->GetCompany()->GiveReputation(LastDamageCauser->GetCompany(), ReputationCost, true);
+			Spacecraft->GetCompany()->GivePlayerReputation(ReputationCost);
+			Spacecraft->GetCompany()->GivePlayerReputationToOthers(0.5*ReputationCost);
+
 			if(LastDamageCauser->GetCompany() == PC->GetCompany())
 			{
 				for(UFlareCompany* Company : PC->GetGame()->GetGameWorld()->GetCompanies())
 				{
-					if(Company->GetReputation(PC->GetCompany()) < -100)
+					if(Company->GetPlayerReputation() < 0)
 					{
 						// Consider player just declare war
 						Company->SetHostilityTo(PC->GetCompany(), true);
 						PC->GetCompany()->SetHostilityTo(Company, true);
+						Company->GetAI()->GetData()->Pacifism = FMath::Min(50.f, Company->GetAI()->GetData()->Pacifism);
 					}
 				}
+
+				PC->Notify(LOCTEXT("Betrayal", "Betrayal"),
+					FText::Format(LOCTEXT("OnControlLostBetrayal", "You betray {0}"), Spacecraft->GetCompany()->GetCompanyName()),
+					FName("betrayal"),
+					EFlareNotification::NT_Military);
 			}
 		}
 	}
