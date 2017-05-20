@@ -16,10 +16,13 @@
 #define STATION_CONSTRUCTION_PRICE_BONUS 1.2
 
 // TODO, make it depend on company's nature
-#define AI_CARGO_DIVERSITY_THRESHOLD 10
-#define AI_CARGO_SIZE_DIVERSITY_THRESHOLD 15
-#define AI_MILITARY_DIVERSITY_THRESHOLD 4
-#define AI_MILITARY_SIZE_DIVERSITY_THRESHOLD 15
+#define AI_CARGO_DIVERSITY_THRESHOLD 1
+#define AI_CARGO_SIZE_DIVERSITY_THRESHOLD 5
+#define AI_CARGO_SIZE_DIVERSITY_THRESHOLD_BASE 15
+
+#define AI_MILITARY_DIVERSITY_THRESHOLD 1
+#define AI_MILITARY_SIZE_DIVERSITY_THRESHOLD 5
+#define AI_MILITARY_SIZE_DIVERSITY_THRESHOLD_BASE 5
 
 // TODO, make it depend on company's nature
 #define AI_CARGO_PEACE_MILILTARY_THRESHOLD 10
@@ -2584,8 +2587,9 @@ const FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Mil
 	// Choose which size to pick
 	int32 Diversity = (Military ? AI_MILITARY_DIVERSITY_THRESHOLD : AI_CARGO_DIVERSITY_THRESHOLD);
 	int32 SizeDiversity = (Military ? AI_MILITARY_SIZE_DIVERSITY_THRESHOLD : AI_CARGO_SIZE_DIVERSITY_THRESHOLD);
+	int32 SizeDiversityBase = (Military ? AI_MILITARY_SIZE_DIVERSITY_THRESHOLD_BASE : AI_CARGO_SIZE_DIVERSITY_THRESHOLD_BASE);
 	bool PickLShip = true;
-	if ((ShipLCount+1) * SizeDiversity > ShipSCount)
+	if (SizeDiversityBase + (ShipLCount) * SizeDiversity > ShipSCount)
 	{
 		PickLShip = false;
 	}
@@ -2673,11 +2677,11 @@ const FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Mil
 		bool BestBigger = (Military ? BestShipDescription->Mass > Description-> Mass : BestShipDescription->GetCapacity() > Description->GetCapacity());
 		
 		bool Select = false;
-		if (BestBigger && BestCount * Diversity > CandidateCount)
+		if (BestBigger && BestCount + Diversity > CandidateCount)
 		{
 			Select = true;
 		}
-		else if (!BestBigger && CandidateCount * Diversity < BestCount)
+		else if (!BestBigger && CandidateCount + Diversity < BestCount)
 		{
 			Select = true;
 		}
