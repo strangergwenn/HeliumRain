@@ -188,7 +188,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 				}
 				else
 				{
-					Company->PayTribute(OtherCompany, true);
+					Company->PayTribute(OtherCompany, false);
 				}
 			}
 		}
