@@ -205,6 +205,9 @@ void UFlareScenarioTools::SetupWorld()
 	SetupKnownSectors(GhostWorksShipyards);
 	SetupKnownSectors(NemaHeavyWorks);
 	SetupKnownSectors(Pirates);
+	SetupKnownSectors(InfiniteOrbit);
+	SetupKnownSectors(BrokenMoon);
+	SetupKnownSectors(Quantalium);
 	
 	// Company setup main
 	MiningSyndicate->GiveMoney(100000000);
@@ -257,8 +260,10 @@ void UFlareScenarioTools::SetupWorld()
 	Pirates->UnlockTechnology("quick-repair", false, true);
 
 	BrokenMoon->UnlockTechnology("quick-repair", false, true);
+	BrokenMoon->UnlockTechnology("stations", false, true);
 
 	InfiniteOrbit->UnlockTechnology("fast-travel", false, true);
+	InfiniteOrbit->UnlockTechnology("stations", false, true);
 
 	Quantalium->UnlockTechnology("stations", false, true);
 	Quantalium->UnlockTechnology("mining", false, true);
