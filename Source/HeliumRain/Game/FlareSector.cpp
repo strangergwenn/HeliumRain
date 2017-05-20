@@ -148,11 +148,11 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 	FCHECK(ParentSpacecraft->GetDescription());
 	FCHECK(ParentSpacecraft->GetDescription()->SpacecraftTemplate);
 
-	FLOGV("UFlareSector::LoadSpacecraft : Start loading '%s' (template '%s' at %x)",
+	/*FLOGV("UFlareSector::LoadSpacecraft : Start loading '%s' (template '%s' at %x)",
 		*ParentSpacecraft->GetImmatriculation().ToString(),
 		*ParentSpacecraft->GetDescription()->SpacecraftTemplate->GetName(),
 		ParentSpacecraft->GetDescription()->SpacecraftTemplate);
-	
+	*/
 	// Spawn parameters
 	FActorSpawnParameters Params;
 	Params.bNoFail = true;

@@ -129,9 +129,9 @@ void UFlareAIBehavior::UpdateDiplomacy()
 
 	float MaxCombatPointRatio = float(MaxCombatPoint) / TotalWorldCombatPoint;
 
-	FLOGV("MaxCombatPointRatio %f", MaxCombatPointRatio);
-	FLOGV("MaxCombatPoint %d", MaxCombatPoint);
-	FLOGV("TotalWorldCombatPoint %d", TotalWorldCombatPoint);
+	//FLOGV("MaxCombatPointRatio %f", MaxCombatPointRatio);
+	//FLOGV("MaxCombatPoint %d", MaxCombatPoint);
+	//FLOGV("TotalWorldCombatPoint %d", TotalWorldCombatPoint);
 
 
 	// If the a company is not far from half world power, a global alliance is formed
@@ -218,8 +218,8 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			float MyWeight = (MyValue.TotalValue + MyValue .ArmyCurrentCombatPoints * 10);
 			float CompanyWarTotalWeight = 0;
 
-			FLOGV("%s MyWeight=%f", *Company->GetCompanyName().ToString(), MyWeight);
-			FLOGV("DeclareWarConfidence=%f", DeclareWarConfidence);
+			//FLOGV("%s MyWeight=%f", *Company->GetCompanyName().ToString(), MyWeight);
+			//FLOGV("DeclareWarConfidence=%f", DeclareWarConfidence);
 
 			for (UFlareCompany* OtherCompany : OtherCompanies)
 			{
@@ -232,8 +232,8 @@ void UFlareAIBehavior::UpdateDiplomacy()
 
 				float Weight = (Value.TotalValue + Value.ArmyCurrentCombatPoints * 10) * FMath::Pow(1.5f, OtherCompany->GetShame());
 
-				FLOGV("- %s Weight=%f", *OtherCompany->GetCompanyName().ToString(), Weight);
-				FLOGV("-    GetConfidenceLevel=%f", Company->GetConfidenceLevel(OtherCompany));
+				//FLOGV("- %s Weight=%f", *OtherCompany->GetCompanyName().ToString(), Weight);
+				//FLOGV("-    GetConfidenceLevel=%f", Company->GetConfidenceLevel(OtherCompany));
 
 
 				if(Weight > MyWeight && Company->GetConfidenceLevel(OtherCompany) > DeclareWarConfidence)
@@ -243,16 +243,16 @@ void UFlareAIBehavior::UpdateDiplomacy()
 				}
 			}
 
-			FLOGV("%s CompanyWarTotalWeight=%f", *Company->GetCompanyName().ToString(), CompanyWarTotalWeight);
+			//FLOGV("%s CompanyWarTotalWeight=%f", *Company->GetCompanyName().ToString(), CompanyWarTotalWeight);
 
 
 			TargetCompanies.Sort([](const TPair<UFlareCompany*, float>& Lhs, const TPair<UFlareCompany*, float>& Rhs){ return Lhs.Value > Rhs.Value; });
 
 
-			for(TPair<UFlareCompany*, float> Target : TargetCompanies)
+			/*for(TPair<UFlareCompany*, float> Target : TargetCompanies)
 			{
 				FLOGV("- %s Value=%f", *Target.Key->GetCompanyName().ToString(), Target.Value);
-			}
+			}*/
 
 			if(TargetCompanies.Num())
 			{
@@ -274,7 +274,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 
 				UFlareCompany* TargetCompany = TargetCompanies[TargetIndex].Key;
 
-				FLOGV("Target %s", *TargetCompany->GetCompanyName().ToString());
+				//FLOGV("Target %s", *TargetCompany->GetCompanyName().ToString());
 
 				// Declare war
 				Company->SetHostilityTo(TargetCompany, true);
