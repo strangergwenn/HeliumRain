@@ -88,10 +88,10 @@ void AFlareMenuPawn::Tick(float DeltaSeconds)
 	// Camera
 
 
-	float ManualAcc = 180; //°/s-2
+	float ManualAcc = 600; //°/s-2
 	float Resistance = 1/360.f;
-	float Brake = 2.f;
-	float Brake2 = 1.f;
+	float Brake = 4.f;
+	float Brake2 = 2.f;
 
 	float LastExternalCameraYaw = ExternalCameraYaw;
 	{

@@ -264,10 +264,10 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 	}
 	else if (ExternalCamera)
 	{
-		float ManualAcc = 180; //°/s-2
-		float Resistance = 1/360.f;
-		float Brake = 2.f;
-		float Brake2 = 1.f;
+		float ManualAcc = 600; //°/s-2
+		float Resistance = 1 / 360.f;
+		float Brake = 4.f;
+		float Brake2 = 2.f;
 
 		{
 			float Acc = FMath::Sign(ExternalCameraYawTarget) * ManualAcc;
