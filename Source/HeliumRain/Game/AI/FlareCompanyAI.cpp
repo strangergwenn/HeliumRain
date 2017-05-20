@@ -107,13 +107,18 @@ void UFlareCompanyAI::Simulate()
 		PurchaseResearch();
 
 		// Check if at war
-		if(Company->AtWar() || IdleCargoCapacity == 0)
+		if(Company->AtWar())
 		{
 			AIData.Pacifism += Behavior->PacifismIncrementRate;
 		}
 		else
 		{
 			AIData.Pacifism -= Behavior->PacifismDecrementRate;
+		}
+
+		if(IdleCargoCapacity == 0)
+		{
+			AIData.Pacifism += Behavior->PacifismIncrementRate/3;
 		}
 
 		for(UFlareSimulatedSpacecraft* Spacecraft : Company->GetCompanySpacecrafts())
@@ -126,7 +131,7 @@ void UFlareCompanyAI::Simulate()
 
 		AIData.Pacifism = FMath::Clamp(AIData.Pacifism, 0.f,100.f);
 
-		//FLOGV("Pacifism for %s : %f (IdleCargoCapacity=%d)", *Company->GetCompanyName().ToString(), AIData.Pacifism, IdleCargoCapacity);
+		FLOGV("Pacifism for %s : %f (IdleCargoCapacity=%d)", *Company->GetCompanyName().ToString(), AIData.Pacifism, IdleCargoCapacity);
 
 	}
 }
@@ -217,6 +222,35 @@ void UFlareCompanyAI::UpdateTrading()
 	//  create a route.
 	//  assign enough capacity to match the min(negative balance, positive balance)
 		
+
+	IdleCargos.Sort([](const UFlareSimulatedSpacecraft& Left, const UFlareSimulatedSpacecraft& Right)
+	{
+		if(Left.GetCargoBay()->GetFreeSlotCount() != Right.GetCargoBay()->GetFreeSlotCount())
+		{
+			return Left.GetCargoBay()->GetFreeSlotCount() < Right.GetCargoBay()->GetFreeSlotCount();
+		}
+		else if(Left.GetCargoBay()->GetUsedCargoSpace() > 0 && Right.GetCargoBay()->GetUsedCargoSpace() > 0)
+		{
+			return Left.GetCargoBay()->GetFreeCargoSpace() > Left.GetCargoBay()->GetFreeCargoSpace();
+		}
+		else if(Left.GetCargoBay()->GetUsedCargoSpace() == 0 && Right.GetCargoBay()->GetUsedCargoSpace() == 0)
+		{
+			if(Left.GetCargoBay()->GetFreeCargoSpace() == Right.GetCargoBay()->GetFreeCargoSpace())
+			{
+				return Left.GetImmatriculation() < Right.GetImmatriculation();
+			}
+			else
+			{
+				return Left.GetCargoBay()->GetFreeCargoSpace() > Right.GetCargoBay()->GetFreeCargoSpace();
+			}
+		}
+		else
+		{
+			return Left.GetCargoBay()->GetUsedCargoSpace() > Right.GetCargoBay()->GetUsedCargoSpace();
+		}
+	});
+
+
 	for (int32 ShipIndex = 0; ShipIndex < IdleCargos.Num(); ShipIndex++)
 	{
 		UFlareSimulatedSpacecraft* Ship = IdleCargos[ShipIndex];
@@ -228,6 +262,11 @@ void UFlareCompanyAI::UpdateTrading()
 		}
 #endif
 
+		/*FLOGV("UFlareCompanyAI::UpdateTrading : Search something to do for %s", *Ship->GetImmatriculation().ToString());
+		FLOGV(" - GetFreeSlotCount: %d", Ship->GetCargoBay()->GetFreeSlotCount());
+		FLOGV(" - GetUsedCargoSpace: %d", Ship->GetCargoBay()->GetUsedCargoSpace());
+		FLOGV(" - GetFreeCargoSpace: %d", Ship->GetCargoBay()->GetFreeCargoSpace());
+*/
 		
 		SectorDeal BestDeal;
 		BestDeal.BuyQuantity = 0;
@@ -679,7 +718,7 @@ void UFlareCompanyAI::ProcessBudgetMilitary(int64 BudgetAmount, bool& Lock, bool
 		}
 	}
 
-	if (!Company->AtWar() && MinConfidenceLevel > Behavior->ConfidenceTarget)
+	if (!Company->AtWar() && (MinConfidenceLevel > Behavior->ConfidenceTarget || AIData.Pacifism > 90))
 	{
 		// Army size is ok
 		Idle = true;
@@ -700,8 +739,16 @@ void UFlareCompanyAI::ProcessBudgetMilitary(int64 BudgetAmount, bool& Lock, bool
 void UFlareCompanyAI::ProcessBudgetTrade(int64 BudgetAmount, bool& Lock, bool& Idle)
 {
 	int32 DamagedCargosCapacity = GetDamagedCargosCapacity();
-	if (IdleCargoCapacity + DamagedCargosCapacity > 0)
+
+	//FLOGV("%s DamagedCargosCapacity=%d", *Company->GetCompanyName().ToString(), DamagedCargosCapacity);
+	//FLOGV("%s IdleCargoCapacity=%d", *Company->GetCompanyName().ToString(),IdleCargoCapacity);
+	//FLOGV("%s CargosCapacity=%d", *Company->GetCompanyName().ToString(),GetCargosCapacity());
+
+	float IdleRatio = float(IdleCargoCapacity + DamagedCargosCapacity) / GetCargosCapacity();
+
+	if (IdleRatio > 0.1f)
 	{
+		//FLOG("fleet ok");
 		// Trade fllet size is ok
 		Idle = true;
 		Lock = false;
@@ -712,8 +759,11 @@ void UFlareCompanyAI::ProcessBudgetTrade(int64 BudgetAmount, bool& Lock, bool& I
 
 	int64 ProjectCost = UpdateCargoShipAcquisition();
 
+	//FLOGV("ProjectCost %lld", ProjectCost);
+
 	if (ProjectCost > 0 && ProjectCost < BudgetAmount / 2)
 	{
+		//FLOG("lock : BudgetAmount %lld");
 		Lock = true;
 	}
 }
@@ -888,12 +938,14 @@ int64 UFlareCompanyAI::UpdateCargoShipAcquisition()
 	// Check if a ship is building
 	if (IsBuildingShip(false))
 	{
+		//FLOG("IsBuildingShip");
 		return 0;
 	}
 
 	const FFlareSpacecraftDescription* ShipDescription = FindBestShipToBuild(false);
 	if (ShipDescription == NULL)
 	{
+		//FLOG("Find no ship to build");
 		return 0;
 	}
 
@@ -2438,6 +2490,8 @@ int64 UFlareCompanyAI::OrderOneShip(const FFlareSpacecraftDescription* ShipDescr
 		return 0;
 	}
 
+	//FLOGV("OrderOneShip %s", *ShipDescription->Name.ToString());
+
 	for (int32 ShipyardIndex = 0; ShipyardIndex < Shipyards.Num(); ShipyardIndex++)
 	{
 		UFlareSimulatedSpacecraft* Shipyard =Shipyards[ShipyardIndex];
@@ -2901,6 +2955,21 @@ int32 UFlareCompanyAI::GetDamagedCargosCapacity()
 	return DamagedCapacity;
 }
 
+int32 UFlareCompanyAI::GetCargosCapacity()
+{
+	int32 Capacity = 0;
+	for (UFlareSimulatedSpacecraft* Ship : Company->GetCompanyShips())
+	{
+		if (Ship->GetCompany() != Company || Ship->GetCargoBay()->GetCapacity() == 0)
+		{
+			continue;
+		}
+
+		Capacity += Ship->GetCargoBay()->GetCapacity();
+	}
+	return Capacity;
+}
+
 TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindIdleMilitaryShips() const
 {
 	TArray<UFlareSimulatedSpacecraft*> IdleMilitaryShips;
@@ -3222,7 +3291,7 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 				float OverflowRatio = WorldStats[&Resource->Resource->Data].Balance / MaxVolume;
 				if (OverflowRatio > 0)
 				{
-					float OverflowMalus = FMath::Clamp(1.f - (OverflowRatio * 100)  / ResourceAffility, 0.f, 1.f);
+					float OverflowMalus = FMath::Clamp(1.f - ((OverflowRatio - 0.1f) * 100)  / ResourceAffility, 0.f, 1.f);
 					Score *= OverflowMalus;
 					//FLOGV("    MaxVolume %f", MaxVolume);
 					//FLOGV("    OverflowRatio %f", OverflowRatio);
@@ -3353,7 +3422,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			if ((!Factory->IsActive() || !Factory->IsNeedProduction()))
 			{
 				// No resources needed
-				break;
+				continue;
 			}
 
 			// Input flow
@@ -3370,8 +3439,9 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				if(Station->IsUnderConstruction())
 				{
-					Variation->HighPriority = true;
+					Variation->HighPriority += 1000000;
 				}
+
 
 				int32 Flow = FMath::CeilToInt(float(Factory->GetInputResourceQuantity(ResourceIndex)) / float(ProductionDuration));
 
@@ -4013,9 +4083,9 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 					* Behavior->GetResourceAffility(Resource)
 					* (Behavior->GetSectorAffility(SectorA) + Behavior->GetSectorAffility(SectorB));
 
-			if (VariationB->HighPriority)
+			if (VariationB->HighPriority > 0)
 			{
-				Score *= 1000;
+				Score *= VariationB->HighPriority;
 			}
 #ifdef DEBUG_AI_TRADING
 			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY

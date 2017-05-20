@@ -233,6 +233,8 @@ protected:
 
 	int32 GetDamagedCargosCapacity();
 
+	int32 GetCargosCapacity();
+
 	/** Get a list of idle military */
 	TArray<UFlareSimulatedSpacecraft*> FindIdleMilitaryShips() const;
 

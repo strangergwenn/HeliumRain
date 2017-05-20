@@ -1521,7 +1521,7 @@ void UFlareSimulatedSector::UpdateReserveShips()
 			float CompanyProportion = (float) (CargoCompanyShipCount - MIN_SPAWN) / (float) (TotalCargoShipCount - MinCargoShipToSpawn);
 			int32 AllowedShipCount = FMath::Max(0, FMath::FloorToInt(CompanyProportion * CargoProportion * (MaxShipsInSector - MinShipToSpawn)));
 			AllowedShipCount += MIN_SPAWN;
-			FLOGV("Allow %d/%d cargo for %s", AllowedShipCount, CargoCompanyShipCount, *Company->GetCompanyName().ToString());
+			//FLOGV("Allow %d/%d cargo for %s", AllowedShipCount, CargoCompanyShipCount, *Company->GetCompanyName().ToString());
 
 			CargoShipListByCompanies[CompanyIndex].Sort(&ReserveShipComparator);
 			for (int32 ShipIndex = AllowedShipCount; ShipIndex < CargoCompanyShipCount; ShipIndex++)
@@ -1537,7 +1537,7 @@ void UFlareSimulatedSector::UpdateReserveShips()
 			float CompanyProportion = (float) (MilitaryCompanyShipCount - MIN_SPAWN) / (float) (TotalMilitaryShipCount - MinMilitaryShipToSpawn);
 			int32 AllowedShipCount = FMath::Max(0, FMath::FloorToInt(CompanyProportion * MilitaryProportion * (MaxShipsInSector - MinShipToSpawn)));
 			AllowedShipCount += MIN_SPAWN;
-			FLOGV("Allow %d/%d military for %s", AllowedShipCount, MilitaryCompanyShipCount, *Company->GetCompanyName().ToString());
+			//FLOGV("Allow %d/%d military for %s", AllowedShipCount, MilitaryCompanyShipCount, *Company->GetCompanyName().ToString());
 
 			MilitaryShipListByCompanies[CompanyIndex].Sort(&ReserveShipComparator);
 			for (int32 ShipIndex = AllowedShipCount; ShipIndex < MilitaryCompanyShipCount; ShipIndex++)
