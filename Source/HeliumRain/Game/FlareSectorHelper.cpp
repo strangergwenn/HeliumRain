@@ -765,7 +765,11 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::
 			if ((!Factory->IsActive() || !Factory->IsNeedProduction()))
 			{
 				// No resources needed
-				break;
+				continue;
+			}
+			if(Factory->IsShipyard() && Factory->GetTargetShipCompany() == NAME_None)
+			{
+				continue;
 			}
 
 			// Input flow
