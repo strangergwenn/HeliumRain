@@ -86,14 +86,53 @@ void AFlareMenuPawn::Tick(float DeltaSeconds)
 	}
 
 	// Camera
-	float Speed = FMath::Clamp(DeltaSeconds * 12, 0.f, 1.f);
-	ExternalCameraPitchTarget = FMath::Clamp(ExternalCameraPitchTarget, -GetCameraMaxPitch(), GetCameraMaxPitch());
-	ExternalCameraPitch = ExternalCameraPitch * (1 - Speed) + ExternalCameraPitchTarget * Speed;
 
-	SetCameraPitch(ExternalCameraPitch);
+
+	float ManualAcc = 180; //°/s-2
+	float Resistance = 1/360.f;
+	float Brake = 2.f;
+	float Brake2 = 1.f;
 
 	float LastExternalCameraYaw = ExternalCameraYaw;
-	ExternalCameraYaw = ExternalCameraYaw * (1 - Speed) + ExternalCameraYawTarget * Speed;
+	{
+		float Acc = FMath::Sign(ExternalCameraYawTarget) * ManualAcc;
+		float Res = FMath::Sign(ExternalCameraYawSpeed) * (Resistance * FMath::Square(ExternalCameraYawSpeed) + (Acc == 0 ? Brake2 + Brake * FMath::Abs(ExternalCameraYawSpeed) : 0));
+
+		float MaxResDeltaSpeed = ExternalCameraYawSpeed;
+
+
+		float AccDeltaYawSpeed = Acc * DeltaSeconds;
+		float ResDeltaYawSpeed = - (FMath::Abs(Res * DeltaSeconds) > FMath::Abs(MaxResDeltaSpeed) ? MaxResDeltaSpeed : Res * DeltaSeconds);
+		ExternalCameraYawTarget = 0; // Consume
+		ExternalCameraYawSpeed += AccDeltaYawSpeed + ResDeltaYawSpeed;
+		ExternalCameraYaw += ExternalCameraYawSpeed * DeltaSeconds;
+		ExternalCameraYaw = FMath::UnwindDegrees(ExternalCameraYaw);
+	}
+
+
+	{
+
+		float Acc = FMath::Sign(ExternalCameraPitchTarget) * ManualAcc;
+		float Res = FMath::Sign(ExternalCameraPitchSpeed) * (Resistance * FMath::Square(ExternalCameraPitchSpeed) + (Acc == 0 ? Brake2 + Brake * FMath::Abs(ExternalCameraPitchSpeed) : 0));
+
+		float MaxResDeltaSpeed = ExternalCameraPitchSpeed;
+
+		float AccDeltaPitchSpeed = Acc * DeltaSeconds;
+		float ResDeltaPitchSpeed = - (FMath::Abs(Res * DeltaSeconds) > FMath::Abs(MaxResDeltaSpeed) ? MaxResDeltaSpeed : Res * DeltaSeconds);
+		ExternalCameraPitchTarget = 0; // Consume
+		ExternalCameraPitchSpeed += AccDeltaPitchSpeed + ResDeltaPitchSpeed;
+		ExternalCameraPitch += ExternalCameraPitchSpeed * DeltaSeconds;
+		ExternalCameraPitch = FMath::UnwindDegrees(ExternalCameraPitch);
+		float ExternalCameraPitchClamped = FMath::Clamp(ExternalCameraPitch, -GetCameraMaxPitch(), GetCameraMaxPitch());
+		if(ExternalCameraPitchClamped != ExternalCameraPitch)
+		{
+			ExternalCameraPitchSpeed = -ExternalCameraPitchSpeed/2;
+		}
+		ExternalCameraPitch = ExternalCameraPitchClamped;
+	}
+
+
+	SetCameraPitch(ExternalCameraPitch);
 	FRotator DeltaRot = FRotator::MakeFromEuler(FVector(0, 0, ExternalCameraYaw - LastExternalCameraYaw));
 
 	if (CurrentSpacecraft)
@@ -210,6 +249,8 @@ void AFlareMenuPawn::ResetContent(bool Unsafe)
 	ExternalCameraPitchTarget = -CameraMaxPitch / 2;
 	ExternalCameraPitch = ExternalCameraPitchTarget;
 	SetCameraDistance(DisplayDistance);
+	ExternalCameraPitchSpeed = 0;
+	ExternalCameraYawSpeed = 0;
 }
 
 void AFlareMenuPawn::UpdateCustomization()
@@ -259,7 +300,7 @@ void AFlareMenuPawn::PitchInput(float Val)
 {
 	if (Val)
 	{
-		ExternalCameraPitchTarget += FMath::Sign(Val) * CameraPanSpeed * GetWorld()->GetDeltaSeconds();
+		ExternalCameraPitchTarget += FMath::Sign(Val);
 	}
 }
 
@@ -267,6 +308,6 @@ void AFlareMenuPawn::YawInput(float Val)
 {
 	if (Val)
 	{
-		ExternalCameraYawTarget += -FMath::Sign(Val) * CameraPanSpeed * GetWorld()->GetDeltaSeconds();
+		ExternalCameraYawTarget -= FMath::Sign(Val);
 	}
 }

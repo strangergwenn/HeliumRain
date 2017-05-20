@@ -112,6 +112,8 @@ protected:
 	float									 ExternalCameraPitchTarget;
 	float									 ExternalCameraYawTarget;
 	float									 ExternalCameraDistanceTarget;
+	float                                    ExternalCameraYawSpeed;
+	float                                    ExternalCameraPitchSpeed;
 
 	// Internal camera
 	float									 InternalCameraPitch;

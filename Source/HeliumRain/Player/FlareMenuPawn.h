@@ -144,6 +144,8 @@ protected:
 	float                      ExternalCameraPitchTarget;
 	float                      ExternalCameraYaw;
 	float                      ExternalCameraYawTarget;
+	float                      ExternalCameraYawSpeed;
+	float                      ExternalCameraPitchSpeed;
 
 
 public:

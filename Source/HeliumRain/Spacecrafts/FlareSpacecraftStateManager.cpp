@@ -264,16 +264,52 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 	}
 	else if (ExternalCamera)
 	{
-		float Speed = FMath::Clamp(DeltaSeconds * 12, 0.f, 1.f);
+		float ManualAcc = 180; //°/s-2
+		float Resistance = 1/360.f;
+		float Brake = 2.f;
+		float Brake2 = 1.f;
 
-		ExternalCameraYaw = ExternalCameraYaw * (1 - Speed) + ExternalCameraYawTarget * Speed;
-		ExternalCameraPitchTarget = FMath::Clamp(ExternalCameraPitchTarget, -Spacecraft->GetCameraMaxPitch(), Spacecraft->GetCameraMaxPitch());
-		ExternalCameraPitch = ExternalCameraPitch * (1 - Speed) + ExternalCameraPitchTarget * Speed;
+		{
+			float Acc = FMath::Sign(ExternalCameraYawTarget) * ManualAcc;
+			float Res = FMath::Sign(ExternalCameraYawSpeed) * (Resistance * FMath::Square(ExternalCameraYawSpeed) + (Acc == 0 ? Brake2 + Brake * FMath::Abs(ExternalCameraYawSpeed) : 0));
+
+			float MaxResDeltaSpeed = ExternalCameraYawSpeed;
+
+
+			float AccDeltaYawSpeed = Acc * DeltaSeconds;
+			float ResDeltaYawSpeed = - (FMath::Abs(Res * DeltaSeconds) > FMath::Abs(MaxResDeltaSpeed) ? MaxResDeltaSpeed : Res * DeltaSeconds);
+			ExternalCameraYawTarget = 0; // Consume
+			ExternalCameraYawSpeed += AccDeltaYawSpeed + ResDeltaYawSpeed;
+			ExternalCameraYaw += ExternalCameraYawSpeed * DeltaSeconds;
+			ExternalCameraYaw = FMath::UnwindDegrees(ExternalCameraYaw);
+		}
+
+		{
+			float Acc = FMath::Sign(ExternalCameraPitchTarget) * ManualAcc;
+			float Res = FMath::Sign(ExternalCameraPitchSpeed) * (Resistance * FMath::Square(ExternalCameraPitchSpeed) + (Acc == 0 ? Brake2 + Brake * FMath::Abs(ExternalCameraPitchSpeed) : 0));
+
+			float MaxResDeltaSpeed = ExternalCameraPitchSpeed;
+
+			float AccDeltaPitchSpeed = Acc * DeltaSeconds;
+			float ResDeltaPitchSpeed = - (FMath::Abs(Res * DeltaSeconds) > FMath::Abs(MaxResDeltaSpeed) ? MaxResDeltaSpeed : Res * DeltaSeconds);
+			ExternalCameraPitchTarget = 0; // Consume
+			ExternalCameraPitchSpeed += AccDeltaPitchSpeed + ResDeltaPitchSpeed;
+			ExternalCameraPitch += ExternalCameraPitchSpeed * DeltaSeconds;
+			ExternalCameraPitch = FMath::UnwindDegrees(ExternalCameraPitch);
+			float ExternalCameraPitchClamped = FMath::Clamp(ExternalCameraPitch, -Spacecraft->GetCameraMaxPitch(), Spacecraft->GetCameraMaxPitch());
+			if(ExternalCameraPitchClamped != ExternalCameraPitch)
+			{
+				ExternalCameraPitchSpeed = -ExternalCameraPitchSpeed/2;
+			}
+			ExternalCameraPitch = ExternalCameraPitchClamped;
+		}
+
+		float Speed = FMath::Clamp(DeltaSeconds * 12, 0.f, 1.f);
 		ExternalCameraDistance = ExternalCameraDistance * (1 - Speed) + ExternalCameraDistanceTarget * Speed;
 
 		Spacecraft->DisableImmersiveCamera();
 		Spacecraft->SetCameraPitch(ExternalCameraPitch);
-		Spacecraft->SetCameraYaw(FMath::UnwindDegrees(ExternalCameraYaw));
+		Spacecraft->SetCameraYaw(ExternalCameraYaw);
 		Spacecraft->SetCameraDistance(ExternalCameraDistance);
 
 		IsFireDirectorInit = false;
@@ -350,8 +386,8 @@ void UFlareSpacecraftStateManager::SetPlayerAimMouse(FVector2D Val)
 	// External camera : panning with mouse clicks
 	if (ExternalCamera)
 	{
-		ExternalCameraYawTarget += FMath::Sign(Val.X) * Spacecraft->GetCameraPanSpeed() * Spacecraft->GetWorld()->GetDeltaSeconds();
-		ExternalCameraPitchTarget += FMath::Sign(Val.Y) * Spacecraft->GetCameraPanSpeed() * Spacecraft->GetWorld()->GetDeltaSeconds();
+		ExternalCameraYawTarget += FMath::Sign(Val.X);
+		ExternalCameraPitchTarget += FMath::Sign(Val.Y);
 		PlayerAim = FVector2D::ZeroVector;
 	}
 		
@@ -656,7 +692,9 @@ void UFlareSpacecraftStateManager::ResetExternalCamera()
 	ExternalCameraPitch = 0;
 	ExternalCameraYaw = 0;
 	ExternalCameraPitchTarget = 0;
+	ExternalCameraPitchSpeed = 0;
 	ExternalCameraYawTarget = 0;
+	ExternalCameraYawSpeed = 0;
 	// TODO Don't copy SpacecraftPawn
 	ExternalCameraDistance = 2.5 * Spacecraft->GetMeshScale();
 	ExternalCameraDistanceTarget = ExternalCameraDistance;
