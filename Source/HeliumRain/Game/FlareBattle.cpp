@@ -214,6 +214,38 @@ bool UFlareBattle::SimulateSmallShipTurn(UFlareSimulatedSpacecraft* Ship)
 
 	Ship->GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrollableCivil, &TargetPreferences.IsUncontrollableSmallMilitary, &TargetPreferences.IsUncontrollableLargeMilitary, &TargetPreferences.IsNotUncontrollable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned);
 
+
+
+	float MinAmmoRatio = 1.f;
+
+
+	UFlareSpacecraftComponentsCatalog* Catalog = Ship->GetGame()->GetShipPartsCatalog();
+	for (int32 ComponentIndex = 0; ComponentIndex < Ship->GetData().Components.Num(); ComponentIndex++)
+	{
+		FFlareSpacecraftComponentSave* ComponentData = &Ship->GetData().Components[ComponentIndex];
+		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+
+		if (ComponentDescription->Type == EFlarePartType::Weapon)
+		{
+			float AmmoRatio = float(ComponentDescription->WeaponCharacteristics.AmmoCapacity - ComponentData->Weapon.FiredAmmo) /  ComponentDescription->WeaponCharacteristics.AmmoCapacity;
+			if(AmmoRatio < MinAmmoRatio)
+			{
+				MinAmmoRatio = AmmoRatio;
+			}
+		}
+	}
+	//FLOGV("%s MinAmmoRatio=%f", *Ship->GetImmatriculation().ToString(), MinAmmoRatio);
+
+	if(MinAmmoRatio <0.9)
+	{
+		TargetPreferences.IsUncontrollableSmallMilitary = 0.0;
+	}
+
+	if(MinAmmoRatio < 0.5)
+	{
+		TargetPreferences.IsNotMilitary = 0.0;
+	}
+
 	Target = GetBestTarget(Ship, TargetPreferences);
 
 	if (!Target)
@@ -287,6 +319,19 @@ bool UFlareBattle::SimulateLargeShipTurn(UFlareSimulatedSpacecraft* Ship)
 		TargetPreferences.IsSmall = ComponentDescription->WeaponCharacteristics.AntiSmallShipValue;
 		TargetPreferences.IsStation = ComponentDescription->WeaponCharacteristics.AntiStationValue;
 
+
+
+		float AmmoRatio = float(ComponentDescription->WeaponCharacteristics.AmmoCapacity - ComponentData->Weapon.FiredAmmo) /  ComponentDescription->WeaponCharacteristics.AmmoCapacity;
+
+		if(AmmoRatio < 0.9)
+		{
+			TargetPreferences.IsUncontrollableSmallMilitary = 0.0;
+		}
+
+		if(AmmoRatio < 0.5)
+		{
+			TargetPreferences.IsNotMilitary = 0.0;
+		}
 
 		Target = GetBestTarget(Ship, TargetPreferences);
 

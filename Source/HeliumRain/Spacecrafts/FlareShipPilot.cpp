@@ -74,15 +74,17 @@ void UFlareShipPilot::TickPilot(float DeltaSeconds)
 	AngularTargetVelocity = FVector::ZeroVector;
 	UseOrbitalBoost = true;
 
-	if (Ship->IsMilitary())
+	if(!Ship->GetParent()->GetDamageSystem()->IsUncontrollable())
 	{
-		MilitaryPilot(DeltaSeconds);
+		if (Ship->IsMilitary())
+		{
+			MilitaryPilot(DeltaSeconds);
+		}
+		else
+		{
+			CargoPilot(DeltaSeconds);
+		}
 	}
-	else
-	{
-		CargoPilot(DeltaSeconds);
-	}
-
 }
 
 void UFlareShipPilot::Initialize(const FFlareShipPilotSave* Data, UFlareCompany* Company, AFlareSpacecraft* OwnerShip)
@@ -140,8 +142,11 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 
 	TimeUntilNextComponentSwitch-=DeltaSeconds;
 
-
-	if (Ship->GetSize() == EFlarePartSize::S && PilotTargetShip && SelectedWeaponGroupIndex >= 0)
+	if(Ship->GetParent()->GetDamageSystem()->IsDisarmed())
+	{
+		// Idle
+	}
+	else if (Ship->GetSize() == EFlarePartSize::S && PilotTargetShip && SelectedWeaponGroupIndex >= 0)
 	{
 		if (TimeUntilNextComponentSwitch <= 0 && !LockTarget)
 		{
@@ -195,6 +200,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		FlagShipPilot(DeltaSeconds);
 		Idle = false;
 	}
+
 
 
 	if (Idle)
@@ -1166,6 +1172,37 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 	TargetPreferences.BaseLocation = Ship->GetActorLocation();
 
 	Ship->GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrollableCivil , &TargetPreferences.IsUncontrollableSmallMilitary , &TargetPreferences.IsUncontrollableLargeMilitary, &TargetPreferences.IsNotUncontrollable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned);
+
+
+	float MinAmmoRatio = 1.f;
+
+
+	UFlareSpacecraftComponentsCatalog* Catalog = Ship->GetGame()->GetShipPartsCatalog();
+	for (int32 ComponentIndex = 0; ComponentIndex < Ship->GetData().Components.Num(); ComponentIndex++)
+	{
+		FFlareSpacecraftComponentSave* ComponentData = &Ship->GetData().Components[ComponentIndex];
+		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+
+		if (ComponentDescription->Type == EFlarePartType::Weapon)
+		{
+			float AmmoRatio = float(ComponentDescription->WeaponCharacteristics.AmmoCapacity - ComponentData->Weapon.FiredAmmo) /  ComponentDescription->WeaponCharacteristics.AmmoCapacity;
+			if(AmmoRatio < MinAmmoRatio)
+			{
+				MinAmmoRatio = AmmoRatio;
+			}
+		}
+	}
+	//FLOGV("%s MinAmmoRatio=%f", *Ship->GetImmatriculation().ToString(), MinAmmoRatio);
+
+	if(MinAmmoRatio <0.9)
+	{
+		TargetPreferences.IsUncontrollableSmallMilitary = 0.0;
+	}
+
+	if(MinAmmoRatio < 0.5)
+	{
+		TargetPreferences.IsNotMilitary = 0.0;
+	}
 
 	if (Tactic == EFlareCombatTactic::AttackStations)
 	{

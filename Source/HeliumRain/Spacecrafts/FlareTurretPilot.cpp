@@ -357,6 +357,20 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, E
 	TargetPreferences.IsStation = Turret->GetDescription()->WeaponCharacteristics.AntiStationValue;
 
 
+
+	float AmmoRatio = float(Turret->GetCurrentAmmo()) / Turret->GetMaxAmmo();
+
+	if(AmmoRatio <0.9)
+	{
+		TargetPreferences.IsUncontrollableSmallMilitary = 0.0;
+	}
+
+	if(AmmoRatio < 0.5)
+	{
+		TargetPreferences.IsNotMilitary = 0.0;
+	}
+
+
 	if (Tactic == EFlareCombatTactic::AttackStations)
 	{
 		TargetPreferences.IsStation *= 10;
