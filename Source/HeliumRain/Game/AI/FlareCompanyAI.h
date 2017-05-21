@@ -39,7 +39,7 @@ struct ResourceVariation
 	int32 ConsumerMaxStock;
 	int32 MaintenanceMaxStock;
 
-	bool HighPriority;
+	int32 HighPriority;
 };
 
 /* Local list of resource flows */
