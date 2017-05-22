@@ -213,13 +213,9 @@ bool UFlareBattle::SimulateSmallShipTurn(UFlareSimulatedSpacecraft* Ship)
     TargetPreferences.TargetStateWeight = 1;
 
 	Ship->GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrollableCivil, &TargetPreferences.IsUncontrollableSmallMilitary, &TargetPreferences.IsUncontrollableLargeMilitary, &TargetPreferences.IsNotUncontrollable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned);
-
-
-
+	
 	float MinAmmoRatio = 1.f;
 
-
-	UFlareSpacecraftComponentsCatalog* Catalog = Ship->GetGame()->GetShipPartsCatalog();
 	for (int32 ComponentIndex = 0; ComponentIndex < Ship->GetData().Components.Num(); ComponentIndex++)
 	{
 		FFlareSpacecraftComponentSave* ComponentData = &Ship->GetData().Components[ComponentIndex];
