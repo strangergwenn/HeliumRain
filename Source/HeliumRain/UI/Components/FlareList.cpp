@@ -152,6 +152,7 @@ void SFlareList::RefreshList()
 			FCHECK(PtrA.IsValid());
 			FCHECK(PtrB.IsValid());
 
+			// Fleets
 			if (PtrA->FleetPtr)
 			{
 				if (PtrB->FleetPtr)
@@ -180,6 +181,8 @@ void SFlareList::RefreshList()
 			{
 				return false;
 			}
+
+			// Stations
 			else
 			{
 				UFlareSimulatedSpacecraft* A = PtrA->SpacecraftPtr;
@@ -199,6 +202,14 @@ void SFlareList::RefreshList()
 					{
 						return false;
 					}
+					else if (A->GetDescription()->GetCapacity() != B->GetDescription()->GetCapacity())
+					{
+						return A->GetDescription()->GetCapacity() > B->GetDescription()->GetCapacity();
+					}
+					else
+					{
+						return A->GetDescription()->Mass > B->GetDescription()->Mass;
+					}
 				}
 				else if (A->IsStation() && !B->IsStation())
 				{
@@ -208,6 +219,8 @@ void SFlareList::RefreshList()
 				{
 					return false;
 				}
+
+				// Ships
 				else if (A->GetSize() > B->GetSize())
 				{
 					return true;
