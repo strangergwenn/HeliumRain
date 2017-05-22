@@ -12,7 +12,9 @@ UFlareQuestCatalog::UFlareQuestCatalog(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 {
 	TArray<FAssetData> AssetList;
-	const IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+	IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+
+	Registry.SearchAllAssets(true);
 	Registry.GetAssetsByClass(UFlareQuestCatalogEntry::StaticClass()->GetFName(), AssetList);
 
 	for (int32 Index = 0; Index < AssetList.Num(); Index++)

@@ -79,7 +79,8 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 
 	// Look for sector assets
 	TArray<FAssetData> AssetList;
-	const IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+	IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+	Registry.SearchAllAssets(true);
 	Registry.GetAssetsByClass(UFlareSectorCatalogEntry::StaticClass()->GetFName(), AssetList);
 
 	// Do the orbital map setup

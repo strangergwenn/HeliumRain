@@ -11,7 +11,9 @@ UFlareResourceCatalog::UFlareResourceCatalog(const class FObjectInitializer& PCI
 	: Super(PCIP)
 {
 	TArray<FAssetData> AssetList;
-	const IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+	IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+
+	Registry.SearchAllAssets(true);
 	Registry.GetAssetsByClass(UFlareResourceCatalogEntry::StaticClass()->GetFName(), AssetList);
 
 	for (int32 Index = 0; Index < AssetList.Num(); Index++)

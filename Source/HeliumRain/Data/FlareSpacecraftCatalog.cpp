@@ -63,7 +63,9 @@ UFlareSpacecraftCatalog::UFlareSpacecraftCatalog(const class FObjectInitializer&
 	: Super(PCIP)
 {
 	TArray<FAssetData> AssetList;
-	const IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+	IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+
+	Registry.SearchAllAssets(true);
 	Registry.GetAssetsByClass(UFlareSpacecraftCatalogEntry::StaticClass()->GetFName(), AssetList);
 
 	for (int32 Index = 0; Index < AssetList.Num(); Index++)
