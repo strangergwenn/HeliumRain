@@ -99,36 +99,81 @@ void UFlareQuestGenerator::Save(FFlareQuestSave& Data)
 	Quest generation
 ----------------------------------------------------*/
 
-FText UFlareQuestGenerator::GeneratePersonName()
+FText UFlareQuestGenerator::GeneratePersonName(TArray<FString> UsedNames)
 {
 	TArray<FText> Names;
 	
+	Names.Add(FText::FromString("Amos"));
+	Names.Add(FText::FromString("Anette"));
+	Names.Add(FText::FromString("Alex"));
 	Names.Add(FText::FromString("Arya"));
+	Names.Add(FText::FromString("Bender"));
+	Names.Add(FText::FromString("Bertrand"));
 	Names.Add(FText::FromString("Bob"));
+	Names.Add(FText::FromString("Calvin"));
+	Names.Add(FText::FromString("Chiku"));
+	Names.Add(FText::FromString("Christian"));
 	Names.Add(FText::FromString("Curtis"));
 	Names.Add(FText::FromString("David"));
+	Names.Add(FText::FromString("Daisy"));
 	Names.Add(FText::FromString("Elisa"));
 	Names.Add(FText::FromString("France"));
+	Names.Add(FText::FromString("Fred"));
 	Names.Add(FText::FromString("Gaius"));
+	Names.Add(FText::FromString("Galiana"));
+	Names.Add(FText::FromString("Geoffrey"));
+	Names.Add(FText::FromString("Gwenn"));
 	Names.Add(FText::FromString("Hans"));
+	Names.Add(FText::FromString("Ilia")); // Revelation's space
+	Names.Add(FText::FromString("Ilya")); // Nexus
 	Names.Add(FText::FromString("Ivy"));
 	Names.Add(FText::FromString("Jebediah"));
+	Names.Add(FText::FromString("Jim"));
+	Names.Add(FText::FromString("Johanna"));
 	Names.Add(FText::FromString("Katia"));
+	Names.Add(FText::FromString("Kaden"));
 	Names.Add(FText::FromString("Lucy"));
 	Names.Add(FText::FromString("Mary"));
+	Names.Add(FText::FromString("Miller"));
 	Names.Add(FText::FromString("Nate"));
+	Names.Add(FText::FromString("Naomi"));
 	Names.Add(FText::FromString("Olly"));
 	Names.Add(FText::FromString("Paula"));
+	Names.Add(FText::FromString("Paul"));
 	Names.Add(FText::FromString("Quinn"));
+	Names.Add(FText::FromString("Rangan"));
 	Names.Add(FText::FromString("Robb"));
 	Names.Add(FText::FromString("Saul"));
+	Names.Add(FText::FromString("Sam"));
+	Names.Add(FText::FromString("Scorpio"));
+	Names.Add(FText::FromString("Sharon"));
+	Names.Add(FText::FromString("Shu"));
+	Names.Add(FText::FromString("Simone"));
+	Names.Add(FText::FromString("Sunday"));
 	Names.Add(FText::FromString("Tilda"));
+	Names.Add(FText::FromString("Tor"));
 	Names.Add(FText::FromString("Ulysse"));
+	Names.Add(FText::FromString("Val"));
 	Names.Add(FText::FromString("Viktor"));
 	Names.Add(FText::FromString("Walter"));
 	Names.Add(FText::FromString("Xavier"));
 	Names.Add(FText::FromString("Yann"));
 	Names.Add(FText::FromString("Zoe"));
+
+	TArray<FText> NotUsedNames;
+
+	for(FText Name: Names)
+	{
+		if(!UsedNames.Contains(Name.ToString()))
+		{
+			NotUsedNames.Add(Name);
+		}
+	}
+
+	if(NotUsedNames.Num())
+	{
+		return NotUsedNames[FMath::RandHelper(NotUsedNames.Num() - 1)];
+	}
 
 	return Names[FMath::RandHelper(Names.Num() - 1)];
 }
@@ -660,7 +705,29 @@ UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenera
 
 	FFlareBundle Data;
 	Parent->GenerateIdentifer(UFlareQuestGeneratedVipTransport::GetClass(), Data);
-	Data.PutString("vip-name", UFlareQuestGenerator::GeneratePersonName().ToString());
+
+
+	TArray<FString> UsedNames;
+
+	for(UFlareQuest* VisibleQuest : Parent->GetQuestManager()->GetAvailableQuests())
+	{
+		UFlareQuestGeneratedVipTransport* VipQuest = Cast<UFlareQuestGeneratedVipTransport>(VisibleQuest);
+		if(VipQuest)
+		{
+			UsedNames.Add(VipQuest->GetInitData()->GetString("vip-name"));
+		}
+	}
+
+	for(UFlareQuest* VisibleQuest : Parent->GetQuestManager()->GetOngoingQuests())
+	{
+		UFlareQuestGeneratedVipTransport* VipQuest = Cast<UFlareQuestGeneratedVipTransport>(VisibleQuest);
+		if(VipQuest)
+		{
+			UsedNames.Add(VipQuest->GetInitData()->GetString("vip-name"));
+		}
+	}
+
+	Data.PutString("vip-name", UFlareQuestGenerator::GeneratePersonName(UsedNames).ToString());
 	Data.PutName("station-1", Station1->GetImmatriculation());
 	Data.PutName("station-2", Station2->GetImmatriculation());
 	Data.PutName("sector-1", Station1->GetCurrentSector()->GetIdentifier());

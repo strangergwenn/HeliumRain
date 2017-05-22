@@ -27,7 +27,7 @@ public:
 		Quest generation
 	----------------------------------------------------*/
 
-	static FText GeneratePersonName();
+	static FText GeneratePersonName(TArray<FString> UsedNames);
 
 	void GenerateIdentifer(FName QuestClass, FFlareBundle& Data);
 
