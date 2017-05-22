@@ -379,7 +379,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"FinishQuest"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Complete five contracts to start your mercenary career.");
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Complete five contracts to start filling your company's coffers.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "complete-quest", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialFinishQuest::Create(this, QUEST_TAG"cond1", 5));
