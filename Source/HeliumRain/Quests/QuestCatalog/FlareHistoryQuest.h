@@ -146,4 +146,23 @@ protected:
 	int32 TargetArmyPoints;
 };
 
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestMinSectorStationCount : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestMinSectorStationCount* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* Sector, int32 Count);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* Sector, int32 Count);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+protected:
+
+	UFlareSimulatedSector* TargetSector;
+	int32 TargetStationCount;
+};
 

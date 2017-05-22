@@ -38,7 +38,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	Identifier = "pendulum";
 	QuestName = LOCTEXT(QUEST_TAG"Name","Pendulum");
 	QuestDescription = LOCTEXT(QUEST_TAG"Description","Help has been requested to all companies around Nema.");
-	QuestCategory = EFlareQuestCategory::TUTORIAL;
+	QuestCategory = EFlareQuestCategory::HISTORY;
 
 	UFlareSimulatedSector* Pendulum = FindSector("pendulum");
 	if (!Pendulum)
@@ -55,6 +55,10 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		return;
 	}
+
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-contracts"));
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestMinSectorStationCount::Create(this, TheSpire, 10));
+
 
 
 	{
@@ -671,6 +675,52 @@ void UFlareCompanyMaxCombatValue::AddConditionObjectives(FFlarePlayerObjectiveDa
 	ObjectiveCondition.Counter = TargetCompany->GetCompanyValue().ArmyCurrentCombatPoints;
 	ObjectiveCondition.MaxCounter = TargetArmyPoints;
 
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+
+/*----------------------------------------------------
+Min station count in sector condition
+----------------------------------------------------*/
+UFlareQuestMinSectorStationCount::UFlareQuestMinSectorStationCount(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestMinSectorStationCount* UFlareQuestMinSectorStationCount::Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* Sector, int32 StationCount)
+{
+	UFlareQuestMinSectorStationCount* Condition = NewObject<UFlareQuestMinSectorStationCount>(ParentQuest, UFlareQuestMinSectorStationCount::StaticClass());
+	Condition->Load(ParentQuest, Sector, StationCount);
+	return Condition;
+}
+
+void UFlareQuestMinSectorStationCount::Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* Sector, int32 StationCount)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+	TargetStationCount = StationCount;
+	TargetSector = Sector;
+
+	InitialLabel = FText::Format(LOCTEXT("HaveStationCountInSector", "It must be at least {0} station in {1}"),
+								 FText::AsNumber(StationCount),
+								 TargetSector->GetSectorName());
+}
+
+
+bool UFlareQuestMinSectorStationCount::IsCompleted()
+{
+	return TargetSector->GetSectorStations().Num() >= TargetStationCount;
+}
+
+void UFlareQuestMinSectorStationCount::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = TargetStationCount;
+	ObjectiveCondition.MaxProgress = TargetStationCount;
+	ObjectiveCondition.Counter = TargetSector->GetSectorStations().Num();
+	ObjectiveCondition.Progress = TargetSector->GetSectorStations().Num();
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
 
