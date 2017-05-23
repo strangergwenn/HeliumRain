@@ -12,6 +12,7 @@
 #define LOCTEXT_NAMESPACE "FlareHistotyQuest"
 
 static FName HISTORY_CURRENT_PROGRESSION_TAG("current-progression");
+static FName HISTORY_START_DATE_TAG("start-date");
 
 
 /*----------------------------------------------------
@@ -174,6 +175,17 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pirates", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareCompanyMaxCombatValue::Create(this, GetQuestManager()->GetGame()->GetScenarioTools()->Pirates, 0));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"wait"
+		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Good job. Now wait for the construction end.");
+
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "wait", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionWait::Create(this, QUEST_TAG"cond1", 30));
 		Steps.Add(Step);
 	}
 
@@ -721,6 +733,116 @@ void UFlareQuestMinSectorStationCount::AddConditionObjectives(FFlarePlayerObject
 	ObjectiveCondition.MaxProgress = TargetStationCount;
 	ObjectiveCondition.Counter = TargetSector->GetSectorStations().Num();
 	ObjectiveCondition.Progress = TargetSector->GetSectorStations().Num();
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+
+/*----------------------------------------------------
+	Wait condition
+----------------------------------------------------*/
+
+UFlareQuestConditionWait::UFlareQuestConditionWait(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionWait* UFlareQuestConditionWait::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, int32 Duration)
+{
+	UFlareQuestConditionWait*Condition = NewObject<UFlareQuestConditionWait>(ParentQuest, UFlareQuestConditionWait::StaticClass());
+	Condition->Load(ParentQuest, ConditionIdentifier, Duration);
+	return Condition;
+}
+
+void UFlareQuestConditionWait::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, int32 Duration)
+{
+	if (ConditionIdentifier == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionWait need identifier for state saving");
+	}
+	LoadInternal(ParentQuest, ConditionIdentifier);
+	Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+	TargetDuration = Duration;
+}
+
+
+FText UFlareQuestConditionWait::GetInitialLabel()
+{
+	int64 DateLimit = StartDate + TargetDuration;
+
+	int64 RemainingDuration = DateLimit - GetGame()->GetGameWorld()->GetDate();
+
+	return FText::Format(LOCTEXT("RemainingDurationWaitFormat", "{0} remaining"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 2)));
+}
+
+
+void UFlareQuestConditionWait::Restore(const FFlareBundle* Bundle)
+{
+	bool HasSave = true;
+	if(Bundle)
+	{
+		HasSave &= Bundle->HasInt32(HISTORY_START_DATE_TAG);
+	}
+	else
+	{
+		HasSave = false;
+	}
+
+	if(HasSave)
+	{
+		IsInit = true;
+		StartDate = Bundle->GetInt32(HISTORY_START_DATE_TAG);
+	}
+	else
+	{
+		IsInit = false;
+	}
+
+}
+
+void UFlareQuestConditionWait::Save(FFlareBundle* Bundle)
+{
+	if (IsInit)
+	{
+		Bundle->PutInt32(HISTORY_START_DATE_TAG, StartDate);
+	}
+}
+
+void UFlareQuestConditionWait::Init()
+{
+	if(!IsInit)
+	{
+		StartDate = GetGame()->GetGameWorld()->GetDate();
+		IsInit = true;
+	}
+}
+
+bool UFlareQuestConditionWait::IsCompleted()
+{
+
+	Init();
+	int64 DateLimit = StartDate + TargetDuration;
+	int64 RemainingDuration = DateLimit - GetGame()->GetGameWorld()->GetDate();
+
+
+	return RemainingDuration <= 0;
+}
+
+void UFlareQuestConditionWait::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	Init();
+
+	int64 CurrentProgression = GetGame()->GetGameWorld()->GetDate() - StartDate;
+
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.Counter = 0;
+	ObjectiveCondition.MaxCounter = TargetDuration;
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = TargetDuration;
+	ObjectiveCondition.Counter = CurrentProgression;
+	ObjectiveCondition.Progress = CurrentProgression;
+
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
 

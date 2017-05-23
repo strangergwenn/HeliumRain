@@ -166,3 +166,29 @@ protected:
 	int32 TargetStationCount;
 };
 
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionWait: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionWait* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, int32 Duration);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, int32 Duration);
+	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual FText GetInitialLabel();
+
+protected:
+
+	void Init();
+
+	bool IsInit;
+	int32 TargetDuration;
+	int64 StartDate;
+};
