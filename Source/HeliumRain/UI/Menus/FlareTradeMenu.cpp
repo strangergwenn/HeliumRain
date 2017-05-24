@@ -21,6 +21,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	int32 TextWidth = Theme.ContentWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right;
 
 	// Build structure
 	ChildSlot
@@ -80,6 +81,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 							SNew(STextBlock)
 							.TextStyle(&Theme.TextFont)
 							.Text(LOCTEXT("HelpText", "Your ship is ready to trade with another spacecraft."))
+							.WrapTextAt(TextWidth)
 						]
 
 						// Resource prices title
@@ -90,6 +92,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 							SNew(STextBlock)
 							.TextStyle(&Theme.SubTitleFont)
 							.Text(LOCTEXT("ResourcePrices", "Local resource prices"))
+							.WrapTextAt(TextWidth)
 						]
 
 						// Help text
@@ -138,6 +141,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 							.TextStyle(&Theme.SubTitleFont)
 							.Text(this, &SFlareTradeMenu::GetRightSpacecraftName)
 							.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
+							.WrapTextAt(TextWidth)
 						]
 				
 						// Ship's cargo
@@ -177,6 +181,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 							.TextStyle(&Theme.TextFont)
 							.Text(LOCTEXT("OtherShipHelpText", "Click on a resource to start trading."))
 							.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
+							.WrapTextAt(TextWidth)
 						]
 
 						// Price box
@@ -199,6 +204,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 									.TextStyle(&Theme.SubTitleFont)
 									.Text(LOCTEXT("TransactionTitle", "Transaction details"))
 									.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
+									.WrapTextAt(TextWidth)
 								]
 
 								// Invalid transaction
@@ -210,6 +216,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 									.TextStyle(&Theme.NameFont)
 									.Text(this, &SFlareTradeMenu::GetTransactionInvalidDetails)
 									.Visibility(this, &SFlareTradeMenu::GetTransactionInvalidVisibility)
+									.WrapTextAt(TextWidth)
 								]
 
 								// Quantity
@@ -252,6 +259,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 									.TextStyle(&Theme.TextFont)
 									.Text(this, &SFlareTradeMenu::GetTransactionDetails)
 									.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)
+									.WrapTextAt(TextWidth)
 								]
 
 								// Price
