@@ -953,7 +953,7 @@ void AFlarePlayerController::CheckSectorStateChanges(UFlareSimulatedSector* Sect
 		}
 		else
 		{
-			BattleStateText = FText::Format(LOCTEXT("BattleStateWonFormat", "Your personal fleet lost a battle in {0} !"),
+			BattleStateText = FText::Format(LOCTEXT("BattleStateLostFormat", "Your personal fleet lost a battle in {0} !"),
 											Sector->GetSectorName());
 		}
 

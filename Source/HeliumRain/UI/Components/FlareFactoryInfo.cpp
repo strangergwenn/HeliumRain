@@ -212,7 +212,7 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 		{
 			if (TargetFactory->GetOutputLimit(Resource) == 0)
 			{
-				ProductionCycleStatusText = FText::Format(LOCTEXT("ResourceLimitFormat", "{0} output is dumped"), Resource->Acronym);
+				ProductionCycleStatusText = FText::Format(LOCTEXT("ResourceLimitDumpedFormat", "{0} output is dumped"), Resource->Acronym);
 			}
 			else
 			{

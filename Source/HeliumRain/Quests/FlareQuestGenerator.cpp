@@ -756,8 +756,8 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 
 	QuestClass = UFlareQuestGeneratedVipTransport::GetClass();
 	Identifier = InitData.GetName("identifier");
-	QuestName = FText::Format(LOCTEXT(QUEST_TAG"Name","VIP transport : {0}"), VIPName);
-	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionFormat","Transport {0} from {1} to {2}."), VIPName, Sector1->GetSectorName(), Sector2->GetSectorName());
+	QuestName = FText::Format(LOCTEXT("GeneratedVipTransportName","VIP transport : {0}"), VIPName);
+	QuestDescription = FText::Format(LOCTEXT("GeneratedVipTransportDescriptionFormat","Transport {0} from {1} to {2}."), VIPName, Sector1->GetSectorName(), Sector2->GetSectorName());
 	QuestCategory = EFlareQuestCategory::SECONDARY;
 
 
@@ -766,7 +766,7 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"PickUp"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Pick {0} up at {1} in {2}"), VIPName, UFlareGameTools::DisplaySpacecraftName(Station1), FText::FromString(Sector1->GetSectorName().ToString()));
+		FText Description = FText::Format(LOCTEXT("PickUpDescription", "Pick {0} up at {1} in {2}"), VIPName, UFlareGameTools::DisplaySpacecraftName(Station1), FText::FromString(Sector1->GetSectorName().ToString()));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pick-up", Description);
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station1);
@@ -782,7 +782,7 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Drop-off"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Drop {0} off at {1} in {2}"), VIPName, UFlareGameTools::DisplaySpacecraftName(Station2), FText::FromString(Sector2->GetSectorName().ToString()));
+		FText Description = FText::Format(LOCTEXT("Drop-offDescription", "Drop {0} off at {1} in {2}"), VIPName, UFlareGameTools::DisplaySpacecraftName(Station2), FText::FromString(Sector2->GetSectorName().ToString()));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "drop-off", Description);
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Station2);
@@ -956,15 +956,15 @@ void UFlareQuestGeneratedResourceSale::Load(UFlareQuestGenerator* Parent, const 
 
 	QuestClass = UFlareQuestGeneratedResourceSale::GetClass();
 	Identifier = InitData.GetName("identifier");
-	QuestName = FText::Format(LOCTEXT(QUEST_TAG"Name","{0} sale in {1}"), Resource->Name, Sector->GetSectorName());
-	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionFormat","Buy {0} {1} from {2} at {3}."),
+	QuestName = FText::Format(LOCTEXT("GeneratedResourceSaleName","{0} sale in {1}"), Resource->Name, Sector->GetSectorName());
+	QuestDescription = FText::Format(LOCTEXT("GeneratedResourceSaleDescriptionFormat","Buy {0} {1} from {2} at {3}."),
 									 FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(Station), Sector->GetSectorName());
 	QuestCategory = EFlareQuestCategory::SECONDARY;
 
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"BuyResource"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Buy {0} {1} from {2} at {3}"),
+		FText Description = FText::Format(LOCTEXT("BuyResourceDescription", "Buy {0} {1} from {2} at {3}"),
 										  FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(Station), Sector->GetSectorName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "buy", Description);
 
@@ -1137,15 +1137,15 @@ void UFlareQuestGeneratedResourcePurchase::Load(UFlareQuestGenerator* Parent, co
 
 	QuestClass = UFlareQuestGeneratedResourcePurchase::GetClass();
 	Identifier = InitData.GetName("identifier");
-	QuestName = FText::Format(LOCTEXT(QUEST_TAG"Name","{0} purchase in {1}"), Resource->Name, Sector->GetSectorName());
-	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionFormat","Sell {0} {1} to {2} at {3}."),
+	QuestName = FText::Format(LOCTEXT("GeneratedResourcePurchaseName","{0} purchase in {1}"), Resource->Name, Sector->GetSectorName());
+	QuestDescription = FText::Format(LOCTEXT("GeneratedResourcePurchaseDescriptionFormat","Sell {0} {1} to {2} at {3}."),
 									 FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(Station), Sector->GetSectorName());
 	QuestCategory = EFlareQuestCategory::SECONDARY;
 
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"BuyResource"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Sell {0} {1} to {2} at {3}"),
+		FText Description = FText::Format(LOCTEXT("GeneratedResourcePurchaseBuyResourceDescription", "Sell {0} {1} to {2} at {3}"),
 										  FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(Station), Sector->GetSectorName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "sell", Description);
 
@@ -1362,8 +1362,8 @@ void UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const
 	Identifier = InitData.GetName("identifier");
 	if(Sector1 == Sector2)
 	{
-		QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","{0} trade in {1}"), Resource->Name, Sector1->GetSectorName());
-		QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat","Trade {0} {1} in {2}."),
+		QuestName = FText::Format(LOCTEXT("GeneratedResourceTradeNameLocal","{0} trade in {1}"), Resource->Name, Sector1->GetSectorName());
+		QuestDescription = FText::Format(LOCTEXT("GeneratedResourceTradeDescriptionLocalFormat","Trade {0} {1} in {2}."),
 									 FText::AsNumber(Quantity), Resource->Name, Sector1->GetSectorName());
 	}
 	else
@@ -1497,8 +1497,8 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 	QuestClass = UFlareQuestGeneratedStationDefense::GetClass();
 	Identifier = InitData.GetName("identifier");
 
-	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","Defend {0} stations against {1}"), Sector->GetSectorName(), HostileCompany->GetCompanyName());
-	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat","Defend stations of {0} in {1} against {2} with at least {3} combat value."),
+	QuestName = FText::Format(LOCTEXT("GeneratedStationDefenseNameLocal","Defend {0} stations against {1}"), Sector->GetSectorName(), HostileCompany->GetCompanyName());
+	QuestDescription = FText::Format(LOCTEXT("GeneratedStationDefenseDescriptionLocalFormat","Defend stations of {0} in {1} against {2} with at least {3} combat value."),
 								 FriendlyCompany->GetCompanyName(), Sector->GetSectorName(), HostileCompany->GetCompanyName(), FText::AsNumber(ArmyCombatPoints ));
 
 	QuestCategory = EFlareQuestCategory::SECONDARY;
@@ -1526,7 +1526,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 		#define QUEST_STEP_TAG QUEST_TAG"Attack"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionBringForce", "Attack {0} in {1} with at least {2} combat value"),
+		Description = FText::Format(LOCTEXT("GeneratedStationDefenseDescriptionBringForce", "Attack {0} in {1} with at least {2} combat value"),
 										  HostileCompany->GetCompanyName(), Sector->GetSectorName(), FText::AsNumber(ArmyCombatPoints ));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
 		{
@@ -1555,7 +1555,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 		#define QUEST_STEP_TAG QUEST_TAG"Defend"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDefendStation", "Defend {0} in {1} against {2}"),
+		Description = FText::Format(LOCTEXT("GeneratedStationDefenseDescriptionDefendStation", "Defend {0} in {1} against {2}"),
 										  FriendlyCompany->GetCompanyName(), Sector->GetSectorName(), HostileCompany->GetCompanyName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "defend", Description);
 
@@ -1688,11 +1688,11 @@ void UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FF
 	QuestClass = UFlareQuestGeneratedJoinAttack::GetClass();
 	Identifier = InitData.GetName("identifier");
 
-	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","Attack {0} with {1}"),
+	QuestName = FText::Format(LOCTEXT("GeneratedJoinAttackNameLocal","Attack {0} with {1}"),
 		Sector->GetSectorName(),
 		FriendlyCompany->GetCompanyName());
 
-	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat","Follow {0} in {1} with at least {2} combat value, and attack on {3}."),
+	QuestDescription = FText::Format(LOCTEXT("GeneratedJoinAttackDescriptionLocalFormat","Follow {0} in {1} with at least {2} combat value, and attack on {3}."),
 		FriendlyCompany->GetCompanyName(),
 		Sector->GetSectorName(),
 		FText::AsNumber(ArmyCombatPoints),
@@ -1741,7 +1741,7 @@ void UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FF
 		#define QUEST_STEP_TAG QUEST_TAG"Attack"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionBringForce", "Attack {0} with at least {1} combat value on {2}"),
+		Description = FText::Format(LOCTEXT("GeneratedJoinAttackDescriptionBringForce", "Attack {0} with at least {1} combat value on {2}"),
 			Sector->GetSectorName(),
 			FText::AsNumber(ArmyCombatPoints ),
 			UFlareGameTools::GetDisplayDate(AttackDate + 1)); // FString needed here
@@ -1905,11 +1905,11 @@ void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const
 	QuestClass = UFlareQuestGeneratedSectorDefense::GetClass();
 	Identifier = InitData.GetName("identifier");
 
-	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","Defend {0} against {1}'s attack"),
+	QuestName = FText::Format(LOCTEXT("GeneratedSectorDefenseNameLocal","Defend {0} against {1}'s attack"),
 		Sector->GetSectorName(),
 		HostileCompany->GetCompanyName());
 
-	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat","Defend {0} in {1} with at least {2} combat value on {3}."),
+	QuestDescription = FText::Format(LOCTEXT("GeneratedSectorDefenseDescriptionLocalFormat","Defend {0} in {1} with at least {2} combat value on {3}."),
 		FriendlyCompany->GetCompanyName(),
 		Sector->GetSectorName(),
 		FText::AsNumber(ArmyCombatPoints),
@@ -1949,7 +1949,7 @@ void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const
 		#define QUEST_STEP_TAG QUEST_TAG"Attack"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionBringForce", "Attack {0} with at least {1} combat value on {2}"),
+		Description = FText::Format(LOCTEXT("GeneratedSectorDefenseDescriptionBringForce", "Attack {0} with at least {1} combat value on {2}"),
 			Sector->GetSectorName(),
 			FText::AsNumber(ArmyCombatPoints),
 			UFlareGameTools::GetDisplayDate(AttackDate + 1)); // FString needed here
@@ -1981,7 +1981,7 @@ void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const
 		#define QUEST_STEP_TAG QUEST_TAG"Defend"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDefendStation", "Defend {0} in {1}"),
+		Description = FText::Format(LOCTEXT("GeneratedSectorDefenseDescriptionDefendStation", "Defend {0} in {1}"),
 										  FriendlyCompany->GetCompanyName(), Sector->GetSectorName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "defend", Description);
 
@@ -2162,9 +2162,9 @@ void UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFl
 	QuestClass = UFlareQuestGeneratedCargoHunt::GetClass();
 	Identifier = InitData.GetName("identifier");
 
-	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal","Attack {0}'s cargos"), HostileCompany->GetCompanyName());
+	QuestName = FText::Format(LOCTEXT("GeneratedCargoHuntNameLocal","Attack {0}'s cargos"), HostileCompany->GetCompanyName());
 
-	QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat","{0} {1} {2} cargos to {3}."),
+	QuestDescription = FText::Format(LOCTEXT("GeneratedCargoHuntDescriptionLocalFormat","{0} {1} {2} cargos to {3}."),
 								 RequestDestroyTarget? LOCTEXT("RequestDestroyTarget","Destroy") : LOCTEXT("RequestUncotrollableTarget","Make uncontrollable"),
 									 FText::AsNumber(CargoCount),
 									 TargetLargeCargo? LOCTEXT("TargetLargeCargo","large") : LOCTEXT("TargetSmallCargo","small"),
@@ -2178,7 +2178,7 @@ void UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFl
 		#define QUEST_STEP_TAG QUEST_TAG"CargoHarass"
 		FText Description;
 
-		Description = LOCTEXT(QUEST_STEP_TAG"Harass", "Attack unarmed, defenseless cargos");
+		Description = LOCTEXT("GeneratedCargoHuntHarass", "Attack unarmed, defenseless cargos");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "harass", Description);
 
 
@@ -2292,16 +2292,16 @@ void UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const 
 	QuestClass = UFlareQuestGeneratedMilitaryHunt::GetClass();
 	Identifier = InitData.GetName("identifier");
 
-	QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameLocal", "Attack {0}'s military ships"), HostileCompany->GetCompanyName());
+	QuestName = FText::Format(LOCTEXT("GeneratedMilitaryHuntNameLocal", "Attack {0}'s military ships"), HostileCompany->GetCompanyName());
 	if (RequestDestroyTarget)
 	{
-		QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat1", "Destroy some of {0}'s ships to lower its combat value by {1} combats points"),
+		QuestDescription = FText::Format(LOCTEXT("GeneratedMilitaryHuntDescriptionLocalFormat1", "Destroy some of {0}'s ships to lower its combat value by {1} combats points"),
 			HostileCompany->GetCompanyName(),
 			FText::AsNumber(RequestedArmyCombatPoints));
 	}
 	else
 	{
-		QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionLocalFormat1", "Render some of {0}'s ships uncontrollable to lower its combat value by {1} combats points"),
+		QuestDescription = FText::Format(LOCTEXT("GeneratedMilitaryHuntDescriptionLocalFormat2", "Render some of {0}'s ships uncontrollable to lower its combat value by {1} combats points"),
 			HostileCompany->GetCompanyName(),
 			FText::AsNumber(RequestedArmyCombatPoints));
 	}
@@ -2315,7 +2315,7 @@ void UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const 
 		#define QUEST_STEP_TAG QUEST_TAG"CargoMilitaryHarass"
 		FText Description;
 
-		Description = LOCTEXT(QUEST_STEP_TAG"Harass", "Attack military ships");
+		Description = LOCTEXT("GeneratedMilitaryHuntHarass", "Attack military ships");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "harass", Description);
 
 

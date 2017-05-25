@@ -65,7 +65,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"DockAt"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You are summoned by the Nema Colonial Administration to a meeting on the Pendulum project. Please dock to an habitation center in Blue Heart.");
+		FText Description = LOCTEXT("DockAtDescription", "You are summoned by the Nema Colonial Administration to a meeting on the Pendulum project. Please dock to an habitation center in Blue Heart.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "meeting", Description);
 
 		UFlareQuestConditionDockAtType* Condition = UFlareQuestConditionDockAtType::Create(this, BlueHeart, "station-bh-habitation");
@@ -79,7 +79,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"TravelToSpire"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Thanks for attending this meeting. As you may have observed, the Spire, our only source of gas, can't match our needs anymore."
+		FText Description = LOCTEXT("TravelToSpireDescription","Thanks for attending this meeting. As you may have observed, the Spire, our only source of gas, can't match our needs anymore."
 									"\nWe need to build a new orbital extractor. However, the Spire was built before the war and all the knowledge disappeared when the Daedelus was shot to pieces. Your help is needed to build a new one."
 									"\nPlease start reverse-engineering the Spire so that we can learn more.");
 
@@ -93,7 +93,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Inspect"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Inspect The Spire in details to gather information about its materials and construction method.");
+		FText Description = LOCTEXT("InspectDescription","Inspect The Spire in details to gather information about its materials and construction method.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "inspect-the-spire", Description);
 
@@ -114,7 +114,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"DataReturn"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "This is great data ! Come back to our scientists in Blue Heart to see what they make of it.");
+		FText Description = LOCTEXT("DataReturnDescription", "This is great data ! Come back to our scientists in Blue Heart to see what they make of it.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "data-return", Description);
 
 		UFlareQuestConditionDockAtType* Condition = UFlareQuestConditionDockAtType::Create(this, BlueHeart, "station-bh-habitation");
@@ -128,7 +128,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"research"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","The data you brought back will help us understand how the Spire was built. We need you to transform this knowledge into a usable technology to build a new space elevevator.");
+		FText Description = LOCTEXT("ResearchDescription","The data you brought back will help us understand how the Spire was built. We need you to transform this knowledge into a usable technology to build a new space elevevator.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research", Description);
 
@@ -142,7 +142,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"telescope"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Congratulations, you now have the blueprints for a new orbital extractor. Two things are still needed : some construction resources, and a massive counterweight for the space elevator. Build a telescope station to help finding a good sector.");
+		FText Description = LOCTEXT("telescopeDescription","Congratulations, you now have the blueprints for a new orbital extractor. Two things are still needed : some construction resources, and a massive counterweight for the space elevator. Build a telescope station to help finding a good sector.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "telescope", Description);
 
@@ -154,7 +154,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"resources"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Bring construction resources to Blue Heart.");
+		FText Description = LOCTEXT("resourcesDescription","Bring construction resources to Blue Heart.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "resources", Description);
 
@@ -169,7 +169,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"peace"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","We've started construction for the Pendulum elevator. We need to be cautious of pirate activity, since we gathered a lot of resources here."
+		FText Description = LOCTEXT("peaceDescription","We've started construction for the Pendulum elevator. We need to be cautious of pirate activity, since we gathered a lot of resources here."
 																"\nReduce pirates to silence for a while. If needed, use a telescope to locate their base in the Boneyard.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pirates", Description);
@@ -181,7 +181,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"wait"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Good job. Now wait for the construction end.");
+		FText Description = LOCTEXT("waitDescription","Good job. Now wait for the construction end.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "wait", Description);
 
@@ -193,7 +193,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"TravelToPendulum"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","The construction of Pendulum construction is finished, come take a look !");
+		FText Description = LOCTEXT("TravelToPendulumDescription","The construction of Pendulum construction is finished, come take a look !");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "travel-to-pendulum", Description);
 
@@ -207,7 +207,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"pumps"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Welcome to the Pendulum. Other companies will come here too, but you helped build this extractor. Build some gas terminals while the administrative fees are low !");
+		FText Description = LOCTEXT("pumpsDescription","Welcome to the Pendulum. Other companies will come here too, but you helped build this extractor. Build some gas terminals while the administrative fees are low !");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pumps", Description);
 		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));

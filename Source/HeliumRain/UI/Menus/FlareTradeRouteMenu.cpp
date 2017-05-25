@@ -814,7 +814,7 @@ FText SFlareTradeRouteMenu::GetNextStepInfo() const
 
 		if (TargetTradeRoute->IsPaused())
 		{
-			return LOCTEXT("NoNextStep", "Paused");
+			return LOCTEXT("PausedStep", "Paused");
 		}
 		else if (NextSector)
 		{

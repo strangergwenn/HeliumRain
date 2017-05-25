@@ -1167,7 +1167,7 @@ UFlareTravel* UFlareWorld::	StartTravel(UFlareFleet* TravelingFleet, UFlareSimul
 					FFlareMenuParameterData Data;
 					Data.Sector = OriginSector;
 					GetGame()->GetPC()->Notify(LOCTEXT("ShipsIntercepted", "Ships intercepted"),
-						FText::Format(LOCTEXT("ShipCapturedFormat", "{0} {1} have been intercepted trying to escape from {2}."),
+						FText::Format(LOCTEXT("ShipInterceptedFormat", "{0} {1} have been intercepted trying to escape from {2}."),
 									  FText::AsNumber(InterceptedShips),
 									  ShipText,
 									  FText::FromString(OriginSector->GetSectorName().ToString())),

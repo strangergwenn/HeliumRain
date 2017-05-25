@@ -342,12 +342,12 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 		// Ship
 		else if (Desc->TurretSlots.Num())
 		{
-			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponFormat", "(Military ship, {0} turrets)"),
+			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponTurretFormat", "(Military ship, {0} turrets)"),
 				FText::AsNumber(Desc->TurretSlots.Num()));
 		}
 		else if (Desc->GunSlots.Num())
 		{
-			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponFormat", "(Military ship, {0} gun slots)"),
+			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponGunFormat", "(Military ship, {0} gun slots)"),
 				FText::AsNumber(Desc->GunSlots.Num()));
 		}
 		else

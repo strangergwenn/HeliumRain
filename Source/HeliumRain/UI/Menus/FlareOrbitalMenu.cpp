@@ -89,7 +89,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 						.Icon(FFlareStyleSet::GetIcon("Load_Small"))
 						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
 						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
-						.HelpText(LOCTEXT("FastForwardInfo", "Wait for one day - Travels, production, building will be accelerated"))
+						.HelpText(LOCTEXT("FastForwardOneDayInfo", "Wait for one day - Travels, production, building will be accelerated"))
 					]
 
 					// Fast forward

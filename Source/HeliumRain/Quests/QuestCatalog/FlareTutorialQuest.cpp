@@ -39,8 +39,8 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "tutorial-flying";
-	QuestName = LOCTEXT(QUEST_TAG"Name","Spaceflight tutorial");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","Let's learn how to fly this thing !");
+	QuestName = LOCTEXT("TutorialFlyingName","Spaceflight tutorial");
+	QuestDescription = LOCTEXT("TutorialFlyingDescription","Let's learn how to fly this thing !");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 	// Common condition
@@ -49,7 +49,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"GoForward"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Spaceships feature small maneuvering engines called the RCS, and large orbital engines for accelerating. To go forward press <input-axis:NormalThrustInput,1.0> slightly. You can modify the key binding in the settings menu (<input-action:SettingsMenu>).");
+		FText Description = LOCTEXT("GoForwardDescription","Spaceships feature small maneuvering engines called the RCS, and large orbital engines for accelerating. To go forward press <input-axis:NormalThrustInput,1.0> slightly. You can modify the key binding in the settings menu (<input-action:SettingsMenu>).");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "go-forward", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -60,7 +60,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"GoBackward"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","There is no air to brake in space. Your ship will keep its velocity and direction if you don't brake with your RCS. Press <input-axis:NormalThrustInput,-1.0> to brake.");
+		FText Description = LOCTEXT("GoBackwardDescription","There is no air to brake in space. Your ship will keep its velocity and direction if you don't brake with your RCS. Press <input-axis:NormalThrustInput,-1.0> to brake.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "go-backward", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -71,7 +71,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"PitchUp"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your cursor to the top of the screen to pitch up.");
+		FText Description = LOCTEXT("PitchUpDescription","Move your cursor to the top of the screen to pitch up.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pitch-up", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -82,7 +82,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"PitchDown"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your cursor to the bottom of the screen to pitch down.");
+		FText Description = LOCTEXT("PitchDownDescription","Move your cursor to the bottom of the screen to pitch down.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pitch-down", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -93,7 +93,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"YawLeft"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your cursor to the left of the screen to turn left.");
+		FText Description = LOCTEXT("YawLeftDescription","Move your cursor to the left of the screen to turn left.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "yaw-left", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -104,7 +104,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"YawRight"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your cursor to the right of the screen to turn right.");
+		FText Description = LOCTEXT("YawRightDescription","Move your cursor to the right of the screen to turn right.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "yaw-right", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -115,7 +115,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"RollLeft"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Roll your spacescraft left with <input-axis:NormalRollInput,-1.0>.");
+		FText Description = LOCTEXT("RollLeftDescription","Roll your spacescraft left with <input-axis:NormalRollInput,-1.0>.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "roll-left", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -126,7 +126,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"RollRight"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Roll your spacescraft right with <input-axis:NormalRollInput,1.0>.");
+		FText Description = LOCTEXT("RollRightDescription","Roll your spacescraft right with <input-axis:NormalRollInput,1.0>.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "roll-right", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -137,7 +137,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Forward"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Move your ship forward again.");
+		FText Description = LOCTEXT("ForwardDescription","Move your ship forward again.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "forward", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -148,7 +148,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"FollowAdvancedPath"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can use the prograde vector to follow a path. Keep a constant velocity and aim for your target, your ship's engine controller will automatically align your velocity with your ship's orientation.");
+		FText Description = LOCTEXT("FollowAdvancedPathDescription","You can use the prograde vector to follow a path. Keep a constant velocity and aim for your target, your ship's engine controller will automatically align your velocity with your ship's orientation.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "follow-advanced-path", Description);
 
 
@@ -184,8 +184,8 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "tutorial-navigation";
-	QuestName = LOCTEXT(QUEST_TAG"Name","Orbital navigation tutorial");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to travel from one sector to another.");
+	QuestName = LOCTEXT("TutorialNavigationName","Orbital navigation tutorial");
+	QuestDescription = LOCTEXT("TutorialNavigationDescription","Learn how to travel from one sector to another.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-flying"));
@@ -204,7 +204,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"OpenTravelMenu"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You need to learn how to travel between sectors. To start a travel, open the menu bar with <input-action:ToggleOverlay> and click on the orbital map.");
+		FText Description = LOCTEXT("OpenTravelMenuDescription","You need to learn how to travel between sectors. To start a travel, open the menu bar with <input-action:ToggleOverlay> and click on the orbital map.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-travel-menu", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Orbit));
@@ -214,7 +214,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Travel"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Select the sector \"The Depths\" and click \"Travel\". Then, on the orbital map, use the \"Fast Forward\" button to wait for the end of the travel.");
+		FText Description = LOCTEXT("TravelDescription","Select the sector \"The Depths\" and click \"Travel\". Then, on the orbital map, use the \"Fast Forward\" button to wait for the end of the travel.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "travel", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionSectorVisited::Create(this, Sector));
@@ -224,7 +224,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Activate"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your ship arrived at destination !");
+		FText Description = LOCTEXT("ActivateDescription","Your ship arrived at destination !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "activate", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionSectorActive::Create(this, Sector));
@@ -234,7 +234,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"CloseMenu"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can now dock at stations to trade resources or upgrade your spacecraft ! Close the menu to go back to your ship.");
+		FText Description = LOCTEXT("CloseMenuDescription","You can now dock at stations to trade resources or upgrade your spacecraft ! Close the menu to go back to your ship.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "close-menu", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_FlyShip));
@@ -244,7 +244,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"TargetA"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "You can use the targeting system to interact with objects. Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}."),
+		FText Description = FText::Format(LOCTEXT("TargetADescription", "You can use the targeting system to interact with objects. Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}."),
 			UFlareGameTools::DisplaySpacecraftName(StationA));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "target-station-a", Description);
 
@@ -256,7 +256,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"TargetB"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}. The targets are sort by distance to your nose."),
+		FText Description = FText::Format(LOCTEXT("TargetBDescription", "Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}. The targets are sort by distance to your nose."),
 			UFlareGameTools::DisplaySpacecraftName(StationB));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "target-station-b", Description);
 
@@ -267,7 +267,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"TargetC"
-		FText Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"Description", "Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}."),
+		FText Description = FText::Format(LOCTEXT("TargetCDescription", "Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}."),
 			UFlareGameTools::DisplaySpacecraftName(StationC));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "target-station-C", Description);
 
@@ -278,7 +278,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"CommandDock"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "Press <input-action:Wheel> to select the docking option");
+		FText Description = LOCTEXT("CommandDockDescription", "Press <input-action:Wheel> to select the docking option");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "command-dock", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialCommandDock::Create(this, StationC));
@@ -288,7 +288,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"DockAt"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "Your ship is now docking automatically, but you can brake to disengage the autopilot. Use the wheel menu to undock, trade, or upgrade your ship.");
+		FText Description = LOCTEXT("NavigationDockAtDescription", "Your ship is now docking automatically, but you can brake to disengage the autopilot. Use the wheel menu to undock, trade, or upgrade your ship.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pick-up", Description);
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, StationC);
@@ -322,8 +322,8 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "tutorial-contracts";
-	QuestName = LOCTEXT(QUEST_TAG"Name","Contracts tutorial");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to complete contracts for other companies.");
+	QuestName = LOCTEXT("TutorialContractsName","Contracts tutorial");
+	QuestDescription = LOCTEXT("TutorialContractsDescription","Learn how to complete contracts for other companies.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-navigation"));
@@ -339,7 +339,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"FindContract"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Other companies in this system can give you contracts to carry out. You can ignore them, but they are a very good way to earn money or research, or to discover new sectors. Keep traveling between sectors to find contracts.");
+		FText Description = LOCTEXT("FindContractDescription","Other companies in this system can give you contracts to carry out. You can ignore them, but they are a very good way to earn money or research, or to discover new sectors. Keep traveling between sectors to find contracts.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "find-contract", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGetContrat::Create(this));
@@ -349,7 +349,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"OpenQuestMenu"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","A company has made a new contract available to you.\nOpen the contracts menu with (<input-action:QuestMenu>), or from the menu bar with <input-action:ToggleOverlay>.");
+		FText Description = LOCTEXT("OpenQuestMenuDescription","A company has made a new contract available to you.\nOpen the contracts menu with (<input-action:QuestMenu>), or from the menu bar with <input-action:ToggleOverlay>.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-quest-menu", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Quest));
@@ -359,7 +359,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"AcceptQuest"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can manage contracts here. You have only a few days to accept a contract, but once you do, you can usually take your time to finish it. Accept your first contract now !");
+		FText Description = LOCTEXT("AcceptQuestDescription","You can manage contracts here. You have only a few days to accept a contract, but once you do, you can usually take your time to finish it. Accept your first contract now !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "accept-quest", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialAcceptQuest::Create(this));
@@ -369,7 +369,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"TrackQuest"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Tracking a contract makes its instructions visible permanently. Track a contract now - you can return to this menu to track the tutorial contract at any time if you are lost.");
+		FText Description = LOCTEXT("TrackQuestDescription","Tracking a contract makes its instructions visible permanently. Track a contract now - you can return to this menu to track the tutorial contract at any time if you are lost.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "track-quest", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialTrackQuest::Create(this));
@@ -379,7 +379,7 @@ void UFlareQuestTutorialContracts::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"FinishQuest"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Complete five contracts to start filling your company's coffers.");
+		FText Description = LOCTEXT("FinishQuestDescription","Complete five contracts to start filling your company's coffers.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "complete-quest", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialFinishQuest::Create(this, QUEST_TAG"cond1", 5));
@@ -409,8 +409,8 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "tutorial-technology";
-	QuestName = LOCTEXT(QUEST_TAG"Name","Technology tutorial");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to use technologies.");
+	QuestName = LOCTEXT("TutorialTechnologyName","Technology tutorial");
+	QuestDescription = LOCTEXT("TutorialTechnologyDescription","Learn how to use technologies.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-contracts"));
@@ -418,7 +418,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"GainResearchPoint"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can develop technologies to increase your capabilities and your company's performance. "
+		FText Description = LOCTEXT("GainResearchPointDescription","You can develop technologies to increase your capabilities and your company's performance. "
 									"To develop a technology, you need research points. Companies with a high research value sometimes offer you contracts with research points as a reward. You will learn a more efficient way to get research points in the future !"
 									"\nGain some research points to move forward.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "gain-research-points", Description);
@@ -430,7 +430,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"OpenTechnologyMenu"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You have enough research points to research technology. Open the technology menu with (<input-action:TechnologyMenu>), or from the menu bar with <input-action:ToggleOverlay>.");
+		FText Description = LOCTEXT("OpenTechnologyMenuDescription","You have enough research points to research technology. Open the technology menu with (<input-action:TechnologyMenu>), or from the menu bar with <input-action:ToggleOverlay>.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-technology-menu", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Technology));
@@ -440,7 +440,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ResearchTechnology"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can manage research in the technology menu. Select a level 1 technology and research it !"
+		FText Description = LOCTEXT("ResearchTechnologyDescription","You can manage research in the technology menu. Select a level 1 technology and research it !"
 									"\nChoose wisely, for the price of all technology is increased after each research.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-technology", Description);
 
@@ -451,7 +451,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ReachLevelTechnology3"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","High level technology require an increased technology level. Your technology level is incremented every new technology."
+		FText Description = LOCTEXT("ReachLevelTechnology3Description","High level technology require an increased technology level. Your technology level is incremented every new technology."
 																"\nResearch more technologies to unlock level 3 technologies.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "track-quest", Description);
 
@@ -462,7 +462,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ResearchTechnologyLevel3"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You are now ready to research a level 3 technology.");
+		FText Description = LOCTEXT("ResearchTechnologyLevel3Description","You are now ready to research a level 3 technology.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-technology-3", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchTechnology::Create(this, 3));
@@ -493,8 +493,8 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "tutorial-build-ship";
-	QuestName = LOCTEXT(QUEST_TAG"Name","Ship-building tutorial");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to build ships.");
+	QuestName = LOCTEXT("TutorialBuildShipName","Ship-building tutorial");
+	QuestDescription = LOCTEXT("TutorialBuildShipDescription","Learn how to build ships.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 
@@ -526,7 +526,7 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"GainMoney"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","You can buy ships to increase your trading force or to defend your estate. Ships are expensive, save some money first !");
+		FText Description = LOCTEXT("GainMoneyDescription","You can buy ships to increase your trading force or to defend your estate. Ships are expensive, save some money first !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "gain-money", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialMoney::Create(this, 3000000));
@@ -536,7 +536,7 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"DockAt"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You can order ships at shipyards. Dock your ship at the Blue Heart shipyard.");
+		FText Description = LOCTEXT("BuildShipDockAtDescription", "You can order ships at shipyards. Dock your ship at the Blue Heart shipyard.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "dock", Description);
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, Shipyard);
@@ -550,7 +550,7 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"OrderShip"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Open the shipyard details, either with the wheel menu or through the sector menu. You will have the details of production lines."
+		FText Description = LOCTEXT("OrderShipDescription","Open the shipyard details, either with the wheel menu or through the sector menu. You will have the details of production lines."
 									"\nPick a production line for small ships and order a ship of your choice.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "order-ship", Description);
 
@@ -561,7 +561,7 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"BuildShip"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Ship construction may be long. Continue playing until your ship is ready !");
+		FText Description = LOCTEXT("BuildShipDescription","Ship construction may be long. Continue playing until your ship is ready !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "build-ship", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildShip::Create(this, EFlarePartSize::S));
@@ -591,8 +591,8 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "tutorial-build-station";
-	QuestName = LOCTEXT(QUEST_TAG"Name","Station-building tutorial");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to build stations.");
+	QuestName = LOCTEXT("TutorialBuildStationName","Station-building tutorial");
+	QuestDescription = LOCTEXT("TutorialBuildStationDescription","Learn how to build stations.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 50));
@@ -601,7 +601,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ResearchStationTechnology"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Stations are important to gain long-term economic power. Different stations have different technological requirements. Research a technology that unlocks contruction of stations.");
+		FText Description = LOCTEXT("BuildStationResearchStationTechnologyDescription","Stations are important to gain long-term economic power. Different stations have different technological requirements. Research a technology that unlocks contruction of stations.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-station-technology", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialUnlockStation::Create(this));
@@ -611,7 +611,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"SectorMenu"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You have now unlocked some station-building capabilities. You can build stations in any sector, but there are various limitations depending on the kind of station you want to build, and the sector itself. You can't build solar stations in clouds uf dust !"
+		FText Description = LOCTEXT("SectorMenuDescription", "You have now unlocked some station-building capabilities. You can build stations in any sector, but there are various limitations depending on the kind of station you want to build, and the sector itself. You can't build solar stations in clouds uf dust !"
 																 "\nOpen the current sector menu (<input-action:SectorMenu>), or another known sector from the orbital menu");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "dock", Description);
 
@@ -622,7 +622,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"StartConstuction"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Open the station-building menu using the button on the top left part of the sector menu to build a station. Starting a station construction will cost you administrative fees depending of the number of stations in the sector - the more stations, the higher the fee.");
+		FText Description = LOCTEXT("StartConstuctionDescription","Open the station-building menu using the button on the top left part of the sector menu to build a station. Starting a station construction will cost you administrative fees depending of the number of stations in the sector - the more stations, the higher the fee.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "order-station", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialStartStationConstruction::Create(this, false));
@@ -632,7 +632,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"BuildStation"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your station is now under construction. Bring the missing construction resources to finish the construction ! Other companies can sell resources directly to the station too.");
+		FText Description = LOCTEXT("BuildStationDescription","Your station is now under construction. Bring the missing construction resources to finish the construction ! Other companies can sell resources directly to the station too.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "build-station", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, false));
@@ -643,7 +643,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"StartUpgrade"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your station is now ready, you can inspect it to see its production needs. You can upgrade stations to increase their productivity and cargo bay. Upgrading a station will put it back in construction until you bring the missing resources."
+		FText Description = LOCTEXT("StartUpgradeDescription","Your station is now ready, you can inspect it to see its production needs. You can upgrade stations to increase their productivity and cargo bay. Upgrading a station will put it back in construction until you bring the missing resources."
 																"\nUpgrade a station using the upgrade button in the station details");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-upgrade", Description);
 
@@ -654,7 +654,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"FinishUpgrade"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Bring missing construction resources to finish the upgrade.");
+		FText Description = LOCTEXT("FinishUpgradeDescription","Bring missing construction resources to finish the upgrade.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "finish-upgrade", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, true));
@@ -684,8 +684,8 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "tutorial-research-station";
-	QuestName = LOCTEXT(QUEST_TAG"Name","Reseach station tutorial");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","Learn how to build and use research stations.");
+	QuestName = LOCTEXT("TutorialResearchStationName","Reseach station tutorial");
+	QuestDescription = LOCTEXT("TutorialResearchStationDescription","Learn how to build and use research stations.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-technology"));
@@ -694,7 +694,7 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ResearchStationTechnology"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","The fastest way to research technology is by building research stations. First, unlock the technology to build research stations.");
+		FText Description = LOCTEXT("ResearchStationTechnologyDescription","The fastest way to research technology is by building research stations. First, unlock the technology to build research stations.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-station-technology", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialUnlockTechnology::Create(this, "stations"));
@@ -704,7 +704,7 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"BuildReasearchStation"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description", "You now have the technology to build research stations. Build one anywhere you'd like.");
+		FText Description = LOCTEXT("BuildReasearchStationDescription", "You now have the technology to build research stations. Build one anywhere you'd like.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "build-research-station", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, false, "station-research"));
@@ -714,7 +714,7 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ProduceResearch"
-		FText Description = LOCTEXT(QUEST_STEP_TAG"Description","Your research station is now ready. Make sure you provide it the input resources it needs to produce research points !");
+		FText Description = LOCTEXT("ProduceResearchDescription","Your research station is now ready. Make sure you provide it the input resources it needs to produce research points !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "produce-peseach", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialProduceResearch::Create(this, QUEST_TAG"cond1", 50));
@@ -1133,7 +1133,7 @@ void UFlareQuestConditionTutorialTargetSpacecraft::Load(UFlareQuest* ParentQuest
 	TargetDuration = Duration;
 	TargetSpacecraft = Spacecraft;
 
-	InitialLabel = FText::Format(LOCTEXT("FinishQuestLabel", "Target {0} for {1} seconds"),
+	InitialLabel = FText::Format(LOCTEXT("TargetSpacecraftLabel", "Target {0} for {1} seconds"),
 		UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft),
 		FText::AsNumber(int32(TargetDuration)));
 }

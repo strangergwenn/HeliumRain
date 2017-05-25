@@ -319,7 +319,7 @@ FText SFlareFleetInfo::GetComposition() const
 		FText CivilianShipText;
 		if (CivilianShipCount > 0)
 		{
-			CivilianShipText = FText::Format(LOCTEXT("FleetCompositionHeavyFormat", "{0} civilian"),
+			CivilianShipText = FText::Format(LOCTEXT("FleetCompositionCivilianFormat", "{0} civilian"),
 				FText::AsNumber(CivilianShipCount));
 
 			if (LightShipCount > 0 || HeavyShipCount > 0)
@@ -374,7 +374,7 @@ FText SFlareFleetInfo::GetDescription() const
 			FText::AsNumber(TargetFleet->GetMaxShipCount()),
 			FleetAssignedText);
 
-		Result = FText::Format(LOCTEXT("SpacecraftInfoFormat", "{0} - {1}"), TargetFleet->GetStatusInfo(), FleetDescriptionText);
+		Result = FText::Format(LOCTEXT("FleetInfoFormat", "{0} - {1}"), TargetFleet->GetStatusInfo(), FleetDescriptionText);
 	}
 
 	return Result;

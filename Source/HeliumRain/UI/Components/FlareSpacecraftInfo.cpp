@@ -475,7 +475,7 @@ void SFlareSpacecraftInfo::Show()
 		}
 		else if (CanTrade && TargetSpacecraft->IsTrading())
 		{
-			TradeButton->SetHelpText(LOCTEXT("CantTradeInfo", "Trading in progress"));
+			TradeButton->SetHelpText(LOCTEXT("CantTradeInProgressInfo", "Trading in progress"));
 			TradeButton->SetDisabled(true);
 		}
 		else

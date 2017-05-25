@@ -398,7 +398,7 @@ void UFlareQuestConditionMinCollinearVelocity::Load(UFlareQuest* ParentQuest, FN
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	VelocityLimit = VelocityLimitParam;
 
-	FText ReachSpeedText = LOCTEXT("ReachMinSpeedFormat", "Reach at least {0} m/s forward");
+	FText ReachSpeedText = LOCTEXT("ReachMinSpeedForwardFormat", "Reach at least {0} m/s forward");
 	InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(VelocityLimit)));
 }
 
@@ -503,7 +503,7 @@ void UFlareQuestConditionMaxCollinearVelocity::Load(UFlareQuest* ParentQuest, FN
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	VelocityLimit = VelocityLimitParam;
 
-	FText ReachSpeedText = LOCTEXT("ReachMinSpeedFormat", "Reach at least {0} m/s backward");
+	FText ReachSpeedText = LOCTEXT("ReachMinSpeedBackwardFormat", "Reach at least {0} m/s backward");
 	InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(-VelocityLimit)));
 }
 
@@ -1937,7 +1937,7 @@ FText UFlareQuestConditionTimeAfterAvailableDate::GetInitialLabel()
 	int64 AvailabilityDate = Quest->GetAvailableDate();
 	int64 RemainingDuration = DurationLimit - (GetGame()->GetGameWorld()->GetDate()- AvailabilityDate);
 
-	return FText::Format(LOCTEXT("RemainingDurationFormat", "{0} left"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration+1, 2)));
+	return FText::Format(LOCTEXT("TimeAfterAvailableRemainingDurationFormat", "{0} left"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration+1, 2)));
 }
 
 bool UFlareQuestConditionTimeAfterAvailableDate::IsCompleted()
@@ -1985,7 +1985,7 @@ FText UFlareQuestConditionAfterDate::GetInitialLabel()
 {
 	int64 RemainingDuration = DateLimit - GetGame()->GetGameWorld()->GetDate();
 
-	return FText::Format(LOCTEXT("RemainingDurationFormat", "{0} remaining"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration+1, 2)));
+	return FText::Format(LOCTEXT("AfterDateRemainingDurationFormat", "{0} remaining"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration+1, 2)));
 }
 
 bool UFlareQuestConditionAfterDate::IsCompleted()
@@ -2097,7 +2097,7 @@ void UFlareQuestConditionMaxArmyCombatPointsInSector::Load(UFlareQuest* ParentQu
 	{
 		if(TargetArmyPoints == 0)
 		{
-			FText InitialLabelText = LOCTEXT("PlayerMaxArmyCombatPoints", "Die fighting in {0}");
+			FText InitialLabelText = LOCTEXT("PlayerMaxArmyCombatPointsZero", "Die fighting in {0}");
 			InitialLabel = FText::Format(InitialLabelText, TargetSector->GetSectorName());
 
 		}
@@ -2347,7 +2347,7 @@ void UFlareQuestConditionNoCapturingStationInSector::AddConditionObjectives(FFla
 	FText StationShortText;
 	if(CurrentStations > 1)
 	{
-		StationShortText = LOCTEXT("StationToSecureFormat", "{0} stations left");
+		StationShortText = LOCTEXT("StationToSecureFormatOne", "{0} stations left");
 	}
 	else
 	{
@@ -2398,7 +2398,7 @@ void UFlareQuestConditionRetreatDangerousShip::Load(UFlareQuest* ParentQuest, UF
 	}
 	else
 	{
-		InitialLabel = FText::Format(LOCTEXT("PlayerRetreatDangerousShip", "{0} retreat combat-ready ship from {1}"),
+		InitialLabel = FText::Format(LOCTEXT("RetreatDangerousShip", "{0} retreat combat-ready ship from {1}"),
 									 TargetCompany->GetCompanyName(),
 									 TargetSector->GetSectorName());
 	}
@@ -2625,13 +2625,13 @@ void UFlareQuestConditionDestroyCombatValue::Load(UFlareQuest* ParentQuest,
 
 	if(DestroyTarget)
 	{
-		InitialLabel = FText::Format(LOCTEXT("DestroySpacecraftLabel","Destroy some of {1}'s ships to lower its combat value by {0} combats points"),
+		InitialLabel = FText::Format(LOCTEXT("DestroyCombatValueLabel","Destroy some of {1}'s ships to lower its combat value by {0} combats points"),
 									 FText::AsNumber(Quantity),
 									 TargetCompany->GetCompanyName());
 	}
 	else
 	{
-		InitialLabel = FText::Format(LOCTEXT("UncontrollableSpacecraftLabel","Render some of {1}'s ships uncontrollable to lower its combat value by {0} combats points"),
+		InitialLabel = FText::Format(LOCTEXT("UncontrollableCombatValueLabel","Render some of {1}'s ships uncontrollable to lower its combat value by {0} combats points"),
 										 FText::AsNumber(Quantity),
 										 TargetCompany->GetCompanyName());
 
