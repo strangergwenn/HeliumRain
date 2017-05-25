@@ -877,7 +877,7 @@ bool SFlareTradeMenu::IsTransactionValid(FText& Reason) const
 int32 SFlareTradeMenu::GetMaxTransactionAmount() const
 {
 	int32 ResourcePrice = TransactionSourceSpacecraft->GetCurrentSector()->GetTransfertResourcePrice(TransactionSourceSpacecraft, TransactionDestinationSpacecraft, TransactionResource);
-	int32 MaxAffordableQuantity = TransactionDestinationSpacecraft->GetCompany()->GetMoney() / ResourcePrice;
+	int32 MaxAffordableQuantity = FMath::Max(int64(0), TransactionDestinationSpacecraft->GetCompany()->GetMoney()) / ResourcePrice;
 
 	int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource, MenuManager->GetPC()->GetCompany()),
 		TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource, MenuManager->GetPC()->GetCompany()));
