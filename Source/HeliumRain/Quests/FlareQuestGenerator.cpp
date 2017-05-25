@@ -550,7 +550,7 @@ void UFlareQuestGenerated::CreateGenericReward(FFlareBundle& Data, int64 QuestVa
 		if (FMath::FRand() < ResearchRewardProbability)
 		{
 			int32 MaxPossibleResearchReward = ClientResearch - PlayerResearch;
-			int32 GainedResearchReward = QuestValue / 50000;
+			int32 GainedResearchReward = QuestValue / 30000;
 
 			int32 ResearchReward = FMath::Min(GainedResearchReward, MaxPossibleResearchReward);
 
