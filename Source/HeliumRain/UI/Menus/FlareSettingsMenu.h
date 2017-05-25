@@ -97,6 +97,12 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	// Culture
+	FText OnGetCurrentCultureComboLine() const;
+	TSharedRef<SWidget> OnGenerateCultureComboLine(TSharedPtr<FString> Item);
+	void OnCultureComboLineSelectionChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo);
+
+
 	// Resolution list
 	FText OnGetCurrentResolutionComboLine() const;
 	TSharedRef<SWidget> OnGenerateResolutionComboLine(TSharedPtr<FScreenResolutionRHI> Item);
@@ -217,5 +223,8 @@ protected:
 	TSharedPtr<SComboBox<TSharedPtr<FScreenResolutionRHI>>> ResolutionSelector;
 	TArray<TSharedPtr<FScreenResolutionRHI>>                ResolutionList;
 
+	// Culture data
+	TSharedPtr<SComboBox<TSharedPtr<FString>>> CultureSelector;
+	TArray<TSharedPtr<FString>>							CultureList;
 
 };

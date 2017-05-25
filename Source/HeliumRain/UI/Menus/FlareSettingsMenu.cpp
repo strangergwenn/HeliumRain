@@ -7,6 +7,7 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "STextComboBox.h"
+#include "Internationalization/Culture.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareSettingsMenu"
@@ -45,6 +46,14 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	int32 LabelSize = 200;
 	int32 ValueSize = 100;
 
+	TArray<FCultureRef> CultureRefList;
+	FInternationalization::Get().GetCulturesWithAvailableLocalization(FPaths::GetGameLocalizationPaths(), CultureRefList, false);
+
+	for(FCultureRef Culture: CultureRefList)
+	{
+		CultureList.Add(MakeShareable(new FString(Culture->GetName())));
+	}
+
 	// Build structure
 	ChildSlot
 	.HAlign(HAlign_Fill)
@@ -70,6 +79,25 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				.Text(LOCTEXT("GraphicsSettingsHint", "Graphics"))
 				.TextStyle(&Theme.SubTitleFont)
 			]
+
+			// Culture
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			[
+				SAssignNew(CultureSelector, SComboBox<TSharedPtr<FString>>)
+				.OptionsSource(&CultureList)
+				.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateCultureComboLine)
+				.OnSelectionChanged(this, &SFlareSettingsMenu::OnCultureComboLineSelectionChanged)
+				.ComboBoxStyle(&Theme.ComboBoxStyle)
+				.ForegroundColor(FLinearColor::White)
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareSettingsMenu::OnGetCurrentCultureComboLine)
+					.TextStyle(&Theme.TextFont)
+				]
+			]
+
 
 			// Graphic form
 			+ SVerticalBox::Slot()
@@ -900,6 +928,18 @@ void SFlareSettingsMenu::Enter()
 
 	// Get a list of resolutions
 	FillResolutionList();
+
+
+	FString CurrentCultureString = FInternationalization::Get().GetCurrentCulture().Get().GetName();
+
+	for(TSharedPtr<FString> Culture : CultureList)
+	{
+		if(*Culture.Get() == CurrentCultureString)
+		{
+			CultureSelector->SetSelectedItem(Culture);
+			break;
+		}
+	}
 }
 
 void SFlareSettingsMenu::Exit()
@@ -912,6 +952,36 @@ void SFlareSettingsMenu::Exit()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+FText SFlareSettingsMenu::OnGetCurrentCultureComboLine() const
+{
+	TSharedPtr<FString> Item = CultureSelector->GetSelectedItem();
+
+	if(!Item.IsValid())
+	{
+		 return FText::FromString("");
+	}
+
+	FCulturePtr Culture = FInternationalization::Get().GetCulture(*Item);
+	return FText::FromString(Culture->GetNativeName());
+}
+
+TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateCultureComboLine(TSharedPtr<FString> Item)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	FCulturePtr Culture = FInternationalization::Get().GetCulture(*Item);
+
+
+	return SNew(STextBlock)
+	.Text(FText::FromString(Culture->GetNativeName()))
+	.TextStyle(&Theme.TextFont);
+}
+
+void SFlareSettingsMenu::OnCultureComboLineSelectionChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo)
+{
+	FInternationalization::Get().SetCurrentCulture(*Item.Get());
+}
 
 FText SFlareSettingsMenu::OnGetCurrentResolutionComboLine() const
 {
