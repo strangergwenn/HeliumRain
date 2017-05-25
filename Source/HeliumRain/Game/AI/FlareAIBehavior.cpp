@@ -69,7 +69,7 @@ void UFlareAIBehavior::Simulate()
 
 	if(GetGame()->GetPC()->GetCompany()->GetCompanyValue().ArmyCurrentCombatPoints > 0)
 	{
-		Company->GivePlayerReputation(-PlayerCompanyIndex);
+		Company->GivePlayerReputation(-PlayerCompanyIndex/30.f);
 	}
 
 	if(Company == ST->Pirates)
