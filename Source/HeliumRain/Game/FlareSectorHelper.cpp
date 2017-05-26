@@ -366,7 +366,7 @@ void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 
 			float TechnologyBonus = Company->IsTechnologyUnlocked("quick-repair") ? 1.5f: 1.f;
 
-			float ComponentMaxRepairRatio = GetComponentMaxRepairRatio(ComponentDescription) * TechnologyBonus;
+			float ComponentMaxRepairRatio = GetComponentMaxRepairRatio(ComponentDescription) * (Spacecraft->GetSize() == EFlarePartSize::L ? 0.2f : 1.f) * TechnologyBonus;
 
 			float CurrentRepairRatio = FMath::Min(ComponentMaxRepairRatio, (1.f - DamageRatio));
 			float TotalRepairRatio = 1.f - DamageRatio;
@@ -437,10 +437,10 @@ void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 				float FillRatio = (float) CurrentAmmo / (float) MaxAmmo;
 
 
-				float CurrentRefillRatio = FMath::Min(MAX_REFILL_RATIO_BY_DAY, (1.f - FillRatio));
+				float CurrentRefillRatio = FMath::Min(MAX_REFILL_RATIO_BY_DAY * (Spacecraft->GetSize() == EFlarePartSize::L ? 0.2f : 1.f) , (1.f - FillRatio));
 				float TotalRefillRatio = 1.f - FillRatio;
 
-				int64 Duration =  FMath::CeilToInt(TotalRefillRatio / MAX_REFILL_RATIO_BY_DAY);
+				int64 Duration =  FMath::CeilToInt(TotalRefillRatio / MAX_REFILL_RATIO_BY_DAY * (Spacecraft->GetSize() == EFlarePartSize::L ? 0.2f : 1.f));
 				if(Duration > MaxDuration)
 				{
 					MaxDuration = Duration;

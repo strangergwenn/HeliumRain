@@ -529,7 +529,7 @@ void UFlareSimulatedSpacecraft::Repair()
 
 		float DamageRatio = GetDamageSystem()->GetDamageRatio(ComponentDescription, ComponentData);
 		float TechnologyBonus = GetCompany()->IsTechnologyUnlocked("quick-repair") ? 1.5f: 1.f;
-		float ComponentMaxRepairRatio = SectorHelper::GetComponentMaxRepairRatio(ComponentDescription) * TechnologyBonus;
+		float ComponentMaxRepairRatio = SectorHelper::GetComponentMaxRepairRatio(ComponentDescription) * (GetSize() == EFlarePartSize::L ? 0.2f : 1.f) * TechnologyBonus;
 		float CurrentRepairRatio = FMath::Min(ComponentMaxRepairRatio, (1.f - DamageRatio));
 
 
@@ -547,7 +547,7 @@ void UFlareSimulatedSpacecraft::Repair()
 			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
 
 			float TechnologyBonus = GetCompany()->IsTechnologyUnlocked("quick-repair") ? 1.5f: 1.f;
-			float ComponentMaxRepairRatio = SectorHelper::GetComponentMaxRepairRatio(ComponentDescription) * TechnologyBonus;
+			float ComponentMaxRepairRatio = SectorHelper::GetComponentMaxRepairRatio(ComponentDescription) * (GetSize() == EFlarePartSize::L ? 0.2f : 1.f) * TechnologyBonus;
 			float ConsumedFS = GetDamageSystem()->Repair(ComponentDescription,ComponentData, MaxRepairRatio * ComponentMaxRepairRatio, SpacecraftData.RepairStock);
 
 			SpacecraftData.RepairStock -= ConsumedFS;
@@ -594,7 +594,7 @@ void UFlareSimulatedSpacecraft::Refill()
 			int32 MaxAmmo = ComponentDescription->WeaponCharacteristics.AmmoCapacity;
 			int32 CurrentAmmo = MaxAmmo - ComponentData->Weapon.FiredAmmo;
 			float FillRatio = (float) CurrentAmmo / (float) MaxAmmo;
-			float CurrentRefillRatio = FMath::Min(MAX_REFILL_RATIO_BY_DAY, (1.f - FillRatio));
+			float CurrentRefillRatio = FMath::Min(MAX_REFILL_RATIO_BY_DAY * (GetSize() == EFlarePartSize::L ? 0.2f : 1.f), (1.f - FillRatio));
 
 			SpacecraftPreciseCurrentNeededFleetSupply += CurrentRefillRatio * UFlareSimulatedSpacecraftDamageSystem::GetRefillCost(ComponentDescription);
 		}
@@ -603,7 +603,7 @@ void UFlareSimulatedSpacecraft::Refill()
 
 	if(SpacecraftPreciseCurrentNeededFleetSupply != 0)
 	{
-		float MaxRefillRatio = MAX_REFILL_RATIO_BY_DAY * FMath::Min(1.f,GetRefillStock() / SpacecraftPreciseCurrentNeededFleetSupply);
+		float MaxRefillRatio = MAX_REFILL_RATIO_BY_DAY * (GetSize() == EFlarePartSize::L ? 0.2f : 1.f) * FMath::Min(1.f,GetRefillStock() / SpacecraftPreciseCurrentNeededFleetSupply);
 
 		for (int32 ComponentIndex = 0; ComponentIndex < GetData().Components.Num(); ComponentIndex++)
 		{
