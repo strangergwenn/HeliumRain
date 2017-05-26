@@ -583,7 +583,7 @@ void SFlareQuestMenu::FillQuestDetails()
 		}
 
 		// Expiration warning
-		if (SelectedQuest->GetStatus() == EFlareQuestStatus::AVAILABLE)
+		/*if (SelectedQuest->GetStatus() == EFlareQuestStatus::AVAILABLE)
 		{
 			QuestDetails->AddSlot()
 			.AutoHeight()
@@ -613,7 +613,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				.TextStyle(&Theme.TextFont)
 				.Text(SelectedQuest->GetQuestExpiration())
 			];
-		}
+		}*/
 
 		// Failure warning
 		{
