@@ -448,8 +448,42 @@ void UFlareQuestManager::OnEvent(FFlareBundle& Bundle)
 void UFlareQuestManager::OnNextDay()
 {
 	QuestGenerator->GenerateMilitaryQuests();
+
+	NotifyNewQuests(NewQuestAccumulator);
+	NewQuestAccumulator.Empty();
+
 	OnCallbackEvent(EFlareQuestCallback::NEXT_DAY);
 }
+
+void UFlareQuestManager::NotifyNewQuests(TArray<UFlareQuest*>& QuestsToNotify)
+{
+	// New quest notification
+	if (QuestsToNotify.Num() == 1)
+	{
+		UFlareQuest* Quest = QuestsToNotify[0];
+
+		FText Text = LOCTEXT("New quest", "New contract available");
+		FText Info = Quest->GetQuestName();
+
+		FFlareMenuParameterData Data;
+		Data.Quest = Quest;
+
+		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status")),
+			EFlareNotification::NT_Quest, false, EFlareMenu::MENU_Quest, Data);
+	}
+	else if(QuestsToNotify.Num() > 1)
+	{
+		FText Text = LOCTEXT("New quests", "New contracts available");
+		FText Info = FText::Format(LOCTEXT("NewQuestsInfos", "{0} new contracts available"), QuestsToNotify.Num());
+
+		FFlareMenuParameterData Data;
+		Data.Quest = QuestsToNotify[0];
+
+		GetGame()->GetPC()->Notify(Text, Info, FName("new-quest"),
+			EFlareNotification::NT_Quest, false, EFlareMenu::MENU_Quest, Data);
+	}
+}
+
 
 void UFlareQuestManager::OnTravelEnded(UFlareFleet* Fleet)
 {
@@ -457,6 +491,10 @@ void UFlareQuestManager::OnTravelEnded(UFlareFleet* Fleet)
 	{
 		// Player end travel, try to generate a quest in the destination sector
 		QuestGenerator->GenerateSectorQuest(Fleet->GetCurrentSector());
+
+		NotifyNewQuests(NewQuestAccumulator);
+		NewQuestAccumulator.Empty();
+
 	}
 }
 
@@ -530,16 +568,15 @@ void UFlareQuestManager::OnQuestAvailable(UFlareQuest* Quest)
 	AvailableQuests.Add(Quest);
 
 	// New quest notification
-	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
+	if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL && Quest->GetQuestCategory() != EFlareQuestCategory::SECONDARY)
 	{
-		FText Text = LOCTEXT("New quest", "New contract available");
-		FText Info = Quest->GetQuestName();
-
-		FFlareMenuParameterData Data;
-		Data.Quest = Quest;
-
-		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status")),
-			EFlareNotification::NT_Quest, false, EFlareMenu::MENU_Quest, Data);
+		TArray<UFlareQuest*> QuestsToNotify;
+		QuestsToNotify.Add(Quest);
+		NotifyNewQuests(QuestsToNotify);
+	}
+	else
+	{
+		NewQuestAccumulator.Add(Quest);
 	}
 
 	OnQuestStatusChanged(Quest);

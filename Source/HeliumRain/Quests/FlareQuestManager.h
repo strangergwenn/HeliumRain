@@ -177,6 +177,8 @@ public:
 
 	void AddQuest(UFlareQuest* Quest);
 
+	void NotifyNewQuests(TArray<UFlareQuest*>& Quests);
+
    /*----------------------------------------------------
 	   Callback
    ----------------------------------------------------*/
@@ -256,6 +258,8 @@ protected:
 
 	UPROPERTY()
 	UFlareQuestGenerator*					 QuestGenerator;
+
+	TArray<UFlareQuest*>					 NewQuestAccumulator;
 
 public:
 
