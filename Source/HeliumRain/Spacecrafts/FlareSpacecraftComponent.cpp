@@ -146,7 +146,7 @@ void UFlareSpacecraftComponent::TickComponent(float DeltaTime, enum ELevelTick T
 		}
 
 		SetTemperature(Spacecraft->IsPresentationMode() ? 290 : LocalTemperature);
-		SetHealth(     Spacecraft->IsPresentationMode() ? 1 :   GetDamageRatio());
+		SetHealth(     Spacecraft->IsPresentationMode() ? 1 :   FMath::Clamp(1 + (GetDamageRatio()-1) / (1 -BROKEN_RATIO) , 0.f , 1.f));
 	}
 }
 

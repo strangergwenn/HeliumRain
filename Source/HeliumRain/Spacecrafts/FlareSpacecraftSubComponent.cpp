@@ -29,7 +29,9 @@ void UFlareSpacecraftSubComponent::TickComponent(float DeltaTime, enum ELevelTic
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	SetHealth(ParentComponent->GetDamageRatio());
+
+
+	SetHealth(FMath::Clamp(1 + (ParentComponent->GetDamageRatio()-1) / (1 -BROKEN_RATIO) , 0.f , 1.f));
 	SetTemperature(ParentComponent->GetSpacecraft()->IsPresentationMode() ? 290 : ParentComponent->GetLocalTemperature());
 }
 
