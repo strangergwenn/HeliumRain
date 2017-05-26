@@ -170,7 +170,22 @@ uint32 UFlareFleet::GetMaxShipCount()
 
 FText UFlareFleet::GetStatusInfo() const
 {
-	if (IsTraveling())
+	bool Intersepted = false;
+
+	for (UFlareSimulatedSpacecraft* Ship : FleetShips)
+	{
+		if(Ship->IsIntercepted())
+		{
+			Intersepted = true;
+			break;
+		}
+	}
+
+	if (Intersepted)
+	{
+		return FText::Format(LOCTEXT("FleetIntercepted", "Intercepted in {0}"), GetCurrentSector()->GetSectorName());
+	}
+	else if (IsTraveling())
 	{
 		int64 RemainingDuration = CurrentTravel->GetRemainingTravelDuration();
 		return FText::Format(LOCTEXT("TravelTextFormat", "Travelling to {0} ({1} left)"),
@@ -190,7 +205,14 @@ FText UFlareFleet::GetStatusInfo() const
 	}
 	else
 	{
-		return FText::Format(LOCTEXT("FleetIdle", "Idle in {0}"), GetCurrentSector()->GetSectorName());
+		if (GetCurrentTradeRoute() && !GetCurrentTradeRoute()->IsPaused())
+		{
+			return FText::Format(LOCTEXT("FleetStartTrade", "Starting trade in {0}"), GetCurrentSector()->GetSectorName());
+		}
+		else
+		{
+			return FText::Format(LOCTEXT("FleetIdle", "Idle in {0}"), GetCurrentSector()->GetSectorName());
+		}
 	}
 
 	return FText();
