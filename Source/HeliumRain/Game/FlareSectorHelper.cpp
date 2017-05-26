@@ -530,6 +530,11 @@ void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 
 	int32 ConsumedFS = FMath::CeilToInt((float) AffordableFS - RemainingFS);
 	ConsumeFleetSupply(Sector, Company, ConsumedFS);
+
+	if(ConsumedFS > 0 && Company == Sector->GetGame()->GetPC()->GetCompany())
+	{
+		Sector->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("repair-start"));
+	}
 }
 
 void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Company)
@@ -604,6 +609,11 @@ void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 	int32 ConsumedFS = FMath::CeilToInt((float) AffordableFS - RemainingFS);
 
 	ConsumeFleetSupply(Sector, Company, ConsumedFS);
+
+	if(ConsumedFS > 0 && Company == Sector->GetGame()->GetPC()->GetCompany())
+	{
+		Sector->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("refill-start"));
+	}
 }
 
 void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 ConsumedFS)

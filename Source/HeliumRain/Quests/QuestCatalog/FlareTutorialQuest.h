@@ -89,6 +89,31 @@ public:
 	static UFlareQuest* Create(UFlareQuestManager* Parent);
 };
 
+UCLASS()
+class HELIUMRAIN_API UFlareQuestTutorialRepairShip: public UFlareQuest
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestManager* Parent);
+	static UFlareQuest* Create(UFlareQuestManager* Parent);
+};
+
+UCLASS()
+class HELIUMRAIN_API UFlareQuestTutorialRefillShip: public UFlareQuest
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestManager* Parent);
+	static UFlareQuest* Create(UFlareQuestManager* Parent);
+};
+
+
 // Conditions
 
 
@@ -447,5 +472,44 @@ protected:
 
 	int32 Quantity;
 	int32 CurrentProgression;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialRepairRefill : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionTutorialRepairRefill* Create(UFlareQuest* ParentQuest, bool Refill, bool End);
+	void Load(UFlareQuest* ParentQuest, bool Refill, bool End);
+
+	virtual bool IsCompleted();
+	virtual void OnEvent(FFlareBundle& Bundle);
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+protected:
+	bool TargetRefill;
+	bool TargetEnd;
+	bool Completed;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialShipNeedFs : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionTutorialShipNeedFs* Create(UFlareQuest* ParentQuest, bool Refill);
+	void Load(UFlareQuest* ParentQuest, bool Refill);
+
+	virtual bool IsCompleted();
+
+protected:
+	bool TargetRefill;
 };
 

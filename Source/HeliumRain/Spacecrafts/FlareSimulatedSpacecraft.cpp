@@ -553,7 +553,7 @@ void UFlareSimulatedSpacecraft::Repair()
 			SpacecraftData.RepairStock -= ConsumedFS;
 			if(GetRepairStock() <= 0)
 			{
-				return;
+				break;
 			}
 		}
 	}
@@ -561,9 +561,15 @@ void UFlareSimulatedSpacecraft::Repair()
 	if (GetDamageSystem()->GetGlobalHealth() >= 1.f)
 	{
 		SpacecraftData.RepairStock = 0;
+
+		if(SpacecraftPreciseCurrentNeededFleetSupply > 0)
+		{
+			if(GetCompany() == GetGame()->GetPC()->GetCompany())
+			{
+				GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("repair-end"));
+			}
+		}
 	}
-
-
 }
 
 
@@ -612,16 +618,24 @@ void UFlareSimulatedSpacecraft::Refill()
 
 				if(GetRefillStock() <= 0)
 				{
-					return;
+					break;
 				}
 			}
 		}
 	}
 
-
 	if (!NeedRefill())
 	{
 		SpacecraftData.RefillStock = 0;
+
+
+		if(SpacecraftPreciseCurrentNeededFleetSupply > 0)
+		{
+			if(GetCompany() == GetGame()->GetPC()->GetCompany())
+			{
+				GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("refill-end"));
+			}
+		}
 	}
 
 }

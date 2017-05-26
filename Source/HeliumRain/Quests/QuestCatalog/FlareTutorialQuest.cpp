@@ -723,6 +723,113 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 }
 
 /*----------------------------------------------------
+	Tutorial repair ship
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "TutorialRepairShip"
+UFlareQuestTutorialRepairShip::UFlareQuestTutorialRepairShip(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuest* UFlareQuestTutorialRepairShip::Create(UFlareQuestManager* Parent)
+{
+	UFlareQuestTutorialRepairShip* Quest = NewObject<UFlareQuestTutorialRepairShip>(Parent, UFlareQuestTutorialRepairShip::StaticClass());
+	Quest->Load(Parent);
+	return Quest;
+}
+
+void UFlareQuestTutorialRepairShip::Load(UFlareQuestManager* Parent)
+{
+	LoadInternal(Parent);
+
+	Identifier = "tutorial-repair-ship";
+	QuestName = LOCTEXT("TutorialRepairShipName","Repair ship tutorial");
+	QuestDescription = LOCTEXT("TutorialRepairShipDescription","Learn how to repair a ship.");
+	QuestCategory = EFlareQuestCategory::TUTORIAL;
+
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-contracts"));
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionTutorialShipNeedFs::Create(this, false));
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"StartRepair"
+		FText Description = LOCTEXT("StartRepairDescription","You have a damaged ship, you need to repair it."
+															 "\nGo to the sector menu (<input-action:SectorMenu>) and click on the repair button, at the top right of the menu."
+															 "\nIt need to have fleet supply in a station or a cargo of the sector to repair a ship.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-repair", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialRepairRefill::Create(this, false, false));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"EndRepair"
+		FText Description = LOCTEXT("EndRepairDescription", "The reparation can take few days, depending on the damages. Wait the end of the reparations.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "end-repair", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialRepairRefill::Create(this, false, true));
+		Steps.Add(Step);
+	}
+}
+
+
+
+/*----------------------------------------------------
+	Tutorial refill ship
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "TutorialRefillShip"
+UFlareQuestTutorialRefillShip::UFlareQuestTutorialRefillShip(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuest* UFlareQuestTutorialRefillShip::Create(UFlareQuestManager* Parent)
+{
+	UFlareQuestTutorialRefillShip* Quest = NewObject<UFlareQuestTutorialRefillShip>(Parent, UFlareQuestTutorialRefillShip::StaticClass());
+	Quest->Load(Parent);
+	return Quest;
+}
+
+void UFlareQuestTutorialRefillShip::Load(UFlareQuestManager* Parent)
+{
+	LoadInternal(Parent);
+
+	Identifier = "tutorial-refill-ship";
+	QuestName = LOCTEXT("TutorialRefillShipName","Refill ship tutorial");
+	QuestDescription = LOCTEXT("TutorialRefillShipDescription","Learn how to refill a ship.");
+	QuestCategory = EFlareQuestCategory::TUTORIAL;
+
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-contracts"));
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionTutorialShipNeedFs::Create(this, true));
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"StartRefill"
+		FText Description = LOCTEXT("StartRefillDescription","One of your ships used ammunition and need to refill."
+															 "\nGo to the sector menu (<input-action:SectorMenu>) and click on the refill button, at the top right of the menu."
+															 "\nIt need to have fleet supply in a station or a cargo of the sector to refill a ship.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-refill", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialRepairRefill::Create(this, true, false));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"EndRefill"
+		FText Description = LOCTEXT("EndRefillDescription", "The refill can take few days, depending on the ammo depletion. Wait the end of the refill.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "end-refill", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialRepairRefill::Create(this, true, true));
+		Steps.Add(Step);
+	}
+}
+
+
+/*----------------------------------------------------
 	Tutorial get contrat condition
 ----------------------------------------------------*/
 UFlareQuestConditionTutorialGetContrat::UFlareQuestConditionTutorialGetContrat(const FObjectInitializer& ObjectInitializer)
@@ -1915,6 +2022,128 @@ void UFlareQuestConditionTutorialProduceResearch::OnEvent(FFlareBundle& Bundle)
 	{
 		CurrentProgression = Quantity;
 	}
+}
+
+
+/*----------------------------------------------------
+Tutorial repair or refill condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialRepairRefill::UFlareQuestConditionTutorialRepairRefill(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialRepairRefill* UFlareQuestConditionTutorialRepairRefill::Create(UFlareQuest* ParentQuest, bool Refill, bool End)
+{
+	UFlareQuestConditionTutorialRepairRefill* Condition = NewObject<UFlareQuestConditionTutorialRepairRefill>(ParentQuest, UFlareQuestConditionTutorialRepairRefill::StaticClass());
+	Condition->Load(ParentQuest, Refill, End);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialRepairRefill::Load(UFlareQuest* ParentQuest, bool Refill, bool End)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	Completed = false;
+	TargetRefill = Refill;
+	TargetEnd = End;
+
+	if(TargetRefill)
+	{
+		if(TargetEnd)
+		{
+			InitialLabel = LOCTEXT("EndShipRefill", "Finish to refill ");
+		}
+		else
+		{
+			InitialLabel = LOCTEXT("StartShipRefill", "Start to refill ");
+		}
+	}
+	else
+	{
+		if(TargetEnd)
+		{
+			InitialLabel = LOCTEXT("EndShipRepair", "Finish to repair ");
+		}
+		else
+		{
+			InitialLabel = LOCTEXT("StartShipRepair", "Start to repair ");
+		}
+	}
+}
+
+void UFlareQuestConditionTutorialRepairRefill::OnEvent(FFlareBundle& Bundle)
+{
+	if (Completed)
+	{
+		return;
+	}
+
+	if((TargetRefill && TargetEnd && Bundle.HasTag("refill-end"))
+			|| (TargetRefill && !TargetEnd && Bundle.HasTag("refill-start"))
+			|| (!TargetRefill && TargetEnd && Bundle.HasTag("repair-end"))
+			|| (!TargetRefill && !TargetEnd && Bundle.HasTag("repair-start")))
+	{
+		Completed = true;
+	}
+}
+
+bool UFlareQuestConditionTutorialRepairRefill::IsCompleted()
+{
+	return Completed;
+}
+
+void UFlareQuestConditionTutorialRepairRefill::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = InitialLabel;
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = 1;
+	ObjectiveCondition.MaxProgress = 1;
+	ObjectiveCondition.Counter = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.Progress = IsCompleted() ? 1 : 0;
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+	Ship need fs condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialShipNeedFs::UFlareQuestConditionTutorialShipNeedFs(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialShipNeedFs* UFlareQuestConditionTutorialShipNeedFs::Create(UFlareQuest* ParentQuest, bool Refill)
+{
+	UFlareQuestConditionTutorialShipNeedFs* Condition = NewObject<UFlareQuestConditionTutorialShipNeedFs>(ParentQuest, UFlareQuestConditionTutorialShipNeedFs::StaticClass());
+	Condition->Load(ParentQuest, Refill);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialShipNeedFs::Load(UFlareQuest* ParentQuest, bool Refill)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+	Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+	TargetRefill = Refill;
+}
+
+bool UFlareQuestConditionTutorialShipNeedFs::IsCompleted()
+{
+	for(UFlareSimulatedSpacecraft* Ship : GetGame()->GetPC()->GetCompany()->GetCompanyShips())
+	{
+		if(TargetRefill && Ship->NeedRefill())
+		{
+			return true;
+		}
+
+		if(!TargetRefill && Ship->GetDamageSystem()->GetGlobalHealth() < 1.f)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 
