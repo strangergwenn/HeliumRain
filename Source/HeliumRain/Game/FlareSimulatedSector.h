@@ -76,6 +76,10 @@ struct FFlareSectorBattleState
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool HasDanger;
 
+	int32 FriendlyControllableShipCount;
+	int32 FriendlyStationCount;
+	int32 FriendlyStationInCaptureCount;
+
 	FFlareSectorBattleState Init()
 	{
 		InBattle = false;
@@ -85,6 +89,9 @@ struct FFlareSectorBattleState
 		ActiveFightWon = false;
 		RetreatPossible = false;
 		HasDanger = false;
+		FriendlyControllableShipCount = 0;
+		FriendlyStationCount = 0;
+		FriendlyStationInCaptureCount = 0;
 
 		return *this;
 	}

@@ -298,6 +298,8 @@ public:
 
 	int32 GetCapturePoint(UFlareCompany* Company) const;
 
+	bool IsBeingCaptured() const;
+
 	int32 GetCapturePointThreshold() const;
 
 	float GetStationEfficiency();

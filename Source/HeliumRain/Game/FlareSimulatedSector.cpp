@@ -1063,7 +1063,6 @@ FFlareSectorBattleState UFlareSimulatedSector::GetSectorBattleState(UFlareCompan
 	FFlareSectorBattleState BattleState;
 	BattleState.Init();
 
-
 	if (GetSectorShips().Num() == 0)
 	{
 		return BattleState;
@@ -1078,6 +1077,11 @@ FFlareSectorBattleState UFlareSimulatedSector::GetSectorBattleState(UFlareCompan
 	int DangerousFriendlySpacecraftCount = 0;
 	int DangerousFriendlyActiveSpacecraftCount = 0;
 	int CrippledFriendlySpacecraftCount = 0;
+
+	int FriendlyStationCount = 0;
+	int FriendlyStationInCaptureCount = 0;
+	int FriendlyControllableShipCount = 0;
+
 
 	for (int SpacecraftIndex = 0 ; SpacecraftIndex < GetSectorShips().Num(); SpacecraftIndex++)
 	{
@@ -1107,6 +1111,12 @@ FFlareSectorBattleState UFlareSimulatedSector::GetSectorBattleState(UFlareCompan
 			{
 				CrippledFriendlySpacecraftCount++;
 			}
+
+			if(!Spacecraft->GetDamageSystem()->IsUncontrollable())
+			{
+				FriendlyControllableShipCount++;
+			}
+
 		}
 		else if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
 		{
@@ -1137,6 +1147,13 @@ FFlareSectorBattleState UFlareSimulatedSector::GetSectorBattleState(UFlareCompan
 		{
 			FriendlySpacecraftCount++;
 			CrippledFriendlySpacecraftCount++;
+
+			FriendlyStationCount++;
+
+			if (Spacecraft->IsBeingCaptured())
+			{
+				FriendlyStationInCaptureCount++;
+			}
 		}
 		else if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
 		{
@@ -1145,6 +1162,11 @@ FFlareSectorBattleState UFlareSimulatedSector::GetSectorBattleState(UFlareCompan
 	}
 
 	BattleState.InBattle = true;
+	BattleState.FriendlyStationCount = FriendlyStationCount;
+	BattleState.FriendlyStationInCaptureCount = FriendlyStationInCaptureCount;
+	BattleState.FriendlyControllableShipCount = FriendlyControllableShipCount;
+
+
 
 	if (DangerousHostileSpacecraftCount > 0)
 	{

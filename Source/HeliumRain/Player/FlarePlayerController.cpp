@@ -1162,6 +1162,7 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 		UFlareSimulatedSector* Sector = GetCompany()->GetKnownSectors()[SectorIndex];
 
 		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(GetCompany());
+
 		if (BattleState.InBattle)
 		{
 			if (BattleState.InActiveFight)
@@ -1180,8 +1181,12 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 				}
 				else
 				{
-					BattleDetailsText = FText::Format(LOCTEXT("ConfirmBattleLostNoRetreatFormat", "{0}Battle lost in {1}. Ships cannot retreat and may be lost.\n"),
-						BattleDetailsText, Sector->GetSectorName());
+					if(BattleState.FriendlyControllableShipCount > 0 ||
+							(BattleState.FriendlyStationCount> 0 && BattleState.FriendlyStationInCaptureCount == 0))
+					{
+						BattleDetailsText = FText::Format(LOCTEXT("ConfirmBattleLostNoRetreatFormat", "{0}Battle lost in {1}. Ships cannot retreat and may be lost.\n"),
+							BattleDetailsText, Sector->GetSectorName());
+					}
 				}
 			}
 		}

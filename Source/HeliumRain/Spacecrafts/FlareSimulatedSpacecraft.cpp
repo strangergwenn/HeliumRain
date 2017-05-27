@@ -929,6 +929,11 @@ int32 UFlareSimulatedSpacecraft::GetCapturePoint(UFlareCompany* Company) const
 	return 0;
 }
 
+bool UFlareSimulatedSpacecraft::IsBeingCaptured() const
+{
+	return SpacecraftData.CapturePoints.Num() > 0;
+}
+
 int32 UFlareSimulatedSpacecraft::GetCapturePointThreshold() const
 {
 	int32 BaseCapturePoint = SpacecraftData.Level * SpacecraftDescription->CapturePointThreshold;
