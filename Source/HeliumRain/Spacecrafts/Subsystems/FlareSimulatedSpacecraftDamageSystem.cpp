@@ -339,6 +339,15 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 		EffectiveEnergy = Energy * (1.f - GetArmor(ComponentDescription));
 	}
 
+	if (DamageType == EFlareDamage::DAM_Collision && ComponentDescription->GeneralCharacteristics.LifeSupport)
+	{
+		// Limit to 50%
+		float MaxDamage = ComponentDescription->HitPoints*0.5;
+		float MaxMissingDamage =  FMath::Max(0.f, MaxDamage - ComponentData->Damage);
+		EffectiveEnergy = FMath::Min(EffectiveEnergy, MaxMissingDamage);
+	}
+
+
 	ComponentData->Damage += EffectiveEnergy;
 	float MaxHitPoints = GetMaxHitPoints(ComponentDescription);
 	if (ComponentData->Damage > MaxHitPoints)
