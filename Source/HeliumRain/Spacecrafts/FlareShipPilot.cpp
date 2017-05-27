@@ -372,7 +372,9 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	float PredictedDistance = PredictedDeltaLocation.Size(); // Distance in meters
 
 	FVector AmmoIntersectionLocation;
-	float AmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), Ship->GetActorLocation(), ShipVelocity, AmmoVelocity, 0, &AmmoIntersectionLocation);
+	float AmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), BaseLocation, ShipVelocity, AmmoVelocity, 0, &AmmoIntersectionLocation);
+
+
 
 	FVector FireTargetAxis;
 	if (AmmoIntersectionTime > 0)
@@ -386,7 +388,15 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 
 	FVector AmmoIntersectionPredictedLocation;
-	float AmmoIntersectionPredictedTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), Ship->GetActorLocation(), ShipVelocity, AmmoVelocity, PredictionDelay, &AmmoIntersectionPredictedLocation);
+	float AmmoIntersectionPredictedTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), BaseLocation, ShipVelocity, AmmoVelocity, PredictionDelay, &AmmoIntersectionPredictedLocation);
+
+	/*if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
+	{
+		DrawDebugSphere(Ship->GetWorld(), AmmoIntersectionPredictedLocation, 100, 12, FColor::White, true);
+	}*/
+
+
+
 	FVector PredictedFireTargetAxis;
 	if (AmmoIntersectionPredictedTime > 0)
 	{
@@ -444,19 +454,26 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	}
 
 
-	if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
+	/*if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
 	{
-		/*FLOGV("TargetAxisAngularPrecisionDot=%f", TargetAxisAngularPrecisionDot);
+		FLOGV("TargetAxisAngularPrecisionDot=%f", TargetAxisAngularPrecisionDot);
 		FLOGV("TargetAxisAngularPrecision=%f", TargetAxisAngularPrecision);
 		FLOGV("TimeSinceAiming=%f", TimeSinceAiming);
-		FLOGV("AngularNoise=%f", AngularNoise);*/
+		FLOGV("AngularNoise=%f", AngularNoise);
 		FLOGV("Distance=%f", Distance);
 		FLOGV("AttackPhase=%d", AttackPhase);
-	}
+		AngularNoise = 0;
+	}*/
 
 	FVector PredictedFireTargetAxisWithError = FMath::VRandCone(PredictedFireTargetAxis, FMath::DegreesToRadians(AngularNoise));
 
-	AngularTargetVelocity = GetAngularVelocityToAlignAxis(BulletDirection, PredictedFireTargetAxisWithError, PredictedTargetAngularVelocity, DeltaSeconds);
+
+	/*if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
+	{
+		DrawDebugLine(Ship->GetWorld(), Ship->GetActorLocation(), BaseLocation + PredictedFireTargetAxis *200000, FColor::Green, true);
+	}*/
+
+	AngularTargetVelocity = GetAngularVelocityToAlignAxis(LocalNose, PredictedFireTargetAxisWithError, PredictedTargetAngularVelocity, DeltaSeconds);
 
 	/*FLOGV("Distance=%f", Distance);
 	FLOGV("PilotTargetShip->GetLinearVelocity()=%s", *(PilotTargetShip->GetLinearVelocity().ToString()));
@@ -562,12 +579,24 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 		}
 	}
 
-
 	if (TimeUntilNextReaction <= 0)
 	{
 		TimeUntilNextReaction = ReactionTime;
 
 		WantFire = false;
+
+		/*if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
+		{
+			FLOGV("FireAxis=%s", *FireAxis.ToString());
+
+			DrawDebugSphere(Ship->GetWorld(), BaseLocation, 50, 12, FColor::Green, true);
+			//DrawDebugSphere(Ship->GetWorld(), AmmoIntersectionLocation, 100, 12, FColor::Red, true);
+		}*/
+
+		if(Ship->GetCurrentTarget() != PilotTargetShip)
+		{
+			Ship->SetCurrentTarget(PilotTargetShip);
+		}
 
 		// If at range and aligned fire on the target
 		// TODO increase tolerance if target is near
@@ -576,6 +605,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 			TArray <UFlareWeapon*> Weapons = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Weapons;
 			for (int WeaponIndex = 0; WeaponIndex < Weapons.Num(); WeaponIndex++)
 			{
+
 				UFlareWeapon* Weapon = Weapons[WeaponIndex];
 				if (Weapon->GetUsableRatio() <= 0)
 				{
@@ -587,14 +617,13 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 					FVector MuzzleLocation = Weapon->GetMuzzleLocation(GunIndex);
 
 					// Compute target Axis for each gun
-					FVector GunAmmoIntersectionLocation;
-					float GunAmmoIntersectionTime = SpacecraftHelper::GetIntersectionPosition(PilotTargetComponent->GetComponentLocation(), PilotTargetShip->Airframe->GetPhysicsLinearVelocity(), MuzzleLocation, ShipVelocity, AmmoVelocity, 0, &GunAmmoIntersectionLocation);
-					if (GunAmmoIntersectionTime < 0)
-					{
-						// No ammo intersection, don't fire
-						continue;
-					}
-					FVector GunFireTargetAxis = (GunAmmoIntersectionLocation - MuzzleLocation - AmmoIntersectionPredictedTime * ShipVelocity).GetUnsafeNormal();
+					FVector GunAmmoIntersectionLocation = AmmoIntersectionLocation;
+					float GunAmmoIntersectionTime = AmmoIntersectionTime;
+
+
+
+					//FVector GunFireTargetAxis = (GunAmmoIntersectionLocation - MuzzleLocation - AmmoIntersectionPredictedTime * ShipVelocity).GetUnsafeNormal();
+					FVector GunFireTargetAxis = (GunAmmoIntersectionLocation - MuzzleLocation).GetUnsafeNormal();
 					/*FLOGV("Gun %d FireAxis=%s", GunIndex, *FireAxis.ToString());
 					FLOGV("Gun %d GunFireTargetAxis=%s", GunIndex, *GunFireTargetAxis.ToString());
 		*/
@@ -602,12 +631,28 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 					float AngularPrecision = FMath::Acos(AngularPrecisionDot);
 					float AngularSize = FMath::Atan(TargetSize / Distance);
 
+
 					/*if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
 					{
+
+						DrawDebugSphere(Ship->GetWorld(), GunAmmoIntersectionLocation, 50, 12, FColor::Red, true);
+						DrawDebugLine(Ship->GetWorld(), MuzzleLocation, GunAmmoIntersectionLocation, FColor::Red, true);
+						DrawDebugLine(Ship->GetWorld(), MuzzleLocation, MuzzleLocation + GunFireTargetAxis *100000, FColor::Blue, true);
+						//DrawDebugLine(Ship->GetWorld(), MuzzleLocation, MuzzleLocation + GunFireTargetAxis2 *100000, FColor::Green, true);
+						DrawDebugLine(Ship->GetWorld(), MuzzleLocation, MuzzleLocation + Weapon->ComputeParallaxCorrection(GunIndex) *100000, FColor::White, true);
+					}*/
+
+					/*if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
+					{
+						FLOGV("GunFireTargetAxis=%s", *GunFireTargetAxis.ToString());
+						FLOGV("GunFireTargetAxis=%s", *GunFireTargetAxis.ToString());
+						FLOGV("ComputeParallaxCorrection=%s", *Weapon->ComputeParallaxCorrection(GunIndex).ToString());
+
 						FLOGV("Gun %d Distance=%f", GunIndex, Distance);
 						FLOGV("Gun %d TargetSize=%f", GunIndex, TargetSize);
 						FLOGV("Gun %d AngularSize=%f", GunIndex, AngularSize);
 						FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);
+						FLOGV("Gun %d limit=%f", GunIndex, (DangerousTarget ? AngularSize * 0.5 : AngularSize * 0.2));
 					}*/
 					if (AngularPrecision < (DangerousTarget ? AngularSize * 0.5 : AngularSize * 0.2))
 					{
@@ -621,6 +666,13 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 							FVector Velocity = Cast<UPrimitiveComponent>(PilotTargetShip->GetRootComponent())->GetPhysicsLinearVelocity() / 100;
 							Weapon->SetTarget(Location, Velocity);
 							WantFire = true;
+							/*if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
+							{
+								FLOG("Gun fire");
+								//DrawDebugSphere(Ship->GetWorld(), PilotTargetShip->GetRootComponent()->Get, 50, 12, FColor::Cyan, true);
+							}*/
+
+
 							break;
 						}
 					}

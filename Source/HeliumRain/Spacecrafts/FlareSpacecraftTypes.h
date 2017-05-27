@@ -777,6 +777,15 @@ struct SpacecraftHelper
 										 float PredictionDelay,
 										 FVector* ResultPosition);
 
+	static float GetIntersectionPosition2(FVector TargetLocation,
+										 FVector TargetVelocity,
+										 FVector TargetAcceleration,
+										 FVector SourceLocation,
+										 FVector SourceVelocity,
+										 float ProjectileSpeed,
+										 float PredictionDelay,
+										 FVector* ResultPosition);
+
 	static EFlareDamage::Type GetWeaponDamageType(EFlareShellDamageType::Type ShellDamageType);
 
 };

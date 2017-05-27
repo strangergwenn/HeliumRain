@@ -499,60 +499,15 @@ float AFlareSpacecraft::GetSpacecraftMass()
 
 float AFlareSpacecraft::GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const
 {
-	return GetAimPosition(TargettingShip->GetActorLocation(), TargettingShip->GetLinearVelocity() * 100, BulletSpeed, PredictionDelay, ResultPosition);
-}
+	FVector BaseLocation = GetCamera()->GetComponentLocation();
 
-float AFlareSpacecraft::GetAimPosition(FVector GunLocation, FVector GunVelocity, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const
-{
-	SCOPE_CYCLE_COUNTER(STAT_FlareSpacecraft_Aim);
-
-	// TODO : use helper
-
-	// Target Speed
-	FVector TargetVelocity = Airframe->GetPhysicsLinearVelocity() - GunVelocity;
-	FVector TargetLocation = GetActorLocation() + TargetVelocity * PredictionDelay;
-	FVector BulletLocation = GunLocation + GunVelocity * PredictionDelay;
-
-	// Find the relative speed in the axis of target
-	FVector TargetDirection = (TargetLocation - BulletLocation).GetUnsafeNormal();
-	float EffectiveBulletSpeed = BulletSpeed * 100.f;
-	float Divisor = FMath::Square(EffectiveBulletSpeed) - TargetVelocity.SizeSquared();
-
-	// Intersect at an infinite time ?
-	if (EffectiveBulletSpeed < 0 || FMath::IsNearlyZero(Divisor))
-	{
-		return -1;
-	}
-
-	float A = -1;
-	float B = 2 * (TargetVelocity.X * (TargetLocation.X - BulletLocation.X) + TargetVelocity.Y * (TargetLocation.Y - BulletLocation.Y) + TargetVelocity.Z * (TargetLocation.Z - BulletLocation.Z)) / Divisor;
-	float C = (TargetLocation - BulletLocation).SizeSquared() / Divisor;
-
-	float Delta = FMath::Square(B) - 4 * A * C;
-
-	if (Delta < 0)
-	{
-		return -1;
-	}
-	float InterceptTime1 = (- B - FMath::Sqrt(Delta)) / (2 * A);
-	float InterceptTime2 = (- B + FMath::Sqrt(Delta)) / (2 * A);
-
-	float InterceptTime;
-	if (InterceptTime1 > 0 && InterceptTime2 > 0)
-	{
-		InterceptTime = FMath::Min(InterceptTime1, InterceptTime2);
-	}
-	else
-	{
-		InterceptTime = FMath::Max(InterceptTime1, InterceptTime2);
-	}
-
-	if (InterceptTime > 0)
-	{
-		FVector InterceptLocation = TargetLocation + TargetVelocity * InterceptTime;
-		*ResultPosition = InterceptLocation;
-	}
-	return InterceptTime;
+	return SpacecraftHelper::GetIntersectionPosition(BaseLocation,
+											  Airframe->GetPhysicsLinearVelocity(),
+											  TargettingShip->GetActorLocation(),
+											  TargettingShip->GetLinearVelocity() * 100,
+											  BulletSpeed * 100,
+											  PredictionDelay,
+											  ResultPosition);
 }
 
 void AFlareSpacecraft::ResetCurrentTarget()

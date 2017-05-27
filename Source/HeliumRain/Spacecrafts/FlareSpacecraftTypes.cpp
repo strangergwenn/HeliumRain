@@ -25,25 +25,26 @@ float SpacecraftHelper::GetIntersectionPosition(FVector TargetLocation, FVector 
 	FLOGV("  SourceVelocity=%s",*SourceVelocity.ToString());
 	FLOGV("  ProjectileSpeed=%f",ProjectileSpeed);*/
 
+
+	FVector RelativeTargetVelocity = TargetVelocity - SourceVelocity;
+
 	// Relative Target Speed
-	FVector PredictedTargetLocation = TargetLocation + TargetVelocity * PredictionDelay;
-	FVector BulletLocation = SourceLocation + SourceVelocity * PredictionDelay;
+	FVector PredictedTargetLocation = TargetLocation + RelativeTargetVelocity * PredictionDelay;
+	FVector BulletLocation = SourceLocation;
 
 	// Find the relative speed in the axis of target
 	FVector TargetDirection = (PredictedTargetLocation - BulletLocation).GetUnsafeNormal();
-	FVector BonusVelocity = SourceVelocity;
-	float BonusVelocityInTargetAxis = FVector::DotProduct(TargetDirection, BonusVelocity);
-	float EffectiveProjectileSpeed = ProjectileSpeed + BonusVelocityInTargetAxis;
 
-	float Divisor = FMath::Square(EffectiveProjectileSpeed) - TargetVelocity.SizeSquared();
+	float EffectiveProjectileSpeed = ProjectileSpeed;
+
+	float Divisor = FMath::Square(EffectiveProjectileSpeed) - RelativeTargetVelocity.SizeSquared();
 
 
 	/*FLOGV("  PredictedTargetLocation=%s",*PredictedTargetLocation.ToString());
 	FLOGV("  BulletLocation=%s",*BulletLocation.ToString());
 	FLOGV("  TargetDirection=%s",*TargetDirection.ToString());
-	FLOGV("  BonusVelocity=%s",*BonusVelocity.ToString());
 
-	FLOGV("  BonusVelocityInTargetAxis=%f",BonusVelocityInTargetAxis);
+
 	FLOGV("  EffectiveProjectileSpeed=%f",EffectiveProjectileSpeed);
 	FLOGV("  Divisor=%f",Divisor);*/
 
@@ -54,7 +55,7 @@ float SpacecraftHelper::GetIntersectionPosition(FVector TargetLocation, FVector 
 	}
 
 	float A = -1;
-	float B = 2 * (TargetVelocity.X * (PredictedTargetLocation.X - BulletLocation.X) + TargetVelocity.Y * (PredictedTargetLocation.Y - BulletLocation.Y) + TargetVelocity.Z * (PredictedTargetLocation.Z - BulletLocation.Z)) / Divisor;
+	float B = 2 * (RelativeTargetVelocity.X * (PredictedTargetLocation.X - BulletLocation.X) + RelativeTargetVelocity.Y * (PredictedTargetLocation.Y - BulletLocation.Y) + RelativeTargetVelocity.Z * (PredictedTargetLocation.Z - BulletLocation.Z)) / Divisor;
 	float C = (PredictedTargetLocation - BulletLocation).SizeSquared() / Divisor;
 
 	float Delta = FMath::Square(B) - 4 * A * C;
@@ -74,7 +75,8 @@ float SpacecraftHelper::GetIntersectionPosition(FVector TargetLocation, FVector 
 
 	if (InterceptTime > 0)
 	{
-		FVector InterceptLocation = PredictedTargetLocation + TargetVelocity * InterceptTime;
+		FVector InterceptLocation = PredictedTargetLocation + RelativeTargetVelocity * InterceptTime;
+		InterceptLocation += SourceVelocity * PredictionDelay;
 		*ResultPosition = InterceptLocation;
 	}
 	return InterceptTime;

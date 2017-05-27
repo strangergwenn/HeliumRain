@@ -81,9 +81,6 @@ public:
 	/** Extrapolate the position of a ship for a given targetting ship. Return time before intersect. If time is negative, no intersection. */
 	virtual float GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const;
 
-	/** Extrapolate the position of a ship for a given gun. Return time before intersect. If time is negative, no intersection. */
-	virtual float GetAimPosition(FVector GunLocation, FVector GunVelocity, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const;
-
 	/** Reset the target */
 	void ResetCurrentTarget();
 
