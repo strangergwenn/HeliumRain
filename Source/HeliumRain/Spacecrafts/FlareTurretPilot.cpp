@@ -162,7 +162,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 		FVector PredictedFireTargetLocation;
 		if (AmmoIntersectionPredictedTime > 0)
 		{
-			PredictedFireTargetLocation = AmmoIntersectionPredictedLocation - AmmoIntersectionPredictedTime * TurretVelocity;
+			PredictedFireTargetLocation = AmmoIntersectionPredictedLocation;
 		}
 		else
 		{
@@ -208,7 +208,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 					// No ammo intersection, don't fire
 					continue;
 				}
-				FVector FireTargetAxis = (AmmoIntersectionLocation - MuzzleLocation - AmmoIntersectionPredictedTime * TurretVelocity).GetUnsafeNormal();
+				FVector FireTargetAxis = (AmmoIntersectionLocation - MuzzleLocation).GetUnsafeNormal();
 				/*FLOGV("Gun %d FireAxis=%s", GunIndex, *FireAxis.ToString());
 				FLOGV("Gun %d FireTargetAxis=%s", GunIndex, *FireTargetAxis.ToString());*/
 
