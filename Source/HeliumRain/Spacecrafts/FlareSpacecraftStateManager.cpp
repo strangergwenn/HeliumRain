@@ -159,7 +159,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		}
 	}
 
-	if (!PlayerManualLockDirection)
+	if (!PlayerManualLockDirection || ExternalCamera)
 	{
 		if(!Spacecraft->GetLinearVelocity().IsNearlyZero())
 		{
@@ -384,7 +384,7 @@ void UFlareSpacecraftStateManager::SetPlayerMousePosition(FVector2D Val)
 void UFlareSpacecraftStateManager::SetPlayerAimMouse(FVector2D Val)
 {
 	// External camera : panning with mouse clicks
-	if (ExternalCamera)
+	if (ExternalCamera && !PlayerManualLockDirection)
 	{
 		ExternalCameraYawTarget += FMath::Sign(Val.X);
 		ExternalCameraPitchTarget += FMath::Sign(Val.Y);
@@ -566,7 +566,7 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 	{
 		FVector PlayerForwardVelocity;
 
-		if (PlayerManualLockDirection && ! Spacecraft->GetLinearVelocity().IsNearlyZero())
+		if ((PlayerManualLockDirection && !ExternalCamera) && ! Spacecraft->GetLinearVelocity().IsNearlyZero())
 		{
 			PlayerForwardVelocity =  PlayerManualLockDirectionVector * FMath::Abs(PlayerManualVelocityCommand) * Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
 		}
