@@ -93,7 +93,11 @@ bool PilotHelper::FindMostDangerousCollision(AFlareSpacecraft* Ship, AFlareSpace
 		if (SpacecraftCandidate != Ship
 		 && SpacecraftCandidate != SpacecraftToIgnore
 		 && !Ship->GetDockingSystem()->IsGrantedShip(SpacecraftCandidate)
-		 && !Ship->GetDockingSystem()->IsDockedShip(SpacecraftCandidate))
+		 && !Ship->GetDockingSystem()->IsDockedShip(SpacecraftCandidate)
+		 && !(Ship->GetSize() == EFlarePartSize::L
+			  && SpacecraftCandidate->GetSize() == EFlarePartSize::S
+			  && IsShipDangerous(SpacecraftCandidate)
+			  && Ship->GetWarState(SpacecraftCandidate->GetCompany()) == EFlareHostility::Hostile))
 		{
 			Candidate.Key = SpacecraftCandidate;
 			Candidate.Value = SpacecraftCandidate->Airframe->GetPhysicsLinearVelocity();
