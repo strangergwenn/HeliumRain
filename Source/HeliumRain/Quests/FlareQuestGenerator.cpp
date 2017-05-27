@@ -58,6 +58,10 @@ void UFlareQuestGenerator::LoadQuests(const FFlareQuestSave& Data)
 		{
 			Quest = NewObject<UFlareQuestGeneratedStationDefense>(this, UFlareQuestGeneratedStationDefense::StaticClass());
 		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedSectorDefense::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedSectorDefense>(this, UFlareQuestGeneratedSectorDefense::StaticClass());
+		}
 		else if(QuestData.QuestClass == UFlareQuestGeneratedJoinAttack::GetClass())
 		{
 			Quest = NewObject<UFlareQuestGeneratedJoinAttack>(this, UFlareQuestGeneratedJoinAttack::StaticClass());
