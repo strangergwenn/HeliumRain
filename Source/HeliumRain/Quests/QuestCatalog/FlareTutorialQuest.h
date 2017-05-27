@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include "../FlareQuest.h"
 #include "FlareTutorialQuest.generated.h"
 
@@ -113,6 +114,17 @@ public:
 	static UFlareQuest* Create(UFlareQuestManager* Parent);
 };
 
+UCLASS()
+class HELIUMRAIN_API UFlareQuestTutorialFighter: public UFlareQuest
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+
+	/** Load the quest from description file */
+	virtual void Load(UFlareQuestManager* Parent);
+	static UFlareQuest* Create(UFlareQuestManager* Parent);
+};
 
 // Conditions
 
@@ -513,3 +525,29 @@ protected:
 	bool TargetRefill;
 };
 
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialGenericStateCondition : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionTutorialGenericStateCondition* Create(UFlareQuest* ParentQuest,
+																	std::function<bool (UFlareQuestCondition*)> IsCompletedParam,
+																	 std::function<FText ()> GetInitalLabelParam,
+																	 std::function<void (UFlareQuestCondition* Condition)> InitParam);
+	void Load(UFlareQuest* ParentQuest,
+			  std::function<bool (UFlareQuestCondition*)> IsCompletedParam,
+			  std::function<FText ()> GetInitalLabelParam,
+			  std::function<void (UFlareQuestCondition* Condition)> InitParam);
+
+	virtual FText GetInitialLabel();
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+	std::function<bool (UFlareQuestCondition*)> IsCompletedFunc;
+	std::function<FText ()> GetInitalLabelFunc;
+};

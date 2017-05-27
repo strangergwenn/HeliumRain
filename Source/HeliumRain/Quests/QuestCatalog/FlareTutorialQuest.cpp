@@ -830,6 +830,89 @@ void UFlareQuestTutorialRefillShip::Load(UFlareQuestManager* Parent)
 
 
 /*----------------------------------------------------
+	Tutorial fighter
+----------------------------------------------------*/
+
+UFlareQuestTutorialFighter::UFlareQuestTutorialFighter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuest* UFlareQuestTutorialFighter::Create(UFlareQuestManager* Parent)
+{
+	UFlareQuestTutorialFighter* Quest = NewObject<UFlareQuestTutorialFighter>(Parent, UFlareQuestTutorialFighter::StaticClass());
+	Quest->Load(Parent);
+	return Quest;
+}
+
+void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
+{
+	LoadInternal(Parent);
+
+	Identifier = "tutorial-fighter";
+	QuestName = LOCTEXT("TutorialFighterShipName","Fighter tutorial");
+	QuestDescription = LOCTEXT("TutorialFighterDescription","Learn how use a fighter.");
+	QuestCategory = EFlareQuestCategory::TUTORIAL;
+
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-build-ship"));
+
+	{
+		FText Description = LOCTEXT("HaveMilitaryShipDescription","It can be useful to train to fight before being attacked. Build a fighter in a shipyard.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "have-military", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition){
+			for(auto Ship: GetQuestManager()->GetGame()->GetPC()->GetCompany()->GetCompanyShips())
+			{
+				if(Ship->IsMilitary() && Ship->GetSize() == EFlarePartSize::S)
+				{
+					return true;
+				}
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("HaveMilitaryShipConditionLabel", "Have a fighter");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("FlyMilitaryShipDescription", "Now fly the fighter with the fly button in sector menu or <input-action:QuickSwitch> (the fighter must be in your personal fleet to be flyied).");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "fly-military", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition){
+
+			UFlareSimulatedSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetPlayerShip();
+
+			if(PlayerShip && PlayerShip->IsMilitary() && PlayerShip->GetSize() == EFlarePartSize::S)
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("FlyMilitaryShipConditionLabel", "Fly a fighter");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+}
+
+
+/*----------------------------------------------------
 	Tutorial get contrat condition
 ----------------------------------------------------*/
 UFlareQuestConditionTutorialGetContrat::UFlareQuestConditionTutorialGetContrat(const FObjectInitializer& ObjectInitializer)
@@ -2144,6 +2227,59 @@ bool UFlareQuestConditionTutorialShipNeedFs::IsCompleted()
 	}
 
 	return false;
+}
+
+/*----------------------------------------------------
+	Tutorial generic check condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialGenericStateCondition::UFlareQuestConditionTutorialGenericStateCondition(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialGenericStateCondition* UFlareQuestConditionTutorialGenericStateCondition::Create(UFlareQuest* ParentQuest,
+																											 std::function<bool (UFlareQuestCondition*)> IsCompletedParam,
+																											 std::function<FText ()> GetInitalLabelParam,
+																											 std::function<void (UFlareQuestCondition* Condition)> InitParam)
+{
+	UFlareQuestConditionTutorialGenericStateCondition* Condition = NewObject<UFlareQuestConditionTutorialGenericStateCondition>(ParentQuest, UFlareQuestConditionTutorialGenericStateCondition::StaticClass());
+	Condition->Load(ParentQuest, IsCompletedParam, GetInitalLabelParam, InitParam);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialGenericStateCondition::Load(UFlareQuest* ParentQuest,
+															 std::function<bool (UFlareQuestCondition*)> IsCompletedParam,
+															 std::function<FText ()> GetInitalLabelParam,
+															 std::function<void (UFlareQuestCondition* Condition)> InitParam)
+{
+	LoadInternal(ParentQuest);
+	InitParam(this);
+	IsCompletedFunc = IsCompletedParam;
+	GetInitalLabelFunc = GetInitalLabelParam;
+}
+
+bool UFlareQuestConditionTutorialGenericStateCondition::IsCompleted()
+{
+	return IsCompletedFunc(this);
+}
+
+FText UFlareQuestConditionTutorialGenericStateCondition::GetInitialLabel()
+{
+	return GetInitalLabelFunc();
+}
+
+void UFlareQuestConditionTutorialGenericStateCondition::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = 0;
+	ObjectiveCondition.MaxCounter = 0;
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
 
 

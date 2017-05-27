@@ -75,6 +75,7 @@ void UFlareQuestManager::LoadBuildinQuest()
 	AddQuest(UFlareQuestTutorialResearchStation::Create(this));
 	AddQuest(UFlareQuestTutorialRepairShip::Create(this));
 	AddQuest(UFlareQuestTutorialRefillShip::Create(this));
+	AddQuest(UFlareQuestTutorialFighter::Create(this));
 
 	AddQuest(UFlareQuestPendulum::Create(this));
 }

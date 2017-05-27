@@ -48,6 +48,7 @@ public:
 		ConditionIndex = Index;
 	}
 
+	TArray<EFlareQuestCallback::Type> Callbacks;
 protected:
 
 	  void LoadInternal(UFlareQuest* ParentQuest, FName ConditionIdentifier = NAME_None)
@@ -63,7 +64,7 @@ protected:
 	FText                       InitialLabel;
 	FText						TerminalLabel;
 	FName                       Identifier;
-	TArray<EFlareQuestCallback::Type> Callbacks;
+
 
 	UFlareQuest* Quest;
 public:
