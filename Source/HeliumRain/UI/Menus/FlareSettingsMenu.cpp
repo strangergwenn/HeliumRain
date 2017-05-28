@@ -80,25 +80,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				.TextStyle(&Theme.SubTitleFont)
 			]
 
-			// Culture
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			[
-				SAssignNew(CultureSelector, SComboBox<TSharedPtr<FString>>)
-				.OptionsSource(&CultureList)
-				.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateCultureComboLine)
-				.OnSelectionChanged(this, &SFlareSettingsMenu::OnCultureComboLineSelectionChanged)
-				.ComboBoxStyle(&Theme.ComboBoxStyle)
-				.ForegroundColor(FLinearColor::White)
-				[
-					SNew(STextBlock)
-					.Text(this, &SFlareSettingsMenu::OnGetCurrentCultureComboLine)
-					.TextStyle(&Theme.TextFont)
-				]
-			]
-
-
 			// Graphic form
 			+ SVerticalBox::Slot()
 			.AutoHeight()
@@ -124,6 +105,24 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(STextBlock)
 							.Text(this, &SFlareSettingsMenu::OnGetCurrentResolutionComboLine)
+							.TextStyle(&Theme.TextFont)
+						]
+					]
+
+					// Culture
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(CultureSelector, SComboBox<TSharedPtr<FString>>)
+						.OptionsSource(&CultureList)
+						.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateCultureComboLine)
+						.OnSelectionChanged(this, &SFlareSettingsMenu::OnCultureComboLineSelectionChanged)
+						.ComboBoxStyle(&Theme.ComboBoxStyle)
+						.ForegroundColor(FLinearColor::White)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareSettingsMenu::OnGetCurrentCultureComboLine)
 							.TextStyle(&Theme.TextFont)
 						]
 					]
@@ -963,18 +962,22 @@ FText SFlareSettingsMenu::OnGetCurrentCultureComboLine() const
 	}
 
 	FCulturePtr Culture = FInternationalization::Get().GetCulture(*Item);
-	return FText::FromString(Culture->GetNativeName());
+	FString NativeName = Culture->GetNativeName();
+	NativeName = NativeName.Left(1).ToUpper() + NativeName.RightChop(1);
+
+	return FText::FromString(NativeName);
 }
 
 TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateCultureComboLine(TSharedPtr<FString> Item)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
+	
 	FCulturePtr Culture = FInternationalization::Get().GetCulture(*Item);
-
+	FString NativeName = Culture->GetNativeName();
+	NativeName = NativeName.Left(1).ToUpper() + NativeName.RightChop(1);
 
 	return SNew(STextBlock)
-	.Text(FText::FromString(Culture->GetNativeName()))
+	.Text(FText::FromString(NativeName))
 	.TextStyle(&Theme.TextFont);
 }
 
