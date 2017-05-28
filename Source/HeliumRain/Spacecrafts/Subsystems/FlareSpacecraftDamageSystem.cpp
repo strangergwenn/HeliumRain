@@ -392,6 +392,14 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 			}
 		}
 	}
+
+	if(PC->GetPlayerShip()->IsActive()
+			&& LastDamageCauser == PC->GetPlayerShip()->GetActive()
+			&& Spacecraft->GetCompany()->GetWarState(PlayerCompany) == EFlareHostility::Hostile
+			&& Spacecraft->IsMilitary())
+	{
+		PC->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("enemy-uncontrollable"));
+	}
 }
 
 void UFlareSpacecraftDamageSystem::CheckRecovery()

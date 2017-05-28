@@ -1027,7 +1027,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		},
 		[]()
 		{
-			return LOCTEXT("DeactivateWeaponConditionLabel", "Fire 10 bullets.");
+			return LOCTEXT("FireWeaponConditionLabel", "Fire 10 bullets.");
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -1201,6 +1201,120 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		[]()
 		{
 			return LOCTEXT("HitCargoConditionLabel", "Hit the targeted cargo");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("Have2MilitaryShipDescription","Before fight real enemies, we well learn how to fight with multiple ships. Build a second fighter and make sure it is in your fleet.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "have-2-military", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition){
+
+			int Count = 0;
+			for(auto Ship: GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetShips())
+			{
+				if(Ship->IsMilitary() && Ship->GetSize() == EFlarePartSize::S)
+				{
+					Count++;
+				}
+
+				if(Count >=2)
+				{
+					return true;
+				}
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("Have2MilitaryShipConditionLabel", "Have 2 fighters in your player fleet");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+		}));
+
+		Steps.Add(Step);
+	}
+
+
+	{
+		FText Description = LOCTEXT("MultipleQuickSwitchDescription", "When you have multiple ship during a battle, all the ship your ane not piloting are still fighting automaticaly for you. At any time, mostly when your ship is damaged, or out of ammo or far from the action, you can take fly another ship to continue the fight."
+															 "\n The <input-action:QuickSwitch> key allow you to quickly jump to another ship. During battles, <input-action:QuickSwitch> will always make you fly a controllable ship with ammunitions. Press this key few times.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "multiple-quick-switch", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("quick-switch"))
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("MultipleQuickSwitchConditionLabel", "Press quick switch 5 times.");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		},  "MultipleQuickSwitchcond1", 5));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("BattleSectorDescription","It's time for the best part. Go into a battle (you can declare a war using the diplomatic menu (<input-action:LeaderboardMenu>) or just wait someone attack you)."
+									"\nOnce you are at war, you can see sectors with hostile ships in red in the orbital map, find one with some fighters.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "battle-sector", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition){
+
+			UFlareCompany* PlayerCompany = GetQuestManager()->GetGame()->GetPC()->GetCompany();
+			if(GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet() && GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetCurrentSector()->GetSectorBattleState(PlayerCompany).InFight)
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("BattleSectorConditionLabel", "Go into a fight");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::WAR_STATE_CHANGED);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("MakeFighterUncontrollableDescription", "Shot down an enemy figther. Ships disabled by a ship you don't control yourself wont count : it's you that need training !");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "hit-cargo", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("enemy-uncontrollable"))
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("MakeFighterUncontrollableConditionLabel", "Make one enemy fighter uncontrollable by yourself");
 		},
 		[](UFlareQuestCondition* Condition)
 		{

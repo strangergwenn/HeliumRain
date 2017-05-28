@@ -1624,6 +1624,7 @@ void AFlarePlayerController::QuickSwitch()
 	if (!MenuManager->IsMenuOpen() && !IsTyping())
 	{
 		SwitchToNextShip(false);
+		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("quick-switch"));
 	}
 }
 
