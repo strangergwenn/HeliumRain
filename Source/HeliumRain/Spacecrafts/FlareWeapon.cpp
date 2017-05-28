@@ -250,6 +250,13 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	// Update data
 	ShipComponentData->Weapon.FiredAmmo++;
 	Spacecraft->GetParent()->GetDamageSystem()->SetAmmoDirty();
+
+
+	if (Spacecraft->GetParent() == Spacecraft->GetGame()->GetPC()->GetPlayerShip())
+	{
+		Spacecraft->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("fire-gun"));
+	}
+
 	return true;
 }
 

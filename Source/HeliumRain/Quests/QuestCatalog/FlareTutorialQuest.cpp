@@ -1010,6 +1010,85 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		Steps.Add(Step);
 	}
 
+
+	{
+		FText Description = LOCTEXT("FireWeaponDescription", "Now activate a weapon again, and try to fire with <input-action:StartFire>. Be careful: avoid to harm someone !");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "fire-weapon", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("fire-gun"))
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("DeactivateWeaponConditionLabel", "Fire 10 bullets.");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		},  "FireWeaponcond1", 10));
+
+		Steps.Add(Step);
+	}
+
+
+	{
+		FText Description = LOCTEXT("FlyToAsteroidDescription", "Then you will try again a target. Fly the a sector with some asteroids.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "fly-to-asteroid", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition){
+
+			UFlareSimulatedSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetPlayerShip();
+
+			if(PlayerShip && PlayerShip->GetCurrentSector() && PlayerShip->GetCurrentSector()->GetData()->AsteroidData.Num() > 0)
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("FlyToAsteroidConditionLabel", "Fly to a sector with asteroids");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("HitAsteroidDescription", "Make sure your are at less than 2 km of a big and empty asteroid and try to hit it.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "hit-asteroid", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("hit-asteroid"))
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("HitAsteroidConditionLabel", "Hit an asteroid 20 times.");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		},  "HitAsteroidcond1", 20));
+
+		Steps.Add(Step);
+	}
+
 }
 
 
@@ -2444,6 +2523,103 @@ void UFlareQuestConditionTutorialGenericEventCondition::AddConditionObjectives(F
 	ObjectiveCondition.Counter = 0;
 	ObjectiveCondition.MaxCounter = 0;
 
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+	Tutorial generic event counter condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialGenericEventCounterCondition::UFlareQuestConditionTutorialGenericEventCounterCondition(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialGenericEventCounterCondition* UFlareQuestConditionTutorialGenericEventCounterCondition::Create(UFlareQuest* ParentQuest,
+																											 std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedParam,
+																											 std::function<FText ()> GetInitalLabelParam,
+																											 std::function<void (UFlareQuestCondition* Condition)> InitParam,
+																											 FName ConditionIdentifierParam,
+																											 int32 Counter)
+{
+	UFlareQuestConditionTutorialGenericEventCounterCondition* Condition = NewObject<UFlareQuestConditionTutorialGenericEventCounterCondition>(ParentQuest, UFlareQuestConditionTutorialGenericEventCounterCondition::StaticClass());
+	Condition->Load(ParentQuest, IsCompletedParam, GetInitalLabelParam, InitParam, ConditionIdentifierParam, Counter);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialGenericEventCounterCondition::Load(UFlareQuest* ParentQuest,
+															 std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedParam,
+															 std::function<FText ()> GetInitalLabelParam,
+															 std::function<void (UFlareQuestCondition* Condition)> InitParam,
+															 FName ConditionIdentifierParam,
+															 int32 Counter)
+{
+	if (ConditionIdentifierParam == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionTutorialFinishQuest need identifier for state saving");
+	}
+	LoadInternal(ParentQuest, ConditionIdentifierParam);
+	InitParam(this);
+	IsCompletedFunc = IsCompletedParam;
+	GetInitalLabelFunc = GetInitalLabelParam;
+	TargetCounter = Counter;
+}
+
+void UFlareQuestConditionTutorialGenericEventCounterCondition::OnEvent(FFlareBundle& Bundle)
+{
+	if(IsCompletedFunc(this, Bundle))
+	{
+		CurrentProgression++;
+	}
+}
+
+bool UFlareQuestConditionTutorialGenericEventCounterCondition::IsCompleted()
+{
+	return CurrentProgression >= TargetCounter;
+}
+
+
+FText UFlareQuestConditionTutorialGenericEventCounterCondition::GetInitialLabel()
+{
+	return GetInitalLabelFunc();
+}
+
+void UFlareQuestConditionTutorialGenericEventCounterCondition::Restore(const FFlareBundle* Bundle)
+{
+	bool HasSave = true;
+	if(Bundle)
+	{
+		HasSave &= Bundle->HasInt32(TUTORIAL_CURRENT_PROGRESSION_TAG);
+	}
+	else
+	{
+		HasSave = false;
+	}
+
+	if(HasSave)
+	{
+		CurrentProgression = Bundle->GetInt32(TUTORIAL_CURRENT_PROGRESSION_TAG);
+	}
+	else
+	{
+		CurrentProgression = 0;
+	}
+
+}
+
+void UFlareQuestConditionTutorialGenericEventCounterCondition::Save(FFlareBundle* Bundle)
+{
+	Bundle->PutInt32(TUTORIAL_CURRENT_PROGRESSION_TAG, CurrentProgression);
+}
+
+void UFlareQuestConditionTutorialGenericEventCounterCondition::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText::GetEmpty();
+	ObjectiveCondition.MaxCounter = TargetCounter;
+	ObjectiveCondition.MaxProgress = TargetCounter;
+	ObjectiveCondition.Counter = CurrentProgression;
+	ObjectiveCondition.Progress = CurrentProgression;
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
 

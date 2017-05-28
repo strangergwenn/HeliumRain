@@ -581,3 +581,41 @@ protected:
 	std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedFunc;
 	std::function<FText ()> GetInitalLabelFunc;
 };
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialGenericEventCounterCondition : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionTutorialGenericEventCounterCondition* Create(UFlareQuest* ParentQuest,
+																	std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedParam,
+																	 std::function<FText ()> GetInitalLabelParam,
+																	 std::function<void (UFlareQuestCondition* Condition)> InitParam,
+																	 FName ConditionIdentifierParam,
+																	 int32 Counter);
+	void Load(UFlareQuest* ParentQuest,
+			  std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedParam,
+			  std::function<FText ()> GetInitalLabelParam,
+			  std::function<void (UFlareQuestCondition* Condition)> InitParam,
+			  FName ConditionIdentifierParam,
+			  int32 Counter);
+
+	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
+
+
+	virtual FText GetInitialLabel();
+	virtual bool IsCompleted();
+	virtual void OnEvent(FFlareBundle& Bundle);
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+	std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedFunc;
+	std::function<FText ()> GetInitalLabelFunc;
+	int32 TargetCounter;
+	int32 CurrentProgression;
+};
