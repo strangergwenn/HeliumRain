@@ -1151,7 +1151,74 @@ void SFlareSectorMenu::OnTravelHereClicked()
 
 			FText SingleShip = LOCTEXT("ShipIsSingle", "ship is");
 			FText MultipleShips = LOCTEXT("ShipArePlural", "ships are");
-			FText TooDamagedTravelText = LOCTEXT("TooDamagedToTravel", "too damaged to travel and will be left behind");
+
+
+			int32 TradingShips = 0;
+			int32 InterceptedShips = 0;
+			int32 StrandedShips = 0;
+
+			for(UFlareSimulatedSpacecraft* Ship : SelectedFleet->GetShips())
+			{
+				if(Ship->IsTrading())
+				{
+					TradingShips++;
+				}
+
+				if(Ship->GetDamageSystem()->IsStranded())
+				{
+					StrandedShips++;
+				}
+
+				if(Ship->IsIntercepted())
+				{
+					InterceptedShips++;
+				}
+			}
+
+
+
+
+			FText TooDamagedTravelText;
+			FText TradingTravelText;
+			FText InterceptedTravelText;
+
+			bool useOr = false;
+
+			if(TradingShips > 0)
+			{
+				TradingTravelText = LOCTEXT("TradingTravelText", "trading");
+				useOr = true;
+			}
+
+			if(InterceptedShips > 0)
+			{
+				if(useOr)
+				{
+					InterceptedTravelText = LOCTEXT("OrInterceptedTravelText", " or intercepted");
+				}
+				else
+				{
+					InterceptedTravelText = LOCTEXT("InterceptedTravelText", "intercepted");
+				}
+				useOr = true;
+			}
+
+			if(StrandedShips > 0)
+			{
+				if(useOr)
+				{
+					TooDamagedTravelText = LOCTEXT("OrTooDamagedToTravel", " or too damaged to travel");
+				}
+				else
+				{
+					TooDamagedTravelText = LOCTEXT("TooDamagedToTravel", "too damaged to travel");
+				}
+			}
+
+			FText ReasonNotTravelText = FText::Format(LOCTEXT("ReasonNotTravelText", "{0}{1}{2} and will be left behind"),
+															  TradingTravelText,
+															  InterceptedTravelText,
+															  TooDamagedTravelText);
 
 			// We can escape
 			if (Escape)
@@ -1165,7 +1232,7 @@ void SFlareSectorMenu::OnTravelHereClicked()
 						EscapeWarningText,
 						FText::AsNumber(SelectedFleet->GetImmobilizedShipCount()),
 						(SelectedFleet->GetImmobilizedShipCount() > 1) ? MultipleShips : SingleShip,
-						TooDamagedTravelText);
+						ReasonNotTravelText);
 				}
 				else
 				{
@@ -1181,7 +1248,7 @@ void SFlareSectorMenu::OnTravelHereClicked()
 				ConfirmText = FText::Format(LOCTEXT("ConfirmTravelAbandonFormat", "{0} {1} {2}."),
 					FText::AsNumber(SelectedFleet->GetImmobilizedShipCount()),
 					(SelectedFleet->GetImmobilizedShipCount() > 1) ? MultipleShips : SingleShip,
-					TooDamagedTravelText);
+					ReasonNotTravelText);
 			}
 
 			// Open the confirmation
