@@ -551,3 +551,33 @@ protected:
 	std::function<bool (UFlareQuestCondition*)> IsCompletedFunc;
 	std::function<FText ()> GetInitalLabelFunc;
 };
+
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionTutorialGenericEventCondition : public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionTutorialGenericEventCondition* Create(UFlareQuest* ParentQuest,
+																	std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedParam,
+																	 std::function<FText ()> GetInitalLabelParam,
+																	 std::function<void (UFlareQuestCondition* Condition)> InitParam);
+	void Load(UFlareQuest* ParentQuest,
+			  std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedParam,
+			  std::function<FText ()> GetInitalLabelParam,
+			  std::function<void (UFlareQuestCondition* Condition)> InitParam);
+
+	virtual FText GetInitialLabel();
+	virtual bool IsCompleted();
+	virtual void OnEvent(FFlareBundle& Bundle);
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+protected:
+	bool Completed;
+	std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedFunc;
+	std::function<FText ()> GetInitalLabelFunc;
+};

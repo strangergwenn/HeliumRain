@@ -3,6 +3,8 @@
 
 #include "FlareSpacecraftWeaponsSystem.h"
 #include "../FlareTurret.h"
+#include "../../Game/FlareGame.h"
+#include "../../Player/FlarePlayerController.h"
 #include "../FlareSpacecraft.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareWeaponsSystem Tick"), STAT_FlareWeaponsSystem_Tick, STATGROUP_Flare);
@@ -393,10 +395,18 @@ void UFlareSpacecraftWeaponsSystem::ToogleWeaponActivation()
 	if (ActiveWeaponGroupIndex < 0)
 	{
 		ActivateWeapons();
+		if (Spacecraft->GetParent() == Spacecraft->GetGame()->GetPC()->GetPlayerShip())
+		{
+			Spacecraft->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("toogle-combat").PutInt32("new-state", 1));
+		}
 	}
 	else
 	{
 		DeactivateWeapons();
+		if (Spacecraft->GetParent() == Spacecraft->GetGame()->GetPC()->GetPlayerShip())
+		{
+			Spacecraft->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("toogle-combat").PutInt32("new-state", 0));
+		}
 	}
 }
 

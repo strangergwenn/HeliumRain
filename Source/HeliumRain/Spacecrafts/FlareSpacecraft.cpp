@@ -1192,6 +1192,11 @@ void AFlareSpacecraft::DeactivateWeapon()
 
 		GetWeaponsSystem()->DeactivateWeapons();
 		GetStateManager()->EnablePilot(false);
+
+		if (this->GetParent() == GetGame()->GetPC()->GetPlayerShip())
+		{
+			GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("deactivate-weapon"));
+		}
 	}
 
 	GetPC()->SetSelectingWeapon();
@@ -1240,6 +1245,11 @@ void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 		if (GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 		{
 			StateManager->SetExternalCamera(false);
+		}
+
+		if (this->GetParent() == GetGame()->GetPC()->GetPlayerShip())
+		{
+			GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("activate-weapon").PutInt32("index", Index));
 		}
 	}
 

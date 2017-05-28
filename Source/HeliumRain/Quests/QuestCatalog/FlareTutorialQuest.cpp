@@ -909,6 +909,107 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 		Steps.Add(Step);
 	}
+
+	{
+		FText Description = LOCTEXT("WeaponToogleOnDescription", "You can quickly enable your weapon with the toogle combat key (<input-action:ToggleCombat>).");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "toogle-on-weapon", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("toogle-combat") && Bundle.GetInt32("new-state") == 1)
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("WeaponToogleOnConditionLabel", "Toogle on your weapons");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("WeaponToogleOffDescription", "To disable your weapon, press the toogle combat key again (<input-action:ToggleCombat>).");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "toogle-off-weapon", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("toogle-combat") && Bundle.GetInt32("new-state") == 0)
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("WeaponToogleOffConditionLabel", "Toogle off your weapons");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("ActivateWeaponDescription", "You can also activate one of your weapon directly (<input-action:WeaponGroup1>). It can be useful if you have multiple differents weapon in a ship.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "activate-weapon", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("activate-weapon") && Bundle.GetInt32("index") == 0)
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("ActivateWeaponConditionLabel", "Activate your first weapon group");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("DeactivateWeaponDescription", "And at last, can also directly deactivate your weapons with de deactivate weapons key (<input-action:DeactivateWeapon>).");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "deactivate-weapon", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("deactivate-weapon"))
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("DeactivateWeaponConditionLabel", "Deactivate your weapons");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
 }
 
 
@@ -2282,5 +2383,68 @@ void UFlareQuestConditionTutorialGenericStateCondition::AddConditionObjectives(F
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 }
 
+/*----------------------------------------------------
+	Tutorial generic event condition
+----------------------------------------------------*/
+UFlareQuestConditionTutorialGenericEventCondition::UFlareQuestConditionTutorialGenericEventCondition(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionTutorialGenericEventCondition* UFlareQuestConditionTutorialGenericEventCondition::Create(UFlareQuest* ParentQuest,
+																											 std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedParam,
+																											 std::function<FText ()> GetInitalLabelParam,
+																											 std::function<void (UFlareQuestCondition* Condition)> InitParam)
+{
+	UFlareQuestConditionTutorialGenericEventCondition* Condition = NewObject<UFlareQuestConditionTutorialGenericEventCondition>(ParentQuest, UFlareQuestConditionTutorialGenericEventCondition::StaticClass());
+	Condition->Load(ParentQuest, IsCompletedParam, GetInitalLabelParam, InitParam);
+	return Condition;
+}
+
+void UFlareQuestConditionTutorialGenericEventCondition::Load(UFlareQuest* ParentQuest,
+															 std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedParam,
+															 std::function<FText ()> GetInitalLabelParam,
+															 std::function<void (UFlareQuestCondition* Condition)> InitParam)
+{
+	LoadInternal(ParentQuest);
+	InitParam(this);
+	Completed = false;
+	IsCompletedFunc = IsCompletedParam;
+	GetInitalLabelFunc = GetInitalLabelParam;
+}
+
+void UFlareQuestConditionTutorialGenericEventCondition::OnEvent(FFlareBundle& Bundle)
+{
+	if (Completed)
+	{
+		return;
+	}
+
+	Completed = IsCompletedFunc(this, Bundle);
+}
+
+bool UFlareQuestConditionTutorialGenericEventCondition::IsCompleted()
+{
+	return Completed;
+}
+
+FText UFlareQuestConditionTutorialGenericEventCondition::GetInitialLabel()
+{
+	return GetInitalLabelFunc();
+}
+
+void UFlareQuestConditionTutorialGenericEventCondition::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = 0;
+	ObjectiveCondition.MaxCounter = 0;
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
 
 #undef LOCTEXT_NAMESPACE
