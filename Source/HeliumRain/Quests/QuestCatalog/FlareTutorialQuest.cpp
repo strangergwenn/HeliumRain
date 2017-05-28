@@ -745,7 +745,7 @@ void UFlareQuestTutorialRepairShip::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "tutorial-repair-ship";
-	QuestName = LOCTEXT("TutorialRepairShipName","Repair ship tutorial");
+	QuestName = LOCTEXT("TutorialRepairShipName","Ship repair tutorial");
 	QuestDescription = LOCTEXT("TutorialRepairShipDescription","Learn how to repair a ship.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
@@ -755,9 +755,8 @@ void UFlareQuestTutorialRepairShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"StartRepair"
-		FText Description = LOCTEXT("StartRepairDescription","You have a damaged ship, you need to repair it."
-															 "\nGo to the sector menu (<input-action:SectorMenu>) and click on the repair button, at the top right of the menu."
-															 "\nIt need to have fleet supply in a station or a cargo of the sector to repair a ship.");
+		FText Description = LOCTEXT("StartRepairDescription","You have a damaged ship, you need to repair it. Go to the sector menu (<input-action:SectorMenu>) and click on the repair button, at the top right of the menu."
+															 "\nRepairing requires Fleet Supply in a station or cargo in the sector.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-repair", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialRepairRefill::Create(this, false, false));
@@ -767,7 +766,7 @@ void UFlareQuestTutorialRepairShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"EndRepair"
-		FText Description = LOCTEXT("EndRepairDescription", "The reparation can take few days, depending on the damages. Wait the end of the reparations.");
+		FText Description = LOCTEXT("EndRepairDescription", "Repairs can take a few days, depending on the damage. Wait for the end of the repairs.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "end-repair", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialRepairRefill::Create(this, false, true));
@@ -851,14 +850,14 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "tutorial-fighter";
-	QuestName = LOCTEXT("TutorialFighterShipName","Fighter tutorial");
-	QuestDescription = LOCTEXT("TutorialFighterDescription","Learn how use a fighter.");
+	QuestName = LOCTEXT("TutorialFighterShipName","Combat tutorial");
+	QuestDescription = LOCTEXT("TutorialFighterDescription","Learn how to use armed spacecrafts.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-build-ship"));
 
 	{
-		FText Description = LOCTEXT("HaveMilitaryShipDescription","It can be useful to train to fight before being attacked. Build a fighter in a shipyard.");
+		FText Description = LOCTEXT("HaveMilitaryShipDescription","It's been said that you should prepare for war while you pray for peace. Have a fighter built for you at a shipyard.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "have-military", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
@@ -885,7 +884,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("FlyMilitaryShipDescription", "Now fly the fighter with the fly button in sector menu or <input-action:QuickSwitch> (the fighter must be in your personal fleet to be flyied).");
+		FText Description = LOCTEXT("FlyMilitaryShipDescription", "Fly your new fighter, using the fly button in the sector menu, or <input-action:QuickSwitch> if the fighter is already in your own fleet.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "fly-military", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
@@ -912,13 +911,13 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("WeaponToogleOnDescription", "You can quickly enable your weapon with the toogle combat key (<input-action:ToggleCombat>).");
-		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "toogle-on-weapon", Description);
+		FText Description = LOCTEXT("WeaponToggleOnDescription", "You can enable or disable weapons with the combat key (<input-action:ToggleCombat>).");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "toggle-on-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
 																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
-			if(Bundle.HasTag("toogle-combat") && Bundle.GetInt32("new-state") == 1)
+			if(Bundle.HasTag("toggle-combat") && Bundle.GetInt32("new-state") == 1)
 			{
 				return true;
 			}
@@ -926,7 +925,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		},
 		[]()
 		{
-			return LOCTEXT("WeaponToogleOnConditionLabel", "Toogle on your weapons");
+			return LOCTEXT("WeaponToggleOnConditionLabel", "Toggle on your weapons");
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -937,13 +936,13 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("WeaponToogleOffDescription", "To disable your weapon, press the toogle combat key again (<input-action:ToggleCombat>).");
-		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "toogle-off-weapon", Description);
+		FText Description = LOCTEXT("WeaponToggleOffDescription", "To disable your weapons, press the combat key again (<input-action:ToggleCombat>).");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "toggle-off-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
 																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
-			if(Bundle.HasTag("toogle-combat") && Bundle.GetInt32("new-state") == 0)
+			if(Bundle.HasTag("toggle-combat") && Bundle.GetInt32("new-state") == 0)
 			{
 				return true;
 			}
@@ -951,7 +950,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		},
 		[]()
 		{
-			return LOCTEXT("WeaponToogleOffConditionLabel", "Toogle off your weapons");
+			return LOCTEXT("WeaponToggleOffConditionLabel", "Toggle off your weapons");
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -962,7 +961,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("ActivateWeaponDescription", "You can also activate one of your weapon directly (<input-action:WeaponGroup1>). It can be useful if you have multiple differents weapon in a ship.");
+		FText Description = LOCTEXT("ActivateWeaponDescription", "You can also activate one of your weapons directly with <input-action:WeaponGroup1> and following keys. You can have multiple differents weapons in a ship.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "activate-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
@@ -987,7 +986,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("DeactivateWeaponDescription", "And at last, can also directly deactivate your weapons with de deactivate weapons key (<input-action:DeactivateWeapon>).");
+		FText Description = LOCTEXT("DeactivateWeaponDescription", "Finally, you can directly disable your weapons with <input-action:DeactivateWeapon>.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "deactivate-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
@@ -1013,7 +1012,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 
 	{
-		FText Description = LOCTEXT("FireWeaponDescription", "Now activate a weapon again, and try to fire with <LeftMouseButton>. Be careful: avoid to harm someone !");
+		FText Description = LOCTEXT("FireWeaponDescription", "Activate a weapon again, and try to fire with <LeftMouseButton>. Be careful not to harm anyone !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "fire-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
@@ -1039,7 +1038,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 
 	{
-		FText Description = LOCTEXT("FlyToAsteroidDescription", "Then you will try again a target. Fly the a sector with some asteroids.");
+		FText Description = LOCTEXT("FlyToAsteroidDescription", "Let's try hitting a target. Fly to a sector with asteroids.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "fly-to-asteroid", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
@@ -1066,7 +1065,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("HitAsteroidDescription", "Make sure your are at less than 2 km of a big and empty asteroid and try to hit it.");
+		FText Description = LOCTEXT("HitAsteroidDescription", "Make sure your are less than 2km away from a big, un-mined asteroid, and try to hit it.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "hit-asteroid", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
@@ -1092,9 +1091,8 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 
 	{
-		FText Description = LOCTEXT("TargetCargoDescription", "Asteroid don't move so it's easy. But as bullets don't have an infinite velocity, on moving target you will need to anticipate it's movement."
-															  "\nYour on-board computer can help you."
-															  "\n Set one of your cargo as target and approach at less than 1km");
+		FText Description = LOCTEXT("TargetCargoDescription", "Asteroids don't move, so it's easy, but a moving targest will require you to anticipate its movement. Your onboard computer can help you."
+															  "\nTarget one of your cargos and approach at less than 1km");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "target-cargo", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
@@ -1118,7 +1116,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		},
 		[]()
 		{
-			return LOCTEXT("TargetCargoConditionLabel", "Target one of your cargo and approach at less than 1km.");
+			return LOCTEXT("TargetCargoConditionLabel", "Target one of your cargos and approach at less than 1km.");
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -1130,9 +1128,9 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 
 	{
-		FText Description = LOCTEXT("ZoomDescription", "If you look at your cargo, you will see a rhombus. The rhombus is the aim indicator, it appears when the target is at range of your weapon."
-													   "\nIf the target keep its current velocity, shooting in the aim indicator will hit the center of the target."
-													   "\nYou can have a better view holding the zoom key <input-action:CombatZoom>. It can be useful to aim presicely at long range.");
+		FText Description = LOCTEXT("ZoomDescription", "If you look at your cargo, you will see a rhombus : the aim indicator. It appears when the target is in weapon range."
+													   "\nIf the target keeps its current velocity, shooting the aim indicator will hit the center of the target."
+													   "\nYou can have a better view by holding the zoom key <input-action:CombatZoom>. It can be useful to aim precisely from a distance.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "zoom-cargo	", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
@@ -1173,7 +1171,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("HitCargoDescription", "Now try to fire at your ship. Warning ! Be gentle with the trigger, you wont make too much damage to your ship : try to hit the cargo only one time.");
+		FText Description = LOCTEXT("HitCargoDescription", "Fire a few bullets at your ship. BE CAREFUL ! You can disable or destroy cargo ships with only a few shots. Try hitting it only once !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "hit-cargo", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
@@ -1200,7 +1198,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		},
 		[]()
 		{
-			return LOCTEXT("HitCargoConditionLabel", "Hit the targeted cargo");
+			return LOCTEXT("HitCargoConditionLabel", "Hit the target cargo");
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -1211,7 +1209,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("Have2MilitaryShipDescription","Before fight real enemies, we well learn how to fight with multiple ships. Build a second fighter and make sure it is in your fleet.");
+		FText Description = LOCTEXT("Have2MilitaryShipDescription","Before fighting real enemies, we will learn how to fight with multiple ships. Build a second fighter and make sure it is in your fleet.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "have-2-military", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
@@ -1246,8 +1244,8 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 
 	{
-		FText Description = LOCTEXT("MultipleQuickSwitchDescription", "When you have multiple ship during a battle, all the ship your ane not piloting are still fighting automaticaly for you. At any time, mostly when your ship is damaged, or out of ammo or far from the action, you can take fly another ship to continue the fight."
-															 "\n The <input-action:QuickSwitch> key allow you to quickly jump to another ship. During battles, <input-action:QuickSwitch> will always make you fly a controllable ship with ammunitions. Press this key few times.");
+		FText Description = LOCTEXT("MultipleQuickSwitchDescription", "When you have multiple ships in a battle, all the ships your are not piloting are still fighting autonomously for you. You can fly other ships in your fleet at any time, should yours be damaged."
+															 "\nThe <input-action:QuickSwitch> key allows you to quickly jump to another ship. Press this key a few times.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "multiple-quick-switch", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
@@ -1272,8 +1270,8 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("BattleSectorDescription","It's time for the best part. Go into a battle (you can declare a war using the diplomatic menu (<input-action:LeaderboardMenu>) or just wait someone attack you)."
-									"\nOnce you are at war, you can see sectors with hostile ships in red in the orbital map, find one with some fighters.");
+		FText Description = LOCTEXT("BattleSectorDescription", "Wait for someone to attack you, or start a battle. You can declare war using the diplomatic menu (<input-action:LeaderboardMenu>)."
+									"\nOnce you are at war, you can see sectors with hostile ships in red in the orbital map. Find one with enemy fighters.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "battle-sector", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
@@ -1300,7 +1298,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("MakeFighterUncontrollableDescription", "Shot down an enemy figther. Ships disabled by a ship you don't control yourself wont count : it's you that need training !");
+		FText Description = LOCTEXT("MakeFighterUncontrollableDescription", "Shoot down an enemy figther. Ships disabled by a wingman don't count, you need the training !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "hit-cargo", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
