@@ -190,7 +190,7 @@ void UFlareTravel::EndTravel()
 	}
 	
 	// Notify travel ended
-	if (Fleet->GetFleetCompany() == Game->GetPC()->GetCompany() && Fleet->GetCurrentTradeRoute() == NULL)
+	if (Fleet->GetFleetCompany() == Game->GetPC()->GetCompany() && (Fleet->GetCurrentTradeRoute() == NULL || Fleet->GetCurrentTradeRoute()->IsPaused()))
 	{
 		FFlareMenuParameterData Data;
 		Data.Sector = DestinationSector;
