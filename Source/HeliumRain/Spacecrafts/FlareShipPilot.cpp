@@ -8,6 +8,8 @@
 #include "../Game/FlareCompany.h"
 #include "../Game/FlareGame.h"
 #include "../Game/AI/FlareCompanyAI.h"
+#include "../Quests/FlareQuest.h"
+#include "../Quests/FlareQuestStep.h"
 
 #include "../Player/FlarePlayerController.h"
 
@@ -1489,7 +1491,15 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly, EFl
 			continue;
 		}
 
-		if (Ship->GetCompany()->GetWarState(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
+		// Tutorial execption
+		if(ShipCandidate->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip()
+				&& ShipCandidate->GetCurrentTarget() == Ship
+				&& Ship->GetGame()->GetQuestManager()->FindQuest("tutorial-fighter")->GetStatus() == EFlareQuestStatus::ONGOING
+				&& Ship->GetGame()->GetQuestManager()->FindQuest("tutorial-fighter")->GetCurrentStep()->GetIdentifier() == "hit-cargo")
+		{
+			// don't skip
+		}
+		else if (Ship->GetCompany()->GetWarState(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
 		{
 			continue;
 		}

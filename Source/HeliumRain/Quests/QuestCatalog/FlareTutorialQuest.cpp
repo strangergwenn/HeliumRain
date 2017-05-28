@@ -6,6 +6,7 @@
 #include "../FlareQuestStep.h"
 #include "../FlareQuest.h"
 #include "../../Game/FlareSaveGame.h"
+#include "../../Player/FlarePlayerController.h"
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"
 
@@ -1012,7 +1013,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 
 	{
-		FText Description = LOCTEXT("FireWeaponDescription", "Now activate a weapon again, and try to fire with <input-action:StartFire>. Be careful: avoid to harm someone !");
+		FText Description = LOCTEXT("FireWeaponDescription", "Now activate a weapon again, and try to fire with <LeftMouseButton>. Be careful: avoid to harm someone !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "fire-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
@@ -1085,6 +1086,126 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		{
 			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 		},  "HitAsteroidcond1", 20));
+
+		Steps.Add(Step);
+	}
+
+
+	{
+		FText Description = LOCTEXT("TargetCargoDescription", "Asteroid don't move so it's easy. But as bullets don't have an infinite velocity, on moving target you will need to anticipate it's movement."
+															  "\nYour on-board computer can help you."
+															  "\n Set one of your cargo as target and approach at less than 1km");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "target-cargo", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition){
+
+			UFlareSimulatedSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetPlayerShip();
+
+			if(PlayerShip && PlayerShip->IsActive())
+			{
+				AFlareSpacecraft* Target = PlayerShip->GetActive()->GetCurrentTarget();
+
+				if(Target && Target->GetCompany() == PlayerShip->GetCompany() && !Target->IsMilitary())
+				{
+					if((Target->GetActorLocation() - PlayerShip->GetActive()->GetActorLocation()).SizeSquared() < 100000.f * 100000.f)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("TargetCargoConditionLabel", "Target one of your cargo and approach at less than 1km.");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+		}));
+
+		Steps.Add(Step);
+	}
+
+
+	{
+		FText Description = LOCTEXT("ZoomDescription", "If you look at your cargo, you will see a rhombus. The rhombus is the aim indicator, it appears when the target is at range of your weapon."
+													   "\nIf the target keep its current velocity, shooting in the aim indicator will hit the center of the target."
+													   "\nYou can have a better view holding the zoom key <input-action:CombatZoom>. It can be useful to aim presicely at long range.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "zoom-cargo	", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("full-zoom"))
+			{
+				UFlareSimulatedSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetPlayerShip();
+
+				if(PlayerShip && PlayerShip->IsActive())
+				{
+					AFlareSpacecraft* Target = PlayerShip->GetActive()->GetCurrentTarget();
+
+					if(Target)
+					{
+						FVector TargetAxis = (Target->GetActorLocation() - PlayerShip->GetActive()->GetActorLocation()).GetUnsafeNormal();
+						FVector NoseAxis = PlayerShip->GetActive()->Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1,0,0));
+
+						if(FVector::DotProduct(TargetAxis, NoseAxis) > 0.993)
+						{
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("ZoomConditionLabel", "Zoom at your target");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("HitCargoDescription", "Now try to fire at your ship. Warning ! Be gentle with the trigger, you wont make too much damage to your ship : try to hit the cargo only one time.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "hit-cargo", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("hit-ship"))
+			{
+				UFlareSimulatedSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetPlayerShip();
+
+				if(PlayerShip && PlayerShip->IsActive())
+				{
+					AFlareSpacecraft* Target = PlayerShip->GetActive()->GetCurrentTarget();
+
+					if(Target && Target->GetCompany() == PlayerShip->GetCompany() && !Target->IsMilitary())
+					{
+						if(Bundle.GetName("immatriculation") == Target->GetImmatriculation())
+						{
+							return true;
+						}
+					}
+				}
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("HitCargoConditionLabel", "Hit the targeted cargo");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
 
 		Steps.Add(Step);
 	}

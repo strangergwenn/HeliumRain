@@ -394,6 +394,11 @@ void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 		float LightIntensity = PowerAlpha * 50 * ZoomIntensity;
 		CockpitLight->SetIntensity(LightIntensity);
 		CockpitLight2->SetIntensity(LightIntensity);
+
+		if(PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha() >= 1.f)
+		{
+			PC->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("full-zoom"));
+		}
 	}
 	
 	// Update materials
