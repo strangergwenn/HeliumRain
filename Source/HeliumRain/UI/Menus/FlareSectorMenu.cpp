@@ -470,6 +470,51 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 			FleetList.Add(Fleet);
 		}
 	}
+
+	 const UFlareFleet& PlayerFleet = *PC->GetPlayerFleet();
+
+	FleetList.Sort([&](const UFlareFleet& left, const UFlareFleet& right)
+	{
+		if (&left == &PlayerFleet)
+		{
+			return left < right;
+		}
+		else if (&right == &PlayerFleet)
+		{
+			return right < left;
+		}
+		else if (left.GetCurrentTradeRoute() && !right.GetCurrentTradeRoute())
+		{
+			return right < left;
+		}
+		else if (!left.GetCurrentTradeRoute() && right.GetCurrentTradeRoute())
+		{
+			return left < right;
+		}
+		else if (!left.GetCurrentTradeRoute() && !right.GetCurrentTradeRoute())
+		{
+			// 0 trade routes
+			return left.GetFleetName().ToString() < right.GetFleetName().ToString();
+		}
+		else
+		{
+			// 2 trade routes
+			if(left.GetCurrentTradeRoute()->IsPaused() && !right.GetCurrentTradeRoute()->IsPaused())
+			{
+				return left < right;
+			}
+			else if(!left.GetCurrentTradeRoute()->IsPaused() && right.GetCurrentTradeRoute()->IsPaused())
+			{
+				return right < left;
+			}
+			else
+			{
+				// 0 paused or 2 paused
+				return left.GetFleetName().ToString() < right.GetFleetName().ToString();
+			}
+		}
+	});
+
 	FleetSelector->RefreshOptions();
 	FleetSelector->SetSelectedItem(PC->GetPlayerFleet());
 }
@@ -569,6 +614,13 @@ TSharedRef<SWidget> SFlareSectorMenu::OnGenerateFleetComboLine(UFlareFleet* Item
 	{
 		Name = FText::Format(LOCTEXT("PlayerFleetFormat", "{0} (Your fleet)"), Item->GetFleetName());
 	}
+	else if (Item->GetCurrentTradeRoute())
+	{
+		Name = FText::Format(LOCTEXT("FleetTradeRouteFormat", "{0} ({1}{2})"),
+			Item->GetFleetName(),
+			Item->GetCurrentTradeRoute()->GetTradeRouteName(),
+			(Item->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " - paused") : FText()));
+	}
 	else
 	{
 		Name = Item->GetFleetName();
@@ -587,6 +639,13 @@ FText SFlareSectorMenu::OnGetCurrentFleetComboLine() const
 		if (MenuManager->GetPC()->GetPlayerFleet() == SelectedFleet)
 		{
 			return FText::Format(LOCTEXT("PlayerFleetFormat", "{0} (Your fleet)"), SelectedFleet->GetFleetName());
+		}
+		else if (SelectedFleet->GetCurrentTradeRoute())
+		{
+			return FText::Format(LOCTEXT("FleetTradeRouteFormat", "{0} ({1}{2})"),
+				SelectedFleet->GetFleetName(),
+				SelectedFleet->GetCurrentTradeRoute()->GetTradeRouteName(),
+				(SelectedFleet->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " - paused") : FText()));
 		}
 		else
 		{

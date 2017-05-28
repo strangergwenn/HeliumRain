@@ -364,8 +364,9 @@ FText SFlareFleetInfo::GetDescription() const
 		FText FleetAssignedText;
 		if (TargetFleet->GetCurrentTradeRoute())
 		{
-			FleetAssignedText = FText::Format(LOCTEXT("FleetAssignedFormat", " - {0}"),
-				TargetFleet->GetCurrentTradeRoute()->GetTradeRouteName());
+			FleetAssignedText = FText::Format(LOCTEXT("FleetAssignedFormat", " - {0}{1}"),
+				TargetFleet->GetCurrentTradeRoute()->GetTradeRouteName(),
+				(TargetFleet->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (paused)") : FText()));
 		}
 
 		FText FleetDescriptionText = FText::Format(LOCTEXT("FleetFormat", "{0} ({1} / {2}){3}"),

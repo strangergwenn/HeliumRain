@@ -447,6 +447,10 @@ void SFlareOrbitalMenu::UpdateTradeRouteList()
 		{
 			UFlareTradeRoute* TradeRoute = TradeRoutes[RouteIndex];
 
+			FText TradeRouteName = FText::Format(LOCTEXT("TradeRouteNameFormat", "{0}{1}"),
+				TradeRoute->GetTradeRouteName(),
+				(TradeRoute->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (paused)") : FText()));
+
 			// Add line
 			TradeRouteList->AddSlot()
 			.AutoHeight()
@@ -461,7 +465,7 @@ void SFlareOrbitalMenu::UpdateTradeRouteList()
 				[
 					SNew(SFlareButton)
 					.Width(7)
-					.Text(TradeRoute->GetTradeRouteName())
+					.Text(TradeRouteName)
 					.HelpText(FText(LOCTEXT("InspectHelp", "Edit this trade route")))
 					.OnClicked(this, &SFlareOrbitalMenu::OnInspectTradeRouteClicked, TradeRoute)
 				]
@@ -621,9 +625,10 @@ FText SFlareOrbitalMenu::GetTravelText() const
 					// Trade route version
 					if (Travel->GetFleet()->GetCurrentTradeRoute())
 					{
-						TravelText = FText::Format(LOCTEXT("TravelTextTradeRouteFormat", "\u2022 {0} ({1})\n    {2}"),
+						TravelText = FText::Format(LOCTEXT("TravelTextTradeRouteFormat", "\u2022 {0} ({1}{2})\n    {3}"),
 							Travel->GetFleet()->GetFleetName(),
 							Travel->GetFleet()->GetCurrentTradeRoute()->GetTradeRouteName(),
+							(Travel->GetFleet()->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (paused)") : FText()),
 							Travel->GetFleet()->GetStatusInfo());
 					}
 					else
