@@ -1345,7 +1345,7 @@ void UFlareQuestConditionTutorialGetContrat::Load(UFlareQuest* ParentQuest)
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 	Completed = false;
-	InitialLabel = LOCTEXT("TutorialGetContrat", "Accept a contract");
+	InitialLabel = LOCTEXT("TutorialGetContrat", "Travel to others sectors and accept a contract");
 }
 
 void UFlareQuestConditionTutorialGetContrat::OnEvent(FFlareBundle& Bundle)
