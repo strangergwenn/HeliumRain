@@ -592,7 +592,7 @@ void UFlareQuestManager::OnQuestAvailable(UFlareQuest* Quest)
 		QuestsToNotify.Add(Quest);
 		NotifyNewQuests(QuestsToNotify);
 	}
-	else
+	else if (Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
 	{
 		NewQuestAccumulator.Add(Quest);
 	}
