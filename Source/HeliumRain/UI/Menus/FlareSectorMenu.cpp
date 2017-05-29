@@ -315,10 +315,11 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 			// Sector description
 			+ SVerticalBox::Slot()
 			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Center)
 			.AutoHeight()
 			[
 				SNew(STextBlock)
-				.Text(LOCTEXT("UnkwownSector", "Visit this sector to discover its content."))
+				.Text(LOCTEXT("UnkwownSector", "Visit this sector to discover its contents."))
 				.TextStyle(&Theme.TextFont)
 				.Visibility(this, &SFlareSectorMenu::GetUnknownSectorVisibility)
 			]
@@ -469,8 +470,6 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	OtherShipList->RefreshList();
 	OwnedReserveShipList->RefreshList();
 	OtherReserveShipList->RefreshList();
-	OwnedShipList->SetVisibility(EVisibility::Visible);
-	OtherShipList->SetVisibility(EVisibility::Visible);
 
 	// Fleet list
 	FleetList.Empty();
@@ -541,8 +540,6 @@ void SFlareSectorMenu::Exit()
 	OtherShipList->Reset();
 	OwnedReserveShipList->Reset();
 	OtherReserveShipList->Reset();
-	OwnedShipList->SetVisibility(EVisibility::Collapsed);
-	OtherShipList->SetVisibility(EVisibility::Collapsed);
 	SetVisibility(EVisibility::Collapsed);
 }
 
