@@ -147,9 +147,19 @@ void UFlareQuestManager::AddQuest(UFlareQuest* Quest)
 	}
 	else if (QuestData.AbandonedQuests.Contains(Quest->GetIdentifier()))
 	{
-		FLOGV("Found abandoned quest %s", *Quest->GetIdentifier().ToString());
-		OldQuests.Add(Quest);
-		Quest->SetStatus(EFlareQuestStatus::ABANDONED);
+		if(Quest->GetQuestCategory() == EFlareQuestCategory::HISTORY
+		||Quest->GetQuestCategory() == EFlareQuestCategory::TUTORIAL)
+		{
+			FLOGV("Found mandatory abandoned quest %s. Set it as pending.", *Quest->GetIdentifier().ToString());
+			PendingQuests.Add(Quest);
+			Quest->SetStatus(EFlareQuestStatus::PENDING);
+		}
+		else
+		{
+			FLOGV("Found abandoned quest %s", *Quest->GetIdentifier().ToString());
+			OldQuests.Add(Quest);
+			Quest->SetStatus(EFlareQuestStatus::ABANDONED);
+		}
 	}
 	else if (QuestData.FailedQuests.Contains(Quest->GetIdentifier()))
 	{
@@ -233,7 +243,14 @@ void UFlareQuestManager::AbandonQuest(UFlareQuest* Quest)
 {
 	FLOGV("Abandon quest %s", *Quest->GetIdentifier().ToString());
 
-	Quest->Abandon(false);
+	if(Quest->GetQuestCategory() != EFlareQuestCategory::HISTORY && Quest->GetQuestCategory() != EFlareQuestCategory::TUTORIAL)
+	{
+		Quest->Abandon(false);
+	}
+	else
+	{
+		FLOGV("Cannot abandon quest %s", *Quest->GetIdentifier().ToString());
+	}
 }
 
 void UFlareQuestManager::SelectQuest(UFlareQuest* Quest)

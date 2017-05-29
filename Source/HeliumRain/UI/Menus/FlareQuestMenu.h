@@ -77,6 +77,8 @@ protected:
 	/** Is the "track" button disabled */
 	bool IsTrackButtonDisabled(UFlareQuest* Quest) const;
 	
+	/** Is abandon quest button visible */
+	EVisibility GetAbandonButtonVisibility(UFlareQuest* Quest) const;
 
 	/*----------------------------------------------------
 		Callbacks

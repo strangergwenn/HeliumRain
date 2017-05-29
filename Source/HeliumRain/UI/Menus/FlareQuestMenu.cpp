@@ -309,6 +309,7 @@ void SFlareQuestMenu::FillOngoingQuestList()
 				.HelpText(LOCTEXT("AbandonQuestInfo", "Abandon this contract"))
 				.Icon(FFlareStyleSet::GetIcon("Stop"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestAbandoned, Quest)
+				.Visibility(this, &SFlareQuestMenu::GetAbandonButtonVisibility, Quest)
 				.Width(1)
 			]
 		];
@@ -844,6 +845,17 @@ bool SFlareQuestMenu::IsTrackButtonDisabled(UFlareQuest* Quest) const
 
 	return (Quest == QuestManager->GetSelectedQuest());
 }
+
+EVisibility SFlareQuestMenu::GetAbandonButtonVisibility(UFlareQuest* Quest) const
+{
+	if(Quest->GetQuestCategory() == EFlareQuestCategory::HISTORY
+			|| Quest->GetQuestCategory() == EFlareQuestCategory::TUTORIAL)
+	{
+		return EVisibility::Collapsed;
+	}
+	return EVisibility::Visible;
+}
+
 
 FSlateColor SFlareQuestMenu::GetQuestColor(UFlareQuest* Quest) const
 {
