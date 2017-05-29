@@ -71,6 +71,12 @@ protected:
 	/** Visibility setting for the other reserve list */
 	EVisibility GetOtherReserveVisibility() const;
 
+	/** Visibility of lists */
+	EVisibility GetVisitedListVisibility() const;
+
+	/** Visibility unkwown sector text */
+	EVisibility GetUnknownSectorVisibility() const;
+
 	/** Get the refill text */
 	FText GetRefillText() const;
 

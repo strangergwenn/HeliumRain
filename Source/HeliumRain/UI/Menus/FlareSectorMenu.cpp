@@ -311,7 +311,18 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					]
 				]
 			]
-					
+
+			// Sector description
+			+ SVerticalBox::Slot()
+			.Padding(Theme.ContentPadding)
+			.AutoHeight()
+			[
+				SNew(STextBlock)
+				.Text(LOCTEXT("UnkwownSector", "Visit this sector to discover its content."))
+				.TextStyle(&Theme.TextFont)
+				.Visibility(this, &SFlareSectorMenu::GetUnknownSectorVisibility)
+			]
+
 			// Content block
 			+ SVerticalBox::Slot()
 			.VAlign(VAlign_Top)
@@ -331,6 +342,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						SAssignNew(OwnedShipList, SFlareList)
 						.MenuManager(MenuManager)
 						.Title(LOCTEXT("OwnedSpacecraftsSector", "Owned spacecrafts in sector"))
+						.Visibility(this, &SFlareSectorMenu::GetVisitedListVisibility)
 					]
 
 					+ SScrollBox::Slot()
@@ -355,6 +367,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						SAssignNew(OtherShipList, SFlareList)
 						.MenuManager(MenuManager)
 						.Title(LOCTEXT("OtherSpacecraftsSector", "Other spacecrafts in sector"))
+						.Visibility(this, &SFlareSectorMenu::GetVisitedListVisibility)
 					]
 
 					+ SScrollBox::Slot()
@@ -980,12 +993,22 @@ bool SFlareSectorMenu::IsRepairDisabled() const
 
 EVisibility SFlareSectorMenu::GetOwnedReserveVisibility() const
 {
-	return (IsEnabled() && OwnedReserveShipList->GetItemCount() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
+	return (IsEnabled() && MenuManager->GetPC()->GetCompany()->IsVisitedSector(TargetSector) && OwnedReserveShipList->GetItemCount() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 EVisibility SFlareSectorMenu::GetOtherReserveVisibility() const
 {
-	return (IsEnabled() && OtherReserveShipList->GetItemCount() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
+	return (IsEnabled() && MenuManager->GetPC()->GetCompany()->IsVisitedSector(TargetSector) && OtherReserveShipList->GetItemCount() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
+}
+
+EVisibility SFlareSectorMenu::GetVisitedListVisibility() const
+{
+	return (IsEnabled() && MenuManager->GetPC()->GetCompany()->IsVisitedSector(TargetSector)) ? EVisibility::Visible : EVisibility::Collapsed;
+}
+
+EVisibility SFlareSectorMenu::GetUnknownSectorVisibility() const
+{
+	return (IsEnabled() && !MenuManager->GetPC()->GetCompany()->IsVisitedSector(TargetSector)) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 FText SFlareSectorMenu::GetSectorName() const
