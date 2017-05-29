@@ -669,9 +669,19 @@ FText SFlareOrbitalMenu::GetTravelText() const
 							FFlareSpacecraftDescription* OrderDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetOrderShipClass());
 							int64 ProductionTime = TargetFactory->GetRemainingProductionDuration() + TargetFactory->GetProductionTime(OrderDesc->CycleCost);
 
-							FText ProductionText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "\u2022 {0} ordered ({1} left)"),
+							FText ProductionText;
+							if (TargetFactory->IsActive() && TargetFactory->IsNeedProduction() && !TargetFactory->HasCostReserved() && !TargetFactory->HasInputResources())
+							{
+
+								ProductionText = FText::Format(LOCTEXT("ShipNoResourcesProdTextFormat", "\u2022 {0} ordered (missing resources)"),
+								OrderDesc->Name);
+							}
+							else
+							{
+								ProductionText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "\u2022 {0} ordered ({1} left)"),
 								OrderDesc->Name,
 								FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
+							}
 
 							FFlareIncomingEvent ProductionEvent;
 							ProductionEvent.Text = ProductionText;
@@ -684,9 +694,20 @@ FText SFlareOrbitalMenu::GetTravelText() const
 						{
 							int64 ProductionTime = TargetFactory->GetRemainingProductionDuration();
 
-							FText ProductionText = FText::Format(LOCTEXT("ShipProductionTextFormat", "\u2022 {0} being built ({1} left)"),
-								MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name,
-								FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
+							FText ProductionText;
+
+							if (TargetFactory->IsActive() && TargetFactory->IsNeedProduction() && !TargetFactory->HasCostReserved() && !TargetFactory->HasInputResources())
+							{
+
+								ProductionText = FText::Format(LOCTEXT("ShipProductionNoResourcesProdTextFormat", "\u2022 {0}  being built (missing resources)"),
+								MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name);
+							}
+							else
+							{
+								ProductionText = FText::Format(LOCTEXT("ShipProductionTextFormat", "\u2022 {0} being built ({1} left)"),
+									MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name,
+									FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
+							}
 
 							FFlareIncomingEvent ProductionEvent;
 							ProductionEvent.Text = ProductionText;
