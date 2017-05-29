@@ -449,7 +449,7 @@ void SFlareOrbitalMenu::UpdateTradeRouteList()
 
 			FText TradeRouteName = FText::Format(LOCTEXT("TradeRouteNameFormat", "{0}{1}"),
 				TradeRoute->GetTradeRouteName(),
-				(TradeRoute->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (paused)") : FText()));
+				(TradeRoute->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (Paused)") : FText()));
 
 			// Add line
 			TradeRouteList->AddSlot()

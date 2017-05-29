@@ -619,7 +619,7 @@ TSharedRef<SWidget> SFlareSectorMenu::OnGenerateFleetComboLine(UFlareFleet* Item
 		Name = FText::Format(LOCTEXT("FleetTradeRouteFormat", "{0} ({1}{2})"),
 			Item->GetFleetName(),
 			Item->GetCurrentTradeRoute()->GetTradeRouteName(),
-			(Item->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " - paused") : FText()));
+			(Item->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " - Paused") : FText()));
 	}
 	else
 	{
@@ -645,7 +645,7 @@ FText SFlareSectorMenu::OnGetCurrentFleetComboLine() const
 			return FText::Format(LOCTEXT("FleetTradeRouteFormat", "{0} ({1}{2})"),
 				SelectedFleet->GetFleetName(),
 				SelectedFleet->GetCurrentTradeRoute()->GetTradeRouteName(),
-				(SelectedFleet->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " - paused") : FText()));
+				(SelectedFleet->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " - Paused") : FText()));
 		}
 		else
 		{

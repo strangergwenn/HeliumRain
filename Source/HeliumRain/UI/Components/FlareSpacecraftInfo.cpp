@@ -1087,7 +1087,7 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfoAdditional() const
 			{
 				FleetAssignedText = FText::Format(LOCTEXT("FleetAssignedFormat", " - {0}{1}"),
 					Fleet->GetCurrentTradeRoute()->GetTradeRouteName(),
-					(Fleet->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (paused)") : FText()));
+					(Fleet->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (Paused)") : FText()));
 			}
 
 			return FText::Format(LOCTEXT("FleetFormat", "{0} ({1} / {2}){3}"),
