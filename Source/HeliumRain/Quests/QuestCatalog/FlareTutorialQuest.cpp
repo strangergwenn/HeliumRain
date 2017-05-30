@@ -2466,7 +2466,7 @@ void UFlareQuestConditionTutorialProduceResearch::Restore(const FFlareBundle* Bu
 	bool HasSave = true;
 	if(Bundle)
 	{
-		HasSave &= Bundle->HasInt32(CURRENT_PROGRESSION_TAG);
+		HasSave &= Bundle->HasInt32(TUTORIAL_CURRENT_PROGRESSION_TAG);
 	}
 	else
 	{
@@ -2475,7 +2475,7 @@ void UFlareQuestConditionTutorialProduceResearch::Restore(const FFlareBundle* Bu
 
 	if(HasSave)
 	{
-		CurrentProgression = Bundle->GetInt32(CURRENT_PROGRESSION_TAG);
+		CurrentProgression = Bundle->GetInt32(TUTORIAL_CURRENT_PROGRESSION_TAG);
 	}
 	else
 	{
@@ -2486,7 +2486,7 @@ void UFlareQuestConditionTutorialProduceResearch::Restore(const FFlareBundle* Bu
 
 void UFlareQuestConditionTutorialProduceResearch::Save(FFlareBundle* Bundle)
 {
-	Bundle->PutInt32(CURRENT_PROGRESSION_TAG, CurrentProgression);
+	Bundle->PutInt32(TUTORIAL_CURRENT_PROGRESSION_TAG, CurrentProgression);
 }
 
 
