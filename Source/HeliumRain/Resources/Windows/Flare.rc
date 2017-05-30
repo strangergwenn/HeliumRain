@@ -50,9 +50,9 @@ BEGIN
             VALUE "LegalCopyright", EPIC_COPYRIGHT_STRING
             VALUE "ProductName", EPIC_PRODUCT_NAME
 			VALUE "ProductVersion", ENGINE_VERSION_STRING
-			VALUE "FileDescription", "Flare"
-            VALUE "InternalName", "Flare"
-            VALUE "OriginalFilename", "Flare.exe"
+			VALUE "FileDescription", "HeliumRain"
+            VALUE "InternalName", "HeliumRain"
+            VALUE "OriginalFilename", "HeliumRain.exe"
         END
     END
     BLOCK "VarFileInfo"
