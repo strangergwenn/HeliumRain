@@ -167,7 +167,7 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 					//FLOGV("SunOcclusion %f", SunOcclusion);
 					if (Light)
 					{
-						float Intensity = 10 * FMath::Pow((1.0 - SunOcclusion), 2);
+						float Intensity = 5 * FMath::Pow((1.0 - SunOcclusion), 2);
 						//FLOGV("Light Intensity %f", Intensity);
 						Light->SetIntensity(Intensity);
 					}
