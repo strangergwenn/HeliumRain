@@ -1332,7 +1332,7 @@ void SFlareSettingsMenu::FillJoystickAxisList()
 	EKeys::GetAllKeys(AllKeys);
 	for (FKey Key : AllKeys)
 	{
-		if (Key.GetFName().ToString().StartsWith("Joystick")
+		if (Key.GetFName().ToString().StartsWith("JS")
 		&& !Key.GetFName().ToString().Contains("Button"))
 		{
 			JoystickAxisKeys.Add(MakeShareable(new FKey(Key)));

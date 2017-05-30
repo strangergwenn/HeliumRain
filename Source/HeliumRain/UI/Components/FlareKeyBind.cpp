@@ -40,7 +40,7 @@ void SFlareKeyBind::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Center)
 		[
 			SAssignNew(KeyText, STextBlock)
-			.TextStyle(&Theme.TextFont)
+			.TextStyle(&Theme.SmallFont)
 		]
 	];
 
