@@ -72,6 +72,11 @@ TSharedRef< FSlateStyleSet > FFlareStyleSet::Create()
 		.SetPressedPadding(FMargin(0.0f, 1.0f, 0.0f, 0.0f))
 	);
 
+	const FFlareStyleCatalog& DefaultTheme = Style.GetWidgetStyle<FFlareStyleCatalog>("/Style/DefaultTheme");
+	Style.Set("WarningText", FTextBlockStyle(DefaultTheme.TextFont)
+		.SetColorAndOpacity(DefaultTheme.EnemyColor)
+	);
+
 	return StyleRef;
 }
 

@@ -256,10 +256,11 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 								.ScrollBarStyle(&Theme.ScrollBarStyle)
 								+ SScrollBox::Slot()
 								[
-									SNew(STextBlock)
+									SNew(SRichTextBlock)
 									.TextStyle(&Theme.TextFont)
 									.Text(this, &SFlareOrbitalMenu::GetTravelText)
-									.WrapTextAt(0.8 * Theme.ContentWidth)
+									.WrapTextAt(Theme.ContentWidth / 2)
+									.DecoratorStyleSet(&FFlareStyleSet::Get())
 								]
 							]
 						]
@@ -612,12 +613,66 @@ FText SFlareOrbitalMenu::GetTravelText() const
 		if (GameWorld)
 		{
 			TArray<FFlareIncomingEvent> IncomingEvents;
-			
-			// List travels
-			for (int32 TravelIndex = 0; TravelIndex < GameWorld->GetTravels().Num(); TravelIndex++)
+			UFlareCompany* PlayerCompany = MenuManager->GetPC()->GetCompany();
+
+			// List incoming threats first
+			if (PlayerCompany->IsTechnologyUnlocked("early-warning"))
 			{
-				UFlareTravel* Travel = GameWorld->GetTravels()[TravelIndex];
-				if (Travel->GetFleet()->GetFleetCompany() == MenuManager->GetPC()->GetCompany())
+				for (UFlareTravel* Travel : GameWorld->GetTravels())
+				{
+					UFlareCompany* Company = Travel->GetFleet()->GetFleetCompany();
+					UFlareSimulatedSector* Sector = Travel->GetDestinationSector();
+					int32 EnemyValue = Travel->GetFleet()->GetCombatPoints(true);
+
+					if (Company != PlayerCompany && Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile && EnemyValue > 0)
+					{						
+						bool Safe = true;
+						for (UFlareSimulatedSpacecraft* Candidate : Sector->GetSectorSpacecrafts())
+						{
+							if (Candidate->GetCompany() == PlayerCompany)
+							{
+								Safe = false;
+								break;
+							}
+
+						}
+
+						// Unsafe
+						if (!Safe)
+						{
+							int64 RemainingDuration = Travel->GetRemainingTravelDuration();
+							FText TravelText;
+
+							if (PlayerCompany->IsTechnologyUnlocked("advanced-radar"))
+							{
+								TravelText = FText::Format(LOCTEXT("ThreatTextAdvancedFormat", "\u2022 <WarningText>{1} (Combat value of {3})</> \n    Traveling to {0} ({2} left)"),
+									Sector->GetSectorName(),
+									Company->GetCompanyName(),
+									FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1)),
+									EnemyValue);
+							}
+							else
+							{
+								TravelText = FText::Format(LOCTEXT("ThreatTextFormat", "\u2022 <WarningText>{1}</> \n    Traveling to {0} ({2} left)"),
+									Sector->GetSectorName(),
+									Company->GetCompanyName()),
+									FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1));
+							}
+
+							// Add data
+							FFlareIncomingEvent TravelEvent;
+							TravelEvent.Text = TravelText;
+							TravelEvent.RemainingDuration = RemainingDuration;
+							IncomingEvents.Add(TravelEvent);
+						}
+					}
+				}
+			}
+
+			// List travels
+			for (UFlareTravel* Travel : GameWorld->GetTravels())
+			{
+				if (Travel->GetFleet()->GetFleetCompany() == PlayerCompany)
 				{
 					int64 RemainingDuration = Travel->GetRemainingTravelDuration();
 					FText TravelText;

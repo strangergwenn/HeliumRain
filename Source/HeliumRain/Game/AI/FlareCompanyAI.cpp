@@ -1691,9 +1691,9 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 						{
 
 							GetGame()->GetPC()->Notify(LOCTEXT("AIStartAttack", "Incoming attack"),
-								FText::Format(LOCTEXT("AIStartAttackFormat", "Your current sector {0} will be attacked in {1} days by {2} with a combat value of {3}."),
+								FText::Format(LOCTEXT("AIStartAttackFormat", "The sector {0} will be attacked in {1} by {2} with a combat value of {3}."),
 									Target.Sector->GetSectorName(),
-									FText::AsNumber(TravelDuration - 1),
+									FText::FromString(*UFlareGameTools::FormatDate(TravelDuration - 1, 1)),
 									Company->GetCompanyName(),
 									SentCombatPoints),
 								FName("travel-raid"),
@@ -1705,9 +1705,9 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 						else
 						{
 							GetGame()->GetPC()->Notify(LOCTEXT("AIStartAttack", "Incoming attack"),
-								FText::Format(LOCTEXT("AIStartAttackFormatNoRadar", "Your current sector {0} will be attacked in {1} days by {2}."),
+								FText::Format(LOCTEXT("AIStartAttackFormatNoRadar", "The sector {0} will be attacked in {1} by {2}."),
 									Target.Sector->GetSectorName(),
-									FText::AsNumber(TravelDuration - 1),
+									FText::FromString(*UFlareGameTools::FormatDate(TravelDuration - 1, 1)),
 									Company->GetCompanyName()),
 								FName("travel-raid"),
 								EFlareNotification::NT_Military,
