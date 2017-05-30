@@ -228,7 +228,7 @@ bool AFlareMenuManager::ToogleMenu(EFlareMenu::Type Target)
 bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterData Data, bool AddToHistory, bool OpenDirectly)
 {
 	// Filters
-	if (NextMenu.Key == Target)
+	if (NextMenu.Key != EFlareMenu::MENU_None)
 	{
 		return false;
 	}
