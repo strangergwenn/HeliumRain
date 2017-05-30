@@ -497,6 +497,19 @@ void UFlareFactory::CancelProduction()
 	FactoryData.ProductedDuration = 0;
 	FactoryData.TargetShipClass = NAME_None;
 	FactoryData.TargetShipCompany = NAME_None;
+
+	if (IsShipyard())
+	{
+		if(FactoryData.OrderShipCompany == NAME_None)
+		{
+			// No more ship to produce
+			FactoryData.Active = false;
+		}
+		else
+		{
+			Start();
+		}
+	}
 }
 
 void UFlareFactory::DoProduction()
