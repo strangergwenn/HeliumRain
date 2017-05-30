@@ -323,9 +323,13 @@ bool UFlareFactory::HasCostReserved()
 
 bool UFlareFactory::HasInputMoney()
 {
-	if(!IsShipyard())
+	bool AllowDepts = !IsShipyard()
+			|| (GetOrderShipCompany() != NAME_None && GetOrderShipCompany() != Parent->GetCompany()->GetIdentifier())
+			|| (GetTargetShipCompany() != NAME_None && GetTargetShipCompany() != Parent->GetCompany()->GetIdentifier());
+
+
+	if(AllowDepts)
 	{
-		// Allow depts
 		return true;
 	}
 	return Parent->GetCompany()->GetMoney() >= GetProductionCost();
@@ -408,7 +412,11 @@ bool UFlareFactory::HasOutputFreeSpace()
 
 void UFlareFactory::BeginProduction()
 {
-	if(!Parent->GetCompany()->TakeMoney(GetProductionCost(), !IsShipyard()))
+	bool AllowDepts = !IsShipyard()
+			|| (GetOrderShipCompany() != NAME_None && GetOrderShipCompany() != Parent->GetCompany()->GetIdentifier())
+			|| (GetTargetShipCompany() != NAME_None && GetTargetShipCompany() != Parent->GetCompany()->GetIdentifier());
+
+	if(!Parent->GetCompany()->TakeMoney(GetProductionCost(), AllowDepts))
 	{
 		return;
 	}
