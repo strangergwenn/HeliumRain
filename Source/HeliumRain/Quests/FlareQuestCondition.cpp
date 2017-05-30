@@ -1482,7 +1482,7 @@ FText UFlareQuestConditionDockAt::GetInitialLabel()
 
 		if (TargetShip)
 		{
-			return FText::Format(LOCTEXT("DockShipAtFormat", "Dock at {0} in {1} with a the ship {2}"),
+			return FText::Format(LOCTEXT("DockShipAtFormat", "Dock at {0} in {1} with a ship {2}"),
 															UFlareGameTools::DisplaySpacecraftName(TargetStation),
 															TargetStation->GetCurrentSector()->GetSectorName(),
 															UFlareGameTools::DisplaySpacecraftName(TargetShip));
