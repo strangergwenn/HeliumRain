@@ -397,7 +397,7 @@ void UFlareSpacecraftWeaponsSystem::ToogleWeaponActivation()
 		ActivateWeapons();
 		if (Spacecraft->GetParent() == Spacecraft->GetGame()->GetPC()->GetPlayerShip())
 		{
-			Spacecraft->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("toogle-combat").PutInt32("new-state", 1));
+			Spacecraft->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("toggle-combat").PutInt32("new-state", 1));
 		}
 	}
 	else
@@ -405,7 +405,7 @@ void UFlareSpacecraftWeaponsSystem::ToogleWeaponActivation()
 		DeactivateWeapons();
 		if (Spacecraft->GetParent() == Spacecraft->GetGame()->GetPC()->GetPlayerShip())
 		{
-			Spacecraft->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("toogle-combat").PutInt32("new-state", 0));
+			Spacecraft->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("toggle-combat").PutInt32("new-state", 0));
 		}
 	}
 }
