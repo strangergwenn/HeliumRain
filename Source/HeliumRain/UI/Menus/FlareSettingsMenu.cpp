@@ -645,7 +645,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SHorizontalBox)
 							
-				// Fullscreen
+				// Forward only
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
 				.Padding(Theme.SmallContentPadding)
@@ -655,6 +655,120 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.HelpText(LOCTEXT("ForwardOnlyThrustInfo", "Prevent the thrust control on the joystick from creating backward thrust"))
 					.Toggle(true)
 					.OnClicked(this, &SFlareSettingsMenu::OnForwardOnlyThrustToggle)
+				]
+			]
+			
+			// Joystick dead zone (rotation)
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
+				.HAlign(HAlign_Fill)
+				[
+					SNew(SHorizontalBox)
+
+					// Text
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(LabelSize)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("JoystickRotationDeadZone", "Rotation dead zone"))
+							.TextStyle(&Theme.TextFont)
+						]
+					]
+
+					// Slider
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SSlider)
+						.Value(MyGameSettings->RotationDeadZone)
+						.Style(&Theme.SliderStyle)
+						.OnValueChanged(this, &SFlareSettingsMenu::OnRotationDeadZoneSliderChanged)
+					]
+				]
+			]
+			
+			// Joystick dead zone (roll)
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
+				.HAlign(HAlign_Fill)
+				[
+					SNew(SHorizontalBox)
+
+					// Text
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(LabelSize)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("JoystickRollDeadZone", "Roll dead zone"))
+							.TextStyle(&Theme.TextFont)
+						]
+					]
+
+					// Slider
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SSlider)
+						.Value(MyGameSettings->RollDeadZone)
+						.Style(&Theme.SliderStyle)
+						.OnValueChanged(this, &SFlareSettingsMenu::OnRollDeadZoneSliderChanged)
+					]
+				]
+			]
+			
+			// Joystick dead zone (translation)
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
+				.HAlign(HAlign_Fill)
+				[
+					SNew(SHorizontalBox)
+
+					// Text
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(LabelSize)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("JoystickTranslationDeadZone", "Translation dead zone"))
+							.TextStyle(&Theme.TextFont)
+						]
+					]
+
+					// Slider
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SSlider)
+						.Value(MyGameSettings->TranslationDeadZone)
+						.Style(&Theme.SliderStyle)
+						.OnValueChanged(this, &SFlareSettingsMenu::OnTranslationDeadZoneSliderChanged)
+					]
 				]
 			]
 		]
@@ -1115,6 +1229,28 @@ void SFlareSettingsMenu::OnCockpitToggle()
 
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	MyGameSettings->UseCockpit = New;
+	MyGameSettings->ApplySettings(false);
+}
+
+
+void SFlareSettingsMenu::OnRotationDeadZoneSliderChanged(float Value)
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->RotationDeadZone = Value;
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnRollDeadZoneSliderChanged(float Value)
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->RollDeadZone = Value;
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnTranslationDeadZoneSliderChanged(float Value)
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->TranslationDeadZone = Value;
 	MyGameSettings->ApplySettings(false);
 }
 

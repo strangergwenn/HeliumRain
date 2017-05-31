@@ -1379,16 +1379,31 @@ void AFlareSpacecraft::MoveHorizontalInput(float Val)
 
 void AFlareSpacecraft::JoystickYawInput(float Val)
 {
+	if (FMath::Abs(Val) < Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->RotationDeadZone)
+	{
+		Val = 0;
+	}
+
 	StateManager->SetPlayerAimJoystickYaw(Val);
 }
 
 void AFlareSpacecraft::JoystickPitchInput(float Val)
 {
+	if (FMath::Abs(Val) < Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->RotationDeadZone)
+	{
+		Val = 0;
+	}
+
 	StateManager->SetPlayerAimJoystickPitch(-Val);
 }
 
 void AFlareSpacecraft::JoystickRollInput(float Val)
 {
+	if (FMath::Abs(Val) < Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->RollDeadZone)
+	{
+		Val = 0;
+	}
+
 	StateManager->SetPlayerRollAngularVelocityJoystick(-Val * NavigationSystem->GetAngularMaxVelocity());
 }
 
@@ -1401,10 +1416,9 @@ void AFlareSpacecraft::JoystickThrustInput(float Val)
 		float ZeroSpeed = 0.1f;
 		float MinSpeed = -0.5f * NavigationSystem->GetLinearMaxVelocity();
 		float MaxSpeed = 2.0f * NavigationSystem->GetLinearMaxVelocity();
-		UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 
 		// Forward only
-		if (MyGameSettings->ForwardOnlyThrust)
+		if (Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->ForwardOnlyThrust)
 		{
 			float NormalizedVal = (Val / 2.0f) - 0.5f;
 			TargetSpeed = MaxSpeed * FMath::Pow(NormalizedVal, Exponent);
@@ -1432,11 +1446,21 @@ void AFlareSpacecraft::JoystickThrustInput(float Val)
 
 void AFlareSpacecraft::JoystickMoveVerticalInput(float Val)
 {
+	if (FMath::Abs(Val) < Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->TranslationDeadZone)
+	{
+		Val = 0;
+	}
+
 	StateManager->SetPlayerZLinearVelocityJoystick(Val * NavigationSystem->GetLinearMaxVelocity());
 }
 
 void AFlareSpacecraft::JoystickMoveHorizontalInput(float Val)
 {
+	if (FMath::Abs(Val) < Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->TranslationDeadZone)
+	{
+		Val = 0;
+	}
+
 	StateManager->SetPlayerYLinearVelocityJoystick(Val * NavigationSystem->GetLinearMaxVelocity());
 }
 

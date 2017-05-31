@@ -58,6 +58,18 @@ public:
 	UPROPERTY(Config)
 	bool                                     ForwardOnlyThrust;
 
+	/** Dead zone */
+	UPROPERTY(Config)
+	float                                    RotationDeadZone;
+
+	/** Dead zone */
+	UPROPERTY(Config)
+	float                                    RollDeadZone;
+
+	/** Dead zone */
+	UPROPERTY(Config)
+	float                                    TranslationDeadZone;
+
 	/** Max ship count in a sector */
 	UPROPERTY(Config)
 	int32                                    MaxShipsInSector;

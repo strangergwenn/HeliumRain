@@ -144,6 +144,10 @@ protected:
 	void OnPauseInMenusToggle();
 
 	void OnShipCountSliderChanged(float Value);
+		
+	void OnRotationDeadZoneSliderChanged(float Value);
+	void OnRollDeadZoneSliderChanged(float Value);
+	void OnTranslationDeadZoneSliderChanged(float Value);
 
 	void OnForwardOnlyThrustToggle();
 
