@@ -145,6 +145,8 @@ protected:
 
 	void OnShipCountSliderChanged(float Value);
 
+	void OnForwardOnlyThrustToggle();
+
 	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey );
 
 
@@ -211,6 +213,7 @@ protected:
 	TSharedPtr<STextBlock>	        			MasterVolumeLabel;
 	
 	// Controls
+	TSharedPtr<SFlareButton>                    ForwardOnlyThrustButton;
 	TSharedPtr<SVerticalBox>                    ControlListLeft;
 	TSharedPtr<SVerticalBox>                    ControlListRight;
 	TArray<TSharedPtr<FSimpleBind> >            Binds;

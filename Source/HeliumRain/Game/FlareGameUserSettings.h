@@ -54,6 +54,10 @@ public:
 	UPROPERTY(Config)
 	bool                                     PauseGameInMenus;
 
+	/** Whether to restrict thrust to forward */
+	UPROPERTY(Config)
+	bool                                     ForwardOnlyThrust;
+
 	/** Max ship count in a sector */
 	UPROPERTY(Config)
 	int32                                    MaxShipsInSector;

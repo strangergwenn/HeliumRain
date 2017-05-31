@@ -636,10 +636,32 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 			[
 				BuildJoystickBindingBox()
 			]
+
+			// Joystick options
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Left)
+			[
+				SNew(SHorizontalBox)
+							
+				// Fullscreen
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(Theme.SmallContentPadding)
+				[
+					SAssignNew(ForwardOnlyThrustButton, SFlareButton)
+					.Text(LOCTEXT("ForwardOnlyThrust", "Forward-only thrust"))
+					.HelpText(LOCTEXT("ForwardOnlyThrustInfo", "Prevent the thrust control on the joystick from creating backward thrust"))
+					.Toggle(true)
+					.OnClicked(this, &SFlareSettingsMenu::OnForwardOnlyThrustToggle)
+				]
+			]
 		]
 	];
 
 	// Default settings
+	ForwardOnlyThrustButton->SetActive(MyGameSettings->ForwardOnlyThrust);
 	VSyncButton->SetActive(MyGameSettings->IsVSyncEnabled());
 	MotionBlurButton->SetActive(MyGameSettings->UseMotionBlur);
 	TemporalAAButton->SetActive(MyGameSettings->UseTemporalAA);
@@ -1093,6 +1115,15 @@ void SFlareSettingsMenu::OnCockpitToggle()
 
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	MyGameSettings->UseCockpit = New;
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnForwardOnlyThrustToggle()
+{
+	bool New = ForwardOnlyThrustButton->IsActive();
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->ForwardOnlyThrust = New;
 	MyGameSettings->ApplySettings(false);
 }
 

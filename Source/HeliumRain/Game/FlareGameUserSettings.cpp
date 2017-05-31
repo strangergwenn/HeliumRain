@@ -27,6 +27,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	UseCockpit = true;
 	UseAnticollision = false;
 	PauseGameInMenus = false;
+	ForwardOnlyThrust = false;
 	MaxShipsInSector = 20;
 
 	// Sound

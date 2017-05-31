@@ -15,6 +15,7 @@
 #include "../Game/FlareGame.h"
 #include "../Game/FlareAsteroid.h"
 #include "../Game/AI/FlareCompanyAI.h"
+#include "../Game/FlareGameUserSettings.h"
 
 #include "../UI/Menus/FlareShipMenu.h"
 
@@ -56,12 +57,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	CameraContainerYaw->AttachToComponent(Airframe, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 	CameraMaxPitch = 80;
 	CameraPanSpeed = 200;
-
-	// Joystick
-	JoystickThrustMinSpeed = -50;;
-	JoystickThrustMaxSpeed = 200;
-	JoystickThrustExponent = 2;
-
+	
 	// Gameplay
 	HasExitedSector = false;
 	Paused = false;
@@ -1398,27 +1394,40 @@ void AFlareSpacecraft::JoystickRollInput(float Val)
 
 void AFlareSpacecraft::JoystickThrustInput(float Val)
 {
-	float Threshold = 0.95;
-	float TargetSpeed = 0;
-
-	if (FMath::Abs(Val) > Threshold)
+	if (NavigationSystem)
 	{
-		TargetSpeed = FMath::Sign(-Val) * 10 * NavigationSystem->GetLinearMaxVelocity();
-	}
-	else
-	{
-		float NormalizedVal = -Val / Threshold;
-		if (Val < 0)
-		{
-			TargetSpeed = JoystickThrustMaxSpeed * FMath::Pow(FMath::Abs(NormalizedVal), JoystickThrustExponent);
-		}
-		else if(Val > 0)
-		{
-			TargetSpeed = JoystickThrustMinSpeed * FMath::Pow(FMath::Abs(NormalizedVal), JoystickThrustExponent);
-		}
-	}
+		float TargetSpeed = 0;
+		float Exponent = 2;
+		float ZeroSpeed = 0.1f;
+		float MinSpeed = -0.5f * NavigationSystem->GetLinearMaxVelocity();
+		float MaxSpeed = 2.0f * NavigationSystem->GetLinearMaxVelocity();
+		UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 
-	StateManager->SetPlayerXLinearVelocityJoystick(TargetSpeed);
+		// Forward only
+		if (MyGameSettings->ForwardOnlyThrust)
+		{
+			float NormalizedVal = (Val / 2.0f) - 0.5f;
+			TargetSpeed = MaxSpeed * FMath::Pow(NormalizedVal, Exponent);
+			TargetSpeed = FMath::Clamp(TargetSpeed, ZeroSpeed, MaxSpeed);
+		}
+
+		// Bidirectional mode
+		else
+		{
+			if (Val < 0)
+			{
+				TargetSpeed = MaxSpeed * FMath::Pow(FMath::Abs(Val), Exponent);
+				TargetSpeed = FMath::Clamp(TargetSpeed, ZeroSpeed, MaxSpeed);
+			}
+			else if (Val > 0)
+			{
+				TargetSpeed = MinSpeed * FMath::Pow(FMath::Abs(Val), Exponent);
+				TargetSpeed = FMath::Clamp(TargetSpeed, MinSpeed, -ZeroSpeed);
+			}
+		}
+
+		StateManager->SetPlayerXLinearVelocityJoystick(TargetSpeed);
+	}
 }
 
 void AFlareSpacecraft::JoystickMoveVerticalInput(float Val)
