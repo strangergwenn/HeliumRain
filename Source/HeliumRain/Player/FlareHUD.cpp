@@ -960,7 +960,7 @@ bool AFlareHUD::ShouldDrawHUD() const
 	UFlareSector* ActiveSector = PC->GetGame()->GetActiveSector();
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
-	if (!ActiveSector || !PlayerShip || !PlayerShip->GetParent()->GetDamageSystem()->IsAlive() || PC->IsInMenu() || IsWheelMenuOpen())
+	if (!ActiveSector || !PlayerShip || !PlayerShip->GetParent()->GetDamageSystem()->IsAlive() || PC->IsInMenu())
 	{
 		return false;
 	}
