@@ -605,10 +605,11 @@ FText SFlareWorldEconomyMenu::GetResourceInfo() const
 			}
 			
 
-			FText Part1 = FText::Format(LOCTEXT("StockInfoFormatPart1", "\u2022 Worldwide stock: {0}\n\u2022 Worldwide needs: {1}\n"),
+			FText Part1 = FText::Format(LOCTEXT("StockInfoFormatPart1", "\u2022Transport fee: {0} credits\n\u2022 Worldwide stock: {1}\n\u2022 Worldwide needs: {2}\n"),
+										UFlareGameTools::DisplayMoney(TargetResource->TransportFee),
 										FText::AsNumber(WorldStats[TargetResource].Stock),
 										FText::AsNumber(WorldStats[TargetResource].Capacity));
-			FText Part2 = FText::Format(LOCTEXT("StockInfoFormatPart2", "\u2022 Worldwide production: {0} / day\n\u2022 Worldwide usage : {1} / day\n"),
+			FText Part2 = FText::Format(LOCTEXT("StockInfoFormatPart2", "\u2022 Worldwide production: {0} / day\n\u2022 Worldwide usage: {1} / day\n"),
 										FText::AsNumber(WorldStats[TargetResource].Production, &Format),
 										FText::AsNumber(WorldStats[TargetResource].Consumption, &Format));
 

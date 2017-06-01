@@ -561,19 +561,43 @@ FText SFlareTradeMenu::GetTransactionDetails() const
 			UFlareGameTools::DisplaySpacecraftName(TransactionSourceSpacecraft),
 			UFlareGameTools::DisplaySpacecraftName(TransactionDestinationSpacecraft));
 
+		FText UnitPrice;
+		FText AffordableInfo;
+
+		if (TransactionSourceSpacecraft->GetCompany() != MenuManager->GetPC()->GetCompany()
+				|| TransactionDestinationSpacecraft->GetCompany() != MenuManager->GetPC()->GetCompany())
+		{
+			int64 BaseResourcePrice = TransactionSourceSpacecraft->GetCurrentSector()->GetResourcePrice(TransactionResource, EFlareResourcePriceContext::Default);
+			int64 TransactionResourcePrice = TransactionSourceSpacecraft->GetCurrentSector()->GetTransfertResourcePrice(TransactionSourceSpacecraft, TransactionDestinationSpacecraft, TransactionResource);
+
+			int64 Fee = TransactionResourcePrice - BaseResourcePrice;
+
+			if(TransactionDestinationSpacecraft->GetCompany() == MenuManager->GetPC()->GetCompany())
+			{
+				UnitPrice = FText::Format(LOCTEXT("TradeUnitPriceFormat", "\nPurchase price: {0} credits/unit ({1} {2} {3} transport fee)"),
+					UFlareGameTools::DisplayMoney(TransactionResourcePrice),
+					UFlareGameTools::DisplayMoney(BaseResourcePrice),
+					(Fee < 0 ? LOCTEXT("Minus", "-"): LOCTEXT("Plus", "+")),
+					UFlareGameTools::DisplayMoney(FMath::Abs(Fee)));
+			}
+			else
+			{
+				UnitPrice = FText::Format(LOCTEXT("TradeUnitPriceFormat", "\nSell price: {0} credits/unit ({1} {2} {3} transport fee)"),
+					UFlareGameTools::DisplayMoney(TransactionResourcePrice),
+					UFlareGameTools::DisplayMoney(BaseResourcePrice),
+					(Fee < 0 ? LOCTEXT("Minus", "-"): LOCTEXT("Plus", "+")),
+					UFlareGameTools::DisplayMoney(FMath::Abs(Fee)));
+			}
+		}
+
 		// Add buyer capability if it's not the player
 		if (TransactionDestinationSpacecraft->GetCompany() != MenuManager->GetPC()->GetCompany())
 		{
-			FText AffordableInfo;
-			AffordableInfo = FText::Format(LOCTEXT("TradeAffordableFormat", "The buyer has {0} credits available."),
+			AffordableInfo = FText::Format(LOCTEXT("TradeAffordableFormat", "\nThe buyer has {0} credits available."),
 				UFlareGameTools::DisplayMoney(TransactionDestinationSpacecraft->GetCompany()->GetMoney()));
+		}
 
-			return FText::FromString(MainInfo.ToString() + "\n" + AffordableInfo.ToString());
-		}
-		else
-		{
-			return MainInfo;
-		}
+		return FText::Format(LOCTEXT("TradeInfoMergeFormat", "{0}{1}{2}"), MainInfo, UnitPrice, AffordableInfo);
 	}
 	else
 	{

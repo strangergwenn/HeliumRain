@@ -143,6 +143,18 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		{
 			EFlareResourcePriceContext::Type ResourceUsage = Station->GetResourceUseType(Request.Resource);
 
+			int32 ResourcePrice = 0;
+			if(NeedInput)
+			{
+				ResourcePrice = Sector->GetTransfertResourcePrice(NULL, Station, Request.Resource);
+			}
+			else
+			{
+				ResourcePrice = Sector->GetTransfertResourcePrice(Station, NULL, Request.Resource);
+			}
+
+
+
 			uint32 MaxBuyableQuantity = Request.Client->GetCompany()->GetMoney() / Sector->GetResourcePrice(Request.Resource, ResourceUsage);
 			LoadMaxQuantity = FMath::Min(LoadMaxQuantity , MaxBuyableQuantity);
 

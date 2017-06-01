@@ -1608,11 +1608,11 @@ uint32 UFlareSimulatedSector::GetTransfertResourcePrice(UFlareSimulatedSpacecraf
 	UFlareSimulatedSpacecraft* Station = NULL;
 
 	// Which one is any is a station ?
-	if (SourceSpacecraft->IsStation())
+	if (SourceSpacecraft && SourceSpacecraft->IsStation())
 	{
 		Station = SourceSpacecraft;
 	}
-	else if (DestinationSpacecraft->IsStation())
+	else if (DestinationSpacecraft && DestinationSpacecraft->IsStation())
 	{
 		Station = DestinationSpacecraft;
 	}
