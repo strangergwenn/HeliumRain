@@ -1056,13 +1056,12 @@ FText SFlareSectorMenu::GetSectorLocation() const
 			// Light ratio
 			if (TargetSector->GetDescription()->IsSolarPoor)
 			{
-				LightRatioString = LOCTEXT("SectorLightRatioFoggy", "0%");
+				LightRatioString = LOCTEXT("SectorLightRatioFoggy", "bad");
 				AttributeString += LOCTEXT("Dusty", "Dusty").ToString();
 			}
 			else
 			{
-				int32 LightRatio = 100 * TargetSector->GetGame()->GetGameWorld()->GetPlanerarium()->GetLightRatio(Body, TargetSector->GetOrbitParameters()->Altitude);
-				LightRatioString = FText::Format(LOCTEXT("SectorLightRatioFormat", "{0}%"), FText::AsNumber(LightRatio));
+				LightRatioString = LOCTEXT("SectorGoodLightRatioFormat", "good");
 			}
 
 			// Icy
