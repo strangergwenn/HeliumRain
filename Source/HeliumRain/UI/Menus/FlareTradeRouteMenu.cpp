@@ -384,16 +384,35 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 								.OnClicked(this, &SFlareTradeRouteMenu::OnQuantityLimitToggle)
 							]
 
-							// Quantity limit slider
+							// Quantity
 							+ SVerticalBox::Slot()
 							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
 							[
-								SAssignNew(QuantityLimitSlider, SSlider)
-								.Style(&Theme.SliderStyle)
-								.Value(0)
-								.OnValueChanged(this, &SFlareTradeRouteMenu::OnQuantityLimitChanged)
-								.Visibility(this, &SFlareTradeRouteMenu::GetQuantityLimitVisibility)
+								SNew(SHorizontalBox)
+
+								// Quantity limit slider
+								+ SHorizontalBox::Slot()
+								.HAlign(HAlign_Fill)
+								.Padding(Theme.SmallContentPadding)
+								[
+									SAssignNew(QuantityLimitSlider, SSlider)
+									.Style(&Theme.SliderStyle)
+									.Value(0)
+									.OnValueChanged(this, &SFlareTradeRouteMenu::OnQuantityLimitChanged)
+									.Visibility(this, &SFlareTradeRouteMenu::GetQuantityLimitVisibility)
+								]
+
+								// Text box
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.HAlign(HAlign_Right)
+								.Padding(Theme.ContentPadding)
+								[
+									SAssignNew(QuantityLimitText, SEditableText)
+									.Style(&Theme.TextInputStyle)
+									.OnTextChanged(this, &SFlareTradeRouteMenu::OnQuantityLimitEntered)
+									.Visibility(this, &SFlareTradeRouteMenu::GetQuantityLimitVisibility)
+								]
 							]
 						]
 					
@@ -1270,11 +1289,14 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 		{
 			QuantityLimitButton->SetActive(false);
 			QuantityLimitSlider->SetValue(0);
+			QuantityLimitText->SetText(FText::AsNumber(0));
 		}
 		else
 		{
 			QuantityLimitButton->SetActive(true);
-			QuantityLimitSlider->SetValue((float) (SelectedOperation->MaxQuantity - 1) / (float) TargetTradeRoute->GetFleet()->GetFleetCapacity());
+			int32 Value = (float) (SelectedOperation->MaxQuantity - 1) / (float) TargetTradeRoute->GetFleet()->GetFleetCapacity();
+			QuantityLimitSlider->SetValue(Value);
+			QuantityLimitText->SetText(FText::AsNumber(Value));
 		}
 
 		if (SelectedOperation->MaxWait == -1)
@@ -1347,11 +1369,13 @@ void SFlareTradeRouteMenu::OnOperationDownClicked()
 
 void SFlareTradeRouteMenu::OnQuantityLimitToggle()
 {
-	if (SelectedOperation && TargetTradeRoute)
+	if (SelectedOperation && TargetTradeRoute && TargetTradeRoute->GetFleet())
 	{
 		if (QuantityLimitButton->IsActive())
 		{
-			SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * TargetTradeRoute->GetFleet()->GetFleetCapacity();
+			int32 Value = QuantityLimitSlider->GetValue() * TargetTradeRoute->GetFleet()->GetFleetCapacity();
+			SelectedOperation->MaxQuantity = Value;
+			QuantityLimitText->SetText(FText::AsNumber(Value));
 		}
 		else
 		{
@@ -1377,9 +1401,37 @@ void SFlareTradeRouteMenu::OnWaitLimitToggle()
 
 void SFlareTradeRouteMenu::OnQuantityLimitChanged(float Value)
 {
-	if (SelectedOperation)
+	if (SelectedOperation && TargetTradeRoute->GetFleet())
 	{
-		SelectedOperation->MaxQuantity = QuantityLimitSlider->GetValue() * TargetTradeRoute->GetFleet()->GetFleetCapacity();
+		int32 NewValue = QuantityLimitSlider->GetValue() * TargetTradeRoute->GetFleet()->GetFleetCapacity();
+		SelectedOperation->MaxQuantity = NewValue;
+		QuantityLimitText->SetText(FText::AsNumber(NewValue));
+	}
+}
+
+void SFlareTradeRouteMenu::OnQuantityLimitEntered(const FText& TextValue)
+{
+	if (TargetTradeRoute && SelectedOperation && TextValue.ToString().IsNumeric())
+	{
+		int32 ResourceMaxQuantity = 1000;
+
+		if(TargetTradeRoute->GetFleet())
+		{
+			ResourceMaxQuantity = TargetTradeRoute->GetFleet()->GetFleetCapacity();
+		}
+
+		int32 TransactionQuantity = FMath::Clamp(FCString::Atoi(*TextValue.ToString()), 0, ResourceMaxQuantity);
+
+		if (ResourceMaxQuantity == 1)
+		{
+			QuantityLimitSlider->SetValue(1.0f);
+		}
+		else
+		{
+			QuantityLimitSlider->SetValue((float)(TransactionQuantity - 1) / (float)(ResourceMaxQuantity - 1));
+		}
+
+		SelectedOperation->MaxQuantity = TransactionQuantity;
 	}
 }
 

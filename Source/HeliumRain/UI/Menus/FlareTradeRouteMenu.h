@@ -158,6 +158,7 @@ protected:
 	void OnQuantityLimitToggle();
 	void OnWaitLimitToggle();
 	void OnQuantityLimitChanged(float Value);
+	void OnQuantityLimitEntered(const FText& TextValue);
 	void OnWaitLimitChanged(float Value);
 	
 	/** Load the current resource */
@@ -206,4 +207,6 @@ protected:
 	TSharedPtr<SFlareButton>                           WaitLimitButton;
 	TSharedPtr<SSlider>                                QuantityLimitSlider;
 	TSharedPtr<SSlider>                                WaitLimitSlider;
+
+	TSharedPtr<SEditableText>                          QuantityLimitText;
 };
