@@ -638,7 +638,7 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareTradeRouteMenu::GetOperationStatusText, Operation)
+					.Text(this, &SFlareTradeRouteMenu::GetOperationStatusText, Operation, SectorOrders->SectorIdentifier)
 				];
 
 				// Buttons
@@ -998,7 +998,7 @@ FSlateColor SFlareTradeRouteMenu::GetOperationHighlight(FFlareTradeRouteSectorOp
 	return Result;
 }
 
-FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperationSave* Operation) const
+FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperationSave* Operation, FName SectorName) const
 {
 	if (TargetTradeRoute && Operation)
 	{
@@ -1038,6 +1038,37 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 			}
 		}
 
+		FText PricePart;
+
+		if (Operation->Type == EFlareTradeRouteOperation::LoadOrBuy
+		 || Operation->Type == EFlareTradeRouteOperation::UnloadOrSell
+		|| Operation->Type == EFlareTradeRouteOperation::Buy
+		|| Operation->Type == EFlareTradeRouteOperation::Sell)
+		{
+			UFlareSimulatedSector* Sector = MenuManager->GetGame()->GetGameWorld()->FindSector(SectorName);
+
+			if (Resource && Sector)
+			{
+
+
+				int64 TransactionResourcePrice = Sector->GetResourcePrice(Resource,
+														  (Operation->Type == EFlareTradeRouteOperation::Sell || Operation->Type == EFlareTradeRouteOperation::UnloadOrSell ? EFlareResourcePriceContext::FactoryInput: EFlareResourcePriceContext::FactoryOutput));
+				int64 BaseResourcePrice = Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+				int64 Fee = TransactionResourcePrice - BaseResourcePrice;
+
+				PricePart = FText::Format(LOCTEXT("TradeUnitPriceFormat", "\n{0} credits/unit ({1} {2} {3} fee)"),
+															UFlareGameTools::DisplayMoney(TransactionResourcePrice),
+															UFlareGameTools::DisplayMoney(BaseResourcePrice),
+															(Fee < 0 ? LOCTEXT("Minus", "-"): LOCTEXT("Plus", "+")),
+															UFlareGameTools::DisplayMoney(FMath::Abs(Fee)));
+			}
+		}
+
+		FText CommonPart = FText::Format(LOCTEXT("OtherOperationStatusFormat", "Wait {0} or {1}{2}"),
+			WaitText,
+			QuantityText,
+			PricePart);
+
 		// This is the active operation, add current progress
 		if (TargetTradeRoute->GetActiveOperation() == Operation)
 		{
@@ -1048,9 +1079,8 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 				FText::AsNumber(TargetTradeRoute->GetData()->CurrentOperationProgress),
 				Resource->Acronym);
 
-			return FText::Format(LOCTEXT("CurrentOperationStatusFormat", "Wait {0} or {1}\n({2}, {3} traded)"),
-				WaitText,
-				QuantityText,
+			return FText::Format(LOCTEXT("CurrentOperationStatusFormat", "{0}\n({1}, {2} traded)"),
+				CommonPart,
 				CurrentWaitText,
 				CurrentQuantityText);
 		}
@@ -1058,9 +1088,7 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 		// This is another operation; keep it simple
 		else
 		{
-			return FText::Format(LOCTEXT("OtherOperationStatusFormat", "Wait {0} or {1}"),
-				WaitText,
-				QuantityText);
+			return CommonPart;
 		}
 	}
 

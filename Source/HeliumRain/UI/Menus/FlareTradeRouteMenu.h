@@ -98,7 +98,7 @@ protected:
 	FText GetAddSectorText() const;
 
 	/** Get status */
-	FText GetOperationStatusText(FFlareTradeRouteSectorOperationSave* Operation) const;
+	FText GetOperationStatusText(FFlareTradeRouteSectorOperationSave* Operation, FName SectorName) const;
 
 	/** Highlight color */
 	FSlateColor GetOperationHighlight(FFlareTradeRouteSectorOperationSave* Operation) const;
