@@ -1294,9 +1294,12 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 		else
 		{
 			QuantityLimitButton->SetActive(true);
-			int32 Value = (float) (SelectedOperation->MaxQuantity - 1) / (float) TargetTradeRoute->GetFleet()->GetFleetCapacity();
-			QuantityLimitSlider->SetValue(Value);
-			QuantityLimitText->SetText(FText::AsNumber(Value));
+			if(TargetTradeRoute->GetFleet())
+			{
+				int32 Value = (float) (SelectedOperation->MaxQuantity - 1) / (float) TargetTradeRoute->GetFleet()->GetFleetCapacity();
+				QuantityLimitSlider->SetValue(Value);
+				QuantityLimitText->SetText(FText::AsNumber(Value));
+			}
 		}
 
 		if (SelectedOperation->MaxWait == -1)
