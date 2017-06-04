@@ -1623,7 +1623,6 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 			// Send random ships
 			int32 MinShipToSend = FMath::Max(Target.EnemyCargoCount, Target.EnemyStationCount);
 			int32 SentShips = 0;
-			int32 SentCombatPoints = 0;
 
 			while (MovableShips.Num() > 0 &&
 				   ((SentShips < MinShipToSend) || (AntiLFleetCombatPoints < AntiLFleetCombatPointsLimit || AntiSFleetCombatPoints < AntiSFleetCombatPointsLimit)))
@@ -1660,66 +1659,7 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 
 				Game->GetGameWorld()->StartTravel(SelectedShip->GetCurrentFleet(), Target.Sector);
 				SentShips++;
-				SentCombatPoints+=ShipCombatPoints;
 			}
-
-			if(SentShips > 0 && TravelDuration > 1)
-			{
-				Game->GetQuestManager()->GetQuestGenerator()->GenerateAttackQuests(Company, SentCombatPoints, Target, TravelDuration);
-
-				UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
-				if(PlayerCompany->IsTechnologyUnlocked("early-warning") &&
-						Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
-				{
-					// Check if the sector contain player ships or stations
-					bool Safe = true;
-					for(UFlareSimulatedSpacecraft* Candidate : Target.Sector->GetSectorSpacecrafts())
-					{
-						if(Candidate->GetCompany() == PlayerCompany)
-						{
-							Safe = false;
-							break;
-						}
-
-					}
-					if(!Safe)
-					{
-						FFlareMenuParameterData Data;
-						Data.Sector = Target.Sector;
-
-						if(GetGame()->GetPC()->GetCompany()->IsTechnologyUnlocked("advanced-radar"))
-						{
-
-							GetGame()->GetPC()->Notify(LOCTEXT("AIStartAttack", "Incoming attack"),
-								FText::Format(LOCTEXT("AIStartAttackFormat", "The sector {0} will be attacked in {1} by {2} with a combat value of {3}."),
-									Target.Sector->GetSectorName(),
-									FText::FromString(*UFlareGameTools::FormatDate(TravelDuration - 1, 1)),
-									Company->GetCompanyName(),
-									SentCombatPoints),
-								FName("travel-raid"),
-								EFlareNotification::NT_Military,
-								false,
-								EFlareMenu::MENU_Sector,
-								Data);
-						}
-						else
-						{
-							GetGame()->GetPC()->Notify(LOCTEXT("AIStartAttack", "Incoming attack"),
-								FText::Format(LOCTEXT("AIStartAttackFormatNoRadar", "The sector {0} will be attacked in {1} by {2}."),
-									Target.Sector->GetSectorName(),
-									FText::FromString(*UFlareGameTools::FormatDate(TravelDuration - 1, 1)),
-									Company->GetCompanyName()),
-								FName("travel-raid"),
-								EFlareNotification::NT_Military,
-								false,
-								EFlareMenu::MENU_Sector,
-								Data);
-						}
-					}
-
-				}
-			}
-
 
 			if (Sector.CombatPoints == 0)
 			{

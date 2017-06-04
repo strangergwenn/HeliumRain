@@ -47,7 +47,7 @@ void UFlareTravel::Load(const FFlareTravelSave& Data)
 	OrbitParameters = *OriginSector->GetOrbitParameters();
 
 
-	SectorDescription.Name = LOCTEXT("TravelSectorName", "Travelling ...");
+	SectorDescription.Name = LOCTEXT("TravelSectorName", "Traveling ...");
 	SectorDescription.Description = LOCTEXT("TravelSectorDescription", "Travel local sector");
 	SectorDescription.Identifier=Fleet->GetIdentifier();
 	SectorDescription.Phase = 0;
@@ -67,6 +67,7 @@ void UFlareTravel::Load(const FFlareTravelSave& Data)
 	Fleet->SetCurrentSector(TravelSector);
 	TravelSector->AddFleet(Fleet);
 
+	NeedNotification = true;
 
 }
 

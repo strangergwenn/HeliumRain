@@ -96,13 +96,13 @@ bool UFlareFleet::CanTravel(FText& OutInfo)
 {
 	if (IsTraveling() && !GetCurrentTravel()->CanChangeDestination())
 	{
-		OutInfo = LOCTEXT("TravellingFormat", "Can't change destination");
+		OutInfo = LOCTEXT("TravelingFormat", "Can't change destination");
 		return false;
 	}
 
 	if (GetImmobilizedShipCount() == FleetShips.Num())
 	{
-		OutInfo = LOCTEXT("Travelling", "Trading, stranded or intercepted");
+		OutInfo = LOCTEXT("Traveling", "Trading, stranded or intercepted");
 		return false;
 	}
 
@@ -188,7 +188,7 @@ FText UFlareFleet::GetStatusInfo() const
 	else if (IsTraveling())
 	{
 		int64 RemainingDuration = CurrentTravel->GetRemainingTravelDuration();
-		return FText::Format(LOCTEXT("TravelTextFormat", "Travelling to {0} ({1} left)"),
+		return FText::Format(LOCTEXT("TravelTextFormat", "Traveling to {0} ({1} left)"),
 			CurrentTravel->GetDestinationSector()->GetSectorName(),
 			FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1))); //FString needed here
 	}

@@ -683,6 +683,8 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 		PC->OnLoadComplete();
 		FFlareLogWriter::InitWriter(Save->PlayerData.UUID);
 
+		World->ProcessIncomingPlayerEnemy();
+
 		return true;
 	}
 

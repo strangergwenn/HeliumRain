@@ -616,56 +616,96 @@ FText SFlareOrbitalMenu::GetTravelText() const
 			UFlareCompany* PlayerCompany = MenuManager->GetPC()->GetCompany();
 
 			// List incoming threats first
-			if (PlayerCompany->IsTechnologyUnlocked("early-warning"))
+			TMap<IncomingKey, IncomingValue> IncomingMap = GameWorld->GetIncomingPlayerEnemy();
+
+			FText SingleShip = LOCTEXT("ShipSingle", "ship");
+			FText MultipleShips = LOCTEXT("ShipPlural", "ships");
+
+
+
+			auto GetShipsText = [&](int32 LightShipCount, int32 HeavyShipCount)
 			{
-				for (UFlareTravel* Travel : GameWorld->GetTravels())
+				// Fighters
+				FText LightShipText;
+				if (LightShipCount > 0)
 				{
-					UFlareCompany* Company = Travel->GetFleet()->GetFleetCompany();
-					UFlareSimulatedSector* Sector = Travel->GetDestinationSector();
-					int32 EnemyValue = Travel->GetFleet()->GetCombatPoints(true);
+					LightShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} light {1}"),
+						FText::AsNumber(LightShipCount),
+						(LightShipCount > 1) ? MultipleShips : SingleShip);
+				}
 
-					if (Company != PlayerCompany && Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile && EnemyValue > 0)
-					{						
-						bool Safe = true;
-						for (UFlareSimulatedSpacecraft* Candidate : Sector->GetSectorSpacecrafts())
-						{
-							if (Candidate->GetCompany() == PlayerCompany)
-							{
-								Safe = false;
-								break;
-							}
+				// Heavies
+				FText HeavyShipText;
+				if (HeavyShipCount > 0)
+				{
+					HeavyShipText = FText::Format(LOCTEXT("PlayerAttackedHeaviesFormat", "{0} heavy {1}"),
+						FText::AsNumber(HeavyShipCount),
+						(HeavyShipCount > 1) ? MultipleShips : SingleShip);
 
-						}
-
-						// Unsafe
-						if (!Safe)
-						{
-							int64 RemainingDuration = Travel->GetRemainingTravelDuration();
-							FText TravelText;
-
-							if (PlayerCompany->IsTechnologyUnlocked("advanced-radar"))
-							{
-								TravelText = FText::Format(LOCTEXT("ThreatTextAdvancedFormat", "\u2022 <WarningText>{1} (Combat value of {3})</> \n    Traveling to {0} ({2} left)"),
-									Sector->GetSectorName(),
-									Company->GetCompanyName(),
-									FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1)),
-									EnemyValue);
-							}
-							else
-							{
-								TravelText = FText::Format(LOCTEXT("ThreatTextFormat", "\u2022 <WarningText>{1}</> \n    Traveling to {0} ({2} left)"),
-									Sector->GetSectorName(),
-									Company->GetCompanyName()),
-									FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1));
-							}
-
-							// Add data
-							FFlareIncomingEvent TravelEvent;
-							TravelEvent.Text = TravelText;
-							TravelEvent.RemainingDuration = RemainingDuration;
-							IncomingEvents.Add(TravelEvent);
-						}
+					if (LightShipCount > 0)
+					{
+						HeavyShipText = FText::FromString(", " + HeavyShipText.ToString());
 					}
+				}
+
+				return FText::Format(LOCTEXT("PlayerAttackedSoonShipsFormat","{0}{1}"),
+												LightShipText,
+												HeavyShipText);
+			};
+
+			auto GetUnknownShipText = [&](int32 UnknownShipCount)
+			{
+				return FText::Format(LOCTEXT("PlayerAttackedUnknownFormat", "{0} {1}"),
+				FText::AsNumber(UnknownShipCount),
+				(UnknownShipCount > 1) ? MultipleShips : SingleShip);
+			};
+
+			for (auto Entry : IncomingMap)
+			{
+				UFlareCompany* Company = Entry.Key.Company;
+				UFlareSimulatedSector* Sector = Entry.Key.DestinationSector;
+				int32 EnemyValue = Entry.Value.CombatValue;
+				int64 RemainingDuration = Entry.Key.RemainingDuration;
+
+
+				if (RemainingDuration <=1 || PlayerCompany->IsTechnologyUnlocked("early-warning"))
+				{
+
+					FText TravelText;
+					FText TravelPartText = FText::Format(LOCTEXT("ThreatTextTravelPart", "Traveling to {0} ({1} left)"),
+							Sector->GetSectorName(),
+							FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1)));
+
+
+
+					if (PlayerCompany->IsTechnologyUnlocked("advanced-radar"))
+					{
+
+						TravelText = FText::Format(LOCTEXT("ThreatTextAdvancedFormat", "\u2022 <WarningText>{0} (Combat value of {1})</>"
+																					   "\n    <WarningText>{2}</>"
+																					   "\n    <WarningText>{3}</>"),
+								Company->GetCompanyName(),
+								EnemyValue,
+								GetShipsText(Entry.Value.LightShipCount, Entry.Value.HeavyShipCount),
+								TravelPartText);
+					}
+					else
+					{
+						TravelText = FText::Format(LOCTEXT("ThreatTextFormat", "\u2022 <WarningText>{0}</>"
+																			   "\n    <WarningText>{1}</>"
+																			   "\n    <WarningText>{2}</>"),
+
+							Company->GetCompanyName(),
+							GetUnknownShipText (Entry.Value.LightShipCount + Entry.Value.HeavyShipCount),
+							TravelPartText);
+					}
+
+					// Add data
+					FFlareIncomingEvent TravelEvent;
+					TravelEvent.Text = TravelText;
+					TravelEvent.RemainingDuration = RemainingDuration;
+					IncomingEvents.Add(TravelEvent);
+
 				}
 			}
 

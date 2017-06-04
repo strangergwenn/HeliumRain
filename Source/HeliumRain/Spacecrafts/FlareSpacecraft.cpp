@@ -1650,7 +1650,7 @@ FText AFlareSpacecraft::GetShipStatus() const
 	}
 	else if (Parent->GetCurrentFleet()->IsTraveling())
 	{
-		ModeText = FText::Format(LOCTEXT("TravellingAtFormat", "Travelling to {0}"),
+		ModeText = FText::Format(LOCTEXT("TravelingAtFormat", "Traveling to {0}"),
 			Parent->GetCurrentFleet()->GetCurrentTravel()->GetDestinationSector()->GetSectorName());
 	}
 	else if (Command.Type == EFlareCommandDataType::CDT_Dock)

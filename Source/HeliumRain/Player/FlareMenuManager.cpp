@@ -664,7 +664,7 @@ bool AFlareMenuManager::FlyShip()
 				FText Title;
 				if (PC->GetPlayerFleet()->IsTraveling())
 				{
-					Title = FText::Format(LOCTEXT("FlyingTravelFormat", "Travelling with {0}"), UFlareGameTools::DisplaySpacecraftName(Ship));
+					Title = FText::Format(LOCTEXT("FlyingTravelFormat", "Traveling with {0}"), UFlareGameTools::DisplaySpacecraftName(Ship));
 				}
 				else
 				{

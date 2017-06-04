@@ -964,105 +964,339 @@ void UFlareWorld::FastForward()
 	Simulate();
 }
 
+TMap<IncomingKey, IncomingValue> UFlareWorld::GetIncomingPlayerEnemy()
+{
+	// List sector with player possesion
+	TArray<UFlareSimulatedSector*> PlayerSectors;
+	TMap<IncomingKey, IncomingValue> IncomingMap;
+
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+
+	for(UFlareSimulatedSpacecraft* Spacecraft : GetGame()->GetPC()->GetCompany()->GetCompanySpacecrafts())
+	{
+		PlayerSectors.AddUnique(Spacecraft->GetCurrentSector());
+	}
+
+	// List dangerous travels
+	for (UFlareTravel* Travel : GetTravels())
+	{
+		if(Travel->GetFleet()->GetFleetCompany()->GetPlayerWarState() != EFlareHostility::Hostile)
+		{
+			continue;
+		}
+
+		int32 EnemyValue = Travel->GetFleet()->GetCombatPoints(true);
+		if(EnemyValue == 0)
+		{
+			continue;
+		}
+
+		if(!PlayerSectors.Contains(Travel->GetDestinationSector()))
+		{
+			continue;
+		}
+
+		int64 RemainingDuration = Travel->GetRemainingTravelDuration();
+		if (RemainingDuration > 1 && !PlayerCompany->IsTechnologyUnlocked("early-warning"))
+		{
+			continue;
+		}
+
+		IncomingKey key;
+		key.Company = Travel->GetFleet()->GetFleetCompany();
+		key.RemainingDuration = RemainingDuration;
+		key.DestinationSector = Travel->GetDestinationSector();
+
+		IncomingValue& Value = IncomingMap.FindOrAdd(key);
+
+
+		if (RemainingDuration == 1 || Travel->PickNeedNotification())
+		{
+			Value.NeedNotification = true;
+		}
+
+		Value.CombatValue += EnemyValue;
+		Value.LightShipCount += Travel->GetFleet()->GetMilitaryShipCountBySize(EFlarePartSize::S);
+		Value.HeavyShipCount += Travel->GetFleet()->GetMilitaryShipCountBySize(EFlarePartSize::L);
+	}
+
+	return IncomingMap;
+}
+
 void UFlareWorld::ProcessIncomingPlayerEnemy()
 {
-	if (GetGame()->GetPC()->GetPlayerShip())
+	if (!GetGame()->GetPC()->GetPlayerShip())
 	{
-		UFlareSimulatedSector* PlayerSector = GetGame()->GetPC()->GetPlayerShip()->GetCurrentSector();
+		return;
+	}
 
-		// Notification data
-		FText SingleShip = LOCTEXT("ShipSingle", "ship");
-		FText MultipleShips = LOCTEXT("ShipPlural", "ships");
-		int32 LightShipCount = 0;
-		int32 HeavyShipCount = 0;
-		FText CompanyName;
-		int32 CombatValue = 0;
 
-		// Count incoming ships
-		for (int32 TravelIndex = 0; TravelIndex < GetTravels().Num(); TravelIndex++)
+	FText SingleShip = LOCTEXT("ShipSingle", "ship");
+	FText MultipleShips = LOCTEXT("ShipPlural", "ships");
+
+
+	TMap<IncomingKey, IncomingValue> IncomingMap = GetIncomingPlayerEnemy();
+
+	bool OneDayNotificationHide = true;
+	bool MutipleDaysNotificationHide = true;
+	int32 OneDayNotificationNeeds = 0;
+	int32 MultipleDaysNotificationNeeds = 0;
+
+	for(auto Entry: IncomingMap)
+	{
+		if (Entry.Key.RemainingDuration == 1)
 		{
-			UFlareTravel* Travel = GetTravels()[TravelIndex];
-			
-			if (Travel->GetDestinationSector() == PlayerSector
-				&& Travel->GetRemainingTravelDuration() == 1
-				&& Travel->GetFleet()->GetFleetCompany()->GetPlayerWarState() == EFlareHostility::Hostile)
+			OneDayNotificationNeeds++;
+			if(Entry.Value.NeedNotification)
 			{
-				CompanyName = Travel->GetFleet()->GetFleetCompany()->GetCompanyName();
-				LightShipCount += Travel->GetFleet()->GetMilitaryShipCountBySize(EFlarePartSize::S);
-				HeavyShipCount += Travel->GetFleet()->GetMilitaryShipCountBySize(EFlarePartSize::L);
-				CombatValue += Travel->GetFleet()->GetCombatPoints(true);
+				OneDayNotificationHide = false;
+			}
+		}
+		else
+		{
+			MultipleDaysNotificationNeeds++;
+			if(Entry.Value.NeedNotification)
+			{
+				MutipleDaysNotificationHide = false;
+			}
+		}
+	}
+
+	FFlareMenuParameterData Data;
+
+	auto GetShipsText = [&](int32 LightShipCount, int32 HeavyShipCount)
+	{
+		// Fighters
+		FText LightShipText;
+		if (LightShipCount > 0)
+		{
+			LightShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} light {1}"),
+				FText::AsNumber(LightShipCount),
+				(LightShipCount > 1) ? MultipleShips : SingleShip);
+		}
+
+		// Heavies
+		FText HeavyShipText;
+		if (HeavyShipCount > 0)
+		{
+			HeavyShipText = FText::Format(LOCTEXT("PlayerAttackedHeaviesFormat", "{0} heavy {1}"),
+				FText::AsNumber(HeavyShipCount),
+				(HeavyShipCount > 1) ? MultipleShips : SingleShip);
+
+			if (LightShipCount > 0)
+			{
+				HeavyShipText = FText::FromString(", " + HeavyShipText.ToString());
 			}
 		}
 
-		// Warn player
-		if (LightShipCount > 0 || HeavyShipCount > 0)
+		return FText::Format(LOCTEXT("PlayerAttackedSoonShipsFormat","{0}{1}"),
+										LightShipText,
+										HeavyShipText);
+	};
+
+	auto GetUnknownShipText = [&](int32 UnknownShipCount)
+	{
+		return FText::Format(LOCTEXT("PlayerAttackedUnknownFormat", "{0} {1}"),
+		FText::AsNumber(UnknownShipCount),
+		(UnknownShipCount > 1) ? MultipleShips : SingleShip);
+	};
+
+	if(!OneDayNotificationHide && OneDayNotificationNeeds == 1)
+	{
+		for(auto Entry: IncomingMap)
 		{
-			// Notify
-			FFlareMenuParameterData Data;
-			Data.Sector = PlayerSector;
-
-			if(GetGame()->GetPC()->GetCompany()->IsTechnologyUnlocked("advanced-radar"))
+			if (Entry.Key.RemainingDuration == 1)
 			{
+				FText CompanyName = Entry.Key.Company->GetCompanyName();
 
-				// Fighters
-				FText LightShipText;
-				if (LightShipCount > 0)
+				if(GetGame()->GetPC()->GetCompany()->IsTechnologyUnlocked("advanced-radar"))
 				{
-					LightShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} light {1}"),
-						FText::AsNumber(LightShipCount),
-						(LightShipCount > 1) ? MultipleShips : SingleShip);
+					GetGame()->GetPC()->Notify(LOCTEXT("PlayerAttackedSoon", "Incoming attack"),
+						FText::Format(LOCTEXT("PlayerAttackedSoonFormat", "Your current sector {0} will be attacked tomorrow by {1} with {2} (Combat value: {3}). Prepare for battle."),
+							Entry.Key.DestinationSector->GetSectorName(),
+							CompanyName,
+							GetShipsText(Entry.Value.LightShipCount, Entry.Value.HeavyShipCount),
+							Entry.Value.CombatValue),
+						FName("travel-raid-soon"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Orbit,
+						Data);
 				}
-
-				// Heavies
-				FText HeavyShipText;
-				if (HeavyShipCount > 0)
+				else
 				{
-					HeavyShipText = FText::Format(LOCTEXT("PlayerAttackedHeaviesFormat", "{0} heavy {1}"),
-						FText::AsNumber(HeavyShipCount),
-						(HeavyShipCount > 1) ? MultipleShips : SingleShip);
+					// Unknown
+					int32 UnknownShipCount = Entry.Value.HeavyShipCount + Entry.Value.LightShipCount;
 
-					if (LightShipCount > 0)
-					{
-						HeavyShipText = FText::FromString(", " + HeavyShipText.ToString());
-					}
+					GetGame()->GetPC()->Notify(LOCTEXT("PlayerAttackedSoon", "Incoming attack"),
+						FText::Format(LOCTEXT("PlayerAttackedSoonNoRadarFormat", "Your current sector {0} will be attacked tomorrow by {1} with {2}. Prepare for battle."),
+							Entry.Key.DestinationSector->GetSectorName(),
+							CompanyName,
+							GetUnknownShipText(UnknownShipCount)),
+						FName("travel-raid-soon"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Orbit,
+						Data);
 				}
-
-				FText ShipsText = FText::Format(LOCTEXT("PlayerAttackedSoonShipsFormat","{0}{1}"),
-												LightShipText,
-												HeavyShipText);
-
-				GetGame()->GetPC()->Notify(LOCTEXT("PlayerAttackedSoon", "Incoming attack"),
-					FText::Format(LOCTEXT("PlayerAttackedSoonFormat", "Your current sector {0} will be attacked tomorrow by {1} with {2} (Combat value: {3}). Prepare for battle."),
-						PlayerSector->GetSectorName(),
-						CompanyName,
-						ShipsText,
-						CombatValue),
-					FName("travel-raid-soon"),
-					EFlareNotification::NT_Military,
-					false,
-					EFlareMenu::MENU_Sector,
-					Data);
 			}
-			else
+			break;
+		}
+	}
+	else if(!OneDayNotificationHide && OneDayNotificationNeeds > 1)
+	{
+		if(GetGame()->GetPC()->GetCompany()->IsTechnologyUnlocked("advanced-radar"))
+		{
+			int32 LightShipCount = 0;
+			int32 HeavyShipCount = 0;
+			int32 CombatValue = 0;
+
+			for(auto Entry: IncomingMap)
 			{
-				// Unknown
-				int32 UnknownShipCount = HeavyShipCount + LightShipCount;
-				FText UnknownShipText = FText::Format(LOCTEXT("PlayerAttackedUnknownFormat", "{0} {1}"),
-					FText::AsNumber(UnknownShipCount),
-					(UnknownShipCount > 1) ? MultipleShips : SingleShip);
-
-
-				GetGame()->GetPC()->Notify(LOCTEXT("PlayerAttackedSoon", "Incoming attack"),
-					FText::Format(LOCTEXT("PlayerAttackedSoonNoRadarFormat", "Your current sector {0} will be attacked tomorrow by {1} with {2}. Prepare for battle."),
-						PlayerSector->GetSectorName(),
-						CompanyName,
-						UnknownShipText),
-					FName("travel-raid-soon"),
-					EFlareNotification::NT_Military,
-					false,
-					EFlareMenu::MENU_Sector,
-					Data);
+				if (Entry.Key.RemainingDuration == 1)
+				{
+					LightShipCount += Entry.Value.LightShipCount;
+					HeavyShipCount += Entry.Value.HeavyShipCount;
+					CombatValue += Entry.Value.CombatValue;
+				}
 			}
+
+
+			GetGame()->GetPC()->Notify(LOCTEXT("MultiplePlayerAttackedSoon", "Incoming attacks"),
+				FText::Format(LOCTEXT("MultiplePlayerAttackedSoonFormat", "{0} attacks incoming tomorrow with {1} (Combat value: {2}). Prepare for battle."),
+					OneDayNotificationNeeds,
+					GetShipsText(LightShipCount, HeavyShipCount),
+					CombatValue),
+				FName("travel-raid-soon"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Orbit,
+				Data);
+		}
+		else
+		{
+			int32 UnknownShipCount = 0;
+
+			for(auto Entry: IncomingMap)
+			{
+				if (Entry.Key.RemainingDuration == 1)
+				{
+					UnknownShipCount += Entry.Value.LightShipCount;
+					UnknownShipCount += Entry.Value.HeavyShipCount;
+				}
+			}
+
+			GetGame()->GetPC()->Notify(LOCTEXT("MultiplePlayerAttackedSoon", "Incoming attacks"),
+				FText::Format(LOCTEXT("PlayerAttackedSoonNoRadarFormat", "{0} attacks incoming tomorrow with {1}. Prepare for battle."),
+					OneDayNotificationNeeds,
+					GetUnknownShipText(UnknownShipCount)),
+				FName("travel-raid-soon"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Orbit,
+				Data);
+		}
+	}
+
+
+	if(!MutipleDaysNotificationHide && MultipleDaysNotificationNeeds == 1)
+	{
+		for(auto Entry: IncomingMap)
+		{
+			if (Entry.Key.RemainingDuration > 1)
+			{
+				FText CompanyName = Entry.Key.Company->GetCompanyName();
+
+				if(GetGame()->GetPC()->GetCompany()->IsTechnologyUnlocked("advanced-radar"))
+				{
+					FText FirstPart = FText::Format(LOCTEXT("PlayerAttackedDistant1Format", "Your current sector {0} will be attacked in {1} days"),
+							Entry.Key.DestinationSector->GetSectorName(),
+							FText::AsNumber(Entry.Key.RemainingDuration));
+
+					GetGame()->GetPC()->Notify(LOCTEXT("PlayerAttackedDistant", "Incoming attack"),
+						FText::Format(LOCTEXT("PlayerAttackedDistantFormat",  "{0} by {1} with {2} (Combat value: {3}). Prepare for battle."),
+							FirstPart,
+							CompanyName,
+							GetShipsText(Entry.Value.LightShipCount, Entry.Value.HeavyShipCount),
+							Entry.Value.CombatValue),
+						FName("travel-raid-distant"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Orbit,
+						Data);
+				}
+				else
+				{
+					int32 UnknownShipCount = Entry.Value.HeavyShipCount + Entry.Value.LightShipCount;
+
+					GetGame()->GetPC()->Notify(LOCTEXT("PlayerAttackedDistant", "Incoming attack"),
+						FText::Format(LOCTEXT("PlayerAttackedDistantNoRadarFormat", "Your current sector {0} will be attacked in {1} days by {2} with {3}. Prepare for battle."),
+							Entry.Key.DestinationSector->GetSectorName(),
+							FText::AsNumber(Entry.Key.RemainingDuration),
+							CompanyName,
+							GetUnknownShipText(UnknownShipCount)),
+						FName("travel-raid-distant"),
+						EFlareNotification::NT_Military,
+						false,
+						EFlareMenu::MENU_Orbit,
+						Data);
+				}
+			}
+			break;
+		}
+	}
+	else if(!MutipleDaysNotificationHide && MultipleDaysNotificationNeeds > 1)
+	{
+		if(GetGame()->GetPC()->GetCompany()->IsTechnologyUnlocked("advanced-radar"))
+		{
+			int32 LightShipCount = 0;
+			int32 HeavyShipCount = 0;
+			int32 CombatValue = 0;
+
+			for(auto Entry: IncomingMap)
+			{
+				if (Entry.Key.RemainingDuration > 1)
+				{
+					LightShipCount += Entry.Value.LightShipCount;
+					HeavyShipCount += Entry.Value.HeavyShipCount;
+					CombatValue += Entry.Value.CombatValue;
+				}
+			}
+
+
+			GetGame()->GetPC()->Notify(LOCTEXT("MultiplePlayerAttackedDistant", "Incoming attacks"),
+				FText::Format(LOCTEXT("MultiplePlayerAttackedSoonFormat", "{0} attacks are incoming in few days. You will be attacked with {1} (Combat value: {2}). Prepare for battle."),
+					MultipleDaysNotificationNeeds,
+					GetShipsText(LightShipCount, HeavyShipCount),
+					CombatValue),
+				FName("travel-raid-distant"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Orbit,
+				Data);
+		}
+		else
+		{
+			int32 UnknownShipCount = 0;
+
+			for(auto Entry: IncomingMap)
+			{
+				if (Entry.Key.RemainingDuration == 1)
+				{
+					UnknownShipCount += Entry.Value.LightShipCount;
+					UnknownShipCount += Entry.Value.HeavyShipCount;
+				}
+			}
+
+			GetGame()->GetPC()->Notify(LOCTEXT("MultiplePlayerAttackedDistant", "Incoming attacks"),
+				FText::Format(LOCTEXT("PlayerAttackedSoonNoRadarFormat", "{0} attacks are incoming in few days. You will be attacked with {1}. Prepare for battle."),
+					MultipleDaysNotificationNeeds,
+					GetUnknownShipText(UnknownShipCount)),
+				FName("travel-raid-distant"),
+				EFlareNotification::NT_Military,
+				false,
+				EFlareMenu::MENU_Orbit,
+				Data);
 		}
 	}
 }

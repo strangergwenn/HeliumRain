@@ -71,6 +71,36 @@ struct FFlareWorldEvent
 	TEnumAsByte<EFlareEventVisibility::Type>  Visibility;
 };
 
+
+struct IncomingKey
+{
+	UFlareSimulatedSector* DestinationSector;
+	int64 RemainingDuration;
+	UFlareCompany* Company;
+
+	bool operator==(const IncomingKey& other) const {
+		return DestinationSector == other.DestinationSector
+				&& RemainingDuration == other.RemainingDuration
+				&& Company == other.Company;
+	}
+
+};
+
+inline uint32 GetTypeHash(const IncomingKey& Key)
+{
+	return int32(Key.RemainingDuration);
+}
+
+struct IncomingValue
+{
+	bool NeedNotification = false;
+	int32 LightShipCount = 0;
+	int32 HeavyShipCount = 0;
+	int32 CombatValue = 0;
+};
+
+
+
 UCLASS()
 class HELIUMRAIN_API UFlareWorld: public UObject
 {
@@ -232,5 +262,8 @@ public:
 	int64 GetWorldMoney();
 
 	uint32 GetWorldPopulation();
+
+
+	TMap<IncomingKey, IncomingValue> GetIncomingPlayerEnemy();
 
 };

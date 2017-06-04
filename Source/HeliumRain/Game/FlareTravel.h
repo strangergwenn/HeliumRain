@@ -119,6 +119,8 @@ protected:
 	AFlareGame*                             Game;
 	int64                                   TravelDuration;
 
+	bool								NeedNotification;
+
 public:
 
 	/*----------------------------------------------------
@@ -160,6 +162,13 @@ public:
 	inline TArray<UFlareSimulatedSpacecraft*>& GetShips()
 	{
 		return TravelShips;
+	}
+
+	bool PickNeedNotification()
+	{
+		bool OldNeedNotification = NeedNotification;
+		NeedNotification = false;
+		return OldNeedNotification;
 	}
 
 };
