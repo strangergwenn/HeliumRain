@@ -208,7 +208,7 @@ void UFlareWorld::CompanyMutualAssistance()
 		UFlareCompany* Company =Companies[CompanyIndex];
 		if (Company != PlayerCompany)
 		{
-			int64 MoneyToTake = Company->GetMoney() / 1000;
+			int64 MoneyToTake = Company->GetMoney() / 500;
 			if (MoneyToTake > 0)
 			{
 				if (Company->TakeMoney(MoneyToTake))
