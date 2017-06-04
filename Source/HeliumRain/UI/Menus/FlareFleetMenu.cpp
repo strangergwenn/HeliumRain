@@ -403,7 +403,11 @@ FText SFlareFleetMenu::GetRemoveHintText() const
 {
 	if (ShipToRemove)
 	{
-		if (FleetToEdit->GetShips().Num() > 1)
+		if(ShipToRemove == MenuManager->GetPC()->GetPlayerShip())
+		{
+			return LOCTEXT("CantRemovePlayerShipFromFleetInfo", "Can't remove the ship you are currenly flying");
+		}
+		else if (FleetToEdit->GetShips().Num() > 1)
 		{
 			return LOCTEXT("RemoveFromFleetInfo", "Remove the selected ship from the fleet");
 		}
