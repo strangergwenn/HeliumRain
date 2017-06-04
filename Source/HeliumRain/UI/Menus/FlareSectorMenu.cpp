@@ -337,13 +337,14 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					SNew(SScrollBox)
 					.Style(&Theme.ScrollBoxStyle)
 					.ScrollBarStyle(&Theme.ScrollBarStyle)
+					.Visibility(this, &SFlareSectorMenu::GetVisitedListVisibility)
+
 
 					+ SScrollBox::Slot()
 					[
 						SAssignNew(OwnedShipList, SFlareList)
 						.MenuManager(MenuManager)
 						.Title(LOCTEXT("OwnedSpacecraftsSector", "Owned spacecrafts in sector"))
-						.Visibility(this, &SFlareSectorMenu::GetVisitedListVisibility)
 					]
 
 					+ SScrollBox::Slot()
@@ -362,13 +363,13 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					SNew(SScrollBox)
 					.Style(&Theme.ScrollBoxStyle)
 					.ScrollBarStyle(&Theme.ScrollBarStyle)
+					.Visibility(this, &SFlareSectorMenu::GetVisitedListVisibility)
 
 					+ SScrollBox::Slot()
 					[
 						SAssignNew(OtherShipList, SFlareList)
 						.MenuManager(MenuManager)
 						.Title(LOCTEXT("OtherSpacecraftsSector", "Other spacecrafts in sector"))
-						.Visibility(this, &SFlareSectorMenu::GetVisitedListVisibility)
 					]
 
 					+ SScrollBox::Slot()
