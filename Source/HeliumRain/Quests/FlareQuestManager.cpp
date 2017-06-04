@@ -487,7 +487,7 @@ void UFlareQuestManager::NotifyNewQuests(TArray<UFlareQuest*>& QuestsToNotify)
 		Data.Quest = Quest;
 
 		GetGame()->GetPC()->Notify(Text, Info, FName(*(FString("quest-") + Quest->GetIdentifier().ToString() + "-status")),
-			EFlareNotification::NT_Quest, false, EFlareMenu::MENU_Quest, Data);
+			EFlareNotification::NT_NewQuest, false, EFlareMenu::MENU_Quest, Data);
 	}
 	else if(QuestsToNotify.Num() > 1)
 	{
@@ -498,7 +498,7 @@ void UFlareQuestManager::NotifyNewQuests(TArray<UFlareQuest*>& QuestsToNotify)
 		Data.Quest = QuestsToNotify[0];
 
 		GetGame()->GetPC()->Notify(Text, Info, FName("new-quest"),
-			EFlareNotification::NT_Quest, false, EFlareMenu::MENU_Quest, Data);
+			EFlareNotification::NT_NewQuest, false, EFlareMenu::MENU_Quest, Data);
 	}
 }
 

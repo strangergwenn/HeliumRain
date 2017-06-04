@@ -629,6 +629,7 @@ void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNo
 		case EFlareNotification::NT_Info:      NotifSound = NotificationInfoSound;      break;
 		case EFlareNotification::NT_Military:  NotifSound = NotificationCombatSound;    break;
 		case EFlareNotification::NT_Quest:	   NotifSound = NotificationQuestSound;     break;
+		case EFlareNotification::NT_NewQuest:	   NotifSound = NotificationQuestSound;     break;
 		case EFlareNotification::NT_Economy:   NotifSound = NotificationTradingSound;   break;
 	}
 	MenuManager->GetPC()->ClientPlaySound(NotifSound);

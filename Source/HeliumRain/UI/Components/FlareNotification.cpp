@@ -266,6 +266,7 @@ FSlateColor SFlareNotification::GetNotificationColor(EFlareNotification::Type Ty
 		case EFlareNotification::NT_Info:      Result = Theme.InfoColor;      break;
 		case EFlareNotification::NT_Military:  Result = Theme.EnemyColor;     break;
 		case EFlareNotification::NT_Quest:	   Result = Theme.QuestColor;     break;
+		case EFlareNotification::NT_NewQuest:	   Result = Theme.QuestColor;     break;
 		case EFlareNotification::NT_Economy:   Result = Theme.TradingColor;   break;
 	}
 

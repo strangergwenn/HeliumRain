@@ -352,7 +352,7 @@ void AFlareMenuManager::Notify(FText Text, FText Info, FName Tag, EFlareNotifica
 {
 	if (MainOverlay.IsValid())
 	{
-		if (!UFlareGameTools::FastFastForward)
+		if (!UFlareGameTools::FastFastForward && Type != EFlareNotification::NT_NewQuest)
 		{
 			OrbitMenu->RequestStopFastForward();
 		}
