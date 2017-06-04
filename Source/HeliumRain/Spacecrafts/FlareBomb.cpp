@@ -370,10 +370,11 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 	AFlareBomb* BombCandidate = Cast<AFlareBomb>(Other);
 	AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(Other);
 	AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(Other);
+	AFlareShell* Shell = Cast<AFlareShell>(Other);
 	UFlareSpacecraftComponent* ShipComponent = Cast<UFlareSpacecraftComponent>(OtherComp);
 
 	// Forget uninteresting hits
-	if (!Other || !OtherComp || !ParentWeapon || Other == ParentWeapon->GetSpacecraft() || BombCandidate || (BombData.AttachTarget != NAME_None))
+	if ( !Other || (!Shell && !OtherComp) || !ParentWeapon || Other == ParentWeapon->GetSpacecraft() || BombCandidate || (BombData.AttachTarget != NAME_None))
 	{
 		FLOG("AFlareBomb::NotifyHit : invalid hit");
 		if(Other == ParentWeapon->GetSpacecraft())
@@ -391,14 +392,27 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 	// Spawn penetration effect
 	if (ExplosionEffectTemplate && !(Spacecraft && Spacecraft->IsInImmersiveMode()))
 	{
-		UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
-			ExplosionEffectTemplate,
-			OtherComp,
-			NAME_None,
-			HitLocation,
-			HitNormal.Rotation(),
-			EAttachLocation::KeepWorldPosition,
-			true);
+		UParticleSystemComponent* PSC;
+		if(Shell)
+		{
+			PSC = UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				ExplosionEffectTemplate,
+				HitLocation,
+				HitNormal.Rotation(),
+				true);
+		}
+		else
+		{
+			PSC = UGameplayStatics::SpawnEmitterAttached(
+				ExplosionEffectTemplate,
+				OtherComp,
+				NAME_None,
+				HitLocation,
+				HitNormal.Rotation(),
+				EAttachLocation::KeepWorldPosition,
+				true);
+		}
 		if (PSC)
 		{
 			PSC->SetWorldScale3D(ExplosionEffectScale * FVector(1, 1, 1));

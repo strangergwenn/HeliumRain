@@ -495,11 +495,9 @@ float AFlareSpacecraft::GetSpacecraftMass()
 
 float AFlareSpacecraft::GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const
 {
-	FVector BaseLocation = GetCamera()->GetComponentLocation();
-
-	return SpacecraftHelper::GetIntersectionPosition(BaseLocation,
+	return SpacecraftHelper::GetIntersectionPosition(GetActorLocation(),
 											  Airframe->GetPhysicsLinearVelocity(),
-											  TargettingShip->GetActorLocation(),
+											  TargettingShip->GetCamera()->GetComponentLocation(),
 											  TargettingShip->GetLinearVelocity() * 100,
 											  BulletSpeed * 100,
 											  PredictionDelay,

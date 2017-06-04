@@ -110,6 +110,7 @@ void AFlareShell::Tick(float DeltaSeconds)
 	if (ShellDescription)
 	{
 		FHitResult HitResult(ForceInit);
+
 		if (Trace(ActorLocation, NextActorLocation, HitResult))
 		{
 			OnImpact(HitResult, ShellVelocity);
@@ -496,6 +497,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	float AbsorbedEnergy = (PenetrateArmor ? ImpactPower : FMath::Square(Incidence) * ImpactPower);
 	AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(ActorToDamage);
 	AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(ActorToDamage);
+	AFlareBomb* Bomb = Cast<AFlareBomb>(ActorToDamage);
 	if (Spacecraft)
 	{
 		Spacecraft->GetDamageSystem()->SetLastDamageCauser(Cast<AFlareSpacecraft>(ParentWeapon->GetOwner()));
@@ -523,6 +525,11 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 		{
 			ParentWeapon->GetSpacecraft()->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("hit-asteroid"));
 		}
+	}
+	else if (Bomb)
+	{
+		FHitResult Hit;
+		Bomb->NotifyHit(HitComponent, this, NULL, false, ImpactLocation, ImpactNormal, FVector::ZeroVector, Hit);
 	}
 
 	// Spawn impact decal

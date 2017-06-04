@@ -1167,6 +1167,9 @@ void AFlareHUD::DrawHUDInternal()
 		}
 	}
 
+	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
+	FVector CameraAimDirection = PC->GetShipPawn()->GetCamera()->GetComponentRotation().Vector();
+
 	// Draw bombs
 	for (int32 BombIndex = 0; BombIndex < ActiveSector->GetBombs().Num(); BombIndex++)
 	{
@@ -1178,6 +1181,43 @@ void AFlareHUD::DrawHUDInternal()
 			if (IsInScreen(ScreenPosition))
 			{
 				DrawHUDIcon(ScreenPosition, IconSize, HUDBombMarker, GetHostilityColor(PC, Bomb->GetFiringSpacecraft()) , true);
+
+				// Combat helper
+				if (PlayerShip && (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN || PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET))
+				{
+					FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+					if (WeaponGroup)
+					{
+						FVector2D HelperScreenPosition;
+						FVector AmmoIntersectionLocation;
+						float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
+						float Range = 100 * WeaponGroup->Weapons[0]->GetDescription()->WeaponCharacteristics.GunCharacteristics.AmmoRange;
+
+						FVector CameraLocation = PlayerShip->GetCamera()->GetComponentLocation();
+
+
+
+						FVector BombAimDirection = (Bomb->GetActorLocation() - CameraLocation).GetUnsafeNormal();
+
+
+						float BombTargetDot = FVector::DotProduct(CameraAimDirection, BombAimDirection);
+						UPrimitiveComponent* BombRootComponent = Cast<UPrimitiveComponent>(Bomb->GetRootComponent());
+
+						if(BombTargetDot > 0.99 && BombRootComponent)
+						{
+							float InterceptTime = SpacecraftHelper::GetIntersectionPosition(Bomb->GetActorLocation(), BombRootComponent->GetPhysicsLinearVelocity(), CameraLocation, PlayerShip->GetLinearVelocity() * 100, AmmoVelocity * 100, 0.0, &AmmoIntersectionLocation);
+							float Distance = (Bomb->GetActorLocation() - PlayerLocation).Size();
+
+
+							if (InterceptTime > 0 && ProjectWorldLocationToCockpit(AmmoIntersectionLocation, HelperScreenPosition) && (Range == 0 || Distance < Range))
+							{
+								FLinearColor HUDAimHelperColor = (Bomb->GetFiringSpacecraft() ? GetHostilityColor(PC, Bomb->GetFiringSpacecraft()) : HudColorNeutral);
+								DrawHUDIcon(HelperScreenPosition, IconSize, HUDAimHelperIcon, HUDAimHelperColor, true);
+								FlareDrawLine(ScreenPosition, HelperScreenPosition, HUDAimHelperColor);
+							}
+						}
+					}
+				}
 			}
 		}
 	}
