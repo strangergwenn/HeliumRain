@@ -309,9 +309,11 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 						EFlareMenu::MENU_Leaderboard,
 						Data);
 				}
+
+				PlayerCompany->SetHostilityTo(this, true);
 			}
 
-			if (this == PlayerCompany)
+			if (this == PlayerCompany && TargetCompany->GetHostility(this) != EFlareHostility::Hostile)
 			{
 				TargetCompany->GivePlayerReputation(-50);
 				TargetCompany->GetAI()->GetData()->Pacifism = FMath::Min(50.f, TargetCompany->GetAI()->GetData()->Pacifism);
