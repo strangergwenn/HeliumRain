@@ -1138,7 +1138,7 @@ TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateResolutionComboLine(TSharedPtr
 
 void SFlareSettingsMenu::OnResolutionComboLineSelectionChanged(TSharedPtr<FScreenResolutionRHI> StringItem, ESelectInfo::Type SelectInfo)
 {
-	UpdateResolution();
+	UpdateResolution(false);
 }
 
 FText SFlareSettingsMenu::OnGetCurrentJoystickKeyName(FName AxisName) const
@@ -1218,7 +1218,7 @@ void SFlareSettingsMenu::OnInvertAxisClicked(FName AxisName)
 
 void SFlareSettingsMenu::OnFullscreenToggle()
 {
-	UpdateResolution();
+	UpdateResolution(true);
 }
 
 void SFlareSettingsMenu::OnCockpitToggle()
@@ -1516,14 +1516,13 @@ void SFlareSettingsMenu::FillResolutionList()
 	// Setup the list data
 	ResolutionList.Empty();
 	FScreenResolutionArray Resolutions;
-	int CurrentResolutionIndex = -1;
 
 	// Get all resolution settings
 	if (RHIGetAvailableResolutions(Resolutions, true))
 	{
 		for (const FScreenResolutionRHI& EachResolution : Resolutions)
 		{
-			if (EachResolution.Width >= 1280 && EachResolution.Height>= 720)
+			if (EachResolution.Width >= 1280 && EachResolution.Height >= 720)
 			{
 				ResolutionList.Insert(MakeShareable(new FScreenResolutionRHI(EachResolution)), 0);
 			}
@@ -1533,6 +1532,13 @@ void SFlareSettingsMenu::FillResolutionList()
 	{
 		FLOG("SFlareSettingsMenu::FillResolutionList : screen resolutions could not be obtained");
 	}
+
+	UpdateResolutionList(Resolution);
+}
+
+void SFlareSettingsMenu::UpdateResolutionList(FIntPoint Resolution)
+{
+	int CurrentResolutionIndex = -1;
 
 	// Look for current resolution
 	for (int i = 0; i < ResolutionList.Num(); i++)
@@ -1560,29 +1566,57 @@ void SFlareSettingsMenu::FillResolutionList()
 	ResolutionSelector->RefreshOptions();
 }
 
-void SFlareSettingsMenu::UpdateResolution()
+void SFlareSettingsMenu::UpdateResolution(bool CanAdaptResolution)
 {
 	if (GEngine)
 	{
-		FIntPoint Resolution = GEngine->GameViewport->Viewport->GetSizeXY();
-		FLOGV("SFlareSettingsMenu::UpdateResolution : current resolution is %s", *Resolution.ToString());
+		int32 Width = 0, Height = 0;
+		FIntPoint CurrentResolution = GEngine->GameViewport->Viewport->GetSizeXY();
 
-		TSharedPtr<FScreenResolutionRHI> Item = ResolutionSelector->GetSelectedItem();
-		FLOGV("SFlareSettingsMenu::UpdateResolution : new resolution is %dx%d", Item->Width, Item->Height);
+		// We clicked "full screen" to set it on, force a supported resolution
+		if (CanAdaptResolution && FullscreenButton->IsActive())
+		{
+			FLOGV("SFlareSettingsMenu::UpdateResolution : enabled full screen, switching res");
 
-		FLOGV("SFlareSettingsMenu::UpdateResolution : Need fullscreen ? %d", FullscreenButton->IsActive());
+			// Get all resolution settings
+			FScreenResolutionArray Resolutions;
+			RHIGetAvailableResolutions(Resolutions, true);
 
-		FString Command = FString::Printf(TEXT("setres %dx%d%s"), Item->Width, Item->Height, FullscreenButton->IsActive() ? TEXT("f") : TEXT("w"));
-		FLOGV("SFlareSettingsMenu::UpdateResolution : Command=%s", *Command);
+			// Find the lowest resolution that's >= our current one
+			for (const FScreenResolutionRHI& Resolution : Resolutions)
+			{
+				Width = Resolution.Width;
+				Height = Resolution.Height;
+				if (Resolution.Width > (uint32)CurrentResolution.X && Resolution.Height > (uint32)CurrentResolution.Y)
+				{
+					break;
+				}
+			}
 
+			UpdateResolutionList(FIntPoint(Width, Height));
+		}
+
+		// We changed the resolution only
+		else
+		{
+			TSharedPtr<FScreenResolutionRHI> Item = ResolutionSelector->GetSelectedItem();
+			Width = Item->Width;
+			Height = Item->Height;
+		}
+
+		FLOGV("SFlareSettingsMenu::UpdateResolution : new resolution is %dx%d (was %s)", Width, Height, *CurrentResolution.ToString());		
+		FLOGV("SFlareSettingsMenu::UpdateResolution : fullscreen = %d", FullscreenButton->IsActive());
+
+		// Apply video settings
+		FString Command = FString::Printf(TEXT("setres %dx%d%s"), Width, Height, FullscreenButton->IsActive() ? TEXT("f") : TEXT("w"));
 		GEngine->GameViewport->ConsoleCommand(*Command);
 
+		// Save settings
 		UGameUserSettings* MyGameSettings = GEngine->GetGameUserSettings();
-		MyGameSettings->SetScreenResolution(FIntPoint(Item->Width, Item->Height));
+		MyGameSettings->SetScreenResolution(FIntPoint(Width, Height));
 		MyGameSettings->SetFullscreenMode(FullscreenButton->IsActive() ? EWindowMode::Fullscreen : EWindowMode::Windowed);
 		MyGameSettings->ConfirmVideoMode();
 		MyGameSettings->SaveConfig();
-
 		GEngine->SaveConfig();
 	}
 }

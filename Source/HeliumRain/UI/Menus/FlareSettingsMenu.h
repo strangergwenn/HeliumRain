@@ -164,8 +164,11 @@ protected:
 	/** Get all resolutions */
 	void FillResolutionList();
 
+	/** Update resolutions */
+	void UpdateResolutionList(FIntPoint Resolution);
+
 	/** Update the current game state after a resolution change */
-	void UpdateResolution();
+	void UpdateResolution(bool CanAdaptResolution);
 
 	FText GetTextureQualityLabel(int32 Value) const;
 	FText GetEffectsQualityLabel(int32 Value) const;
