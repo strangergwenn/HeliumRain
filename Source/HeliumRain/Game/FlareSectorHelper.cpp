@@ -452,7 +452,7 @@ void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 				float CurrentRefillRatio = FMath::Min(MAX_REFILL_RATIO_BY_DAY * (Spacecraft->GetSize() == EFlarePartSize::L ? 0.2f : 1.f) , (1.f - FillRatio));
 				float TotalRefillRatio = 1.f - FillRatio;
 
-				int64 Duration =  FMath::CeilToInt(TotalRefillRatio / MAX_REFILL_RATIO_BY_DAY * (Spacecraft->GetSize() == EFlarePartSize::L ? 0.2f : 1.f));
+				int64 Duration =  FMath::CeilToInt(TotalRefillRatio / (MAX_REFILL_RATIO_BY_DAY * (Spacecraft->GetSize() == EFlarePartSize::L ? 0.2f : 1.f)));
 				if(Duration > MaxDuration)
 				{
 					MaxDuration = Duration;
