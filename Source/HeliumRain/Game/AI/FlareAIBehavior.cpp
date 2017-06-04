@@ -340,8 +340,8 @@ void UFlareAIBehavior::GenerateAffilities()
 	ArmySize = 5.0;
 	DiplomaticReactivity = 1;
 
-	PacifismIncrementRate = 2.0;
-	PacifismDecrementRate = 1.0;
+	PacifismIncrementRate = 0.8;
+	PacifismDecrementRate = 0.6;
 
 	// Pirate base
 	SetSectorAffility(ST->Boneyard, 0.f);
@@ -400,8 +400,8 @@ void UFlareAIBehavior::GenerateAffilities()
 		BudgetStationWeight = 0.1;
 		BudgetTradeWeight = 0.1;
 
-		PacifismIncrementRate = 3.f;
-		PacifismDecrementRate = 4.f;
+		PacifismIncrementRate = 1.f;
+		PacifismDecrementRate = 2.f;
 
 	}
 	else if(Company == ST->GhostWorksShipyards)
