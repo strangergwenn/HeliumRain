@@ -616,6 +616,27 @@ void UFlareWorld::Simulate()
 	Game->GetQuestManager()->OnNextDay();
 
 	GameLog::DaySimulated(WorldData.Date);
+
+	// Check recovery
+	{
+		// Check if it the last ship
+		bool EmptyFleet = true;
+		for(int ShipIndex = 0; ShipIndex < GetGame()->GetPC()->GetPlayerFleet()->GetShips().Num(); ShipIndex++)
+		{
+			UFlareSimulatedSpacecraft* Ship = GetGame()->GetPC()->GetPlayerFleet()->GetShips()[ShipIndex];
+			if(Ship->GetDamageSystem()->IsAlive() && !Ship->GetDamageSystem()->IsUncontrollable())
+			{
+				EmptyFleet = false;
+				break;
+			}
+		}
+
+		// If last, activate recovery
+		if (EmptyFleet)
+		{
+			GetGame()->GetPC()->GetMenuManager()->OpenMenu(EFlareMenu::MENU_GameOver);
+		}
+	}
 }
 
 void UFlareWorld::CheckAIBattleState()
