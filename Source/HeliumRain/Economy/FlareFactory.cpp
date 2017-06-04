@@ -1124,6 +1124,8 @@ FText UFlareFactory::GetFactoryCycleInfo()
 FText UFlareFactory::GetFactoryStatus()
 {
 	FText ProductionStatusText;
+	UFlareWorld* GameWorld = Game->GetGameWorld();
+
 
 	if (IsActive())
 	{
@@ -1138,8 +1140,6 @@ FText UFlareFactory::GetFactoryStatus()
 			// Shipyards are a special case
 			if (IsShipyard())
 			{
-				UFlareWorld* GameWorld = Game->GetGameWorld();
-
 				ProductionStatusText = FText::Format(LOCTEXT("ShipProductionInProgressFormat", "Building {0} for {1} ({2}{3})"),
 					Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,
 					GameWorld->FindCompany(GetTargetShipCompany())->GetCompanyName(),
@@ -1155,18 +1155,46 @@ FText UFlareFactory::GetFactoryStatus()
 		}
 		else if (HasInputMoney() && HasInputResources())
 		{
-			ProductionStatusText = LOCTEXT("ProductionWillStart", "Starting");
+			if (IsShipyard())
+			{
+				ProductionStatusText = FText::Format(LOCTEXT("ShipProductionWillStartFormat", "Starting building {0} for {1}"),
+					Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,
+					GameWorld->FindCompany(GetTargetShipCompany())->GetCompanyName());
+			}
+			else
+			{
+				ProductionStatusText = LOCTEXT("ProductionWillStart", "Starting");
+			}
 		}
 		else
 		{
 			if (!HasInputMoney())
 			{
-				ProductionStatusText = LOCTEXT("ProductionNotEnoughMoney", "Waiting for credits");
+				if (IsShipyard())
+				{
+					ProductionStatusText = FText::Format(LOCTEXT("ShipProductionWillStartFormat", "Waiting for credits to build {0} for {1}"),
+						Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,
+						GameWorld->FindCompany(GetTargetShipCompany())->GetCompanyName());
+				}
+				else
+				{
+					ProductionStatusText = LOCTEXT("ProductionNotEnoughMoney", "Waiting for credits");
+				}
 			}
 
 			if (!HasInputResources())
 			{
-				ProductionStatusText = LOCTEXT("ProductionNotEnoughResources", "Waiting for resources");
+				if (IsShipyard())
+				{
+					ProductionStatusText = FText::Format(LOCTEXT("ShipProductionWillStartFormat", "Waiting for resources to build {0} for {1}"),
+						Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,
+						GameWorld->FindCompany(GetTargetShipCompany())->GetCompanyName());
+				}
+				else
+				{
+					ProductionStatusText = LOCTEXT("ProductionNotEnoughResources", "Waiting for resources");
+				}
+
 			}
 
 
