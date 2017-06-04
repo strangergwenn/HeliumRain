@@ -270,6 +270,8 @@ void UFlareFactory::OrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier)
 
 
 		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("order-ship").PutInt32("size", Size));
+
+		Parent->GetCompany()->GivePlayerReputation(ShipPrice / 100000);
 	}
 
 }
@@ -280,6 +282,13 @@ void UFlareFactory::CancelOrder()
 	{
 		UFlareCompany* Company = GetGame()->GetGameWorld()->FindCompany(FactoryData.OrderShipCompany);
 		Company->GiveMoney(FactoryData.OrderShipAdvancePayment);
+
+
+		if(FactoryData.OrderShipCompany == Game->GetPC()->GetCompany()->GetIdentifier())
+		{
+			Parent->GetCompany()->GivePlayerReputation(-FactoryData.OrderShipAdvancePayment / 100000);
+		}
+
 	}
 
 	FactoryData.OrderShipClass = NAME_None;

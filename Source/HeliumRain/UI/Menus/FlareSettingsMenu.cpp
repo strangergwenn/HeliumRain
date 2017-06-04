@@ -1576,7 +1576,7 @@ void SFlareSettingsMenu::UpdateResolution(bool CanAdaptResolution)
 		// We clicked "full screen" to set it on, force a supported resolution
 		if (CanAdaptResolution && FullscreenButton->IsActive())
 		{
-			FLOGV("SFlareSettingsMenu::UpdateResolution : enabled full screen, switching res");
+			FLOG("SFlareSettingsMenu::UpdateResolution : enabled full screen, switching res");
 
 			// Get all resolution settings
 			FScreenResolutionArray Resolutions;
