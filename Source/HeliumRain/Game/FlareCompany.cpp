@@ -1152,7 +1152,6 @@ bool UFlareCompany::IsTechnologyUnlockedStation(const FFlareSpacecraftDescriptio
 	if(Identifier == "station-habitation" ||
 			Identifier == "station-hub" ||
 			Identifier == "station-outpost" ||
-			Identifier == "station-research" ||
 			Identifier == "station-solar-plant")
 	{
 		return IsTechnologyUnlocked("stations");
@@ -1177,8 +1176,7 @@ bool UFlareCompany::IsTechnologyUnlockedStation(const FFlareSpacecraftDescriptio
 	}
 	else if(Identifier == "station-steelworks" ||
 			Identifier == "station-tool-factory" ||
-			Identifier == "station-arsenal" ||
-			Identifier == "station-foundry")
+			Identifier == "station-arsenal")
 	{
 		return IsTechnologyUnlocked("metallurgy");
 	}
@@ -1187,11 +1185,15 @@ bool UFlareCompany::IsTechnologyUnlockedStation(const FFlareSpacecraftDescriptio
 		return IsTechnologyUnlocked("shipyard-station");
 	}
 	else if(Identifier == "station-tokamak" ||
-			Identifier == "station-telescope")
+			Identifier == "station-foundry")
 	{
 		return IsTechnologyUnlocked("advanced-stations");
 	}
-
+	else if(Identifier == "station-telescope" ||
+			Identifier == "station-research")
+	{
+		return IsTechnologyUnlocked("science");
+	}
 
 
 	FLOGV("WARNING: station %s don't need technology", *Description->Identifier.ToString());
