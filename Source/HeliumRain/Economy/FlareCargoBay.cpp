@@ -49,6 +49,18 @@ void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FF
 		Cargo.Restriction = EFlareResourceRestriction::Everybody;
 		Cargo.ManualLock= false;
 
+		//TODO: remove this hack here to handle cargo bay size change for solen from 1x100 to 2x50
+		if(CargoIndex > 0)
+		{
+			int32 MissingQuantity = Data[CargoIndex-1].Quantity -CargoBay[CargoIndex-1].Quantity;
+			if(MissingQuantity)
+			{
+				Cargo.Quantity = MissingQuantity;
+				Cargo.Resource = CargoBay[CargoIndex-1].Resource;
+			}
+		}
+
+
 		if (CargoIndex < (int32)Data.Num())
 		{
 			// Existing save
@@ -59,7 +71,6 @@ void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FF
 			{
 				Cargo.Resource = Game->GetResourceCatalog()->Get(CargoSave->ResourceIdentifier);
 				Cargo.Quantity = FMath::Min(CargoSave->Quantity, GetSlotCapacity());
-
 			}
 
 			if(CargoSave->Lock != EFlareResourceLock::NoLock)
