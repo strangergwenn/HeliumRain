@@ -1168,16 +1168,52 @@ void AFlareHUD::DrawHUDInternal()
 	}
 
 	// Draw bombs
-	for (int32 BombIndex = 0; BombIndex < ActiveSector->GetBombs().Num(); BombIndex++)
+	bool PreciseBombAim = false;
+
+	if (PlayerShip && (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN || PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET))
 	{
-		FVector2D ScreenPosition;
-		AFlareBomb* Bomb = ActiveSector->GetBombs()[BombIndex];
-			
-		if (Bomb && ProjectWorldLocationToCockpit(Bomb->GetActorLocation(), ScreenPosition) && !Bomb->IsHarpooned())
+		FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+		if (WeaponGroup)
 		{
-			if (IsInScreen(ScreenPosition))
+			PreciseBombAim = true;
+		}
+	}
+
+	if(ActiveSector->GetBombs().Num())
+	{
+		for (AFlareBomb* Bomb : ActiveSector->GetBombs())
+		{
+			FVector2D ScreenPosition;
+
+			FVector AimLocation =  Bomb->GetActorLocation();
+
+			if(PreciseBombAim)
 			{
-				DrawHUDIcon(ScreenPosition, IconSize, HUDBombMarker, GetHostilityColor(PC, Bomb->GetFiringSpacecraft()) , true);
+				UPrimitiveComponent* BombRootComponent = Cast<UPrimitiveComponent>(Bomb->GetRootComponent());
+
+				if(BombRootComponent)
+				{
+					FVector AmmoIntersectionLocation;
+					FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+					float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
+					FVector CameraLocation = PlayerShip->GetCamera()->GetComponentLocation();
+
+					float InterceptTime = SpacecraftHelper::GetIntersectionPosition(Bomb->GetActorLocation(), BombRootComponent->GetPhysicsLinearVelocity(), CameraLocation, PlayerShip->GetLinearVelocity() * 100, AmmoVelocity * 100, 0.0, &AmmoIntersectionLocation);
+
+					if(InterceptTime > 0)
+					{
+						AimLocation = AmmoIntersectionLocation;
+					}
+				}
+			}
+
+
+			if (Bomb && ProjectWorldLocationToCockpit(AimLocation, ScreenPosition) && !Bomb->IsHarpooned())
+			{
+				if (IsInScreen(ScreenPosition))
+				{
+					DrawHUDIcon(ScreenPosition, IconSize, HUDBombMarker, GetHostilityColor(PC, Bomb->GetFiringSpacecraft()) , true);
+				}
 			}
 		}
 	}
