@@ -1172,7 +1172,7 @@ FText UFlareFactory::GetFactoryStatus()
 			{
 				if (IsShipyard())
 				{
-					ProductionStatusText = FText::Format(LOCTEXT("ShipProductionWillStartFormat", "Waiting for credits to build {0} for {1}"),
+					ProductionStatusText = FText::Format(LOCTEXT("ShipProductionNotEnoughMoneyFormat", "Waiting for credits to build {0} for {1}"),
 						Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,
 						GameWorld->FindCompany(GetTargetShipCompany())->GetCompanyName());
 				}
@@ -1186,7 +1186,7 @@ FText UFlareFactory::GetFactoryStatus()
 			{
 				if (IsShipyard())
 				{
-					ProductionStatusText = FText::Format(LOCTEXT("ShipProductionWillStartFormat", "Waiting for resources to build {0} for {1}"),
+					ProductionStatusText = FText::Format(LOCTEXT("ShipProductionNotEnoughResourcesFormat", "Waiting for resources to build {0} for {1}"),
 						Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,
 						GameWorld->FindCompany(GetTargetShipCompany())->GetCompanyName());
 				}

@@ -574,7 +574,7 @@ FText SFlareTradeMenu::GetTransactionDetails() const
 
 			if(TransactionDestinationSpacecraft->GetCompany() == MenuManager->GetPC()->GetCompany())
 			{
-				UnitPrice = FText::Format(LOCTEXT("TradeUnitPriceFormat", "\nPurchase price: {0} credits/unit ({1} {2} {3} transport fee)"),
+				UnitPrice = FText::Format(LOCTEXT("PurchaseUnitPriceFormat", "\nPurchase price: {0} credits/unit ({1} {2} {3} transport fee)"),
 					UFlareGameTools::DisplayMoney(TransactionResourcePrice),
 					UFlareGameTools::DisplayMoney(BaseResourcePrice),
 					(Fee < 0 ? LOCTEXT("Minus", "-"): LOCTEXT("Plus", "+")),
@@ -582,7 +582,7 @@ FText SFlareTradeMenu::GetTransactionDetails() const
 			}
 			else
 			{
-				UnitPrice = FText::Format(LOCTEXT("TradeUnitPriceFormat", "\nSell price: {0} credits/unit ({1} {2} {3} transport fee)"),
+				UnitPrice = FText::Format(LOCTEXT("SellUnitPriceFormat", "\nSell price: {0} credits/unit ({1} {2} {3} transport fee)"),
 					UFlareGameTools::DisplayMoney(TransactionResourcePrice),
 					UFlareGameTools::DisplayMoney(BaseResourcePrice),
 					(Fee < 0 ? LOCTEXT("Minus", "-"): LOCTEXT("Plus", "+")),

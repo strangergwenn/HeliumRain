@@ -1208,7 +1208,7 @@ void UFlareWorld::ProcessIncomingPlayerEnemy()
 			}
 
 			GetGame()->GetPC()->Notify(LOCTEXT("MultiplePlayerAttackedSoon", "Incoming attacks"),
-				FText::Format(LOCTEXT("PlayerAttackedSoonNoRadarFormat", "{0} attacks incoming tomorrow with {1}. Prepare for battle."),
+				FText::Format(LOCTEXT("MultiplePlayerAttackedSoonNoRadarFormat", "{0} attacks incoming tomorrow with {1}. Prepare for battle."),
 					OneDayNotificationNeeds,
 					GetUnknownShipText(UnknownShipCount)),
 				FName("travel-raid-soon"),
@@ -1286,7 +1286,7 @@ void UFlareWorld::ProcessIncomingPlayerEnemy()
 
 
 			GetGame()->GetPC()->Notify(LOCTEXT("MultiplePlayerAttackedDistant", "Incoming attacks"),
-				FText::Format(LOCTEXT("MultiplePlayerAttackedSoonFormat", "{0} attacks are incoming in few days. You will be attacked with {1} (Combat value: {2}). Prepare for battle."),
+				FText::Format(LOCTEXT("MultipleDaysMultiplePlayerAttackedSoonFormat", "{0} attacks are incoming in few days. You will be attacked with {1} (Combat value: {2}). Prepare for battle."),
 					MultipleDaysNotificationNeeds,
 					GetShipsText(LightShipCount, HeavyShipCount),
 					CombatValue),
@@ -1310,7 +1310,7 @@ void UFlareWorld::ProcessIncomingPlayerEnemy()
 			}
 
 			GetGame()->GetPC()->Notify(LOCTEXT("MultiplePlayerAttackedDistant", "Incoming attacks"),
-				FText::Format(LOCTEXT("PlayerAttackedSoonNoRadarFormat", "{0} attacks are incoming in few days. You will be attacked with {1}. Prepare for battle."),
+				FText::Format(LOCTEXT("MultipleMultipleDaysPlayerAttackedSoonNoRadarFormat", "{0} attacks are incoming in few days. You will be attacked with {1}. Prepare for battle."),
 					MultipleDaysNotificationNeeds,
 					GetUnknownShipText(UnknownShipCount)),
 				FName("travel-raid-distant"),
