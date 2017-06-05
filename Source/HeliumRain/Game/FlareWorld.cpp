@@ -503,6 +503,23 @@ void UFlareWorld::Simulate()
 		Sector->UpdateFleetSupplyConsumptionStats();
 	}
 
+	// Count repairing fleet
+	int32 PlayerRepairingFleet = 0;
+	int32 PlayerRefillingFleet = 0;
+	for (UFlareFleet* Fleet : GetGame()->GetPC()->GetCompany()->GetCompanyFleets())
+	{
+		if(Fleet->IsRepairing())
+		{
+			PlayerRepairingFleet++;
+		}
+
+		if(Fleet->IsRefilling())
+		{
+			PlayerRefillingFleet++;
+		}
+	}
+
+
 	// End trade, intercept, repair and refill, operations
 	for (int CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
 	{
@@ -519,6 +536,76 @@ void UFlareWorld::Simulate()
 			Spacecraft->Repair();
 			Spacecraft->Refill();
 		}
+	}
+
+
+	int32 PlayerRepairingFleetAfter = 0;
+	int32 PlayerRefillingFleetAfter = 0;
+	for (UFlareFleet* Fleet : GetGame()->GetPC()->GetCompany()->GetCompanyFleets())
+	{
+		if(Fleet->IsRepairing())
+		{
+			PlayerRepairingFleetAfter++;
+		}
+
+		if(Fleet->IsRefilling())
+		{
+			PlayerRefillingFleetAfter++;
+		}
+	}
+
+	if (PlayerRepairingFleetAfter < PlayerRepairingFleet)
+	{
+		FText RepairText;
+
+		if(GetGame()->GetPC()->GetCompany()->GetCompanyFleets().Num() == 1)
+		{
+			RepairText = LOCTEXT("YouFleetRepairFinish", "Your fleet reparations finished");
+		}
+		else if (PlayerRepairingFleet - PlayerRepairingFleetAfter > 1)
+		{
+			RepairText = LOCTEXT("MultipleFleetRepairFinish", "Some fleets reparations finished");
+		}
+		else
+		{
+			RepairText = LOCTEXT("OneFleetRepairFinish", "One of your fleets reparations finished");
+		}
+
+		FFlareMenuParameterData MenuData;
+		GetGame()->GetPC()->Notify(LOCTEXT("FeetRepaired", "Repaired"),
+			RepairText,
+			FName("fleet-repaired"),
+			EFlareNotification::NT_Military,
+			false,
+			EFlareMenu::MENU_Orbit,
+			MenuData);
+	}
+
+	if (PlayerRefillingFleetAfter < PlayerRefillingFleet)
+	{
+		FText RefillText;
+
+		if(GetGame()->GetPC()->GetCompany()->GetCompanyFleets().Num() == 1)
+		{
+			RefillText = LOCTEXT("YouFleetRefill", "Your fleet reparations finished");
+		}
+		else if (PlayerRefillingFleet - PlayerRefillingFleetAfter > 1)
+		{
+			RefillText = LOCTEXT("MultipleFleetRefillFinish", "Some fleets reparations finished");
+		}
+		else
+		{
+			RefillText = LOCTEXT("OneFleetRefillFinish", "One of your fleets reparations finished");
+		}
+
+		FFlareMenuParameterData MenuData;
+		GetGame()->GetPC()->Notify(LOCTEXT("FeetRefilled", "Refilled"),
+			RefillText,
+			FName("fleet-refilled"),
+			EFlareNotification::NT_Military,
+			false,
+			EFlareMenu::MENU_Orbit,
+			MenuData);
 	}
 
 	// Spacrecraft capture

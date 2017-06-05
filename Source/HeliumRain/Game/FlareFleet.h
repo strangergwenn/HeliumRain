@@ -191,4 +191,6 @@ public:
 
 	int32 GetCombatPoints(bool ReduceByDamage) const;
 
+	bool IsRepairing() const;
+	bool IsRefilling() const;
 };
