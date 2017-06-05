@@ -101,7 +101,7 @@ void SFlareCargoInfo::Construct(const FArguments& InArgs)
 			.Transparent(true)
 			.Text(FText())
 			.HelpText(LOCTEXT("DumpResourceHelp", "Dump this resource"))
-			.Icon(FFlareStyleSet::GetIcon("Stop"))
+			.Icon(FFlareStyleSet::GetIcon("Dump"))
 			.OnClicked(this, &SFlareCargoInfo::OnDumpClicked)
 			.Width(1)
 		]
@@ -271,6 +271,13 @@ FReply SFlareCargoInfo::OnButtonClicked()
 }
 
 void SFlareCargoInfo::OnDumpClicked()
+{
+	AFlareMenuManager::GetSingleton()->Confirm(LOCTEXT("ConfirmDump", "ARE YOU SURE ?"),
+		LOCTEXT("ConfirmDumpInfo", "Do you really want to dump this cargo slot ?"),
+		FSimpleDelegate::CreateSP(this, &SFlareCargoInfo::OnDumpConfirmed));
+}
+
+void SFlareCargoInfo::OnDumpConfirmed()
 {
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
 	if (TargetSpacecraft->GetCargoBay()->GetSlotCount() <= CargoIndex)

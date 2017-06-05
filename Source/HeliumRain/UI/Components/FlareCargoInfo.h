@@ -61,6 +61,9 @@ protected:
 	/** Dump this bay */
 	void OnDumpClicked();
 
+	/** Dump this bay for real */
+	void OnDumpConfirmed();
+
 	/** Change permissions */
 	void OnPermissionClicked();
 
