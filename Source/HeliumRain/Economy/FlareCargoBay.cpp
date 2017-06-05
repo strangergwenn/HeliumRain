@@ -50,7 +50,7 @@ void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FF
 		Cargo.ManualLock= false;
 
 		//TODO: remove this hack here to handle cargo bay size change for solen from 1x100 to 2x50
-		if(CargoIndex > 0)
+		if(CargoIndex > 0 && Data.Num() > CargoIndex-1)
 		{
 			int32 MissingQuantity = Data[CargoIndex-1].Quantity -CargoBay[CargoIndex-1].Quantity;
 			if(MissingQuantity)
@@ -59,7 +59,6 @@ void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FF
 				Cargo.Resource = CargoBay[CargoIndex-1].Resource;
 			}
 		}
-
 
 		if (CargoIndex < (int32)Data.Num())
 		{
