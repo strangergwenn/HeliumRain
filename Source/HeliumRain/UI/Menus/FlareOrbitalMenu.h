@@ -59,10 +59,7 @@ protected:
 
 	/** Update the map for a specific celestial body */
 	void UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, const FFlareSectorCelestialBodyDescription* Body);
-
-	/** Generate the trade route list */
-	void UpdateTradeRouteList();
-	
+		
 
 	/*----------------------------------------------------
 		Content callbacks
@@ -105,15 +102,6 @@ protected:
 
 	/** Fast forward to the next event */
 	void OnFastForwardConfirmed(bool Automatic);
-
-	/** Create a new trade route and open trade route menu */
-	void OnNewTradeRouteClicked();
-
-	/** Inspect trade route */
-	void OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute);
-
-	/** Delete trade route */
-	void OnDeleteTradeRoute(UFlareTradeRoute* TradeRoute);
 	
 	/** Open the world economy menu */
 	void OnWorldEconomyClicked();
@@ -142,5 +130,4 @@ protected:
 	TSharedPtr<SFlarePlanetaryBox>              HelaBox;
 	TSharedPtr<SFlarePlanetaryBox>              AdenaBox;
 	TSharedPtr<SFlareButton>                    FastForwardAuto;
-	TSharedPtr<SVerticalBox>                    TradeRouteList;
 };

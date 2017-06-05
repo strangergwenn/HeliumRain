@@ -130,139 +130,84 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				]
 			]
 
-			// Main column 
+			// Central column 1
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			[
 				SNew(SVerticalBox)
-				
-				// Top line
+
 				+ SVerticalBox::Slot()
 				.HAlign(HAlign_Fill)
 				.VAlign(VAlign_Fill)
 				[
-					SNew(SHorizontalBox)
-
-					// Anka
-					+ SHorizontalBox::Slot()
-					[
-						SAssignNew(AnkaBox, SFlarePlanetaryBox)
-					]
-
-					// Asta
-					+ SHorizontalBox::Slot()
-					[
-						SAssignNew(AstaBox, SFlarePlanetaryBox)
-					]
-
-					// Trade routes
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Top)
-					.HAlign(HAlign_Right)
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.WidthOverride(Theme.ContentWidth / 2)
-						[
-							SNew(SVerticalBox)
-
-							// Trade routes title
-							+ SVerticalBox::Slot()
-							.Padding(Theme.TitlePadding)
-							.AutoHeight()
-							[
-								SNew(STextBlock)
-								.Text(LOCTEXT("Trade routes", "Trade routes"))
-								.TextStyle(&Theme.SubTitleFont)
-							]
-
-							// New trade route button
-							+ SVerticalBox::Slot()
-							.AutoHeight()
-							.Padding(Theme.SmallContentPadding)
-							.HAlign(HAlign_Left)
-							[
-								SNew(SFlareButton)
-								.Width(8)
-								.Text(LOCTEXT("NewTradeRouteButton", "Add new trade route"))
-								.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route and edit it"))
-								.Icon(FFlareStyleSet::GetIcon("New"))
-								.OnClicked(this, &SFlareOrbitalMenu::OnNewTradeRouteClicked)
-							]
-
-							// Trade route list
-							+ SVerticalBox::Slot()
-							.HAlign(HAlign_Left)
-							[
-								SNew(SScrollBox)
-								.Style(&Theme.ScrollBoxStyle)
-								.ScrollBarStyle(&Theme.ScrollBarStyle)
-								+ SScrollBox::Slot()
-								[
-									SAssignNew(TradeRouteList, SVerticalBox)
-								]
-							]
-						]
-					]
+					SAssignNew(AnkaBox, SFlarePlanetaryBox)
 				]
 
-				// Bottom line
 				+ SVerticalBox::Slot()
 				.HAlign(HAlign_Fill)
 				.VAlign(VAlign_Fill)
 				[
-					SNew(SHorizontalBox)
+					SAssignNew(HelaBox, SFlarePlanetaryBox)
+				]
+			]
+			
+			// Central column 2
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			[
+				SNew(SVerticalBox)
 
-					// Hela
-					+ SHorizontalBox::Slot()
+				+ SVerticalBox::Slot()
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Fill)
+				[
+					SAssignNew(AstaBox, SFlarePlanetaryBox)
+				]
+
+				+ SVerticalBox::Slot()
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Fill)
+				[
+					SAssignNew(AdenaBox, SFlarePlanetaryBox)
+				]
+			]
+			
+			// Right column 
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			[
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth / 2)
+				[
+					SNew(SVerticalBox)
+
+					// Travel list title
+					+ SVerticalBox::Slot()
+					.Padding(Theme.TitlePadding)
+					.AutoHeight()
 					[
-						SAssignNew(HelaBox, SFlarePlanetaryBox)
+						SNew(STextBlock)
+						.Text(LOCTEXT("Travels", "Travels & Orders"))
+						.TextStyle(&Theme.SubTitleFont)
 					]
 
-					// Adena
-					+ SHorizontalBox::Slot()
+					// Travel list
+					+ SVerticalBox::Slot()
+					.Padding(Theme.TitlePadding)
 					[
-						SAssignNew(AdenaBox, SFlarePlanetaryBox)
-					]
-
-					// Travels
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Top)
-					.HAlign(HAlign_Right)
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.WidthOverride(Theme.ContentWidth / 2)
+						SNew(SScrollBox)
+						.Style(&Theme.ScrollBoxStyle)
+						.ScrollBarStyle(&Theme.ScrollBarStyle)
+						+ SScrollBox::Slot()
 						[
-							SNew(SVerticalBox)
-
-							// Travel list title
-							+ SVerticalBox::Slot()
-							.Padding(Theme.TitlePadding)
-							.AutoHeight()
-							[
-								SNew(STextBlock)
-								.Text(LOCTEXT("Travels", "Travels & Orders"))
-								.TextStyle(&Theme.SubTitleFont)
-							]
-
-							// Travel list
-							+ SVerticalBox::Slot()
-							.Padding(Theme.TitlePadding)
-							[
-								SNew(SScrollBox)
-								.Style(&Theme.ScrollBoxStyle)
-								.ScrollBarStyle(&Theme.ScrollBarStyle)
-								+ SScrollBox::Slot()
-								[
-									SNew(SRichTextBlock)
-									.TextStyle(&Theme.TextFont)
-									.Text(this, &SFlareOrbitalMenu::GetTravelText)
-									.WrapTextAt(Theme.ContentWidth / 2)
-									.DecoratorStyleSet(&FFlareStyleSet::Get())
-								]
-							]
+							SNew(SRichTextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(this, &SFlareOrbitalMenu::GetTravelText)
+							.WrapTextAt(Theme.ContentWidth / 2)
+							.DecoratorStyleSet(&FFlareStyleSet::Get())
 						]
 					]
 				]
@@ -293,8 +238,6 @@ void SFlareOrbitalMenu::Enter()
 
 	UpdateMap();
 
-	UpdateTradeRouteList();
-
 	Game->SaveGame(MenuManager->GetPC(), true);
 }
 
@@ -308,8 +251,6 @@ void SFlareOrbitalMenu::Exit()
 	AstaBox->ClearChildren();
 	HelaBox->ClearChildren();
 	AdenaBox->ClearChildren();
-
-	TradeRouteList->ClearChildren();
 
 	StopFastForward();
 }
@@ -435,59 +376,6 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 		];
 	}
 }
-void SFlareOrbitalMenu::UpdateTradeRouteList()
-{
-	UFlareCompany* Company = MenuManager->GetPC()->GetCompany();
-	if (Company)
-	{
-		TradeRouteList->ClearChildren();
-		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-		TArray<UFlareTradeRoute*>& TradeRoutes = Company->GetCompanyTradeRoutes();
-
-		for (int RouteIndex = 0; RouteIndex < TradeRoutes.Num(); RouteIndex++)
-		{
-			UFlareTradeRoute* TradeRoute = TradeRoutes[RouteIndex];
-
-			FText TradeRouteName = FText::Format(LOCTEXT("TradeRouteNameFormat", "{0}{1}"),
-				TradeRoute->GetTradeRouteName(),
-				(TradeRoute->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (Paused)") : FText()));
-
-			// Add line
-			TradeRouteList->AddSlot()
-			.AutoHeight()
-			.HAlign(HAlign_Right)
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(SHorizontalBox)
-
-				// Inspect
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SFlareButton)
-					.Width(7)
-					.Text(TradeRouteName)
-					.HelpText(FText(LOCTEXT("InspectHelp", "Edit this trade route")))
-					.OnClicked(this, &SFlareOrbitalMenu::OnInspectTradeRouteClicked, TradeRoute)
-				]
-
-				// Remove
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SFlareButton)
-					.Transparent(true)
-					.Text(FText())
-					.HelpText(LOCTEXT("RemoveTradeRouteHelp", "Remove this trade route"))
-					.Icon(FFlareStyleSet::GetIcon("Stop"))
-					.OnClicked(this, &SFlareOrbitalMenu::OnDeleteTradeRoute, TradeRoute)
-					.Width(1)
-				]
-			];
-		}
-	}
-}
-
 
 
 /*----------------------------------------------------
@@ -620,9 +508,7 @@ FText SFlareOrbitalMenu::GetTravelText() const
 
 			FText SingleShip = LOCTEXT("ShipSingle", "ship");
 			FText MultipleShips = LOCTEXT("ShipPlural", "ships");
-
-
-
+			
 			auto GetShipsText = [&](int32 LightShipCount, int32 HeavyShipCount)
 			{
 				// Fighters
@@ -682,8 +568,8 @@ FText SFlareOrbitalMenu::GetTravelText() const
 					{
 
 						TravelText = FText::Format(LOCTEXT("ThreatTextAdvancedFormat", "\u2022 <WarningText>{0} (Combat value of {1})</>"
-																					   "\n    <WarningText>{2}</>"
-																					   "\n    <WarningText>{3}</>"),
+																					   "\n    <WarningText>{3}</>"
+																					   "\n    <WarningText>{2}</>"),
 								Company->GetCompanyName(),
 								EnemyValue,
 								GetShipsText(Entry.Value.LightShipCount, Entry.Value.HeavyShipCount),
@@ -692,8 +578,8 @@ FText SFlareOrbitalMenu::GetTravelText() const
 					else
 					{
 						TravelText = FText::Format(LOCTEXT("ThreatTextFormat", "\u2022 <WarningText>{0}</>"
-																			   "\n    <WarningText>{1}</>"
-																			   "\n    <WarningText>{2}</>"),
+																			   "\n    <WarningText>{2}</>"
+																			   "\n    <WarningText>{1}</>"),
 
 							Company->GetCompanyName(),
 							GetUnknownShipText (Entry.Value.LightShipCount + Entry.Value.HeavyShipCount),
@@ -909,30 +795,6 @@ void SFlareOrbitalMenu::OnFastForwardConfirmed(bool Automatic)
 	{
 		MenuManager->GetPC()->SimulateConfirmed();
 	}
-}
-
-void SFlareOrbitalMenu::OnNewTradeRouteClicked()
-{
-	UFlareTradeRoute* TradeRoute = MenuManager->GetPC()->GetCompany()->CreateTradeRoute(LOCTEXT("UntitledRoute", "Untitled Route"));
-	FCHECK(TradeRoute);
-
-	FFlareMenuParameterData Data;
-	Data.Route = TradeRoute;
-	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, Data);
-}
-
-void SFlareOrbitalMenu::OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRoute)
-{
-	FFlareMenuParameterData Data;
-	Data.Route = TradeRoute;
-	MenuManager->OpenMenu(EFlareMenu::MENU_TradeRoute, Data);
-}
-
-void SFlareOrbitalMenu::OnDeleteTradeRoute(UFlareTradeRoute* TradeRoute)
-{
-	FCHECK(TradeRoute);
-	TradeRoute->Dissolve();
-	UpdateTradeRouteList();
 }
 
 void SFlareOrbitalMenu::OnWorldEconomyClicked()
