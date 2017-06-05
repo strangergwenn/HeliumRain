@@ -879,12 +879,28 @@ bool SFlareTradeMenu::IsTransactionValid(FText& Reason) const
 		}
 		else if (MaxAffordableQuantity == 0)
 		{
-			Reason = LOCTEXT("CantTradePrice", "The buyer can't afford to buy any of this resource.");
+
+			if(TransactionDestinationSpacecraft->GetCompany() == MenuManager->GetPC()->GetCompany())
+			{
+				Reason = LOCTEXT("YouCantTradePrice", "You can't afford to buy any of this resource.");
+			}
+			else
+			{
+				Reason = LOCTEXT("CantTradePrice", "The buyer can't afford to buy any of this resource.");
+			}
+
 			return false;
 		}
 		else if (ResourceMaxQuantity == 0)
 		{
-			Reason = LOCTEXT("CantTradeQuantity", "The buyer doesn't have any space left to buy any of this resource.");
+			if(TransactionDestinationSpacecraft->GetCompany() == MenuManager->GetPC()->GetCompany())
+			{
+				Reason = LOCTEXT("YouCantTradeQuantity", "You don't have any space left to buy any of this resource (one resource type per cargo bay).");
+			}
+			else
+			{
+				Reason = LOCTEXT("CantTradeQuantity", "The buyer doesn't have any space left to buy any of this resource.");
+			}
 			return false;
 		}
 	}
