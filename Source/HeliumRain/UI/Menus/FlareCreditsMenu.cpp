@@ -57,6 +57,17 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 			]
 		]
 
+		// Company
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(STextBlock)
+			.Text(LOCTEXT("DONT-TRANSLATE-Deimos", "DEIMOS GAMES"))
+			.TextStyle(&Theme.TitleFont)
+		]
+
 		// Main
 		+ SVerticalBox::Slot()
 		.HAlign(HAlign_Center)
@@ -173,7 +184,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("DONT-TRANSLATE-Special Thanks", "Special thanks to Johanna and our friends at NERD."))
+						.Text(LOCTEXT("DONT-TRANSLATE-Special Thanks", "Special thanks to Johanna and all our nerd friends !"))
 						.TextStyle(&Theme.NameFont)
 					]
 
