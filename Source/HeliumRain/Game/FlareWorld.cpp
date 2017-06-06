@@ -558,17 +558,17 @@ void UFlareWorld::Simulate()
 	{
 		FText RepairText;
 
-		if(GetGame()->GetPC()->GetCompany()->GetCompanyFleets().Num() == 1)
+		if (GetGame()->GetPC()->GetCompany()->GetCompanyFleets().Num() == 1)
 		{
-			RepairText = LOCTEXT("YouFleetRepairFinish", "Your fleet reparations finished");
+			RepairText = LOCTEXT("YouFleetRepairFinish", "Your fleet repairs are finished");
 		}
 		else if (PlayerRepairingFleet - PlayerRepairingFleetAfter > 1)
 		{
-			RepairText = LOCTEXT("MultipleFleetRepairFinish", "Some fleets reparations finished");
+			RepairText = LOCTEXT("MultipleFleetRepairFinish", "Some fleets repairs are finished");
 		}
 		else
 		{
-			RepairText = LOCTEXT("OneFleetRepairFinish", "One of your fleets reparations finished");
+			RepairText = LOCTEXT("OneFleetRepairFinish", "One of your fleet repairs is finished");
 		}
 
 		FFlareMenuParameterData MenuData;
@@ -587,15 +587,15 @@ void UFlareWorld::Simulate()
 
 		if(GetGame()->GetPC()->GetCompany()->GetCompanyFleets().Num() == 1)
 		{
-			RefillText = LOCTEXT("YouFleetRefill", "Your fleet reparations finished");
+			RefillText = LOCTEXT("YouFleetRefill", "Your fleet refillings are finished");
 		}
 		else if (PlayerRefillingFleet - PlayerRefillingFleetAfter > 1)
 		{
-			RefillText = LOCTEXT("MultipleFleetRefillFinish", "Some fleets reparations finished");
+			RefillText = LOCTEXT("MultipleFleetRefillFinish", "Some fleet refillings are finished");
 		}
 		else
 		{
-			RefillText = LOCTEXT("OneFleetRefillFinish", "One of your fleets reparations finished");
+			RefillText = LOCTEXT("OneFleetRefillFinish", "One of your fleet refillings are finished");
 		}
 
 		FFlareMenuParameterData MenuData;
