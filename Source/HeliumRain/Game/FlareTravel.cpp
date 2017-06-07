@@ -64,6 +64,8 @@ void UFlareTravel::Load(const FFlareTravelSave& Data)
 	TravelSector = NewObject<UFlareSimulatedSector>(this, UFlareSimulatedSector::StaticClass());
 	TravelSector->Load(&SectorDescription, Data.SectorData, OrbitParameters);
 
+	UpdateTravelParameters();
+
 	Fleet->SetCurrentSector(TravelSector);
 	TravelSector->AddFleet(Fleet);
 
@@ -85,6 +87,8 @@ FFlareTravelSave* UFlareTravel::Save()
 void UFlareTravel::Simulate()
 {
 	int64 RemainingTime = GetRemainingTravelDuration();
+
+	UpdateTravelParameters();
 
 	// Incoming player notification. This doesn't work for incoming enemies, as they don't travel in fleets.
 	if (RemainingTime == 1)
@@ -114,6 +118,90 @@ void UFlareTravel::Simulate()
 		EndTravel();
 	}
 }
+
+void UFlareTravel::UpdateTravelParameters()
+{
+
+
+	float TravelRatio = GetElapsedTime() /  float(TravelDuration);
+
+	FFlareSectorOrbitParameters OrbitParameters;
+	OrbitParameters.Phase = FMath::Lerp(OriginSector->GetOrbitParameters()->Phase, DestinationSector->GetOrbitParameters()->Phase, TravelRatio);
+
+	if (OriginSector->GetOrbitParameters()->CelestialBodyIdentifier == DestinationSector->GetOrbitParameters()->CelestialBodyIdentifier)
+	{
+		OrbitParameters.CelestialBodyIdentifier = OriginSector->GetOrbitParameters()->CelestialBodyIdentifier;
+
+		OrbitParameters.Altitude = FMath::Lerp(OriginSector->GetOrbitParameters()->Altitude, DestinationSector->GetOrbitParameters()->Altitude, TravelRatio);
+	}
+	else
+	{
+		FFlareCelestialBody* OriginBody = GetGame()->GetGameWorld()->GetPlanerarium()->FindCelestialBody(OriginSector->GetOrbitParameters()->CelestialBodyIdentifier);
+		FFlareCelestialBody* DestinationBody = GetGame()->GetGameWorld()->GetPlanerarium()->FindCelestialBody(DestinationSector->GetOrbitParameters()->CelestialBodyIdentifier);
+
+		double OriginBaseAltitude;
+		double OriginLocalAltitude;
+		double DestinationBaseAltitude;
+		double DestinationLocalAltitude;
+
+		if(OriginBody->Sattelites.Contains(DestinationBody))
+		{
+			// Nema to moon
+
+			OriginBaseAltitude = 0;
+			OriginLocalAltitude = OriginSector->GetOrbitParameters()->Altitude;
+
+			DestinationBaseAltitude = DestinationBody->OrbitDistance;
+			DestinationLocalAltitude = DestinationSector->GetOrbitParameters()->Altitude;
+
+		}
+		else if (DestinationBody->Sattelites.Contains(OriginBody))
+		{
+			// Moon to Nema
+			OriginBaseAltitude = OriginBody->OrbitDistance;
+			OriginLocalAltitude = OriginSector->GetOrbitParameters()->Altitude;
+
+			DestinationBaseAltitude = 0;
+			DestinationLocalAltitude = DestinationSector->GetOrbitParameters()->Altitude;
+		}
+		else
+		{
+			// Moon to moon
+			OriginBaseAltitude = OriginBody->OrbitDistance;
+			OriginLocalAltitude = OriginSector->GetOrbitParameters()->Altitude;
+
+			DestinationBaseAltitude = DestinationBody->OrbitDistance;
+			DestinationLocalAltitude = DestinationSector->GetOrbitParameters()->Altitude;
+		}
+
+
+		double Sign = FMath::Sign(DestinationBaseAltitude - OriginBaseAltitude);
+
+		double OriginStartAltitude = OriginBaseAltitude + Sign * OriginLocalAltitude;
+		double DestinationStartAltitude = DestinationBaseAltitude - Sign * OriginLocalAltitude;
+
+		double LimitAltitude = (OriginStartAltitude + DestinationStartAltitude)/2;
+
+
+		if(TravelRatio < 0.5)
+		{
+			OrbitParameters.CelestialBodyIdentifier = OriginSector->GetOrbitParameters()->CelestialBodyIdentifier;
+
+			double CurrentAltitude = FMath::Lerp(OriginStartAltitude, LimitAltitude, TravelRatio*2);
+			OrbitParameters.Altitude = FMath::Abs(CurrentAltitude - OriginBaseAltitude);
+		}
+		else
+		{
+			OrbitParameters.CelestialBodyIdentifier = DestinationSector->GetOrbitParameters()->CelestialBodyIdentifier;
+
+			double CurrentAltitude = FMath::Lerp(OriginStartAltitude, LimitAltitude, TravelRatio*2);
+			OrbitParameters.Altitude = FMath::Abs(CurrentAltitude - DestinationBaseAltitude);
+		}
+	}
+
+	TravelSector->SetSectorOrbitParameters(OrbitParameters);
+}
+
 
 void UFlareTravel::EndTravel()
 {

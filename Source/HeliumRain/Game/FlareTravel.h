@@ -63,6 +63,9 @@ public:
 
 	void Simulate();
 
+	void UpdateTravelParameters();
+
+
 	int64 GetRemainingTravelDuration();
 
 	void ChangeDestination(UFlareSimulatedSector* NewDestinationSector);

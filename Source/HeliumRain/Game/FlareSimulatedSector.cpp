@@ -465,6 +465,12 @@ int UFlareSimulatedSector::RemoveSpacecraft(UFlareSimulatedSpacecraft* Spacecraf
 	return SectorSpacecrafts.Remove(Spacecraft);
 }
 
+
+void UFlareSimulatedSector::SetSectorOrbitParameters(const FFlareSectorOrbitParameters& OrbitParameters)
+{
+	SectorOrbitParameters = OrbitParameters;
+}
+
 /*----------------------------------------------------
 	Getters
 ----------------------------------------------------*/

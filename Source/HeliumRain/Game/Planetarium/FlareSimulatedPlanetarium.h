@@ -217,6 +217,10 @@ struct FFlareCelestialBody
 	/** Current celestial body self rotation angle*/
 	double RotationAngle;
 
+	bool operator==(const FFlareCelestialBody& Other) const { return Identifier == Other.Identifier; }
+
+	bool operator==(const FFlareCelestialBody* Other) const { return Identifier == Other->Identifier; }
+
 };
 
 
