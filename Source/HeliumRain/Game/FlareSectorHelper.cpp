@@ -335,7 +335,7 @@ bool SectorHelper::HasShipRepairing(UFlareSimulatedSector* TargetSector, UFlareC
 			continue;
 		}
 
-		if (Spacecraft->GetRepairStock() > 0 && Spacecraft->GetDamageSystem()->GetGlobalHealth() < 1.f)
+		if (Spacecraft->GetRepairStock() > 0 && Spacecraft->GetDamageSystem()->GetGlobalDamageRatio() < 1.f)
 		{
 			return true;
 		}

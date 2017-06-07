@@ -429,7 +429,7 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, E
 
 bool UFlareTurretPilot::IsShipDangerous(AFlareSpacecraft* ShipCandidate) const
 {
-	return ShipCandidate->GetParent()->IsMilitary() && ShipCandidate->GetParent()->GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Weapon) > 0;
+	return ShipCandidate->GetParent()->IsMilitary() && !ShipCandidate->GetParent()->GetDamageSystem()->IsDisarmed();
 }
 
 

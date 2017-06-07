@@ -163,7 +163,7 @@ void SFlareShipStatus::OnMouseEnter(const FGeometry& MyGeometry, const FPointerE
 			{
 				Info = FText::Format(LOCTEXT("ShipRefillingFormat", "{0}This ship is being refilled with ammunition and fuel.\n"), Info);
 			}
-			if (TargetShip->GetRepairStock() > 0 && TargetShip->GetDamageSystem()->GetGlobalHealth() < 1.f)
+			if (TargetShip->GetRepairStock() > 0 && TargetShip->GetDamageSystem()->GetGlobalDamageRatio() < 1.f)
 			{
 				Info = FText::Format(LOCTEXT("ShipRepairormat", "{0}This ship is being repaired.\n"), Info);
 			}
@@ -284,7 +284,7 @@ EVisibility SFlareShipStatus::GetRepairingVisibility() const
 	if (TargetShip && TargetShip->IsValidLowLevel())
 	{
 		//FLOGV("%s need repair ? %f stock : %f", *TargetShip->GetImmatriculation().ToString(), TargetShip->GetDamageSystem()->GetGlobalHealth(), TargetShip->GetRepairStock());
-		if (TargetShip->GetRepairStock() > 0 && TargetShip->GetDamageSystem()->GetGlobalHealth() < 1.f)
+		if (TargetShip->GetRepairStock() > 0 && TargetShip->GetDamageSystem()->GetGlobalDamageRatio() < 1.f)
 		{
 			return EVisibility::Visible;
 		}

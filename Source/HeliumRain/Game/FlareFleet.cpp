@@ -483,7 +483,7 @@ bool UFlareFleet::IsRepairing() const
 {
 	for (UFlareSimulatedSpacecraft* Ship : FleetShips)
 	{
-		if (Ship->GetRepairStock() > 0 && Ship->GetDamageSystem()->GetGlobalHealth() < 1.f)
+		if (Ship->GetRepairStock() > 0 && Ship->GetDamageSystem()->GetGlobalDamageRatio() < 1.f)
 		{
 			return true;
 		}

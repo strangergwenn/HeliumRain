@@ -2633,7 +2633,7 @@ bool UFlareQuestConditionTutorialShipNeedFs::IsCompleted()
 			return true;
 		}
 
-		if(!TargetRefill && Ship->GetDamageSystem()->GetGlobalHealth() < 1.f)
+		if(!TargetRefill && Ship->GetDamageSystem()->GetGlobalDamageRatio() < 1.f)
 		{
 			return true;
 		}

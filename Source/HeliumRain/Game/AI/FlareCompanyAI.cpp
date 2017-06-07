@@ -123,7 +123,7 @@ void UFlareCompanyAI::Simulate()
 
 		for(UFlareSimulatedSpacecraft* Spacecraft : Company->GetCompanySpacecrafts())
 		{
-			if(Spacecraft->GetDamageSystem()->GetGlobalHealth() < 0.99)
+			if(Spacecraft->GetDamageSystem()->GetGlobalDamageRatio() < 0.99)
 			{
 				AIData.Pacifism+= Behavior->PacifismIncrementRate * 0.5;
 			}

@@ -140,6 +140,23 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsCrewEndangered() const
 	return (GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport) < BROKEN_RATIO);
 }
 
+
+float UFlareSimulatedSpacecraftDamageSystem::GetGlobalDamageRatio()
+{
+	float DamageRatioSum = 0;
+	UFlareSpacecraftComponentsCatalog* Catalog = Spacecraft->GetGame()->GetShipPartsCatalog();
+
+	for (FFlareSpacecraftComponentSave& ComponentData : Spacecraft->GetData().Components)
+	{
+		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData.ComponentIdentifier);
+
+		float DamageRatio = GetDamageRatio(ComponentDescription, &ComponentData);
+		DamageRatioSum += DamageRatio;
+	}
+
+	return DamageRatioSum / Spacecraft->GetData().Components.Num();
+}
+
 float UFlareSimulatedSpacecraftDamageSystem::GetGlobalHealth()
 {
 	if(Spacecraft->IsStation())

@@ -558,7 +558,8 @@ void UFlareSimulatedSpacecraft::Repair()
 		}
 	}
 
-	if (GetDamageSystem()->GetGlobalHealth() >= 1.f)
+
+	if (GetDamageSystem()->GetGlobalDamageRatio() >= 1.f)
 	{
 		SpacecraftData.RepairStock = 0;
 
@@ -937,7 +938,7 @@ bool UFlareSimulatedSpacecraft::IsBeingCaptured() const
 int32 UFlareSimulatedSpacecraft::GetCapturePointThreshold() const
 {
 	int32 BaseCapturePoint = SpacecraftData.Level * SpacecraftDescription->CapturePointThreshold;
-	float DamageRatio = GetDamageSystem()->GetGlobalHealth();
+	float DamageRatio = GetDamageSystem()->GetGlobalDamageRatio();
 	float CaptureRatio = CAPTURE_THRESOLD_MIN;
 
 	if (DamageRatio > CAPTURE_THRESOLD_MIN_DAMAGE)

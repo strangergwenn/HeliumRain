@@ -85,6 +85,10 @@ public:
 	/** Is the crew close to death ? */
 	virtual bool IsCrewEndangered() const;
 
+	/** Get Global damage */
+	float GetGlobalDamageRatio();
+
+
 	/** Get the health */
 	virtual float GetGlobalHealth();
 
