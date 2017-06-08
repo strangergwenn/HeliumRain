@@ -100,9 +100,13 @@ void UFlareTradeRoute::Simulate()
 
 	if (TargetSector && TargetSector != CurrentSector)
 	{
-		FLOGV("  -> start travel to %s", *TargetSector->GetSectorName().ToString());
-		// Travel to next sector
-		Game->GetGameWorld()->StartTravel(TradeRouteFleet, TargetSector);
+
+		if (!TargetSector->GetSectorBattleState(TradeRouteCompany).HasDanger)
+		{
+			FLOGV("  -> start travel to %s", *TargetSector->GetSectorName().ToString());
+			// Travel to next sector
+			Game->GetGameWorld()->StartTravel(TradeRouteFleet, TargetSector);
+		}
 	}
 }
 
