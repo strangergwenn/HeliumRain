@@ -172,6 +172,18 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 							]
 						]
 
+						// Construction text
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(LOCTEXT("ConstructionInfo", "This station is under construction and needs resources to be completed."))
+							.Visibility(this, &SFlareTradeMenu::GetConstructionInfosVisibility)
+							.WrapTextAt(TextWidth)
+						]
+
 						// Help text
 						+ SVerticalBox::Slot()
 						.AutoHeight()
@@ -494,6 +506,12 @@ EVisibility SFlareTradeMenu::GetTradingVisibility() const
 {
 	return (TargetLeftSpacecraft && TargetRightSpacecraft) ? EVisibility::Visible : EVisibility::Collapsed;
 }
+
+EVisibility SFlareTradeMenu::GetConstructionInfosVisibility() const
+{
+	return (TargetRightSpacecraft && TargetRightSpacecraft->IsStation() && TargetRightSpacecraft->IsUnderConstruction()) ? EVisibility::Visible : EVisibility::Collapsed;
+}
+
 
 EVisibility SFlareTradeMenu::GetBackToSelectionVisibility() const
 {
