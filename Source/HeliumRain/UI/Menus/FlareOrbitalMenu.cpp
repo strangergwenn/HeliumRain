@@ -116,7 +116,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SFlareButton)
 						.Width(3.5)
-						.Text(LOCTEXT("WorldEconomy", "World prices"))
+						.Text(LOCTEXT("WorldEconomy", "Economy"))
 						.HelpText(LOCTEXT("WorldEconomyInfo", "See global prices, usage and variation for all resources"))
 						.Icon(FFlareStyleSet::GetIcon("Sector_Small"))
 						.OnClicked(this, &SFlareOrbitalMenu::OnWorldEconomyClicked)
