@@ -1154,8 +1154,9 @@ void AFlarePlayerController::NotifyDockingComplete(AFlareSpacecraft* DockStation
 
 bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 {
-	FText BattleTitleText = LOCTEXT("ConfirmBattleTitle", "BATTLE IN PROGRESS");
-	FText BattleDetailsText;
+	FText ConfirmFFTitleText = LOCTEXT("ConfirmBattleTitle", "BATTLE IN PROGRESS");
+	FText ConfirmFFDetailsText;
+
 
 	// Check for battle
 	for (int32 SectorIndex = 0; SectorIndex < GetCompany()->GetKnownSectors().Num(); SectorIndex++)
@@ -1168,35 +1169,49 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 		{
 			if (BattleState.InActiveFight)
 			{
-				BattleDetailsText = FText::Format(LOCTEXT("ConfirmBattleFormat", "{0}Battle in progress in {1}. Ships will fight and may be lost.\n"),
-					BattleDetailsText, Sector->GetSectorName());
+				ConfirmFFDetailsText = FText::Format(LOCTEXT("ConfirmBattleFormat", "{0}Battle in progress in {1}. Ships will fight and may be lost.\n"),
+					ConfirmFFDetailsText, Sector->GetSectorName());
 			}
 			else if (!BattleState.InFight && !BattleState.BattleWon)
 			{
-				BattleTitleText = LOCTEXT("ConfirmBattleLostTitle", "BATTLE LOST");
+				ConfirmFFTitleText = LOCTEXT("ConfirmBattleLostTitle", "BATTLE LOST");
 
 				if (BattleState.RetreatPossible)
 				{
-					BattleDetailsText = FText::Format(LOCTEXT("ConfirmBattleLostRetreatFormat", "{0}Battle lost in {1}. Ships can still retreat.\n"),
-						BattleDetailsText, Sector->GetSectorName());
+					ConfirmFFDetailsText = FText::Format(LOCTEXT("ConfirmBattleLostRetreatFormat", "{0}Battle lost in {1}. Ships can still retreat.\n"),
+						ConfirmFFDetailsText, Sector->GetSectorName());
 				}
 				else
 				{
 					if(BattleState.FriendlyControllableShipCount > 0 ||
 							(BattleState.FriendlyStationCount> 0 && BattleState.FriendlyStationInCaptureCount == 0))
 					{
-						BattleDetailsText = FText::Format(LOCTEXT("ConfirmBattleLostNoRetreatFormat", "{0}Battle lost in {1}. Ships cannot retreat and may be lost.\n"),
-							BattleDetailsText, Sector->GetSectorName());
+						ConfirmFFDetailsText = FText::Format(LOCTEXT("ConfirmBattleLostNoRetreatFormat", "{0}Battle lost in {1}. Ships cannot retreat and may be lost.\n"),
+							ConfirmFFDetailsText, Sector->GetSectorName());
 					}
 				}
 			}
 		}
 	}
 
-	// Notify when a battle is happening
-	if (BattleDetailsText.ToString().Len())
+	if(ConfirmFFDetailsText.ToString().Len() > 0)
 	{
-		MenuManager->Confirm(BattleTitleText, BattleDetailsText, OnConfirmed);
+		// Is battle
+		ConfirmFFTitleText = LOCTEXT("ConfirmBattleTitle", "BATTLE IN PROGRESS");
+	}
+	else
+	{
+		if(GetGame()->GetGameWorld()->GetIncomingEvents().Num() == 0)
+		{
+			ConfirmFFTitleText = LOCTEXT("ConfirmNoIncomingEventTitle", "NO INCOMING EVENT");
+			ConfirmFFDetailsText = LOCTEXT("ConfirmNoIncomingEventFormat", "There is no incoming events. You may need to manually stop the fast forward.\n");
+		}
+	}
+
+	// Notify when a battle is happening
+	if (ConfirmFFDetailsText.ToString().Len())
+	{
+		MenuManager->Confirm(ConfirmFFTitleText, ConfirmFFDetailsText, OnConfirmed);
 		return false;
 	}
 	else
