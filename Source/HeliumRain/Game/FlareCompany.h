@@ -416,6 +416,10 @@ public:
 
 	inline bool IsVisitedSector(UFlareSimulatedSector* Sector) const
 	{
+		if(Sector->IsTravelSector())
+		{
+			return true;
+		}
 		return (VisitedSectors.Find(Sector) != INDEX_NONE);
 	}
 
