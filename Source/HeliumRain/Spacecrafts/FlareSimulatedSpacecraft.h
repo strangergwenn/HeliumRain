@@ -318,5 +318,14 @@ public:
 
 	bool IsPlayerShip();
 
+	bool IsRepairing();
+
+	bool IsRefilling();
+
+	int32 GetRepairDuration();
+	int32 GetRefillDuration();
+
+
+
 };
 

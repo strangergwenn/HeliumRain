@@ -280,6 +280,41 @@ FLinearColor UFlareFleet::GetFleetColor() const
 	return FleetData.FleetColor;
 }
 
+
+int32 UFlareFleet::GetRepairDuration() const
+{
+	int32 RepairDuration = 0;
+
+	for (UFlareSimulatedSpacecraft* Ship : FleetShips)
+	{
+		int32 ShipRepairDuration = Ship->GetRepairDuration();
+
+		if (ShipRepairDuration > RepairDuration)
+		{
+			RepairDuration = ShipRepairDuration;
+		}
+	}
+
+	return RepairDuration;
+}
+
+int32 UFlareFleet::GetRefillDuration() const
+{
+	int32 RefillDuration = 0;
+
+	for (UFlareSimulatedSpacecraft* Ship : FleetShips)
+	{
+		int32 ShipRefillDuration = Ship->GetRefillDuration();
+
+		if (ShipRefillDuration > RefillDuration)
+		{
+			RefillDuration = ShipRefillDuration;
+		}
+	}
+
+	return RefillDuration;
+}
+
 int32 UFlareFleet::InterceptShips()
 {
 	// Intercept half of ships at maximum and min 1
@@ -483,7 +518,7 @@ bool UFlareFleet::IsRepairing() const
 {
 	for (UFlareSimulatedSpacecraft* Ship : FleetShips)
 	{
-		if (Ship->GetRepairStock() > 0 && Ship->GetDamageSystem()->GetGlobalDamageRatio() < 1.f)
+		if (Ship->IsRepairing())
 		{
 			return true;
 		}
@@ -496,7 +531,7 @@ bool UFlareFleet::IsRefilling() const
 {
 	for (UFlareSimulatedSpacecraft* Ship : FleetShips)
 	{
-		if (Ship->GetRefillStock() > 0 && Ship->NeedRefill())
+		if (Ship->IsRefilling())
 		{
 			return true;
 		}

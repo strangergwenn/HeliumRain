@@ -1726,4 +1726,238 @@ uint32 UFlareWorld::GetWorldPopulation()
 
 	return WorldPopulation;
 }
+TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
+{
+	TArray<FFlareIncomingEvent> IncomingEvents;
+	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+
+	// List incoming threats first
+	TMap<IncomingKey, IncomingValue> IncomingMap = GetIncomingPlayerEnemy();
+
+	FText SingleShip = LOCTEXT("ShipSingle", "ship");
+	FText MultipleShips = LOCTEXT("ShipPlural", "ships");
+
+	auto GetShipsText = [&](int32 LightShipCount, int32 HeavyShipCount)
+	{
+		// Fighters
+		FText LightShipText;
+		if (LightShipCount > 0)
+		{
+			LightShipText = FText::Format(LOCTEXT("PlayerAttackedLightsFormat", "{0} light {1}"),
+				FText::AsNumber(LightShipCount),
+				(LightShipCount > 1) ? MultipleShips : SingleShip);
+		}
+
+		// Heavies
+		FText HeavyShipText;
+		if (HeavyShipCount > 0)
+		{
+			HeavyShipText = FText::Format(LOCTEXT("PlayerAttackedHeaviesFormat", "{0} heavy {1}"),
+				FText::AsNumber(HeavyShipCount),
+				(HeavyShipCount > 1) ? MultipleShips : SingleShip);
+
+			if (LightShipCount > 0)
+			{
+				HeavyShipText = FText::FromString(", " + HeavyShipText.ToString());
+			}
+		}
+
+		return FText::Format(LOCTEXT("PlayerAttackedSoonShipsFormat","{0}{1}"),
+										LightShipText,
+										HeavyShipText);
+	};
+
+	auto GetUnknownShipText = [&](int32 UnknownShipCount)
+	{
+		return FText::Format(LOCTEXT("PlayerAttackedUnknownFormat", "{0} {1}"),
+		FText::AsNumber(UnknownShipCount),
+		(UnknownShipCount > 1) ? MultipleShips : SingleShip);
+	};
+
+	for (auto Entry : IncomingMap)
+	{
+		UFlareCompany* Company = Entry.Key.Company;
+		UFlareSimulatedSector* Sector = Entry.Key.DestinationSector;
+		int32 EnemyValue = Entry.Value.CombatValue;
+		int64 RemainingDuration = Entry.Key.RemainingDuration;
+
+
+		if (RemainingDuration <=1 || PlayerCompany->IsTechnologyUnlocked("early-warning"))
+		{
+
+			FText TravelText;
+			FText TravelPartText = FText::Format(LOCTEXT("ThreatTextTravelPart", "Traveling to {0} ({1} left)"),
+					Sector->GetSectorName(),
+					FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1)));
+
+
+
+			if (PlayerCompany->IsTechnologyUnlocked("advanced-radar"))
+			{
+
+				TravelText = FText::Format(LOCTEXT("ThreatTextAdvancedFormat", "\u2022 <WarningText>{0} (Combat value of {1})</>"
+																			   "\n    <WarningText>{3}</>"
+																			   "\n    <WarningText>{2}</>"),
+						Company->GetCompanyName(),
+						EnemyValue,
+						GetShipsText(Entry.Value.LightShipCount, Entry.Value.HeavyShipCount),
+						TravelPartText);
+			}
+			else
+			{
+				TravelText = FText::Format(LOCTEXT("ThreatTextFormat", "\u2022 <WarningText>{0}</>"
+																	   "\n    <WarningText>{2}</>"
+																	   "\n    <WarningText>{1}</>"),
+
+					Company->GetCompanyName(),
+					GetUnknownShipText (Entry.Value.LightShipCount + Entry.Value.HeavyShipCount),
+					TravelPartText);
+			}
+
+			// Add data
+			FFlareIncomingEvent TravelEvent;
+			TravelEvent.Text = TravelText;
+			TravelEvent.RemainingDuration = RemainingDuration;
+			IncomingEvents.Add(TravelEvent);
+
+		}
+	}
+
+	// List travels
+	for (UFlareTravel* Travel : GetTravels())
+	{
+		if (Travel->GetFleet()->GetFleetCompany() == PlayerCompany)
+		{
+			int64 RemainingDuration = Travel->GetRemainingTravelDuration();
+			FText TravelText;
+
+			// Trade route version
+			if (Travel->GetFleet()->GetCurrentTradeRoute())
+			{
+				TravelText = FText::Format(LOCTEXT("TravelTextTradeRouteFormat", "\u2022 {0} ({1}{2})\n    {3}"),
+					Travel->GetFleet()->GetFleetName(),
+					Travel->GetFleet()->GetCurrentTradeRoute()->GetTradeRouteName(),
+					(Travel->GetFleet()->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (paused)") : FText()),
+					Travel->GetFleet()->GetStatusInfo());
+			}
+			else
+			{
+				TravelText = FText::Format(LOCTEXT("TravelTextManualFormat", "\u2022 {0}\n    {1}"),
+					Travel->GetFleet()->GetFleetName(),
+					Travel->GetFleet()->GetStatusInfo());
+			}
+
+			// Add data
+			FFlareIncomingEvent TravelEvent;
+			TravelEvent.Text = TravelText;
+			TravelEvent.RemainingDuration = RemainingDuration;
+			IncomingEvents.Add(TravelEvent);
+		}
+	}
+
+	// List ship productions
+	for (int32 CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
+	{
+		TArray<UFlareSimulatedSpacecraft*>& CompanyStations = Companies[CompanyIndex]->GetCompanyStations();
+		for (int32 StationIndex = 0; StationIndex < CompanyStations.Num(); StationIndex++)
+		{
+			for (int32 FactoryIndex = 0; FactoryIndex < CompanyStations[StationIndex]->GetFactories().Num(); FactoryIndex++)
+			{
+				// Get shipyard if existing
+				UFlareFactory* TargetFactory = CompanyStations[StationIndex]->GetFactories()[FactoryIndex];
+				FName CompanyIdentifier = PlayerCompany->GetIdentifier();
+				if (!TargetFactory->IsShipyard())
+				{
+					continue;
+				}
+
+				// Queue ship order
+				if (TargetFactory->GetOrderShipCompany() == CompanyIdentifier)
+				{
+					FFlareSpacecraftDescription* OrderDesc = Game->GetSpacecraftCatalog()->Get(TargetFactory->GetOrderShipClass());
+					int64 ProductionTime = TargetFactory->GetRemainingProductionDuration() + TargetFactory->GetProductionTime(OrderDesc->CycleCost);
+
+					FText ProductionText;
+					if (TargetFactory->IsActive() && TargetFactory->IsNeedProduction() && !TargetFactory->HasCostReserved() && !TargetFactory->HasInputResources())
+					{
+
+						ProductionText = FText::Format(LOCTEXT("ShipNoResourcesProdTextFormat", "\u2022 {0} ordered (missing resources)"),
+						OrderDesc->Name);
+					}
+					else
+					{
+						ProductionText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "\u2022 {0} ordered ({1} left)"),
+						OrderDesc->Name,
+						FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
+					}
+
+					FFlareIncomingEvent ProductionEvent;
+					ProductionEvent.Text = ProductionText;
+					ProductionEvent.RemainingDuration = ProductionTime;
+					IncomingEvents.Add(ProductionEvent);
+				}
+
+				// Ship being built
+				else if (TargetFactory->GetTargetShipCompany() == CompanyIdentifier)
+				{
+					int64 ProductionTime = TargetFactory->GetRemainingProductionDuration();
+
+					FText ProductionText;
+
+					if (TargetFactory->IsActive() && TargetFactory->IsNeedProduction() && !TargetFactory->HasCostReserved() && !TargetFactory->HasInputResources())
+					{
+
+						ProductionText = FText::Format(LOCTEXT("ShipProductionNoResourcesProdTextFormat", "\u2022 {0}  being built (missing resources)"),
+						Game->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name);
+					}
+					else
+					{
+						ProductionText = FText::Format(LOCTEXT("ShipProductionTextFormat", "\u2022 {0} being built ({1} left)"),
+							Game->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name,
+							FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
+					}
+
+					FFlareIncomingEvent ProductionEvent;
+					ProductionEvent.Text = ProductionText;
+					ProductionEvent.RemainingDuration = ProductionTime;
+					IncomingEvents.Add(ProductionEvent);
+				}
+			}
+		}
+	}
+
+	// List of time to repair
+	for(UFlareFleet* Fleet: PlayerCompany->GetCompanyFleets())
+	{
+		int32 RepairDuration = Fleet->GetRepairDuration();
+		int32 RefillDuration = Fleet->GetRefillDuration();
+
+		if(RepairDuration > 0)
+		{
+			FFlareIncomingEvent RepairEvent;
+			RepairEvent.Text = FText::Format(LOCTEXT("RepairEventTextFormat", "\u2022 {0} being repaired ({1} left)"),
+												 Fleet->GetFleetName(), FText::FromString(*UFlareGameTools::FormatDate(RepairDuration, 2)));
+			RepairEvent.RemainingDuration = RepairDuration;
+			IncomingEvents.Add(RepairEvent);
+		}
+
+		if(RefillDuration > 0)
+		{
+			FFlareIncomingEvent RefillEvent;
+			RefillEvent.Text = FText::Format(LOCTEXT("RefillEventTextFormat", "\u2022 {0} being refilled ({1} left)"),
+											 Fleet->GetFleetName(), FText::FromString(*UFlareGameTools::FormatDate(RefillDuration, 2)));;
+			RefillEvent.RemainingDuration = RefillDuration;
+			IncomingEvents.Add(RefillEvent);
+		}
+
+	}
+
+	// Sort list
+	IncomingEvents.Sort([](const FFlareIncomingEvent& ip1, const FFlareIncomingEvent& ip2)
+	{
+		return (ip1.RemainingDuration < ip2.RemainingDuration);
+	});
+	return IncomingEvents;
+}
+
 #undef LOCTEXT_NAMESPACE

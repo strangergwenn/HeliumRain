@@ -1005,6 +1005,135 @@ bool UFlareSimulatedSpacecraft::IsPlayerShip()
 	return (this == GetGame()->GetPC()->GetPlayerShip());
 }
 
+bool UFlareSimulatedSpacecraft::IsRepairing()
+{
+	return GetRepairStock() > 0 && GetDamageSystem()->GetGlobalDamageRatio() < 1.f;
+}
+
+bool UFlareSimulatedSpacecraft::IsRefilling()
+{
+	return GetRefillStock() > 0 && NeedRefill();
+}
+
+int32 UFlareSimulatedSpacecraft::GetRepairDuration()
+{
+	if(GetRepairStock() <= 0 || (GetCurrentSector() && GetCurrentSector()->IsInDangerousBattle(GetCompany())))
+	{
+		// No repair possible
+		return 0;
+	}
+
+	UFlareSpacecraftComponentsCatalog* Catalog = GetGame()->GetShipPartsCatalog();
+
+	float SpacecraftPreciseCurrentNeededFleetSupply = 0;
+
+	// List components
+	for (int32 ComponentIndex = 0; ComponentIndex < GetData().Components.Num(); ComponentIndex++)
+	{
+		FFlareSpacecraftComponentSave* ComponentData = &GetData().Components[ComponentIndex];
+		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+
+		float DamageRatio = GetDamageSystem()->GetDamageRatio(ComponentDescription, ComponentData);
+		float TechnologyBonus = GetCompany()->IsTechnologyUnlocked("quick-repair") ? 1.5f: 1.f;
+		float ComponentMaxRepairRatio = SectorHelper::GetComponentMaxRepairRatio(ComponentDescription) * (GetSize() == EFlarePartSize::L ? 0.2f : 1.f) * TechnologyBonus;
+		float CurrentRepairRatio = FMath::Min(ComponentMaxRepairRatio, (1.f - DamageRatio));
+
+
+		SpacecraftPreciseCurrentNeededFleetSupply += CurrentRepairRatio * UFlareSimulatedSpacecraftDamageSystem::GetRepairCost(ComponentDescription);
+	}
+
+	int32 ShipRepairDuration = 0;
+
+	if(SpacecraftPreciseCurrentNeededFleetSupply != 0)
+	{
+		float MaxRepairRatio = FMath::Min(1.f, GetRepairStock() / SpacecraftPreciseCurrentNeededFleetSupply);
+
+		for (int32 ComponentIndex = 0; ComponentIndex < GetData().Components.Num(); ComponentIndex++)
+		{
+			FFlareSpacecraftComponentSave* ComponentData = &GetData().Components[ComponentIndex];
+			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+
+			float TechnologyBonus = GetCompany()->IsTechnologyUnlocked("quick-repair") ? 1.5f: 1.f;
+			float ComponentMaxRepairRatio = SectorHelper::GetComponentMaxRepairRatio(ComponentDescription) * (GetSize() == EFlarePartSize::L ? 0.2f : 1.f) * TechnologyBonus;
+			float DamageRatio = GetDamageSystem()->GetDamageRatio(ComponentDescription, ComponentData);
+
+
+			float RepairRatio = MaxRepairRatio * (1.f - DamageRatio);
+
+			float PartRepairDurationFloat = RepairRatio/ComponentMaxRepairRatio;
+			int32 PartRepairDuration = FMath::CeilToInt( FMath::RoundToFloat(PartRepairDurationFloat * 10) / 10);
+
+			if(PartRepairDuration > ShipRepairDuration)
+			{
+				ShipRepairDuration = PartRepairDuration;
+			}
+		}
+	}
+
+	return ShipRepairDuration;
+}
+
+int32 UFlareSimulatedSpacecraft::GetRefillDuration()
+{
+	if(GetRefillStock() == 0 || (GetCurrentSector() && GetCurrentSector()->IsInDangerousBattle(GetCompany())))
+	{
+		// No refill possible
+		return 0;
+	}
+
+	UFlareSpacecraftComponentsCatalog* Catalog = GetGame()->GetShipPartsCatalog();
+	float SpacecraftPreciseCurrentNeededFleetSupply = 0;
+
+	// List components
+	for (int32 ComponentIndex = 0; ComponentIndex < GetData().Components.Num(); ComponentIndex++)
+	{
+		FFlareSpacecraftComponentSave* ComponentData = &GetData().Components[ComponentIndex];
+		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+		if(ComponentDescription->Type == EFlarePartType::Weapon)
+		{
+			int32 MaxAmmo = ComponentDescription->WeaponCharacteristics.AmmoCapacity;
+			int32 CurrentAmmo = MaxAmmo - ComponentData->Weapon.FiredAmmo;
+			float FillRatio = (float) CurrentAmmo / (float) MaxAmmo;
+			float CurrentRefillRatio = FMath::Min(MAX_REFILL_RATIO_BY_DAY * (GetSize() == EFlarePartSize::L ? 0.2f : 1.f), (1.f - FillRatio));
+
+			SpacecraftPreciseCurrentNeededFleetSupply += CurrentRefillRatio * UFlareSimulatedSpacecraftDamageSystem::GetRefillCost(ComponentDescription);
+		}
+
+	}
+
+	int32 ShipRefillDuration = 0;
+
+	if(SpacecraftPreciseCurrentNeededFleetSupply != 0)
+	{
+		float MaxRefillRatio = FMath::Min(1.f,GetRefillStock() / SpacecraftPreciseCurrentNeededFleetSupply);
+
+		for (int32 ComponentIndex = 0; ComponentIndex < GetData().Components.Num(); ComponentIndex++)
+		{
+			FFlareSpacecraftComponentSave* ComponentData = &GetData().Components[ComponentIndex];
+			FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+
+			if(ComponentDescription->Type == EFlarePartType::Weapon)
+			{
+				int32 MaxAmmo = ComponentDescription->WeaponCharacteristics.AmmoCapacity;
+				int32 CurrentAmmo = MaxAmmo - ComponentData->Weapon.FiredAmmo;
+				float FillRatio = (float) CurrentAmmo / (float) MaxAmmo;
+				float RefillRatio = MaxRefillRatio * (1.f - FillRatio);
+
+
+				int32 PartRefillDuration = FMath::CeilToInt(RefillRatio/(MAX_REFILL_RATIO_BY_DAY * (GetSize() == EFlarePartSize::L ? 0.2f : 1.f)));
+
+				if(PartRefillDuration > ShipRefillDuration)
+				{
+					ShipRefillDuration = PartRefillDuration;
+				}
+			}
+		}
+	}
+
+	return ShipRefillDuration;
+}
+
+
 const FSlateBrush* FFlareSpacecraftDescription::GetIcon(FFlareSpacecraftDescription* Characteristic)
 {
 	if (Characteristic)

@@ -263,6 +263,8 @@ public:
 
 	uint32 GetWorldPopulation();
 
+	TArray<FFlareIncomingEvent> GetIncomingEvents();
+
 
 	TMap<IncomingKey, IncomingValue> GetIncomingPlayerEnemy();
 

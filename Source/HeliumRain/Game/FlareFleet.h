@@ -103,6 +103,10 @@ public:
 
 	FLinearColor GetFleetColor() const;
 
+	int32 GetRepairDuration() const;
+
+	int32 GetRefillDuration() const;
+
 protected:
 
 	TArray<UFlareSimulatedSpacecraft*>     FleetShips;
