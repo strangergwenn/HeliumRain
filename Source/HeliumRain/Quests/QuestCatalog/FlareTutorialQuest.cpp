@@ -424,7 +424,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 									"\nGain some research points to move forward.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "gain-research-points", Description);
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 50));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 30));
 		Steps.Add(Step);
 	}
 
@@ -596,7 +596,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	QuestDescription = LOCTEXT("TutorialBuildStationDescription","Learn how to build stations.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
-	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 50));
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 30));
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-build-ship"));
 
 	{
@@ -716,7 +716,7 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ProduceResearch"
 		FText Description = LOCTEXT("ProduceResearchDescription","Your research station is now ready. Make sure you provide it the input resources it needs to produce research points !");
-		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "produce-peseach", Description);
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "produce-research", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialProduceResearch::Create(this, QUEST_TAG"cond1", 50));
 		Steps.Add(Step);
