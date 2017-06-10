@@ -642,7 +642,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 #if! UE_BUILD_SHIPPING
 	
 	// Stations damaged by collisions with non-spacecrafts are highly suspicious
-	if (Spacecraft->IsStation() && DamageType == EFlareDamage::DAM_Collision)
+	if (Spacecraft->IsStation() && DamageType == EFlareDamage::DAM_Collision && !DamageSource)
 	{
 		FLOGV("WARNING: suspicious collision for %s", *Spacecraft->GetImmatriculation().ToString());
 		//FCHECK(DamageSource);
