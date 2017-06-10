@@ -1379,6 +1379,7 @@ FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector Ini
 	float DistanceToStop = (CurrentVelocity.Size() / (2)) * (TimeToStop);
 
 
+	FVector SectorCenter = TargetShip->GetGame()->GetActiveSector()->GetSectorCenter();
 
 
 /*	DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetActorLocation(), FColor::Cyan, false, 1.0);
@@ -1389,7 +1390,8 @@ FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector Ini
 	DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetActorLocation() + TargetShip->GetVelocity() * 1000, FColor::Red, false, 1.0);
 	DrawDebugLine(TargetShip->GetWorld(), TargetShip->GetActorLocation(), TargetShip->GetActorLocation() + InitialVelocityTarget * 1000, FColor::Blue, false, 1.0);
 */
-	float ShipCenterDistance = TargetShip->GetActorLocation().Size();
+
+	float ShipCenterDistance = (TargetShip->GetActorLocation() - SectorCenter).Size();
 	float SectorLimits = TargetShip->GetGame()->GetActiveSector()->GetSectorLimits() / 3;
 	/*FLOGV("%s ExitAvoidance ShipCenterDistance=%f SectorLimits=%f InitialVelocityTarget=%s",
 		  *TargetShip->GetImmatriculation().ToString(),
