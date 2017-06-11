@@ -121,7 +121,11 @@ void UFlareTravel::Simulate()
 
 void UFlareTravel::UpdateTravelParameters()
 {
-
+	if(OriginSector == DestinationSector)
+	{
+		TravelSector->SetSectorOrbitParameters(*OriginSector->GetOrbitParameters());
+		return;
+	}
 
 	float TravelRatio = GetElapsedTime() /  float(TravelDuration);
 
