@@ -638,7 +638,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 	FVector AxisTarget = -DockingParameters.StationDockAxis;
 	AFlareSpacecraft* AnticollisionDockStation = DockStation;
 	bool Anticollision = false;
-	float AnticollisionDuration = 5.f;
+	float AnticollisionDuration = 10.f;
 	FVector VelocityTarget = DockingParameters.LinearVelocityAtShipDistance - DockingParameters.ShipDockSelfRotationInductedLinearVelocity;
 
 	switch (DockingParameters.DockingPhase)
@@ -690,7 +690,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 
 	if (Anticollision)
 	{
-		//FLOGV("Docking Anticollision ignore=%p", AnticollisionDockStation);
+		FLOGV("Docking Anticollision ignore=%p", AnticollisionDockStation);
 
 		// During docking, lets the others avoid me
 		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, AnticollisionDockStation, AnticollisionDuration);

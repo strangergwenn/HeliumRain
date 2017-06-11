@@ -332,13 +332,18 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 	}
 
 	// Exit avoidance
+
+	FLOGV("%s LinearTargetVelocity before exit avoidance = %s",  *Ship->GetImmatriculation().ToString(), *LinearTargetVelocity.ToString());
+
 	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.4);
 	AlignToTargetVelocityWithThrust(DeltaSeconds);
 
-	// Anticollision
-	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity);
+	FLOGV("%s LinearTargetVelocity before anticollision = %s",  *Ship->GetImmatriculation().ToString(), *LinearTargetVelocity.ToString());
 
-	//FLOGV("%s Location = %s LinearTargetVelocity = %s",  *Ship->GetImmatriculation().ToString(), * Ship->GetActorLocation().ToString(),	 *LinearTargetVelocity.ToString());
+	// Anticollision
+	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, NULL, 8.f);
+
+	FLOGV("%s Location = %s Velocity = %s LinearTargetVelocity = %s",  *Ship->GetImmatriculation().ToString(), * Ship->GetActorLocation().ToString(), *Ship->GetLinearVelocity().ToString(), *LinearTargetVelocity.ToString());
 }
 
 void UFlareShipPilot::FighterPilot(float DeltaSeconds)
