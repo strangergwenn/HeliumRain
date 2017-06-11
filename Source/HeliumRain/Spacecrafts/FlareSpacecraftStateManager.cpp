@@ -585,7 +585,7 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 			UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 			if (MyGameSettings->UseAnticollision || Spacecraft->GetPC()->GetMenuManager()->IsUIOpen())
 			{
-				FinalLinearVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, FinalLinearVelocity);
+				FinalLinearVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, FinalLinearVelocity, Spacecraft->GetPreferedAnticollisionTime());
 			}
 		}
 

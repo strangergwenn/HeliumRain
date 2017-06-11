@@ -43,13 +43,10 @@ struct PilotHelper
 	static bool CheckFriendlyFire(UFlareSector* Sector, UFlareCompany* MyCompany, FVector FireBaseLocation, FVector FireBaseVelocity , float AmmoVelocity, FVector FireAxis, float MaxDelay, float AimRadius);
 
 	/** Correct trajectory to avoid incoming ships */
-	static FVector AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, AFlareSpacecraft* SpacecraftToIgnore = NULL, float PreventionDuration = 5.f);
+	static FVector AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, float PreventionDuration, AFlareSpacecraft* SpacecraftToIgnore = NULL);
 
-	static bool FindMostDangerousCollision(AFlareSpacecraft* Ship, AFlareSpacecraft* SpacecraftToIgnore,
-												 AActor** MostDangerousCandidateActor,
-												 FVector* MostDangerousLocation,
-												 float* MostDangerousHitTime,
-												 float* MostDangerousInterCollisionTravelTime);
+	static bool FindMostDangerousCollision(AActor*& MostDangerousCandidateActor, FVector& MostDangerousLocation, float& MostDangerousTimeToHit, float& MostDangerousInterseptDepth,
+										   AFlareSpacecraft* Ship, AFlareSpacecraft* SpacecraftToIgnore);
 
 	static bool IsAnticollisionImminent(AFlareSpacecraft* Ship, float PreventionDuration);
 	static bool IsSectorExitImminent(AFlareSpacecraft* Ship, float PreventionDuration);

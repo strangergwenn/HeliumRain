@@ -117,6 +117,8 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 {
 	FCHECK(IsValidLowLevel());
 
+	TimeToStopCached = false;
+
 	// Wait for readiness to call some stuff on load
 	if (!LoadedAndReady)
 	{
@@ -467,7 +469,7 @@ void AFlareSpacecraft::Redock()
 	}
 }
 
-float AFlareSpacecraft::GetSpacecraftMass()
+float AFlareSpacecraft::GetSpacecraftMass() const
 {
 	float Mass = GetDescription()->Mass;
 	if (Mass)
@@ -1683,5 +1685,41 @@ FVector AFlareSpacecraft::GetLinearVelocity() const
 {
 	return Airframe->GetPhysicsLinearVelocity() / 100;
 }
+
+float AFlareSpacecraft::GetPreferedAnticollisionTime() const
+{
+	return GetTimeToStop() * 1.5;
+}
+
+float AFlareSpacecraft::GetTimeToStop() const
+{
+	if(TimeToStopCached)
+	{
+		return TimeToStopCache;
+	}
+
+	TimeToStopCached = true;
+
+	FVector CurrentVelocity = GetLinearVelocity();
+
+	if (FMath::IsNearlyZero(CurrentVelocity.SizeSquared()))
+	{
+		TimeToStopCache = 0;
+	}
+	else
+	{
+		FVector CurrentVelocityAxis = CurrentVelocity.GetUnsafeNormal();
+
+		// TODO Cache
+		TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+
+		FVector Acceleration = GetNavigationSystem()->GetTotalMaxThrustInAxis(Engines, CurrentVelocityAxis, false) / GetSpacecraftMass();
+		float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(Acceleration, CurrentVelocityAxis));
+
+		TimeToStopCache = (CurrentVelocity.Size() / (AccelerationInAngleAxis));
+	}
+	return TimeToStopCache;
+}
+
 
 #undef LOCTEXT_NAMESPACE

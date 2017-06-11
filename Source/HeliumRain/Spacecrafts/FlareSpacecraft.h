@@ -71,7 +71,7 @@ public:
 
 	virtual void Redock();
 
-	virtual float GetSpacecraftMass();
+	virtual float GetSpacecraftMass() const;
 
 
 	/*----------------------------------------------------
@@ -316,6 +316,9 @@ protected:
 
 	TArray<FFlareScreenTarget>& GetCurrentTargets();
 
+	mutable bool TimeToStopCached = false;
+	mutable float TimeToStopCache;
+
 public:
 
 	/*----------------------------------------------------
@@ -326,6 +329,8 @@ public:
 
 	/** Return linear velocity in meters */
 	FVector GetLinearVelocity() const;
+
+	float GetTimeToStop() const;
 
 	inline UFlareSimulatedSpacecraft* GetParent() const
 	{
@@ -426,4 +431,6 @@ public:
 	{
 		return Paused;
 	}
+
+	float GetPreferedAnticollisionTime() const;
 };
