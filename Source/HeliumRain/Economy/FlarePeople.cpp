@@ -171,11 +171,14 @@ void UFlarePeople::SimulateResourcePurchase()
 	FFlareResourceDescription* Tool = Game->GetResourceCatalog()->Get("tools");
 	FFlareResourceDescription* Tech = Game->GetResourceCatalog()->Get("tech");
 
+	bool LockNext = false;
+
 	uint32 FoodConsumption = GetRessourceConsumption(Food, true);
-	uint32 BoughtFood = BuyResourcesInSector(Food, FoodConsumption); // In Tons
+	uint32 BoughtFood = BuyResourcesInSector(Food, FoodConsumption, 0.001); // In Tons
 	//if(BoughtFood)
 	//	FLOGV("People in %s bought %u food", *Parent->GetSectorName().ToString(), BoughtFood);
 	PeopleData.FoodStock += BoughtFood * 1000; // In kg
+
 
 	if(FoodConsumption == BoughtFood)
 	{
@@ -183,6 +186,7 @@ void UFlarePeople::SimulateResourcePurchase()
 	}
 	else
 	{
+		LockNext = true;
 		PeopleData.FoodConsumption -= 1.f /FOOD_NEED_STOCK * FOOD_MIN_CONSUMPTION;
 		PeopleData.FuelConsumption -= 1.f /FUEL_NEED_STOCK * FUEL_MIN_CONSUMPTION;
 		PeopleData.ToolConsumption -= 1.f /TOOL_NEED_STOCK * TOOL_MIN_CONSUMPTION;
@@ -194,11 +198,11 @@ void UFlarePeople::SimulateResourcePurchase()
 
 	float FuelPrice = Parent->GetResourcePrice(Fuel, EFlareResourcePriceContext::Default);
 	float FuelPriceRatio = (FuelPrice - Fuel->MinPrice) / (float)(Fuel->MaxPrice - Fuel->MinPrice);
-	if(FuelPriceRatio < 0.75)
+	if(!LockNext && FuelPriceRatio < 0.75)
 	{
 
 		uint32 FuelConsumption = GetRessourceConsumption(Fuel, true);
-		uint32 BoughtFuel = BuyResourcesInSector(Fuel, FuelConsumption); // In Tons
+		uint32 BoughtFuel = BuyResourcesInSector(Fuel, FuelConsumption, 0.002); // In Tons
 		//if(BoughtFuel)
 		//	FLOGV("People in %s bought %u fuel", *Parent->GetSectorName().ToString(), BoughtFuel);
 		PeopleData.FuelStock += BoughtFuel * 1000; // In kg
@@ -209,6 +213,7 @@ void UFlarePeople::SimulateResourcePurchase()
 		}
 		else
 		{
+			LockNext = true;
 			PeopleData.FoodConsumption -= 0.1f /FOOD_NEED_STOCK * FOOD_MIN_CONSUMPTION;
 			PeopleData.FuelConsumption -= 1.f /FUEL_NEED_STOCK * FUEL_MIN_CONSUMPTION;
 			PeopleData.ToolConsumption -= 1.f /TOOL_NEED_STOCK * TOOL_MIN_CONSUMPTION;
@@ -220,10 +225,10 @@ void UFlarePeople::SimulateResourcePurchase()
 
 	float ToolPrice = Parent->GetResourcePrice(Tool, EFlareResourcePriceContext::Default);
 	float ToolPriceRatio = (ToolPrice - Tool->MinPrice) / (float)(Tool->MaxPrice - Tool->MinPrice);
-	if(ToolPriceRatio < 0.5)
+	if(!LockNext && ToolPriceRatio < 0.5)
 	{
 		uint32 ToolConsumption = GetRessourceConsumption(Tool, true);
-		uint32 BoughtTool = BuyResourcesInSector(Tool, ToolConsumption); // In Tons
+		uint32 BoughtTool = BuyResourcesInSector(Tool, ToolConsumption, 0.004); // In Tons
 		//if(BoughtTool)
 		//	FLOGV("People in %s bought %u tool", *Parent->GetSectorName().ToString(), BoughtTool);
 		PeopleData.ToolStock += BoughtTool * 1000; // In kg
@@ -234,6 +239,7 @@ void UFlarePeople::SimulateResourcePurchase()
 		}
 		else
 		{
+			LockNext = true;
 			PeopleData.FoodConsumption -= 0.1f /FOOD_NEED_STOCK * FOOD_MIN_CONSUMPTION;
 			PeopleData.FuelConsumption -= 0.1f /FUEL_NEED_STOCK * FUEL_MIN_CONSUMPTION;
 			PeopleData.ToolConsumption -= 1.f /TOOL_NEED_STOCK * TOOL_MIN_CONSUMPTION;
@@ -243,13 +249,10 @@ void UFlarePeople::SimulateResourcePurchase()
 		}
 	}
 
-
-	float TechPrice = Parent->GetResourcePrice(Tech, EFlareResourcePriceContext::Default);
-	float TechPriceRatio = (TechPrice - Tech->MinPrice) / (float)(Tech->MaxPrice - Tech->MinPrice);
-	if(TechPriceRatio < 0.25)
+	if(!LockNext)
 	{
 		uint32 TechConsumption = GetRessourceConsumption(Tech, true);
-		uint32 BoughtTech = BuyResourcesInSector(Tech, TechConsumption); // In Tons
+		uint32 BoughtTech = BuyResourcesInSector(Tech, TechConsumption, 0.006); // In Tons
 		//if(BoughtTech)
 		//	FLOGV("People in %s bought %u tech", *Parent->GetSectorName().ToString(), BoughtTech);
 		PeopleData.TechStock += BoughtTech * 1000; // In kg
@@ -287,7 +290,7 @@ void UFlarePeople::SimulateResourcePurchase()
 	}
 }
 
-uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, uint32 Quantity)
+uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, uint32 Quantity, float MarketingRatio)
 {
 	// Find companies selling the ressource
 
@@ -307,8 +310,26 @@ uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, u
 	}
 
 	// Limit quantity to buy with money
-	uint32 BaseQuantity = FMath::Min(Quantity, PeopleData.Money / (uint32) (Parent->GetResourcePrice(Resource, EFlareResourcePriceContext::ConsumerConsumption)));
+
+	int64 SectorResourcePrice = Parent->GetResourcePrice(Resource, EFlareResourcePriceContext::ConsumerConsumption);
+
+
+	uint32 BaseQuantity = FMath::Min(Quantity, PeopleData.Money / (uint32) (SectorResourcePrice));
 	uint32 ResourceToBuy = BaseQuantity;
+
+	int64 AdaptativeResourcePrice = (PeopleData.Money > 0 ? PeopleData.Money * MarketingRatio / ResourceToBuy : 0);
+
+	int64 MarketPrice = FMath::Max(AdaptativeResourcePrice, SectorResourcePrice);
+
+	/*if(Quantity > 0)
+	{
+		FLOGV("%s in %s, Quantity: %d", *Resource->Name.ToString(), *Parent->GetSectorName().ToString(), Quantity);
+		FLOGV("%s in %s, SectorResourcePrice: %lld", *Resource->Name.ToString(), *Parent->GetSectorName().ToString(), UFlareGameTools::DisplayMoney(SectorResourcePrice));
+		FLOGV("%s in %s, BaseQuantity: %d", *Resource->Name.ToString(), *Parent->GetSectorName().ToString(), BaseQuantity);
+		FLOGV("%s in %s, AdaptativeResourcePrice: %lld", *Resource->Name.ToString(), *Parent->GetSectorName().ToString(), UFlareGameTools::DisplayMoney(AdaptativeResourcePrice));
+		FLOGV("%s in %s, MarketPrice: %lld", *Resource->Name.ToString(), *Parent->GetSectorName().ToString(), UFlareGameTools::DisplayMoney(MarketPrice));
+	}*/
+
 
 	while(ResourceToBuy > 0 && SellingCompanies.Num() > 0)
 	{
@@ -330,7 +351,7 @@ uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, u
 			uint32 PartToBuy = FMath::CeilToInt((InitialResourceToBuy * Reputation->Reputation) / (float) ReputationSum);
 			PartToBuy = FMath::Min(ResourceToBuy, PartToBuy);
 
-			uint32 BoughtQuantity = BuyInStationForCompany(Resource, PartToBuy, SellingCompanies[CompanyIndex], SellingStations);
+			uint32 BoughtQuantity = BuyInStationForCompany(Resource, PartToBuy, SellingCompanies[CompanyIndex], SellingStations, MarketPrice);
 			ResourceToBuy -= BoughtQuantity;
 
 			if(PartToBuy == 0 || BoughtQuantity < PartToBuy)
@@ -343,7 +364,7 @@ uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, u
 	return BaseQuantity - ResourceToBuy;
 }
 
-uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Company, TArray<UFlareSimulatedSpacecraft*>& Stations)
+uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Company, TArray<UFlareSimulatedSpacecraft*>& Stations, int64 ResourcePrice)
 {
 	uint32 RemainingQuantity = Quantity;
 
@@ -385,7 +406,7 @@ uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource,
 
 		uint32 TakenQuantity = BestStation->GetCargoBay()->TakeResources(Resource, RemainingQuantity, NULL);
 		RemainingQuantity -= TakenQuantity;
-		uint32 Price = (uint32) (Parent->GetResourcePrice(Resource, EFlareResourcePriceContext::ConsumerConsumption)) * TakenQuantity;
+		uint32 Price = (uint32) (ResourcePrice) * TakenQuantity;
 		PeopleData.Money -= Price;
 		Company->GiveMoney(Price);
 

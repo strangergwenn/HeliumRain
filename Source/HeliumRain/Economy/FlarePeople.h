@@ -105,9 +105,9 @@ public:
 
 	void SimulateResourcePurchase();
 
-	uint32 BuyResourcesInSector(FFlareResourceDescription* Resource, uint32 Quantity);
+	uint32 BuyResourcesInSector(FFlareResourceDescription* Resource, uint32 Quantity, float MarketingRatio);
 
-	uint32 BuyInStationForCompany(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Company, TArray<UFlareSimulatedSpacecraft*>& Stations);
+	uint32 BuyInStationForCompany(FFlareResourceDescription* Resource, uint32 Quantity, UFlareCompany* Company, TArray<UFlareSimulatedSpacecraft*>& Stations, int64 ResourcePrice);
 
 	float GetRessourceConsumption(FFlareResourceDescription* Resource, bool WithStock);
 
