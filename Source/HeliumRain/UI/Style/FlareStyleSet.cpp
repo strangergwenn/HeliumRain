@@ -1,6 +1,6 @@
 
-#include "../../Flare.h"
 #include "FlareStyleSet.h"
+#include "../../Flare.h"
 
 
 /*----------------------------------------------------
