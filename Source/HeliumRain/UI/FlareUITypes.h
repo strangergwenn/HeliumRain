@@ -94,6 +94,7 @@ namespace EFlareNotification
 		NT_Info,
 		NT_Economy,
 		NT_Military,
+		NT_NewQuest,
 		NT_Quest
 	};
 }

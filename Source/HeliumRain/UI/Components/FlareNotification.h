@@ -8,24 +8,6 @@ class SFlareNotifier;
 class AFlareMenuManager;
 
 
-<<<<<<< HEAD
-/** Possible notification types */
-UENUM()
-namespace EFlareNotification
-{
-	enum Type
-	{
-		NT_Info,
-		NT_Economy,
-		NT_Military,
-		NT_NewQuest,
-		NT_Quest
-	};
-}
-
-
-=======
->>>>>>> Refactor includes
 class SFlareNotification : public SCompoundWidget
 {
 	/*----------------------------------------------------

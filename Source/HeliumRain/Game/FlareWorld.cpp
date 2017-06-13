@@ -10,6 +10,7 @@
 
 #include "../Data/FlareSectorCatalogEntry.h"
 #include "../Player/FlarePlayerController.h"
+#include "../Player/FlareMenuManager.h"
 
 #define LOCTEXT_NAMESPACE "FlareWorld"
 
