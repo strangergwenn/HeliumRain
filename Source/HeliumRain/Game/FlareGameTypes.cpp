@@ -1,5 +1,6 @@
 
 #include "FlareGameTypes.h"
+#include "../UI/FlareUITypes.h"
 #include "../Flare.h"
 
 #define LOCTEXT_NAMESPACE "FlareNavigationHUD"

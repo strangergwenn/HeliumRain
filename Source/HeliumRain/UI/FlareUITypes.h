@@ -1,6 +1,11 @@
 #pragma once
 
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
+
+#include "SlateBasics.h"
+#include "SlateGameResources.h"
+#include "../UI/Style/FlareStyleSet.h"
+
 #include "FlareUITypes.generated.h"
 
 

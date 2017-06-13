@@ -1,9 +1,6 @@
-
-#ifndef __FLARE_H__
-#define __FLARE_H__
+#pragma once
 
 #include "EngineMinimal.h"
-#include "UI/Style/FlareStyleSet.h"
 
 
 /*----------------------------------------------------
@@ -67,9 +64,7 @@ public:
 
 protected:
 
-	FFlareStyleSet StyleInstance;
+	static class FFlareStyleSet* StyleInstance;
 
 };
 
-
-#endif
