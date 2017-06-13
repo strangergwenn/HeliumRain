@@ -57,17 +57,6 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 			]
 		]
 
-		// Company
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Center)
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(STextBlock)
-			.Text(LOCTEXT("DONT-TRANSLATE-Deimos", "DEIMOS GAMES"))
-			.TextStyle(&Theme.TitleFont)
-		]
-
 		// Main
 		+ SVerticalBox::Slot()
 		.HAlign(HAlign_Center)
@@ -99,9 +88,19 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SHorizontalBox)
 
-						// Stranger
+						// Company
 						+ SHorizontalBox::Slot()
 						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Center)
+						[
+							SNew(SImage).Image(FFlareStyleSet::GetImage("DeimosGames"))
+						]
+
+						// Stranger & Niavok
+						+ SHorizontalBox::Slot()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Center)
+						.VAlign(VAlign_Center)
 						[
 							SNew(SVerticalBox)
 
@@ -120,13 +119,6 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 								.Text(LOCTEXT("DONT-TRANSLATE-Stranger-Info", "Art \u2022 UI \u2022 Game design"))
 								.TextStyle(&Theme.NameFont)
 							]
-						]
-
-						// Niavok
-						+ SHorizontalBox::Slot()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SVerticalBox)
 
 							+ SVerticalBox::Slot()
 							.AutoHeight()
@@ -148,26 +140,11 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 
 					// Daisy
 					+ SScrollBox::Slot()
-					.HAlign(HAlign_Center)
 					.Padding(Theme.ContentPadding)
 					[
-						SNew(SVerticalBox)
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("DONT-TRANSLATE-Daisy", "Daisy HERBAULT"))
-							.TextStyle(&Theme.TitleFont)
-						]
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("DONT-TRANSLATE-Daisy-Info", "Music"))
-							.TextStyle(&Theme.NameFont)
-						]
+						SNew(STextBlock)
+						.Text(LOCTEXT("DONT-TRANSLATE-Daisy", "Music by Daisy HERBAULT"))
+						.TextStyle(&Theme.TitleFont)
 					]
 
 					// Jérôme
