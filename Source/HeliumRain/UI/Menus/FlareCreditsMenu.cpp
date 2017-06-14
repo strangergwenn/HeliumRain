@@ -92,11 +92,12 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 						+ SHorizontalBox::Slot()
 						.Padding(Theme.ContentPadding)
 						.HAlign(HAlign_Center)
+						.VAlign(VAlign_Top)
 						[
 							SNew(SImage).Image(FFlareStyleSet::GetImage("DeimosGames"))
 						]
 
-						// Stranger & Niavok
+						// Team
 						+ SHorizontalBox::Slot()
 						.Padding(Theme.ContentPadding)
 						.HAlign(HAlign_Center)
@@ -104,12 +105,22 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 						[
 							SNew(SVerticalBox)
 
+							// Part 1
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(FMargin(0, 0, 0, 20))
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("DONT-TRANSLATE-DeimosGames", "Deimos Games"))
+								.TextStyle(&Theme.TitleFont)
+							]
+
 							+ SVerticalBox::Slot()
 							.AutoHeight()
 							[
 								SNew(STextBlock)
 								.Text(LOCTEXT("DONT-TRANSLATE-Stranger", "Gwenna\u00EBl 'Stranger' ARBONA"))
-								.TextStyle(&Theme.TitleFont)
+								.TextStyle(&Theme.SubTitleFont)
 							]
 
 							+ SVerticalBox::Slot()
@@ -125,7 +136,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 							[
 								SNew(STextBlock)
 								.Text(LOCTEXT("DONT-TRANSLATE-Niavok", "Fr\u00E9d\u00E9ric 'Niavok' BERTOLUS"))
-								.TextStyle(&Theme.TitleFont)
+								.TextStyle(&Theme.SubTitleFont)
 							]
 
 							+ SVerticalBox::Slot()
@@ -135,43 +146,42 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 								.Text(LOCTEXT("DONT-TRANSLATE-Niavok-Info", "Gameplay \u2022 Game design"))
 								.TextStyle(&Theme.NameFont)
 							]
+
+							// Part 2
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(FMargin(0, 50, 0, 20))
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("DONT-TRANSLATE-Others", "Other awesome people"))
+								.TextStyle(&Theme.TitleFont)
+							]
+
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("DONT-TRANSLATE-Daisy", "Music by Daisy HERBAULT"))
+								.TextStyle(&Theme.SubTitleFont)
+							]
+
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("DONT-TRANSLATE-Grom", "Game logo by J\u00E9r\u00F4me MILLION-ROUSSEAU"))
+								.TextStyle(&Theme.SubTitleFont)
+							]
+
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("DONT-TRANSLATE-Special-Thanks", "Special thanks to Johanna and all our nerd friends ! This game took us more than three years to create. We hope you'll have as much fun playing it as we did creating it !"))
+								.TextStyle(&Theme.NameFont)
+								.WrapTextAt(TextWidth / 2)
+							]
 						]
-					]
-
-					// Daisy
-					+ SScrollBox::Slot()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("DONT-TRANSLATE-Daisy", "Music by Daisy HERBAULT"))
-						.TextStyle(&Theme.TitleFont)
-					]
-
-					// Jérôme
-					+ SScrollBox::Slot()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("DONT-TRANSLATE-Grom", "Game logo by J\u00E9r\u00F4me MILLION-ROUSSEAU."))
-						.TextStyle(&Theme.NameFont)
-					]
-
-					// Thanks
-					+ SScrollBox::Slot()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("DONT-TRANSLATE-Special Thanks", "Special thanks to Johanna and all our nerd friends !"))
-						.TextStyle(&Theme.NameFont)
-					]
-
-					// Thanks
-					+ SScrollBox::Slot()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("DONT-TRANSLATE-Project", "This game took us more than three years to create. We hope you'll have a great time playing it !"))
-						.TextStyle(&Theme.NameFont)
 					]
 
 					// Separator

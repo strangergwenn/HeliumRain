@@ -83,6 +83,13 @@ void SFlareEULAMenu::Construct(const FArguments& InArgs)
 					.Style(&Theme.ScrollBoxStyle)
 					.ScrollBarStyle(&Theme.ScrollBarStyle)
 
+					// Company
+					+ SScrollBox::Slot()
+					.HAlign(HAlign_Center)
+					[
+						SNew(SImage).Image(FFlareStyleSet::GetImage("DeimosGamesInline"))
+					]
+
 					+ SScrollBox::Slot()
 					[
 						SNew(STextBlock)
