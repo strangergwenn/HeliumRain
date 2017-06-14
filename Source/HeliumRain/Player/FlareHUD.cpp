@@ -19,6 +19,7 @@
 #include "Engine/PostProcessVolume.h"
 #include "Engine/CanvasRenderTarget2D.h"
 #include "Engine/Canvas.h"
+#include "Engine/Engine.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareNavigationHUD"
@@ -346,6 +347,10 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	{
 		CurrentPowerTime -= DeltaSeconds;
 	}
+
+	// Update data
+	PlayerHitTime += DeltaSeconds;
+	ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
 	CurrentPowerTime = FMath::Clamp(CurrentPowerTime, 0.0f, PowerTransitionTime);
 
 	// Ingame profiler
@@ -383,15 +388,13 @@ void AFlareHUD::Tick(float DeltaSeconds)
 		}
 	}
 
-	// Update data
-	ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
-	PlayerHitTime += DeltaSeconds;
-
-	// HUD texture target
+	// Update HUD texture target if the viewport has changed size
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	if (ViewportSize != PreviousViewportSize || MyGameSettings->ScreenPercentage != PreviousScreenPercentage)
+	if (!HUDRenderTarget || ViewportSize != PreviousViewportSize || MyGameSettings->ScreenPercentage != PreviousScreenPercentage)
 	{
-		HUDRenderTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);		
+		FLOGV("AFlareHUD::Tick : Reallocating HUD target to %dx%d", (int)ViewportSize.X, (int)ViewportSize.Y);
+
+		HUDRenderTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
 		if (HUDRenderTarget)
 		{
 			HUDRenderTarget->OnCanvasRenderTargetUpdate.AddDynamic(this, &AFlareHUD::DrawHUDTexture);
@@ -423,7 +426,6 @@ void AFlareHUD::Tick(float DeltaSeconds)
 		HUDRenderTargetMaterial->SetScalarParameterValue("PowerAlpha", PowerAlpha);
 		HUDRenderTargetMaterial->SetScalarParameterValue("MaxAlpha", DrawRenderTarget ? 1.0f : 0.0f);
 		HUDRenderTargetMaterial->SetTextureParameterValue("Texture", HUDRenderTarget);
-		HUDRenderTargetMaterial->SetScalarParameterValue("ScreenPercentage", MyGameSettings->ScreenPercentage / 100.0f);
 	}
 
 	// Mouse control
