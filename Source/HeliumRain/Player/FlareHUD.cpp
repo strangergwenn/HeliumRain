@@ -261,23 +261,6 @@ void AFlareHUD::DrawHUD()
 		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 		UpdateContextMenu(PlayerShip);
 
-		// Should we paint the render target ?
-		bool DrawRenderTarget = false;
-		if (PC->UseCockpit)
-		{
-			DrawRenderTarget = PlayerShip && !PC->IsInMenu();
-		}
-		else
-		{
-			DrawRenderTarget = PlayerShip && !PC->IsInMenu() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive();
-		}
-
-		// Paint the render target
-		if (DrawRenderTarget)
-		{
-			DrawMaterialSimple(HUDRenderTargetMaterial, 0, 0, ViewportSize.X, ViewportSize.Y);
-		}
-
 		// Draw nose
 		if (HUDVisible && ShouldDrawHUD())
 		{
@@ -358,7 +341,21 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	if (HUDRenderTargetMaterial)
 	{
 		float PowerAlpha = PC->UseCockpit ? CurrentPowerTime / PowerTransitionTime : 1.0f;
+
+		// Should we paint the render target ?
+		bool DrawRenderTarget = false;
+		if (PC->UseCockpit)
+		{
+			DrawRenderTarget = PlayerShip && !PC->IsInMenu();
+		}
+		else
+		{
+			DrawRenderTarget = PlayerShip && !PC->IsInMenu() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive();
+		}
+
+		// Paint the render target
 		HUDRenderTargetMaterial->SetScalarParameterValue("PowerAlpha", PowerAlpha);
+		HUDRenderTargetMaterial->SetScalarParameterValue("MaxAlpha", DrawRenderTarget ? 1.0f : 0.0f);
 	}
 
 	// Ingame profiler
@@ -413,6 +410,8 @@ void AFlareHUD::Tick(float DeltaSeconds)
 			HUDRenderTargetMaterial->SetTextureParameterValue("Texture", HUDRenderTarget);
 			HUDRenderTargetMaterial->SetScalarParameterValue("ScreenPercentage", MyGameSettings->ScreenPercentage / 100.0f);
 			PreviousScreenPercentage = MyGameSettings->ScreenPercentage;
+
+			PC->GetGame()->GetPostProcessVolume()->AddOrUpdateBlendable(HUDRenderTargetMaterial);
 		}
 
 		PreviousViewportSize = ViewportSize;
