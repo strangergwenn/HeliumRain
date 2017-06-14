@@ -16,6 +16,7 @@
 #include "../UI/HUD/FlareHUDMenu.h"
 #include "../UI/HUD/FlareContextMenu.h"
 
+#include "Engine/PostProcessVolume.h"
 #include "Engine/CanvasRenderTarget2D.h"
 #include "Engine/Canvas.h"
 
