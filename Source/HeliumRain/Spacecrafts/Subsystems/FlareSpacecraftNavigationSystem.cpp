@@ -689,7 +689,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 
 	if (Anticollision)
 	{
-		FLOGV("Docking Anticollision ignore=%p", AnticollisionDockStation);
+		//FLOGV("Docking Anticollision ignore=%p", AnticollisionDockStation);
 
 		// During docking, lets the others avoid me
 		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, Spacecraft->GetPreferedAnticollisionTime(), AnticollisionDockStation);
