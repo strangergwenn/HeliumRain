@@ -930,6 +930,12 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 			continue;
 		}
 
+		// Check unicity
+		if (Parent->FindUniqueTag(Parent->GenerateTradeTag(Station, Slot.Resource)))
+		{
+			continue;
+		}
+
 		// Check if player kwown at least one buyer of this resource
 		if(!PlayerCompany->HasKnowResourceInput(Slot.Resource))
 		{
@@ -1078,6 +1084,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 
 			// It's a good candidate
 			CandidateStations.Add(CandidateStation);
+			break;
 		}
 	}
 
@@ -1114,6 +1121,12 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 			continue;
 		}
 
+		// Check unicity
+		if (Parent->FindUniqueTag(Parent->GenerateTradeTag(Station, Slot.Resource)))
+		{
+			continue;
+		}
+
 		// Check if player kwown at least one seller of this resource
 		if(!PlayerCompany->HasKnowResourceOutput(Slot.Resource))
 		{
@@ -1129,6 +1142,13 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 
 
 	}
+
+	if(!BestResource)
+	{
+		FLOG("WARNING: no best resource, inconsistent station candidate");
+		return NULL;
+	}
+
 
 	int32 MinPlayerTransportCapacity = FMath::Max(100, PlayerCompany->GetTransportCapacity());
 	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, MinPlayerTransportCapacity);
