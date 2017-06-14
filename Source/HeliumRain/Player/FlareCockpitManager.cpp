@@ -212,7 +212,10 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 
 
 		CockpitMesh->SetRelativeScale3D(FVector(1.0, LastCockpitScale, LastCockpitScale));
-		LastCockpitScale = Scale;
+		if(!FMath::IsNaN(Scale))
+		{
+			LastCockpitScale = Scale;
+		}
 	}
 }
 
