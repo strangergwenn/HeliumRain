@@ -156,6 +156,7 @@ void AFlareHUD::BeginPlay()
 	// HUD material
 	HUDRenderTargetMaterial = UMaterialInstanceDynamic::Create(HUDRenderTargetMaterialTemplate, GetWorld());
 	FCHECK(HUDRenderTargetMaterial);
+	MenuManager->GetGame()->GetPostProcessVolume()->AddOrUpdateBlendable(HUDRenderTargetMaterial);
 }
 
 void AFlareHUD::Setup(AFlareMenuManager* NewMenuManager)
@@ -347,27 +348,6 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	}
 	CurrentPowerTime = FMath::Clamp(CurrentPowerTime, 0.0f, PowerTransitionTime);
 
-	// Update power on the HUD material when in cockpit mode
-	if (HUDRenderTargetMaterial)
-	{
-		float PowerAlpha = PC->UseCockpit ? CurrentPowerTime / PowerTransitionTime : 1.0f;
-
-		// Should we paint the render target ?
-		bool DrawRenderTarget = false;
-		if (PC->UseCockpit)
-		{
-			DrawRenderTarget = PlayerShip && !PC->IsInMenu();
-		}
-		else
-		{
-			DrawRenderTarget = PlayerShip && !PC->IsInMenu() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive();
-		}
-
-		// Paint the render target
-		HUDRenderTargetMaterial->SetScalarParameterValue("PowerAlpha", PowerAlpha);
-		HUDRenderTargetMaterial->SetScalarParameterValue("MaxAlpha", DrawRenderTarget ? 1.0f : 0.0f);
-	}
-
 	// Ingame profiler
 	if (ShowPerformance)
 	{
@@ -417,14 +397,33 @@ void AFlareHUD::Tick(float DeltaSeconds)
 			HUDRenderTarget->OnCanvasRenderTargetUpdate.AddDynamic(this, &AFlareHUD::DrawHUDTexture);
 			HUDRenderTarget->ClearColor = FLinearColor::Black;
 			HUDRenderTarget->UpdateResource();
-			HUDRenderTargetMaterial->SetTextureParameterValue("Texture", HUDRenderTarget);
-			HUDRenderTargetMaterial->SetScalarParameterValue("ScreenPercentage", MyGameSettings->ScreenPercentage / 100.0f);
-			PreviousScreenPercentage = MyGameSettings->ScreenPercentage;
-
-			PC->GetGame()->GetPostProcessVolume()->AddOrUpdateBlendable(HUDRenderTargetMaterial);
 		}
 
+		PreviousScreenPercentage = MyGameSettings->ScreenPercentage;
 		PreviousViewportSize = ViewportSize;
+	}
+
+	// Update power on the HUD material when in cockpit mode
+	if (HUDRenderTargetMaterial)
+	{
+		float PowerAlpha = PC->UseCockpit ? CurrentPowerTime / PowerTransitionTime : 1.0f;
+
+		// Should we paint the render target ?
+		bool DrawRenderTarget = false;
+		if (PC->UseCockpit)
+		{
+			DrawRenderTarget = PlayerShip && !PC->IsInMenu();
+		}
+		else
+		{
+			DrawRenderTarget = PlayerShip && !PC->IsInMenu() && PlayerShip->GetParent()->GetDamageSystem()->IsAlive();
+		}
+
+		// Paint the render target
+		HUDRenderTargetMaterial->SetScalarParameterValue("PowerAlpha", PowerAlpha);
+		HUDRenderTargetMaterial->SetScalarParameterValue("MaxAlpha", DrawRenderTarget ? 1.0f : 0.0f);
+		HUDRenderTargetMaterial->SetTextureParameterValue("Texture", HUDRenderTarget);
+		HUDRenderTargetMaterial->SetScalarParameterValue("ScreenPercentage", MyGameSettings->ScreenPercentage / 100.0f);
 	}
 
 	// Mouse control
