@@ -148,7 +148,7 @@ public:
 	void NotifyDockingComplete(AFlareSpacecraft* DockStation, bool TellUser);
 
 	/** Check the battle state of the game before FF */
-	bool ConfirmFastForward(FSimpleDelegate OnConfirmed);
+	bool ConfirmFastForward(FSimpleDelegate OnConfirmed, bool Automatic);
 
 
 	/*----------------------------------------------------

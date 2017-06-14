@@ -1168,7 +1168,7 @@ void AFlarePlayerController::NotifyDockingComplete(AFlareSpacecraft* DockStation
 	}
 }
 
-bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
+bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed, bool Automatic)
 {
 	FText ConfirmFFTitleText = LOCTEXT("ConfirmBattleTitle", "BATTLE IN PROGRESS");
 	FText ConfirmFFDetailsText;
@@ -1215,7 +1215,7 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed)
 		// Is battle
 		ConfirmFFTitleText = LOCTEXT("ConfirmBattleTitle", "BATTLE IN PROGRESS");
 	}
-	else
+	else if(Automatic)
 	{
 		if(GetGame()->GetGameWorld()->GetIncomingEvents().Num() == 0)
 		{
@@ -1469,7 +1469,7 @@ void AFlarePlayerController::Simulate()
 	if (GetGame()->IsLoadedOrCreated() && !MenuManager->IsSwitchingMenu() && !GetNavHUD()->IsWheelMenuOpen() && !IsTyping())
 	{
 		FLOG("AFlarePlayerController::Simulate");
-		bool CanGoAhead = ConfirmFastForward(FSimpleDelegate::CreateUObject(this, &AFlarePlayerController::SimulateConfirmed));
+		bool CanGoAhead = ConfirmFastForward(FSimpleDelegate::CreateUObject(this, &AFlarePlayerController::SimulateConfirmed), false);
 		if (CanGoAhead)
 		{
 			SimulateConfirmed();

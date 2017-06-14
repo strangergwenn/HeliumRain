@@ -546,7 +546,7 @@ void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 void SFlareOrbitalMenu::OnFastForwardClicked()
 {
 	// Confirm and go on
-	bool CanGoAhead = MenuManager->GetPC()->ConfirmFastForward(FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, false));
+	bool CanGoAhead = MenuManager->GetPC()->ConfirmFastForward(FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, false), false);
 	if (CanGoAhead)
 	{
 		OnFastForwardConfirmed(false);
@@ -565,7 +565,7 @@ void SFlareOrbitalMenu::OnFastForwardAutomaticClicked()
 		}
 
 		// Confirm and go on
-		bool CanGoAhead = MenuManager->GetPC()->ConfirmFastForward(FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, true));
+		bool CanGoAhead = MenuManager->GetPC()->ConfirmFastForward(FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, true), true);
 		if (CanGoAhead)
 		{
 			OnFastForwardConfirmed(true);
