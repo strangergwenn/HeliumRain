@@ -645,6 +645,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenera
 			continue;
 		}
 
+		if (CandidateStation->IsBeingCaptured())
+		{
+			continue;
+		}
+
 		// Check friendlyness
 		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
 		{
@@ -656,6 +661,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenera
 		bool HasDistantSector = false;
 		for(UFlareSimulatedSpacecraft* CompanyStation : CandidateStation->GetCompany()->GetCompanyStations())
 		{
+			if (CompanyStation->IsBeingCaptured())
+			{
+				continue;
+			}
+
 			if(CompanyStation->GetCurrentSector() != Sector)
 			{
 				HasDistantSector = true;
@@ -692,6 +702,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenera
 	TArray<UFlareSimulatedSpacecraft*> CandidateStations2;
 	for(UFlareSimulatedSpacecraft* CompanyStation : Station1->GetCompany()->GetCompanyStations())
 	{
+		if (CompanyStation->IsBeingCaptured())
+		{
+			continue;
+		}
+
 		if(CompanyStation->GetCurrentSector() != Sector)
 		{
 			CandidateStations2.Add(CompanyStation);
@@ -828,6 +843,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 	for (UFlareSimulatedSpacecraft* CandidateStation : Sector->GetSectorStations())
 	{
 		if (CandidateStation->GetCompany() != Company)
+		{
+			continue;
+		}
+
+		if (CandidateStation->IsBeingCaptured())
 		{
 			continue;
 		}
@@ -1007,6 +1027,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 	for (UFlareSimulatedSpacecraft* CandidateStation : Sector->GetSectorStations())
 	{
 		if (CandidateStation->GetCompany() != Company)
+		{
+			continue;
+		}
+
+		if (CandidateStation->IsBeingCaptured())
 		{
 			continue;
 		}
@@ -1198,6 +1223,11 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	{
 		// Check friendlyness
 		if (CandidateStation->GetCompany()->GetWarState(Company) != EFlareHostility::Owned)
+		{
+			continue;
+		}
+
+		if (CandidateStation->IsBeingCaptured())
 		{
 			continue;
 		}
