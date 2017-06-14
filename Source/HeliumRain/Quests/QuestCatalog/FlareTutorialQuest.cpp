@@ -688,7 +688,7 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "tutorial-research-station";
-	QuestName = LOCTEXT("TutorialResearchStationName","Reseach station tutorial");
+	QuestName = LOCTEXT("TutorialResearchStationName","Research station tutorial");
 	QuestDescription = LOCTEXT("TutorialResearchStationDescription","Learn how to build and use research stations.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
@@ -718,7 +718,7 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ProduceResearch"
-		FText Description = LOCTEXT("ProduceResearchDescription","Your research station is now ready. Make sure you provide it the input resources it needs to produce research points !");
+		FText Description = LOCTEXT("ProduceResearchDescription","Your research station is now ready. Make sure you provide it with the input resources it needs to produce research points !");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "produce-research", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialProduceResearch::Create(this, QUEST_TAG"cond1", 50));
@@ -801,8 +801,8 @@ void UFlareQuestTutorialRefillShip::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "tutorial-refill-ship";
-	QuestName = LOCTEXT("TutorialRefillShipName","Refill ship tutorial");
-	QuestDescription = LOCTEXT("TutorialRefillShipDescription","Learn how to refill a ship.");
+	QuestName = LOCTEXT("TutorialRefillShipName","Ship refill tutorial");
+	QuestDescription = LOCTEXT("TutorialRefillShipDescription","Learn how to refill ships.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-contracts"));
@@ -811,9 +811,8 @@ void UFlareQuestTutorialRefillShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"StartRefill"
-		FText Description = LOCTEXT("StartRefillDescription","One of your ships used ammunition and need to refill."
-															 "\nGo to the sector menu (<input-action:SectorMenu>) and click on the refill button, at the top right of the menu."
-															 "\nIt need to have fleet supply in a station or a cargo of the sector to refill a ship.");
+		FText Description = LOCTEXT("StartRefillDescription","One of your ships used ammunition and needs to refill."
+															 "\nGo to the sector menu (<input-action:SectorMenu>) and click on the refill button at the top right of the menu. Refilling requires Fleet Supply in a station or cargo in the same sector.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-refill", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialRepairRefill::Create(this, true, false));
@@ -823,7 +822,7 @@ void UFlareQuestTutorialRefillShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"EndRefill"
-		FText Description = LOCTEXT("EndRefillDescription", "The refill can take few days, depending on the ammo depletion. Wait the end of the refill.");
+		FText Description = LOCTEXT("EndRefillDescription", "The refilling can take a few days, depending on the ammo depletion. Wait for the end of the refilling.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "end-refill", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialRepairRefill::Create(this, true, true));
