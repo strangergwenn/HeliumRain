@@ -68,7 +68,7 @@ void UFlareAIBehavior::Simulate()
 		Company->GivePlayerReputation(-1);
 	}
 
-	if(GetGame()->GetPC()->GetCompany()->GetCompanyValue().ArmyCurrentCombatPoints > 0)
+	if(GetGame()->GetPC()->GetCompany()->GetCompanyValue().ArmyCurrentCombatPoints > 0 && Company != ST->AxisSupplies)
 	{
 		Company->GivePlayerReputation(-PlayerCompanyIndex/30.f);
 	}
