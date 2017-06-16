@@ -565,11 +565,11 @@ void UFlareWorld::Simulate()
 		}
 		else if (PlayerRepairingFleet - PlayerRepairingFleetAfter > 1)
 		{
-			RepairText = LOCTEXT("MultipleFleetRepairFinish", "Some fleets repairs are finished");
+			RepairText = LOCTEXT("MultipleFleetRepairFinish", "Some fleet repairs are finished");
 		}
 		else
 		{
-			RepairText = LOCTEXT("OneFleetRepairFinish", "One of your fleet repairs is finished");
+			RepairText = LOCTEXT("OneFleetRepairFinish", "One fleet repair is finished");
 		}
 
 		FFlareMenuParameterData MenuData;
@@ -596,7 +596,7 @@ void UFlareWorld::Simulate()
 		}
 		else
 		{
-			RefillText = LOCTEXT("OneFleetRefillFinish", "One of your fleet refillings are finished");
+			RefillText = LOCTEXT("OneFleetRefillFinish", "One fleet refilling is finished");
 		}
 
 		FFlareMenuParameterData MenuData;
