@@ -1215,12 +1215,12 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed, boo
 		// Is battle
 		ConfirmFFTitleText = LOCTEXT("ConfirmBattleTitle", "BATTLE IN PROGRESS");
 	}
-	else if(Automatic)
+	else if (Automatic)
 	{
 		if(GetGame()->GetGameWorld()->GetIncomingEvents().Num() == 0)
 		{
 			ConfirmFFTitleText = LOCTEXT("ConfirmNoIncomingEventTitle", "NO INCOMING EVENT");
-			ConfirmFFDetailsText = LOCTEXT("ConfirmNoIncomingEventFormat", "There is no incoming events. You may need to manually stop the fast forward.\n");
+			ConfirmFFDetailsText = LOCTEXT("ConfirmNoIncomingEventFormat", "You may have to stop the fast forward by clicking the button again.\n");
 		}
 	}
 
