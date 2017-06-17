@@ -6,6 +6,9 @@
 #include "../Player/FlarePlayerController.h"
 #include "FlareCompany.h"
 #include "FlareSectorHelper.h"
+#include "Quests/FlareQuest.h"
+#include "Quests/FlareQuestStep.h"
+#include "Quests/FlareQuestManager.h"
 
 #define LOCTEXT_NAMESPACE "FlareGameTools"
 
@@ -356,6 +359,42 @@ void UFlareGameTools::ReloadGameWithoutSave()
 
 	//GetGame()->AutoSave = Autosave;
 }
+
+void UFlareGameTools::CompleteQuest()
+{
+	UFlareQuest* SelectedQuest = GetGame()->GetQuestManager()->GetSelectedQuest();
+	if(SelectedQuest)
+	{
+		FLOGV("Complete quest '%s'", *SelectedQuest->GetQuestName().ToString());
+		SelectedQuest->Success();
+	}
+	else
+	{
+		FLOG("No selected quest to complete");
+	}
+}
+
+void UFlareGameTools::CompleteQuestStep()
+{
+	UFlareQuest* SelectedQuest = GetGame()->GetQuestManager()->GetSelectedQuest();
+	if(SelectedQuest)
+	{
+		if (SelectedQuest->GetCurrentStep())
+		{
+			FLOGV("Complete quest step '%s' of quest '%s'", *SelectedQuest->GetQuestName().ToString(), *SelectedQuest->GetCurrentStep()->GetIdentifier().ToString());
+			SelectedQuest->EndStep();
+		}
+		else
+		{
+			FLOGV("No current step to complete in quest '%s'", *SelectedQuest->GetQuestName().ToString());
+		}
+	}
+	else
+	{
+		FLOG("No selected quest to complete a step");
+	}
+}
+
 
 /*----------------------------------------------------
 	World tools

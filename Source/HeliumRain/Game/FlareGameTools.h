@@ -52,6 +52,12 @@ public:
 	UFUNCTION(exec)
 	void ReloadGameWithoutSave();
 
+	UFUNCTION(exec)
+	void CompleteQuest();
+
+	UFUNCTION(exec)
+	void CompleteQuestStep();
+
 	/*----------------------------------------------------
 		World tools
 	----------------------------------------------------*/

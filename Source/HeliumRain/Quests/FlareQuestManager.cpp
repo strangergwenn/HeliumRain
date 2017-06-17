@@ -526,7 +526,7 @@ void UFlareQuestManager::OnQuestStatusChanged(UFlareQuest* Quest)
 void UFlareQuestManager::OnQuestSuccess(UFlareQuest* Quest)
 {
 	FLOGV("Quest %s is now successful", *Quest->GetIdentifier().ToString())
-		OngoingQuests.Remove(Quest);
+	OngoingQuests.Remove(Quest);
 	OldQuests.Add(Quest);
 
 	// Quest successful notification
