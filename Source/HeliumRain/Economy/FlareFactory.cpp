@@ -268,8 +268,13 @@ void UFlareFactory::OrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier)
 			Size = Desc->Size;
 		}
 
+		int32 Military = 0;
+		if(Desc && (Desc->WeaponGroups.Num()  > 0 || Desc->TurretSlots.Num()  > 0 ))
+		{
+			Military = 1;
+		}
 
-		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("order-ship").PutInt32("size", Size));
+		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("order-ship").PutInt32("size", Size).PutInt32("military", Military));
 
 		Parent->GetCompany()->GivePlayerReputation(ShipPrice / 100000);
 	}

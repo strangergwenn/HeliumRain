@@ -354,14 +354,14 @@ protected:
 
 //////////////////////////////////////////////////////
 UCLASS()
-class HELIUMRAIN_API UFlareQuestConditionTutorialOrderShip : public UFlareQuestCondition
+class HELIUMRAIN_API UFlareQuestConditionTutorialOrderFreigther : public UFlareQuestCondition
 {
 	GENERATED_UCLASS_BODY()
 
 
 public:
 
-	static UFlareQuestConditionTutorialOrderShip* Create(UFlareQuest* ParentQuest, EFlarePartSize::Type Size);
+	static UFlareQuestConditionTutorialOrderFreigther* Create(UFlareQuest* ParentQuest, EFlarePartSize::Type Size);
 	void Load(UFlareQuest* ParentQuest, EFlarePartSize::Type Size);
 
 	virtual bool IsCompleted();

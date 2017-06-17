@@ -1,4 +1,3 @@
-
 #include "FlareTutorialQuest.h"
 
 #include "Flare.h"
@@ -555,10 +554,10 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"OrderShip"
 		FText Description = LOCTEXT("OrderShipDescription","Open the shipyard details, either with the wheel menu or through the sector menu. You will have the details of production lines."
-									"\nPick a production line for small ships and order a ship of your choice.");
+									"\nPick a production line for small ships and order a frighter of your choice.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "order-ship", Description);
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOrderShip::Create(this, EFlarePartSize::S));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOrderFreigther::Create(this, EFlarePartSize::S));
 		Steps.Add(Step);
 	}
 
@@ -2037,19 +2036,19 @@ void UFlareQuestConditionTutorialMoney::AddConditionObjectives(FFlarePlayerObjec
 /*----------------------------------------------------
 Tutorial order ship condition
 ----------------------------------------------------*/
-UFlareQuestConditionTutorialOrderShip::UFlareQuestConditionTutorialOrderShip(const FObjectInitializer& ObjectInitializer)
+UFlareQuestConditionTutorialOrderFreigther::UFlareQuestConditionTutorialOrderFreigther(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
-UFlareQuestConditionTutorialOrderShip* UFlareQuestConditionTutorialOrderShip::Create(UFlareQuest* ParentQuest, EFlarePartSize::Type Size)
+UFlareQuestConditionTutorialOrderFreigther* UFlareQuestConditionTutorialOrderFreigther::Create(UFlareQuest* ParentQuest, EFlarePartSize::Type Size)
 {
-	UFlareQuestConditionTutorialOrderShip* Condition = NewObject<UFlareQuestConditionTutorialOrderShip>(ParentQuest, UFlareQuestConditionTutorialOrderShip::StaticClass());
+	UFlareQuestConditionTutorialOrderFreigther* Condition = NewObject<UFlareQuestConditionTutorialOrderFreigther>(ParentQuest, UFlareQuestConditionTutorialOrderFreigther::StaticClass());
 	Condition->Load(ParentQuest, Size);
 	return Condition;
 }
 
-void UFlareQuestConditionTutorialOrderShip::Load(UFlareQuest* ParentQuest, EFlarePartSize::Type Size)
+void UFlareQuestConditionTutorialOrderFreigther::Load(UFlareQuest* ParentQuest, EFlarePartSize::Type Size)
 {
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
@@ -2058,33 +2057,33 @@ void UFlareQuestConditionTutorialOrderShip::Load(UFlareQuest* ParentQuest, EFlar
 
 	if(Size == EFlarePartSize::S)
 	{
-		InitialLabel = LOCTEXT("OrderSmallShip", "Order a small ship");
+		InitialLabel = LOCTEXT("OrderSmallFreighter", "Order a small freighter");
 	}
 	else
 	{
-		InitialLabel = LOCTEXT("OrderLargeShip", "Order a large ship");
+		InitialLabel = LOCTEXT("OrderLargeFreighter", "Order a large freighter");
 	}
 }
 
-void UFlareQuestConditionTutorialOrderShip::OnEvent(FFlareBundle& Bundle)
+void UFlareQuestConditionTutorialOrderFreigther::OnEvent(FFlareBundle& Bundle)
 {
 	if (Completed)
 	{
 		return;
 	}
 
-	if (Bundle.HasTag("order-ship") && Bundle.GetInt32("size") == int32(TargetSize))
+	if (Bundle.HasTag("order-ship") && Bundle.GetInt32("size") == int32(TargetSize) && Bundle.GetInt32("military") == 0)
 	{
 		Completed = true;
 	}
 }
 
-bool UFlareQuestConditionTutorialOrderShip::IsCompleted()
+bool UFlareQuestConditionTutorialOrderFreigther::IsCompleted()
 {
 	return Completed;
 }
 
-void UFlareQuestConditionTutorialOrderShip::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+void UFlareQuestConditionTutorialOrderFreigther::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
 	FFlarePlayerObjectiveCondition ObjectiveCondition;
 	ObjectiveCondition.InitialLabel = InitialLabel;
