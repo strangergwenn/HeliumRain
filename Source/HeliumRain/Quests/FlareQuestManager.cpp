@@ -277,7 +277,7 @@ void UFlareQuestManager::AutoSelectQuest()
 {
 	if (OngoingQuests.Num()> 1)
 	{
-		SelectQuest(OngoingQuests[0]);
+		SelectQuest(OngoingQuests[OngoingQuests.Num() - 1]);
 	}
 	else
 	{
