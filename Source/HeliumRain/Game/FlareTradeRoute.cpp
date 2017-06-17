@@ -223,7 +223,13 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 
 		if (StationCandidate)
 		{
-			TradeRouteData.CurrentOperationProgress += SectorHelper::Trade(StationCandidate, Ship, Resource, Request.MaxQuantity);
+			int64 TransactionPrice;
+			TradeRouteData.CurrentOperationProgress += SectorHelper::Trade(StationCandidate, Ship, Resource, Request.MaxQuantity, &TransactionPrice);
+
+			if (TradeRouteCompany == GetGame()->GetPC()->GetCompany())
+			{
+				Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("trade-route-transaction").PutInt32("money-variation", -TransactionPrice));
+			}
 		}
 
 		if (IsOperationQuantityLimitReach(Operation))
@@ -294,7 +300,14 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 
 		if (StationCandidate)
 		{
-			TradeRouteData.CurrentOperationProgress += SectorHelper::Trade(Ship, StationCandidate, Resource, Request.MaxQuantity);
+			int64 TransactionPrice;
+			TradeRouteData.CurrentOperationProgress += SectorHelper::Trade(Ship, StationCandidate, Resource, Request.MaxQuantity, &TransactionPrice);
+
+			if (TradeRouteCompany == GetGame()->GetPC()->GetCompany())
+			{
+				Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("trade-route-transaction").PutInt32("money-variation", TransactionPrice));
+			}
+
 		}
 
 		if (IsOperationQuantityLimitReach(Operation))
@@ -355,6 +368,8 @@ void UFlareTradeRoute::AssignFleet(UFlareFleet* Fleet)
 	TradeRouteData.FleetIdentifier = Fleet->GetIdentifier();
 	TradeRouteFleet = Fleet;
 	Fleet->SetCurrentTradeRoute(this);
+
+	Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("assign-fleet"));
 }
 
 void UFlareTradeRoute::RemoveFleet(UFlareFleet* Fleet)
@@ -379,6 +394,9 @@ void UFlareTradeRoute::AddSector(UFlareSimulatedSector* Sector)
 	{
 		SetTargetSector(Sector);
 	}
+
+	Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("trade-route-sector-add"));
+
 }
 
 void UFlareTradeRoute::RemoveSector(UFlareSimulatedSector* Sector)

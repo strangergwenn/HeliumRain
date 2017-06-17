@@ -274,7 +274,7 @@ bool AFlareMenuManager::OpenMenu(EFlareMenu::Type Target, FFlareMenuParameterDat
 
 	if(GetGame() && GetGame()->GetQuestManager())
 	{
-		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("open-menu").PutInt32("menu", (Target+0)));
+		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("open-menu").PutInt32("menu", (Target+0)).PutPtr("data", &Data));
 	}
 
 	return true;

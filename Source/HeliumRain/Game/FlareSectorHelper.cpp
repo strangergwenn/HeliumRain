@@ -188,9 +188,15 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 	return BestStation;
 }
 
-int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 MaxQuantity)
+int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 MaxQuantity, int64* TransactionPrice)
 {
 	FText Unused;
+
+	if(TransactionPrice )
+	{
+		*TransactionPrice = 0;
+	}
+
 	if(!SourceSpacecraft->CanTradeWith(DestinationSpacecraft, Unused))
 	{
 		FLOG("Both spacecraft cannot trade");
@@ -219,6 +225,11 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSim
 		int64 Price = ResourcePrice * GivenResources;
 		DestinationSpacecraft->GetCompany()->TakeMoney(Price);
 		SourceSpacecraft->GetCompany()->GiveMoney(Price);
+
+		if(TransactionPrice )
+		{
+			*TransactionPrice = Price;
+		}
 
 		UFlareCompany* PlayerCompany = SourceSpacecraft->GetGame()->GetPC()->GetCompany();
 

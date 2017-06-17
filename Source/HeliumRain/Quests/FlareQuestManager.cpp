@@ -76,6 +76,10 @@ void UFlareQuestManager::LoadBuildinQuest()
 	AddQuest(UFlareQuestTutorialRepairShip::Create(this));
 	AddQuest(UFlareQuestTutorialRefillShip::Create(this));
 	AddQuest(UFlareQuestTutorialFighter::Create(this));
+	AddQuest(UFlareQuestTutorialSplitFleet::Create(this));
+	AddQuest(UFlareQuestTutorialDistantFleet::Create(this));
+	AddQuest(UFlareQuestTutorialMergeFleet::Create(this));
+	AddQuest(UFlareQuestTutorialTradeRoute::Create(this));
 
 	AddQuest(UFlareQuestPendulum::Create(this));
 }

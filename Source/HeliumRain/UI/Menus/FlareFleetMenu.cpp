@@ -267,6 +267,8 @@ void SFlareFleetMenu::Enter(UFlareFleet* TargetFleet)
 		FleetList->SetTitle(LOCTEXT("OtherFleetsListTitle", "Other fleets"));
 		ShipList->SetUseCompactDisplay(true);
 		EditFleetName->SetText(FleetToEdit->GetFleetName());
+
+		MenuManager->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("fleet-edited").PutName("fleet", FleetToEdit->GetIdentifier()));
 	}
 
 	// We are in preview mode
@@ -275,6 +277,7 @@ void SFlareFleetMenu::Enter(UFlareFleet* TargetFleet)
 		FleetList->SetTitle(LOCTEXT("AllFleetsListTitle", "Fleets"));
 		ShipList->SetUseCompactDisplay(false);
 	}
+
 
 	UpdateShipList(FleetToEdit);
 	UpdateFleetList();
@@ -495,6 +498,8 @@ void SFlareFleetMenu::OnFleetSelected(TSharedPtr<FInterfaceContainer> Spacecraft
 		{
 			UpdateShipList(Fleet);
 		}
+
+		MenuManager->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("fleet-selected").PutName("fleet", Fleet->GetIdentifier()));
 	}
 }
 

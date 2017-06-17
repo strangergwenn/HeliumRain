@@ -429,6 +429,15 @@ struct FNameArray
 	TArray<FName> Entries;
 };
 
+
+USTRUCT()
+struct FPtr
+{
+	GENERATED_USTRUCT_BODY()
+
+	void* Entry;
+};
+
 /** Generic storage system */
 USTRUCT()
 struct FFlareBundle
@@ -459,6 +468,9 @@ struct FFlareBundle
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FName> Tags;
 
+	UPROPERTY(EditAnywhere, Category = Save)
+	TMap<FName, FPtr> PtrValues;
+
 	bool HasFloat(FName Key) const;
 	bool HasInt32(FName Key) const;
 	bool HasTransform(FName Key) const;
@@ -467,6 +479,7 @@ struct FFlareBundle
 	bool HasNameArray(FName Key) const;
 	bool HasString(FName Key) const;
 	bool HasTag(FName Tag) const;
+	bool HasPtr(FName Tag) const;
 
 
 	float GetFloat(FName Key, float Default = 0.f) const;
@@ -476,6 +489,7 @@ struct FFlareBundle
 	FName GetName(FName Key) const;
 	TArray<FName> GetNameArray(FName Key) const;
 	FString GetString(FName Key) const;
+	void* GetPtr(FName Key) const;
 
 	FFlareBundle& PutFloat(FName Key, float Value);
 	FFlareBundle& PutInt32(FName Key, int32 Value);
@@ -485,6 +499,7 @@ struct FFlareBundle
 	FFlareBundle& PutNameArray(FName Key, const TArray<FName> Value);
 	FFlareBundle& PutString(FName Key, FString Value);
 	FFlareBundle& PutTag(FName Tag);
+	FFlareBundle& PutPtr(FName Key, void* Value);
 
 	void Clear();
 };

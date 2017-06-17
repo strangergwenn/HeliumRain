@@ -369,6 +369,11 @@ void UFlareFleet::AddShip(UFlareSimulatedSpacecraft* Ship)
 	FleetData.ShipImmatriculations.Add(Ship->GetImmatriculation());
 	FleetShips.AddUnique(Ship);
 	Ship->SetCurrentFleet(this);
+
+	if (FleetCompany == GetGame()->GetPC()->GetCompany() && GetGame()->GetQuestManager())
+	{
+		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("add-ship-to-fleet"));
+	}
 }
 
 void UFlareFleet::RemoveShip(UFlareSimulatedSpacecraft* Ship, bool destroyed)

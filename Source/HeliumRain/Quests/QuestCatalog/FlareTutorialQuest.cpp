@@ -1021,9 +1021,9 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		{
 			if(Bundle.HasTag("fire-gun"))
 			{
-				return true;
+				return 1;
 			}
-			return false;
+			return 0;
 		},
 		[]()
 		{
@@ -1074,9 +1074,9 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		{
 			if(Bundle.HasTag("hit-asteroid"))
 			{
-				return true;
+				return 1;
 			}
-			return false;
+			return 0;
 		},
 		[]()
 		{
@@ -1254,9 +1254,9 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		{
 			if(Bundle.HasTag("quick-switch"))
 			{
-				return true;
+				return 1;
 			}
-			return false;
+			return 0;
 		},
 		[]()
 		{
@@ -1319,6 +1319,717 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		{
 			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 		}));
+
+		Steps.Add(Step);
+	}
+
+}
+
+
+/*----------------------------------------------------
+	Tutorial split fleet
+----------------------------------------------------*/
+
+UFlareQuestTutorialSplitFleet::UFlareQuestTutorialSplitFleet(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuest* UFlareQuestTutorialSplitFleet::Create(UFlareQuestManager* Parent)
+{
+	UFlareQuestTutorialSplitFleet* Quest = NewObject<UFlareQuestTutorialSplitFleet>(Parent, UFlareQuestTutorialSplitFleet::StaticClass());
+	Quest->Load(Parent);
+	return Quest;
+}
+
+void UFlareQuestTutorialSplitFleet::Load(UFlareQuestManager* Parent)
+{
+	LoadInternal(Parent);
+
+	Identifier = "tutorial-split-fleet";
+	QuestName = LOCTEXT("TutorialSplitFleetName","Split fleet tutorial");
+	QuestDescription = LOCTEXT("TutorialSplitFleetDescription","Learn how split fleets.");
+	QuestCategory = EFlareQuestCategory::TUTORIAL;
+
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(
+				UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+		[&](UFlareQuestCondition* Condition){
+
+					if(GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetShipCount() > 1)
+					{
+						return true;
+					}
+					return false;
+				},
+		[](){
+			return FText();
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+		 Condition->Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+		 Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+
+	{
+		FText Description = LOCTEXT("TravelLargeFleetDescription","You have multiple ships in your fleet. All ships of a fleet will travel together. Travel to another sector with your fleet.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "travel-large-fleet", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("travel-end") && GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetShipCount() > 1)
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("FinishLargeFleetTravelLabel", "Finish a travel with at least 2 ships in your fleet");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("FleetMenuDescription","You can split your fleet to manage your ships separatly.\n Open the fleets menu with (<input-action:FleetMenu>),");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-fleet-menu", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Fleet));
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("SelectPlayerFleetDescription","Select your player fleet in the left colunm.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "select-fleet", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("fleet-selected") && Bundle.GetName("fleet") == GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetIdentifier())
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("SelectFleetLabel", "Select player fleet");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("EditPlayerFleetDescription","Edit your player fleet.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "edit-fleet", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("fleet-edited") && Bundle.GetName("fleet") == GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetIdentifier())
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("EditFleetLabel", "Edit player fleet");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+
+	{
+		FText Description = LOCTEXT("SplitFleetDescription", "Now remove all the ships from your fleet, except the one you are flying.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "battle-sector", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition){
+				if(GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetShipCount() == 1)
+				{
+					return true;
+				}
+				return false;
+		},
+		[]()
+		{
+			return LOCTEXT("SplitFleetLabel", "Lets only one ship in your player fleet");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+}
+
+
+/*----------------------------------------------------
+	Tutorial distant fleet
+----------------------------------------------------*/
+
+UFlareQuestTutorialDistantFleet::UFlareQuestTutorialDistantFleet(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuest* UFlareQuestTutorialDistantFleet::Create(UFlareQuestManager* Parent)
+{
+	UFlareQuestTutorialDistantFleet* Quest = NewObject<UFlareQuestTutorialDistantFleet>(Parent, UFlareQuestTutorialDistantFleet::StaticClass());
+	Quest->Load(Parent);
+	return Quest;
+}
+
+void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
+{
+	LoadInternal(Parent);
+
+	Identifier = "tutorial-distant-fleet";
+	QuestName = LOCTEXT("TutorialDistantFleetName","Distant fleet tutorial");
+	QuestDescription = LOCTEXT("TutorialDistantFleetDescription","Learn how manage distant fleets.");
+	QuestCategory = EFlareQuestCategory::TUTORIAL;
+
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(
+				UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+		[&](UFlareQuestCondition* Condition){
+
+					if(GetQuestManager()->GetGame()->GetPC()->GetCompany()->GetCompanyFleets().Num() > 1)
+					{
+						return true;
+					}
+					return false;
+				},
+		[](){
+			return FText();
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+		 Condition->Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+		 Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+
+	{
+		FText Description = LOCTEXT("CompanyMenuDescription","You have multiple fleets. You can see your ship locations and fleet assignements in the company menu. \n Open the company menu with (<input-action:CompanyMenu>).");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-company-menu", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Company));
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("OpenSectorMenuDescription","You can also trade and travel with fleet that are not your player fleet. To travel with a distant fleet, open a sector with non of yours ships (by clicking on the sector in the orbital map).");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-sector-menu", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+																						if (Bundle.HasTag("open-menu") && Bundle.GetInt32("menu") == (EFlareMenu::MENU_Sector+0))
+																						{
+																							FFlareMenuParameterData* MenuData = (FFlareMenuParameterData*) Bundle.GetPtr("data");
+																							if (MenuData && MenuData->Sector)
+																							{
+																								for (UFlareFleet* Fleet: MenuData->Sector->GetSectorFleets())
+																								{
+																									if (Fleet->GetFleetCompany() == GetQuestManager()->GetGame()->GetPC()->GetCompany())
+																									{
+																										return false;
+																									}
+																								}
+																								return true;
+																							}
+																						}
+																						return false;
+
+		},
+		[]()
+		{
+			return LOCTEXT("OpenDistantSectorLabel", "Open a sector menu with none of your fleets");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("StartDistantTravelDescription","At the left of the travel button, you have a drop down menu. Select a distant fleet and start to travel.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-distant-travel", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																				  [&](UFlareQuestCondition* Condition){
+
+																						UFlareCompany* PlayerCompany = GetQuestManager()->GetGame()->GetPC()->GetCompany();
+
+																						for(UFlareFleet* Fleet : PlayerCompany->GetCompanyFleets())
+																						{
+																							if (Fleet->IsTraveling() && Fleet != GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet())
+																							{
+																								return true;
+																							}
+																						}
+																						return false;
+			},
+			[]()
+			{
+				return LOCTEXT("StartTravelWithDistantShip", "Start a travel with a distant fleet");
+			},
+			[](UFlareQuestCondition* Condition)
+			{
+				Condition->Callbacks.AddUnique(EFlareQuestCallback::TRAVEL_STARTED);
+			}));
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("WaitDistantTravelEnd","During distant fleet travel, you can still play with your personal fleet as usually. Wait for the end of the distant fleet travel.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "wait-distant-travel-end", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+																						if (Bundle.HasTag("travel-end") && Bundle.GetName("fleet") != GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetIdentifier())
+																						{
+																							return true;
+																						}
+																						return false;
+		},
+		[]()
+		{
+			return LOCTEXT("WaitDistantTravelEnd", "Finish a travel with a distant fleet");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("OpenTradeSectorMenu","If a distant fleet is in a sector with stations, you can trade. Go to a sector with station with a distant fleet then open the sector menu.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-trade-sector", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+																						if (Bundle.HasTag("open-menu") && Bundle.GetInt32("menu") == (EFlareMenu::MENU_Sector+0))
+																						{
+																							FFlareMenuParameterData* MenuData = (FFlareMenuParameterData*) Bundle.GetPtr("data");
+																							if (MenuData && MenuData->Sector && MenuData->Sector->GetSectorStations().Num() > 0)
+																							{
+																								for (UFlareFleet* Fleet: MenuData->Sector->GetSectorFleets())
+																								{
+																									if (Fleet->GetFleetCompany() == GetQuestManager()->GetGame()->GetPC()->GetCompany()
+																									&& Fleet != GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet())
+																									{
+																										return true;
+																									}
+																								}
+																							}
+																						}
+																						return false;
+		},
+		[]()
+		{
+			return LOCTEXT("OpenTradeSectorLabel", "Open sector menu in a place with both distant fleet and stations");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("DistantTradeDescription","Now, if you click on your distant ship, you can see that the trade bouton is available. Click on this button, and trade somethings with a station.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "distant-trade", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition)
+		{
+																						for (UFlareSimulatedSpacecraft* Ship: GetQuestManager()->GetGame()->GetPC()->GetCompany()->GetCompanyShips())
+																						{
+																							if(Ship->IsTrading())
+																							{
+																								return true;
+																							}
+																						}
+																						return false;
+		},
+		[]()
+		{
+			return LOCTEXT("DistantTradeLabel", "Trade somethings with a distant fleet");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::TRADE_DONE);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("WaitTradeEndDescription","With distant ships, you don't have to dock but every trade action take one day. If you look at your distant ship status in company, fleet or distant sector menu, your will see it is in a trading state. Wait the end of the transaction waiting a day with <input-action:Simulate>, or the skip day button on the orbital map.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "trade-end", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition)
+		{
+																						for (UFlareSimulatedSpacecraft* Ship: GetQuestManager()->GetGame()->GetPC()->GetCompany()->GetCompanyShips())
+																						{
+																							if(Ship->IsTrading())
+																							{
+																								return false;
+																							}
+																						}
+																						return true;
+		},
+		[]()
+		{
+			return LOCTEXT("WaitTradeEndLabel", "Wait trade end.");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+		}));
+
+		Steps.Add(Step);
+	}
+
+}
+
+
+
+
+/*----------------------------------------------------
+	Tutorial merge fleet
+----------------------------------------------------*/
+
+UFlareQuestTutorialMergeFleet::UFlareQuestTutorialMergeFleet(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuest* UFlareQuestTutorialMergeFleet::Create(UFlareQuestManager* Parent)
+{
+	UFlareQuestTutorialMergeFleet* Quest = NewObject<UFlareQuestTutorialMergeFleet>(Parent, UFlareQuestTutorialMergeFleet::StaticClass());
+	Quest->Load(Parent);
+	return Quest;
+}
+
+void UFlareQuestTutorialMergeFleet::Load(UFlareQuestManager* Parent)
+{
+	LoadInternal(Parent);
+
+	Identifier = "tutorial-merge-fleet";
+	QuestName = LOCTEXT("TutorialMergeFleetName","Merge fleet tutorial");
+	QuestDescription = LOCTEXT("TutorialMergeFleetDescription","Learn how merge fleets.");
+	QuestCategory = EFlareQuestCategory::TUTORIAL;
+
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-distant-fleet"));
+
+	{
+		FText Description = LOCTEXT("JoinFleets","Now you know how to use distant fleet. However it's possible to merge fleet from a fleet to another.\n"
+												 "To merge fleet, the 2 fleet need to be in the same sector. Move the distant fleet to your player fleet, or the player fleet to the distant fleet sector.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "join-fleets", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																				  [&](UFlareQuestCondition* Condition){
+
+																						UFlareCompany* PlayerCompany = GetQuestManager()->GetGame()->GetPC()->GetCompany();
+
+																						for(UFlareFleet* Fleet : PlayerCompany->GetCompanyFleets())
+																						{
+																							if (Fleet != GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()
+																							&& Fleet->GetCurrentSector() == GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetCurrentSector())
+																							{
+																								return true;
+																							}
+																						}
+																						return false;
+		},
+		[]()
+		{
+			return LOCTEXT("JoinFleetsLabel", "Bring your player fleet and another fleet in the same sector.");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+		}));
+
+
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("FleetMenuMergeDescription","Open the fleets menu with (<input-action:FleetMenu>),");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-fleet-menu", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Fleet));
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("SelectPlayerFleetDescription","Select your player fleet in the left colunm.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "select-fleet", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("fleet-selected") && Bundle.GetName("fleet") == GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetIdentifier())
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("SelectFleetLabel", "Select player fleet");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("EditPlayerFleetDescription","Edit your player fleet.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "edit-fleet", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("fleet-edited") && Bundle.GetName("fleet") == GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetIdentifier())
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("EditFleetLabel", "Edit player fleet");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+
+	{
+		FText Description = LOCTEXT("MergeFleetDescription", "Select fleets in the left columns and merge all local fleet in your player fleet.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "merge-fleet", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition){
+					UFlareCompany* PlayerCompany = GetQuestManager()->GetGame()->GetPC()->GetCompany();
+
+					for(UFlareFleet* Fleet : PlayerCompany->GetCompanyFleets())
+					{
+						if (Fleet != GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()
+						&& Fleet->GetCurrentSector() == GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetCurrentSector())
+						{
+							return false;
+						}
+					}
+					return true;
+		},
+		[]()
+		{
+			return LOCTEXT("SplitFleetLabel", "Merge all your local fleets in this sector");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+}
+
+
+
+/*----------------------------------------------------
+	Tutorial trade route
+----------------------------------------------------*/
+
+UFlareQuestTutorialTradeRoute::UFlareQuestTutorialTradeRoute(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuest* UFlareQuestTutorialTradeRoute::Create(UFlareQuestManager* Parent)
+{
+	UFlareQuestTutorialTradeRoute* Quest = NewObject<UFlareQuestTutorialTradeRoute>(Parent, UFlareQuestTutorialTradeRoute::StaticClass());
+	Quest->Load(Parent);
+	return Quest;
+}
+
+void UFlareQuestTutorialTradeRoute::Load(UFlareQuestManager* Parent)
+{
+	LoadInternal(Parent);
+
+	Identifier = "tutorial-trade-route";
+	QuestName = LOCTEXT("TutorialTradeRouteName","Trade route tutorial");
+	QuestDescription = LOCTEXT("TutorialTradeRouteFleetDescription","Learn how manage trade routes.");
+	QuestCategory = EFlareQuestCategory::TUTORIAL;
+
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-merge-fleet"));
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-split-fleet"));
+
+	{
+		FText Description = LOCTEXT("OpenWorldEconomyMenuDescription","One of the main usage of distant fleet is to automatise trade with trade route. A trade route consist a repetition  of trade operations in one or more sectors."
+																	  "\nThe economy menu is a good start to find potential trade routes to create. Browse resource and search for couple of sector with producer and consumer. Take a look to economy menu (Button 'Economy' on the orbtial map).");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-world-economy-menu", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_WorldEconomy));
+		Steps.Add(Step);
+	}
+
+
+	{
+		FText Description = LOCTEXT("Have2FleetsDescription", "Now, make sure you have a distant fleet. Split your player fleet if necessary.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "have-2-fleets", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition){
+
+
+						  if(GetQuestManager()->GetGame()->GetPC()->GetCompany()->GetCompanyFleets().Num() > 1)
+						  {
+							  return true;
+						  }
+						  return false;
+					  },
+		[]()
+		{
+			return LOCTEXT("Have2FleetsLabel", "Have at least 2 fleets");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("OpenCompanyMenuDescription","To create a new trade route open the Company menu (<input-action:CompanyMenu>).");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-company-menu", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Company));
+		Steps.Add(Step);
+	}
+
+
+	{
+		FText Description = LOCTEXT("OpenTradeRouteMenuDescription","Here you have a 'Trade route'' section where you can add or edit trade routes. Click on the 'Add new trade route'' button.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-trade-route-menu", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_TradeRoute));
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("AssignFleetDescription","Assign a distant fleet to you trade route. Note you can a more ships to this fleet later, and have military ship can be useful to protect the convoy.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "assign-fleet", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("assign-fleet"))
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("AssignFleetLabel", "Assign a fleet to a trade route");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("AddTradeRouteSectorDescription", "Add 2 sectors of your choice to the trade route.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "add-trade-route-sector", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("trade-route-sector-add"))
+			{
+				return 1;
+			}
+			return 0;
+		},
+		[]()
+		{
+			return LOCTEXT("AddTradeRouteSectorConditionLabel", "Add 2 sectors to a trade route");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		},  "AddTradeRouteSectorcond1", 2));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description = LOCTEXT("TradeRouteProfitsDescription", "Now you can add and edit operations. Try configure your trade route with buy and sell operation to make profit.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "add-trade-route-sector", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("trade-route-transaction"))
+			{
+				FLOGV("trade-route-transaction %d", Bundle.GetInt32("money-variation"));
+
+				return Bundle.GetInt32("money-variation") / 100;
+			}
+			return 0;
+		},
+		[]()
+		{
+			return LOCTEXT("TradeRouteProfitsLabel", "Win 5000 credits with trade routes");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		},  "TradeRouteProfitscond1", 5000));
 
 		Steps.Add(Step);
 	}
@@ -1408,10 +2119,33 @@ void UFlareQuestConditionTutorialOpenMenu::Load(UFlareQuest* ParentQuest, EFlare
 	case EFlareMenu::MENU_Orbit:
 		InitialLabel = LOCTEXT("MenuOrbit", "Open the orbital map");
 		break;
-	case EFlareMenu::MENU_Quest:
-		InitialLabel =  LOCTEXT("MenuQuest", "Open the contract menu");
+	case EFlareMenu::MENU_Company:
+		InitialLabel =  LOCTEXT("MenuQuest", "Open the company menu");
 		break;
+	case EFlareMenu::MENU_Fleet:
+		InitialLabel =  LOCTEXT("MenuFleet", "Open the fleets menu");
+		break;
+	case EFlareMenu::MENU_Technology:
+		InitialLabel =  LOCTEXT("MenuTechnology", "Open the technology menu");
+		break;
+	case EFlareMenu::MENU_Sector:
+		InitialLabel =  LOCTEXT("MenuSector", "Open a sector menu");
+		break;
+	case EFlareMenu::MENU_WorldEconomy:
+		InitialLabel =  LOCTEXT("MenuWorldEconomy", "Open the economy menu");
+		break;
+	case EFlareMenu::MENU_Quest:
+		InitialLabel =  LOCTEXT("MenuQuest", "Open the contracts menu");
+		break;
+	case EFlareMenu::MENU_TradeRoute:
+		InitialLabel =  LOCTEXT("MenuTradeRoute", "Create a new trade route");
+		break;
+	case EFlareMenu::MENU_Leaderboard:
+		InitialLabel =  LOCTEXT("MenuLeaderboard", "Open the diplomaty menu");
+		break;
+
 	default:
+		FLOGV("WARNING: no label for UFlareQuestConditionTutorialOpenMenu with MenuType=%d", (int) MenuType);
 		break;
 	}
 }
@@ -2769,7 +3503,7 @@ UFlareQuestConditionTutorialGenericEventCounterCondition::UFlareQuestConditionTu
 }
 
 UFlareQuestConditionTutorialGenericEventCounterCondition* UFlareQuestConditionTutorialGenericEventCounterCondition::Create(UFlareQuest* ParentQuest,
-																											 std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedParam,
+																											 std::function<int32 (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedParam,
 																											 std::function<FText ()> GetInitalLabelParam,
 																											 std::function<void (UFlareQuestCondition* Condition)> InitParam,
 																											 FName ConditionIdentifierParam,
@@ -2781,7 +3515,7 @@ UFlareQuestConditionTutorialGenericEventCounterCondition* UFlareQuestConditionTu
 }
 
 void UFlareQuestConditionTutorialGenericEventCounterCondition::Load(UFlareQuest* ParentQuest,
-															 std::function<bool (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedParam,
+															 std::function<int32 (UFlareQuestCondition*, FFlareBundle& Bundle)> IsCompletedParam,
 															 std::function<FText ()> GetInitalLabelParam,
 															 std::function<void (UFlareQuestCondition* Condition)> InitParam,
 															 FName ConditionIdentifierParam,
@@ -2800,10 +3534,7 @@ void UFlareQuestConditionTutorialGenericEventCounterCondition::Load(UFlareQuest*
 
 void UFlareQuestConditionTutorialGenericEventCounterCondition::OnEvent(FFlareBundle& Bundle)
 {
-	if(IsCompletedFunc(this, Bundle))
-	{
-		CurrentProgression++;
-	}
+	CurrentProgression += IsCompletedFunc(this, Bundle);
 }
 
 bool UFlareQuestConditionTutorialGenericEventCounterCondition::IsCompleted()

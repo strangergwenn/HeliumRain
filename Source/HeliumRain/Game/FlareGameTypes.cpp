@@ -202,6 +202,10 @@ bool FFlareBundle::HasTag(FName Tag) const
 	return Tags.Contains(Tag);
 }
 
+bool FFlareBundle::HasPtr(FName Key) const
+{
+	return PtrValues.Contains(Key);
+}
 
 float FFlareBundle::GetFloat(FName Key, float Default) const
 {
@@ -266,6 +270,15 @@ FString FFlareBundle::GetString(FName Key) const
 	return "";
 }
 
+void* FFlareBundle::GetPtr(FName Key) const
+{
+	if (PtrValues.Contains(Key))
+	{
+		return PtrValues[Key].Entry;
+	}
+	return NULL;
+}
+
 FFlareBundle& FFlareBundle::PutFloat(FName Key, float Value)
 {
 	FloatValues.Add(Key, Value);
@@ -318,6 +331,15 @@ FFlareBundle& FFlareBundle::PutTag(FName Tag)
 	return *this;
 }
 
+
+FFlareBundle& FFlareBundle::PutPtr(FName Key, void* Value)
+{
+	FPtr Ptr;
+	Ptr.Entry = Value;
+	PtrValues.Add(Key, Ptr);
+	return *this;
+}
+
 void FFlareBundle::Clear()
 {
 	FloatValues.Empty();
@@ -328,6 +350,7 @@ void FFlareBundle::Clear()
 	NameArrayValues.Empty();
 	StringValues.Empty();
 	Tags.Empty();
+	PtrValues.Empty();
 }
 
 

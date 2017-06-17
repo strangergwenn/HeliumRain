@@ -297,7 +297,7 @@ void UFlareTravel::EndTravel()
 			EFlareMenu::MENU_Sector,
 			Data);
 
-		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("travel-end").PutName("sector", DestinationSector->GetIdentifier()));
+		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("travel-end").PutName("sector", DestinationSector->GetIdentifier()).PutName("fleet", Fleet->GetIdentifier()));
 	}
 
 	// Update game
