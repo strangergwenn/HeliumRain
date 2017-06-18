@@ -98,6 +98,8 @@ public:
 
 	void Repair();
 
+	void RecoveryRepair();
+
 	void Refill();
 
 	void SetReserve(bool InReserve);
@@ -325,7 +327,6 @@ public:
 	int32 GetRepairDuration();
 	int32 GetRefillDuration();
 
-
-
+	bool IsLastPlayerShip();
 };
 

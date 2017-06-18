@@ -358,9 +358,9 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 		EffectiveEnergy = Energy * (1.f - GetArmor(ComponentDescription));
 	}
 
-	if (DamageType == EFlareDamage::DAM_Collision && ComponentDescription->GeneralCharacteristics.LifeSupport)
+	if (ComponentDescription->GeneralCharacteristics.LifeSupport && (DamageType == EFlareDamage::DAM_Collision || Spacecraft->IsLastPlayerShip()))
 	{
-		// Limit to 50%
+		// Limit to 50% in case of collision or last player ship
 		float MaxDamage = ComponentDescription->HitPoints*0.5;
 		float MaxMissingDamage =  FMath::Max(0.f, MaxDamage - ComponentData->Damage);
 		EffectiveEnergy = FMath::Min(EffectiveEnergy, MaxMissingDamage);

@@ -248,13 +248,19 @@ UFlareSimulatedSector* AFlareGame::DeactivateSector()
 
 void AFlareGame::Recovery()
 {
-	// No player fleet, create recovery ship
+	// Repair player ship
+	FLOGV("AFlareGame::Recovery : player ship=%s", *GetPC()->GetPlayerShip()->GetImmatriculation().ToString());
+
+	GetPC()->GetPlayerShip()->RecoveryRepair();
+
+	// Take a 5% of the player money
 	UFlareCompany* PlayerCompany = GetPC()->GetCompany();
+	int64 RecoveryFees = PlayerCompany->GetMoney() * 0.05;
+	FLOGV("AFlareGame::Recovery : fees ship=%lld", RecoveryFees);
+	GetPC()->GetCompany()->TakeMoney(RecoveryFees);
+	ScenarioTools->BlueHeart->GetPeople()->Pay(RecoveryFees);
 
-	ScenarioTools->Init(PlayerCompany,GetPC()->GetPlayerData());
-	GetPC()->SetPlayerShip(ScenarioTools->CreateRecoveryPlayerShip());
-	GetPC()->Load(*GetPC()->GetPlayerData());
-
+	// Force peace
 	for (int32 CompanyIndex = 0; CompanyIndex < GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
 	{
 		UFlareCompany* OtherCompany = GetGameWorld()->GetCompanies()[CompanyIndex];
@@ -265,10 +271,13 @@ void AFlareGame::Recovery()
 		}
 
 		// Make peace
-		OtherCompany->SetHostilityTo(PlayerCompany, false);
-		PlayerCompany->SetHostilityTo(OtherCompany, false);
+		if(OtherCompany->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+		{
+			OtherCompany->SetHostilityTo(PlayerCompany, false);
+			PlayerCompany->SetHostilityTo(OtherCompany, false);
 
-		OtherCompany->GetAI()->GetData()->Pacifism = FMath::Max(50.f, OtherCompany->GetAI()->GetData()->Pacifism);
+			OtherCompany->GetAI()->GetData()->Pacifism = FMath::Max(50.f, OtherCompany->GetAI()->GetData()->Pacifism);
+		}
 	}
 }
 

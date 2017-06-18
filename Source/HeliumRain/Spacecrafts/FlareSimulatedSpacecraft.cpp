@@ -580,6 +580,37 @@ void UFlareSimulatedSpacecraft::Repair()
 	}
 }
 
+void UFlareSimulatedSpacecraft::RecoveryRepair()
+{
+	SpacecraftData.RepairStock = 0;
+
+
+	UFlareSpacecraftComponentsCatalog* Catalog = GetGame()->GetShipPartsCatalog();
+
+
+	for (int32 ComponentIndex = 0; ComponentIndex < GetData().Components.Num(); ComponentIndex++)
+	{
+		FFlareSpacecraftComponentSave* ComponentData = &GetData().Components[ComponentIndex];
+		FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(ComponentData->ComponentIdentifier);
+
+		if (ComponentDescription->Type == EFlarePartType::RCS
+				|| ComponentDescription->Type == EFlarePartType::OrbitalEngine
+				|| ComponentDescription->Type == EFlarePartType::InternalComponent)
+		{
+			float MaxDamage = (1-(BROKEN_RATIO + 0.1)) * ComponentDescription->HitPoints;
+
+			ComponentData->Damage = FMath::Min(ComponentData->Damage, MaxDamage);
+
+			GetDamageSystem()->SetDamageDirty(ComponentDescription);
+
+			if(!GetDamageSystem()->IsStranded())
+			{
+				return;
+			}
+		}
+	}
+}
+
 
 void UFlareSimulatedSpacecraft::Refill()
 {
@@ -1138,6 +1169,33 @@ int32 UFlareSimulatedSpacecraft::GetRefillDuration()
 	}
 
 	return ShipRefillDuration;
+}
+
+
+
+bool UFlareSimulatedSpacecraft::IsLastPlayerShip()
+{
+	if(GetCurrentFleet() == GetGame()->GetPC()->GetPlayerFleet())
+	{
+		for(UFlareSimulatedSpacecraft* OtherSpacecraft : GetCurrentFleet()->GetShips())
+		{
+			if(OtherSpacecraft == this)
+			{
+				continue;
+			}
+
+			if(!OtherSpacecraft->GetDamageSystem()->IsUncontrollable())
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 

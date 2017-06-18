@@ -78,7 +78,7 @@ void SFlareGameOverMenu::Construct(const FArguments& InArgs)
 								SNew(STextBlock)
 								.Justification(ETextJustify::Center)
 								.TextStyle(&Theme.SpecialTitleFont)
-								.Text(LOCTEXT("YouDied", "FLEET DESTROYED"))
+								.Text(LOCTEXT("YouDied", "FLEET RESCUE"))
 							]
 
 							// Exit
@@ -105,7 +105,7 @@ void SFlareGameOverMenu::Construct(const FArguments& InArgs)
 								SNew(STextBlock)
 								.Justification(ETextJustify::Center)
 								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("ShipRecovery", "Your fleet was destroyed and you have been injured. The Nema Colonial Administration is providing you a new start, and a new ship. Try not to destroy this one."))
+								.Text(LOCTEXT("ShipRecovery", "You have been injured in combat. The Nema Colonial Administration rescue you and make minor reparations to your ship in return of a small amount of money. Try to be more careful ..."))
 								.WrapTextAt(TextWidth)
 							]
 						]

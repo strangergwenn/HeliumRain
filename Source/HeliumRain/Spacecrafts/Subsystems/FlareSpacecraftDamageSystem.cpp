@@ -114,11 +114,11 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		OnControlLost();
 	}
 
+	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
 
 	// Update alive status
 	if (WasAlive && !Parent->IsAlive())
 	{
-		AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
 
 		// Player kill
 		if (PC && LastDamageCauser == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn())
@@ -156,6 +156,11 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		OnSpacecraftDestroyed();
 	}
 
+	if (Spacecraft->GetParent()->GetCurrentFleet() == PC->GetPlayerFleet())
+	{
+		CheckRecovery();
+	}
+
 	TimeSinceLastExternalDamage += DeltaSeconds;
 }
 
@@ -180,10 +185,10 @@ void UFlareSpacecraftDamageSystem::Start()
 	TimeSinceLastExternalDamage = 10000;
 
 	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
-	if (Spacecraft->GetParent()->GetCurrentFleet() == PC->GetPlayerFleet())
-	{
-		CheckRecovery();
-	}
+
+	FLOGV("UFlareSpacecraftDamageSystem::Start for %s", *Spacecraft->GetImmatriculation().ToString());
+
+
 }
 
 void UFlareSpacecraftDamageSystem::SetLastDamageCauser(AFlareSpacecraft* Ship)
@@ -349,11 +354,6 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 		}
 	}
 
-	if (Spacecraft->GetParent()->GetCurrentFleet() == PC->GetPlayerFleet())
-	{
-		CheckRecovery();
-	}
-
 	Spacecraft->GetNavigationSystem()->Undock();
 	Spacecraft->GetNavigationSystem()->AbortAllCommands();
 
@@ -410,9 +410,8 @@ void UFlareSpacecraftDamageSystem::CheckRecovery()
 
 	// Check if it the last ship
 	bool EmptyFleet = true;
-	for(int ShipIndex = 0; ShipIndex < PC->GetPlayerFleet()->GetShips().Num(); ShipIndex++)
+	for(UFlareSimulatedSpacecraft* Ship : PC->GetPlayerFleet()->GetShips())
 	{
-		UFlareSimulatedSpacecraft* Ship = PC->GetPlayerFleet()->GetShips()[ShipIndex];
 		if(Ship->GetDamageSystem()->IsAlive() && !Ship->GetDamageSystem()->IsUncontrollable())
 		{
 			EmptyFleet = false;
