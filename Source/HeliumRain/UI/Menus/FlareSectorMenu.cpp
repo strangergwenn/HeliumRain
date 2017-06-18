@@ -559,8 +559,8 @@ FText SFlareSectorMenu::GetBuildStationText() const
 		if (PC && PC->GetCompany()->HasVisitedSector(TargetSector))
 		{
 			return FText::Format(LOCTEXT("BuildStationFormat", "Build station ({0} / {1})"),
-				FText::AsNumber(TargetSector->GetSectorStations().Num()),
-				FText::AsNumber(TargetSector->GetMaxStationsInSector()));
+				FText::AsNumber(PC->GetCompany()->GetCompanyStations().Num()),
+				FText::AsNumber(TargetSector->GetMaxStationsPerCompany()));
 		}
 		else
 		{
@@ -589,7 +589,7 @@ FText SFlareSectorMenu::GetBuildStationHelpText() const
 	{
 		return LOCTEXT("CantBuildStationUnknownInfo", "Can't build stations in unknown sectors");
 	}
-	else if (TargetSector->GetSectorStations().Num() >= TargetSector->GetMaxStationsInSector())
+	else if (PC->GetCompany()->GetCompanyStations().Num() >= TargetSector->GetMaxStationsPerCompany())
 	{
 		return LOCTEXT("CantBuildStationMaxInfo", "This sector is already full");
 	}
@@ -607,7 +607,7 @@ bool SFlareSectorMenu::IsBuildStationDisabled() const
 	{
 		return true;
 	}
-	else if (TargetSector && PC->GetCompany()->HasVisitedSector(TargetSector) && TargetSector->GetSectorStations().Num() < TargetSector->GetMaxStationsInSector())
+	else if (TargetSector && PC->GetCompany()->HasVisitedSector(TargetSector) && PC->GetCompany()->GetCompanyStations().Num() < TargetSector->GetMaxStationsPerCompany())
 	{
 		return false;
 	}

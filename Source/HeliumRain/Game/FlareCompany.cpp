@@ -1365,7 +1365,7 @@ const struct CompanyValue& UFlareCompany::GetCompanyValue(UFlareSimulatedSector*
 
 		if(Spacecraft->IsStation())
 		{
-			CompanyValueCache.StationsValue += SpacecraftPrice;
+			CompanyValueCache.StationsValue += SpacecraftPrice * Spacecraft->GetLevel();
 		}
 		else
 		{

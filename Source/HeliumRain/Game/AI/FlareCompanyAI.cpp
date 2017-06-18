@@ -3309,7 +3309,7 @@ float UFlareCompanyAI::ComputeStationPrice(UFlareSimulatedSector* Sector, FFlare
 	else
 	{
 		// Construction
-		StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeSpacecraftPrice(StationDescription->Identifier, Sector, true, true);
+		StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * UFlareGameTools::ComputeSpacecraftPrice(StationDescription->Identifier, Sector, true, true, false, Company);
 	}
 	return StationPrice;
 

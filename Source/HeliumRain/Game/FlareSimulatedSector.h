@@ -504,9 +504,9 @@ public:
 		return People;
 	}
 
-	int32 GetMaxStationsInSector()
+	int32 GetMaxStationsPerCompany()
 	{
-		return 30;
+		return 40;
 	}
 
 	bool IsTravelSector()
@@ -514,8 +514,7 @@ public:
 		return SectorData.IsTravelSector;
 	}
 
-
-	int64 GetStationConstructionFee(int64 BasePrice);
+	int64 GetStationConstructionFee(int64 BasePrice, UFlareCompany* Company);
 
 	uint32 GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource, bool IncludeShips = false, bool AllowTrade = false);
 

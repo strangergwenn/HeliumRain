@@ -502,17 +502,17 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	}
 
 	// Too many stations
-	if (SectorStations.Num() >= GetMaxStationsInSector()/2 && !Company->IsTechnologyUnlocked("dense-sectors"))
+	if (Company->GetCompanyStations().Num() >= GetMaxStationsPerCompany()/2 && !Company->IsTechnologyUnlocked("dense-sectors"))
 	{
-		OutReasons.Add(LOCTEXT("BuildNeedDenseSectors", "There are too many stations in the sector. Unlock 'dense sectors' technology to build more stations in this sector"));
+		OutReasons.Add(LOCTEXT("BuildNeedDenseSectors", "You have too many stations. Unlock 'dense sectors' technology to build more stations"));
 		Result = false;
 	}
 
 
 	// Too many stations
-	if (SectorStations.Num() >= GetMaxStationsInSector())
+	if (Company->GetCompanyStations().Num() >= GetMaxStationsPerCompany())
 	{
-		OutReasons.Add(LOCTEXT("BuildTooManyStations", "There are too many stations in the sector"));
+		OutReasons.Add(LOCTEXT("BuildTooManyStations", "You have have too many stations"));
 		Result = false;
 	}
 
@@ -557,11 +557,11 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	}
 
 	// Check money cost
-	if (Company->GetMoney() < GetStationConstructionFee(StationDescription->CycleCost.ProductionCost))
+	if (Company->GetMoney() < GetStationConstructionFee(StationDescription->CycleCost.ProductionCost, Company))
 	{
 		OutReasons.Add(FText::Format(LOCTEXT("BuildRequiresMoney", "Not enough credits ({0} / {1})"),
 			FText::AsNumber(UFlareGameTools::DisplayMoney(Company->GetMoney())),
-			FText::AsNumber(UFlareGameTools::DisplayMoney(GetStationConstructionFee(StationDescription->CycleCost.ProductionCost)))));
+			FText::AsNumber(UFlareGameTools::DisplayMoney(GetStationConstructionFee(StationDescription->CycleCost.ProductionCost, Company)))));
 		Result = false;
 	}
 
@@ -580,7 +580,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::BuildStation(FFlareSpacecraftD
 		return NULL;
 	}
 
-	int64 ProductionCost = GetStationConstructionFee(StationDescription->CycleCost.ProductionCost);
+	int64 ProductionCost = GetStationConstructionFee(StationDescription->CycleCost.ProductionCost, Company);
 
 	// Pay station cost
 	if (!Company->TakeMoney(ProductionCost))
@@ -937,9 +937,18 @@ FText UFlareSimulatedSector::GetSectorBalanceText(bool ActiveOnly)
 	return FText::FromString(PlayerShipsText.ToString() + HostileShipsText.ToString() + NeutralShipsText.ToString());
 }
 
-int64 UFlareSimulatedSector::GetStationConstructionFee(int64 BasePrice)
+int64 UFlareSimulatedSector::GetStationConstructionFee(int64 BasePrice, UFlareCompany* Company)
 {
-	return BasePrice + 1000000 * SectorStations.Num();
+	int32 CompanyStationCountInSector = 0;
+	for(UFlareSimulatedSpacecraft* Station : SectorStations)
+	{
+		if(Station->GetCompany() == Company)
+		{
+			++CompanyStationCountInSector;
+		}
+	}
+
+	return BasePrice * (Company->GetCompanyStations().Num() + 1) *  (CompanyStationCountInSector + 1);
 }
 
 uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource, bool IncludeShips, bool AllowTrade)

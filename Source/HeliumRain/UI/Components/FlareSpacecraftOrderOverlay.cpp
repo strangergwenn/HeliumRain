@@ -438,10 +438,19 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 			ConstraintString = LOCTEXT("ConstructioNRequirement", "\n\u2022 Requires").ToString() + " " + ConstraintString;
 		}
 
+		int32 CompanyStationCountInSector = 0;
+		for(UFlareSimulatedSpacecraft* Station : TargetSector->GetSectorStations())
+		{
+			if(Station->GetCompany() == MenuManager->GetPC()->GetCompany())
+			{
+				++CompanyStationCountInSector;
+			}
+		}
+
 		// Final text
-		ProductionCost = FText::Format(LOCTEXT("StationCostFormat", "\u2022 Costs {0} credits ({1} existing stations) {3}\n\u2022 Completion requires {2}"),
-			FText::AsNumber(UFlareGameTools::DisplayMoney(TargetSector->GetStationConstructionFee(Desc->CycleCost.ProductionCost))),
-			FText::AsNumber(TargetSector->GetSectorStations().Num()),
+		ProductionCost = FText::Format(LOCTEXT("StationCostFormat", "\u2022 Costs {0} credits ({1} stations in this sector) {3}\n\u2022 Completion requires {2}"),
+			FText::AsNumber(UFlareGameTools::DisplayMoney(TargetSector->GetStationConstructionFee(Desc->CycleCost.ProductionCost, MenuManager->GetPC()->GetCompany()))),
+			FText::AsNumber(CompanyStationCountInSector),
 			FText::FromString(ResourcesString),
 			FText::FromString(ConstraintString));
 	}

@@ -625,7 +625,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"StartConstuction"
-		FText Description = LOCTEXT("StartConstuctionDescription","Open the station-building menu using the button on the top right part of the sector menu to build a station. Starting a station construction will cost you administrative fees depending of the number of stations in the sector - the more stations, the higher the fee.");
+		FText Description = LOCTEXT("StartConstuctionDescription","Open the station-building menu using the button on the top right part of the sector menu to build a station. Starting a station construction will cost you administrative fees depending of the number of your stations in the sector - the more stations, the higher the fee.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "order-station", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialStartStationConstruction::Create(this, false));

@@ -278,7 +278,7 @@ public:
 	static FText GetDisplayDate(int64 Days);
 
 	/** Get the cost of a spacecraft */
-	static int64 ComputeSpacecraftPrice(FName ShipIdentifier, UFlareSimulatedSector* Sector, bool WithMargin, bool ConstructionPrice = false, bool LocalPrice = true);
+	static int64 ComputeSpacecraftPrice(FName ShipIdentifier, UFlareSimulatedSector* Sector, bool WithMargin, bool ConstructionPrice = false, bool LocalPrice = true, UFlareCompany* Company = NULL);
 
 	static inline int64 DisplayMoney(int64 Money)
 	{
