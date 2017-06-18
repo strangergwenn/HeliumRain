@@ -197,4 +197,6 @@ public:
 
 	bool IsRepairing() const;
 	bool IsRefilling() const;
+
+	int32 GetTransportCapacity();
 };

@@ -143,6 +143,23 @@ uint32 UFlareFleet::GetTradingShipCount() const
 	return TradingShip;
 }
 
+int32 UFlareFleet::GetTransportCapacity()
+{
+	int32 CompanyCapacity = 0;
+
+	for(UFlareSimulatedSpacecraft* Ship : FleetShips)
+	{
+		if(Ship->GetDamageSystem()->IsStranded())
+		{
+			continue;
+		}
+
+		CompanyCapacity += Ship->GetCargoBay()->GetCapacity();
+	}
+
+	return CompanyCapacity;
+}
+
 uint32 UFlareFleet::GetShipCount() const
 {
 	return FleetShips.Num();
