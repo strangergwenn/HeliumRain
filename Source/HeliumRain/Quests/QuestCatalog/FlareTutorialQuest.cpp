@@ -554,7 +554,7 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"OrderShip"
 		FText Description = LOCTEXT("OrderShipDescription","Open the shipyard details, either with the wheel menu or through the sector menu. You will have the details of production lines."
-									"\nPick a production line for small ships and order a fighter of your choice.");
+									"\nPick a production line for small ships and order a freighter of your choice.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "order-ship", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOrderFreigther::Create(this, EFlarePartSize::S));
