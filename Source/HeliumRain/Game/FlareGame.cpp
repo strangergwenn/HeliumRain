@@ -252,6 +252,7 @@ void AFlareGame::Recovery()
 	FLOGV("AFlareGame::Recovery : player ship=%s", *GetPC()->GetPlayerShip()->GetImmatriculation().ToString());
 
 	GetPC()->GetPlayerShip()->RecoveryRepair();
+	GetPC()->GetPlayerShip()->SetSpawnMode(EFlareSpawnMode::Travel);
 
 	// Take a 5% of the player money
 	UFlareCompany* PlayerCompany = GetPC()->GetCompany();
