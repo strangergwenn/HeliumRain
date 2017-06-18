@@ -2,9 +2,12 @@
 #include "FlareWorldEconomyMenu.h"
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"
+#include "../../Game/FlareGameTools.h"
+#include "../../Game/FlareSectorHelper.h"
 #include "../../Economy/FlareResource.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../../Data/FlareResourceCatalog.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareWorldEconomyMenu"

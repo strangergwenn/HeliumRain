@@ -6,6 +6,8 @@
 #include "../../Player/FlarePlayerController.h"
 #include "../../Economy/FlareFactory.h"
 #include "../../Game/FlareGame.h"
+#include "../../Game/FlareGameTools.h"
+#include "SBackgroundBlur.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftOrderOverlay"
 

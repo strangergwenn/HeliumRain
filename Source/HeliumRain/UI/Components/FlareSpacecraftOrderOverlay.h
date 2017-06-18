@@ -4,6 +4,7 @@
 #include "../../Data/FlareSpacecraftCatalog.h"
 #include "../Components/FlareButton.h"
 #include "../Components/FlareListItem.h"
+#include "../FlareUITypes.h"
 
 
 class UFlareFactory;

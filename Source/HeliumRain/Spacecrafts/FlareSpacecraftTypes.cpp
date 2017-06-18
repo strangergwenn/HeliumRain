@@ -1,6 +1,7 @@
 
 #include "FlareSpacecraftTypes.h"
 #include "../Flare.h"
+#include "../Data/FlareFactoryCatalogEntry.h"
 
 DECLARE_CYCLE_STAT(TEXT("SpacecraftHelper GetIntersectionPosition"), STAT_SpacecraftHelper_GetIntersectionPosition, STATGROUP_Flare);
 

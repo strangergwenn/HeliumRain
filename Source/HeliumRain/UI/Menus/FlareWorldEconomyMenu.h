@@ -4,6 +4,7 @@
 #include "../Components/FlareButton.h"
 #include "../../Game/FlareWorldHelper.h"
 #include "../../Data/FlareResourceCatalogEntry.h"
+#include "../FlareUITypes.h"
 
 
 class UFlareSimulatedSector;
