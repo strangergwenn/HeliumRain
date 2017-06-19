@@ -1600,7 +1600,7 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("WaitDistantTravelEnd", "While a remote fleet is traveling, you can still play with your personal fleet. Wait for the arrival of the remote fleet.");
+		FText Description = LOCTEXT("WaitDistantTravelEndDescription", "While a remote fleet is traveling, you can still play with your personal fleet. Wait for the arrival of the remote fleet.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "wait-distant-travel-end", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
@@ -1614,7 +1614,7 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 		},
 		[]()
 		{
-			return LOCTEXT("WaitDistantTravelEnd", "Wait for your fleet to arrive");
+			return LOCTEXT("WaitDistantTravelEndLabel", "Wait for your fleet to arrive");
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -1790,7 +1790,7 @@ void UFlareQuestTutorialMergeFleet::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("SelectPlayerFleetDescription","Select your fleet in the left colunm.");
+		FText Description = LOCTEXT("SelectPlayerFleet2Description","Select your fleet in the left colunm.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "select-fleet", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
@@ -1860,7 +1860,7 @@ void UFlareQuestTutorialMergeFleet::Load(UFlareQuestManager* Parent)
 		},
 		[]()
 		{
-			return LOCTEXT("SplitFleetLabel", "Merge all local fleets");
+			return LOCTEXT("MergeFleetLabel", "Merge all local fleets");
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -2132,7 +2132,7 @@ void UFlareQuestConditionTutorialOpenMenu::Load(UFlareQuest* ParentQuest, EFlare
 		InitialLabel =  LOCTEXT("MenuWorldEconomy", "Open the economy menu");
 		break;
 	case EFlareMenu::MENU_Quest:
-		InitialLabel =  LOCTEXT("MenuQuest", "Open the contracts menu");
+		InitialLabel =  LOCTEXT("MenuContracts", "Open the contracts menu");
 		break;
 	case EFlareMenu::MENU_TradeRoute:
 		InitialLabel =  LOCTEXT("MenuTradeRoute", "Create a new trade route");
