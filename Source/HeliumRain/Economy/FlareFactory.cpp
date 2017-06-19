@@ -1,18 +1,27 @@
 
 #include "FlareFactory.h"
 #include "../Flare.h"
+
+#include "../Data/FlareResourceCatalog.h"
+#include "../Data/FlareSpacecraftCatalog.h"
+
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareGame.h"
+#include "../Game/FlareGameTools.h"
 #include "../Game/FlareCompany.h"
 #include "../Game/FlareSimulatedSector.h"
-#include "../Spacecrafts/FlareSimulatedSpacecraft.h"
-#include "../Player/FlarePlayerController.h"
+
 #include "../Economy/FlareCargoBay.h"
+
+#include "../Player/FlarePlayerController.h"
+
+#include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareFactoryInfo"
 
 #define MAX_DAMAGE_MALUS 10
+
 
 /*----------------------------------------------------
 	Constructor

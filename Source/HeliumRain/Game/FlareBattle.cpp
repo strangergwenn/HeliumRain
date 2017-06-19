@@ -6,6 +6,11 @@
 #include "FlareGame.h"
 #include "FlareGameTools.h"
 
+#include "../Data/FlareSpacecraftComponentsCatalog.h"
+
+#include "../Player/FlarePlayerController.h"
+
+
 struct BattleTargetPreferences
 {
         float IsLarge;

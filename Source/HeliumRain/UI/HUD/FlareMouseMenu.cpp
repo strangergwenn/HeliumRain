@@ -1,8 +1,11 @@
 
 #include "FlareMouseMenu.h"
 #include "../../Flare.h"
-#include "../Components/FlareRoundButton.h"
+
+#include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+
+#include "../Components/FlareRoundButton.h"
 
 #include "SBackgroundBlur.h"
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"

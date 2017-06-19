@@ -2,15 +2,20 @@
 #include "FlareHUD.h"
 #include "../Flare.h"
 
+#include "../Economy/FlareCargoBay.h"
+
+#include "../Game/FlareGame.h"
+#include "../Game/FlareGameTools.h"
+#include "../Game/FlareSector.h"
+#include "../Game/AI/FlareCompanyAI.h"
+#include "../Game/FlareGameUserSettings.h"
+
+#include "../Player/FlarePlayerController.h"
+
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlarePilotHelper.h"
 #include "../Spacecrafts/FlareTurret.h"
 #include "../Spacecrafts/Subsystems/FlareSpacecraftDamageSystem.h"
-
-#include "../Player/FlarePlayerController.h"
-#include "../Economy/FlareCargoBay.h"
-#include "../Game/AI/FlareCompanyAI.h"
-#include "../Game/FlareGameUserSettings.h"
 
 #include "../UI/Components/FlareNotifier.h"
 #include "../UI/HUD/FlareHUDMenu.h"

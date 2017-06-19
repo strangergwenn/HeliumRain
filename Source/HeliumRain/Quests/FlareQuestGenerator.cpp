@@ -1,17 +1,23 @@
 
 #include "FlareQuestGenerator.h"
 #include "Flare.h"
+
+#include "../Data/FlareResourceCatalog.h"
+
+#include "../Economy/FlareCargoBay.h"
+
 #include "../Game/FlareGame.h"
+#include "../Game/FlareGameTools.h"
 #include "../Game/FlareSimulatedSector.h"
 #include "../Game/FlareSectorHelper.h"
+
 #include "../Player/FlarePlayerController.h"
+
 #include "FlareQuestManager.h"
 #include "FlareQuestCondition.h"
 #include "FlareQuest.h"
 #include "FlareQuestStep.h"
 #include "FlareQuestAction.h"
-#include "../Economy/FlareCargoBay.h"
-#include "../Data/FlareResourceCatalog.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestGenerator"
 

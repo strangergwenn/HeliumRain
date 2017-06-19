@@ -6,6 +6,8 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
+#include "../../Spacecrafts/Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
+
 #define LOCTEXT_NAMESPACE "FlareList"
 
 

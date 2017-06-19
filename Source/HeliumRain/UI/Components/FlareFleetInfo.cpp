@@ -1,6 +1,7 @@
 
 #include "FlareFleetInfo.h"
 #include "../../Flare.h"
+#include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftInfo"

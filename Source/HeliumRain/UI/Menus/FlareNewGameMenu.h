@@ -3,7 +3,8 @@
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
 #include "../Components/FlareColorPanel.h"
-#include "SlateMaterialBrush.h"
+#include "../../Game/FlareSaveGame.h"
+#include "../FlareUITypes.h"
 
 
 class AFlareMenuManager;

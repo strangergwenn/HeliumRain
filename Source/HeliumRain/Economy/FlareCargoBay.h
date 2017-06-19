@@ -1,10 +1,14 @@
 #pragma once
 
+#include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareCargoBay.generated.h"
 
 
 struct FFlareCargo;
 struct FFlareResourceDescription;
+class AFlareGame;
+class UFlareCompany;
+class UFlareSimulatedSpacecraft;
 
 
 UCLASS()

@@ -2,6 +2,7 @@
 
 #include "FlareKeyBind.h"
 #include "../../Flare.h"
+#include "../Style/FlareStyleSet.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareKeyBind"

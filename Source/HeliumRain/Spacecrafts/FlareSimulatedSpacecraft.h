@@ -2,15 +2,15 @@
 
 #include "Object.h"
 #include "../Game/FlareSimulatedSector.h"
-#include "Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
-#include "Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
 #include "../Economy/FlareResource.h"
 #include "FlareSimulatedSpacecraft.generated.h"
+
 
 class UFlareSimulatedSector;
 class UFlareFleet;
 class UFlareCargoBay;
 class UFlareFactory;
+
 
 UCLASS()
 class HELIUMRAIN_API UFlareSimulatedSpacecraft : public UObject
@@ -52,9 +52,9 @@ public:
 		Sub system
 	----------------------------------------------------*/
 
-	virtual UFlareSimulatedSpacecraftDamageSystem* GetDamageSystem() const;
+	virtual class UFlareSimulatedSpacecraftDamageSystem* GetDamageSystem() const;
 
-	virtual UFlareSimulatedSpacecraftWeaponsSystem* GetWeaponsSystem() const;
+	virtual class UFlareSimulatedSpacecraftWeaponsSystem* GetWeaponsSystem() const;
 
     /*----------------------------------------------------
         Gameplay
@@ -172,9 +172,9 @@ protected:
 
 	// Systems
 	UPROPERTY()
-	UFlareSimulatedSpacecraftDamageSystem*                  DamageSystem;
+	class UFlareSimulatedSpacecraftDamageSystem*                  DamageSystem;
 	UPROPERTY()
-	UFlareSimulatedSpacecraftWeaponsSystem*                 WeaponsSystem;
+	class UFlareSimulatedSpacecraftWeaponsSystem*                 WeaponsSystem;
 
 	UPROPERTY()
 	TArray<UFlareFactory*>                                  Factories;

@@ -1,9 +1,13 @@
 
 #include "FlareQuestStep.h"
 #include "Flare.h"
+
+#include "FlareQuest.h"
 #include "FlareQuestCondition.h"
 #include "FlareQuestAction.h"
+
 #include "../Player/FlarePlayerController.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareQuestStep"
 

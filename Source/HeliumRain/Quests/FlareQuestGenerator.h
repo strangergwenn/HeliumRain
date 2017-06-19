@@ -1,7 +1,10 @@
 #pragma once
+
 #include "Game/FlareGameTypes.h"
+#include "FlareQuest.h"
 #include "FlareQuestManager.h"
 #include "FlareQuestGenerator.generated.h"
+
 
 class AFlareGame;
 class UFlareQuestManager;

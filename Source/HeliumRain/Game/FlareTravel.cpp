@@ -2,12 +2,19 @@
 
 #include "FlareTravel.h"
 #include "../Flare.h"
+
+#include "../Data/FlareResourceCatalog.h"
+
+#include "../Economy/FlareCargoBay.h"
+
 #include "FlareWorld.h"
 #include "FlareGame.h"
 #include "FlareGameTools.h"
+
 #include "../Player/FlarePlayerController.h"
+
 #include "../UI/Components/FlareNotification.h"
-#include "../Economy/FlareCargoBay.h"
+
 
 static const double TRAVEL_DURATION_PER_PHASE_KM = 0.4;
 static const double TRAVEL_DURATION_PER_ALTITUDE_KM = 1.5;

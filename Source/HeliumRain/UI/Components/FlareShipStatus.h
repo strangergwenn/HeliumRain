@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../../Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
+#include "../../Spacecrafts/FlareSpacecraftTypes.h"
 
 
 class SFlareShipStatus : public SCompoundWidget
@@ -63,7 +65,7 @@ protected:
 	UFlareSimulatedSpacecraft*                   TargetShip;
 
 	// Slate data
-	TSharedPtr<SImage>                           WeaponIndicator;
+	TSharedPtr<class SImage>                     WeaponIndicator;
 
 
 };

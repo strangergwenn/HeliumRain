@@ -7,6 +7,8 @@
 #include "../../Economy/FlareFactory.h"
 #include "../../Economy/FlareCargoBay.h"
 #include "../../Data/FlareSpacecraftCatalog.h"
+#include "../FlareUITypes.h"
+#include "FlareButton.h"
 
 #define LOCTEXT_NAMESPACE "FlareFactoryInfo"
 

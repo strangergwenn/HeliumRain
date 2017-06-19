@@ -1,6 +1,7 @@
 
 #include "FlareListItem.h"
 #include "../../Flare.h"
+#include "../Style/FlareStyleSet.h"
 
 
 /*----------------------------------------------------

@@ -4,6 +4,7 @@
 
 #include "../FlareSpacecraft.h"
 #include "../../Game/FlareGame.h"
+#include "../../Game/FlarePlanetarium.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../FlareEngine.h"

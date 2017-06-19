@@ -3,6 +3,7 @@
 #include "../Flare.h"
 
 #include "FlareGame.h"
+#include "FlarePlanetarium.h"
 #include "../Player/FlarePlayerController.h"
 
 #include "StaticMeshResources.h"

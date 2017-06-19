@@ -1,12 +1,21 @@
 
 #include "FlareTradeRoute.h"
 #include "../Flare.h"
+
+#include "../Data/FlareResourceCatalog.h"
+
+#include "../Economy/FlareCargoBay.h"
+
+#include "../Player/FlarePlayerController.h"
+
+#include "../Quests/FlareQuestManager.h"
+
 #include "FlareCompany.h"
 #include "FlareSimulatedSector.h"
 #include "FlareFleet.h"
-#include "../Economy/FlareCargoBay.h"
 #include "FlareGame.h"
 #include "FlareSectorHelper.h"
+
 
 /*----------------------------------------------------
 	Constructor

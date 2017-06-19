@@ -5,6 +5,8 @@
 #include "../../Game/FlareGameTools.h"
 #include "../../Game/AI/FlareAIBehavior.h"
 #include "../../Player/FlarePlayerController.h"
+#include "../FlareUITypes.h"
+#include "FlareButton.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareCompanyInfo"

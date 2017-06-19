@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../../Spacecrafts/Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
 
 
 class SFlareWeaponStatus : public SCompoundWidget

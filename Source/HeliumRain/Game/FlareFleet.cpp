@@ -1,10 +1,15 @@
 
 #include "FlareFleet.h"
 #include "../Flare.h"
+
 #include "FlareCompany.h"
 #include "FlareGame.h"
-#include "../Player/FlarePlayerController.h"
+#include "FlareGameTools.h"
 #include "FlareSimulatedSector.h"
+
+#include "../Economy/FlareCargoBay.h"
+
+#include "../Player/FlarePlayerController.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareFleet"

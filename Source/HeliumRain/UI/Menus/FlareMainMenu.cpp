@@ -1,11 +1,16 @@
 
 #include "FlareMainMenu.h"
 #include "../../Flare.h"
+
 #include "../../Game/FlareGame.h"
+#include "../../Game/FlareGameTools.h"
 #include "../../Game/FlareSaveGame.h"
+
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+
+#include "SBackgroundBlur.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareMainMenu"

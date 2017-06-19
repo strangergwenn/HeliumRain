@@ -1,6 +1,7 @@
 
 #include "FlareDropList.h"
 #include "../../Flare.h"
+#include "../Style/FlareStyleSet.h"
 
 
 /*----------------------------------------------------

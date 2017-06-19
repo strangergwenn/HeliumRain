@@ -1,12 +1,16 @@
 
 #include "FlareSector.h"
 #include "../Flare.h"
+
 #include "FlareGame.h"
+#include "FlarePlanetarium.h"
 #include "FlareSimulatedSector.h"
 #include "FlareCollider.h"
+
+#include "../Player/FlarePlayerController.h"
+
 #include "../Spacecrafts/FlareShell.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
-#include "../Player/FlarePlayerController.h"
 
 
 /*----------------------------------------------------

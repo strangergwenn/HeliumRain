@@ -1,13 +1,24 @@
 
 #include "FlareHistoryQuest.h"
-
 #include "Flare.h"
-#include "../FlareQuestCondition.h"
-#include "Game/FlareGame.h"
-#include "Game/FlareScenarioTools.h"
-#include "Economy/FlareCargoBay.h"
+
+#include "Data/FlareResourceCatalog.h"
 #include "Data/FlareSpacecraftCatalog.h"
+
+#include "Economy/FlareCargoBay.h"
+
+#include "Game/FlareGame.h"
+#include "Game/FlareGameTools.h"
+#include "Game/FlareScenarioTools.h"
+
 #include "Player/FlarePlayerController.h"
+
+#include "../FlareQuestCondition.h"
+#include "../FlareQuestStep.h"
+#include "../FlareQuestAction.h"
+
+#include "FlareTutorialQuest.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareHistotyQuest"
 

@@ -1,8 +1,15 @@
 
 #include "FlareQuestAction.h"
 #include "Flare.h"
-#include "../Game/FlareSimulatedSector.h"
+
+#include "../Game/FlareGame.h"
 #include "../Game/FlareCompany.h"
+#include "../Game/FlareSimulatedSector.h"
+
+#include "../Player/FlarePlayerController.h"
+
+#include "FlareQuest.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareQuestAction"
 

@@ -1,9 +1,15 @@
 #pragma once
 
+#include "FlareSimulatedSector.h"
 #include "FlareScenarioTools.generated.h"
 
+class UFlareWorld;
 class UFlareCompany;
+class UFlareSimulatedSector;
+class UFlareSimulatedSpacecraft;
 struct FFlarePlayerSave;
+struct FFlareCelestialBody;
+
 
 UCLASS()
 class HELIUMRAIN_API UFlareScenarioTools : public UObject

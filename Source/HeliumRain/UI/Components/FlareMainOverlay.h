@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../../Game/FlareGameTypes.h"
+#include "../FlareUITypes.h"
 #include "SBackgroundBlur.h"
 
 

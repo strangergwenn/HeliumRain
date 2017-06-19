@@ -3,9 +3,20 @@
 #include "../Flare.h"
 
 #include "FlareGame.h"
-#include "../Player/FlarePlayerController.h"
 #include "FlareCompany.h"
+#include "FlarePlanetarium.h"
 #include "FlareSectorHelper.h"
+
+#include "../Data/FlareFactoryCatalogEntry.h"
+#include "../Data/FlareResourceCatalog.h"
+#include "../Data/FlareSpacecraftCatalog.h"
+#include "../Data/FlareSpacecraftComponentsCatalog.h"
+
+#include "../Economy/FlareCargoBay.h"
+
+#include "../Player/FlareMenuManager.h"
+#include "../Player/FlarePlayerController.h"
+
 #include "Quests/FlareQuest.h"
 #include "Quests/FlareQuestStep.h"
 #include "Quests/FlareQuestManager.h"

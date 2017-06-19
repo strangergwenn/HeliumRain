@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareNotification.h"
+#include "../FlareUITypes.h"
 
 
 class AFlareMenuManager;

@@ -80,17 +80,18 @@ protected:
 	float                                    ImpactEffectScale;
 
 	// Shell data
-	FVector                                  ShellVelocity;
+	FVector                                        ShellVelocity;
 	const FFlareSpacecraftComponentDescription*    ShellDescription;
-	FVector                                  LastLocation;	
-	float ShellMass;
-	bool TracerShell;
-	bool Armed;
-	float MinEffectiveDistance;
-	float SecureTime;
-	float ActiveTime;
+	FVector                                        LastLocation;	
+	float                                          ShellMass;
+	bool                                           TracerShell;
+	bool                                           Armed;
+	float                                          MinEffectiveDistance;
+	float                                          SecureTime;
+	float                                          ActiveTime;
 
-	UFlareWeapon* ParentWeapon;
-	AFlarePlayerController* PC;
+	// References
+	class UFlareWeapon*                            ParentWeapon;
+	class AFlarePlayerController*                  PC;
 
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Components/PointLightComponent.h"
 #include "FlareCockpitManager.generated.h"
 
 class AFlareSpacecraft;

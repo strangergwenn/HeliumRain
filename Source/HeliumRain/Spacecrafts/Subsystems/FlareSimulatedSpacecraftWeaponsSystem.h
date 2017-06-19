@@ -1,15 +1,17 @@
 #pragma once
 
+#include "../FlareSpacecraftTypes.h"
+#include "../FlareSimulatedSpacecraft.h"
 #include "FlareSpacecraftWeaponsSystemInterface.h"
 #include "FlareSimulatedSpacecraftWeaponsSystem.generated.h"
 
 /** Structure holding all data for a weapon group */
 struct FFlareSimulatedWeaponGroup
 {
-	FFlareSpacecraftComponentDescription*           Description;
+	struct FFlareSpacecraftComponentDescription*    Description;
 	TEnumAsByte <EFlareWeaponGroupType::Type>       Type;
 
-	TArray <FFlareSpacecraftComponentSave*>         Weapons;
+	TArray <struct FFlareSpacecraftComponentSave*>  Weapons;
 };
 
 /** Spacecraft weapons system class */

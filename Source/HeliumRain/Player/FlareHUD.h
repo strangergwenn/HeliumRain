@@ -2,9 +2,11 @@
 
 #include "GameFramework/HUD.h"
 #include "FlareMenuManager.h"
+#include "../Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 #include "FlareHUD.generated.h"
 
 
+class AFlareSpacecraft;
 class SFlareHUDMenu;
 class SFlareContextMenu;
 class SFlareMouseMenu;

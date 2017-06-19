@@ -1,8 +1,15 @@
 
 #include "FlareShipStatus.h"
 #include "../../Flare.h"
-#include "../../Player/FlareMenuManager.h"
+
 #include "../../Data/FlareSpacecraftComponentsCatalog.h"
+
+#include "../../Game/FlareGame.h"
+
+#include "../../Player/FlareMenuManager.h"
+
+#include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareShipStatus"
 

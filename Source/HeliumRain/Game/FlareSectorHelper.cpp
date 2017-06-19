@@ -2,13 +2,19 @@
 #include "FlareSectorHelper.h"
 #include "../Flare.h"
 
-#include "FlareCompany.h"
-#include "../Game/FlareGame.h"
-#include "../Game/FlareWorld.h"
-#include "../Game/FlareScenarioTools.h"
-#include "../Economy/FlareCargoBay.h"
-#include "../Player/FlarePlayerController.h"
+#include "../Data/FlareResourceCatalog.h"
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
+
+#include "../Economy/FlareFactory.h"
+#include "../Economy/FlareCargoBay.h"
+
+#include "FlareCompany.h"
+#include "FlareGame.h"
+#include "FlareWorld.h"
+#include "FlareScenarioTools.h"
+
+#include "../Player/FlarePlayerController.h"
+
 
 UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Request)
 {

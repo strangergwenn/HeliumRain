@@ -1,5 +1,8 @@
 #pragma once
 
+#include "FlareSpacecraftTypes.h"
+#include "Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
+#include "Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 #include "FlareSpacecraftStateManager.generated.h"
 
 /** Combat mode manager class */
@@ -16,7 +19,7 @@ public:
 		Public methods
 	----------------------------------------------------*/
 
-	virtual void Initialize(AFlareSpacecraft* ParentSpacecraft);
+	virtual void Initialize(class AFlareSpacecraft* ParentSpacecraft);
 
 	virtual void Tick(float DeltaSeconds);
 

@@ -1,7 +1,14 @@
 
 #include "FlareCargoBay.h"
 #include "../Flare.h"
+
+#include "FlareFactory.h"
+
+#include "../Data/FlareResourceCatalog.h"
+
 #include "../Game/FlareGame.h"
+
+#include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 
 /*----------------------------------------------------

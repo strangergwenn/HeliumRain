@@ -5,6 +5,9 @@
 #include "FlareHUD.h"
 #include "FlarePlayerController.h"
 
+#include "../Game/FlareGame.h"
+#include "../Quests/FlareQuestManager.h"
+
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareSpacecraftComponent.h"
 #include "../Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"

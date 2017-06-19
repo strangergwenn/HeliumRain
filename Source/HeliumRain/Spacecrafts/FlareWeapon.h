@@ -3,6 +3,7 @@
 #include "FlareSpacecraftComponent.h"
 #include "FlareWeapon.generated.h"
 
+
 class AFlareShell;
 class AFlareBomb;
 struct FFlareWeaponGroup;

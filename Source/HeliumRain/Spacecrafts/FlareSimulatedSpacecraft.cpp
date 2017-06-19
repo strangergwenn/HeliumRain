@@ -18,6 +18,9 @@
 #include "../Data/FlareSpacecraftCatalog.h"
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
 
+#include "Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
+#include "Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareSimulatedSpacecraft"
 

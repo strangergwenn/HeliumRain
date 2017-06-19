@@ -1,10 +1,15 @@
 
 #include "FlareNotifier.h"
 #include "../../Flare.h"
-#include "../Components/FlareObjectiveInfo.h"
+
+#include "../../Game/FlareGame.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Quests/FlareQuest.h"
+
+#include "../Components/FlareObjectiveInfo.h"
+
+#include "SBackgroundBlur.h"
 
 #define LOCTEXT_NAMESPACE "FlareNotifier"
 

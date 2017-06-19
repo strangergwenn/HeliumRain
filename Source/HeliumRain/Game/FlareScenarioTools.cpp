@@ -1,13 +1,18 @@
 
 #include "FlareScenarioTools.h"
 #include "../Flare.h"
+
+#include "../Data/FlareResourceCatalog.h"
+
 #include "../Economy/FlareFactory.h"
+#include "../Economy/FlareCargoBay.h"
+
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSimulatedSector.h"
-#include "../Data/FlareResourceCatalog.h"
-#include "../Economy/FlareCargoBay.h"
+
 #include "../Player/FlarePlayerController.h"
+
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 

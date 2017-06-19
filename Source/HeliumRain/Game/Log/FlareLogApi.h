@@ -1,13 +1,21 @@
 #pragma once
-#include "../../Flare.h"
 
-struct FFlareSpacecraftDescription;
+#include "../../Flare.h"
+#include "../../Spacecrafts/FlareSpacecraftTypes.h"
+
+
+class AFlareBomb;
+class AFlareSpacecraft;
+
 class UFlareCompany;
 class UFlareSimulatedSector;
 class UFlareSimulatedSpacecraft;
-class AFlareBomb;
-class AFlareSpacecraft;
 class UFlareSpacecraftComponent;
+
+struct FFlareSpacecraftDescription;
+struct FFlareTechnologyDescription;
+struct FFlareSpacecraftComponentDescription;
+
 
 class GameLog
 {

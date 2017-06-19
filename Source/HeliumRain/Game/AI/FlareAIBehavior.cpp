@@ -2,9 +2,12 @@
 #include "FlareAIBehavior.h"
 #include "../../Flare.h"
 
+#include "../../Data/FlareResourceCatalog.h"
+
 #include "../FlareGame.h"
 #include "../FlareCompany.h"
 #include "../FlareScenarioTools.h"
+
 #include "../../Quests/FlareQuest.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"

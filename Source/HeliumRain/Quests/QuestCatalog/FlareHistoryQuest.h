@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../FlareQuest.h"
+#include "../FlareQuestCondition.h"
 #include "FlareHistoryQuest.generated.h"
 
 

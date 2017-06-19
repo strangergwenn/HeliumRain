@@ -1,11 +1,18 @@
 
 #include "FlareSpacecraftComponent.h"
 #include "../Flare.h"
+
 #include "FlareSpacecraft.h"
 #include "FlareInternalComponent.h"
+
+#include "../Data/FlareCustomizationCatalog.h"
+#include "../Data/FlareSpacecraftComponentsCatalog.h"
+
+#include "../Game/FlareGame.h"
+
 #include "../Player/FlareMenuPawn.h"
 #include "../Player/FlarePlayerController.h"
-#include "../Data/FlareCustomizationCatalog.h"
+
 #include "FlareOrbitalEngine.h"
 
 #include "StaticMeshResources.h"

@@ -2,9 +2,17 @@
 #include "FlareMainOverlay.h"
 #include "../../Flare.h"
 
+#include "../../Game/FlareGame.h"
 #include "../../Game/FlareGameUserSettings.h"
+
 #include "../../Player/FlareHUD.h"
 #include "../../Player/FlareMenuManager.h"
+#include "../../Player/FlarePlayerController.h"
+
+#include "../../Spacecrafts/FlareSpacecraft.h"
+
+#include "../FlareUITypes.h"
+#include "FlareButton.h"
 
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
 #include "Runtime/Engine/Classes/Engine/RendererSettings.h"

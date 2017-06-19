@@ -1,6 +1,7 @@
 
 #include "FlarePlanetaryBox.h"
 #include "../../Flare.h"
+#include "../Style/FlareStyleSet.h"
 
 
 void SFlarePlanetaryBox::Construct(const SFlarePlanetaryBox::FArguments& InArgs)

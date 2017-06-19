@@ -11,6 +11,9 @@
 
 #include "Particles/ParticleSystemComponent.h"
 
+#include "../Data/FlareSpacecraftCatalog.h"
+#include "../Data/FlareSpacecraftComponentsCatalog.h"
+
 #include "../Player/FlarePlayerController.h"
 #include "../Player/FlareMenuManager.h"
 

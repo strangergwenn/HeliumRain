@@ -1,12 +1,16 @@
 
 #include "FlareWorldHelper.h"
 #include "../Flare.h"
+
+#include "../Data/FlareResourceCatalog.h"
+
 #include "FlareGame.h"
 #include "FlareWorld.h"
-#include "../Economy/FlareCargoBay.h"
+#include "FlareSectorHelper.h"
 #include "FlareSimulatedSector.h"
-#include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "FlareScenarioTools.h"
+
+#include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 
 TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::ComputeWorldResourceStats(AFlareGame* Game)

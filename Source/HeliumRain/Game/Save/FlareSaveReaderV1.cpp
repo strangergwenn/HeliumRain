@@ -1,9 +1,14 @@
 
 #include "FlareSaveReaderV1.h"
 #include "../../Flare.h"
-#include "../FlareSaveGame.h"
+
 #include "FlareSaveWriter.h"
-#include "Game/FlareGameTools.h"
+
+#include "../FlareSaveGame.h"
+#include "../FlareGameTools.h"
+
+#include "../../UI/Style/FlareStyleSet.h"
+
 
 /*----------------------------------------------------
 	Constructor

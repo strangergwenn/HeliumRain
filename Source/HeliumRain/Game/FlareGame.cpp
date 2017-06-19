@@ -23,6 +23,8 @@
 #include "../Data/FlareQuestCatalog.h"
 #include "../Data/FlareSectorCatalogEntry.h"
 
+#include "../Economy/FlareCargoBay.h"
+
 #include "../Player/FlareHUD.h"
 #include "../Player/FlareMenuPawn.h"
 #include "../Player/FlareMenuManager.h"

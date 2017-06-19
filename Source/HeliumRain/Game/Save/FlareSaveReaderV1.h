@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Object.h"
+#include "../FlareSaveGame.h"
 #include "FlareSaveReaderV1.generated.h"
 
 class UFlareSaveGame;

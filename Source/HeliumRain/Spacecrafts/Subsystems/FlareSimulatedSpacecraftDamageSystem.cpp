@@ -4,9 +4,16 @@
 
 #include "../FlareSimulatedSpacecraft.h"
 #include "../FlareSpacecraftComponent.h"
+
+#include "../../Data/FlareSpacecraftComponentsCatalog.h"
+
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlarePlanetarium.h"
-#include "../../Data/FlareSpacecraftComponentsCatalog.h"
+
+#include "../../Player/FlarePlayerController.h"
+
+#include "FlareSimulatedSpacecraftWeaponsSystem.h"
+
 
 DECLARE_CYCLE_STAT(TEXT("FlareSimulatedDamageSystem UpdateSubsystemHealth"), STAT_FlareSimulatedDamageSystem_UpdateSubsystemHealth, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareSimulatedDamageSystem GetWeaponGroupHealth"), STAT_FlareSimulatedDamageSystem_GetWeaponGroupHealth, STATGROUP_Flare);

@@ -4,12 +4,25 @@
 #include "FlareAIBehavior.h"
 
 #include "../FlareGame.h"
+#include "../FlareGameTools.h"
 #include "../FlareCompany.h"
 #include "../FlareSectorHelper.h"
+#include "../FlareScenarioTools.h"
 
+#include "../../Data/FlareResourceCatalog.h"
+#include "../../Data/FlareFactoryCatalogEntry.h"
+#include "../../Data/FlareTechnologyCatalog.h"
+#include "../../Data/FlareSpacecraftCatalog.h"
+#include "../../Data/FlareSpacecraftComponentsCatalog.h"
+
+#include "../../Economy/FlareFactory.h"
 #include "../../Economy/FlareCargoBay.h"
+
+#include "../../Player/FlarePlayerController.h"
+
 #include "../../Quests/FlareQuestManager.h"
 #include "../../Quests/FlareQuestGenerator.h"
+
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 
 

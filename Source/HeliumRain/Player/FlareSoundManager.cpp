@@ -1,9 +1,13 @@
 
 #include "FlareSoundManager.h"
 #include "../Flare.h"
+
+#include "FlareMenuManager.h"
 #include "FlarePlayerController.h"
+
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareOrbitalEngine.h"
+
 #include "AudioDevice.h"
 
 

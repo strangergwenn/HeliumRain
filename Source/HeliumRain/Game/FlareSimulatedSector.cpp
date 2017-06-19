@@ -1,22 +1,27 @@
 
 #include "FlareSimulatedSector.h"
 #include "../Flare.h"
-#include "FlareGame.h"
 #include "FlareWorld.h"
 #include "FlareFleet.h"
+#include "FlareGame.h"
+#include "FlareGameTools.h"
 #include "FlareGameUserSettings.h"
-#include "../Game/FlareGameTools.h"
-#include "../Economy/FlareCargoBay.h"
-#include "../Spacecrafts/FlareSimulatedSpacecraft.h"
-#include "../Player/FlarePlayerController.h"
+
+#include "../Data/FlareResourceCatalog.h"
 #include "../Data/FlareSpacecraftCatalog.h"
+
+#include "../Economy/FlareCargoBay.h"
+
+#include "../Player/FlarePlayerController.h"
+
+#include "../Spacecrafts/FlareSimulatedSpacecraft.h"
+
 
 DECLARE_CYCLE_STAT(TEXT("FlareSector SimulatePriceVariation"), STAT_FlareSector_SimulatePriceVariation, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorFriendlyness"), STAT_FlareSector_GetSectorFriendlyness, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorBattleState"), STAT_FlareSector_GetSectorBattleState, STATGROUP_Flare);
 
 #define FLEET_SUPPLY_CONSUMPTION_STATS 50
-
 
 #define LOCTEXT_NAMESPACE "FlareSimulatedSector"
 

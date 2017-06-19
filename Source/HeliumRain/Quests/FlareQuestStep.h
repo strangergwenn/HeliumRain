@@ -1,7 +1,9 @@
 #pragma once
 
+#include "FlareQuestCondition.h"
 #include "FlareQuestStep.generated.h"
 
+class UFlareQuest;
 class UFlareQuestAction;
 class UFlareQuestCondition;
 class UFlareQuestConditionGroup;

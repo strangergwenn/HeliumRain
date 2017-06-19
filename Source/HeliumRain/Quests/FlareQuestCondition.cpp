@@ -2,8 +2,17 @@
 #include "FlareQuestCondition.h"
 #include "Flare.h"
 #include "FlareQuest.h"
-#include "../Player/FlarePlayerController.h"
+
+#include "../Data/FlareSpacecraftCatalog.h"
+
+#include "../Game/FlareGame.h"
+#include "../Game/FlareGameTools.h"
 #include "../Game/FlareSectorHelper.h"
+
+#include "../Player/FlarePlayerController.h"
+
+#include "../Spacecrafts/FlareSpacecraft.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareQuestCondition"
 
@@ -12,6 +21,7 @@ static FName INITIAL_CAPTURING_STATIONS_TAG("initial-capturing-stations");
 static FName CURRENT_PROGRESSION_TAG("current-progression");
 static FName INITIAL_TRANSFORM_TAG("initial-transform");
 static FName WAYPOINTS_TAG("waypoints");
+
 
 /*----------------------------------------------------
 	Constructor

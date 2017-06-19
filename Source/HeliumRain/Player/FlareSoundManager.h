@@ -1,6 +1,9 @@
 #pragma once
 
 #include "../Flare.h"
+
+#include "Sound/SoundCue.h"
+
 #include "FlareSoundManager.generated.h"
 
 

@@ -6,6 +6,7 @@
 #include "../../Game/FlareSimulatedSector.h"
 #include "../../Game/FlareFleet.h"
 #include "../../Data/FlareResourceCatalogEntry.h"
+#include "../FlareUITypes.h"
 
 class UFlareTradeRoute;
 struct FFlareTradeRouteSectorOperationSave;

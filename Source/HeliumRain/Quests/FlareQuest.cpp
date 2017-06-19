@@ -1,8 +1,13 @@
 
 #include "FlareQuest.h"
 #include "Flare.h"
+
 #include "../Game/FlareGame.h"
+#include "../Game/FlareGameTools.h"
+
+#include "../Player/FlareMenuManager.h"
 #include "../Player/FlarePlayerController.h"
+
 #include "FlareQuestStep.h"
 #include "FlareQuestCondition.h"
 #include "FlareQuestAction.h"

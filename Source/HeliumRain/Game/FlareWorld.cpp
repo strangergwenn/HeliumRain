@@ -2,13 +2,18 @@
 #include "FlareWorld.h"
 #include "../Flare.h"
 
+#include "../Data/FlareSpacecraftCatalog.h"
+#include "../Data/FlareSectorCatalogEntry.h"
+
+#include "../Economy/FlareFactory.h"
+
 #include "FlareGame.h"
+#include "FlareGameTools.h"
 #include "FlareSector.h"
 #include "FlareTravel.h"
 #include "FlareFleet.h"
 #include "FlareBattle.h"
 
-#include "../Data/FlareSectorCatalogEntry.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Player/FlareMenuManager.h"
 

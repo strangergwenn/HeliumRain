@@ -1,10 +1,12 @@
 
 #include "FlareLeaderboardMenu.h"
 #include "../../Flare.h"
-#include "../Components/FlareCompanyInfo.h"
 #include "../../Game/FlareGame.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+
+#include "../Components/FlareListItem.h"
+#include "../Components/FlareCompanyInfo.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareLeaderboardMenu"

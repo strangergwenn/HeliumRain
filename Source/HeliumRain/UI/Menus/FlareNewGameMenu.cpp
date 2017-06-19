@@ -1,12 +1,19 @@
 
 #include "FlareNewGameMenu.h"
 #include "../../Flare.h"
+
+#include "../../Data/FlareCompanyCatalog.h"
+#include "../../Data/FlareSpacecraftComponentsCatalog.h"
+#include "../../Data/FlareCustomizationCatalog.h"
+
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
-#include "../../Data/FlareCompanyCatalog.h"
-#include "../../Data/FlareCustomizationCatalog.h"
+
+#include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
+
+#include "../FlareUITypes.h"
 #include "STextComboBox.h"
 #include "GameFramework/PlayerState.h"
 

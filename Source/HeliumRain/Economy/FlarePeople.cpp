@@ -1,10 +1,16 @@
 
 #include "FlarePeople.h"
 #include "../Flare.h"
+
+#include "../Data/FlareResourceCatalog.h"
+
 #include "../Game/FlareWorld.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSimulatedSector.h"
+
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
+
+#include "FlareCargoBay.h"
 
 
 #define LOCTEXT_NAMESPACE "FlarePeopleInfo"
