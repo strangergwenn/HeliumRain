@@ -105,7 +105,7 @@ void SFlareGameOverMenu::Construct(const FArguments& InArgs)
 								SNew(STextBlock)
 								.Justification(ETextJustify::Center)
 								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("ShipRecovery", "You have been injured in combat. The Nema Colonial Administration rescue you and make minor reparations to your ship in return of a small amount of money. Try to be more careful ..."))
+								.Text(LOCTEXT("ShipRecovery", "You have been injured in combat. The Nema Colonial Administration has rescued you, made your ship flyable again and fined you for reckless flying."))
 								.WrapTextAt(TextWidth)
 							]
 						]
