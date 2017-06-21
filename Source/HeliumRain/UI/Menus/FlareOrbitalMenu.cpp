@@ -193,7 +193,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("Travels", "Travels & Orders"))
+						.Text(LOCTEXT("IncomingEvents", "Incoming Events"))
 						.TextStyle(&Theme.SubTitleFont)
 					]
 
