@@ -1991,7 +1991,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 			else
 			{
 				FFlareIncomingEvent RemoteBattleEvent;
-				RemoteBattleEvent.Text = FText::Format(LOCTEXT("LocalBattleEventTextFormat", "\u2022 <WarningText>{0} in {1}</>"),
+				RemoteBattleEvent.Text = FText::Format(LOCTEXT("RemoteBattleEventTextFormat", "\u2022 <WarningText>{0} in {1}</>"),
 												Sector->GetSectorBattleStateText(PlayerCompany),
 												 Sector->GetSectorName());
 				RemoteBattleEvent.RemainingDuration = 0;
