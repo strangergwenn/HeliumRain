@@ -1958,6 +1958,49 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 
 	}
 
+
+	// List of battle
+	for(UFlareSimulatedSector* Sector: GetSectors())
+	{
+		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(PlayerCompany);
+		if(BattleState.InBattle)
+		{
+
+
+			if(Sector == Game->GetPC()->GetPlayerFleet()->GetCurrentSector())
+			{
+				if (BattleState.InBattle && BattleState.InFight && BattleState.InActiveFight)
+				{
+
+					FFlareIncomingEvent LocalBattleEvent;
+					LocalBattleEvent.Text = LOCTEXT("LocalBattleFightEventTextFormat", "\u2022 <WarningText>BATTLE IN PROGRESS HERE !</>");
+					LocalBattleEvent.RemainingDuration = -1;
+					IncomingEvents.Add(LocalBattleEvent);
+
+				}
+				else
+				{
+					FFlareIncomingEvent LocalBattleEvent;
+					LocalBattleEvent.Text = FText::Format(LOCTEXT("LocalBattleEventTextFormat", "\u2022 <WarningText>{0} here !</>"),
+													Sector->GetSectorBattleStateText(PlayerCompany),
+													 Sector->GetSectorName());
+					LocalBattleEvent.RemainingDuration = 0;
+					IncomingEvents.Add(LocalBattleEvent);
+				}
+			}
+			else
+			{
+				FFlareIncomingEvent RemoteBattleEvent;
+				RemoteBattleEvent.Text = FText::Format(LOCTEXT("LocalBattleEventTextFormat", "\u2022 <WarningText>{0} in {1}</>"),
+												Sector->GetSectorBattleStateText(PlayerCompany),
+												 Sector->GetSectorName());
+				RemoteBattleEvent.RemainingDuration = 0;
+				IncomingEvents.Add(RemoteBattleEvent);
+			}
+		}
+	}
+
+
 	// Sort list
 	IncomingEvents.Sort([](const FFlareIncomingEvent& ip1, const FFlareIncomingEvent& ip2)
 	{
