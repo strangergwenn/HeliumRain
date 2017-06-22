@@ -1973,7 +1973,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 				{
 
 					FFlareIncomingEvent LocalBattleEvent;
-					LocalBattleEvent.Text = LOCTEXT("LocalBattleFightEventTextFormat", "\u2022 <WarningText>BATTLE IN PROGRESS HERE !</>");
+					LocalBattleEvent.Text = LOCTEXT("LocalBattleFightEventTextFormat", "\u2022 <WarningText>Battle in progress here !</>");
 					LocalBattleEvent.RemainingDuration = -1;
 					IncomingEvents.Add(LocalBattleEvent);
 
