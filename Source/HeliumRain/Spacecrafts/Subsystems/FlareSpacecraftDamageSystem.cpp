@@ -299,7 +299,7 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 					}
 
 					PC->Notify(LOCTEXT("Betrayal", "Betrayal"),
-						FText::Format(LOCTEXT("OnSpacecraftDestroyedBetrayal", "You betray {0}"), Company->GetCompanyName()),
+						FText::Format(LOCTEXT("OnSpacecraftDestroyedBetrayal", "You betrayed {0}"), Company->GetCompanyName()),
 						FName("betrayal"),
 						EFlareNotification::NT_Military);
 				}
@@ -389,7 +389,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 				}
 
 				PC->Notify(LOCTEXT("Betrayal", "Betrayal"),
-					FText::Format(LOCTEXT("OnControlLostBetrayal", "You betray {0}"), Spacecraft->GetCompany()->GetCompanyName()),
+					FText::Format(LOCTEXT("OnControlLostBetrayal", "You betrayed {0}"), Spacecraft->GetCompany()->GetCompanyName()),
 					FName("betrayal"),
 					EFlareNotification::NT_Military);
 			}
