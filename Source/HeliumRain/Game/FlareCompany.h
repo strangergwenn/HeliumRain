@@ -69,6 +69,7 @@ public:
 	/** Check if we are friend or foe toward this target company.  Hostile if at least one company is hostile */
 	virtual EFlareHostility::Type GetWarState(const UFlareCompany* TargetCompany) const;
 
+	bool IsAtWar(const UFlareCompany* TargetCompany) const;
 
 	void ResetLastPeaceDate();
 	void SetLastWarDate();
@@ -424,7 +425,11 @@ public:
 
 	TArray<UFlareCompany*> GetOtherCompanies(bool Shuffle = false);
 
-	float GetConfidenceLevel(UFlareCompany* ReferenceCompany);
+	float GetConfidenceLevel(UFlareCompany* ReferenceCompany, TArray<UFlareCompany*>& Allies);
+
+	float ComputeCompanyDiplomaticWeight(bool WithShame);
+
+	bool WantWarWith(UFlareCompany* TargetCompany);
 
 	bool AtWar();
 
@@ -433,4 +438,7 @@ public:
 	bool HasKnowResourceInput(FFlareResourceDescription* Resource);
 
 	bool HasKnowResourceOutput(FFlareResourceDescription* Resource);
+
+	int32 GetWarCount(UFlareCompany* ExcludeCompany) const;
+
 };

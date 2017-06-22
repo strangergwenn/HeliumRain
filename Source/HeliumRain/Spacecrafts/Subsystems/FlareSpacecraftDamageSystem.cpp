@@ -186,10 +186,6 @@ void UFlareSpacecraftDamageSystem::Start()
 	TimeSinceLastExternalDamage = 10000;
 
 	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
-
-	FLOGV("UFlareSpacecraftDamageSystem::Start for %s", *Spacecraft->GetImmatriculation().ToString());
-
-
 }
 
 void UFlareSpacecraftDamageSystem::SetLastDamageCauser(AFlareSpacecraft* Ship)

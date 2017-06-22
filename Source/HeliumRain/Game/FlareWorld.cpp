@@ -478,6 +478,9 @@ void UFlareWorld::Simulate()
 	}
 
 	FLOG("* Simulate > AI");
+
+	HasTotalWorldCombatPointCache = false;
+
 	// AI. Play them in random order
 	TArray<UFlareCompany*> CompaniesToSimulateAI = Companies;
 	while(CompaniesToSimulateAI.Num())
@@ -2007,6 +2010,24 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 		return (ip1.RemainingDuration < ip2.RemainingDuration);
 	});
 	return IncomingEvents;
+}
+
+int32 UFlareWorld::GetTotalWorldCombatPoint()
+{
+	if (!HasTotalWorldCombatPointCache)
+	{
+		TotalWorldCombatPointCache = 0;
+
+		for (UFlareCompany* OtherCompany : GetCompanies())
+		{
+			struct CompanyValue Value = OtherCompany->GetCompanyValue();
+			TotalWorldCombatPointCache += Value.ArmyCurrentCombatPoints;
+		}
+
+		HasTotalWorldCombatPointCache = true;
+	}
+
+	return TotalWorldCombatPointCache;
 }
 
 #undef LOCTEXT_NAMESPACE

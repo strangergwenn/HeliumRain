@@ -5,6 +5,7 @@
 #include "FlareGameTools.h"
 #include "FlareSector.h"
 #include "FlareGameUserSettings.h"
+#include "FlareScenarioTools.h"
 
 #include "../Economy/FlareCargoBay.h"
 #include "../Economy/FlareFactory.h"
@@ -272,6 +273,11 @@ EFlareHostility::Type UFlareCompany::GetWarState(const UFlareCompany* TargetComp
 	}
 
 	return GetHostility(TargetCompany);
+}
+
+bool UFlareCompany::IsAtWar(const UFlareCompany* TargetCompany) const
+{
+	return GetWarState(TargetCompany) == EFlareHostility::Hostile;
 }
 
 void UFlareCompany::ClearLastWarDate()
@@ -713,42 +719,126 @@ void UFlareCompany::GivePlayerReputationToOthers(float Amount)
 	}
 }
 
+
+float UFlareCompany::ComputeCompanyDiplomaticWeight(bool WithShame)
+{
+	CompanyValue Value = GetCompanyValue();
+
+	return (Value.TotalValue + Value.ArmyCurrentCombatPoints * 10) * (WithShame ? FMath::Pow(1.5f, GetShame()) : 1.f);
+}
+
+bool UFlareCompany::WantWarWith(UFlareCompany* TargetCompany)
+{
+	if(this == Game->GetScenarioTools()->AxisSupplies || TargetCompany == Game->GetScenarioTools()->AxisSupplies)
+	{
+		return false;
+	}
+
+	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+
+	if(TargetCompany == PlayerCompany)
+	{
+		if(GetPlayerReputation() <= 0)
+		{
+			return true;
+		}
+	}
+	else if (PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints < Game->GetGameWorld()->GetTotalWorldCombatPoint() / 4)
+	{
+		float MyWeight = ComputeCompanyDiplomaticWeight(false);
+		return TargetCompany->ComputeCompanyDiplomaticWeight(true) > MyWeight;
+	}
+
+	return false;
+}
+
 //#define DEBUG_CONFIDENCE
-float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
+float UFlareCompany::GetConfidenceLevel(UFlareCompany* TargetCompany, TArray<UFlareCompany*>& Allies)
 {
 	// Confidence level go from 1 to -1
 	// 1 if if the army value of the company and its potential allies is infinite compared to the opposent
 	// -1 if if the army value of the company and its potential allies is zero compared to the opposent
 	//
-	// The enemies are people at war with me, the reference company if provide and all the company that dont like me
-	// The allies are all the people at war the one of my enemies or that dont like my enemies
+	// The enemies are people at war with me, the reference company if provide, people than want war with me but are not allied
+	// The allies are all the people at war the reference company or that want war with Reference company
 
+	Allies.Empty();
 
-	TArray<UFlareCompany*> Allies;
-	TArray<UFlareCompany*> Enemies;
-
-	Allies.Add(this);
-
-	if(ReferenceCompany)
+	// Find allies
+	for (UFlareCompany* CompanyCandidate : TargetCompany->GetOtherCompanies())
 	{
-		Enemies.Add(ReferenceCompany);
-	}
-
-	// Find enemies
-	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
-	{
-		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
-
-		if (OtherCompany == ReferenceCompany || OtherCompany == this)
+		if(IsAtWar(CompanyCandidate))
 		{
 			continue;
 		}
+		UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+
+
+		if (CompanyCandidate == this)
+		{
+			Allies.Add(CompanyCandidate);
+		}
+		else if (CompanyCandidate->IsAtWar(TargetCompany))
+		{
+			Allies.Add(CompanyCandidate);
+		}
+		else if (CompanyCandidate != PlayerCompany && CompanyCandidate->GetAI()->GetData()->Pacifism == 0 && CompanyCandidate->GetWarCount(PlayerCompany) == 0)
+		{
+			// Open to war
+#ifdef DEBUG_CONFIDENCE
+			FLOGV("GetConfidenceLevel ally %s to %s : %s want war ? %d",
+				  *GetCompanyName().ToString(),
+				  *TargetCompany->GetCompanyName().ToString(),
+				  * CompanyCandidate->GetCompanyName().ToString(),
+				  CompanyCandidate->WantWarWith(TargetCompany));
+#endif
+			if (CompanyCandidate->WantWarWith(TargetCompany))
+			{
+					Allies.Add(CompanyCandidate);
+			}
+		}
+	}
+
+	TArray<UFlareCompany*> Enemies;
+	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+
+
+	// Find enemies
+	for (UFlareCompany* OtherCompany : GetOtherCompanies())
+	{
+		if (OtherCompany == TargetCompany)
+		{
+			Enemies.Add(TargetCompany);
+			continue;
+		}
+
 
 		bool IsEnemy = false;
 
-		if (GetWarState(OtherCompany) == EFlareHostility::Hostile)
+		if (IsAtWar(OtherCompany))
 		{
+#ifdef DEBUG_CONFIDENCE
+			FLOGV("GetConfidenceLevel enemy %s to %s : %s at war ? %d",
+				  *GetCompanyName().ToString(),
+				  *TargetCompany->GetCompanyName().ToString(),
+				  *OtherCompany->GetCompanyName().ToString(),
+				  IsAtWar(OtherCompany));
+#endif
 			IsEnemy = true;
+		}
+		else if (OtherCompany != PlayerCompany && OtherCompany->GetAI()->GetData()->Pacifism == 0 && OtherCompany->GetWarCount(PlayerCompany) == 0)
+		{
+#ifdef DEBUG_CONFIDENCE
+			FLOGV("GetConfidenceLevel enemy %s to %s : %s want war ? %d",
+				  *GetCompanyName().ToString(),
+				  *TargetCompany->GetCompanyName().ToString(),
+				  *OtherCompany->GetCompanyName().ToString(),
+				  OtherCompany->WantWarWith(this));
+#endif
+			if (OtherCompany->WantWarWith(this) && !Allies.Contains(OtherCompany))
+			{
+				IsEnemy = true;
+			}
 		}
 
 		if (IsEnemy)
@@ -757,54 +847,18 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 		}
 	}
 
-	// Find allies
-	for (int32 CompanyIndex = 0; CompanyIndex < Game->GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
-	{
-		UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
-
-		if (OtherCompany == ReferenceCompany || OtherCompany == this)
-		{
-			continue;
-		}
-
-		if(Enemies.Contains(OtherCompany))
-		{
-			continue;
-		}
-
-		bool IsAlly = false;
-
-		for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
-		{
-			UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
-
-
-			if (OtherCompany->GetWarState(EnemyCompany) == EFlareHostility::Hostile)
-			{
-				IsAlly = true;
-				break;
-			}
-		}
-
-		if (IsAlly)
-		{
-			Allies.Add(OtherCompany);
-		}
-	}
-
-
 	// Compute army values
 	int32 EnemiesArmyCombatPoints = 0;
 	int32 AlliesArmyCombatPoints = 0;
 #ifdef DEBUG_CONFIDENCE
-	FLOGV("Compute confidence for %s (ref: %s)", *GetCompanyName().ToString(), (ReferenceCompany ? *ReferenceCompany->GetCompanyName().ToString(): *FString("none")));
+	FLOGV("Compute confidence for %s (ref: %s)", *GetCompanyName().ToString(), (TargetCompany ? *TargetCompany->GetCompanyName().ToString(): *FString("none")));
 #endif
 	for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
 	{
 		UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
 		EnemiesArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCurrentCombatPoints;
 #ifdef DEBUG_CONFIDENCE
-		FLOGV("- enemy: %s (%lld)", *EnemyCompany->GetCompanyName().ToString(), EnemyCompany->GetCompanyValue().ArmyCurrentCombatPoints);
+		FLOGV("- enemy: %s (%d)", *EnemyCompany->GetCompanyName().ToString(), EnemyCompany->GetCompanyValue().ArmyCurrentCombatPoints);
 #endif
 	}
 
@@ -815,38 +869,12 @@ float UFlareCompany::GetConfidenceLevel(UFlareCompany* ReferenceCompany)
 		// Allies can be enemy to only a part of my ennemie. Cap to the value of the enemy if not me
 		int32 AllyArmyCombatPoints= AllyCompany->GetCompanyValue().ArmyCurrentCombatPoints;
 #ifdef DEBUG_CONFIDENCE
-		FLOGV("- ally: %s (%lld)", *AllyCompany->GetCompanyName().ToString(), AllyArmyCombatPoints);
+		FLOGV("- ally: %s (%d)", *AllyCompany->GetCompanyName().ToString(), AllyArmyCombatPoints);
 #endif
-		if(AllyCompany == this)
-		{
-			AlliesArmyCombatPoints += AllyArmyCombatPoints;
-		}
-		else
-		{
-			int32 MaxArmyCombatPoints = 0;
-
-			for (int32 EnemyIndex = 0; EnemyIndex < Enemies.Num(); EnemyIndex++)
-			{
-				UFlareCompany* EnemyCompany = Enemies[EnemyIndex];
-
-				if (AllyCompany->GetWarState(EnemyCompany) == EFlareHostility::Hostile)
-				{
-					MaxArmyCombatPoints += EnemyCompany->GetCompanyValue().ArmyCurrentCombatPoints;
-					continue;
-				}
-			}
-#ifdef DEBUG_CONFIDENCE
-			FLOGV("  > restricted to %lld", MaxArmyCombatPoints);
-#endif
-			AlliesArmyCombatPoints += FMath::Min(MaxArmyCombatPoints, AllyArmyCombatPoints);
-		}
-
-
-
-
+		AlliesArmyCombatPoints += AllyArmyCombatPoints;
 	}
 #ifdef EnemiesArmyCombatPoints
-	FLOGV("EnemiesArmyCombatPoints=%lld AlliesArmyCombatPoints=%lld", EnemiesArmyCombatPoints, AlliesArmyCombatPoints);
+	FLOGV("EnemiesArmyCombatPoints=%d AlliesArmyCombatPoints=%d", EnemiesArmyCombatPoints, AlliesArmyCombatPoints);
 #endif
 	// Compute confidence
 	if(AlliesArmyCombatPoints == EnemiesArmyCombatPoints)
@@ -994,6 +1022,26 @@ bool UFlareCompany::HasKnowResourceOutput(FFlareResourceDescription* Resource)
 	}
 
 	return false;
+}
+
+int32 UFlareCompany::GetWarCount(UFlareCompany* ExcludeCompany) const
+{
+	int32 WarCount = 0;
+
+	for(UFlareCompany* OtherCompany : Game->GetGameWorld()->GetCompanies())
+	{
+		if(OtherCompany == this || OtherCompany == ExcludeCompany)
+		{
+			continue;
+		}
+
+		if (IsAtWar(OtherCompany))
+		{
+			++WarCount;
+		}
+	}
+
+	return WarCount;
 }
 
 int64 UFlareCompany::GetTributeCost(UFlareCompany* Company)

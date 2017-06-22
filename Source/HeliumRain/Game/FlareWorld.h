@@ -203,6 +203,9 @@ protected:
 public:
 	int64 WorldMoneyReference;
 
+	int32 TotalWorldCombatPointCache;
+	bool HasTotalWorldCombatPointCache = false;
+
 
 public:
 
@@ -265,6 +268,7 @@ public:
 
 	TArray<FFlareIncomingEvent> GetIncomingEvents();
 
+	int32 GetTotalWorldCombatPoint();
 
 	TMap<IncomingKey, IncomingValue> GetIncomingPlayerEnemy();
 

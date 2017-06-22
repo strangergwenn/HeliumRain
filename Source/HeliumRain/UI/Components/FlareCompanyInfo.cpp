@@ -565,7 +565,8 @@ FText SFlareCompanyInfo::GetConfidenceTextValue() const
 
 	if (Player && Company && Player->GetCompany() != Company)
 	{
-		int32 Confidence = 50 + Company->GetConfidenceLevel(Player->GetCompany()) * 50;
+		TArray<UFlareCompany*> Allies;
+		int32 Confidence = 50 + Company->GetConfidenceLevel(Player->GetCompany(), Allies) * 50;
 		return FText::FromString(FString::FromInt(Confidence) + "%");
 	}
 
@@ -579,7 +580,8 @@ FSlateColor SFlareCompanyInfo::GetConfidenceColor() const
 	if (Player && Company)
 	{
 		float Reputation = Company->GetPlayerReputation();
-		float Confidence = Company->GetConfidenceLevel(Player->GetCompany());
+		TArray<UFlareCompany*> Allies;
+		float Confidence = Company->GetConfidenceLevel(Player->GetCompany(), Allies);
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 		if (Reputation <= -100 && Confidence > 0)

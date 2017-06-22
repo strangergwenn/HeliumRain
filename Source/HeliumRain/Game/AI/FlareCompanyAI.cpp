@@ -724,7 +724,8 @@ void UFlareCompanyAI::ProcessBudgetMilitary(int64 BudgetAmount, bool& Lock, bool
 			continue;
 		}
 
-		float ConfidenceLevel = Company->GetConfidenceLevel(OtherCompany);
+		TArray<UFlareCompany*> Allies;
+		float ConfidenceLevel = Company->GetConfidenceLevel(OtherCompany, Allies);
 		if (MinConfidenceLevel > ConfidenceLevel)
 		{
 			MinConfidenceLevel = ConfidenceLevel;

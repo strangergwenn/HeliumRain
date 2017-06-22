@@ -569,7 +569,10 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 	FLOGV("    - Spacecrafts %f $", Value.SpacecraftsValue/ 100.);
 	FLOGV("      - Ships %f $", Value.ShipsValue/ 100.);
 	FLOGV("      - Stations %f $", Value.StationsValue/ 100.);
+
+
 	FLOGV("    - Army %f $", Value.ArmyValue/ 100.);
+	FLOGV("    - Diplomatic weigh %f", Company->ComputeCompanyDiplomaticWeight(true));
 	FLOGV("    - Army current combat point %d", Value.ArmyCurrentCombatPoints);
 	FLOGV("    - Army total combat point %d", Value.ArmyTotalCombatPoints);
 	TArray<UFlareFleet*> CompanyFleets = Company->GetCompanyFleets();
@@ -606,15 +609,17 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 		{
 			continue;
 		}
+		TArray<UFlareCompany*> Allies;
+
 		FLOGV("   - %s want %s with %s (confidence: %f). %s want %s with %s (confidence: %f)",
 			  *Company->GetCompanyName().ToString(),
 			  (Company->GetHostility(OtherCompany) == EFlareHostility::Hostile ? *FString("war") : *FString("peace")),
 			  *OtherCompany->GetCompanyName().ToString(),
-			  Company->GetConfidenceLevel(OtherCompany),
+			  Company->GetConfidenceLevel(OtherCompany, Allies),
 			  *OtherCompany->GetCompanyName().ToString(),
 			  (OtherCompany->GetHostility(Company) == EFlareHostility::Hostile ? *FString("war") : *FString("peace")),
 			  *Company->GetCompanyName().ToString(),
-			  OtherCompany->GetConfidenceLevel(Company));
+			  OtherCompany->GetConfidenceLevel(Company, Allies));
 	}
 }
 

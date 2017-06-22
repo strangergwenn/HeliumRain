@@ -116,7 +116,6 @@ void UFlareAIBehavior::UpdateDiplomacy()
 	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
 
 	int32 MaxCombatPoint = 0;
-	int32 TotalWorldCombatPoint = 0;
 	UFlareCompany* MaxCombatPointCompany = NULL;
 
 	for (UFlareCompany* OtherCompany : GetGame()->GetGameWorld()->GetCompanies())
@@ -128,14 +127,14 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			MaxCombatPoint = Value.ArmyCurrentCombatPoints;
 			MaxCombatPointCompany = OtherCompany;
 		}
-		TotalWorldCombatPoint += Value.ArmyCurrentCombatPoints;
 	}
 
-	float MaxCombatPointRatio = float(MaxCombatPoint) / TotalWorldCombatPoint;
+	float MaxCombatPointRatio = float(MaxCombatPoint) / GetGame()->GetGameWorld()->GetTotalWorldCombatPoint();
 
 	//FLOGV("MaxCombatPointRatio %f", MaxCombatPointRatio);
 	//FLOGV("MaxCombatPoint %d", MaxCombatPoint);
 	//FLOGV("TotalWorldCombatPoint %d", TotalWorldCombatPoint);
+
 
 
 	// If the a company is not far from half world power, a global alliance is formed
@@ -184,7 +183,9 @@ void UFlareAIBehavior::UpdateDiplomacy()
 		{
 			Company->SetHostilityTo(OtherCompany, false);
 
-			if (Company->GetWarState(OtherCompany) == EFlareHostility::Hostile && Company->GetConfidenceLevel(OtherCompany) < PayTributeConfidence)
+			TArray<UFlareCompany*> Allies;
+
+			if (Company->GetWarState(OtherCompany) == EFlareHostility::Hostile && Company->GetConfidenceLevel(OtherCompany, Allies) < PayTributeConfidence)
 			{
 				if (OtherCompany == PlayerCompany)
 				{
@@ -201,87 +202,100 @@ void UFlareAIBehavior::UpdateDiplomacy()
 	{
 		//Want war
 
-		// First player war
-		if(Company->GetPlayerReputation() < 0)
+		if (Company->GetWarCount(PlayerCompany) == 0)
 		{
-			Company->SetHostilityTo(PlayerCompany, true);
-		}
+			// Don't fight if already at war
 
-		// Not player war only if the player is not too powerfull
-		if (PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints > TotalWorldCombatPoint / 4)
-		{
-			// Player too powerfull dont fight each other
-		}
-		else
-		{
+			// Fill target company sorted by weight (only with weight higther than mine)
 			TArray<TPair<UFlareCompany*, float>> TargetCompanies;
-
-			CompanyValue MyValue = Company->GetCompanyValue();
-
-
-			float MyWeight = (MyValue.TotalValue + MyValue .ArmyCurrentCombatPoints * 10);
-			float CompanyWarTotalWeight = 0;
-
-			//FLOGV("%s MyWeight=%f", *Company->GetCompanyName().ToString(), MyWeight);
-			//FLOGV("DeclareWarConfidence=%f", DeclareWarConfidence);
 
 			for (UFlareCompany* OtherCompany : OtherCompanies)
 			{
-				if(OtherCompany == PlayerCompany)
+				if (Company->IsAtWar(OtherCompany))
 				{
 					continue;
 				}
 
-				CompanyValue Value = OtherCompany->GetCompanyValue();
-
-				float Weight = (Value.TotalValue + Value.ArmyCurrentCombatPoints * 10) * FMath::Pow(1.5f, OtherCompany->GetShame());
 
 				//FLOGV("- %s Weight=%f", *OtherCompany->GetCompanyName().ToString(), Weight);
 				//FLOGV("-    GetConfidenceLevel=%f", Company->GetConfidenceLevel(OtherCompany));
 
-
-				if(Weight > MyWeight && Company->GetConfidenceLevel(OtherCompany) > DeclareWarConfidence)
+				if(Company->WantWarWith(OtherCompany))
 				{
-					TargetCompanies.Add(TPairInitializer<UFlareCompany*, float>(OtherCompany, Weight));
-					CompanyWarTotalWeight += Weight;
+					//FLOGV("%s add %s as target", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString());
+
+					TargetCompanies.Add(TPairInitializer<UFlareCompany*, float>(OtherCompany, OtherCompany->ComputeCompanyDiplomaticWeight(true)));
 				}
 			}
 
-			//FLOGV("%s CompanyWarTotalWeight=%f", *Company->GetCompanyName().ToString(), CompanyWarTotalWeight);
+			TargetCompanies.Sort([&](const TPair<UFlareCompany*, float>& Lhs, const TPair<UFlareCompany*, float>& Rhs){
 
-
-			TargetCompanies.Sort([](const TPair<UFlareCompany*, float>& Lhs, const TPair<UFlareCompany*, float>& Rhs){ return Lhs.Value > Rhs.Value; });
-
-
-			/*for(TPair<UFlareCompany*, float> Target : TargetCompanies)
-			{
-				FLOGV("- %s Value=%f", *Target.Key->GetCompanyName().ToString(), Target.Value);
-			}*/
-
-			if(TargetCompanies.Num())
-			{
-				float TargetWeight = FMath::FRandRange(0, CompanyWarTotalWeight);
-
-				float CurrentWeight = 0;
-				int TargetIndex = 0;
-
-				for(TPair<UFlareCompany*, float> Target : TargetCompanies)
+				if(Lhs.Key == PlayerCompany)
 				{
-					if(CurrentWeight + Target.Value >= TargetWeight)
-					{
-						break;
-					}
-
-					TargetIndex++;
-					CurrentWeight += Target.Value;
+					return true;
 				}
 
-				UFlareCompany* TargetCompany = TargetCompanies[TargetIndex].Key;
+				if(Rhs.Key == PlayerCompany)
+				{
+					return false;
+				}
 
-				//FLOGV("Target %s", *TargetCompany->GetCompanyName().ToString());
+				return Lhs.Value > Rhs.Value;
+			});
 
-				// Declare war
-				Company->SetHostilityTo(TargetCompany, true);
+
+			auto DeclareWarConfidenceMean = [](TArray<UFlareCompany*> &Allies)
+			{
+				float DeclareWarConfidenceSum = 0;
+				float DeclareWarConfidenceCount = 0;
+
+				for (UFlareCompany* Ally : Allies)
+				{
+					DeclareWarConfidenceSum += Ally->GetAI()->GetBehavior()->DeclareWarConfidence;
+					++DeclareWarConfidenceCount;
+				}
+
+				return DeclareWarConfidenceSum / DeclareWarConfidenceCount;
+			};
+
+			// For each target
+			// find allies list
+			// compute allies confidence level
+			// compute mean of DeclareWarConfidence
+			// if confidente, rand skip else declare war with all allies
+
+			int i = 0;
+			for(TPair<UFlareCompany*, float> Target : TargetCompanies)
+			{
+				if(i >= 3)
+				{
+					break;
+				}
+				++i;
+
+				UFlareCompany* TargetCompany = Target.Key;
+
+				//FLOGV("Target for %s: %s", *Company->GetCompanyName().ToString(), *TargetCompany->GetCompanyName().ToString());
+
+				TArray<UFlareCompany*> Allies;
+
+				float Confidence = Company->GetConfidenceLevel(TargetCompany, Allies);
+
+				if(FMath::FRand() <= 0.2f)
+				{
+					continue;
+				}
+
+				if(Confidence > DeclareWarConfidenceMean(Allies))
+				{
+					FLOGV("Declare alliance agains %s with:", *TargetCompany->GetCompanyName().ToString());
+					for (UFlareCompany* Ally : Allies)
+					{
+						FLOGV("- %s", *Ally->GetCompanyName().ToString());
+						Ally->SetHostilityTo(TargetCompany, true);
+
+					}
+				}
 			}
 		}
 	}
