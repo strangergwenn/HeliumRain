@@ -54,6 +54,17 @@ struct FFlareDiplomacyStats
 
 };
 
+struct AIWarContext
+{
+	TArray<UFlareCompany*> Allies;
+	TArray<UFlareCompany*> Enemies;
+	TArray<UFlareSimulatedSector*> KnownSectors;
+	float AttackThreshold;
+
+	void Generate();
+};
+
+
 
 struct DefenseSector
 {
@@ -164,21 +175,21 @@ public:
 	/** Move military ships while in peace */
 	void UpdatePeaceMilitaryMovement();
 
-	UFlareSimulatedSector* FindNearestSectorWithPeace(UFlareSimulatedSector* OriginSector);
+	UFlareSimulatedSector* FindNearestSectorWithPeace(AIWarContext& WarContext, UFlareSimulatedSector* OriginSector);
 
-	UFlareSimulatedSector* FindNearestSectorWithFS(UFlareSimulatedSector* OriginSector);
+	UFlareSimulatedSector* FindNearestSectorWithFS(AIWarContext& WarContext, UFlareSimulatedSector* OriginSector);
 
-	UFlareSimulatedSector* FindNearestSectorWithUpgradePossible(UFlareSimulatedSector* OriginSector);
+	UFlareSimulatedSector* FindNearestSectorWithUpgradePossible(AIWarContext& WarContext, UFlareSimulatedSector* OriginSector);
 
 	bool UpgradeShip(UFlareSimulatedSpacecraft* Ship, EFlarePartSize::Type WeaponTargetSize);
 
-	bool UpgradeMilitaryFleet(WarTarget Target, DefenseSector& Sector, TArray<UFlareSimulatedSpacecraft*> &MovableShips);
+	bool UpgradeMilitaryFleet(AIWarContext& WarContext, WarTarget Target, DefenseSector& Sector, TArray<UFlareSimulatedSpacecraft*> &MovableShips);
 
-	TArray<WarTargetIncomingFleet> GenerateWarTargetIncomingFleets(UFlareSimulatedSector* DestinationSector);
+	TArray<WarTargetIncomingFleet> GenerateWarTargetIncomingFleets(AIWarContext& WarContext, UFlareSimulatedSector* DestinationSector);
 
-	TArray<WarTarget> GenerateWarTargetList();
+	TArray<WarTarget> GenerateWarTargetList(AIWarContext& WarContext);
 
-	TArray<UFlareSimulatedSpacecraft*> GenerateWarShipList(UFlareSimulatedSector* Sector);
+	TArray<UFlareSimulatedSpacecraft*> GenerateWarShipList(AIWarContext& WarContext, UFlareSimulatedSector* Sector);
 
 	TArray<DefenseSector> SortSectorsByDistance(UFlareSimulatedSector* BaseSector, TArray<DefenseSector> SectorsToSort);
 
@@ -186,7 +197,7 @@ public:
 
 	TArray<DefenseSector> GetDefenseSectorListInRange(TArray<DefenseSector>& DefenseSectorList, const DefenseSector& OriginSector, int64 MaxTravelDuration);
 
-	TArray<DefenseSector> GenerateDefenseSectorList();
+	TArray<DefenseSector> GenerateDefenseSectorList(AIWarContext& WarContext);
 
 	void CheckBattleResolution();
 

@@ -948,6 +948,7 @@ int32 UFlareCompany::GetTransportCapacity()
 
 TArray<UFlareCompany*> UFlareCompany::GetOtherCompanies(bool Shuffle)
 {
+	// TODO Cache
 	TArray<UFlareCompany*> OtherCompanies;
 	for(UFlareCompany* Company : GetGame()->GetGameWorld()->GetCompanies())
 	{
@@ -1534,6 +1535,11 @@ FText UFlareCompany::GetPlayerHostilityText() const
 	}
 
 	return Status;
+}
+
+bool UFlareCompany::IsPlayerCompany() const
+{
+	return this == Game->GetPC()->GetCompany();
 }
 
 #undef LOCTEXT_NAMESPACE

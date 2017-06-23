@@ -441,4 +441,6 @@ public:
 
 	int32 GetWarCount(UFlareCompany* ExcludeCompany) const;
 
+	bool IsPlayerCompany() const;
+
 };
