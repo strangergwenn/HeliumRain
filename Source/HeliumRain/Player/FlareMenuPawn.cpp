@@ -296,18 +296,38 @@ void AFlareMenuPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 	FCHECK(PlayerInputComponent);
 }
 
+void AFlareMenuPawn::UpdateExternalCameraTarget()
+{
+	auto& App = FSlateApplication::Get();
+
+	if (App.HasAnyMouseCaptor())
+	{
+		FVector2D CursorPos = App.GetCursorPos();
+
+		if(IsExternalCameraMouseOffsetInit && CursorPos != LastExternalCameraMouseOffset)
+		{
+
+			FVector2D MoveDirection = (CursorPos - LastExternalCameraMouseOffset).GetSafeNormal();
+
+			ExternalCameraYawTarget += -MoveDirection.X;
+			ExternalCameraPitchTarget += -MoveDirection.Y;
+		}
+
+		LastExternalCameraMouseOffset = CursorPos;
+		IsExternalCameraMouseOffsetInit = true;
+	}
+	else
+	{
+		IsExternalCameraMouseOffsetInit = false;
+	}
+}
+
 void AFlareMenuPawn::PitchInput(float Val)
 {
-	if (Val)
-	{
-		ExternalCameraPitchTarget += FMath::Sign(Val);
-	}
+	UpdateExternalCameraTarget();
 }
 
 void AFlareMenuPawn::YawInput(float Val)
 {
-	if (Val)
-	{
-		ExternalCameraYawTarget -= FMath::Sign(Val);
-	}
+	UpdateExternalCameraTarget();
 }

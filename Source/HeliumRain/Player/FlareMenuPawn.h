@@ -72,6 +72,8 @@ public:
 
 	virtual void YawInput(float Val);
 
+	void UpdateExternalCameraTarget();
+
 
 protected:
 	
@@ -146,6 +148,8 @@ protected:
 	float                      ExternalCameraYawTarget;
 	float                      ExternalCameraYawSpeed;
 	float                      ExternalCameraPitchSpeed;
+	FVector2D                  LastExternalCameraMouseOffset;
+	bool                       IsExternalCameraMouseOffsetInit = false;
 
 
 public:
