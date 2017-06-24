@@ -117,6 +117,8 @@ protected:
 	float									 ExternalCameraDistanceTarget;
 	float                                    ExternalCameraYawSpeed;
 	float                                    ExternalCameraPitchSpeed;
+	FVector2D                                LastExternalCameraMouseOffset;
+	bool                                     IsExternalCameraMouseOffsetInit = false;
 
 	// Internal camera
 	float									 InternalCameraPitch;
