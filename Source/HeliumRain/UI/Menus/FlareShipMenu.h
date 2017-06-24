@@ -179,6 +179,7 @@ protected:
 	int32                                           CurrentPartIndex;
 	int32                                           CurrentEquippedPartIndex;
 	int32                                           ShipPartIndex;
+	FFlareSpacecraftComponentDescription*           CurrentEquippedPartDescription;
 
 	// Factory list
 	TSharedPtr<SVerticalBox>                        FactoryList;

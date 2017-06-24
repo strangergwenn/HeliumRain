@@ -520,10 +520,18 @@ void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* Select
 		ShipPartIndex = Index;
 		CurrentPartIndex = Index;
 		CurrentEquippedPartIndex = Index;
+		CurrentEquippedPartDescription = SelectItem;
 
 		// Update list
 		PartList->RequestListRefresh();
-		PartList->SetSelection(PartListDataShared[Index]);
+		if (Index != INDEX_NONE)
+		{
+			PartList->SetSelection(PartListDataShared[Index]);
+		}
+		else
+		{
+			PartList->SetSelection(PartListDataShared[0]);
+		}
 	}
 
 	LoadPart(SelectItem->Identifier);
@@ -986,7 +994,7 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 		{
 			if (CanBeChanged)
 			{
-				int64 TransactionCost = TargetSpacecraft->GetUpgradeCost(Item->PartDescription, PartListData[CurrentEquippedPartIndex]);
+				int64 TransactionCost = TargetSpacecraft->GetUpgradeCost(Item->PartDescription, CurrentEquippedPartDescription);
 				BuyConfirmation->Show(TransactionCost, PC->GetCompany());
 				CantUpgradeReason->SetVisibility(EVisibility::Collapsed);
 			}
@@ -1034,6 +1042,7 @@ void SFlareShipMenu::OnPartConfirmed()
 	// Edit the correct save data property
 	FFlareSpacecraftComponentDescription* NewPartDesc = PartListData[CurrentPartIndex];
 	CurrentEquippedPartIndex = CurrentPartIndex;
+	CurrentEquippedPartDescription = NewPartDesc;
 		
 	// Upgrade the ship
 	if (TargetSpacecraft)
