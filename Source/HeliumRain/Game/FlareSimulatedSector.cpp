@@ -506,6 +506,13 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 		Result = false;
 	}
 
+	// The sector has danger
+	if (GetSectorBattleState(Company).HasDanger)
+	{
+		OutReasons.Add(LOCTEXT("StationHasDanger", "There is ennemies in this sector"));
+		Result = false;
+	}
+
 	// Too many stations
 	if (Company->GetCompanyStations().Num() >= GetMaxStationsPerCompany()/2 && !Company->IsTechnologyUnlocked("dense-sectors"))
 	{
