@@ -27,7 +27,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	UseCockpit = true;
 	UseAnticollision = false;
 	PauseGameInMenus = false;
-	MaxShipsInSector = 20;
+	MaxShipsInSector = 30;
 
 	// Input
 	ForwardOnlyThrust = false;
