@@ -13,9 +13,9 @@
 AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(PCIP)
 {
 	// Mesh
-	/*Asteroid = PCIP.CreateDefaultSubobject<UFlareAsteroidComponent>(this, TEXT("Asteroid"));*/
-
-	Meteorite = GetDestructibleComponent();
+	Meteorite = PCIP.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("Meteorite"));
+	RootComponent = Meteorite;
+	//Meteorite = GetDestructibleComponent();
 
 	Meteorite->bTraceComplexOnMove = true;
 	Meteorite->SetSimulatePhysics(true);
@@ -43,7 +43,7 @@ void AFlareMeteorite::Load(const FFlareMeteoriteSave& Data)
 	// TODO, icy in Meteorite Data
 
 
-	Meteorite->BodyInstance.bSimulatePhysics = true;
+	//Meteorite->BodyInstance.bSimulatePhysics = true;
 
 
 	SetupMeteoriteMesh(Game, Meteorite, Data, false);
@@ -81,14 +81,14 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	FLOGV("Meteorite %s vel=%s", *GetName(), *Meteorite->GetPhysicsLinearVelocity().ToString());
+	/*FLOGV("Meteorite %s vel=%s", *GetName(), *Meteorite->GetPhysicsLinearVelocity().ToString());
 	FLOGV(" - IsPhysicsCollisionEnabled %d", Meteorite->IsPhysicsCollisionEnabled());
 	FLOGV(" - IsPhysicsStateCreated %d", Meteorite->IsPhysicsStateCreated());
 	FLOGV(" - IsAnySimulatingPhysics %d", Meteorite->IsAnySimulatingPhysics());
 	FLOGV(" - IsAnyRigidBodyAwake %d", Meteorite->IsAnyRigidBodyAwake());
 	FLOGV(" - IsCollisionEnabled %d", Meteorite->IsCollisionEnabled());
 	FLOGV(" - IsSimulatingPhysics %d", Meteorite->IsSimulatingPhysics());
-
+*/
 
 
 	/*float CollisionSize = Asteroid->GetCollisionShape().GetExtent().Size();
@@ -133,9 +133,9 @@ void AFlareMeteorite::SetPause(bool Pause)
 	}
 }
 
-void AFlareMeteorite::SetupMeteoriteMesh(AFlareGame* Game, UDestructibleComponent* Component, const FFlareMeteoriteSave& Data, bool IsIcy)
+void AFlareMeteorite::SetupMeteoriteMesh(AFlareGame* Game, UStaticMeshComponent* Component, const FFlareMeteoriteSave& Data, bool IsIcy)
 {
-	if (Game->GetMeteoriteCatalog())
+	/*if (Game->GetMeteoriteCatalog())
 	{
 		// TODO Icy
 		FCHECK(Data.MeteoriteMeshID >= 0 && Data.MeteoriteMeshID < Game->GetMeteoriteCatalog()->DustyMeteorites.Num());
@@ -144,14 +144,30 @@ void AFlareMeteorite::SetupMeteoriteMesh(AFlareGame* Game, UDestructibleComponen
 	else
 	{
 		return;
+	}*/
+
+	if (Game->GetAsteroidCatalog())
+	{
+		FCHECK(Data.MeteoriteMeshID >= 0 && Data.MeteoriteMeshID < Game->GetAsteroidCatalog()->Asteroids.Num());
+		Component->SetStaticMesh(Game->GetAsteroidCatalog()->Asteroids[Data.MeteoriteMeshID]);
+	}
+	else
+	{
+		Component->SetStaticMesh(Game->GetDefaultAsteroid());
 	}
 
 
+	// Actor scale
+	Component->SetWorldScale3D(FVector(1, 1, 1));
+	float CollisionSize = Component->GetCollisionShape().GetExtent().Size();
+	FVector ScaleFactor = Component->GetOwner()->GetActorScale3D() * 0.1f * (20000.0f / CollisionSize);
+	Component->SetWorldScale3D(ScaleFactor);
 
 	// Mass scale
 	FBodyInstance* BodyInst = Component->GetBodyInstance();
-	BodyInst->MassScale = 1;
+	BodyInst->MassScale = ScaleFactor.Size();
 	BodyInst->UpdateMassProperties();
+
 
 	// Material
 	UMaterialInstanceDynamic* MeteoriteMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), Component->GetWorld());
