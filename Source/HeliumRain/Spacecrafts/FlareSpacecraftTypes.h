@@ -233,6 +233,36 @@ struct FFlareAsteroidSave
 	int32 AsteroidMeshID;
 };
 
+/** Meteorite save data */
+USTRUCT()
+struct FFlareMeteoriteSave
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Meteorite identifier */
+	//UPROPERTY(EditAnywhere, Category = Save)
+	//FName Identifier;
+
+	/** Meteorite location */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FVector Location;
+
+	/** Meteorite rotation */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FRotator Rotation;
+
+	/** Meteorite linear velocity */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FVector LinearVelocity;
+
+	/** Meteorite angular velocity */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FVector AngularVelocity;
+
+	/** Content identifier */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 MeteoriteMeshID;
+};
 
 /** Spacecraft cargo save data */
 USTRUCT()

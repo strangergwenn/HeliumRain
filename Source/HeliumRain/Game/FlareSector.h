@@ -4,6 +4,7 @@
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareBomb.h"
 #include "FlareAsteroid.h"
+#include "../Quests/FlareMeteorite.h"
 #include "FlareSimulatedSector.h"
 #include "FlareSector.generated.h"
 
@@ -37,6 +38,8 @@ public:
 	----------------------------------------------------*/
 
 	AFlareAsteroid* LoadAsteroid(const FFlareAsteroidSave& AsteroidData);
+
+	AFlareMeteorite* LoadMeteorite(const FFlareMeteoriteSave& MeteoriteData);
 
 	AFlareSpacecraft* LoadSpacecraft(UFlareSimulatedSpacecraft* ParentSpacecraft);
 
@@ -75,6 +78,10 @@ protected:
 	
 	UPROPERTY()
 	TArray<AFlareAsteroid*>        SectorAsteroids;
+
+	UPROPERTY()
+	TArray<AFlareMeteorite*>       SectorMeteorites;
+
 	UPROPERTY()
 	TArray<AFlareBomb*>            SectorBombs;
 	UPROPERTY()
@@ -142,6 +149,11 @@ public:
 	inline TArray<AFlareAsteroid*>& GetAsteroids()
 	{
 		return SectorAsteroids;
+	}
+
+	inline TArray<AFlareMeteorite*>& GetMeteorites()
+	{
+		return SectorMeteorites;
 	}
 
 	inline TArray<AFlareBomb*>& GetBombs()

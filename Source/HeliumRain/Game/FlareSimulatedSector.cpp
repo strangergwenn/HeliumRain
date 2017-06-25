@@ -423,6 +423,28 @@ void UFlareSimulatedSector::CreateAsteroid(int32 ID, FName Name, FVector Locatio
 	SectorData.AsteroidData.Add(Data);
 }
 
+
+void UFlareSimulatedSector::CreateMeteorite(int32 ID, UFlareSimulatedSpacecraft* TargetStation)
+{
+
+	// Write data
+	FFlareMeteoriteSave Data;
+	Data.MeteoriteMeshID = ID;
+
+//	Data.Identifier = Name;
+	Data.AngularVelocity = FMath::VRand() * FMath::FRandRange(-1.f,1.f);
+	//Data.Scale = FVector(1,1,1);
+	Data.Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
+	Data.Location = TargetStation->GetData().Location + FMath::VRand() * FMath::FRandRange(50000.f,10000);
+	Data.LinearVelocity =  (TargetStation->GetData().Location - Data.Location).GetUnsafeNormal() * 1000.f;
+
+	// TODO right location and position
+
+	SectorData.MeteoriteData.Add(Data);
+
+	FLOGV("UFlareSimulatedSector::CreateMeteorite done vel=%s", *Data.LinearVelocity.ToString());
+}
+
 void UFlareSimulatedSector::AddFleet(UFlareFleet* Fleet)
 {
 	SectorFleets.AddUnique(Fleet);

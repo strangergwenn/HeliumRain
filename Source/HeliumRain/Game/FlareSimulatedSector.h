@@ -283,6 +283,9 @@ struct FFlareSectorSave
 	TArray<FFlareAsteroidSave> AsteroidData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFlareMeteoriteSave> MeteoriteData;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FName> FleetIdentifiers;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
@@ -374,6 +377,9 @@ public:
 
 	/** Create an asteroid */
 	void CreateAsteroid(int32 ID, FName Name, FVector Location);
+
+	/** Create a meteorite */
+	void CreateMeteorite(int32 ID, UFlareSimulatedSpacecraft* TargetStation);
 
 	/** Add the fleet and its ships from the sector */
 	void AddFleet(UFlareFleet* Fleet);

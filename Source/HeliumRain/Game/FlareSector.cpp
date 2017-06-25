@@ -40,6 +40,12 @@ void UFlareSector::Load(UFlareSimulatedSector* Parent)
 		LoadAsteroid(ParentSector->GetData()->AsteroidData[i]);
 	}
 
+	// Load meteorite
+	for (int i = 0 ; i < ParentSector->GetData()->MeteoriteData.Num(); i++)
+	{
+		LoadMeteorite(ParentSector->GetData()->MeteoriteData[i]);
+	}
+
 	// Load safe location spacecrafts
 	for (int i = 0 ; i < ParentSector->GetSectorSpacecrafts().Num(); i++)
 	{
@@ -75,6 +81,7 @@ void UFlareSector::Save()
 
 	SectorData->BombData.Empty();
 	SectorData->AsteroidData.Empty();
+	SectorData->MeteoriteData.Empty();
 
 
 	for (int i = 0 ; i < SectorBombs.Num(); i++)
@@ -85,6 +92,11 @@ void UFlareSector::Save()
 	for (int i = 0 ; i < SectorAsteroids.Num(); i++)
 	{
 		SectorData->AsteroidData.Add(*SectorAsteroids[i]->Save());
+	}
+
+	for (int i = 0 ; i < SectorMeteorites.Num(); i++)
+	{
+		SectorData->MeteoriteData.Add(*SectorMeteorites[i]->Save());
 	}
 
 	SectorData->LocalTime = LocalTime + GetGame()->GetPlanetarium()->GetSmoothTime();
@@ -112,6 +124,11 @@ void UFlareSector::DestroySector()
 		SectorAsteroids[AsteroidIndex]->Destroy();
 	}
 
+	for (AFlareMeteorite* Meteorite : SectorMeteorites)
+	{
+		Meteorite->Destroy();
+	}
+
 	for (int ShellIndex = 0 ; ShellIndex < SectorShells.Num(); ShellIndex++)
 	{
 		SectorShells[ShellIndex]->Destroy();
@@ -122,6 +139,7 @@ void UFlareSector::DestroySector()
 	SectorStations.Empty();
 	SectorBombs.Empty();
 	SectorAsteroids.Empty();
+	SectorMeteorites.Empty();
 	SectorShells.Empty();
 
 	IsDestroyingSector = false;
@@ -144,6 +162,20 @@ AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidDat
 	// TODO Check double add
 	SectorAsteroids.Add(Asteroid);
     return Asteroid;
+}
+
+AFlareMeteorite* UFlareSector::LoadMeteorite(const FFlareMeteoriteSave& MeteoriteData)
+{
+	FActorSpawnParameters Params;
+	Params.bNoFail = true;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	AFlareMeteorite* Meteorite = GetGame()->GetWorld()->SpawnActor<AFlareMeteorite>(AFlareMeteorite::StaticClass(), MeteoriteData.Location, MeteoriteData.Rotation, Params);
+	Meteorite->Load(MeteoriteData);
+
+	// TODO Check double add
+	SectorMeteorites.Add(Meteorite);
+	return Meteorite;
 }
 
 AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* ParentSpacecraft)
@@ -441,6 +473,11 @@ void UFlareSector::SetPause(bool Pause)
 	for (int i = 0 ; i < SectorAsteroids.Num(); i++)
 	{
 		SectorAsteroids[i]->SetPause(Pause);
+	}
+
+	for (AFlareMeteorite* Meteorite : SectorMeteorites)
+	{
+		Meteorite->SetPause(Pause);
 	}
 
 	for (int i = 0 ; i < SectorShells.Num(); i++)

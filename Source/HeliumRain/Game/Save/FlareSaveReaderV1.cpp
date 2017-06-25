@@ -510,6 +510,18 @@ void UFlareSaveReaderV1::LoadAsteroid(const TSharedPtr<FJsonObject> Object, FFla
 }
 
 
+void UFlareSaveReaderV1::LoadMeteorite(const TSharedPtr<FJsonObject> Object, FFlareMeteoriteSave* Data)
+{
+	//LoadFName(Object, "Identifier", &Data->Identifier);
+	LoadVector(Object, "Location", &Data->Location);
+	LoadRotator(Object, "Rotation", &Data->Rotation);
+	LoadVector(Object, "LinearVelocity", &Data->LinearVelocity);
+	LoadVector(Object, "AngularVelocity", &Data->AngularVelocity);
+	LoadInt32(Object, "MeteoriteMeshID", &Data->MeteoriteMeshID);
+
+}
+
+
 void UFlareSaveReaderV1::LoadSpacecraftComponent(const TSharedPtr<FJsonObject> Object, FFlareSpacecraftComponentSave* Data)
 {
 	LoadFName(Object, "ComponentIdentifier", &Data->ComponentIdentifier);
@@ -789,6 +801,17 @@ void UFlareSaveReaderV1::LoadSector(const TSharedPtr<FJsonObject> Object, FFlare
 			FFlareAsteroidSave ChildData;
 			LoadAsteroid(Item->AsObject(), &ChildData);
 			Data->AsteroidData.Add(ChildData);
+		}
+	}
+
+	const TArray<TSharedPtr<FJsonValue>>* Meteorites;
+	if(Object->TryGetArrayField("Meteorites", Meteorites))
+	{
+		for (TSharedPtr<FJsonValue> Item : *Meteorites)
+		{
+			FFlareMeteoriteSave ChildData;
+			LoadMeteorite(Item->AsObject(), &ChildData);
+			Data->MeteoriteData.Add(ChildData);
 		}
 	}
 

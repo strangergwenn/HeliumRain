@@ -408,6 +408,21 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveAsteroid(FFlareAsteroidSave* Data)
 	return JsonObject;
 }
 
+TSharedRef<FJsonObject> UFlareSaveWriter::SaveMeteorite(FFlareMeteoriteSave* Data)
+{
+	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+
+	//JsonObject->SetStringField("Identifier", Data->Identifier.ToString());
+	JsonObject->SetStringField("Location", FormatVector(Data->Location));
+	JsonObject->SetStringField("Rotation", FormatRotator(Data->Rotation));
+	JsonObject->SetStringField("LinearVelocity", FormatVector(Data->LinearVelocity));
+	JsonObject->SetStringField("AngularVelocity", FormatVector(Data->AngularVelocity));
+	JsonObject->SetStringField("MeteoriteMeshID", FormatInt32(Data->MeteoriteMeshID));
+
+	return JsonObject;
+}
+
+
 TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraftComponent(FFlareSpacecraftComponentSave* Data)
 {
 	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
@@ -630,6 +645,14 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSector(FFlareSectorSave* Data)
 		Asteroids.Add(MakeShareable(new FJsonValueObject(SaveAsteroid(&Data->AsteroidData[i]))));
 	}
 	JsonObject->SetArrayField("Asteroids", Asteroids);
+
+	TArray< TSharedPtr<FJsonValue> > Meteorites;
+	FLOGV("UFlareSaveWriter::SaveSector %d Meteorites", Data->MeteoriteData.Num())
+	for(int i = 0; i < Data->MeteoriteData.Num(); i++)
+	{
+		Meteorites.Add(MakeShareable(new FJsonValueObject(SaveMeteorite(&Data->MeteoriteData[i]))));
+	}
+	JsonObject->SetArrayField("Meteorites", Meteorites);
 
 	TArray< TSharedPtr<FJsonValue> > FleetIdentifiers;
 	for(int i = 0; i < Data->FleetIdentifiers.Num(); i++)

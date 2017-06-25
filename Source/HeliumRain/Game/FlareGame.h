@@ -381,6 +381,11 @@ public:
 		return AsteroidCatalog;
 	}
 
+	inline UFlareMeteoriteCatalog* GetMeteoriteCatalog() const
+	{
+		return MeteoriteCatalog;
+	}
+
 	inline UFlareCompanyCatalog* GetCompanyCatalog() const
 	{
 		return CompanyCatalog;

@@ -1624,6 +1624,29 @@ void UFlareGameTools::CreateAsteroid(int32 ID, FName Name)
 	GetGame()->ActivateCurrentSector();
 }
 
+void UFlareGameTools::CreateMeteorite(int32 ID, FName TargetStationImmatriculation)
+{
+	if (!GetActiveSector())
+	{
+		FLOG("AFlareGame::CreateMeteorite failed: no active sector");
+		return;
+	}
+
+	UFlareSimulatedSpacecraft* TargetStation = GetGameWorld()->FindSpacecraft(TargetStationImmatriculation);
+
+	if(!TargetStation)
+	{
+		FLOG("AFlareGame::CreateMeteorite failed: invalide target station");
+		return;
+	}
+
+	UFlareSimulatedSector* ActiveSector = GetGame()->DeactivateSector();
+
+	ActiveSector->CreateMeteorite(ID, TargetStation);
+
+	GetGame()->ActivateCurrentSector();
+}
+
 void UFlareGameTools::PrintCompanyList()
 {
 	if (!GetGameWorld())
