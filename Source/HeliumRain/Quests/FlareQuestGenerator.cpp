@@ -2496,8 +2496,8 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 	QuestClass = UFlareQuestGeneratedMeteoriteInterception::GetClass();
 	Identifier = InitData.GetName("identifier");
 
-	QuestName = FText::Format(LOCTEXT("GeneratedMeteoriteDestructionName", "Intercept meteorite in {0}"), TargetStation->GetCurrentSector()->GetSectorName());
-	QuestDescription = FText::Format(LOCTEXT("GeneratedMeteoriteDestructionDescription", "Intercept a meteorite menacing {0} in {1} on {2}"),
+	QuestName = FText::Format(LOCTEXT("GeneratedMeteoriteDestructionName", "Meteorite intercept in {0}"), TargetStation->GetCurrentSector()->GetSectorName());
+	QuestDescription = FText::Format(LOCTEXT("GeneratedMeteoriteDestructionDescription", "A meteorite will pose a threat to {0} in {1} on {2}. Intercept it and destroy it."),
 		UFlareGameTools::DisplaySpacecraftName(TargetStation),
 		TargetStation->GetCurrentSector()->GetSectorName(),
 		UFlareGameTools::GetDisplayDate(InterseptDate + 1));
@@ -2541,7 +2541,7 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 		},
 		[&]()
 		{
-			return FText::Format(LOCTEXT("FireWeaponConditionLabel", "Destroy {0} meteorites in {1}."), FText::AsNumber(MeteoriteCount), TargetStation->GetCurrentSector()->GetSectorName());
+			return FText::Format(LOCTEXT("FireWeaponConditionLabel", "Destroy {0} meteorites in {1}"), FText::AsNumber(MeteoriteCount), TargetStation->GetCurrentSector()->GetSectorName());
 		},
 		[&](UFlareQuestCondition* Condition)
 		{
