@@ -14,6 +14,7 @@
 class UFlareSpacecraftCatalog;
 class UFlareSpacecraftComponentsCatalog;
 class UFlareCustomizationCatalog;
+class UFlareMeteoriteCatalog;
 class UFlareAsteroidCatalog;
 class UFlareCompanyCatalog;
 class UFlareResourceCatalog;
@@ -235,6 +236,10 @@ protected:
 	/** Reference to colors and patterns */
 	UPROPERTY()
 	UFlareCustomizationCatalog*                CustomizationCatalog;
+
+	/** Reference to meteorite data */
+	UPROPERTY()
+	UFlareMeteoriteCatalog*                    MeteoriteCatalog;
 
 	/** Reference to asteroid data */
 	UPROPERTY()

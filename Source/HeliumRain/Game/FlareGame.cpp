@@ -15,6 +15,7 @@
 #include "../Data/FlareSpacecraftCatalog.h"
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
 #include "../Data/FlareCustomizationCatalog.h"
+#include "../Data/FlareMeteoriteCatalog.h"
 #include "../Data/FlareAsteroidCatalog.h"
 #include "../Data/FlareCompanyCatalog.h"
 #include "../Data/FlareResourceCatalog.h"
@@ -71,12 +72,14 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	struct FConstructorStatics
 	{
 		ConstructorHelpers::FObjectFinder<UFlareCustomizationCatalog> CustomizationCatalog;
+		ConstructorHelpers::FObjectFinder<UFlareMeteoriteCatalog> MeteoriteCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareAsteroidCatalog> AsteroidCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareCompanyCatalog> CompanyCatalog;
 		ConstructorHelpers::FObjectFinder<UFlareOrbitalMap> OrbitalBodies;
 
 		FConstructorStatics()
 			: CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog.CustomizationCatalog"))
+			, MeteoriteCatalog(TEXT("/Game/Gameplay/Catalog/MeteoriteCatalog.MeteoriteCatalog"))
 			, AsteroidCatalog(TEXT("/Game/ThirdParty/Asteroids/AsteroidCatalog.AsteroidCatalog"))
 			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog.CompanyCatalog"))
 			, OrbitalBodies(TEXT("/Game/Gameplay/Catalog/OrbitalMap.OrbitalMap"))
@@ -86,6 +89,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 
 	// Push catalog data into storage
 	CustomizationCatalog = ConstructorStatics.CustomizationCatalog.Object;
+	MeteoriteCatalog = ConstructorStatics.MeteoriteCatalog.Object;
 	AsteroidCatalog = ConstructorStatics.AsteroidCatalog.Object;
 	CompanyCatalog = ConstructorStatics.CompanyCatalog.Object;
 	OrbitalBodies = ConstructorStatics.OrbitalBodies.Object;
