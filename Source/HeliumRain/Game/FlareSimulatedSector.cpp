@@ -435,8 +435,8 @@ void UFlareSimulatedSector::CreateMeteorite(int32 ID, UFlareSimulatedSpacecraft*
 	Data.AngularVelocity = FMath::VRand() * FMath::FRandRange(-1.f,1.f);
 	//Data.Scale = FVector(1,1,1);
 	Data.Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
-	Data.Location = TargetStation->GetData().Location + FMath::VRand() * FMath::FRandRange(50000.f,10000);
-	Data.LinearVelocity =  (TargetStation->GetData().Location - Data.Location).GetUnsafeNormal() * 1000.f;
+	Data.Location = TargetStation->GetData().Location + FMath::VRand() * FMath::FRandRange(1000000.f,200000);
+	Data.LinearVelocity =  (TargetStation->GetData().Location - Data.Location).GetUnsafeNormal() * FMath::FRandRange(2500.f,5000.f);
 
 	// TODO right location and position
 
