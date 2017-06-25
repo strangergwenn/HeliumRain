@@ -35,11 +35,16 @@ AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(P
 void AFlareMeteorite::Load(const FFlareMeteoriteSave& Data)
 {
 	FLOGV("AFlareMeteorite::Load vel=%s", *Data.LinearVelocity.ToString());
+	FLOGV("- Meteorite.BodyInstance.bSimulatePhysics=%d", Meteorite->BodyInstance.bSimulatePhysics);
 
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	MeteoriteData = Data;
 
 	// TODO, icy in Meteorite Data
+
+
+	Meteorite->BodyInstance.bSimulatePhysics = true;
+
 
 	SetupMeteoriteMesh(Game, Meteorite, Data, false);
 	Meteorite->SetPhysicsLinearVelocity(Data.LinearVelocity);
@@ -60,8 +65,51 @@ FFlareMeteoriteSave* AFlareMeteorite::Save()
 	return &MeteoriteData;
 }
 
+void AFlareMeteorite::BeginPlay()
+{
+	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+	/*if (Game && Game->GetActiveSector())
+	{
+		Asteroid->SetupEffects(Game->GetActiveSector()->GetSimulatedSector()->GetDescription()->IsIcy);
+	}*/
+
+	Super::BeginPlay();
+}
+
+
+void AFlareMeteorite::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	FLOGV("Meteorite %s vel=%s", *GetName(), *Meteorite->GetPhysicsLinearVelocity().ToString());
+	FLOGV(" - IsPhysicsCollisionEnabled %d", Meteorite->IsPhysicsCollisionEnabled());
+	FLOGV(" - IsPhysicsStateCreated %d", Meteorite->IsPhysicsStateCreated());
+	FLOGV(" - IsAnySimulatingPhysics %d", Meteorite->IsAnySimulatingPhysics());
+	FLOGV(" - IsAnyRigidBodyAwake %d", Meteorite->IsAnyRigidBodyAwake());
+	FLOGV(" - IsCollisionEnabled %d", Meteorite->IsCollisionEnabled());
+	FLOGV(" - IsSimulatingPhysics %d", Meteorite->IsSimulatingPhysics());
+
+
+
+	/*float CollisionSize = Asteroid->GetCollisionShape().GetExtent().Size();
+	if (SpawnLocation.Size() <= 0.1)
+	{
+		SpawnLocation = GetActorLocation();
+		DrawDebugSphere(GetWorld(), SpawnLocation, CollisionSize / 2, 16, FColor::Red, true);
+	}
+	else
+	{
+		DrawDebugSphere(GetWorld(), GetActorLocation(), CollisionSize / 2, 16, FColor::Blue, false);
+		DrawDebugLine(GetWorld(), GetActorLocation(), SpawnLocation, FColor::Green, false);
+	}*/
+}
+
+
 void AFlareMeteorite::SetPause(bool Pause)
 {
+	FLOGV("AFlareMeteorite::SetPause Pause=%d", Pause);
+
+
 	if (Paused == Pause)
 	{
 		return;
@@ -101,9 +149,9 @@ void AFlareMeteorite::SetupMeteoriteMesh(AFlareGame* Game, UDestructibleComponen
 
 
 	// Mass scale
-	/*FBodyInstance* BodyInst = Component->GetBodyInstance();
-	BodyInst->MassScale = ScaleFactor.Size();
-	BodyInst->UpdateMassProperties();*/
+	FBodyInstance* BodyInst = Component->GetBodyInstance();
+	BodyInst->MassScale = 1;
+	BodyInst->UpdateMassProperties();
 
 	// Material
 	UMaterialInstanceDynamic* MeteoriteMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), Component->GetWorld());

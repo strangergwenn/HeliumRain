@@ -19,9 +19,9 @@ public:
 	   Public methods
    ----------------------------------------------------*/
 
- //  virtual void BeginPlay() override;
+   virtual void BeginPlay() override;
 
-  // virtual void Tick(float DeltaSeconds) override;
+   virtual void Tick(float DeltaSeconds) override;
 
 
    /** Properties setup */
