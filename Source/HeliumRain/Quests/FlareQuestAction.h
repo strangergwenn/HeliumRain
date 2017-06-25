@@ -3,6 +3,7 @@
 #include "FlareQuestAction.generated.h"
 
 class UFlareSimulatedSector;
+class UFlareSimulatedSpacecraft;
 class UFlareQuest;
 class UFlareCompany;
 
@@ -223,4 +224,30 @@ protected:
 
 	UFlareCompany* Company;
 	int64 Amount;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestActionCreateMeteorite: public UFlareQuestAction
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	/*----------------------------------------------------
+		Gameplay
+	----------------------------------------------------*/
+	static UFlareQuestActionCreateMeteorite* Create(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* TargetParam);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* TargetParam);
+
+	virtual void Perform();
+
+protected:
+
+	/*----------------------------------------------------
+		Protected data
+	----------------------------------------------------*/
+
+	UFlareSimulatedSpacecraft* TargetStation;
 };

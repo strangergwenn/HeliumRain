@@ -18,6 +18,7 @@
 #include "FlareQuest.h"
 #include "FlareQuestStep.h"
 #include "FlareQuestAction.h"
+#include "QuestCatalog/FlareTutorialQuest.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestGenerator"
 
@@ -80,6 +81,10 @@ void UFlareQuestGenerator::LoadQuests(const FFlareQuestSave& Data)
 		else if(QuestData.QuestClass == UFlareQuestGeneratedMilitaryHunt::GetClass())
 		{
 			Quest = NewObject<UFlareQuestGeneratedMilitaryHunt>(this, UFlareQuestGeneratedMilitaryHunt::StaticClass());
+		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedMeteoriteInterception::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedMeteoriteInterception>(this, UFlareQuestGeneratedMeteoriteInterception::StaticClass());
 		}
 		else
 		{
@@ -375,6 +380,16 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 		}
 
 	}
+
+	if (PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints > 0)
+	{
+		float Rand = FMath::FRand();
+		if(Rand > 0.9)
+		{
+			RegisterQuest(UFlareQuestGeneratedMeteoriteInterception::Create(this, Sector));
+		}
+
+	}
 }
 
 void UFlareQuestGenerator::GenerateAttackQuests(UFlareCompany* AttackCompany, int32 AttackCombatPoints, WarTarget& Target, int64 TravelDuration)
@@ -524,6 +539,10 @@ FName UFlareQuestGenerator::GenerateHarassTag(UFlareCompany* OwnerCompany, UFlar
 	return FName(*(FString("harass-")+"-"+OwnerCompany->GetIdentifier().ToString()+"-"+HostileCompany->GetIdentifier().ToString()));
 }
 
+FName UFlareQuestGenerator::GenerateMeteoriteTag(UFlareSimulatedSector* Sector)
+{
+	return FName(*(FString("meteorite-")+"-"+Sector->GetIdentifier().ToString()));
+}
 
 /*----------------------------------------------------
 	Generated quest
@@ -2415,6 +2434,128 @@ void UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const 
 	SetupGenericReward(Data);
 }
 
+/*----------------------------------------------------
+	Generated meteorite destruction quest
+----------------------------------------------------*/
+UFlareQuestGeneratedMeteoriteInterception::UFlareQuestGeneratedMeteoriteInterception(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestGenerated* UFlareQuestGeneratedMeteoriteInterception::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector)
+{
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	if(Sector->GetSectorStations().Num() == 0)
+	{
+		return NULL;
+	}
+
+	// Check unicity
+	if (Parent->FindUniqueTag(Parent->GenerateMeteoriteTag(Sector)))
+	{
+		return NULL;
+	}
+
+	int StationIndex = FMath::RandRange(0, Sector->GetSectorStations().Num()-1);
+	UFlareSimulatedSpacecraft* TargetStation = Sector->GetSectorStations()[StationIndex];
+
+	if(TargetStation->GetCompany() == PlayerCompany)
+	{
+		return NULL;
+	}
+
+	// Setup reward
+	int64 QuestValue = 1000000;
+
+	// Create the quest
+	UFlareQuestGeneratedMeteoriteInterception* Quest = NewObject<UFlareQuestGeneratedMeteoriteInterception>(Parent, UFlareQuestGeneratedMeteoriteInterception::StaticClass());
+
+	FFlareBundle Data;
+	Parent->GenerateIdentifer(UFlareQuestGeneratedMeteoriteInterception::GetClass(), Data);
+	Data.PutName("target-station", TargetStation->GetImmatriculation());
+	Data.PutInt32("intercept-date", Parent->GetGame()->GetGameWorld()->GetDate() + 3);
+
+	Data.PutTag(Parent->GenerateMeteoriteTag(Sector));
+	CreateGenericReward(Data, QuestValue, TargetStation->GetCompany());
+
+	Quest->Load(Parent, Data);
+
+	return Quest;
+}
+
+void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+{
+	UFlareQuestGenerated::Load(Parent, Data);
+
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	UFlareSimulatedSpacecraft* TargetStation = Parent->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("target-station"));
+	int32 InterseptDate = InitData.GetInt32("intercept-date");
+
+	QuestClass = UFlareQuestGeneratedMeteoriteInterception::GetClass();
+	Identifier = InitData.GetName("identifier");
+
+	QuestName = FText::Format(LOCTEXT("GeneratedMeteoriteDestructionName", "Intercept meteorite in {0}"), TargetStation->GetCurrentSector()->GetSectorName());
+	QuestDescription = FText::Format(LOCTEXT("GeneratedMeteoriteDestructionDescription", "Intercept a meteorite menacing {0} in {1} on {2}"),
+		UFlareGameTools::DisplaySpacecraftName(TargetStation),
+		TargetStation->GetCurrentSector()->GetSectorName(),
+		UFlareGameTools::GetDisplayDate(InterseptDate + 1));
+
+
+
+	QuestCategory = EFlareQuestCategory::SECONDARY;
+
+
+	{
+		FText Description;
+
+		Description = LOCTEXT("GeneratedMeteoriteDestructionPrepareToInterceptoon", "Prepare to interception");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "prepare", Description);
+
+
+		UFlareQuestConditionAfterDate* Condition = UFlareQuestConditionAfterDate::Create(this, InterseptDate);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+
+		Step->GetEndActions().Add(UFlareQuestActionCreateMeteorite::Create(this, TargetStation));
+
+		Steps.Add(Step);
+	}
+
+	{
+		FText Description;
+
+		Description = LOCTEXT("GeneratedMeteoriteDestructionInterceptoon", "Destroy the meteorite");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "destroy", Description);
+
+		int32 MeteoriteCount = 1;
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
+																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			if(Bundle.HasTag("meteorite-destroyed") && Bundle.GetName("sector") == TargetStation->GetCurrentSector()->GetIdentifier())
+			{
+				return 1;
+			}
+			return 0;
+		},
+		[&]()
+		{
+			return FText::Format(LOCTEXT("FireWeaponConditionLabel", "Destroy {0} meteorites in {1}."), FText::AsNumber(MeteoriteCount), TargetStation->GetCurrentSector()->GetSectorName());
+		},
+		[&](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		},  "DestroyMeteoriteCond1", MeteoriteCount));
+
+		Steps.Add(Step);
+	}
+
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAfterDate::Create(this, InterseptDate));
+
+	SetupQuestGiver(TargetStation->GetCompany(), true);
+	SetupGenericReward(Data);
+}
 
 #undef LOCTEXT_NAMESPACE
 

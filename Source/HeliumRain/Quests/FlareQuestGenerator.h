@@ -57,6 +57,8 @@ public:
 
 	FName GenerateHarassTag(UFlareCompany* OwnerCompany, UFlareCompany* HostileCompany);
 
+	FName GenerateMeteoriteTag(UFlareSimulatedSector* Sector);
+
 	bool IsGenerationEnabled();
 
 
@@ -246,3 +248,18 @@ public:
 	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany);
 };
+
+
+	//////////////////////////////////////////////////////
+	UCLASS()
+	class HELIUMRAIN_API UFlareQuestGeneratedMeteoriteInterception: public UFlareQuestGenerated
+	{
+		GENERATED_UCLASS_BODY()
+
+	public:
+		static FName GetClass() { return "meteorite-destruction"; }
+
+		/** Load the quest from description file */
+		virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+		static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector);
+	};
