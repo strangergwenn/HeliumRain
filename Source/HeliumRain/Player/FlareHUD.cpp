@@ -1183,19 +1183,19 @@ void AFlareHUD::DrawHUDInternal()
 	}
 
 	// Draw bombs
-	bool PreciseBombAim = false;
-
-	if (PlayerShip && (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN || PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET))
-	{
-		FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
-		if (WeaponGroup)
-		{
-			PreciseBombAim = true;
-		}
-	}
-
 	if(ActiveSector->GetBombs().Num())
 	{
+		bool PreciseBombAim = false;
+
+		if (PlayerShip && (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN || PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET))
+		{
+			FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+			if (WeaponGroup)
+			{
+				PreciseBombAim = true;
+			}
+		}
+
 		for (AFlareBomb* Bomb : ActiveSector->GetBombs())
 		{
 			FVector2D ScreenPosition;
@@ -1228,6 +1228,56 @@ void AFlareHUD::DrawHUDInternal()
 				if (IsInScreen(ScreenPosition))
 				{
 					DrawHUDIcon(ScreenPosition, IconSize, HUDBombMarker, GetHostilityColor(PC, Bomb->GetFiringSpacecraft()) , true);
+				}
+			}
+		}
+	}
+
+	if(ActiveSector->GetMeteorites().Num())
+	{
+		bool PreciseMeteoriteAim = false;
+
+		if (PlayerShip && (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN || PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET|| PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB))
+		{
+			FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+			if (WeaponGroup)
+			{
+				PreciseMeteoriteAim = true;
+			}
+		}
+
+		for (AFlareMeteorite* Meteorite : ActiveSector->GetMeteorites())
+		{
+			FVector2D ScreenPosition;
+
+			FVector AimLocation =  Meteorite->GetActorLocation();
+
+			if(PreciseMeteoriteAim)
+			{
+				UPrimitiveComponent* MeteoriteRootComponent = Cast<UPrimitiveComponent>(Meteorite->GetRootComponent());
+
+				if(MeteoriteRootComponent)
+				{
+					FVector AmmoIntersectionLocation;
+					FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+					float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
+					FVector CameraLocation = PlayerShip->GetCamera()->GetComponentLocation();
+
+					float InterceptTime = SpacecraftHelper::GetIntersectionPosition(Meteorite->GetActorLocation(), MeteoriteRootComponent->GetPhysicsLinearVelocity(), CameraLocation, PlayerShip->GetLinearVelocity() * 100, AmmoVelocity * 100, 0.0, &AmmoIntersectionLocation);
+
+					if(InterceptTime > 0)
+					{
+						AimLocation = AmmoIntersectionLocation;
+					}
+				}
+			}
+
+
+			if (Meteorite && ProjectWorldLocationToCockpit(AimLocation, ScreenPosition))
+			{
+				if (IsInScreen(ScreenPosition))
+				{
+					DrawHUDIcon(ScreenPosition, IconSize, HUDBombMarker, HudColorEnemy, true);
 				}
 			}
 		}
