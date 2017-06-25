@@ -1265,21 +1265,34 @@ void AFlareHUD::DrawHUDInternal()
 
 					float InterceptTime = SpacecraftHelper::GetIntersectionPosition(Meteorite->GetActorLocation(), MeteoriteRootComponent->GetPhysicsLinearVelocity(), CameraLocation, PlayerShip->GetLinearVelocity() * 100, AmmoVelocity * 100, 0.0, &AmmoIntersectionLocation);
 
-					if(InterceptTime > 0)
+					if(InterceptTime > 0 && InterceptTime < 40)
 					{
 						AimLocation = AmmoIntersectionLocation;
 					}
 				}
 			}
+			bool ShouldDrawMarker = true;
 
 
 			if (Meteorite && ProjectWorldLocationToCockpit(AimLocation, ScreenPosition))
 			{
 				if (IsInScreen(ScreenPosition))
 				{
-					DrawHUDIcon(ScreenPosition, IconSize, HUDBombMarker, HudColorEnemy, true);
+					DrawHUDIcon(ScreenPosition, IconSize, HUDBombMarker, HudColorObjective, true);
+					ShouldDrawMarker = false;
 				}
+
+
+
 			}
+
+
+			// Draw objective
+			if (ShouldDrawMarker)
+			{
+				DrawSearchArrow(AimLocation, HudColorObjective, false);
+			}
+
 		}
 	}
 }
