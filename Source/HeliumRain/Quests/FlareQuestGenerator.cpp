@@ -1500,7 +1500,10 @@ void UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const
 
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station1));
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station2));
-	AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Station2->GetCompany()));
+	if (Station1->GetCompany() != Station2->GetCompany())
+	{
+		AddGlobalFailCondition(UFlareQuestConditionAtWar::Create(this, GetQuestManager()->GetGame()->GetPC()->GetCompany(), Station2->GetCompany()));
+	}
 
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station1));
