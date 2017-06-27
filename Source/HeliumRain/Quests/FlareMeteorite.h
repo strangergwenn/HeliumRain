@@ -7,7 +7,7 @@
 
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
-class AFlareMeteorite : public AActor
+class AFlareMeteorite : public ADestructibleActor
 {
 public:
 
@@ -34,7 +34,7 @@ public:
    virtual void SetPause(bool Paused);
 
    /** Setup an asteroid mesh */
-  static void SetupMeteoriteMesh(AFlareGame* Game, UStaticMeshComponent* Component, const FFlareMeteoriteSave& Data, bool IsIcy);
+  static void SetupMeteoriteMesh(AFlareGame* Game, UDestructibleComponent* Component, const FFlareMeteoriteSave& Data, bool IsIcy);
 
 
 public:
@@ -45,7 +45,7 @@ public:
 
    // Mesh
    UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
-   UStaticMeshComponent*                Meteorite;
+   UDestructibleComponent*                Meteorite;
 
    /*
    // Effects count
