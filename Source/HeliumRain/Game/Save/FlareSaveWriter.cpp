@@ -647,7 +647,6 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSector(FFlareSectorSave* Data)
 	JsonObject->SetArrayField("Asteroids", Asteroids);
 
 	TArray< TSharedPtr<FJsonValue> > Meteorites;
-	FLOGV("UFlareSaveWriter::SaveSector %d Meteorites", Data->MeteoriteData.Num())
 	for(int i = 0; i < Data->MeteoriteData.Num(); i++)
 	{
 		Meteorites.Add(MakeShareable(new FJsonValueObject(SaveMeteorite(&Data->MeteoriteData[i]))));

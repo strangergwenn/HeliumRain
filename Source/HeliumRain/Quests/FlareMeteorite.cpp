@@ -17,17 +17,14 @@ AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(P
 
 	Meteorite = GetDestructibleComponent();
 
-	Meteorite->bTraceComplexOnMove = true;
-	Meteorite->SetSimulatePhysics(true);
-	Meteorite->SetLinearDamping(0);
-	Meteorite->SetAngularDamping(0);
+	//Meteorite->bTraceComplexOnMove = true;
 	Meteorite->PrimaryComponentTick.bCanEverTick = true;
 
-	SetActorEnableCollision(true);
+	//SetActorEnableCollision(true);
 
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
-	RootComponent->SetMobility(EComponentMobility::Movable);
+	//RootComponent->SetMobility(EComponentMobility::Movable);
 	Paused = false;
 	//EffectsMultiplier = 1;
 }
@@ -43,10 +40,9 @@ void AFlareMeteorite::Load(const FFlareMeteoriteSave& Data)
 	// TODO, icy in Meteorite Data
 
 
-	Meteorite->BodyInstance.bSimulatePhysics = true;
-
 
 	SetupMeteoriteMesh(Game, Meteorite, Data, false);
+	SetActorEnableCollision(true);
 	Meteorite->SetPhysicsLinearVelocity(Data.LinearVelocity);
 	Meteorite->SetPhysicsAngularVelocity(Data.AngularVelocity);
 }
@@ -81,13 +77,13 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	FLOGV("Meteorite %s vel=%s", *GetName(), *Meteorite->GetPhysicsLinearVelocity().ToString());
+	/*FLOGV("Meteorite %s vel=%s", *GetName(), *Meteorite->GetPhysicsLinearVelocity().ToString());
 	FLOGV(" - IsPhysicsCollisionEnabled %d", Meteorite->IsPhysicsCollisionEnabled());
 	FLOGV(" - IsPhysicsStateCreated %d", Meteorite->IsPhysicsStateCreated());
 	FLOGV(" - IsAnySimulatingPhysics %d", Meteorite->IsAnySimulatingPhysics());
 	FLOGV(" - IsAnyRigidBodyAwake %d", Meteorite->IsAnyRigidBodyAwake());
 	FLOGV(" - IsCollisionEnabled %d", Meteorite->IsCollisionEnabled());
-	FLOGV(" - IsSimulatingPhysics %d", Meteorite->IsSimulatingPhysics());
+	FLOGV(" - IsSimulatingPhysics %d", Meteorite->IsSimulatingPhysics());*/
 
 
 
@@ -147,11 +143,25 @@ void AFlareMeteorite::SetupMeteoriteMesh(AFlareGame* Game, UDestructibleComponen
 	}
 
 
+	Component->SetSimulatePhysics(true);
+	Component->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+
+	// Actor scale
+	float Scale = 5;
+
+	FVector ScaleFactor = FVector::OneVector * Scale;
+	Component->SetWorldScale3D(ScaleFactor);
+	Component->SetSimulatePhysics(true);
 
 	// Mass scale
 	FBodyInstance* BodyInst = Component->GetBodyInstance();
-	BodyInst->MassScale = 1;
-	BodyInst->UpdateMassProperties();
+	BodyInst->MassScale = Scale;
+	BodyInst->SetUseAsyncScene(false);
+	BodyInst->bSimulatePhysics = true;
+
+	Component->SetLinearDamping(0);
+	Component->SetAngularDamping(0);
 
 	// Material
 	UMaterialInstanceDynamic* MeteoriteMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), Component->GetWorld());
