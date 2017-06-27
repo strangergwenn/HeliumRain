@@ -24,7 +24,7 @@ AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(P
 
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
-	//RootComponent->SetMobility(EComponentMobility::Movable);
+	RootComponent->SetMobility(EComponentMobility::Movable);
 	Paused = false;
 	//EffectsMultiplier = 1;
 }
@@ -152,11 +152,12 @@ void AFlareMeteorite::SetupMeteoriteMesh(AFlareGame* Game, UDestructibleComponen
 
 	FVector ScaleFactor = FVector::OneVector * Scale;
 	Component->SetWorldScale3D(ScaleFactor);
-	Component->SetSimulatePhysics(true);
+	//Component->SetSimulatePhysics(true);
 
 	// Mass scale
 	FBodyInstance* BodyInst = Component->GetBodyInstance();
 	BodyInst->MassScale = Scale;
+	BodyInst->UpdateMassProperties();
 	BodyInst->SetUseAsyncScene(false);
 	BodyInst->bSimulatePhysics = true;
 
