@@ -1481,14 +1481,53 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 
 }
 
-void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey )
+void  SFlareSettingsMenu::ApplyNewBinding(TSharedPtr<FSimpleBind> BindingThatChanged)
+{
+	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+	BindingThatChanged->WriteBind();
+	InputSettings->SaveKeyMappings();
+}
+
+void  SFlareSettingsMenu::CancelNewBinding(SFlareKeyBind* UIBinding, FKey PreviousKey)
+{
+	UIBinding->SetKey(PreviousKey, true, false);
+}
+
+void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, SFlareKeyBind* UIBinding, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey)
 {
 	// Primary or Alt key changed to a valid state.
 	// TODO Duplicate
 
-	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-	BindingThatChanged->WriteBind();
-	InputSettings->SaveKeyMappings();
+	TArray<TSharedPtr<FSimpleBind>> BindConflicts;
+
+	if(IsAlreadyUsed(BindConflicts, NewKey, *BindingThatChanged))
+	{
+		FText ConflictKeys;
+
+		for(TSharedPtr<FSimpleBind> Bind: BindConflicts)
+		{
+			if(ConflictKeys.IsEmpty())
+			{
+				ConflictKeys = FText::Format(LOCTEXT("ConflictsKeysFirst", "'{0}'"), FText::FromString(Bind->DisplayName));
+			}
+			else
+			{
+				ConflictKeys = FText::Format(LOCTEXT("ConflictsKeysOthers", "{0}, '{1}'"), ConflictKeys, FText::FromString(Bind->DisplayName));
+			}
+		}
+
+		AFlareMenuManager::GetSingleton()->Confirm(LOCTEXT("ConfirmKeyConflict", "KEY ALREADY USED"),
+			FText::Format(LOCTEXT("ConfirmKeyConflictInfo", "'{0}' is already used for {1}. Do you really want to assign this key for '{2}'' ?"),
+						  FText::FromString(NewKey.ToString()),
+						  ConflictKeys,
+						  FText::FromString(BindingThatChanged->DisplayName)),
+			FSimpleDelegate::CreateSP(this, &SFlareSettingsMenu::ApplyNewBinding, BindingThatChanged),
+			FSimpleDelegate::CreateSP(this, &SFlareSettingsMenu::CancelNewBinding, UIBinding, PreviousKey));
+	}
+	else
+	{
+		ApplyNewBinding(BindingThatChanged);
+	}
 }
 
 
@@ -1846,6 +1885,26 @@ void SFlareSettingsMenu::CreateBinds()
 
 }
 
+bool SFlareSettingsMenu::IsAlreadyUsed(TArray<TSharedPtr<FSimpleBind>> &BindConflicts, FKey Key, FSimpleBind& ExcludeBinding)
+{
+	for(TSharedPtr<FSimpleBind> Bind : Binds)
+	{
+		if((*(Bind->Key) == Key || *Bind->AltKey == Key) && &ExcludeBinding != &(*Bind))
+		{
+			BindConflicts.Add(Bind);
+		}
+	}
+
+	for(TSharedPtr<FSimpleBind> Bind : Binds2)
+	{
+		if((*Bind->Key == Key || *Bind->AltKey == Key) && &ExcludeBinding != &(*Bind))
+		{
+			BindConflicts.Add(Bind);
+		}
+	}
+
+	return BindConflicts.Num() > 0;
+}
 
 /*----------------------------------------------------
 	FSimpleBind

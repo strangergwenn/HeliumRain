@@ -152,7 +152,10 @@ protected:
 
 	void OnForwardOnlyThrustToggle();
 
-	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey );
+	void  ApplyNewBinding(TSharedPtr<FSimpleBind> BindingThatChanged);
+	void  CancelNewBinding(SFlareKeyBind* UIBinding, FKey PreviousKey);
+
+	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, SFlareKeyBind* UIBinding, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey);
 
 
 	/*----------------------------------------------------
@@ -181,6 +184,7 @@ protected:
 
 	void CreateBinds();
 
+	bool IsAlreadyUsed(TArray<TSharedPtr<FSimpleBind>> &BindConflicts, FKey Key, FSimpleBind& ExcludeBinding);
 
 protected:
 

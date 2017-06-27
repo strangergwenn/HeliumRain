@@ -103,11 +103,12 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareConfirmationOverlay::Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed)
+void SFlareConfirmationOverlay::Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed, FSimpleDelegate OnCancel)
 {
 	InfoText = Text;
 	InfoTitle = Title;
 	OnConfirmedCB = OnConfirmed;
+	OnCancelCB = OnCancel;
 
 	SetVisibility(EVisibility::Visible);
 
@@ -150,6 +151,8 @@ void SFlareConfirmationOverlay::OnCancelled()
 	MenuManager->HideTooltip(OKButton.Get());
 	MenuManager->HideTooltip(CancelButton.Get());
 	SetVisibility(EVisibility::Collapsed);
+
+	OnCancelCB.ExecuteIfBound();
 
 	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
 }

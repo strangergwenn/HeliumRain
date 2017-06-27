@@ -3,8 +3,9 @@
 #include "../../Flare.h"
 #include "SlateBasics.h"
 
+class SFlareKeyBind;
 
-DECLARE_DELEGATE_TwoParams(FOnKeyBindingChanged, FKey,FKey);
+DECLARE_DELEGATE_ThreeParams(FOnKeyBindingChanged, FKey,FKey, SFlareKeyBind*);
 
 
 class HELIUMRAIN_API SFlareKeyBind : public SButton

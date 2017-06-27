@@ -77,7 +77,7 @@ void SFlareKeyBind::SetKey(FKey NewKey, bool bCanReset, bool bNotify)
 
 		if (bNotify)
 		{
-			OnKeyBindingChanged.ExecuteIfBound( CurrentKey , NewKey );
+			OnKeyBindingChanged.ExecuteIfBound( CurrentKey , NewKey, this);
 		}
 	}
 }

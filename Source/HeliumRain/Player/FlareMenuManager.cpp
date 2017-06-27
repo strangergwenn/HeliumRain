@@ -353,11 +353,11 @@ void AFlareMenuManager::Reload()
 	}
 }
 
-void AFlareMenuManager::Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed)
+void AFlareMenuManager::Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed, FSimpleDelegate OnCancel)
 {
 	if (Confirmation.IsValid())
 	{
-		Confirmation->Confirm(Title, Text, OnConfirmed);
+		Confirmation->Confirm(Title, Text, OnConfirmed, OnCancel);
 	}
 }
 
