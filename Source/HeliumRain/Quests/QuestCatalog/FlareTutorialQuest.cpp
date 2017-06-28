@@ -614,7 +614,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"SectorMenu"
-		FText Description = LOCTEXT("SectorMenuDescription", "You have now unlocked some station-building capabilities. You can build stations in any sector, but there are various limitations depending on the kind of station you want to build, and the sector itself. You can't build solar stations in clouds uf dust !"
+		FText Description = LOCTEXT("SectorMenuDescription", "You have now unlocked some station-building capabilities. You can build stations in any sector, but there are various limitations depending on the kind of station you want to build, and the sector itself. You can't build solar stations in clouds of dust !"
 																 "\nOpen the current sector menu (<input-action:SectorMenu>), or another known sector from the orbital menu");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "dock", Description);
 
@@ -2126,10 +2126,10 @@ void UFlareQuestConditionTutorialOpenMenu::Load(UFlareQuest* ParentQuest, EFlare
 		InitialLabel =  LOCTEXT("MenuTechnology", "Open the technology menu");
 		break;
 	case EFlareMenu::MENU_Sector:
-		InitialLabel =  LOCTEXT("MenuSector", "Open a sector menu");
+		InitialLabel =  LOCTEXT("MenuSector", "Open the sector menu");
 		break;
 	case EFlareMenu::MENU_WorldEconomy:
-		InitialLabel =  LOCTEXT("MenuWorldEconomy", "Open the economy menu");
+		InitialLabel =  LOCTEXT("MenuWorldEconomy", "Open the economy menu in the orbital map");
 		break;
 	case EFlareMenu::MENU_Quest:
 		InitialLabel =  LOCTEXT("MenuContracts", "Open the contracts menu");
