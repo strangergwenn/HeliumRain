@@ -7,7 +7,7 @@
 
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
-class AFlareMeteorite : public ADestructibleActor
+class AFlareMeteorite : public AActor
 {
 public:
 
@@ -45,31 +45,27 @@ public:
 
    // Mesh
    UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
-   UDestructibleComponent*                Meteorite;
+   UDestructibleComponent*                       Meteorite;
 
-   /*
-   // Effects count
-   UPROPERTY(EditAnywhere, Category = Mesh)
-   int32                                   EffectsMultiplier;
-*/
+
 protected:
 
    // Data
-   //FVector                                 SpawnLocation;
-   FFlareMeteoriteSave                      MeteoriteData;
-   bool                                    Paused;
+   //FVector                                     SpawnLocation;
+   FFlareMeteoriteSave                           MeteoriteData;
+   bool                                          Paused;
 
 
 public:
 
    /*----------------------------------------------------
-	   Getter
+	   Getters
    ----------------------------------------------------*/
-/*
-   UFlareAsteroidComponent *GetAsteroidComponent()
+
+   UDestructibleComponent *GetAsteroidComponent()
    {
-	   return Asteroid;
-   }*/
+	   return Meteorite;
+   }
 
 };
 

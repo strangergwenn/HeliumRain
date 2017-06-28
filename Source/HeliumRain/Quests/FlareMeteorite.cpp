@@ -13,38 +13,39 @@
 AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(PCIP)
 {
 	// Mesh
-	/*Asteroid = PCIP.CreateDefaultSubobject<UFlareAsteroidComponent>(this, TEXT("Asteroid"));*/
+	Meteorite = PCIP.CreateDefaultSubobject<UDestructibleComponent>(this, TEXT("Meteorite"));
+	Meteorite->bTraceComplexOnMove = true;
+	Meteorite->SetSimulatePhysics(true);
+	Meteorite->SetLinearDamping(0);
+	Meteorite->SetAngularDamping(0);
+	RootComponent = Meteorite;
+	SetActorEnableCollision(true);
 
-	Meteorite = GetDestructibleComponent();
-
-	//Meteorite->bTraceComplexOnMove = true;
-	Meteorite->PrimaryComponentTick.bCanEverTick = true;
-
-	//SetActorEnableCollision(true);
+	// Physics
+	Meteorite->SetMobility(EComponentMobility::Movable);
+	Meteorite->SetCollisionProfileName("Destructible");
+	Meteorite->GetBodyInstance()->SetUseAsyncScene(false);
+	Meteorite->SetNotifyRigidBodyCollision(true);
 
 	// Settings
+	Meteorite->PrimaryComponentTick.bCanEverTick = true;
 	PrimaryActorTick.bCanEverTick = true;
-	RootComponent->SetMobility(EComponentMobility::Movable);
 	Paused = false;
-	//EffectsMultiplier = 1;
 }
 
 void AFlareMeteorite::Load(const FFlareMeteoriteSave& Data)
 {
 	FLOGV("AFlareMeteorite::Load vel=%s", *Data.LinearVelocity.ToString());
-	FLOGV("- Meteorite.BodyInstance.bSimulatePhysics=%d", Meteorite->BodyInstance.bSimulatePhysics);
 
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	MeteoriteData = Data;
 
 	// TODO, icy in Meteorite Data
-
-
-
 	SetupMeteoriteMesh(Game, Meteorite, Data, false);
-	SetActorEnableCollision(true);
 	Meteorite->SetPhysicsLinearVelocity(Data.LinearVelocity);
 	Meteorite->SetPhysicsAngularVelocity(Data.AngularVelocity);
+
+	FLOGV("- Meteorite.BodyInstance.bSimulatePhysics=%d", Meteorite->BodyInstance.bSimulatePhysics);
 }
 
 FFlareMeteoriteSave* AFlareMeteorite::Save()
@@ -63,15 +64,8 @@ FFlareMeteoriteSave* AFlareMeteorite::Save()
 
 void AFlareMeteorite::BeginPlay()
 {
-	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
-	/*if (Game && Game->GetActiveSector())
-	{
-		Asteroid->SetupEffects(Game->GetActiveSector()->GetSimulatedSector()->GetDescription()->IsIcy);
-	}*/
-
 	Super::BeginPlay();
 }
-
 
 void AFlareMeteorite::Tick(float DeltaSeconds)
 {
@@ -104,8 +98,7 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 void AFlareMeteorite::SetPause(bool Pause)
 {
 	FLOGV("AFlareMeteorite::SetPause Pause=%d", Pause);
-
-
+	
 	if (Paused == Pause)
 	{
 		return;
@@ -141,36 +134,4 @@ void AFlareMeteorite::SetupMeteoriteMesh(AFlareGame* Game, UDestructibleComponen
 	{
 		return;
 	}
-
-
-	Component->SetSimulatePhysics(true);
-	Component->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-
-	// Actor scale
-	float Scale = 5;
-
-	FVector ScaleFactor = FVector::OneVector * Scale;
-	Component->SetWorldScale3D(ScaleFactor);
-	//Component->SetSimulatePhysics(true);
-
-	// Mass scale
-	FBodyInstance* BodyInst = Component->GetBodyInstance();
-	BodyInst->MassScale = Scale;
-	BodyInst->UpdateMassProperties();
-	BodyInst->SetUseAsyncScene(false);
-	BodyInst->bSimulatePhysics = true;
-
-	Component->SetLinearDamping(0);
-	Component->SetAngularDamping(0);
-
-	// Material
-	UMaterialInstanceDynamic* MeteoriteMaterial = UMaterialInstanceDynamic::Create(Component->GetMaterial(0), Component->GetWorld());
-	//for (int32 LodIndex = 0; LodIndex < Component->GetDestructibleMesh()->RenderData->LODResources.Num(); LodIndex++)
-	//{
-//		Component->SetMaterial(LodIndex, MeteoriteMaterial);
-	//}
-
-	// Sector style
-	MeteoriteMaterial->SetScalarParameterValue("IceMask", false);
 }
