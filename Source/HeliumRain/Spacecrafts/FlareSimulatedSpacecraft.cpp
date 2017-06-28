@@ -230,6 +230,11 @@ bool UFlareSimulatedSpacecraft::CanBeFlown(FText& OutInfo) const
 	{
 		return false;
 	}
+	else if (this == GetGame()->GetPC()->GetPlayerShip())
+	{
+		OutInfo = LOCTEXT("CantFlySame", "You are already flying this ship");
+		return false;
+	}
 	else if (GetDamageSystem()->IsUncontrollable())
 	{
 		OutInfo = LOCTEXT("CantFlyDestroyedInfo", "This ship is uncontrollable");
@@ -237,7 +242,7 @@ bool UFlareSimulatedSpacecraft::CanBeFlown(FText& OutInfo) const
 	}
 	else if (PlayerFleet && GetCurrentFleet() != PlayerFleet)
 	{
-		OutInfo = LOCTEXT("CantFlyOtherInfo", "You can only switch ships from whithin the same fleet");
+		OutInfo = LOCTEXT("CantFlyOtherInfo", "You can only switch ships from within the same fleet");
 		return false;
 	}
 	else if (!IsActive())
