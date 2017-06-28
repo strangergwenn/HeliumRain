@@ -469,7 +469,7 @@ void SFlareSpacecraftInfo::Show()
 		// Can undock
 		if (TargetSpacecraft->IsTrading())
 		{
-			UndockButton->SetHelpText(LOCTEXT("ShipTradingUndockInfo", "Trading operations are blocking this ship for a day"));
+			UndockButton->SetHelpText(LOCTEXT("ShipTradingUndockInfo", "This ship is trading and can't undock today"));
 			UndockButton->SetDisabled(true);
 		}
 		else
