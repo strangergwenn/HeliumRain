@@ -5,6 +5,7 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
+#include "FlareNotifier.h"
 #include "FlareButton.h"
 
 #include "SBackgroundBlur.h"
@@ -148,6 +149,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 											.HelpText(LOCTEXT("DismissInfo", "Dismiss this notification"))
 											.Icon(FFlareStyleSet::GetIcon("Delete"))
 											.OnClicked(this, &SFlareNotification::OnNotificationDismissed)
+											.Visibility(this, &SFlareNotification::GetCloseButtonVisibility)
 										]
 									]
 
@@ -220,7 +222,14 @@ void SFlareNotification::Tick(const FGeometry& AllottedGeometry, const double In
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
-	if (!MenuManager->GetPC()->IsGameBusy())
+	// Hidden
+	if (!Notifier->AreNotificationsVisible() || MenuManager->GetPC()->IsGameBusy())
+	{
+		CurrentAlpha = 0;
+	}
+
+	// Regular state
+	else
 	{
 		Lifetime += InDeltaTime;
 
@@ -295,21 +304,21 @@ FSlateColor SFlareNotification::GetNotificationBackgroundColor() const
 	return Result;
 }
 
-EVisibility SFlareNotification::GetClickableIconVisibility() const
-{
-	if (TargetMenu != EFlareMenu::MENU_None)
-	{
-		return EVisibility::Visible;
-	}
-	else
-	{
-		return EVisibility::Hidden;
-	}
-}
-
 EVisibility SFlareNotification::GetLifetimeIconVisibility() const
 {
 	if (NotificationTimeout == 0)
+	{
+		return EVisibility::Collapsed;
+	}
+	else
+	{
+		return EVisibility::Visible;
+	}
+}
+
+EVisibility SFlareNotification::GetCloseButtonVisibility() const
+{
+	if (CurrentAlpha == 0)
 	{
 		return EVisibility::Collapsed;
 	}

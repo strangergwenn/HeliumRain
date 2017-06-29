@@ -213,6 +213,20 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 							.DecoratorStyleSet(&FFlareStyleSet::Get())
 						]
 					]
+
+					// Trade route list
+					+ SVerticalBox::Slot()
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(SScrollBox)
+						.Style(&Theme.ScrollBoxStyle)
+						.ScrollBarStyle(&Theme.ScrollBarStyle)
+						+ SScrollBox::Slot()
+						[
+							SAssignNew(TradeRouteInfo, SFlareTradeRouteInfo)
+							.MenuManager(MenuManager)
+						]
+					]
 				]
 			]
 		]
@@ -237,9 +251,10 @@ void SFlareOrbitalMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
+	// update stuff
 	StopFastForward();
-
 	UpdateMap();
+	TradeRouteInfo->UpdateTradeRouteList();
 
 	Game->SaveGame(MenuManager->GetPC(), true);
 }
@@ -255,6 +270,7 @@ void SFlareOrbitalMenu::Exit()
 	HelaBox->ClearChildren();
 	AdenaBox->ClearChildren();
 
+	TradeRouteInfo->Clear();
 	StopFastForward();
 }
 

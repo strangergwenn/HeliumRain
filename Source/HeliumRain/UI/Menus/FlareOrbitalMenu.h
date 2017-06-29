@@ -4,6 +4,7 @@
 #include "../Components/FlarePlanetaryBox.h"
 #include "../../Game/FlareSimulatedSector.h"
 #include "../Components/FlareButton.h"
+#include "../Components/FlareTradeRouteInfo.h"
 
 class AFlareMenuManager;
 
@@ -130,4 +131,5 @@ protected:
 	TSharedPtr<SFlarePlanetaryBox>              HelaBox;
 	TSharedPtr<SFlarePlanetaryBox>              AdenaBox;
 	TSharedPtr<SFlareButton>                    FastForwardAuto;
+	TSharedPtr<SFlareTradeRouteInfo>            TradeRouteInfo;
 };

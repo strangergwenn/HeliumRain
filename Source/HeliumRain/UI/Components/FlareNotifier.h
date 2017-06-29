@@ -46,6 +46,9 @@ public:
 	/** Remove all notifications from the screen */
 	void FlushNotifications();
 
+	/** Hide all notifications from the screen */
+	void HideNotifications();
+
 
 	/*----------------------------------------------------
 		Callbacks
@@ -55,6 +58,15 @@ public:
 
 	/** Get the visibility of the objective info */
 	EVisibility GetObjectiveVisibility() const;
+
+	/** Get the text for the show/hide button */
+	FText GetHideText() const;
+
+	/** Is the button visible ? */
+	EVisibility GetHideButtonVisibility() const;
+
+	/** Show/hide button was clicked */
+	void OnHideClicked();
 
 
 protected:
@@ -70,6 +82,8 @@ protected:
 	// Slate data
 	TArray< TSharedPtr<SFlareNotification> >        NotificationData;
 	TSharedPtr<SVerticalBox>                        NotificationContainer;
+	TSharedPtr<SFlareButton>                        NotificationVisibleButton;
+	bool                                            NotificationsVisible;
 
 
 public:
@@ -78,6 +92,11 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	virtual bool IsFirstNotification(SFlareNotification* Notification);
+	/** Is this the first notification ? */
+	bool IsFirstNotification(SFlareNotification* Notification);
+
+	/** Are we showing notifications ? */
+	bool AreNotificationsVisible() const;
+
 
 };

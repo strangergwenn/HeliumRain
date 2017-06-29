@@ -71,12 +71,12 @@ public:
 
 	/** Get the current background color */
 	FSlateColor GetNotificationBackgroundColor() const;
-
-	/** Get the visibility of the clickable icon */
-	EVisibility GetClickableIconVisibility() const;
-
+	
 	/** Get the visibility of the lifetime icon */
 	EVisibility GetLifetimeIconVisibility() const;
+
+	/** Get the visibility of the close button */
+	EVisibility GetCloseButtonVisibility() const;
 
 	/** Get the size of the lifetime icon */
 	FOptionalSize GetLifetimeSize() const;

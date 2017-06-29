@@ -7,7 +7,8 @@
 #include "../../Player/FlarePlayerController.h"
 #include "../../Quests/FlareQuest.h"
 
-#include "../Components/FlareObjectiveInfo.h"
+#include "FlareButton.h"
+#include "FlareObjectiveInfo.h"
 
 #include "SBackgroundBlur.h"
 
@@ -26,6 +27,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	int32 ObjectiveInfoWidth = 370;
 	FLinearColor ObjectiveColor = Theme.ObjectiveColor;
 	ObjectiveColor.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
+	NotificationsVisible = true;
 
 	// Create the layout
 	ChildSlot
@@ -93,6 +95,20 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 					]
 				]
 			]
+
+			// Hide button
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Right)
+			[
+				SAssignNew(NotificationVisibleButton, SFlareButton)
+				.Width(3)
+				.Small(true)
+				.Transparent(true)
+				.Text(this, &SFlareNotifier::GetHideText)
+				.OnClicked(this, &SFlareNotifier::OnHideClicked)
+				.Visibility(this, &SFlareNotifier::GetHideButtonVisibility)
+			]
 		]
 	];
 }
@@ -126,6 +142,7 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Identifier, EFlareNoti
 
 	// Store a reference to it
 	NotificationData.Add(NotificationEntry);
+	NotificationsVisible = true;
 }
 
 void SFlareNotifier::ClearNotifications(FName Identifier, bool Now)
@@ -148,6 +165,11 @@ void SFlareNotifier::FlushNotifications()
 	{
 		NotificationEntry->Finish();
 	}
+}
+
+void SFlareNotifier::HideNotifications()
+{
+	NotificationsVisible = false;
 }
 
 
@@ -207,7 +229,8 @@ EVisibility SFlareNotifier::GetObjectiveVisibility() const
 		&& MenuManager->GetCurrentMenu() != EFlareMenu::MENU_GameOver
 		&& MenuManager->GetNextMenu() != EFlareMenu::MENU_GameOver
 		&& QuestManager
-		&& QuestManager->GetSelectedQuest())
+		&& QuestManager->GetSelectedQuest()
+		&& NotificationsVisible)
 	{
 		return EVisibility::SelfHitTestInvisible;
 	}
@@ -215,6 +238,53 @@ EVisibility SFlareNotifier::GetObjectiveVisibility() const
 	{
 		return EVisibility::Collapsed;
 	}
+}
+
+FText SFlareNotifier::GetHideText() const
+{
+	if (NotificationsVisible)
+	{
+		return LOCTEXT("HideButtonVisible", "Hide items");
+	}
+	else
+	{
+		// Count objects
+		int32 Count = NotificationData.Num();
+		UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
+		if (QuestManager && QuestManager->GetSelectedQuest())
+		{
+			Count++;
+		}
+
+		// Show count
+		if (Count > 1)
+		{
+			return FText::Format(LOCTEXT("HideButtonMaskedPlural", "Show {0} items"), FText::AsNumber(Count));
+		}
+		else
+		{
+			return LOCTEXT("HideButtonMaskedSingle", "Show one item");
+		}
+	}
+}
+
+EVisibility SFlareNotifier::GetHideButtonVisibility() const
+{
+	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
+
+	if (NotificationData.Num() > 0 || (QuestManager && QuestManager->GetSelectedQuest()))
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
+}
+
+void SFlareNotifier::OnHideClicked()
+{
+	NotificationsVisible = !NotificationsVisible;
 }
 
 
@@ -233,5 +303,11 @@ bool SFlareNotifier::IsFirstNotification(SFlareNotification* Notification)
 	}
 	return false;
 }
+
+bool SFlareNotifier::AreNotificationsVisible() const
+{
+	return NotificationsVisible;
+}
+
 
 #undef LOCTEXT_NAMESPACE
