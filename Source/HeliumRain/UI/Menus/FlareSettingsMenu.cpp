@@ -1786,7 +1786,7 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddDefaults(EKeys::C)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("LockDirection", "Lock direction")))
 		->AddActionMapping("LockDirection")
-		->AddDefaults(EKeys::SpaceBar)));
+		->AddDefaults(EKeys::CapsLock)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle HUD", "Toogle HUD")))
 		->AddActionMapping("ToggleHUD")
 		->AddDefaults(EKeys::H)));
@@ -1830,7 +1830,7 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddDefaults(EKeys::T)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Combat zoom", "Combat zoom")))
 		->AddActionMapping("CombatZoom")
-		->AddDefaults(EKeys::LeftAlt)));
+		->AddDefaults(EKeys::SpaceBar)));
 
 	// Menus
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Menus", "MENUS")))->MakeHeader()));
