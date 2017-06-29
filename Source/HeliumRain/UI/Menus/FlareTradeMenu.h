@@ -112,6 +112,12 @@ protected:
 	/** How much of this can we afford */
 	int32 GetMaxTransactionAmount() const;
 
+	/*----------------------------------------------------
+		Helpers
+	----------------------------------------------------*/
+
+	void SetSliderQuantity(int32 Quantity);
+
 protected:
 
 	/*----------------------------------------------------

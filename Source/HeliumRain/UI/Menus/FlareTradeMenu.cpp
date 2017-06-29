@@ -16,6 +16,9 @@
 
 #include "../Components/FlareRoundButton.h"
 #include "../Components/FlareCargoInfo.h"
+#include "../../Quests/FlareQuest.h"
+#include "../../Quests/FlareQuestStep.h"
+#include "../../Quests/FlareQuestCondition.h"
 
 #define LOCTEXT_NAMESPACE "FlareTradeMenu"
 
@@ -724,10 +727,29 @@ void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpace
 		TransactionDestinationSpacecraft = DestinationSpacecraft;
 		TransactionResource = Resource;
 		TransactionQuantity = GetMaxTransactionAmount();
+
 		QuantitySlider->SetValue(1.0f);
 		QuantityText->SetText(FText::AsNumber(TransactionQuantity));
 
 		UpdatePrice();
+
+
+		UFlareQuest* SelectedQuest = MenuManager->GetGame()->GetQuestManager()->GetSelectedQuest();
+
+		if (SelectedQuest && SelectedQuest->GetCurrentStep())
+		{
+			for(UFlareQuestCondition* Condition : SelectedQuest->GetCurrentConditions())
+			{
+				UFlareQuestConditionSellAtStation* SellAtStationCondition = Cast<UFlareQuestConditionSellAtStation>(Condition);
+				if (SellAtStationCondition && SellAtStationCondition->GetResource() == Resource)
+				{
+					int32 MissingQuantity = SellAtStationCondition->GetTargetQuantity() - SellAtStationCondition->GetCurrentProgression();
+					auto PlayerShip = (SourceSpacecraft->IsStation() ? DestinationSpacecraft : SourceSpacecraft);
+					int32 PreferredQuantity = MissingQuantity - PlayerShip->GetCargoBay()->GetResourceQuantity(Resource, PlayerShip->GetCompany());
+					SetSliderQuantity(PreferredQuantity);
+				}
+			}
+		}
 	}
 }
 
@@ -765,21 +787,7 @@ void SFlareTradeMenu::OnResourceQuantityEntered(const FText& TextValue)
 {
 	if (TextValue.ToString().IsNumeric())
 	{
-		int32 ResourceMaxQuantity = GetMaxTransactionAmount();
-		
-		TransactionQuantity = FMath::Clamp(FCString::Atoi(*TextValue.ToString()), 0, ResourceMaxQuantity);
-		FLOGV("SFlareTradeMenu::OnResourceQuantityEntered number %d / %d", TransactionQuantity, ResourceMaxQuantity)
-
-		if (ResourceMaxQuantity == 1)
-		{
-			QuantitySlider->SetValue(1.0f);
-		}
-		else
-		{
-			QuantitySlider->SetValue((float)(TransactionQuantity - 1) / (float)(ResourceMaxQuantity - 1));
-		}
-
-		UpdatePrice();
+		SetSliderQuantity(FCString::Atoi(*TextValue.ToString()));
 	}
 }
 
@@ -870,6 +878,25 @@ void SFlareTradeMenu::UpdatePrice()
 	{
 		PriceBox->Hide();
 	}
+}
+
+void SFlareTradeMenu::SetSliderQuantity(int32 Quantity)
+{
+	int32 ResourceMaxQuantity = GetMaxTransactionAmount();
+
+	TransactionQuantity = FMath::Clamp(Quantity, 0, ResourceMaxQuantity);
+	FLOGV("SFlareTradeMenu::SetSliderQuantity number %d / %d", TransactionQuantity, ResourceMaxQuantity)
+
+	if (ResourceMaxQuantity == 1)
+	{
+		QuantitySlider->SetValue(1.0f);
+	}
+	else
+	{
+		QuantitySlider->SetValue((float)(TransactionQuantity - 1) / (float)(ResourceMaxQuantity - 1));
+	}
+
+	UpdatePrice();
 }
 
 bool SFlareTradeMenu::IsTransactionValid(FText& Reason) const
