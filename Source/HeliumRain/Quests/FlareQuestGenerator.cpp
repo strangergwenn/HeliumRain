@@ -386,7 +386,7 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 		float Rand = FMath::FRand();
 		if(Rand > 0.9)
 		{
-			RegisterQuest(UFlareQuestGeneratedMeteoriteInterception::Create(this, Sector));
+			//RegisterQuest(UFlareQuestGeneratedMeteoriteInterception::Create(this, Sector));
 		}
 
 	}
