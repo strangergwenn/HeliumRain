@@ -588,10 +588,10 @@ FText SFlareMainOverlay::GetCurrentMenuName() const
 
 	if (Name.ToString().Len() == 0)
 	{
-		Name = LOCTEXT("FlyingText", "Flying");
+		Name = LOCTEXT("FlyingText", "FLYING");
 	}
 
-	return FText::FromString(Name.ToString().ToUpper());
+	return Name;
 }
 
 const FSlateBrush* SFlareMainOverlay::GetCurrentMenuIcon() const

@@ -1104,7 +1104,7 @@ FText SFlareSettingsMenu::OnGetCurrentCultureComboLine() const
 
 	FCulturePtr Culture = FInternationalization::Get().GetCulture(*Item);
 	FString NativeName = Culture->GetNativeName();
-	NativeName = NativeName.Left(1).ToUpper() + NativeName.RightChop(1);
+	NativeName = NativeName.Left(1).ToUpper() + NativeName.RightChop(1); // FString needed here
 
 	return FText::FromString(NativeName);
 }
@@ -1115,7 +1115,7 @@ TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateCultureComboLine(TSharedPtr<FS
 	
 	FCulturePtr Culture = FInternationalization::Get().GetCulture(*Item);
 	FString NativeName = Culture->GetNativeName();
-	NativeName = NativeName.Left(1).ToUpper() + NativeName.RightChop(1);
+	NativeName = NativeName.Left(1).ToUpper() + NativeName.RightChop(1); // FString needed here
 
 	return SNew(STextBlock)
 	.Text(FText::FromString(NativeName))

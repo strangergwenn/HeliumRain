@@ -1872,7 +1872,7 @@ FText UFlareGameTools::DisplaySpacecraftName(UFlareSimulatedSpacecraft* Spacecra
 	Text = Text.Replace(*FString("_"), *FString(" "));
 	if (ToUpper)
 	{
-		Text = Text.ToUpper();
+		Text = Text.ToUpper(); // FString needed here
 	}
 
 	// Add immatriculation

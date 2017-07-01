@@ -1005,26 +1005,26 @@ FText AFlareMenuManager::GetMenuName(EFlareMenu::Type MenuType)
 	switch (MenuType)
 	{
 		case EFlareMenu::MENU_None:           Name = LOCTEXT("NoneMenuName", "");                          break;
-		case EFlareMenu::MENU_Main:           Name = LOCTEXT("MainMenuName", "Main menu");                 break;
-		case EFlareMenu::MENU_NewGame:        Name = LOCTEXT("NewGameMenuName", "New game");               break;
-		case EFlareMenu::MENU_Company:        Name = LOCTEXT("CompanyMenuName", "Company");                break;
-		case EFlareMenu::MENU_Leaderboard:    Name = LOCTEXT("LeaderboardMenuName", "Diplomacy");          break;
-		case EFlareMenu::MENU_ResourcePrices: Name = LOCTEXT("ResourcePricesMenuName", "Local prices");    break;
-		case EFlareMenu::MENU_WorldEconomy:   Name = LOCTEXT("WorldEconomyMenuName", "Economy");           break;
-		case EFlareMenu::MENU_Technology:     Name = LOCTEXT("TechnologyMenuName", "Technology");          break;
-		case EFlareMenu::MENU_Ship:           Name = LOCTEXT("ShipMenuName", "Ship");                      break;
-		case EFlareMenu::MENU_Fleet:          Name = LOCTEXT("FleetMenuName", "Fleets");                   break;
-		case EFlareMenu::MENU_Quest:          Name = LOCTEXT("QuestMenuName", "Contracts");                break;
-		case EFlareMenu::MENU_Station:        Name = LOCTEXT("StationMenuName", "Station");                break;
-		case EFlareMenu::MENU_ShipConfig:     Name = LOCTEXT("ShipConfigMenuName", "Ship upgrade");        break;
-		case EFlareMenu::MENU_Travel:         Name = LOCTEXT("TravelMenuName", "Travel");                  break;
-		case EFlareMenu::MENU_GameOver:       Name = LOCTEXT("GameOverMenuName", "Game over");             break;
-		case EFlareMenu::MENU_Sector:         Name = LOCTEXT("SectorMenuName", "Sector info");             break;
-		case EFlareMenu::MENU_Trade:          Name = LOCTEXT("TradeMenuName", "Trade");                    break;
-		case EFlareMenu::MENU_TradeRoute:     Name = LOCTEXT("TradeRouteMenuName", "Trade route");         break;
-		case EFlareMenu::MENU_Orbit:          Name = LOCTEXT("OrbitMenuName", "Orbital map");              break;
-		case EFlareMenu::MENU_Settings:       Name = LOCTEXT("SettingsMenuName", "Settings");              break;
-		case EFlareMenu::MENU_Quit:           Name = LOCTEXT("QuitMenuName", "Quit");                      break;		
+		case EFlareMenu::MENU_Main:           Name = LOCTEXT("MainMenuName", "MAIN MENU");                 break;
+		case EFlareMenu::MENU_NewGame:        Name = LOCTEXT("NewGameMenuName", "NEW GAME");               break;
+		case EFlareMenu::MENU_Company:        Name = LOCTEXT("CompanyMenuName", "COMPANY");                break;
+		case EFlareMenu::MENU_Leaderboard:    Name = LOCTEXT("LeaderboardMenuName", "DIPLOMACY");          break;
+		case EFlareMenu::MENU_ResourcePrices: Name = LOCTEXT("ResourcePricesMenuName", "LOCAL PRICES");    break;
+		case EFlareMenu::MENU_WorldEconomy:   Name = LOCTEXT("WorldEconomyMenuName", "ECONOMY");           break;
+		case EFlareMenu::MENU_Technology:     Name = LOCTEXT("TechnologyMenuName", "TECHNOLOGY");          break;
+		case EFlareMenu::MENU_Ship:           Name = LOCTEXT("ShipMenuName", "SHIPS");                      break;
+		case EFlareMenu::MENU_Fleet:          Name = LOCTEXT("FleetMenuName", "FLEETS");                   break;
+		case EFlareMenu::MENU_Quest:          Name = LOCTEXT("QuestMenuName", "CONTRACTS");                break;
+		case EFlareMenu::MENU_Station:        Name = LOCTEXT("StationMenuName", "STATION");                break;
+		case EFlareMenu::MENU_ShipConfig:     Name = LOCTEXT("ShipConfigMenuName", "SHIP UPGRADE");        break;
+		case EFlareMenu::MENU_Travel:         Name = LOCTEXT("TravelMenuName", "TRAVEL");                  break;
+		case EFlareMenu::MENU_GameOver:       Name = LOCTEXT("GameOverMenuName", "GAME OVER");             break;
+		case EFlareMenu::MENU_Sector:         Name = LOCTEXT("SectorMenuName", "SECTOR INFO");             break;
+		case EFlareMenu::MENU_Trade:          Name = LOCTEXT("TradeMenuName", "TRADE");                    break;
+		case EFlareMenu::MENU_TradeRoute:     Name = LOCTEXT("TradeRouteMenuName", "TRADE ROUTE");         break;
+		case EFlareMenu::MENU_Orbit:          Name = LOCTEXT("OrbitMenuName", "ORBITAL MAP");              break;
+		case EFlareMenu::MENU_Settings:       Name = LOCTEXT("SettingsMenuName", "SETTINGS");              break;
+		case EFlareMenu::MENU_Quit:           Name = LOCTEXT("QuitMenuName", "QUIT");                      break;		
 		default:                                                                                           break;
 	}
 

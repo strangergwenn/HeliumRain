@@ -986,8 +986,8 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 	FFlareSpacecraftDescription* SpacecraftDesc = SpacecraftCatalog->Get(TargetClass);
 
 	// Create prefix code (company name & class)
-	Immatriculation += Company->GetShortName().ToString().ToUpper();
-	Immatriculation += SpacecraftDesc->ImmatriculationCode.ToString().ToUpper();
+	Immatriculation += Company->GetShortName().ToString().ToUpper(); // FString needed here
+	Immatriculation += SpacecraftDesc->ImmatriculationCode.ToString().ToUpper(); // FString needed here
 
 	// Generate name
 	if (SpacecraftDesc->IsStation())
