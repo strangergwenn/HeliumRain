@@ -17,6 +17,7 @@ AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(P
 	Meteorite->bTraceComplexOnMove = true;
 	Meteorite->SetLinearDamping(0);
 	Meteorite->SetAngularDamping(0);
+	Meteorite->SetSimulatePhysics(true);
 	RootComponent = Meteorite;
 	SetActorEnableCollision(true);
 
@@ -24,6 +25,7 @@ AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(P
 	Meteorite->SetMobility(EComponentMobility::Movable);
 	Meteorite->SetCollisionProfileName("Destructible");
 	Meteorite->GetBodyInstance()->SetUseAsyncScene(false);
+	Meteorite->GetBodyInstance()->SetInstanceSimulatePhysics(true);
 	Meteorite->SetNotifyRigidBodyCollision(true);
 
 	// Settings
@@ -37,12 +39,9 @@ void AFlareMeteorite::Load(const FFlareMeteoriteSave& Data)
 	FLOGV("AFlareMeteorite::Load vel=%s", *Data.LinearVelocity.ToString());
 
 	MeteoriteData = Data;
-
-	SetupMeteoriteMesh(Data);
+	SetupMeteoriteMesh();
 	Meteorite->SetPhysicsLinearVelocity(Data.LinearVelocity);
 	Meteorite->SetPhysicsAngularVelocity(Data.AngularVelocity);
-
-	FLOGV("- Meteorite.BodyInstance.bSimulatePhysics=%d", Meteorite->BodyInstance.bSimulatePhysics);
 }
 
 FFlareMeteoriteSave* AFlareMeteorite::Save()
@@ -118,17 +117,16 @@ void AFlareMeteorite::SetPause(bool Pause)
 	}
 }
 
-void AFlareMeteorite::SetupMeteoriteMesh(const FFlareMeteoriteSave& Data)
+void AFlareMeteorite::SetupMeteoriteMesh()
 {
 	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	
 	if (Game->GetMeteoriteCatalog())
 	{
 		const TArray<UDestructibleMesh*>& MeteoriteList = MeteoriteData.IsIcy ? Game->GetMeteoriteCatalog()->IcyMeteorites : Game->GetMeteoriteCatalog()->DustyMeteorites;
-		FCHECK(Data.MeteoriteMeshID >= 0 && Data.MeteoriteMeshID < MeteoriteList.Num());
+		FCHECK(MeteoriteData.MeteoriteMeshID >= 0 && MeteoriteData.MeteoriteMeshID < MeteoriteList.Num());
 
-		Meteorite->SetDestructibleMesh(MeteoriteList[Data.MeteoriteMeshID]);
-		Meteorite->SetSimulatePhysics(true);
+		Meteorite->SetDestructibleMesh(MeteoriteList[MeteoriteData.MeteoriteMeshID]);
 	}
 	else
 	{

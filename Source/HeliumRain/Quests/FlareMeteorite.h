@@ -33,8 +33,8 @@ public:
    /** Set as paused */
    virtual void SetPause(bool Paused);
 
-   /** Setup an asteroid mesh */
-  void SetupMeteoriteMesh(const FFlareMeteoriteSave& Data);
+   /** Setup the meteorite mesh */
+  void SetupMeteoriteMesh();
 
 
 public:
