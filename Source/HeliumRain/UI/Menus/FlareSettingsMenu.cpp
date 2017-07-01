@@ -116,7 +116,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					]
 
 					// Culture
-					/*+ SVerticalBox::Slot()
+					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(Theme.ContentPadding)
 					[
@@ -131,7 +131,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Text(this, &SFlareSettingsMenu::OnGetCurrentCultureComboLine)
 							.TextStyle(&Theme.TextFont)
 						]
-					]*/
+					]
 
 					// Buttons
 					+ SVerticalBox::Slot()
@@ -1071,7 +1071,7 @@ void SFlareSettingsMenu::Enter()
 	FillResolutionList();
 
 	// Set list of cultures to the current one
-	/*FString CurrentCultureString = FInternationalization::Get().GetCurrentCulture().Get().GetName();
+	FString CurrentCultureString = FInternationalization::Get().GetCurrentCulture().Get().GetName();
 	for(TSharedPtr<FString> Culture : CultureList)
 	{
 		if(*Culture.Get() == CurrentCultureString)
@@ -1079,7 +1079,7 @@ void SFlareSettingsMenu::Enter()
 			CultureSelector->SetSelectedItem(Culture);
 			break;
 		}
-	}*/
+	}
 }
 
 void SFlareSettingsMenu::Exit()
