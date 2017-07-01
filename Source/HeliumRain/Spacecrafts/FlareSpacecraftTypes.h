@@ -262,6 +262,10 @@ struct FFlareMeteoriteSave
 	/** Content identifier */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 MeteoriteMeshID;
+
+	/** Is it an icy meteorite */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool IsIcy;
 };
 
 /** Spacecraft cargo save data */

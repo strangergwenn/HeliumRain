@@ -159,8 +159,7 @@ AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidDat
 	AFlareAsteroid* Asteroid = GetGame()->GetWorld()->SpawnActor<AFlareAsteroid>(AFlareAsteroid::StaticClass(), AsteroidData.Location, AsteroidData.Rotation, Params);
     Asteroid->Load(AsteroidData);
 
-	// TODO Check double add
-	SectorAsteroids.Add(Asteroid);
+	SectorAsteroids.AddUnique(Asteroid);
     return Asteroid;
 }
 
@@ -173,8 +172,7 @@ AFlareMeteorite* UFlareSector::LoadMeteorite(const FFlareMeteoriteSave& Meteorit
 	AFlareMeteorite* Meteorite = GetGame()->GetWorld()->SpawnActor<AFlareMeteorite>(AFlareMeteorite::StaticClass(), MeteoriteData.Location, MeteoriteData.Rotation, Params);
 	Meteorite->Load(MeteoriteData);
 
-	// TODO Check double add
-	SectorMeteorites.Add(Meteorite);
+	SectorMeteorites.AddUnique(Meteorite);
 	return Meteorite;
 }
 

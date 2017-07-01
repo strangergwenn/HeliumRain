@@ -15,7 +15,6 @@ AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(P
 	// Mesh
 	Meteorite = PCIP.CreateDefaultSubobject<UDestructibleComponent>(this, TEXT("Meteorite"));
 	Meteorite->bTraceComplexOnMove = true;
-	Meteorite->SetSimulatePhysics(true);
 	Meteorite->SetLinearDamping(0);
 	Meteorite->SetAngularDamping(0);
 	RootComponent = Meteorite;
@@ -37,11 +36,9 @@ void AFlareMeteorite::Load(const FFlareMeteoriteSave& Data)
 {
 	FLOGV("AFlareMeteorite::Load vel=%s", *Data.LinearVelocity.ToString());
 
-	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
 	MeteoriteData = Data;
 
-	// TODO, icy in Meteorite Data
-	SetupMeteoriteMesh(Game, Meteorite, Data, false);
+	SetupMeteoriteMesh(Data);
 	Meteorite->SetPhysicsLinearVelocity(Data.LinearVelocity);
 	Meteorite->SetPhysicsAngularVelocity(Data.AngularVelocity);
 
@@ -94,7 +91,6 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 	}*/
 }
 
-
 void AFlareMeteorite::SetPause(bool Pause)
 {
 	FLOGV("AFlareMeteorite::SetPause Pause=%d", Pause);
@@ -122,13 +118,17 @@ void AFlareMeteorite::SetPause(bool Pause)
 	}
 }
 
-void AFlareMeteorite::SetupMeteoriteMesh(AFlareGame* Game, UDestructibleComponent* Component, const FFlareMeteoriteSave& Data, bool IsIcy)
+void AFlareMeteorite::SetupMeteoriteMesh(const FFlareMeteoriteSave& Data)
 {
+	AFlareGame* Game = Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+	
 	if (Game->GetMeteoriteCatalog())
 	{
-		// TODO Icy
-		FCHECK(Data.MeteoriteMeshID >= 0 && Data.MeteoriteMeshID < Game->GetMeteoriteCatalog()->DustyMeteorites.Num());
-		Component->SetDestructibleMesh(Game->GetMeteoriteCatalog()->DustyMeteorites[Data.MeteoriteMeshID]);
+		const TArray<UDestructibleMesh*>& MeteoriteList = MeteoriteData.IsIcy ? Game->GetMeteoriteCatalog()->IcyMeteorites : Game->GetMeteoriteCatalog()->DustyMeteorites;
+		FCHECK(Data.MeteoriteMeshID >= 0 && Data.MeteoriteMeshID < MeteoriteList.Num());
+
+		Meteorite->SetDestructibleMesh(MeteoriteList[Data.MeteoriteMeshID]);
+		Meteorite->SetSimulatePhysics(true);
 	}
 	else
 	{

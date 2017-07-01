@@ -34,7 +34,7 @@ public:
    virtual void SetPause(bool Paused);
 
    /** Setup an asteroid mesh */
-  static void SetupMeteoriteMesh(AFlareGame* Game, UDestructibleComponent* Component, const FFlareMeteoriteSave& Data, bool IsIcy);
+  void SetupMeteoriteMesh(const FFlareMeteoriteSave& Data);
 
 
 public:
@@ -51,7 +51,6 @@ public:
 protected:
 
    // Data
-   //FVector                                     SpawnLocation;
    FFlareMeteoriteSave                           MeteoriteData;
    bool                                          Paused;
 

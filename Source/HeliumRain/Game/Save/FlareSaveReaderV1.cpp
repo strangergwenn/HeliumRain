@@ -519,6 +519,10 @@ void UFlareSaveReaderV1::LoadMeteorite(const TSharedPtr<FJsonObject> Object, FFl
 	LoadVector(Object, "AngularVelocity", &Data->AngularVelocity);
 	LoadInt32(Object, "MeteoriteMeshID", &Data->MeteoriteMeshID);
 
+	if (!Object->TryGetBoolField(TEXT("IsIcy"), Data->IsIcy))
+	{
+		Data->IsIcy = false;
+	}
 }
 
 
