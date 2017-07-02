@@ -422,6 +422,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveMeteorite(FFlareMeteoriteSave* Dat
 	SaveFloat(JsonObject,"Damage", Data->Damage);
 	SaveFloat(JsonObject,"BrokenDamage", Data->BrokenDamage);
 	JsonObject->SetStringField("TargetStation", Data->TargetStation.ToString());
+	JsonObject->SetStringField("HasMissed", FormatInt32(Data->HasMissed));
 
 
 

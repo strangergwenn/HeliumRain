@@ -278,6 +278,11 @@ struct FFlareMeteoriteSave
 	/** TargetStation */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName TargetStation;
+
+	/** Has the meteorite missed the target */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool HasMissed;
+
 };
 
 /** Spacecraft cargo save data */

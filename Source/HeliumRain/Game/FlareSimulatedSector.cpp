@@ -440,6 +440,7 @@ void UFlareSimulatedSector::CreateMeteorite(int32 ID, UFlareSimulatedSpacecraft*
 	Data.IsMetal = false;
 	Data.Damage = 0;
 	Data.BrokenDamage = 3000;
+	Data.HasMissed = false;
 	Data.TargetStation = TargetStation->GetImmatriculation();
 
 	// TODO right location and position

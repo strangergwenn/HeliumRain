@@ -2540,6 +2540,11 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 			{
 				return 1;
 			}
+
+			if(Bundle.HasTag("meteorite-miss-station") && Bundle.GetName("sector") == TargetStation->GetCurrentSector()->GetIdentifier())
+			{
+				return 1;
+			}
 			return 0;
 		},
 		[&]()

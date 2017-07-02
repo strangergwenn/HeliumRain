@@ -528,6 +528,14 @@ void UFlareSaveReaderV1::LoadMeteorite(const TSharedPtr<FJsonObject> Object, FFl
 	{
 		Data->IsMetal = false;
 	}
+
+
+	if (!Object->TryGetBoolField(TEXT("HasMissed"), Data->HasMissed))
+	{
+		Data->HasMissed = false;
+	}
+
+
 }
 
 
