@@ -139,4 +139,5 @@ void AFlareMeteorite::SetupMeteoriteMesh()
 void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource, FString DamageCauser)
 {
 	Meteorite->ApplyRadiusDamage(Energy, Location, Radius, Energy * 100 , false);
+	Meteorite->ApplyRadiusDamage(Energy / 10, Location, Energy, Energy * 100 , false);
 }
