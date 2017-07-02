@@ -235,7 +235,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Get the name text for this menu */
-	static FText GetMenuName(EFlareMenu::Type MenuType);
+	static FText GetMenuName(EFlareMenu::Type MenuType, bool Uppercase = false);
 
 	/** Get the Slate icon brush for this menu */
 	static const FSlateBrush* GetMenuIcon(EFlareMenu::Type MenuType);

@@ -311,7 +311,7 @@ void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, EFlareMen
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.SmallFont)
-			.Text(AFlareMenuManager::GetMenuName(Menu))
+			.Text(AFlareMenuManager::GetMenuName(Menu, false))
 		]
 
 		// Shortcut
@@ -579,10 +579,10 @@ FText SFlareMainOverlay::GetCurrentMenuName() const
 	
 	if (MenuManager->IsMenuOpen())
 	{
-		Name = AFlareMenuManager::GetMenuName(MenuManager->GetCurrentMenu());
+		Name = AFlareMenuManager::GetMenuName(MenuManager->GetCurrentMenu(), true);
 		if (Name.ToString().Len() == 0)
 		{
-			Name = AFlareMenuManager::GetMenuName(MenuManager->GetPreviousMenu());
+			Name = AFlareMenuManager::GetMenuName(MenuManager->GetPreviousMenu(), true);
 		}
 	}
 
