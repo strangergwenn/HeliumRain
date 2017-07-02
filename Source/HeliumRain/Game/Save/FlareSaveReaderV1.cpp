@@ -518,6 +518,11 @@ void UFlareSaveReaderV1::LoadMeteorite(const TSharedPtr<FJsonObject> Object, FFl
 	LoadVector(Object, "LinearVelocity", &Data->LinearVelocity);
 	LoadVector(Object, "AngularVelocity", &Data->AngularVelocity);
 	LoadInt32(Object, "MeteoriteMeshID", &Data->MeteoriteMeshID);
+	LoadFloat(Object, "BrokenDamage", &Data->BrokenDamage);
+	LoadFloat(Object, "Damage", &Data->Damage);
+	LoadFName(Object, "TargetStation", &Data->TargetStation);
+
+
 
 	if (!Object->TryGetBoolField(TEXT("IsMetal"), Data->IsMetal))
 	{

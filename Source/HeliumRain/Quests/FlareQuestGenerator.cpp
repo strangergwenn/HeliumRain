@@ -2544,7 +2544,7 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 		},
 		[&]()
 		{
-			return FText::Format(LOCTEXT("FireWeaponConditionLabel", "Destroy {0} meteorites in {1}"), FText::AsNumber(MeteoriteCount), TargetStation->GetCurrentSector()->GetSectorName());
+			return FText::Format(LOCTEXT("MeteoriteDestroyedConditionLabel", "Destroy {0} meteorites in {1}"), FText::AsNumber(MeteoriteCount), TargetStation->GetCurrentSector()->GetSectorName());
 		},
 		[&](UFlareQuestCondition* Condition)
 		{
@@ -2555,6 +2555,25 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 	}
 
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAfterDate::Create(this, InterseptDate));
+
+	AddGlobalFailCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+																																		  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+	{
+		if(Bundle.HasTag("meteorite-hit-station") && Bundle.GetName("sector") == TargetStation->GetCurrentSector()->GetIdentifier())
+		{
+			return true;
+		}
+		return false;
+	},
+	[]()
+	{
+		return LOCTEXT("MeteoriteCrashConditionLabel", "Meteorite crash on a station");
+	},
+	[](UFlareQuestCondition* Condition)
+	{
+		Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+	}));
+
 
 	SetupQuestGiver(TargetStation->GetCompany(), true);
 	SetupGenericReward(Data);

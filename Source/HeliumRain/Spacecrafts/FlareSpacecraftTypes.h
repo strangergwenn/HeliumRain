@@ -266,6 +266,18 @@ struct FFlareMeteoriteSave
 	/** Is it a metallic meteorite */
 	UPROPERTY(EditAnywhere, Category = Save)
 	bool IsMetal;
+
+	/** Damage to take to brake */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float BrokenDamage;
+
+	/** Current damage */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float Damage;
+
+	/** TargetStation */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName TargetStation;
 };
 
 /** Spacecraft cargo save data */

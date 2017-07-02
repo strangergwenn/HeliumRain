@@ -6,6 +6,8 @@
 #include "FlareMeteorite.generated.h"
 
 class UFlareSimulatedSpacecraft;
+class UFlareSector;
+class AFlareSpacecraft;
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class AFlareMeteorite : public AActor
@@ -26,7 +28,7 @@ public:
 
 
    /** Properties setup */
-   virtual void Load(const FFlareMeteoriteSave& Data);
+   virtual void Load(const FFlareMeteoriteSave& Data, UFlareSector* ParentSector);
 
    /** Save the asteroid to a save file */
    virtual FFlareMeteoriteSave* Save();
@@ -39,6 +41,8 @@ public:
 
   void ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource, FString DamageCauser);
 
+  virtual void NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved,
+	  FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
 public:
 
@@ -50,6 +54,8 @@ public:
    UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
    UDestructibleComponent*                       Meteorite;
 
+   UFlareSector*                                 Parent;
+   AFlareSpacecraft*                    Target;
 
 protected:
 
@@ -63,6 +69,9 @@ public:
    /*----------------------------------------------------
 	   Getters
    ----------------------------------------------------*/
+
+   bool IsBroken();
+
 
    UDestructibleComponent *GetMeteoriteComponent()
    {

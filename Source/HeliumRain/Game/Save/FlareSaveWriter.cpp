@@ -419,6 +419,11 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveMeteorite(FFlareMeteoriteSave* Dat
 	JsonObject->SetStringField("AngularVelocity", FormatVector(Data->AngularVelocity));
 	JsonObject->SetStringField("MeteoriteMeshID", FormatInt32(Data->MeteoriteMeshID));
 	JsonObject->SetStringField("IsMetal", FormatInt32(Data->IsMetal));
+	SaveFloat(JsonObject,"Damage", Data->Damage);
+	SaveFloat(JsonObject,"BrokenDamage", Data->BrokenDamage);
+	JsonObject->SetStringField("TargetStation", Data->TargetStation.ToString());
+
+
 
 	return JsonObject;
 }

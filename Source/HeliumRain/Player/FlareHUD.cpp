@@ -1248,6 +1248,10 @@ void AFlareHUD::DrawHUDInternal()
 
 		for (AFlareMeteorite* Meteorite : ActiveSector->GetMeteorites())
 		{
+			if(Meteorite->IsBroken())
+			{
+				continue;
+			}
 			FVector2D ScreenPosition;
 
 			FVector AimLocation =  Meteorite->GetActorLocation();

@@ -170,7 +170,7 @@ AFlareMeteorite* UFlareSector::LoadMeteorite(const FFlareMeteoriteSave& Meteorit
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	AFlareMeteorite* Meteorite = GetGame()->GetWorld()->SpawnActor<AFlareMeteorite>(AFlareMeteorite::StaticClass(), MeteoriteData.Location, MeteoriteData.Rotation, Params);
-	Meteorite->Load(MeteoriteData);
+	Meteorite->Load(MeteoriteData, this);
 
 	SectorMeteorites.AddUnique(Meteorite);
 	return Meteorite;
