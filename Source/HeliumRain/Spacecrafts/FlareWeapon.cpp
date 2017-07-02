@@ -195,39 +195,54 @@ FVector UFlareWeapon::ComputeParallaxCorrection(int GunIndex)
 
 	}
 
-	// Paralax on bombs
+	// Paralax on targetables (bombs and meteorites)
 	if(Spacecraft == Spacecraft->GetGame()->GetPC()->GetPlayerShip()->GetActive())
 	{
-		float BestBombTargetDot = 0;
+		float BestObjectTargetDot = 0;
 
 		if(HasParallaxTarget)
 		{
 			FVector TargetAimDirection = (AmmoIntersectionLocation- CameraLocation).GetUnsafeNormal();
 			float RealTargetDot = FVector::DotProduct(CameraAimDirection, TargetAimDirection);
-			BestBombTargetDot = RealTargetDot;
+			BestObjectTargetDot = RealTargetDot;
 		}
+
+		TArray<AActor*> TargetCanditates;
 
 		for(AFlareBomb* Bomb: Spacecraft->GetGame()->GetActiveSector()->GetBombs())
 		{
+			TargetCanditates.Add(Bomb);
+		}
+
+		for(AFlareMeteorite* Meteorite: Spacecraft->GetGame()->GetActiveSector()->GetMeteorites())
+		{
+			if(!Meteorite->IsBroken())
+			{
+				TargetCanditates.Add(Meteorite);
+			}
+		}
+
+		for(AActor* TargetCandidate: TargetCanditates)
+		{
 			FVector ResultPosition;
 
-			UPrimitiveComponent* BombRootComponent = Cast<UPrimitiveComponent>(Bomb->GetRootComponent());
+			UPrimitiveComponent* CandidateRootComponent = Cast<UPrimitiveComponent>(TargetCandidate->GetRootComponent());
 
-			if(!BombRootComponent)
+			if(!CandidateRootComponent)
 			{
 				continue;
 			}
 
-			float BombInterceptTime = SpacecraftHelper::GetIntersectionPosition(Bomb->GetActorLocation(), BombRootComponent->GetPhysicsLinearVelocity(), CameraLocation, Spacecraft->GetLinearVelocity() * 100, GetAmmoVelocity() * 100, 0.0, &ResultPosition);
+			float CandidateInterceptTime = SpacecraftHelper::GetIntersectionPosition(TargetCandidate->GetActorLocation(), CandidateRootComponent->GetPhysicsLinearVelocity(), CameraLocation, Spacecraft->GetLinearVelocity() * 100, GetAmmoVelocity() * 100, 0.0, &ResultPosition);
 
-			FVector BombAimDirection = (ResultPosition - CameraLocation).GetUnsafeNormal();
+			FVector CandidateAimDirection = (ResultPosition - CameraLocation).GetUnsafeNormal();
 
 
-			float BombTargetDot = FVector::DotProduct(CameraAimDirection, BombAimDirection);
+			float CandidateTargetDot = FVector::DotProduct(CameraAimDirection, CandidateAimDirection);
 
-			if(BestBombTargetDot < BombTargetDot)
+			if(BestObjectTargetDot < CandidateTargetDot)
 			{
-				BestBombTargetDot = BombTargetDot;
+				BestObjectTargetDot = CandidateTargetDot;
 				AmmoIntersectionLocation = ResultPosition;
 				HasParallaxTarget = true;
 			}
