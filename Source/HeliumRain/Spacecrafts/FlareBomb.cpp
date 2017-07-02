@@ -14,7 +14,7 @@
 #include "FlareShell.h"
 
 #include "Components/DecalComponent.h"
-
+#include "Components/DestructibleComponent.h"
 
 #define LOCTEXT_NAMESPACE "FlareBomb"
 
@@ -376,6 +376,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 
 	AFlareBomb* BombCandidate = Cast<AFlareBomb>(Other);
 	AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(Other);
+	AFlareMeteorite* Meteorite = Cast<AFlareMeteorite>(Other);
 	AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(Other);
 	AFlareShell* Shell = Cast<AFlareShell>(Other);
 	UFlareSpacecraftComponent* ShipComponent = Cast<UFlareSpacecraftComponent>(OtherComp);
@@ -439,6 +440,16 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 	else if (Asteroid)
 	{
 		Asteroid->GetAsteroidComponent()->AddImpulseAtLocation(ImpulseForce * ImpulseDirection, HitLocation);
+	}
+	else if (Meteorite)
+	{
+		Meteorite->GetMeteoriteComponent()->AddImpulseAtLocation(ImpulseForce * ImpulseDirection, HitLocation);
+		Meteorite->ApplyDamage(WeaponDescription->WeaponCharacteristics.ExplosionPower,
+			WeaponDescription->WeaponCharacteristics.AmmoDamageRadius,
+			HitLocation,
+			SpacecraftHelper::GetWeaponDamageType(WeaponDescription->WeaponCharacteristics.DamageType),
+			ParentWeapon->GetSpacecraft()->GetParent(),
+			GetName());
 	}
 
 	// Spawn impact decal
