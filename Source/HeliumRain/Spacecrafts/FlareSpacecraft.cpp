@@ -376,6 +376,12 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 		// The other actor is a spacecraft, check if it's not the station we want to dock to.
 		GetNavigationSystem()->CheckCollisionDocking(OtherSpacecraft);
 	}
+
+	AFlareMeteorite* Meteorite = Cast<AFlareMeteorite>(Other);
+	if(Meteorite)
+	{
+		Meteorite->OnCollision(this, HitLocation);
+	}
 }
 
 void AFlareSpacecraft::Destroyed()

@@ -464,6 +464,13 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 		}
 	}
 
+	// Destroyed meteorite
+	AFlareMeteorite* Meteorite = Cast<AFlareMeteorite>(Other);
+	if(Meteorite && Meteorite -> IsBroken())
+	{
+		return;
+	}
+
 	// Ignore docking or docked station
 	AFlareSpacecraft* OtherSpacecraft = Cast<AFlareSpacecraft>(Other);
 
@@ -642,7 +649,7 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 	// Stations damaged by collisions with non-spacecrafts are highly suspicious
 	if (Spacecraft->IsStation() && DamageType == EFlareDamage::DAM_Collision && !DamageSource)
 	{
-		FLOGV("WARNING: suspicious collision for %s", *Spacecraft->GetImmatriculation().ToString());
+		//FLOGV("WARNING: suspicious collision for %s", *Spacecraft->GetImmatriculation().ToString());
 		//FCHECK(DamageSource);
 		//FCHECK(CompanyDamageSource);
 	}

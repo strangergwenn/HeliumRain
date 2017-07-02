@@ -22,6 +22,8 @@ AFlareAsteroid::AFlareAsteroid(const class FObjectInitializer& PCIP) : Super(PCI
 	Asteroid->SetAngularDamping(0);
 	RootComponent = Asteroid;
 	SetActorEnableCollision(true);
+	Asteroid->SetNotifyRigidBodyCollision(true);
+
 
 	// Settings
 	PrimaryActorTick.bCanEverTick = true;
@@ -144,4 +146,18 @@ void AFlareAsteroid::SetPause(bool Pause)
 		Asteroid->SetPhysicsLinearVelocity(AsteroidData.LinearVelocity);
 		Asteroid->SetPhysicsAngularVelocity(AsteroidData.AngularVelocity);
 	}
+}
+
+
+void AFlareAsteroid::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+{
+	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+
+	AFlareMeteorite* Meteorite = Cast<AFlareMeteorite>(Other);
+	if(Meteorite)
+	{
+		Meteorite->OnCollision(this, HitLocation);
+	}
+
+
 }

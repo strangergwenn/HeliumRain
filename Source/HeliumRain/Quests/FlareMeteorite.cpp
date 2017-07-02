@@ -106,12 +106,17 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 }
 
 
-void AFlareMeteorite::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+void AFlareMeteorite::OnCollision(class AActor* Other, FVector HitLocation)
 {
-	Super::ReceiveHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+	FLOG("AFlareMeteorite::OnCollision");
 
 	AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(Other);
 	AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(Other);
+
+	if(Other)
+	{
+		FLOGV("AFlareMeteorite::OnCollision on %s", *Other->GetName());
+	}
 
 	if(Asteroid)
 	{
@@ -119,21 +124,28 @@ void AFlareMeteorite::NotifyHit(class UPrimitiveComponent* MyComp, class AActor*
 	}
 	else if (Spacecraft && (Spacecraft->IsStation() || Spacecraft->GetSize() == EFlarePartSize::L))
 	{
-		Spacecraft->GetDamageSystem()->ApplyDamage(MeteoriteData.BrokenDamage * 10, MeteoriteData.BrokenDamage, HitLocation, EFlareDamage::DAM_Collision, NULL, FString());
 
-		// Notify PC
-		Parent->GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteCrash", "Meteorite destroyed"),
-								FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite crashed on {0}"), UFlareGameTools::DisplaySpacecraftName(Spacecraft->GetParent())),
-								FName("meteorite-crash"),
-								EFlareNotification::NT_Military,
-								false);
-
-		if(Spacecraft->IsStation())
+		if(!IsBroken())
 		{
-			Parent->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-hit-station").PutName("sector", Parent->GetSimulatedSector()->GetIdentifier()));
-		}
+			Spacecraft->GetDamageSystem()->ApplyDamage(MeteoriteData.BrokenDamage * 20, MeteoriteData.BrokenDamage, HitLocation, EFlareDamage::DAM_Collision, NULL, FString());
 
-		ApplyDamage(MeteoriteData.BrokenDamage, 1.f , HitLocation, EFlareDamage::DAM_Collision, NULL, FString());
+
+
+			// Notify PC
+			Parent->GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteCrash", "Meteorite crashed"),
+									FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite crashed on {0}"), UFlareGameTools::DisplaySpacecraftName(Spacecraft->GetParent())),
+									FName("meteorite-crash"),
+									EFlareNotification::NT_Military,
+									false);
+
+
+			if(Spacecraft->IsStation())
+			{
+				Parent->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-hit-station").PutName("sector", Parent->GetSimulatedSector()->GetIdentifier()));
+			}
+
+			ApplyDamage(MeteoriteData.BrokenDamage, 1.f , HitLocation, EFlareDamage::DAM_Collision, NULL, FString());
+		}
 	}
 }
 
@@ -185,7 +197,7 @@ void AFlareMeteorite::SetupMeteoriteMesh()
 
 bool AFlareMeteorite::IsBroken()
 {
-	return MeteoriteData.Damage > MeteoriteData.BrokenDamage;
+	return MeteoriteData.Damage >= MeteoriteData.BrokenDamage;
 }
 
 void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource, FString DamageCauser)
@@ -208,12 +220,27 @@ void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, 
 			}
 			Parent->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-destroyed").PutName("sector", Parent->GetSimulatedSector()->GetIdentifier()));
 
-			Meteorite->ApplyRadiusDamage(FMath::Max(100.f, Energy), Location, 1.f, Energy * 2000 , false);
+
+			FLOGV("Energy %f", Energy);
+
+			if(DamageType != EFlareDamage::DAM_Collision)
+			{
+				Meteorite->ApplyRadiusDamage(FMath::Max(100.f, Energy), Location, 1.f, Energy * 2000 , false);
+			}
+			else
+			{
+				Meteorite->ApplyRadiusDamage(FMath::Max(100.f, Energy), Location, 1.f, Energy * 200 , false);
+			}
 		}
 	}
 	else
 	{
-		Meteorite->ApplyRadiusDamage(Energy / 100, Location, 1.f, Energy * 500 , false);
+		FLOGV("Bonus Energy %f", Energy);
+
+		if(DamageType != EFlareDamage::DAM_Collision)
+		{
+			Meteorite->ApplyRadiusDamage(Energy / 100, Location, 1.f, Energy * 500 , false);
+		}
 	}
 }
 
