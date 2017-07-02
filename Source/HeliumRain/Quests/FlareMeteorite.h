@@ -5,6 +5,7 @@
 #include "PhysicsEngine/DestructibleActor.h"
 #include "FlareMeteorite.generated.h"
 
+class UFlareSimulatedSpacecraft;
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class AFlareMeteorite : public AActor
@@ -36,6 +37,8 @@ public:
    /** Setup the meteorite mesh */
   void SetupMeteoriteMesh();
 
+  void ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource, FString DamageCauser);
+
 
 public:
 
@@ -61,7 +64,7 @@ public:
 	   Getters
    ----------------------------------------------------*/
 
-   UDestructibleComponent *GetAsteroidComponent()
+   UDestructibleComponent *GetMeteoriteComponent()
    {
 	   return Meteorite;
    }

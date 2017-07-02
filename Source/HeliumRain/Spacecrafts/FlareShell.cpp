@@ -5,6 +5,7 @@
 #include "../Game/FlareGame.h"
 #include "../Player/FlarePlayerController.h"
 #include "Components/DecalComponent.h"
+#include "Components/DestructibleComponent.h"
 
 
 /*----------------------------------------------------
@@ -286,6 +287,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 			if (ShellDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HEAT)
 			{
 				AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(HitResult.Actor.Get());
+				AFlareMeteorite* Meteorite = Cast<AFlareMeteorite>(HitResult.Actor.Get());
 				if (Spacecraft)
 				{
 					Spacecraft->GetDamageSystem()->ApplyDamage(ShellDescription->WeaponCharacteristics.ExplosionPower,
@@ -300,6 +302,13 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 				{
 					float ImpulseForce = 1000 * ShellDescription->WeaponCharacteristics.ExplosionPower * ShellDescription->WeaponCharacteristics.AmmoDamageRadius;
 					Asteroid->GetAsteroidComponent()->AddImpulseAtLocation( ShellVelocity.GetUnsafeNormal(), HitResult.Location);
+				}
+				else if (Meteorite)
+				{
+					float ImpulseForce = 1000 * ShellDescription->WeaponCharacteristics.ExplosionPower * ShellDescription->WeaponCharacteristics.AmmoDamageRadius;
+					Meteorite->GetMeteoriteComponent()->AddImpulseAtLocation( ShellVelocity.GetUnsafeNormal(), HitResult.Location);
+					Meteorite->ApplyDamage(ShellDescription->WeaponCharacteristics.ExplosionPower,
+										   ShellDescription->WeaponCharacteristics.AmmoDamageRadius, HitResult.Location, EFlareDamage::DAM_HEAT, ParentWeapon->GetSpacecraft()->GetParent(), GetName());
 				}
 
 			}
@@ -498,6 +507,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	float AbsorbedEnergy = (PenetrateArmor ? ImpactPower : FMath::Square(Incidence) * ImpactPower);
 	AFlareSpacecraft* Spacecraft = Cast<AFlareSpacecraft>(ActorToDamage);
 	AFlareAsteroid* Asteroid = Cast<AFlareAsteroid>(ActorToDamage);
+	AFlareMeteorite* Meteorite = Cast<AFlareMeteorite>(ActorToDamage);
 	AFlareBomb* Bomb = Cast<AFlareBomb>(ActorToDamage);
 	if (Spacecraft)
 	{
@@ -527,6 +537,19 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 			ParentWeapon->GetSpacecraft()->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("hit-asteroid"));
 		}
 	}
+	else if (Meteorite)
+	{
+		// Physics impulse
+		Meteorite->GetMeteoriteComponent()->AddImpulseAtLocation( 5000	 * ImpactRadius * AbsorbedEnergy * (PenetrateArmor ? ImpactAxis : -ImpactNormal), ImpactLocation);
+		if (ParentWeapon->GetSpacecraft()->GetParent() == ParentWeapon->GetSpacecraft()->GetGame()->GetPC()->GetPlayerShip())
+		{
+			ParentWeapon->GetSpacecraft()->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("hit-meteorite"));
+		}
+		Meteorite->ApplyDamage(AbsorbedEnergy, ImpactRadius, ImpactLocation, DamageType, ParentWeapon->GetSpacecraft()->GetParent(), GetName());
+	}
+
+
+
 	else if (Bomb)
 	{
 		FHitResult Hit;
@@ -546,16 +569,18 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 			ImpactNormal.Rotation(),
 			EAttachLocation::KeepWorldPosition,
 			120);
-
-		// Instanciate and configure the decal material
-		UMaterialInterface* DecalMaterial = Decal->GetMaterial(0);
-		UMaterialInstanceDynamic* DecalMaterialInst = UMaterialInstanceDynamic::Create(DecalMaterial, GetWorld());
-		if (DecalMaterialInst)
+		if (Decal)
 		{
-			DecalMaterialInst->SetScalarParameterValue("RandomParameter", FMath::FRandRange(1, 0));
-			DecalMaterialInst->SetScalarParameterValue("RandomParameter2", FMath::FRandRange(1, 0));
-			DecalMaterialInst->SetScalarParameterValue("IsShipHull", HitComponent->IsA(UFlareSpacecraftComponent::StaticClass()));
-			Decal->SetMaterial(0, DecalMaterialInst);
+			// Instanciate and configure the decal material
+			UMaterialInterface* DecalMaterial = Decal->GetMaterial(0);
+			UMaterialInstanceDynamic* DecalMaterialInst = UMaterialInstanceDynamic::Create(DecalMaterial, GetWorld());
+			if (DecalMaterialInst)
+			{
+				DecalMaterialInst->SetScalarParameterValue("RandomParameter", FMath::FRandRange(1, 0));
+				DecalMaterialInst->SetScalarParameterValue("RandomParameter2", FMath::FRandRange(1, 0));
+				DecalMaterialInst->SetScalarParameterValue("IsShipHull", HitComponent->IsA(UFlareSpacecraftComponent::StaticClass()));
+				Decal->SetMaterial(0, DecalMaterialInst);
+			}
 		}
 	}
 

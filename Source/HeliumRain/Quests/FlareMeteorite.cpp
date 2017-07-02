@@ -127,9 +127,16 @@ void AFlareMeteorite::SetupMeteoriteMesh()
 		FCHECK(MeteoriteData.MeteoriteMeshID >= 0 && MeteoriteData.MeteoriteMeshID < MeteoriteList.Num());
 
 		Meteorite->SetDestructibleMesh(MeteoriteList[MeteoriteData.MeteoriteMeshID]);
+		Meteorite->GetBodyInstance()->SetMassScale(10000);
+		Meteorite->GetBodyInstance()->UpdateMassProperties();
 	}
 	else
 	{
 		return;
 	}
+}
+
+void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource, FString DamageCauser)
+{
+	Meteorite->ApplyRadiusDamage(Energy, Location, Radius, Energy * 100 , false);
 }
