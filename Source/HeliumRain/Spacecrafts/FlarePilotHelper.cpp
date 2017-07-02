@@ -9,6 +9,7 @@
 #include "FlareOrbitalEngine.h"
 #include "FlareWeapon.h"
 #include "FlareShipPilot.h"
+#include "../Quests/FlareMeteorite.h"
 
 
 DECLARE_CYCLE_STAT(TEXT("PilotHelper CheckFriendlyFire"), STAT_PilotHelper_CheckFriendlyFire, STATGROUP_Flare);
@@ -112,6 +113,17 @@ bool PilotHelper::FindMostDangerousCollision(AActor*& MostDangerousCandidateActo
 		Candidate.Key = AsteroidCandidate;
 		Candidate.Value = AsteroidCandidate->GetAsteroidComponent()->GetPhysicsLinearVelocity();
 		Candidates.Add(Candidate);
+	}
+
+	// Select dangerous meteorites
+	for (auto MeteoriteCandidate : ActiveSector->GetMeteorites())
+	{
+		if(!MeteoriteCandidate->IsBroken())
+		{
+			Candidate.Key = MeteoriteCandidate;
+			Candidate.Value = MeteoriteCandidate->GetMeteoriteComponent()->GetPhysicsLinearVelocity();
+			Candidates.Add(Candidate);
+		}
 	}
 
 	// Select dangerous colliders
