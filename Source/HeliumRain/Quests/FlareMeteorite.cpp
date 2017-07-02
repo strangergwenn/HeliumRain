@@ -123,7 +123,7 @@ void AFlareMeteorite::SetupMeteoriteMesh()
 	
 	if (Game->GetMeteoriteCatalog())
 	{
-		const TArray<UDestructibleMesh*>& MeteoriteList = MeteoriteData.IsIcy ? Game->GetMeteoriteCatalog()->IcyMeteorites : Game->GetMeteoriteCatalog()->DustyMeteorites;
+		const TArray<UDestructibleMesh*>& MeteoriteList = MeteoriteData.IsMetal ? Game->GetMeteoriteCatalog()->MetalMeteorites : Game->GetMeteoriteCatalog()->RockMeteorites;
 		FCHECK(MeteoriteData.MeteoriteMeshID >= 0 && MeteoriteData.MeteoriteMeshID < MeteoriteList.Num());
 
 		Meteorite->SetDestructibleMesh(MeteoriteList[MeteoriteData.MeteoriteMeshID]);

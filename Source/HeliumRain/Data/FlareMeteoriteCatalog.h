@@ -19,10 +19,10 @@ public:
 	
 	/** Meteorite data */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UDestructibleMesh*> DustyMeteorites;
+	TArray<UDestructibleMesh*> RockMeteorites;
 	
 	/** Meteorite data */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UDestructibleMesh*> IcyMeteorites;
+	TArray<UDestructibleMesh*> MetalMeteorites;
 
 };

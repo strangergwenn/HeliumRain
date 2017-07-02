@@ -263,9 +263,9 @@ struct FFlareMeteoriteSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 MeteoriteMeshID;
 
-	/** Is it an icy meteorite */
+	/** Is it a metallic meteorite */
 	UPROPERTY(EditAnywhere, Category = Save)
-	bool IsIcy;
+	bool IsMetal;
 };
 
 /** Spacecraft cargo save data */
