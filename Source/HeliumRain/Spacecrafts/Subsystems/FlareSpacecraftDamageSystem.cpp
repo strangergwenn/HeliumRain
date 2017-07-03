@@ -454,12 +454,19 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 		return;
 	}
 
+	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
+
 	// Ignore debris
 	AStaticMeshActor* OtherActor = Cast<AStaticMeshActor>(Other);
 	if (OtherActor)
 	{
 		if (OtherActor->GetName().StartsWith("Debris"))
 		{
+			if (Spacecraft == PC->GetShipPawn())
+			{
+				PC->SpacecraftCrashed();
+			}
+
 			return;
 		}
 	}
@@ -468,6 +475,11 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 	AFlareMeteorite* Meteorite = Cast<AFlareMeteorite>(Other);
 	if(Meteorite && Meteorite -> IsBroken())
 	{
+		if (Spacecraft == PC->GetShipPawn())
+		{
+			PC->SpacecraftCrashed();
+		}
+
 		return;
 	}
 
