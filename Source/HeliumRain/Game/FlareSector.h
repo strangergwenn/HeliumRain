@@ -39,7 +39,7 @@ public:
 
 	AFlareAsteroid* LoadAsteroid(const FFlareAsteroidSave& AsteroidData);
 
-	AFlareMeteorite* LoadMeteorite(const FFlareMeteoriteSave& MeteoriteData);
+	AFlareMeteorite* LoadMeteorite(FFlareMeteoriteSave& MeteoriteData);
 
 	AFlareSpacecraft* LoadSpacecraft(UFlareSimulatedSpacecraft* ParentSpacecraft);
 

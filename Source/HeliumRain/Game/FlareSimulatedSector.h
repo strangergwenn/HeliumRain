@@ -574,4 +574,9 @@ public:
 	bool IsPlayerBattleInProgress();
 
 	int32 GetCompanyCapturePoints(UFlareCompany* Company) const;
+
+	TArray<FFlareMeteoriteSave>& GetMeteorites()
+	{
+		return SectorData.MeteoriteData;
+	}
 };

@@ -41,9 +41,12 @@ void UFlareSector::Load(UFlareSimulatedSector* Parent)
 	}
 
 	// Load meteorite
-	for (int i = 0 ; i < ParentSector->GetData()->MeteoriteData.Num(); i++)
+	for (FFlareMeteoriteSave& Meteorite : ParentSector->GetData()->MeteoriteData)
 	{
-		LoadMeteorite(ParentSector->GetData()->MeteoriteData[i]);
+		if (Meteorite.DaysBeforeImpact == 0 && Meteorite.Damage < Meteorite.BrokenDamage)
+		{
+			LoadMeteorite(Meteorite);
+		}
 	}
 
 	// Load safe location spacecrafts
@@ -81,7 +84,7 @@ void UFlareSector::Save()
 
 	SectorData->BombData.Empty();
 	SectorData->AsteroidData.Empty();
-	SectorData->MeteoriteData.Empty();
+	// Meteorites have references
 
 
 	for (int i = 0 ; i < SectorBombs.Num(); i++)
@@ -92,11 +95,6 @@ void UFlareSector::Save()
 	for (int i = 0 ; i < SectorAsteroids.Num(); i++)
 	{
 		SectorData->AsteroidData.Add(*SectorAsteroids[i]->Save());
-	}
-
-	for (int i = 0 ; i < SectorMeteorites.Num(); i++)
-	{
-		SectorData->MeteoriteData.Add(*SectorMeteorites[i]->Save());
 	}
 
 	SectorData->LocalTime = LocalTime + GetGame()->GetPlanetarium()->GetSmoothTime();
@@ -163,14 +161,14 @@ AFlareAsteroid* UFlareSector::LoadAsteroid(const FFlareAsteroidSave& AsteroidDat
     return Asteroid;
 }
 
-AFlareMeteorite* UFlareSector::LoadMeteorite(const FFlareMeteoriteSave& MeteoriteData)
+AFlareMeteorite* UFlareSector::LoadMeteorite(FFlareMeteoriteSave& MeteoriteData)
 {
 	FActorSpawnParameters Params;
 	Params.bNoFail = true;
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	AFlareMeteorite* Meteorite = GetGame()->GetWorld()->SpawnActor<AFlareMeteorite>(AFlareMeteorite::StaticClass(), MeteoriteData.Location, MeteoriteData.Rotation, Params);
-	Meteorite->Load(MeteoriteData, this);
+	Meteorite->Load(&MeteoriteData, this);
 
 	SectorMeteorites.AddUnique(Meteorite);
 	return Meteorite;

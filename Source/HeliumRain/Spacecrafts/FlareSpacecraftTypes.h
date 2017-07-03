@@ -283,6 +283,9 @@ struct FFlareMeteoriteSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	bool HasMissed;
 
+	/** Days before impacts */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 DaysBeforeImpact;
 };
 
 /** Spacecraft cargo save data */

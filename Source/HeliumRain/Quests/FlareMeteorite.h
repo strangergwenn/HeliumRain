@@ -28,7 +28,7 @@ public:
 
 
    /** Properties setup */
-   virtual void Load(const FFlareMeteoriteSave& Data, UFlareSector* ParentSector);
+   virtual void Load(FFlareMeteoriteSave* Data, UFlareSector* ParentSector);
 
    /** Save the asteroid to a save file */
    virtual FFlareMeteoriteSave* Save();
@@ -59,7 +59,7 @@ public:
 protected:
 
    // Data
-   FFlareMeteoriteSave                           MeteoriteData;
+   FFlareMeteoriteSave*                          MeteoriteData;
    bool                                          Paused;
 
 

@@ -440,6 +440,7 @@ void UFlareSimulatedSector::CreateMeteorite(int32 ID, UFlareSimulatedSpacecraft*
 	Data.IsMetal = false;
 	Data.Damage = 0;
 	Data.BrokenDamage = 3000;
+	Data.DaysBeforeImpact = FMath::RandRange(2,5);
 	Data.HasMissed = false;
 	Data.TargetStation = TargetStation->GetImmatriculation();
 
@@ -1498,52 +1499,66 @@ static bool ReserveShipComparator (UFlareSimulatedSpacecraft& Ship1, UFlareSimul
 
 void UFlareSimulatedSector::ProcessMeteorites()
 {
+	TArray<FFlareMeteoriteSave> MeteoriteToKeep;
+
 	for(FFlareMeteoriteSave& Meteorite: SectorData.MeteoriteData)
 	{
-		if(Meteorite.Damage >= Meteorite.BrokenDamage || Meteorite.HasMissed)
+		if(Meteorite.DaysBeforeImpact > 0)
 		{
-			continue;
+			--Meteorite.DaysBeforeImpact;
+			MeteoriteToKeep.Add(Meteorite);
 		}
-
-		UFlareSimulatedSpacecraft* TargetSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(Meteorite.TargetStation);
-		if(TargetSpacecraft)
+		else
 		{
-			UFlareSpacecraftComponentsCatalog* Catalog = Game->GetShipPartsCatalog();
-
-			float Energy = Meteorite.BrokenDamage * Meteorite.LinearVelocity.SizeSquared() * 0.1;
-
-			for (int32 ComponentIndex = 0; ComponentIndex < TargetSpacecraft->GetData().Components.Num(); ComponentIndex++)
+			if(Meteorite.Damage >= Meteorite.BrokenDamage || Meteorite.HasMissed)
 			{
-				FFlareSpacecraftComponentSave* TargetComponent = &TargetSpacecraft->GetData().Components[ComponentIndex];
-
-				FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(TargetComponent->ComponentIdentifier);
-
-				float UsageRatio = TargetSpacecraft->GetDamageSystem()->GetUsableRatio(ComponentDescription, TargetComponent);
-				float DamageRatio = TargetSpacecraft->GetDamageSystem()->GetDamageRatio(ComponentDescription, TargetComponent);
-
-
-				if (ComponentDescription && UsageRatio > 0)
-				{
-					if (ComponentDescription->Type == EFlarePartType::InternalComponent)
-					{
-						TargetSpacecraft->GetDamageSystem()->ApplyDamage(ComponentDescription, TargetComponent, Energy, EFlareDamage::DAM_Collision, NULL);
-					}
-				}
+				continue;
 			}
 
-			// Notify PC
-			GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteCrash", "Meteorite crashed"),
-								FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite crashed on {0}"), UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft)),
-								FName("meteorite-crash"),
-								EFlareNotification::NT_Military,
-								false);
+			UFlareSimulatedSpacecraft* TargetSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(Meteorite.TargetStation);
+			if(TargetSpacecraft)
+			{
+				UFlareSpacecraftComponentsCatalog* Catalog = Game->GetShipPartsCatalog();
 
-			GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-hit-station").PutName("sector", GetIdentifier()));
+				float Energy = Meteorite.BrokenDamage * Meteorite.LinearVelocity.SizeSquared() * 0.1;
+
+				for (int32 ComponentIndex = 0; ComponentIndex < TargetSpacecraft->GetData().Components.Num(); ComponentIndex++)
+				{
+					FFlareSpacecraftComponentSave* TargetComponent = &TargetSpacecraft->GetData().Components[ComponentIndex];
+
+					FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(TargetComponent->ComponentIdentifier);
+
+					float UsageRatio = TargetSpacecraft->GetDamageSystem()->GetUsableRatio(ComponentDescription, TargetComponent);
+					float DamageRatio = TargetSpacecraft->GetDamageSystem()->GetDamageRatio(ComponentDescription, TargetComponent);
+
+
+					if (ComponentDescription && UsageRatio > 0)
+					{
+						if (ComponentDescription->Type == EFlarePartType::InternalComponent)
+						{
+							TargetSpacecraft->GetDamageSystem()->ApplyDamage(ComponentDescription, TargetComponent, Energy, EFlareDamage::DAM_Collision, NULL);
+						}
+					}
+				}
+
+				// Notify PC
+				GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteCrash", "Meteorite crashed"),
+									FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite crashed on {0}"), UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft)),
+									FName("meteorite-crash"),
+									EFlareNotification::NT_Military,
+									false);
+
+				GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-hit-station").PutName("sector", GetIdentifier()));
+			}
 		}
 
 	}
 
 	SectorData.MeteoriteData.Empty();
+	for(FFlareMeteoriteSave& Meteorite: MeteoriteToKeep)
+	{
+		SectorData.MeteoriteData.Add(Meteorite);
+	}
 }
 
 void UFlareSimulatedSector::UpdateFleetSupplyConsumptionStats()

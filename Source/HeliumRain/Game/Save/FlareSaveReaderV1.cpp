@@ -521,6 +521,7 @@ void UFlareSaveReaderV1::LoadMeteorite(const TSharedPtr<FJsonObject> Object, FFl
 	LoadFloat(Object, "BrokenDamage", &Data->BrokenDamage);
 	LoadFloat(Object, "Damage", &Data->Damage);
 	LoadFName(Object, "TargetStation", &Data->TargetStation);
+	LoadInt32(Object, "DaysBeforeImpact", &Data->DaysBeforeImpact);
 
 
 

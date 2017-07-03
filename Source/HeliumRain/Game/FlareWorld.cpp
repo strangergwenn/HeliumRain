@@ -2011,6 +2011,72 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 		}
 	}
 
+	for(UFlareSimulatedSector* Sector: GetSectors())
+	{
+		if (Sector->GetMeteorites().Num())
+		{
+			// Find nearest targeting a player station
+
+
+			bool Danger = false;
+			int32 DangerDelay = 0;
+			int32 DangerCount = 0;
+
+			for(FFlareMeteoriteSave& Meteorite : Sector->GetMeteorites())
+			{
+				if(Meteorite.HasMissed || Meteorite.Damage >= Meteorite.BrokenDamage)
+				{
+					continue;
+				}
+
+				UFlareSimulatedSpacecraft* TargetSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(Meteorite.TargetStation);
+				if(TargetSpacecraft)
+				{
+					if (TargetSpacecraft->GetCompany() == PlayerCompany)
+					{
+						if (!Danger || DangerDelay > Meteorite.DaysBeforeImpact)
+						{
+							Danger = true;
+							DangerDelay = Meteorite.DaysBeforeImpact;
+							DangerCount = 1;
+						}
+						else if (DangerDelay == Meteorite.DaysBeforeImpact)
+						{
+							DangerCount++;
+						}
+					}
+				}
+
+			}
+
+			if(Danger)
+			{
+				FFlareIncomingEvent Event;
+				Event.RemainingDuration = DangerDelay;
+
+				FText MeteoriteText = (DangerCount > 1 ? LOCTEXT("MultipleMeteorites","meteorites") : LOCTEXT("OneMeteorite","meteorite"));
+
+				if(DangerDelay == 0)
+				{
+					Event.Text = FText::Format(LOCTEXT("MeteoriteNowTextFormat", "\u2022 <WarningText>{0} {1} menacing {2} now !</>"),
+													FText::AsNumber(DangerCount),
+													MeteoriteText,
+													 Sector->GetSectorName());
+				}
+				else
+				{
+					FText DelayText = (DangerDelay > 1 ? FText::Format(LOCTEXT("MeteoriteMultipleDaysFormat","{0} days"), FText::AsNumber(DangerDelay)) : LOCTEXT("OneDay", "1 day"));
+					Event.Text = FText::Format(LOCTEXT("MeteoriteSoonTextFormat", "\u2022 <WarningText>{0} {1} menacing {2} in {3} !</>"),
+													FText::AsNumber(DangerCount),
+													MeteoriteText,
+													Sector->GetSectorName(),
+													DelayText);
+				}
+				IncomingEvents.Add(Event);
+			}
+		}
+	}
+
 
 	// Sort list
 	IncomingEvents.Sort([](const FFlareIncomingEvent& ip1, const FFlareIncomingEvent& ip2)
