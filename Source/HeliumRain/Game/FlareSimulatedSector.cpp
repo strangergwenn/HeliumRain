@@ -1496,6 +1496,56 @@ static bool ReserveShipComparator (UFlareSimulatedSpacecraft& Ship1, UFlareSimul
 	return FMath::RandBool();
 }
 
+void UFlareSimulatedSector::ProcessMeteorites()
+{
+	for(FFlareMeteoriteSave& Meteorite: SectorData.MeteoriteData)
+	{
+		if(Meteorite.Damage >= Meteorite.BrokenDamage || Meteorite.HasMissed)
+		{
+			continue;
+		}
+
+		UFlareSimulatedSpacecraft* TargetSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(Meteorite.TargetStation);
+		if(TargetSpacecraft)
+		{
+			UFlareSpacecraftComponentsCatalog* Catalog = Game->GetShipPartsCatalog();
+
+			float Energy = Meteorite.BrokenDamage * Meteorite.LinearVelocity.SizeSquared() * 0.1;
+
+			for (int32 ComponentIndex = 0; ComponentIndex < TargetSpacecraft->GetData().Components.Num(); ComponentIndex++)
+			{
+				FFlareSpacecraftComponentSave* TargetComponent = &TargetSpacecraft->GetData().Components[ComponentIndex];
+
+				FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(TargetComponent->ComponentIdentifier);
+
+				float UsageRatio = TargetSpacecraft->GetDamageSystem()->GetUsableRatio(ComponentDescription, TargetComponent);
+				float DamageRatio = TargetSpacecraft->GetDamageSystem()->GetDamageRatio(ComponentDescription, TargetComponent);
+
+
+				if (ComponentDescription && UsageRatio > 0)
+				{
+					if (ComponentDescription->Type == EFlarePartType::InternalComponent)
+					{
+						TargetSpacecraft->GetDamageSystem()->ApplyDamage(ComponentDescription, TargetComponent, Energy, EFlareDamage::DAM_Collision, NULL);
+					}
+				}
+			}
+
+			// Notify PC
+			GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteCrash", "Meteorite crashed"),
+								FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite crashed on {0}"), UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft)),
+								FName("meteorite-crash"),
+								EFlareNotification::NT_Military,
+								false);
+
+			GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-hit-station").PutName("sector", GetIdentifier()));
+		}
+
+	}
+
+	SectorData.MeteoriteData.Empty();
+}
+
 void UFlareSimulatedSector::UpdateFleetSupplyConsumptionStats()
 {
 	SectorData.FleetSupplyConsumptionStats.Append(SectorData.DailyFleetSupplyConsumption);

@@ -422,6 +422,7 @@ public:
 	/** Get the balance of forces as a text */
 	FText GetSectorBalanceText(bool ActiveOnly);
 
+	void ProcessMeteorites();
 
 protected:
 

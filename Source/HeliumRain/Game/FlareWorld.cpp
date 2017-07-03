@@ -496,6 +496,14 @@ void UFlareWorld::Simulate()
 		Sectors[SectorIndex]->ClearBombs();
 	}
 
+
+	// Process meteorites
+	for (UFlareSimulatedSector* Sector :Sectors)
+	{
+		Sector->ProcessMeteorites();
+	}
+
+
 	CompanyMutualAssistance();
 	CheckIntegrity();
 
