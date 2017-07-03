@@ -234,6 +234,13 @@ bool AFlareMeteorite::IsBroken()
 
 void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource, FString DamageCauser)
 {
+
+	AFlarePlayerController* PC = Parent->GetGame()->GetPC();
+	if (DamageSource == PC->GetShipPawn()->GetParent())
+	{
+		PC->SignalHit(NULL, DamageType);
+	}
+
 	if(!IsBroken())
 	{
 		MeteoriteData->Damage+= Energy;

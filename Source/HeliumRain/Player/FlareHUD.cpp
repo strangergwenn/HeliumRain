@@ -39,6 +39,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	, CombatMouseRadius(100)
 	, HUDVisible(true)
 	, PreviousScreenPercentage(0)
+	, HasPlayerHit(false)
 	, CurrentPowerTime(0)
 	, PowerTransitionTime(0.5f)
 	, ShowPerformance(false)
@@ -255,6 +256,7 @@ void AFlareHUD::UpdateHUDVisibility()
 void AFlareHUD::SignalHit(AFlareSpacecraft* HitSpacecraft, EFlareDamage::Type DamageType)
 {
 	PlayerHitSpacecraft = HitSpacecraft;
+	HasPlayerHit = true;
 	PlayerDamageType = DamageType;
 	PlayerHitTime = 0;
 }
@@ -293,7 +295,7 @@ void AFlareHUD::DrawHUD()
 				UTexture2D* NoseIcon = HUDNoseIcon;
 				if (WeaponType == EFlareWeaponGroupType::WG_GUN)
 				{
-					NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
+					NoseIcon = (HasPlayerHit) ? HUDAimHitIcon : HUDAimIcon;
 				}
 
 				// Nose drawing
@@ -320,6 +322,7 @@ void AFlareHUD::DrawHUD()
 	if (PlayerHitTime >= PlayerHitDisplayTime)
 	{
 		PlayerHitSpacecraft = NULL;
+		HasPlayerHit = false;
 	}
 }
 
@@ -1154,7 +1157,7 @@ void AFlareHUD::DrawHUDInternal()
 		}
 
 		// Draw main reticle
-		UTexture2D* NoseIcon = NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
+		UTexture2D* NoseIcon = NoseIcon = (HasPlayerHit) ? HUDAimHitIcon : HUDAimIcon;
 		DrawHUDIcon(CurrentViewportSize / 2, IconSize, NoseIcon, TurretColor, true);
 		FlareDrawText(TurretText.ToString(), FVector2D(0, -70), HudColorNeutral);
 	}
@@ -1470,7 +1473,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 						&& PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
 					{
 						FVector2D AimOffset = ScreenPosition - HelperScreenPosition;
-						UTexture2D* NoseIcon = (PlayerHitSpacecraft != NULL) ? HUDAimHitIcon : HUDAimIcon;
+						UTexture2D* NoseIcon = (HasPlayerHit) ? HUDAimHitIcon : HUDAimIcon;
 
 						FLinearColor AimOffsetColor = HudColorFriendly;
 						AimOffsetColor.A = ZoomAlpha * 0.5;

@@ -227,6 +227,7 @@ protected:
 
 	// Hit target
 	AFlareSpacecraft*                       PlayerHitSpacecraft;
+	bool                                    HasPlayerHit;
 	EFlareDamage::Type                      PlayerDamageType;
 	float                                   PlayerHitTime;
 	float                                   PlayerHitDisplayTime;
