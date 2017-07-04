@@ -503,6 +503,12 @@ void UFlareWorld::Simulate()
 		Sector->ProcessMeteorites();
 	}
 
+	// GenerateMeteorites
+	for (UFlareSimulatedSector* Sector :Sectors)
+	{
+		Sector->GenerateMeteorites();
+	}
+
 
 	CompanyMutualAssistance();
 	CheckIntegrity();

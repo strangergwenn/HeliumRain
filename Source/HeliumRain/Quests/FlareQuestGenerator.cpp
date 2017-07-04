@@ -2519,9 +2519,7 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 
 		UFlareQuestConditionAfterDate* Condition = UFlareQuestConditionAfterDate::Create(this, InterseptDate);
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
-
-		Step->GetEndActions().Add(UFlareQuestActionCreateMeteorite::Create(this, TargetStation));
-
+// TODO repair and display in incomming event
 		Steps.Add(Step);
 	}
 

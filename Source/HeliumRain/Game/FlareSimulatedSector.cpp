@@ -6,9 +6,11 @@
 #include "FlareGame.h"
 #include "FlareGameTools.h"
 #include "FlareGameUserSettings.h"
+#include <random>
 
 #include "../Data/FlareResourceCatalog.h"
 #include "../Data/FlareSpacecraftCatalog.h"
+#include "../Data/FlareMeteoriteCatalog.h"
 
 #include "../Economy/FlareCargoBay.h"
 
@@ -421,34 +423,6 @@ void UFlareSimulatedSector::CreateAsteroid(int32 ID, FName Name, FVector Locatio
 	Data.Location = Location;
 
 	SectorData.AsteroidData.Add(Data);
-}
-
-
-void UFlareSimulatedSector::CreateMeteorite(int32 ID, UFlareSimulatedSpacecraft* TargetStation)
-{
-
-	// Write data
-	FFlareMeteoriteSave Data;
-	Data.MeteoriteMeshID = ID;
-
-//	Data.Identifier = Name;
-	Data.AngularVelocity = FMath::VRand() * FMath::FRandRange(-1.f,1.f);
-	//Data.Scale = FVector(1,1,1);
-	Data.Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
-	Data.Location = TargetStation->GetData().Location + FMath::VRand() * FMath::FRandRange(1000000.f,200000);
-	Data.LinearVelocity =  (TargetStation->GetData().Location - Data.Location).GetUnsafeNormal() * FMath::FRandRange(2500.f,5000.f);
-	Data.IsMetal = false;
-	Data.Damage = 0;
-	Data.BrokenDamage = 3000;
-	Data.DaysBeforeImpact = FMath::RandRange(2,5);
-	Data.HasMissed = false;
-	Data.TargetStation = TargetStation->GetImmatriculation();
-
-	// TODO right location and position
-
-	SectorData.MeteoriteData.Add(Data);
-
-	FLOGV("UFlareSimulatedSector::CreateMeteorite done vel=%s", *Data.LinearVelocity.ToString());
 }
 
 void UFlareSimulatedSector::AddFleet(UFlareFleet* Fleet)
@@ -1558,6 +1532,98 @@ void UFlareSimulatedSector::ProcessMeteorites()
 	for(FFlareMeteoriteSave& Meteorite: MeteoriteToKeep)
 	{
 		SectorData.MeteoriteData.Add(Meteorite);
+	}
+}
+
+void UFlareSimulatedSector::GenerateMeteorites()
+{
+	for(UFlareSimulatedSpacecraft* Station : SectorStations)
+	{
+		float Probability = 0.002;
+		if(FMath::FRand() >  Probability)
+		{
+			continue;
+		}
+
+		float PowerRatio = 1 + .002f * GetGame()->GetGameWorld()->GetDate();
+		GenerateMeteoriteGroup(Station, PowerRatio);
+	}
+
+}
+
+void UFlareSimulatedSector::GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* TargetStation, float PowerRatio)
+{
+	std::mt19937 e2(time(0));
+
+	// Velocity is pick with a standard deviation and a mean increasing with the powerRatio
+
+	float BaseVelocity = 4000.f; //40 m/s
+	float VelocityMean = BaseVelocity * (1 + (PowerRatio-1) *0.1);
+	float VelocitySD = VelocityMean / 4;
+	std::normal_distribution<> VelocityGen(VelocityMean, VelocitySD);
+
+	float Velocity = FMath::Abs(VelocityGen(e2))+ 1.f;
+	float VelocityRatio = Velocity / VelocityMean;
+
+	bool IsMetal = Velocity > VelocityMean;
+
+
+	float BaseResistance = 15000;
+	float ResistanceMean = BaseResistance * PowerRatio / VelocityRatio; // Power use for velocity is not use for resistance
+	float ResistanceSD = ResistanceMean / 4;
+	std::normal_distribution<> ResistanceGen(ResistanceMean, ResistanceSD);
+
+	float Resistance = FMath::Abs(ResistanceGen(e2)+ 1.f);
+
+
+	float ResistancePerMeteoriteMean = 3000 + (1 + (1-PowerRatio) *0.5);
+	float ResistancePerMeteoriteSD = ResistancePerMeteoriteMean / 10;
+	std::normal_distribution<> ResistancePerMeteoriteGen(ResistancePerMeteoriteMean, ResistancePerMeteoriteSD);
+
+	float ResistancePerMeteorite = FMath::Abs(ResistancePerMeteoriteGen(e2)) + 1.f;
+
+	int32 Count = FMath::Max(1, FMath::RoundToInt(Resistance / ResistancePerMeteorite));
+
+
+	std::normal_distribution<> MeteoriteResistanceGen(ResistancePerMeteorite, ResistancePerMeteorite/6);
+
+
+	int32 MeshCount = IsMetal ? GetGame()->GetMeteoriteCatalog()->RockMeteorites.Num() : GetGame()->GetMeteoriteCatalog()->RockMeteorites.Num();
+
+
+	std::normal_distribution<> AngularVelocityGen(0.f, 1.f);
+	std::normal_distribution<> DaysGen(15.f, 3.f);
+
+	FVector BaseLocation = TargetStation->GetData().Location + FMath::VRand() * FMath::FRandRange(1800000.f,200000);
+
+	int32 DaysBeforeImpact = FMath::Abs(DaysGen(e2)) + 1.f;
+
+
+	std::normal_distribution<> OffsetGen(0.f, 1500.f);
+
+	for(int i = 0; i< Count; i++)
+	{
+		FFlareMeteoriteSave Data;
+		Data.TargetStation = TargetStation->GetImmatriculation();
+		Data.MeteoriteMeshID = FMath::RandRange(0, MeshCount-1);
+		Data.IsMetal = IsMetal;
+		Data.BrokenDamage = FMath::Abs(MeteoriteResistanceGen(e2)+ 1.f);;
+		Data.LinearVelocity =  (TargetStation->GetData().Location - Data.Location).GetUnsafeNormal() * Velocity;
+		Data.AngularVelocity = FMath::VRand() * AngularVelocityGen(e2);
+		Data.Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
+
+		Data.TargetOffset = FVector(OffsetGen(e2), OffsetGen(e2), OffsetGen(e2)) + Data.LinearVelocity.GetUnsafeNormal() * OffsetGen(e2) * 20;
+
+		Data.Location = BaseLocation + Data.TargetOffset;
+
+
+
+
+		Data.DaysBeforeImpact = DaysBeforeImpact;
+		Data.Damage = 0;
+		Data.HasMissed = false;
+
+		SectorData.MeteoriteData.Add(Data);
 	}
 }
 

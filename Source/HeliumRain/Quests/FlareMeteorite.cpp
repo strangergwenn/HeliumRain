@@ -104,7 +104,7 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 
 		float Velocity = MeteoriteData->LinearVelocity.Size();
 
-		FVector TargetDirection = (Target->GetActorLocation() - GetActorLocation()).GetUnsafeNormal();
+		FVector TargetDirection = (Target->GetActorLocation() + MeteoriteData->TargetOffset - GetActorLocation()).GetUnsafeNormal();
 		FVector TargetVelocity = TargetDirection * Velocity;
 
 		float Dot = FVector::DotProduct(CurrentDirection, TargetDirection);
@@ -267,7 +267,7 @@ void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, 
 			FLOGV("Energy %f", Energy);
 
 
-			Meteorite->ApplyRadiusDamage(FMath::Max(200.f, Energy), Location, 1.f, FMath::Max(200.f, Energy )* 200 , false);
+			Meteorite->ApplyRadiusDamage(FMath::Max(200.f, Energy), Location, 100.f, FMath::Max(200.f, Energy )* 200 , false);
 
 		}
 	}
@@ -277,7 +277,7 @@ void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, 
 
 		if(DamageType != EFlareDamage::DAM_Collision)
 		{
-			Meteorite->ApplyRadiusDamage(FMath::Max(180.f, Energy/ 100 ) , Location, 1.f, FMath::Max(180.f, Energy ) * 500 , false);
+			Meteorite->ApplyRadiusDamage(FMath::Max(180.f, Energy/ 100 ) , Location, 100.f, FMath::Max(180.f, Energy ) * 500 , false);
 		}
 	}
 }

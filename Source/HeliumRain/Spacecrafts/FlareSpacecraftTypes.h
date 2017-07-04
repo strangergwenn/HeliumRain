@@ -247,6 +247,10 @@ struct FFlareMeteoriteSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FVector Location;
 
+	/** Meteorite target offset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FVector TargetOffset;
+
 	/** Meteorite rotation */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FRotator Rotation;

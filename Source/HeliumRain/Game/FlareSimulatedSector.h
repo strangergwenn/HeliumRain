@@ -378,9 +378,6 @@ public:
 	/** Create an asteroid */
 	void CreateAsteroid(int32 ID, FName Name, FVector Location);
 
-	/** Create a meteorite */
-	void CreateMeteorite(int32 ID, UFlareSimulatedSpacecraft* TargetStation);
-
 	/** Add the fleet and its ships from the sector */
 	void AddFleet(UFlareFleet* Fleet);
 
@@ -423,6 +420,8 @@ public:
 	FText GetSectorBalanceText(bool ActiveOnly);
 
 	void ProcessMeteorites();
+	void GenerateMeteorites();
+	void GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* TargetStation, float PowerRatio);
 
 protected:
 

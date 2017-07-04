@@ -414,6 +414,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveMeteorite(FFlareMeteoriteSave* Dat
 
 	//JsonObject->SetStringField("Identifier", Data->Identifier.ToString());
 	JsonObject->SetStringField("Location", FormatVector(Data->Location));
+	JsonObject->SetStringField("TargetOffset", FormatVector(Data->TargetOffset));
 	JsonObject->SetStringField("Rotation", FormatRotator(Data->Rotation));
 	JsonObject->SetStringField("LinearVelocity", FormatVector(Data->LinearVelocity));
 	JsonObject->SetStringField("AngularVelocity", FormatVector(Data->AngularVelocity));

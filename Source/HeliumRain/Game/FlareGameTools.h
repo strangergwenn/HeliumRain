@@ -259,9 +259,9 @@ public:
 	UFUNCTION(exec)
 	void CreateAsteroid(int32 ID, FName Name);
 
-	/** Create a meteorite targeting a station*/
+	/** Create a meteorite group targeting a station*/
 	UFUNCTION(exec)
-	void CreateMeteorite(int32 ID, FName TargetStationImmatriculation);
+	void CreateMeteoriteGroup(FName TargetSector, float PowerRatio);
 
 	/*----------------------------------------------------
 		Helper

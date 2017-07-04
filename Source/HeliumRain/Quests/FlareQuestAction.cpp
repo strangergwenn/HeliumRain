@@ -213,39 +213,5 @@ void UFlareQuestActionReputationChange::Perform()
 	Company->GivePlayerReputation(Amount);
 }
 
-/*----------------------------------------------------
-	Create meteorite action
-----------------------------------------------------*/
-UFlareQuestActionCreateMeteorite::UFlareQuestActionCreateMeteorite(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-{
-}
-
-UFlareQuestActionCreateMeteorite* UFlareQuestActionCreateMeteorite::Create(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* TargetParam)
-{
-	UFlareQuestActionCreateMeteorite* Action = NewObject<UFlareQuestActionCreateMeteorite>(ParentQuest, UFlareQuestActionCreateMeteorite::StaticClass());
-	Action->Load(ParentQuest, TargetParam);
-	return Action;
-}
-
-void UFlareQuestActionCreateMeteorite::Load(UFlareQuest* ParentQuest, UFlareSimulatedSpacecraft* TargetParam)
-{
-	LoadInternal(ParentQuest);
-	TargetStation = TargetParam;
-}
-
-void UFlareQuestActionCreateMeteorite::Perform()
-{
-	if (TargetStation)
-	{
-		// TODO variations
-		TargetStation->GetCurrentSector()->CreateMeteorite(0, TargetStation);
-	}
-	else
-	{
-		FLOGV("ERROR in UFlareQuestActionCreateMeteorite::Perform : invalid sector to visit for quest %s", *Quest->GetIdentifier().ToString());
-	}
-}
-
 
 #undef LOCTEXT_NAMESPACE

@@ -213,7 +213,7 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 
 		if (MostDangerousTimeToHit > 0)
 		{
-			UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(MostDangerousCandidateActor->GetRootComponent());
+			UPrimitiveComponent* StaticMeshComponent = Cast<UPrimitiveComponent>(MostDangerousCandidateActor->GetRootComponent());
 			
 
 			FVector HitDistancePoint = CurrentLocation + Ship->Airframe->GetPhysicsLinearVelocity() * MostDangerousTimeToHit;

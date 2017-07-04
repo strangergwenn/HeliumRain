@@ -514,6 +514,7 @@ void UFlareSaveReaderV1::LoadMeteorite(const TSharedPtr<FJsonObject> Object, FFl
 {
 	//LoadFName(Object, "Identifier", &Data->Identifier);
 	LoadVector(Object, "Location", &Data->Location);
+	LoadVector(Object, "TargetOffset", &Data->TargetOffset);
 	LoadRotator(Object, "Rotation", &Data->Rotation);
 	LoadVector(Object, "LinearVelocity", &Data->LinearVelocity);
 	LoadVector(Object, "AngularVelocity", &Data->AngularVelocity);
