@@ -608,8 +608,6 @@ void UFlareQuestGenerated::CreateGenericReward(FFlareBundle& Data, int64 QuestVa
 
 void UFlareQuestGenerated::AddGlobalFailCondition(UFlareQuestCondition* Condition)
 {
-
-
 	for(UFlareQuestStep* Step : GetSteps())
 	{
 		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(Condition);
@@ -1557,7 +1555,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGene
 		WarPrice = 2000 * (HostileCompany->GetPlayerReputation() + 100);
 	}
 
-	int32 PreferredPlayerCombatPoints= FMath::Max(5, int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5)));
+	int32 PreferredPlayerCombatPoints = int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5));
 
 
 	int32 NeedArmyCombatPoints= FMath::Max(0, SectorHelper::GetHostileArmyCombatPoints(Sector, Company, true) - SectorHelper::GetCompanyArmyCombatPoints(Sector, Company, true) /4);
@@ -1735,7 +1733,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedJoinAttack::Create(UFlareQuestGenerato
 		}
 	}
 
-	int32 PreferredPlayerCombatPoints= FMath::Max(5, int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5)));
+	int32 PreferredPlayerCombatPoints= int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5));
 
 
 	int32 NeedArmyCombatPoints= FMath::Max(0, Target.EnemyArmyCombatPoints - AttackCombatPoints /4);
@@ -1955,7 +1953,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedSectorDefense::Create(UFlareQuestGener
 		WarPrice += 2000 * (HostileCompany->GetPlayerReputation() + 100);
 	}
 
-	int32 PreferredPlayerCombatPoints= FMath::Max(5, int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5)));
+	int32 PreferredPlayerCombatPoints = int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5));
 
 
 	int32 NeedArmyCombatPoints= FMath::Max(0, AttackCombatPoints - Target.EnemyArmyCombatPoints /4);
@@ -2162,7 +2160,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt::Create(UFlareQuestGenerator
 		WarPrice = 500 * (HostileCompany->GetPlayerReputation() + 100);
 	}
 
-	int32 PreferredPlayerCombatPoints= FMath::Max(10, int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints));
+	int32 PreferredPlayerCombatPoints= int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints);
 
 	bool RequestDestroyTarget = FMath::RandBool();
 
@@ -2345,7 +2343,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt::Create(UFlareQuestGenera
 		WarPrice = 500 * (HostileCompany->GetPlayerReputation() + 100);
 	}
 
-	int32 PreferredPlayerCombatPoints= FMath::Max(10, int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints));
+	int32 PreferredPlayerCombatPoints= int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints);
 
 	bool RequestDestroyTarget = FMath::RandBool();
 
