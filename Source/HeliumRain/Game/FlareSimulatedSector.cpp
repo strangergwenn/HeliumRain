@@ -18,6 +18,8 @@
 
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
+#include <ctime>
+
 
 DECLARE_CYCLE_STAT(TEXT("FlareSector SimulatePriceVariation"), STAT_FlareSector_SimulatePriceVariation, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorFriendlyness"), STAT_FlareSector_GetSectorFriendlyness, STATGROUP_Flare);
