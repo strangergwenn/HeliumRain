@@ -17,6 +17,7 @@
 #include "../Player/FlarePlayerController.h"
 
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
+#include "../Quests/FlareQuestGenerator.h"
 
 #include <ctime>
 
@@ -1483,6 +1484,38 @@ void UFlareSimulatedSector::ProcessMeteorites()
 		{
 			--Meteorite.DaysBeforeImpact;
 			MeteoriteToKeep.Add(Meteorite);
+
+			UFlareSimulatedSpacecraft* Station =  Game->GetGameWorld()->FindSpacecraft(Meteorite.TargetStation);
+
+			bool PlayerTarget = false;
+
+			if(Station && Station->GetCompany() == Game->GetPC()->GetCompany())
+			{
+				PlayerTarget = true;
+			}
+
+
+			if(GetGame()->GetQuestManager()->IsInterestingMeteorite(Meteorite))
+			{
+				if(Meteorite.DaysBeforeImpact == 0)
+				{
+					GetGame()->GetPC()->Notify(FText::Format(LOCTEXT("MeteoriteHere", "Meteorites in {0}"), GetSectorName()),
+										FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite group has entered {0} and threatens stations"), GetSectorName()),
+										FName("meteorite-in-sector"),
+										EFlareNotification::NT_Military,
+										false);
+
+				}
+				else if(Meteorite.DaysBeforeImpact == 1 && !GetGame()->GetPC()->GetCompany()->IsTechnologyUnlocked("early-warning") && PlayerTarget)
+				{
+					GetGame()->GetPC()->Notify(LOCTEXT("ImminentMeteoriteDetected", "Meteorites detected"),
+										FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite group has been detected as potential danger at {0}"), GetSectorName()),
+										FName("meteorite-detected"),
+										EFlareNotification::NT_Military,
+										false);
+				}
+
+			}
 		}
 		else
 		{
@@ -1518,11 +1551,14 @@ void UFlareSimulatedSector::ProcessMeteorites()
 				}
 
 				// Notify PC
-				GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteCrash", "Meteorite crashed"),
-									FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite crashed on {0}"), UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft)),
-									FName("meteorite-crash"),
-									EFlareNotification::NT_Military,
-									false);
+				if(GetGame()->GetQuestManager()->IsInterestingMeteorite(Meteorite))
+				{
+					GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteCrash", "Meteorite crashed"),
+										FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite crashed on {0}"), UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft)),
+										FName("meteorite-crash"),
+										EFlareNotification::NT_Military,
+										false);
+				}
 
 				GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-hit-station").PutName("sector", GetIdentifier()));
 			}
@@ -1603,6 +1639,8 @@ void UFlareSimulatedSector::GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* Ta
 
 	std::normal_distribution<> OffsetGen(0.f, 1500.f);
 
+	float TotalEffectiveResistance = 0;
+
 	for(int i = 0; i< Count; i++)
 	{
 		FFlareMeteoriteSave Data;
@@ -1626,7 +1664,29 @@ void UFlareSimulatedSector::GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* Ta
 		Data.HasMissed = false;
 
 		SectorData.MeteoriteData.Add(Data);
+
+		TotalEffectiveResistance += Data.BrokenDamage;
 	}
+
+
+	float EffectivePowerRatio = (TotalEffectiveResistance / BaseResistance) * (Velocity / BaseVelocity);
+
+	if(TargetStation->GetCompany() == GetGame()->GetPC()->GetCompany())
+	{
+		if(GetGame()->GetPC()->GetCompany()->IsTechnologyUnlocked("early-warning"))
+		{
+			GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteDetected", "Meteorites detected"),
+								FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite group has been detected as potential danger for one of your stations at {0}"), GetSectorName()),
+								FName("meteorite-detected"),
+								EFlareNotification::NT_Military,
+								false);
+		}
+	}
+	else
+	{
+		GetGame()->GetQuestManager()->GetQuestGenerator()->GenerateMeteoriteQuest(TargetStation, EffectivePowerRatio, Count, DaysBeforeImpact);
+	}
+
 }
 
 void UFlareSimulatedSector::UpdateFleetSupplyConsumptionStats()

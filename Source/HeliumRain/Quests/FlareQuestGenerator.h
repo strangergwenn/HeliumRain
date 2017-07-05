@@ -38,6 +38,8 @@ public:
 
 	void GenerateMilitaryQuests();
 
+	void GenerateMeteoriteQuest(UFlareSimulatedSpacecraft* TargetStation, float Power, int32 Count, int64 TimeBeforeImpact);
+
 	void GenerateAttackQuests(UFlareCompany* AttackCompany, int32 AttackCombatPoints, WarTarget& Target, int64 TravelDuration);
 
 	void RegisterQuest(UFlareQuestGenerated* Quest);
@@ -261,5 +263,5 @@ public:
 
 		/** Load the quest from description file */
 		virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
-		static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector);
+		static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSpacecraft* Target, float Power, int32 Count, int64 TimeBeforeImpact);
 	};

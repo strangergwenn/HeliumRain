@@ -313,4 +313,6 @@ public:
 	{
 		return QuestGenerator;
 	}
+
+	bool IsInterestingMeteorite(FFlareMeteoriteSave& Meteorite);
 };

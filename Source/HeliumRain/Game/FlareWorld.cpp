@@ -2027,10 +2027,11 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 			bool Danger = false;
 			int32 DangerDelay = 0;
 			int32 DangerCount = 0;
+			bool PlayerTarget = false;
 
 			for(FFlareMeteoriteSave& Meteorite : Sector->GetMeteorites())
 			{
-				if(Meteorite.HasMissed || Meteorite.Damage >= Meteorite.BrokenDamage)
+				if(Meteorite.HasMissed || Meteorite.Damage >= Meteorite.BrokenDamage || !GetGame()->GetQuestManager()->IsInterestingMeteorite(Meteorite))
 				{
 					continue;
 				}
@@ -2038,18 +2039,16 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 				UFlareSimulatedSpacecraft* TargetSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(Meteorite.TargetStation);
 				if(TargetSpacecraft)
 				{
-					if (TargetSpacecraft->GetCompany() == PlayerCompany)
+					if (!Danger || DangerDelay > Meteorite.DaysBeforeImpact)
 					{
-						if (!Danger || DangerDelay > Meteorite.DaysBeforeImpact)
-						{
-							Danger = true;
-							DangerDelay = Meteorite.DaysBeforeImpact;
-							DangerCount = 1;
-						}
-						else if (DangerDelay == Meteorite.DaysBeforeImpact)
-						{
-							DangerCount++;
-						}
+						Danger = true;
+						DangerDelay = Meteorite.DaysBeforeImpact;
+						DangerCount = 1;
+						PlayerTarget = TargetSpacecraft->GetCompany() == PlayerCompany;
+					}
+					else if (DangerDelay == Meteorite.DaysBeforeImpact)
+					{
+						DangerCount++;
 					}
 				}
 
@@ -2065,18 +2064,28 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 				if(DangerDelay == 0)
 				{
 					Event.Text = FText::Format(LOCTEXT("MeteoriteNowTextFormat", "\u2022 <WarningText>{0} {1} menacing {2} now !</>"),
-													FText::AsNumber(DangerCount),
-													MeteoriteText,
-													 Sector->GetSectorName());
+														FText::AsNumber(DangerCount),
+														MeteoriteText,
+														 Sector->GetSectorName());
 				}
-				else
+				else if(DangerDelay == 1 || PlayerCompany->IsTechnologyUnlocked("early-warning") || !PlayerTarget)
 				{
 					FText DelayText = (DangerDelay > 1 ? FText::Format(LOCTEXT("MeteoriteMultipleDaysFormat","{0} days"), FText::AsNumber(DangerDelay)) : LOCTEXT("OneDay", "1 day"));
-					Event.Text = FText::Format(LOCTEXT("MeteoriteSoonTextFormat", "\u2022 <WarningText>{0} {1} menacing {2} in {3} !</>"),
-													FText::AsNumber(DangerCount),
-													MeteoriteText,
-													Sector->GetSectorName(),
-													DelayText);
+
+					if(PlayerCompany->IsTechnologyUnlocked("advanced-radar"))
+					{
+						Event.Text = FText::Format(LOCTEXT("MeteoriteSoonTextFormat", "\u2022 <WarningText>{0} {1} menacing {2} in {3} !</>"),
+														FText::AsNumber(DangerCount),
+														MeteoriteText,
+														Sector->GetSectorName(),
+														DelayText);
+					}
+					else
+					{
+						Event.Text = FText::Format(LOCTEXT("MeteoriteSoonNoRadarTextFormat", "\u2022 <WarningText>A meteorite group menacing {0} in {1} !</>"),
+														Sector->GetSectorName(),
+														DelayText);
+					}
 				}
 				IncomingEvents.Add(Event);
 			}

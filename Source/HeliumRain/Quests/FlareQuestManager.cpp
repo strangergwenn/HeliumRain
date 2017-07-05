@@ -740,5 +740,34 @@ int32 UFlareQuestManager::GetVisibleQuestCount(UFlareCompany* Client)
 	return QuestCount;
 }
 
+bool UFlareQuestManager::IsInterestingMeteorite(FFlareMeteoriteSave& Meteorite)
+{
+	UFlareSimulatedSpacecraft* Station =  Game->GetGameWorld()->FindSpacecraft(Meteorite.TargetStation);
+
+	if(!Station)
+	{
+		return false;
+	}
+
+	if(Station->GetCompany() == Game->GetPC()->GetCompany())
+	{
+		return true;
+	}
+
+	for(UFlareQuest* OngoingQuest : GetOngoingQuests())
+	{
+		UFlareQuestGeneratedMeteoriteInterception* MeteoriteQuest = Cast<UFlareQuestGeneratedMeteoriteInterception>(OngoingQuest);
+		if(MeteoriteQuest)
+		{
+			if(MeteoriteQuest->GetInitData()->GetName("target-station") == Meteorite.TargetStation)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 
 #undef LOCTEXT_NAMESPACE
