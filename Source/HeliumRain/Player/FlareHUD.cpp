@@ -1240,12 +1240,19 @@ void AFlareHUD::DrawHUDInternal()
 	{
 		bool PreciseMeteoriteAim = false;
 
+		float Range = 0;
+		float AmmoLifeTime = 0;
+
 		if (PlayerShip && (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN || PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET|| PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB))
 		{
 			FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
 			if (WeaponGroup)
 			{
 				PreciseMeteoriteAim = true;
+				Range = WeaponGroup->Weapons[0]->GetDescription()->WeaponCharacteristics.GunCharacteristics.AmmoRange;
+				float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
+				AmmoLifeTime = Range / AmmoVelocity;
+
 			}
 		}
 
@@ -1259,6 +1266,8 @@ void AFlareHUD::DrawHUDInternal()
 
 			FVector AimLocation =  Meteorite->GetActorLocation();
 
+			float InterceptTime = 0;
+
 			if(PreciseMeteoriteAim)
 			{
 				UPrimitiveComponent* MeteoriteRootComponent = Cast<UPrimitiveComponent>(Meteorite->GetRootComponent());
@@ -1270,7 +1279,7 @@ void AFlareHUD::DrawHUDInternal()
 					float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
 					FVector CameraLocation = PlayerShip->GetCamera()->GetComponentLocation();
 
-					float InterceptTime = SpacecraftHelper::GetIntersectionPosition(Meteorite->GetActorLocation(), MeteoriteRootComponent->GetPhysicsLinearVelocity(), CameraLocation, PlayerShip->GetLinearVelocity() * 100, AmmoVelocity * 100, 0.0, &AmmoIntersectionLocation);
+					InterceptTime = SpacecraftHelper::GetIntersectionPosition(Meteorite->GetActorLocation(), MeteoriteRootComponent->GetPhysicsLinearVelocity(), CameraLocation, PlayerShip->GetLinearVelocity() * 100, AmmoVelocity * 100, 0.0, &AmmoIntersectionLocation);
 
 					if(InterceptTime > 0 && InterceptTime < 40)
 					{
@@ -1285,7 +1294,15 @@ void AFlareHUD::DrawHUDInternal()
 			{
 				if (IsInScreen(ScreenPosition))
 				{
-					DrawHUDIcon(ScreenPosition, IconSize, HUDBombMarker, HudColorObjective, true);
+
+					if(PreciseMeteoriteAim && (Range==0 || InterceptTime < AmmoLifeTime))
+					{
+						DrawHUDIcon(ScreenPosition, IconSize, HUDAimHelperIcon, HudColorObjective, true);
+					}
+					else
+					{
+						DrawHUDIcon(ScreenPosition, IconSize, HUDBombMarker, HudColorObjective, true);
+					}
 					ShouldDrawMarker = false;
 				}
 
