@@ -1632,7 +1632,7 @@ void UFlareSimulatedSector::GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* Ta
 	std::normal_distribution<> AngularVelocityGen(0.f, 1.f);
 	std::normal_distribution<> DaysGen(15.f, 3.f);
 
-	FVector BaseLocation = TargetStation->GetData().Location + FMath::VRand() * FMath::FRandRange(1800000.f,200000);
+	FVector BaseLocation = TargetStation->GetData().Location + FMath::VRand() * FMath::FRandRange(1000000.f,1500000);
 
 	int32 DaysBeforeImpact = FMath::Abs(DaysGen(e2)) + 1.f;
 
