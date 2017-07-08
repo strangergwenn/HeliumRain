@@ -1577,7 +1577,7 @@ void UFlareSimulatedSector::GenerateMeteorites()
 {
 	for(UFlareSimulatedSpacecraft* Station : SectorStations)
 	{
-		float Probability = 0.002;
+		float Probability = 0.0004;
 		if(FMath::FRand() >  Probability)
 		{
 			continue;

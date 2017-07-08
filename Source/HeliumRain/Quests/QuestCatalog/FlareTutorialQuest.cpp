@@ -862,7 +862,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "have-military", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition){
+																																			  [this](UFlareQuestCondition* Condition){
 			for(auto Ship: GetQuestManager()->GetGame()->GetPC()->GetCompany()->GetCompanyShips())
 			{
 				if(Ship->IsMilitary() && Ship->GetSize() == EFlarePartSize::S)
@@ -889,7 +889,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "fly-military", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition){
+																																			  [this](UFlareQuestCondition* Condition){
 
 			UFlareSimulatedSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetPlayerShip();
 
@@ -916,7 +916,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "toggle-on-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("toggle-combat") && Bundle.GetInt32("new-state") == 1)
 			{
@@ -941,7 +941,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "toggle-off-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("toggle-combat") && Bundle.GetInt32("new-state") == 0)
 			{
@@ -966,7 +966,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "activate-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("activate-weapon") && Bundle.GetInt32("index") == 0)
 			{
@@ -991,7 +991,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "deactivate-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("deactivate-weapon"))
 			{
@@ -1017,7 +1017,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "fire-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("fire-gun"))
 			{
@@ -1043,7 +1043,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "fly-to-asteroid", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition){
+																																			  [this](UFlareQuestCondition* Condition){
 
 			UFlareSimulatedSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetPlayerShip();
 
@@ -1070,7 +1070,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "hit-asteroid", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("hit-asteroid"))
 			{
@@ -1097,7 +1097,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "target-cargo", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition){
+																																			  [this](UFlareQuestCondition* Condition){
 
 			UFlareSimulatedSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetPlayerShip();
 
@@ -1135,7 +1135,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "zoom-cargo	", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [this](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("full-zoom"))
 			{
@@ -1176,7 +1176,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "hit-cargo", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [this](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("hit-ship"))
 			{
@@ -1214,7 +1214,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "have-2-military", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition){
+																																			  [this](UFlareQuestCondition* Condition){
 
 			int Count = 0;
 			for(auto Ship: GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetShips())
@@ -1250,7 +1250,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "multiple-quick-switch", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("quick-switch"))
 			{
@@ -1276,7 +1276,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "battle-sector", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition){
+																																			  [this](UFlareQuestCondition* Condition){
 
 			UFlareCompany* PlayerCompany = GetQuestManager()->GetGame()->GetPC()->GetCompany();
 			if(GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet() && GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetCurrentSector()->GetSectorBattleState(PlayerCompany).InFight)
@@ -1303,7 +1303,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "hit-cargo", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("enemy-uncontrollable"))
 			{
@@ -1353,7 +1353,7 @@ void UFlareQuestTutorialSplitFleet::Load(UFlareQuestManager* Parent)
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(
 				UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-		[&](UFlareQuestCondition* Condition){
+		[this](UFlareQuestCondition* Condition){
 
 					if(GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetShipCount() > 1)
 					{
@@ -1376,7 +1376,7 @@ void UFlareQuestTutorialSplitFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "travel-large-fleet", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [this](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("travel-end") && GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetShipCount() > 1)
 			{
@@ -1409,7 +1409,7 @@ void UFlareQuestTutorialSplitFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "select-fleet", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [this](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("fleet-selected") && Bundle.GetName("fleet") == GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetIdentifier())
 			{
@@ -1434,7 +1434,7 @@ void UFlareQuestTutorialSplitFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "edit-fleet", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [this](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("fleet-edited") && Bundle.GetName("fleet") == GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetIdentifier())
 			{
@@ -1460,7 +1460,7 @@ void UFlareQuestTutorialSplitFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "battle-sector", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition){
+																																			  [this](UFlareQuestCondition* Condition){
 				if(GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetShipCount() == 1)
 				{
 					return true;
@@ -1508,7 +1508,7 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(
 				UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-		[&](UFlareQuestCondition* Condition){
+		[this](UFlareQuestCondition* Condition){
 
 					if(GetQuestManager()->GetGame()->GetPC()->GetCompany()->GetCompanyFleets().Num() > 1)
 					{
@@ -1539,7 +1539,7 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-sector-menu", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-				[&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+				[this](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if (Bundle.HasTag("open-menu") && Bundle.GetInt32("menu") == (EFlareMenu::MENU_Sector+0))
 			{
@@ -1575,7 +1575,7 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 		FText Description = LOCTEXT("StartDistantTravelDescription","At the left of the travel button, select a remote fleet before starting a travel.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-distant-travel", Description);
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,  [&](UFlareQuestCondition* Condition)
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,  [this](UFlareQuestCondition* Condition)
 			{
 				UFlareCompany* PlayerCompany = GetQuestManager()->GetGame()->GetPC()->GetCompany();
 
@@ -1604,7 +1604,7 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "wait-distant-travel-end", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-			[&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+			[this](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if (Bundle.HasTag("travel-end") && Bundle.GetName("fleet") != GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetIdentifier())
 			{
@@ -1629,7 +1629,7 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-trade-sector", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-			[&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+			[this](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if (Bundle.HasTag("open-menu") && Bundle.GetInt32("menu") == (EFlareMenu::MENU_Sector+0))
 			{
@@ -1665,7 +1665,7 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "distant-trade", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-			[&](UFlareQuestCondition* Condition)
+			[this](UFlareQuestCondition* Condition)
 		{
 			for (UFlareSimulatedSpacecraft* Ship: GetQuestManager()->GetGame()->GetPC()->GetCompany()->GetCompanyShips())
 			{
@@ -1693,7 +1693,7 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "trade-end", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-			[&](UFlareQuestCondition* Condition)
+			[this](UFlareQuestCondition* Condition)
 		{
 			for (UFlareSimulatedSpacecraft* Ship: GetQuestManager()->GetGame()->GetPC()->GetCompany()->GetCompanyShips())
 			{
@@ -1753,7 +1753,7 @@ void UFlareQuestTutorialMergeFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "join-fleets", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-			[&](UFlareQuestCondition* Condition)
+			[this](UFlareQuestCondition* Condition)
 		{
 			UFlareCompany* PlayerCompany = GetQuestManager()->GetGame()->GetPC()->GetCompany();
 
@@ -1794,7 +1794,7 @@ void UFlareQuestTutorialMergeFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "select-fleet", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-			[&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+			[this](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("fleet-selected") && Bundle.GetName("fleet") == GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetIdentifier())
 			{
@@ -1819,7 +1819,7 @@ void UFlareQuestTutorialMergeFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "edit-fleet", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-			[&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+			[this](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("fleet-edited") && Bundle.GetName("fleet") == GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet()->GetIdentifier())
 			{
@@ -1845,7 +1845,7 @@ void UFlareQuestTutorialMergeFleet::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "merge-fleet", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition){
+																																			  [this](UFlareQuestCondition* Condition){
 					UFlareCompany* PlayerCompany = GetQuestManager()->GetGame()->GetPC()->GetCompany();
 
 					for(UFlareFleet* Fleet : PlayerCompany->GetCompanyFleets())
@@ -1915,7 +1915,7 @@ void UFlareQuestTutorialTradeRoute::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "have-2-fleets", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition){
+																																			  [this](UFlareQuestCondition* Condition){
 
 
 						  if(GetQuestManager()->GetGame()->GetPC()->GetCompany()->GetCompanyFleets().Num() > 1)
@@ -1959,7 +1959,7 @@ void UFlareQuestTutorialTradeRoute::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "assign-fleet", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("assign-fleet"))
 			{
@@ -1984,7 +1984,7 @@ void UFlareQuestTutorialTradeRoute::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "add-trade-route-sector", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("trade-route-sector-add"))
 			{
@@ -2009,7 +2009,7 @@ void UFlareQuestTutorialTradeRoute::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "add-trade-route-sector", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("trade-route-transaction"))
 			{

@@ -2519,6 +2519,8 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 		UFlareQuestConditionAfterDate* Condition = UFlareQuestConditionAfterDate::Create(this, InterseptDate);
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, TargetStation->GetCurrentSector()));
+
 		Steps.Add(Step);
 	}
 
@@ -2529,7 +2531,7 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "destroy", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
-																																			  [&](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+																																			  [=](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
 		{
 			if(Bundle.HasTag("meteorite-destroyed") && Bundle.GetName("sector") == TargetStation->GetCurrentSector()->GetIdentifier())
 			{
@@ -2542,11 +2544,11 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 			}
 			return 0;
 		},
-		[&]()
+		[=]()
 		{
 			return FText::Format(LOCTEXT("MeteoriteDestroyedConditionLabel", "Destroy {0} meteorites in {1}"), FText::AsNumber(MeteoriteCount), TargetStation->GetCurrentSector()->GetSectorName());
 		},
-		[&](UFlareQuestCondition* Condition)
+		[](UFlareQuestCondition* Condition)
 		{
 			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 		},  "DestroyMeteoriteCond1", MeteoriteCount));
