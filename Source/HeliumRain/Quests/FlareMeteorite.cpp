@@ -35,6 +35,12 @@ AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(P
 	Meteorite->PrimaryComponentTick.bCanEverTick = true;
 	PrimaryActorTick.bCanEverTick = true;
 	Paused = false;
+
+	// Content
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> RockEffectTemplateObj(TEXT("/Game/Environment/Meteorites/Common/PS_Breakup_Rock.PS_Breakup_Rock"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> MetalEffectTemplateObj(TEXT("/Game/Environment/Meteorites/Common/PS_Breakup_Metal.PS_Breakup_Metal"));
+	RockEffectTemplate = RockEffectTemplateObj.Object;
+	MetalEffectTemplate = MetalEffectTemplateObj.Object;
 }
 
 void AFlareMeteorite::Load(FFlareMeteoriteSave* Data, UFlareSector* ParentSector)
@@ -154,14 +160,20 @@ void AFlareMeteorite::OnCollision(class AActor* Other, FVector HitLocation)
 	}
 	else if (Spacecraft && (Spacecraft->IsStation() || Spacecraft->GetSize() == EFlarePartSize::L))
 	{
-
-		if(!IsBroken())
+		if (!IsBroken())
 		{
 			FVector DeltaVelocity = Spacecraft->GetLinearVelocity() - Meteorite->GetPhysicsLinearVelocity();
-
 			float Energy = MeteoriteData->BrokenDamage * DeltaVelocity.SizeSquared() * (Spacecraft->IsStation() ? 0.00001 : 0.00000001);
 
 			Spacecraft->GetDamageSystem()->ApplyDamage(Energy, MeteoriteData->BrokenDamage, HitLocation, EFlareDamage::DAM_Collision, NULL, FString());
+
+			// Spawn FX
+			UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAtLocation(
+				Spacecraft,
+				MeteoriteData->IsMetal ? MetalEffectTemplate : RockEffectTemplate,
+				GetActorLocation(),
+				FRotator::ZeroRotator,
+				false);
 
 			// Notify PC
 			Parent->GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteCrash", "Meteorite crashed"),
@@ -171,11 +183,11 @@ void AFlareMeteorite::OnCollision(class AActor* Other, FVector HitLocation)
 									false);
 
 
-			if(Spacecraft->IsStation())
+			// Apply damage
+			if (Spacecraft->IsStation())
 			{
 				Parent->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-hit-station").PutName("sector", Parent->GetSimulatedSector()->GetIdentifier()));
 			}
-
 			ApplyDamage(MeteoriteData->BrokenDamage, 1.f , HitLocation, EFlareDamage::DAM_Collision, NULL, FString());
 		}
 	}
@@ -234,21 +246,20 @@ bool AFlareMeteorite::IsBroken()
 
 void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource, FString DamageCauser)
 {
-
+	FVector CurrentVelocity = Meteorite->GetPhysicsLinearVelocity();
 	AFlarePlayerController* PC = Parent->GetGame()->GetPC();
 	if (DamageSource == PC->GetShipPawn()->GetParent())
 	{
 		PC->SignalHit(NULL, DamageType);
 	}
 
-	if(!IsBroken())
+	if (!IsBroken())
 	{
 		MeteoriteData->Damage+= Energy;
 
 		if (IsBroken())
 		{
-
-			if(DamageType != EFlareDamage::DAM_Collision)
+			if (DamageType != EFlareDamage::DAM_Collision)
 			{
 				// Notify PC
 				Parent->GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteDestroyed", "Meteorite destroyed"),
@@ -258,24 +269,32 @@ void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, 
 										false);
 			}
 
-			if(!MeteoriteData->HasMissed)
+			// Spawn FX
+			UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAtLocation(
+				PC,
+				MeteoriteData->IsMetal ? MetalEffectTemplate : RockEffectTemplate,
+				GetActorLocation(),
+				FRotator::ZeroRotator,
+				false);
+
+			FLOGV("VELOCIY WAS %f", CurrentVelocity.Size());
+
+			PSC->SetVectorParameter("Velocity", CurrentVelocity);
+
+			// Apply damage
+			if (!MeteoriteData->HasMissed)
 			{
 				Parent->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-destroyed").PutName("sector", Parent->GetSimulatedSector()->GetIdentifier()));
-			}
-
-
-			FLOGV("Energy %f", Energy);
-
-
+			}			
+			//FLOGV("Energy %f", Energy);
 			Meteorite->ApplyRadiusDamage(FMath::Max(200.f, Energy), Location, 100.f, FMath::Max(200.f, Energy )* 200 , false);
 
 		}
 	}
 	else
 	{
-		FLOGV("Bonus Energy %f", Energy);
-
-		if(DamageType != EFlareDamage::DAM_Collision)
+		//FLOGV("Bonus Energy %f", Energy);
+		if (DamageType != EFlareDamage::DAM_Collision)
 		{
 			Meteorite->ApplyRadiusDamage(FMath::Max(180.f, Energy/ 100 ) , Location, 100.f, FMath::Max(180.f, Energy ) * 500 , false);
 		}

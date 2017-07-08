@@ -14,34 +14,34 @@ class AFlareMeteorite : public AActor
 {
 public:
 
-   GENERATED_UCLASS_BODY()
+	GENERATED_UCLASS_BODY()
 
 public:
 
-   /*----------------------------------------------------
-	   Public methods
-   ----------------------------------------------------*/
+	/*----------------------------------------------------
+		Public methods
+	----------------------------------------------------*/
 
-   virtual void BeginPlay() override;
+	virtual void BeginPlay() override;
 
-   virtual void Tick(float DeltaSeconds) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 
-   /** Properties setup */
-   virtual void Load(FFlareMeteoriteSave* Data, UFlareSector* ParentSector);
+	/** Properties setup */
+	virtual void Load(FFlareMeteoriteSave* Data, UFlareSector* ParentSector);
 
-   /** Save the asteroid to a save file */
-   virtual FFlareMeteoriteSave* Save();
+	/** Save the asteroid to a save file */
+	virtual FFlareMeteoriteSave* Save();
 
-   /** Set as paused */
-   virtual void SetPause(bool Paused);
+	/** Set as paused */
+	virtual void SetPause(bool Paused);
 
-   /** Setup the meteorite mesh */
-  void SetupMeteoriteMesh();
+	/** Setup the meteorite mesh */
+	void SetupMeteoriteMesh();
 
-  void ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource, FString DamageCauser);
+	void ApplyDamage(float Energy, float Radius, FVector Location, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource, FString DamageCauser);
 
-  virtual void OnCollision(class AActor* Other, FVector HitLocation);
+	virtual void OnCollision(class AActor* Other, FVector HitLocation);
 
 public:
 
@@ -49,33 +49,41 @@ public:
 	   Protected data
    ----------------------------------------------------*/
 
-   // Mesh
-   UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
-   UDestructibleComponent*                       Meteorite;
+	// Mesh
+	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
+	UDestructibleComponent*                       Meteorite;
 
-   UFlareSector*                                 Parent;
-   AFlareSpacecraft*                    Target;
 
 protected:
 
-   // Data
-   FFlareMeteoriteSave*                          MeteoriteData;
-   bool                                          Paused;
+	// Rock breakup effect
+	UPROPERTY()
+	UParticleSystem*                              RockEffectTemplate;
+
+	// Metal breakup effect
+	UPROPERTY()
+	UParticleSystem*                              MetalEffectTemplate;
+
+	// Data
+	FFlareMeteoriteSave*                          MeteoriteData;
+	bool                                          Paused;
+	UFlareSector*                                 Parent;
+	AFlareSpacecraft*                             Target;
 
 
 public:
 
-   /*----------------------------------------------------
-	   Getters
-   ----------------------------------------------------*/
+	/*----------------------------------------------------
+		Getters
+	----------------------------------------------------*/
 
-   bool IsBroken();
+	bool IsBroken();
 
 
-   UDestructibleComponent *GetMeteoriteComponent()
-   {
-	   return Meteorite;
-   }
+	UDestructibleComponent *GetMeteoriteComponent()
+	{
+		return Meteorite;
+	}
 
 };
 
