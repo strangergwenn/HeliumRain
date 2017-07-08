@@ -2498,6 +2498,13 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 	QuestClass = UFlareQuestGeneratedMeteoriteInterception::GetClass();
 	Identifier = InitData.GetName("identifier");
 
+	FLOGV("TargetStation %p", TargetStation);
+
+	if(TargetStation->IsDestroyed())
+	{
+		return;
+	}
+
 	QuestName = FText::Format(LOCTEXT("GeneratedMeteoriteDestructionName", "Meteorite intercept in {0}"), TargetStation->GetCurrentSector()->GetSectorName());
 	QuestDescription = FText::Format(LOCTEXT("GeneratedMeteoriteDestructionDescription", "A meteorite group will pose a threat to {0} in {1} on {2}. Intercept it and destroy it."),
 		UFlareGameTools::DisplaySpacecraftName(TargetStation),

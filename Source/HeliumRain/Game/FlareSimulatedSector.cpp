@@ -1641,6 +1641,8 @@ void UFlareSimulatedSector::GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* Ta
 
 	float TotalEffectiveResistance = 0;
 
+	FVector VelocityVector = (TargetStation->GetData().Location - BaseLocation).GetUnsafeNormal() * Velocity;
+
 	for(int i = 0; i< Count; i++)
 	{
 		FFlareMeteoriteSave Data;
@@ -1648,7 +1650,7 @@ void UFlareSimulatedSector::GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* Ta
 		Data.MeteoriteMeshID = FMath::RandRange(0, MeshCount-1);
 		Data.IsMetal = IsMetal;
 		Data.BrokenDamage = FMath::Abs(MeteoriteResistanceGen(e2)+ 1.f);;
-		Data.LinearVelocity =  (TargetStation->GetData().Location - Data.Location).GetUnsafeNormal() * Velocity;
+		Data.LinearVelocity = VelocityVector;
 		Data.AngularVelocity = FMath::VRand() * AngularVelocityGen(e2);
 		Data.Rotation = FRotator(FMath::FRandRange(0,360), FMath::FRandRange(0,360), FMath::FRandRange(0,360));
 

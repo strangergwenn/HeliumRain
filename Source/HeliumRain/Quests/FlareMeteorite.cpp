@@ -51,6 +51,7 @@ void AFlareMeteorite::Load(FFlareMeteoriteSave* Data, UFlareSector* ParentSector
 	SetupMeteoriteMesh();
 	Meteorite->SetPhysicsLinearVelocity(Data->LinearVelocity);
 	Meteorite->SetPhysicsAngularVelocity(Data->AngularVelocity);
+	LifeTime = 0.f;
 }
 
 FFlareMeteoriteSave* AFlareMeteorite::Save()
@@ -81,6 +82,19 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 		Target = Parent->FindSpacecraft(MeteoriteData->TargetStation);
 	}
 
+	float DeltaveSq  = (MeteoriteData->LinearVelocity - Meteorite->GetPhysicsLinearVelocity()).SizeSquared();
+
+	float const SafeThresold = 5.f;
+
+	if(LifeTime < SafeThresold)
+	{
+		LifeTime += DeltaSeconds;
+		if(DeltaveSq > 100)
+		{
+			Meteorite->SetPhysicsLinearVelocity(MeteoriteData->LinearVelocity);
+		}
+	}
+
 	/*FLOGV("Meteorite %s vel=%s", *GetName(), *Meteorite->GetPhysicsLinearVelocity().ToString());
 	FLOGV(" - IsPhysicsCollisionEnabled %d", Meteorite->IsPhysicsCollisionEnabled());
 	FLOGV(" - IsPhysicsStateCreated %d", Meteorite->IsPhysicsStateCreated());
@@ -103,47 +117,50 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 		DrawDebugLine(GetWorld(), GetActorLocation(), SpawnLocation, FColor::Green, false);
 	}*/
 
-	if(!IsBroken()  && !MeteoriteData->HasMissed && Target)
+	if(LifeTime > SafeThresold)
 	{
-		FVector CurrentVelocity =  Meteorite->GetPhysicsLinearVelocity();
-		FVector CurrentDirection = CurrentVelocity.GetUnsafeNormal();
-
-		float Velocity = MeteoriteData->LinearVelocity.Size();
-
-		FVector TargetDirection = (Target->GetActorLocation() + MeteoriteData->TargetOffset - GetActorLocation()).GetUnsafeNormal();
-		FVector TargetVelocity = TargetDirection * Velocity;
-
-		float Dot = FVector::DotProduct(CurrentDirection, TargetDirection);
-
-		//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + TargetDirection * 10000,FColor::Green, 1000.f);
-		//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + CurrentDirection * 10000,FColor::Red, 1000.f);
-
-		if(Dot > 0)
+		if(!IsBroken()  && !MeteoriteData->HasMissed && Target)
 		{
-			// Don't fix if miss
-			FVector DeltaVelocity = TargetVelocity - CurrentVelocity;
+			FVector CurrentVelocity =  Meteorite->GetPhysicsLinearVelocity();
+			FVector CurrentDirection = CurrentVelocity.GetUnsafeNormal();
 
-			FVector DeltaVelocityClamped = DeltaVelocity.GetClampedToMaxSize(50.f * DeltaSeconds);
+			float Velocity = MeteoriteData->LinearVelocity.Size();
 
+			FVector TargetDirection = (Target->GetActorLocation() + MeteoriteData->TargetOffset - GetActorLocation()).GetUnsafeNormal();
+			FVector TargetVelocity = TargetDirection * Velocity;
 
-			FVector CorrectedVelocity = CurrentVelocity + DeltaVelocityClamped;
-			FVector CorrectedDirection = CorrectedVelocity.GetUnsafeNormal();
+			float Dot = FVector::DotProduct(CurrentDirection, TargetDirection);
 
-			//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + CorrectedDirection * 10000 ,FColor::Blue, 1000.f);
-			Meteorite->SetPhysicsLinearVelocity(CorrectedDirection * Velocity);
-		}
-		else if(Dot < -0.5f)
-		{
-			MeteoriteData->HasMissed = true;
+			//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + TargetDirection * 10000,FColor::Green, 1000.f);
+			//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + CurrentDirection * 10000,FColor::Red, 1000.f);
 
-			Parent->GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteMiss", "Meteorite miss"),
-									FText::Format(LOCTEXT("MeteoriteMissFormat", "A meteorite missed {0}. It's no more a danger."), UFlareGameTools::DisplaySpacecraftName(Target->GetParent())),
-									FName("meteorite-miss"),
-									EFlareNotification::NT_Military,
-									false);
+			if(Dot > 0)
+			{
+				// Don't fix if miss
+				FVector DeltaVelocity = TargetVelocity - CurrentVelocity;
+
+				FVector DeltaVelocityClamped = DeltaVelocity.GetClampedToMaxSize(50.f * DeltaSeconds);
 
 
-			Parent->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-miss-station").PutName("sector", Parent->GetSimulatedSector()->GetIdentifier()));
+				FVector CorrectedVelocity = CurrentVelocity + DeltaVelocityClamped;
+				FVector CorrectedDirection = CorrectedVelocity.GetUnsafeNormal();
+
+				//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + CorrectedDirection * 10000 ,FColor::Blue, 1000.f);
+				Meteorite->SetPhysicsLinearVelocity(CorrectedDirection * Velocity);
+			}
+			else if(Dot < -0.5f)
+			{
+				MeteoriteData->HasMissed = true;
+
+				Parent->GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteMiss", "Meteorite miss"),
+										FText::Format(LOCTEXT("MeteoriteMissFormat", "A meteorite missed {0}. It's no more a danger."), UFlareGameTools::DisplaySpacecraftName(Target->GetParent())),
+										FName("meteorite-miss"),
+										EFlareNotification::NT_Military,
+										false);
+
+
+				Parent->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-miss-station").PutName("sector", Parent->GetSimulatedSector()->GetIdentifier()));
+			}
 		}
 	}
 }

@@ -84,7 +84,7 @@ void UFlareSector::Save()
 
 	SectorData->BombData.Empty();
 	SectorData->AsteroidData.Empty();
-	// Meteorites have references
+	// Meteorites have references but save must be call
 
 
 	for (int i = 0 ; i < SectorBombs.Num(); i++)
@@ -95,6 +95,11 @@ void UFlareSector::Save()
 	for (int i = 0 ; i < SectorAsteroids.Num(); i++)
 	{
 		SectorData->AsteroidData.Add(*SectorAsteroids[i]->Save());
+	}
+
+	for (AFlareMeteorite* Meteorite : SectorMeteorites)
+	{
+		Meteorite->Save();
 	}
 
 	SectorData->LocalTime = LocalTime + GetGame()->GetPlanetarium()->GetSmoothTime();

@@ -70,6 +70,8 @@ protected:
 	UFlareSector*                                 Parent;
 	AFlareSpacecraft*                             Target;
 
+	float                                         LifeTime;
+
 
 public:
 

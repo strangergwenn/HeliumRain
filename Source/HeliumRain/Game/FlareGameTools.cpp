@@ -1643,6 +1643,7 @@ void UFlareGameTools::CreateMeteoriteGroup(FName SectorIdentifier, float PowerRa
 
 	if(Sector->GetSectorStations().Num() == 0)
 	{
+		FLOG("AFlareGame::CreateMeteoriteGroup failed: no station");
 		return;
 	}
 
