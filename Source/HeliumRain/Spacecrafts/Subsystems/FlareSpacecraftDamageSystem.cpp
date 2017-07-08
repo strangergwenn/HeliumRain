@@ -282,24 +282,22 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 			Spacecraft->GetCompany()->GivePlayerReputation(ReputationCost);
 			Spacecraft->GetCompany()->GivePlayerReputationToOthers(0.5*ReputationCost);
 
-			if(LastDamageCauser->GetCompany() == PC->GetCompany())
+			for(UFlareCompany* Company : PC->GetGame()->GetGameWorld()->GetCompanies())
 			{
-				for(UFlareCompany* Company : PC->GetGame()->GetGameWorld()->GetCompanies())
+				if(Company->GetPlayerReputation() < 0)
 				{
-					if(Company->GetPlayerReputation() < 0)
-					{
-						// Consider player just declare war
-						Company->SetHostilityTo(PC->GetCompany(), true);
-						PC->GetCompany()->SetHostilityTo(Company, true);
-						Company->GetAI()->GetData()->Pacifism = FMath::Min(50.f, Company->GetAI()->GetData()->Pacifism);
-					}
-
-					PC->Notify(LOCTEXT("Betrayal", "Betrayal"),
-						FText::Format(LOCTEXT("OnSpacecraftDestroyedBetrayal", "You betrayed {0}"), Company->GetCompanyName()),
-						FName("betrayal"),
-						EFlareNotification::NT_Military);
+					// Consider player just declare war
+					Company->SetHostilityTo(PC->GetCompany(), true);
+					PC->GetCompany()->SetHostilityTo(Company, true);
+					Company->GetAI()->GetData()->Pacifism = FMath::Min(50.f, Company->GetAI()->GetData()->Pacifism);
 				}
 			}
+
+			PC->Notify(LOCTEXT("Betrayal", "Betrayal"),
+				FText::Format(LOCTEXT("OnSpacecraftDestroyedBetrayal", "You betrayed {0}"), Spacecraft->GetCompany()->GetCompanyName()),
+				FName("betrayal"),
+				EFlareNotification::NT_Military);
+
 		}
 	}
 }
@@ -371,24 +369,21 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 			Spacecraft->GetCompany()->GivePlayerReputation(ReputationCost);
 			Spacecraft->GetCompany()->GivePlayerReputationToOthers(0.5*ReputationCost);
 
-			if(LastDamageCauser->GetCompany() == PC->GetCompany())
+			for(UFlareCompany* Company : PC->GetGame()->GetGameWorld()->GetCompanies())
 			{
-				for(UFlareCompany* Company : PC->GetGame()->GetGameWorld()->GetCompanies())
+				if(Company->GetPlayerReputation() < 0)
 				{
-					if(Company->GetPlayerReputation() < 0)
-					{
-						// Consider player just declare war
-						Company->SetHostilityTo(PC->GetCompany(), true);
-						PC->GetCompany()->SetHostilityTo(Company, true);
-						Company->GetAI()->GetData()->Pacifism = FMath::Min(50.f, Company->GetAI()->GetData()->Pacifism);
-					}
+					// Consider player just declare war
+					Company->SetHostilityTo(PC->GetCompany(), true);
+					PC->GetCompany()->SetHostilityTo(Company, true);
+					Company->GetAI()->GetData()->Pacifism = FMath::Min(50.f, Company->GetAI()->GetData()->Pacifism);
 				}
-
-				PC->Notify(LOCTEXT("Betrayal", "Betrayal"),
-					FText::Format(LOCTEXT("OnControlLostBetrayal", "You betrayed {0}"), Spacecraft->GetCompany()->GetCompanyName()),
-					FName("betrayal"),
-					EFlareNotification::NT_Military);
 			}
+
+			PC->Notify(LOCTEXT("Betrayal", "Betrayal"),
+				FText::Format(LOCTEXT("OnControlLostBetrayal", "You betrayed {0}"), Spacecraft->GetCompany()->GetCompanyName()),
+				FName("betrayal"),
+				EFlareNotification::NT_Military);
 		}
 	}
 
