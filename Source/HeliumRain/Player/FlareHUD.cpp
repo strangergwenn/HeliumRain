@@ -1450,10 +1450,11 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 				FVector2D HelperScreenPosition;
 				FVector AmmoIntersectionLocation;
 				float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
-				float Range = 100 * WeaponGroup->Weapons[0]->GetDescription()->WeaponCharacteristics.GunCharacteristics.AmmoRange;
+				float Range = WeaponGroup->Weapons[0]->GetDescription()->WeaponCharacteristics.GunCharacteristics.AmmoRange;
+				float AmmoLifeTime = Range / AmmoVelocity;
 				float InterceptTime = Spacecraft->GetAimPosition(PlayerShip, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 
-				if (InterceptTime > 0 && ProjectWorldLocationToCockpit(AmmoIntersectionLocation, HelperScreenPosition) && (Range == 0 || Distance < Range))
+				if (InterceptTime > 0 && ProjectWorldLocationToCockpit(AmmoIntersectionLocation, HelperScreenPosition) && (Range == 0 || InterceptTime < AmmoLifeTime))
 				{
 					FLinearColor HUDAimHelperColor = GetHostilityColor(PC, Spacecraft);
 
