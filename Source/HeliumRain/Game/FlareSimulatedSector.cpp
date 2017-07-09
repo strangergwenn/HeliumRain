@@ -1500,7 +1500,7 @@ void UFlareSimulatedSector::ProcessMeteorites()
 				if(Meteorite.DaysBeforeImpact == 0)
 				{
 					GetGame()->GetPC()->Notify(FText::Format(LOCTEXT("MeteoriteHere", "Meteorites in {0}"), GetSectorName()),
-										FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite group has entered {0} and threatens stations"), GetSectorName()),
+										FText::Format(LOCTEXT("MeteoriteHereFormat", "A meteorite group has entered {0} and threatens stations"), GetSectorName()),
 										FName("meteorite-in-sector"),
 										EFlareNotification::NT_Military,
 										false);
@@ -1509,7 +1509,7 @@ void UFlareSimulatedSector::ProcessMeteorites()
 				else if(Meteorite.DaysBeforeImpact == 1 && !GetGame()->GetPC()->GetCompany()->IsTechnologyUnlocked("early-warning") && PlayerTarget)
 				{
 					GetGame()->GetPC()->Notify(LOCTEXT("ImminentMeteoriteDetected", "Meteorites detected"),
-										FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite group has been detected as potential danger at {0}"), GetSectorName()),
+										FText::Format(LOCTEXT("ImminentMeteoriteDetectedFormat", "A meteorite group has been detected as potential danger at {0}"), GetSectorName()),
 										FName("meteorite-detected"),
 										EFlareNotification::NT_Military,
 										false);
@@ -1678,7 +1678,7 @@ void UFlareSimulatedSector::GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* Ta
 		if(GetGame()->GetPC()->GetCompany()->IsTechnologyUnlocked("early-warning"))
 		{
 			GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteDetected", "Meteorites detected"),
-								FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite group has been detected as potential danger for one of your stations at {0}"), GetSectorName()),
+								FText::Format(LOCTEXT("MeteoriteDetectedFormat", "A meteorite group has been detected as potential danger for one of your stations at {0}"), GetSectorName()),
 								FName("meteorite-detected"),
 								EFlareNotification::NT_Military,
 								false);
