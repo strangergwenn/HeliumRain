@@ -1493,14 +1493,18 @@ void  SFlareSettingsMenu::CancelNewBinding(SFlareKeyBind* UIBinding, FKey Previo
 	UIBinding->SetKey(PreviousKey, true, false);
 }
 
-void SFlareSettingsMenu::OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, SFlareKeyBind* UIBinding, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey)
+void SFlareSettingsMenu::OnKeyBindingChanged(FKey PreviousKey, FKey NewKey, SFlareKeyBind* UIBinding, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey)
 {
 	// Primary or Alt key changed to a valid state.
 	// TODO Duplicate
 
 	TArray<TSharedPtr<FSimpleBind>> BindConflicts;
 
-	if(IsAlreadyUsed(BindConflicts, NewKey, *BindingThatChanged))
+	if (NewKey.ToString() == "None")
+	{
+		return;
+	}
+	else if (IsAlreadyUsed(BindConflicts, NewKey, *BindingThatChanged))
 	{
 		FText ConflictKeys;
 

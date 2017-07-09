@@ -61,6 +61,7 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 						.Text(this, &SFlareConfirmationOverlay::GetText)
 						.TextStyle(&Theme.SubTitleFont)
 						.Justification(ETextJustify::Center)
+						.WrapTextAt(2 * Theme.ContentWidth)
 					]
 
 					// Buttons
