@@ -52,6 +52,8 @@ void UFlareTradeRoute::Simulate()
 {
 	FLOG("Trade route simulate");
 
+	++TradeRouteData.StatsDays;
+
 	if(TradeRouteData.IsPaused)
 	{
 		// Trade route paused. To nothing
@@ -117,6 +119,21 @@ void UFlareTradeRoute::Simulate()
 			Game->GetGameWorld()->StartTravel(TradeRouteFleet, TargetSector);
 		}
 	}
+
+
+	FLOGV("=== Stats for %s ===", *GetTradeRouteName().ToString());
+	FLOGV("- day count: %d", TradeRouteData.StatsDays);
+	FLOGV("- load quantity: %d", TradeRouteData.StatsLoadResources);
+	FLOGV("- unload quantity: %d", TradeRouteData.StatsUnloadResources);
+	FLOGV("- resource balance : %d", (TradeRouteData.StatsLoadResources - TradeRouteData.StatsUnloadResources));
+	FLOGV("- buy amount: %lld credits", UFlareGameTools::DisplayMoney(TradeRouteData.StatsMoneyBuy));
+	FLOGV("- sell amount : %lld credits", UFlareGameTools::DisplayMoney(TradeRouteData.StatsMoneySell));
+	FLOGV("- balance : %lld credits", UFlareGameTools::DisplayMoney(TradeRouteData.StatsMoneySell - TradeRouteData.StatsMoneyBuy));
+	FLOGV("- operation success: %d", TradeRouteData.StatsOperationSuccessCount);
+	FLOGV("- operation fail: %d", TradeRouteData.StatsOperationFailCount);
+
+	FLOGV("- gain per day: %f credits/day", 0.01 * float(TradeRouteData.StatsMoneySell - TradeRouteData.StatsMoneyBuy) / float(TradeRouteData.StatsDays));
+	FLOGV("- sucess ratio: %f", float(TradeRouteData.StatsOperationSuccessCount) / (TradeRouteData.StatsOperationFailCount + TradeRouteData.StatsOperationSuccessCount));
 }
 
 UFlareSimulatedSector* UFlareTradeRoute::UpdateTargetSector()
@@ -183,6 +200,20 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 
 	TArray<UFlareSimulatedSpacecraft*>&  RouteShips = TradeRouteFleet->GetShips();
 	int32 FleetFreeSpace = 0;
+	bool StatFail = false;
+
+	auto UpdateOperationStats = [&]()
+	{
+		if(StatFail)
+		{
+			++TradeRouteData.StatsOperationFailCount;
+		}
+		else
+		{
+			++TradeRouteData.StatsOperationSuccessCount;
+		}
+	};
+
 	//
 	for (int ShipIndex = 0; ShipIndex < RouteShips.Num(); ShipIndex++)
 	{
@@ -202,6 +233,8 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 	if (FleetFreeSpace == 0)
 	{
 		// Fleet full: operation done
+		StatFail = true;
+		UpdateOperationStats();
 		return true;
 	}
 
@@ -233,22 +266,37 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 		if (StationCandidate)
 		{
 			int64 TransactionPrice;
-			TradeRouteData.CurrentOperationProgress += SectorHelper::Trade(StationCandidate, Ship, Resource, Request.MaxQuantity, &TransactionPrice);
+			int32 Quantity = SectorHelper::Trade(StationCandidate, Ship, Resource, Request.MaxQuantity, &TransactionPrice);
+			TradeRouteData.CurrentOperationProgress += Quantity;
 
 			if (TradeRouteCompany == GetGame()->GetPC()->GetCompany())
 			{
 				Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("trade-route-transaction").PutInt32("money-variation", -TransactionPrice));
 			}
+
+			TradeRouteData.StatsMoneyBuy += TransactionPrice;
+			TradeRouteData.StatsLoadResources += Quantity;
+
+			if(Quantity == 0)
+			{
+				StatFail = true;
+			}
+		}
+		else
+		{
+			StatFail = true;
 		}
 
 		if (IsOperationQuantityLimitReach(Operation))
 		{
 			// Operation limit reach : operation done
+			UpdateOperationStats();
 			return true;
 		}
 	}
 
 	// Limit not reach and useful ship present. Operation not finished
+	UpdateOperationStats();
 	return false;
 }
 
@@ -261,6 +309,21 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 
 	TArray<UFlareSimulatedSpacecraft*>&  RouteShips = TradeRouteFleet->GetShips();
 	int32 FleetQuantity = 0;
+
+	bool StatFail = false;
+
+	auto UpdateOperationStats = [&]()
+	{
+		if(StatFail)
+		{
+			++TradeRouteData.StatsOperationFailCount;
+		}
+		else
+		{
+			++TradeRouteData.StatsOperationSuccessCount;
+		}
+	};
+
 
 	for (int ShipIndex = 0; ShipIndex < RouteShips.Num(); ShipIndex++)
 	{
@@ -280,6 +343,8 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 	if (FleetQuantity == 0)
 	{
 		// Fleet empty: operation done
+		StatFail = true;
+		UpdateOperationStats();
 		return true;
 	}
 
@@ -310,23 +375,37 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 		if (StationCandidate)
 		{
 			int64 TransactionPrice;
-			TradeRouteData.CurrentOperationProgress += SectorHelper::Trade(Ship, StationCandidate, Resource, Request.MaxQuantity, &TransactionPrice);
+			int32 Quantity = SectorHelper::Trade(Ship, StationCandidate, Resource, Request.MaxQuantity, &TransactionPrice);
+			TradeRouteData.CurrentOperationProgress += Quantity;
 
 			if (TradeRouteCompany == GetGame()->GetPC()->GetCompany())
 			{
 				Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("trade-route-transaction").PutInt32("money-variation", TransactionPrice));
 			}
 
+			TradeRouteData.StatsMoneySell += TransactionPrice;
+			TradeRouteData.StatsUnloadResources += Quantity;
+
+			if(Quantity == 0)
+			{
+				StatFail = true;
+			}
+		}
+		else
+		{
+			StatFail = true;
 		}
 
 		if (IsOperationQuantityLimitReach(Operation))
 		{
 			// Operation limit reach : operation done
+			UpdateOperationStats();
 			return true;
 		}
 	}
 
 	// Limit not reach and useful ship present. Operation not finished
+	UpdateOperationStats();
 	return false;
 }
 
@@ -723,4 +802,15 @@ void UFlareTradeRoute::SkipCurrentOperation()
 		TargetSector = GetNextTradeSector(TargetSector);
 		SetTargetSector(TargetSector);
 	}
+}
+
+void UFlareTradeRoute::ResetStats()
+{
+	TradeRouteData.StatsDays = 0;
+	TradeRouteData.StatsLoadResources = 0;
+	TradeRouteData.StatsUnloadResources = 0;
+	TradeRouteData.StatsMoneySell = 0;
+	TradeRouteData.StatsMoneyBuy = 0;
+	TradeRouteData.StatsOperationSuccessCount = 0;
+	TradeRouteData.StatsOperationFailCount = 0;
 }

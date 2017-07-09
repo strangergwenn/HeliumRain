@@ -673,6 +673,15 @@ void UFlareSaveReaderV1::LoadTradeRoute(const TSharedPtr<FJsonObject> Object, FF
 	LoadInt32(Object, "CurrentOperationProgress", &Data->CurrentOperationProgress);
 	LoadInt32(Object, "CurrentOperationDuration", &Data->CurrentOperationDuration);
 
+	// Stats
+	LoadInt32(Object, "StatsDays", &Data->StatsDays);
+	LoadInt32(Object, "StatsLoadResources", &Data->StatsLoadResources);
+	LoadInt32(Object, "StatsUnloadResources", &Data->StatsUnloadResources);
+	LoadInt64(Object, "StatsMoneySell", &Data->StatsMoneySell);
+	LoadInt64(Object, "StatsMoneyBuy", &Data->StatsMoneyBuy);
+	LoadInt32(Object, "StatsOperationSuccessCount", &Data->StatsOperationSuccessCount);
+	LoadInt32(Object, "StatsOperationFailCount", &Data->StatsOperationFailCount);
+
 	if(!Object->TryGetBoolField(TEXT("IsPaused"), Data->IsPaused))
 	{
 		Data->IsPaused = false;

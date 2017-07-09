@@ -567,6 +567,16 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveTradeRoute(FFlareTradeRouteSave* D
 	JsonObject->SetStringField("CurrentOperationDuration", FormatInt32(Data->CurrentOperationDuration));
 	JsonObject->SetBoolField("IsPaused", Data->IsPaused);
 
+
+	// Stats
+	JsonObject->SetStringField("StatsDays", FormatInt32(Data->StatsDays));
+	JsonObject->SetStringField("StatsLoadResources", FormatInt32(Data->StatsLoadResources));
+	JsonObject->SetStringField("StatsUnloadResources", FormatInt32(Data->StatsUnloadResources));
+	JsonObject->SetStringField("StatsMoneySell", FormatInt64(Data->StatsMoneySell));
+	JsonObject->SetStringField("StatsMoneyBuy", FormatInt64(Data->StatsMoneyBuy));
+	JsonObject->SetStringField("StatsOperationSuccessCount", FormatInt32(Data->StatsOperationSuccessCount));
+	JsonObject->SetStringField("StatsOperationFailCount", FormatInt32(Data->StatsOperationFailCount));
+
 	TArray< TSharedPtr<FJsonValue> > Sectors;
 	for(int i = 0; i < Data->Sectors.Num(); i++)
 	{

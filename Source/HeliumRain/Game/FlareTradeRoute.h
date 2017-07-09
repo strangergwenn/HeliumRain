@@ -109,6 +109,35 @@ struct FFlareTradeRouteSave
 	/** Trade route current pause status*/
 	UPROPERTY(EditAnywhere, Category = Save)
 	bool IsPaused;
+
+	/** Days since last stats reset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 StatsDays;
+
+	/** Load resource count since last stats reset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 StatsLoadResources;
+
+	/** Unload resource cout since last stats reset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 StatsUnloadResources;
+
+	/** Amount of money gain since last stats reset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 StatsMoneySell;
+
+	/** Amount of money spent since last stats reset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 StatsMoneyBuy;
+
+	/** Operation sucess cout since last stats reset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 StatsOperationSuccessCount;
+
+	/** Operation fail since last stats reset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 StatsOperationFailCount;
+
 };
 
 UCLASS()
@@ -183,6 +212,8 @@ public:
 	{
 		TradeRouteData.IsPaused = Paused;
 	}
+
+	void ResetStats();
 
 protected:
 

@@ -510,7 +510,9 @@ UFlareTradeRoute* UFlareCompany::CreateTradeRoute(FText TradeRouteName)
 	TradeRouteData.CurrentOperationDuration = 0;
 	TradeRouteData.IsPaused = false;
 
+
 	UFlareTradeRoute* TradeRoute = LoadTradeRoute(TradeRouteData);
+	TradeRoute->ResetStats();
 	return TradeRoute;
 }
 
