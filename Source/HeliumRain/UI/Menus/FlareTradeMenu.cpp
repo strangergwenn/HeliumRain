@@ -746,7 +746,14 @@ void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpace
 					int32 MissingQuantity = SellAtStationCondition->GetTargetQuantity() - SellAtStationCondition->GetCurrentProgression();
 					auto PlayerShip = (SourceSpacecraft->IsStation() ? DestinationSpacecraft : SourceSpacecraft);
 					int32 PreferredQuantity = MissingQuantity - PlayerShip->GetCargoBay()->GetResourceQuantity(Resource, PlayerShip->GetCompany());
-					SetSliderQuantity(PreferredQuantity);
+				
+					if (TransactionSourceSpacecraft == PlayerShip)
+					{
+						PreferredQuantity = MissingQuantity;
+					}
+
+					int32 AssignedQuantity = SetSliderQuantity(PreferredQuantity);
+					QuantityText->SetText(FText::AsNumber(AssignedQuantity));
 				}
 			}
 		}
@@ -880,7 +887,7 @@ void SFlareTradeMenu::UpdatePrice()
 	}
 }
 
-void SFlareTradeMenu::SetSliderQuantity(int32 Quantity)
+int32 SFlareTradeMenu::SetSliderQuantity(int32 Quantity)
 {
 	int32 ResourceMaxQuantity = GetMaxTransactionAmount();
 
@@ -897,6 +904,8 @@ void SFlareTradeMenu::SetSliderQuantity(int32 Quantity)
 	}
 
 	UpdatePrice();
+
+	return TransactionQuantity;
 }
 
 bool SFlareTradeMenu::IsTransactionValid(FText& Reason) const

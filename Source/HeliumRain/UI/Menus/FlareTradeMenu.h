@@ -116,7 +116,7 @@ protected:
 		Helpers
 	----------------------------------------------------*/
 
-	void SetSliderQuantity(int32 Quantity);
+	int32 SetSliderQuantity(int32 Quantity);
 
 protected:
 
