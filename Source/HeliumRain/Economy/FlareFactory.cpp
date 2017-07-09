@@ -778,7 +778,7 @@ void UFlareFactory::PerformGainResearchAction(const FFlareFactoryAction* Action)
 {
 	UFlareCompany* Company = Parent->GetCompany();
 
-	Company->GiveResearch(Action->Quantity);
+	Company->GiveResearch(Action->Quantity * Parent->GetLevel());
 	AFlarePlayerController* PC = Parent->GetGame()->GetPC();
 
 	// Notify PC
@@ -1106,7 +1106,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 			// Research gain
 			case EFlareFactoryAction::GainResearch:
 				ProductionOutputText = FText::Format(LOCTEXT("GainResearchActionFormat", "{0}{1}{2} research"),
-					ProductionOutputText, CommaText, FText::AsNumber(FactoryAction->Quantity));
+					ProductionOutputText, CommaText, FText::AsNumber(FactoryAction->Quantity * Parent->GetLevel()));
 				break;
 
 			// Build station
