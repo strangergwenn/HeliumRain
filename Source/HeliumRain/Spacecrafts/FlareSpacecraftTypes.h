@@ -701,6 +701,18 @@ struct FFlareFactoryDescription
 		return false;
 	}
 
+	bool IsTelescope() const
+	{
+		for (int32 Index = 0; Index < OutputActions.Num(); Index++)
+		{
+			if (OutputActions[Index].Action == EFlareFactoryAction::DiscoverSector)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 };
 
 /** Catalog data structure for a spacecraft */

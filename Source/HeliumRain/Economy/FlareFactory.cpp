@@ -1308,7 +1308,16 @@ int64 UFlareFactory::GetProductionBalance()
 int64 UFlareFactory::GetProductionTime(const struct FFlareProductionData& Cycle)
 {
 	float Malus = 1.f + (1.f - Parent->GetStationEfficiency()) * (MAX_DAMAGE_MALUS -1.f);
-	return FMath::FloorToInt(Cycle.ProductionTime * Malus);
+	int64 ProductionTime = FMath::FloorToInt(Cycle.ProductionTime * Malus);
+
+	if(FactoryDescription->IsTelescope())
+	{
+		return FMath::Max(int64(1), ProductionTime / Parent->GetLevel());
+	}
+	else
+	{
+		return ProductionTime;
+	}
 }
 
 
