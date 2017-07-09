@@ -76,6 +76,9 @@ TSharedRef< FSlateStyleSet > FFlareStyleSet::Create()
 	Style.Set("WarningText", FTextBlockStyle(DefaultTheme.TextFont)
 		.SetColorAndOpacity(DefaultTheme.EnemyColor)
 	);
+	Style.Set("TradeText", FTextBlockStyle(DefaultTheme.TextFont)
+		.SetColorAndOpacity(DefaultTheme.TradingColor)
+	);
 
 	return StyleRef;
 }

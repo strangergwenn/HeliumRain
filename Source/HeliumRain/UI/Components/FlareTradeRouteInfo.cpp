@@ -2,6 +2,7 @@
 #include "FlareTradeRouteInfo.h"
 #include "../../Flare.h"
 #include "../../Game/FlareCompany.h"
+#include "../../Game/FlareTradeRoute.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
@@ -89,37 +90,56 @@ void SFlareTradeRouteInfo::UpdateTradeRouteList()
 		FText TradeRouteName = FText::Format(LOCTEXT("TradeRouteNameFormat", "{0}{1}"),
 			TradeRoute->GetTradeRouteName(),
 			(TradeRoute->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (Paused)") : FText()));
-
+		
 		// Add line
 		TradeRouteList->AddSlot()
 		.AutoHeight()
 		.HAlign(HAlign_Right)
 		.Padding(Theme.SmallContentPadding)
 		[
-			SNew(SHorizontalBox)
+			SNew(SVerticalBox)
 
-			// Inspect
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
+			// Buttons
+			+ SVerticalBox::Slot()
+			.AutoHeight()
 			[
-				SNew(SFlareButton)
-				.Width(7)
-				.Text(TradeRouteName)
-				.HelpText(FText(LOCTEXT("InspectHelp", "Edit this trade route")))
-				.OnClicked(this, &SFlareTradeRouteInfo::OnInspectTradeRouteClicked, TradeRoute)
+				SNew(SHorizontalBox)
+
+				// Inspect
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareButton)
+					.Width(7)
+					.Text(TradeRouteName)
+					.HelpText(FText(LOCTEXT("InspectHelp", "Edit this trade route")))
+					.OnClicked(this, &SFlareTradeRouteInfo::OnInspectTradeRouteClicked, TradeRoute)
+				]
+
+				// Remove
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareButton)
+					.Transparent(true)
+					.Text(FText())
+					.HelpText(LOCTEXT("RemoveTradeRouteHelp", "Remove this trade route"))
+					.Icon(FFlareStyleSet::GetIcon("Stop"))
+					.OnClicked(this, &SFlareTradeRouteInfo::OnDeleteTradeRoute, TradeRoute)
+					.Width(1)
+				]
 			]
 
-			// Remove
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
+			// Infos
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.SmallContentPadding)
 			[
-				SNew(SFlareButton)
-				.Transparent(true)
-				.Text(FText())
-				.HelpText(LOCTEXT("RemoveTradeRouteHelp", "Remove this trade route"))
-				.Icon(FFlareStyleSet::GetIcon("Stop"))
-				.OnClicked(this, &SFlareTradeRouteInfo::OnDeleteTradeRoute, TradeRoute)
-				.Width(1)
+				SNew(SRichTextBlock)
+				.TextStyle(&Theme.TextFont)
+				.Text(this, &SFlareTradeRouteInfo::GetDetailText, TradeRoute)
+				.WrapTextAt(Theme.ContentWidth / 2)
+				.DecoratorStyleSet(&FFlareStyleSet::Get())
 			]
 		];
 	}
@@ -128,6 +148,32 @@ void SFlareTradeRouteInfo::UpdateTradeRouteList()
 void SFlareTradeRouteInfo::Clear()
 {
 	TradeRouteList->ClearChildren();
+}
+
+FText SFlareTradeRouteInfo::GetDetailText(UFlareTradeRoute* TradeRoute) const
+{
+	FCHECK(TradeRoute);
+	const FFlareTradeRouteSave* TradeRouteData = TradeRoute->Save();
+	FCHECK(TradeRouteData);
+
+	// Get data
+	int32 TotalOperations = TradeRouteData->StatsOperationSuccessCount + TradeRouteData->StatsOperationFailCount;
+	int32 SuccessPercentage = (TotalOperations > 0) ? (FMath::RoundToInt(100.0f * TradeRouteData->StatsOperationSuccessCount / float(TotalOperations))) : 0;
+	int32 CreditsGain = (TradeRouteData->StatsDays > 0) ? (FMath::RoundToInt(0.01f * float(TradeRouteData->StatsMoneySell - TradeRouteData->StatsMoneyBuy) / float(TradeRouteData->StatsDays))) : 0;
+
+	// Format result
+	if (CreditsGain > 0)
+	{
+		return FText::Format(LOCTEXT("TradeRouteDetailsGain", "   <TradeText>{0} credits per day, {1}% OK</>"),
+			FText::AsNumber(CreditsGain),
+			FText::AsNumber(SuccessPercentage));
+	}
+	else
+	{
+		return FText::Format(LOCTEXT("TradeRouteDetailsLoss", "  <WarningText>{0} credits per day</>, {1}% OK"),
+			FText::AsNumber(CreditsGain),
+			FText::AsNumber(SuccessPercentage));
+	}
 }
 
 void SFlareTradeRouteInfo::OnNewTradeRouteClicked()
@@ -148,6 +194,13 @@ void SFlareTradeRouteInfo::OnInspectTradeRouteClicked(UFlareTradeRoute* TradeRou
 }
 
 void SFlareTradeRouteInfo::OnDeleteTradeRoute(UFlareTradeRoute* TradeRoute)
+{
+	MenuManager->Confirm(LOCTEXT("AreYouSure", "ARE YOU SURE ?"),
+		LOCTEXT("ConfirmDeleteTR", "Do you really want to remove this trade route ?"),
+		FSimpleDelegate::CreateSP(this, &SFlareTradeRouteInfo::OnDeleteTradeRouteConfirmed, TradeRoute));
+}
+
+void SFlareTradeRouteInfo::OnDeleteTradeRouteConfirmed(UFlareTradeRoute* TradeRoute)
 {
 	FCHECK(TradeRoute);
 	TradeRoute->Dissolve();

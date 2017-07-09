@@ -111,7 +111,6 @@ void UFlareTradeRoute::Simulate()
 
 	if (TargetSector && TargetSector != CurrentSector)
 	{
-
 		if (!TargetSector->GetSectorBattleState(TradeRouteCompany).HasDanger && ! TradeRouteFleet->IsTrading())
 		{
 			FLOGV("  -> start travel to %s", *TargetSector->GetSectorName().ToString());
@@ -119,9 +118,8 @@ void UFlareTradeRoute::Simulate()
 			Game->GetGameWorld()->StartTravel(TradeRouteFleet, TargetSector);
 		}
 	}
-
-
-	FLOGV("=== Stats for %s ===", *GetTradeRouteName().ToString());
+	
+	/*FLOGV("=== Stats for %s ===", *GetTradeRouteName().ToString());
 	FLOGV("- day count: %d", TradeRouteData.StatsDays);
 	FLOGV("- load quantity: %d", TradeRouteData.StatsLoadResources);
 	FLOGV("- unload quantity: %d", TradeRouteData.StatsUnloadResources);
@@ -133,7 +131,7 @@ void UFlareTradeRoute::Simulate()
 	FLOGV("- operation fail: %d", TradeRouteData.StatsOperationFailCount);
 
 	FLOGV("- gain per day: %f credits/day", 0.01 * float(TradeRouteData.StatsMoneySell - TradeRouteData.StatsMoneyBuy) / float(TradeRouteData.StatsDays));
-	FLOGV("- sucess ratio: %f", float(TradeRouteData.StatsOperationSuccessCount) / (TradeRouteData.StatsOperationFailCount + TradeRouteData.StatsOperationSuccessCount));
+	FLOGV("- sucess ratio: %f", float(TradeRouteData.StatsOperationSuccessCount) / (TradeRouteData.StatsOperationFailCount + TradeRouteData.StatsOperationSuccessCount));*/
 }
 
 UFlareSimulatedSector* UFlareTradeRoute::UpdateTargetSector()

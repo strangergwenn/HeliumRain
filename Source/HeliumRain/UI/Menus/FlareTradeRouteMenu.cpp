@@ -80,9 +80,10 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					.HAlign(HAlign_Center)
 					[
-						SNew(STextBlock)
+						SNew(SRichTextBlock)
 						.Text(this, &SFlareTradeRouteMenu::GetFleetInfo)
 						.TextStyle(&Theme.TextFont)
+						.DecoratorStyleSet(&FFlareStyleSet::Get())
 					]
 
 					// Map
@@ -142,7 +143,6 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 						.OnClicked(this, &SFlareTradeRouteMenu::OnConfirmChangeRouteNameClicked)
 						.IsDisabled(this, &SFlareTradeRouteMenu::IsRenameDisabled)
 					]
-
 				]
 				
 				// Fleet selection
@@ -272,6 +272,20 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 						.HelpText(LOCTEXT("PauseInfo", "Pause the trade route"))
 						.OnClicked(this, &SFlareTradeRouteMenu::OnPauseTradeRouteClicked)
 					]
+				]
+					
+				// Reset
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(SFlareButton)
+					.Width(4)
+					.Icon(FFlareStyleSet::GetIcon("OK"))
+					.Text(LOCTEXT("Reset", "Reset statistics"))
+					.HelpText(LOCTEXT("ResetInfo", "Reinitialize statistics for this trade route"))
+					.OnClicked(this, &SFlareTradeRouteMenu::OnResetStatistics)
 				]
 
 				// Operation edition box
@@ -806,15 +820,48 @@ FText SFlareTradeRouteMenu::GetTradeRouteName() const
 
 FText SFlareTradeRouteMenu::GetFleetInfo() const
 {
+	FCHECK(TargetTradeRoute);
 	if (TargetTradeRoute && TargetTradeRoute->GetFleet())
 	{
-		return FText::Format(LOCTEXT("FleetCargoInfoFormat", "Current fleet status : {0} - Total fleet capacity : {1} ({2} free)"),
+		// Fleet info
+		FText FleetInfo = FText::Format(LOCTEXT("FleetCargoInfoFormat", "\u2022 Current fleet status : {0} - Total fleet capacity : {1} ({2} free)"),
 			TargetTradeRoute->GetFleet()->GetStatusInfo(),
 			FText::AsNumber(TargetTradeRoute->GetFleet()->GetFleetCapacity()),
 			FText::AsNumber(TargetTradeRoute->GetFleet()->GetFleetFreeCargoSpace()));
-	}
 
-	return LOCTEXT("NoFleetSelected", "No assigned fleet !");
+		// Get statistics
+		const FFlareTradeRouteSave* TradeRouteData = TargetTradeRoute->Save();
+		FCHECK(TradeRouteData);
+		int32 TotalOperations = TradeRouteData->StatsOperationSuccessCount + TradeRouteData->StatsOperationFailCount;
+		int32 SuccessPercentage = (TotalOperations > 0) ? (FMath::RoundToInt(100.0f * TradeRouteData->StatsOperationSuccessCount / float(TotalOperations))) : 0;
+		int32 CreditsGain = (TradeRouteData->StatsDays > 0) ? (FMath::RoundToInt(0.01f * float(TradeRouteData->StatsMoneySell - TradeRouteData->StatsMoneyBuy) / float(TradeRouteData->StatsDays))) : 0;
+
+		// Format statistics
+		FText ResultInfo;
+		if (CreditsGain > 0)
+		{
+			ResultInfo = FText::Format(LOCTEXT("TradeRouteDetailsGain", "\u2022 Average gain of <TradeText>{0} credits per day</>, {1}% of trade steps successful"),
+				FText::AsNumber(CreditsGain),
+				FText::AsNumber(SuccessPercentage));
+		}
+		else
+		{
+			ResultInfo = FText::Format(LOCTEXT("TradeRouteDetailsLoss", "\u2022 Average gain of <WarningText>{0} credits per day</>, {1}% of trade steps successful"),
+				FText::AsNumber(CreditsGain),
+				FText::AsNumber(SuccessPercentage));
+		}
+
+		// Format statistics
+		FText LoadInfo = FText::Format(LOCTEXT("TradeRouteLoadInfo", "\u2022 {0} resources loaded, {1} resources unloaded"),
+				FText::AsNumber(TradeRouteData->StatsLoadResources),
+				FText::AsNumber(TradeRouteData->StatsUnloadResources));
+
+		return FText::FromString(FleetInfo.ToString() + "\n" + ResultInfo.ToString() + "\n" + LoadInfo.ToString());
+	}
+	else
+	{
+		return LOCTEXT("NoFleetSelected", "\u2022 No assigned fleet !");
+	}
 }
 
 FText SFlareTradeRouteMenu::GetSelectedStepInfo() const
@@ -1203,6 +1250,11 @@ EVisibility SFlareTradeRouteMenu::GetWaitLimitVisibility() const
 /*----------------------------------------------------
 	Action callbacks
 ----------------------------------------------------*/
+
+void SFlareTradeRouteMenu::OnResetStatistics()
+{
+	TargetTradeRoute->ResetStats();
+}
 
 void SFlareTradeRouteMenu::OnConfirmChangeRouteNameClicked()
 {

@@ -37,6 +37,9 @@ public:
 	/** Clear the trade route list */
 	void Clear();
 
+	/** Info text */
+	FText GetDetailText(UFlareTradeRoute* TradeRoute) const;
+
 	/** Create a new trade route and open trade route menu */
 	void OnNewTradeRouteClicked();
 
@@ -46,6 +49,8 @@ public:
 	/** Delete trade route */
 	void OnDeleteTradeRoute(UFlareTradeRoute* TradeRoute);
 
+	/** Delete trade route (confirmed) */
+	void OnDeleteTradeRouteConfirmed(UFlareTradeRoute* TradeRoute);
 		
 
 protected:

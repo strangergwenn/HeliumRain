@@ -128,7 +128,10 @@ protected:
 	/*----------------------------------------------------
 		Actions callbacks
 	----------------------------------------------------*/
-	
+
+	/** Reset statistics */
+	void OnResetStatistics();
+
 	/** Confirm a new name for this trade route */
 	void OnConfirmChangeRouteNameClicked();
 
