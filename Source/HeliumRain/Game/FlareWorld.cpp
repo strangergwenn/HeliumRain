@@ -2063,7 +2063,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 
 				if(DangerDelay == 0)
 				{
-					Event.Text = FText::Format(LOCTEXT("MeteoriteNowTextFormat", "\u2022 <WarningText>{0} {1} menacing {2} now !</>"),
+					Event.Text = FText::Format(LOCTEXT("MeteoriteNowTextFormat", "\u2022 <WarningText>{0} {1} threatening {2} now !</>"),
 														FText::AsNumber(DangerCount),
 														MeteoriteText,
 														 Sector->GetSectorName());
@@ -2074,7 +2074,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 
 					if(PlayerCompany->IsTechnologyUnlocked("advanced-radar"))
 					{
-						Event.Text = FText::Format(LOCTEXT("MeteoriteSoonTextFormat", "\u2022 <WarningText>{0} {1} menacing {2} in {3} !</>"),
+						Event.Text = FText::Format(LOCTEXT("MeteoriteSoonTextFormat", "\u2022 <WarningText>{0} {1} threatening {2} in {3} !</>"),
 														FText::AsNumber(DangerCount),
 														MeteoriteText,
 														Sector->GetSectorName(),
@@ -2082,7 +2082,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 					}
 					else
 					{
-						Event.Text = FText::Format(LOCTEXT("MeteoriteSoonNoRadarTextFormat", "\u2022 <WarningText>A meteorite group menacing {0} in {1} !</>"),
+						Event.Text = FText::Format(LOCTEXT("MeteoriteSoonNoRadarTextFormat", "\u2022 <WarningText>Meteorite group threatening {0} in {1} !</>"),
 														Sector->GetSectorName(),
 														DelayText);
 					}
