@@ -82,7 +82,7 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 		Target = Parent->FindSpacecraft(MeteoriteData->TargetStation);
 	}
 
-	float DeltaveSq  = (MeteoriteData->LinearVelocity - Meteorite->GetPhysicsLinearVelocity()).SizeSquared();
+	float DeltaveSq = (MeteoriteData->LinearVelocity - Meteorite->GetPhysicsLinearVelocity()).SizeSquared();
 
 	float const SafeThresold = 5.f;
 
@@ -103,8 +103,6 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 	FLOGV(" - IsCollisionEnabled %d", Meteorite->IsCollisionEnabled());
 	FLOGV(" - IsSimulatingPhysics %d", Meteorite->IsSimulatingPhysics());*/
 
-
-
 	/*float CollisionSize = Asteroid->GetCollisionShape().GetExtent().Size();
 	if (SpawnLocation.Size() <= 0.1)
 	{
@@ -117,48 +115,42 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 		DrawDebugLine(GetWorld(), GetActorLocation(), SpawnLocation, FColor::Green, false);
 	}*/
 
-	if(LifeTime > SafeThresold)
+	if (LifeTime > SafeThresold)
 	{
-		if(!IsBroken()  && !MeteoriteData->HasMissed && Target)
+		if (!IsBroken()  && !MeteoriteData->HasMissed && Target)
 		{
 			FVector CurrentVelocity =  Meteorite->GetPhysicsLinearVelocity();
 			FVector CurrentDirection = CurrentVelocity.GetUnsafeNormal();
-
 			float Velocity = MeteoriteData->LinearVelocity.Size();
 
 			FVector TargetDirection = (Target->GetActorLocation() + MeteoriteData->TargetOffset - GetActorLocation()).GetUnsafeNormal();
 			FVector TargetVelocity = TargetDirection * Velocity;
-
 			float Dot = FVector::DotProduct(CurrentDirection, TargetDirection);
 
 			//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + TargetDirection * 10000,FColor::Green, 1000.f);
 			//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + CurrentDirection * 10000,FColor::Red, 1000.f);
 
-			if(Dot > 0)
+			if (Dot > 0)
 			{
 				// Don't fix if miss
-				FVector DeltaVelocity = TargetVelocity - CurrentVelocity;
-
+				FVector DeltaVelocity = TargetVelocity - CurrentVelocity;				
 				FVector DeltaVelocityClamped = DeltaVelocity.GetClampedToMaxSize(50.f * DeltaSeconds);
-
-
 				FVector CorrectedVelocity = CurrentVelocity + DeltaVelocityClamped;
 				FVector CorrectedDirection = CorrectedVelocity.GetUnsafeNormal();
 
 				//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + CorrectedDirection * 10000 ,FColor::Blue, 1000.f);
 				Meteorite->SetPhysicsLinearVelocity(CorrectedDirection * Velocity);
 			}
-			else if(Dot < -0.5f)
+			else if (Dot < -0.5f)
 			{
 				MeteoriteData->HasMissed = true;
 
 				Parent->GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteMiss", "Meteorite miss"),
-										FText::Format(LOCTEXT("MeteoriteMissFormat", "A meteorite missed {0}. It's no more a danger."), UFlareGameTools::DisplaySpacecraftName(Target->GetParent())),
+										FText::Format(LOCTEXT("MeteoriteMissFormat", "A meteorite missed {0}. It's not dangerous anymore."), UFlareGameTools::DisplaySpacecraftName(Target->GetParent())),
 										FName("meteorite-miss"),
 										EFlareNotification::NT_Military,
 										false);
-
-
+				
 				Parent->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-miss-station").PutName("sector", Parent->GetSimulatedSector()->GetIdentifier()));
 			}
 		}
@@ -194,12 +186,11 @@ void AFlareMeteorite::OnCollision(class AActor* Other, FVector HitLocation)
 
 			// Notify PC
 			Parent->GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteCrash", "Meteorite crashed"),
-									FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite crashed on {0}"), UFlareGameTools::DisplaySpacecraftName(Spacecraft->GetParent())),
+									FText::Format(LOCTEXT("MeteoriteCrashFormat", "A meteorite crashed on {0}."), UFlareGameTools::DisplaySpacecraftName(Spacecraft->GetParent())),
 									FName("meteorite-crash"),
 									EFlareNotification::NT_Military,
 									false);
-
-
+			
 			// Apply damage
 			if (Spacecraft->IsStation())
 			{
@@ -276,11 +267,11 @@ void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, 
 
 		if (IsBroken())
 		{
+			// Notify PC
 			if (DamageType != EFlareDamage::DAM_Collision)
 			{
-				// Notify PC
 				Parent->GetGame()->GetPC()->Notify(LOCTEXT("MeteoriteDestroyed", "Meteorite destroyed"),
-										LOCTEXT("MeteoriteDestroyedFormat", "A meteorite has been destroyed"),
+										LOCTEXT("MeteoriteDestroyedFormat", "A meteorite has been destroyed."),
 										FName("meteorite-destroyed"),
 										EFlareNotification::NT_Military,
 										false);
@@ -293,9 +284,6 @@ void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, 
 				GetActorLocation(),
 				FRotator::ZeroRotator,
 				false);
-
-			FLOGV("VELOCIY WAS %f", CurrentVelocity.Size());
-
 			PSC->SetVectorParameter("Velocity", CurrentVelocity);
 
 			// Apply damage
@@ -303,14 +291,11 @@ void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, 
 			{
 				Parent->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-destroyed").PutName("sector", Parent->GetSimulatedSector()->GetIdentifier()));
 			}			
-			//FLOGV("Energy %f", Energy);
 			Meteorite->ApplyRadiusDamage(FMath::Max(200.f, Energy), Location, 100.f, FMath::Max(200.f, Energy )* 200 , false);
-
 		}
 	}
 	else
 	{
-		//FLOGV("Bonus Energy %f", Energy);
 		if (DamageType != EFlareDamage::DAM_Collision)
 		{
 			Meteorite->ApplyRadiusDamage(FMath::Max(180.f, Energy/ 100 ) , Location, 100.f, FMath::Max(180.f, Energy ) * 500 , false);
