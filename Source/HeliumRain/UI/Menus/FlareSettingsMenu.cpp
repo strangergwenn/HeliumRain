@@ -876,7 +876,7 @@ void SFlareSettingsMenu::BuildKeyBindingPane(TArray<TSharedPtr<FSimpleBind> >& B
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.NameFont)
-					.Text(FText::FromString(Bind->DisplayName))
+					.Text(Bind->DisplayName)
 				]
 
 				// Key 1
@@ -917,7 +917,7 @@ void SFlareSettingsMenu::BuildKeyBindingPane(TArray<TSharedPtr<FSimpleBind> >& B
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(FText::FromString(Bind->DisplayName))
+					.Text(Bind->DisplayName)
 				]
 
 				// Key 1
@@ -1526,11 +1526,11 @@ void SFlareSettingsMenu::OnKeyBindingChanged(FKey PreviousKey, FKey NewKey, SFla
 		{
 			if(ConflictKeys.IsEmpty())
 			{
-				ConflictKeys = FText::Format(LOCTEXT("ConflictsKeysFirst", "'{0}'"), FText::FromString(Bind->DisplayName));
+				ConflictKeys = FText::Format(LOCTEXT("ConflictsKeysFirst", "'{0}'"), Bind->DisplayName);
 			}
 			else
 			{
-				ConflictKeys = FText::Format(LOCTEXT("ConflictsKeysOthers", "{0}, '{1}'"), ConflictKeys, FText::FromString(Bind->DisplayName));
+				ConflictKeys = FText::Format(LOCTEXT("ConflictsKeysOthers", "{0}, '{1}'"), ConflictKeys, Bind->DisplayName);
 			}
 		}
 
@@ -1538,7 +1538,7 @@ void SFlareSettingsMenu::OnKeyBindingChanged(FKey PreviousKey, FKey NewKey, SFla
 			FText::Format(LOCTEXT("ConfirmKeyConflictInfo", "'{0}' is already used for {1}. Do you really want to assign this key for '{2}'' ?"),
 						  FText::FromString(NewKey.ToString()),
 						  ConflictKeys,
-						  FText::FromString(BindingThatChanged->DisplayName)),
+						  BindingThatChanged->DisplayName),
 			FSimpleDelegate::CreateSP(this, &SFlareSettingsMenu::ApplyNewBinding, BindingThatChanged),
 			FSimpleDelegate::CreateSP(this, &SFlareSettingsMenu::CancelNewBinding, UIBinding, PreviousKey));
 	}
@@ -1930,7 +1930,7 @@ bool SFlareSettingsMenu::IsAlreadyUsed(TArray<TSharedPtr<FSimpleBind>> &BindConf
 
 FSimpleBind::FSimpleBind(const FText& InDisplayName)
 {
-	DisplayName = InDisplayName.ToString();
+	DisplayName = InDisplayName;
 	bHeader = false;
 	Key = MakeShareable(new FKey());
 	AltKey = MakeShareable(new FKey());

@@ -12,7 +12,7 @@ class AFlareMenuManager;
 
 struct FSimpleBind
 {
-	FString DisplayName;
+	FText DisplayName;
 	TSharedPtr<FKey> Key;
 	TSharedPtr<FKey> AltKey;
 	FKey DefaultKey;

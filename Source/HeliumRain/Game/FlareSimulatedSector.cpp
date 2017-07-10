@@ -939,9 +939,8 @@ FText UFlareSimulatedSector::GetSectorBalanceText(bool ActiveOnly)
 	int32 PlayerShips, EnemyShips, NeutralShips;
 	GetSectorBalance(GetGame()->GetPC()->GetCompany(), PlayerShips, EnemyShips, NeutralShips, ActiveOnly);
 
-	FText PlayerShipsText = FText::Format(LOCTEXT("PlayerShipsFormat", "Forces : {0} friendly {1}, "),
-		FText::AsNumber(PlayerShips),
-		PlayerShips > 1 ? LOCTEXT("PlayerShips", "ships") : LOCTEXT("PlayerShip", "ship"));
+	FText PlayerShipsText = FText::Format(LOCTEXT("PlayerShipsFormat", "Ships : {0} friendly, "),
+		FText::AsNumber(PlayerShips));
 
 	FText HostileShipsText = FText::Format(LOCTEXT("HostileShipsFormat", "{0} {1}, "),
 		FText::AsNumber(EnemyShips),
