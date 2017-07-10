@@ -210,7 +210,7 @@ FText SFlareCargoInfo::GetResourceAcronym() const
 	}
 	else
 	{
-		return LOCTEXT("Empty", " ");
+		return FText();
 	}
 }
 
