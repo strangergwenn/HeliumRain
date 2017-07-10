@@ -1045,6 +1045,16 @@ void SFlareSettingsMenu::Setup()
 {
 	SetEnabled(false);
 	SetVisibility(EVisibility::Collapsed);
+
+	// Get current culture
+	FString CurrentCultureString = GConfig->GetStr(TEXT("Internationalization"), TEXT("NativeGameCulture"), GGameUserSettingsIni);
+	if (CurrentCultureString.Len() == 0)
+	{
+		FLOGV("SFlareSettingsMenu::Setup : no user-set culture, using OS default", *CurrentCultureString);
+		CurrentCultureString = FInternationalization::Get().GetCurrentCulture().Get().GetName();
+	}
+	FLOGV("SFlareSettingsMenu::Setup : current culture is '%s'", *CurrentCultureString);
+	FInternationalization::Get().SetCurrentCulture(CurrentCultureString);
 }
 
 void SFlareSettingsMenu::Enter()
@@ -1072,9 +1082,9 @@ void SFlareSettingsMenu::Enter()
 
 	// Set list of cultures to the current one
 	FString CurrentCultureString = FInternationalization::Get().GetCurrentCulture().Get().GetName();
-	for(TSharedPtr<FString> Culture : CultureList)
+	for (TSharedPtr<FString> Culture : CultureList)
 	{
-		if(*Culture.Get() == CurrentCultureString)
+		if (*Culture.Get() == CurrentCultureString)
 		{
 			CultureSelector->SetSelectedItem(Culture);
 			break;
@@ -1125,6 +1135,10 @@ TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateCultureComboLine(TSharedPtr<FS
 void SFlareSettingsMenu::OnCultureComboLineSelectionChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo)
 {
 	FInternationalization::Get().SetCurrentCulture(*Item.Get());
+
+	GConfig->SetString(TEXT("Internationalization"), TEXT("NativeGameCulture"), **Item.Get(), GGameUserSettingsIni);
+	GConfig->Flush(false, GEditorSettingsIni);
+	FTextLocalizationManager::Get().RefreshResources();
 }
 
 FText SFlareSettingsMenu::OnGetCurrentResolutionComboLine() const
