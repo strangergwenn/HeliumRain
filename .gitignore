@@ -37,3 +37,4 @@ Plugins/InternalComponentVisualizer/Binaries
 Plugins/JoystickPlugin/ThirdParty/SDL2/SDL/
 Plugins/JoystickPlugin/ThirdParty/SDL2/build-SDL/
 .vs/
+Scripts/system.json
