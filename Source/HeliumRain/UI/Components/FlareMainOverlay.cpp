@@ -71,7 +71,6 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 					.VAlign(VAlign_Fill)
 					.Padding(FMargin(0))
 					.BorderImage(this, &SFlareMainOverlay::GetBackgroundBrush)
-					.BorderBackgroundColor(FLinearColor(1, 1, 1, 0.7f))
 					[
 						SNew(SVerticalBox)
 

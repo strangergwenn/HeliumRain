@@ -77,7 +77,6 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 					SNew(SBorder)
 					.HAlign(HAlign_Center)
 					.BorderImage(this, &SFlareMainMenu::GetBackgroundBrush)
-					.BorderBackgroundColor(FLinearColor(1, 1, 1, Theme.DefaultAlpha))
 					[
 						SNew(SVerticalBox)
 
