@@ -70,7 +70,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 					.HAlign(HAlign_Fill)
 					.VAlign(VAlign_Fill)
 					.Padding(FMargin(0))
-					.BorderImage(FFlareStyleSet::Get().GetBrush("/Brushes/SB_Black"))
+					.BorderImage(this, &SFlareMainOverlay::GetBackgroundBrush)
 					.BorderBackgroundColor(FLinearColor(1, 1, 1, 0.7f))
 					[
 						SNew(SVerticalBox)
@@ -592,6 +592,11 @@ FText SFlareMainOverlay::GetCurrentMenuName() const
 	}
 
 	return Name;
+}
+
+const FSlateBrush* SFlareMainOverlay::GetBackgroundBrush() const
+{
+	return MenuManager->GetPC()->GetBackgroundDecorator();
 }
 
 const FSlateBrush* SFlareMainOverlay::GetCurrentMenuIcon() const

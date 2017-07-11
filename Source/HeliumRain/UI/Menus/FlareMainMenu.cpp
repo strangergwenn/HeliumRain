@@ -76,7 +76,8 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SBorder)
 					.HAlign(HAlign_Center)
-					.BorderImage(&Theme.BackgroundBrush)
+					.BorderImage(this, &SFlareMainMenu::GetBackgroundBrush)
+					.BorderBackgroundColor(FLinearColor(1, 1, 1, Theme.DefaultAlpha))
 					[
 						SNew(SVerticalBox)
 
@@ -254,6 +255,11 @@ void SFlareMainMenu::Exit()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+const FSlateBrush* SFlareMainMenu::GetBackgroundBrush() const
+{
+	return MenuManager->GetPC()->GetBackgroundDecorator();
+}
 
 FText SFlareMainMenu::GetText(int32 Index) const
 {

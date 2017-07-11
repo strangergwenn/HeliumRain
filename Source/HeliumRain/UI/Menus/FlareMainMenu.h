@@ -46,6 +46,9 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Get the current background */
+	const FSlateBrush* GetBackgroundBrush() const;
+
 	/** Get a save slot's description */
 	FText GetText(int32 Index) const;
 

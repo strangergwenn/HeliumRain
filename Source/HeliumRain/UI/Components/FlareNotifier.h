@@ -56,6 +56,9 @@ public:
 	
 	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 
+	/** Get the current background */
+	const FSlateBrush* GetBackgroundBrush() const;
+
 	/** Get the visibility of the objective info */
 	EVisibility GetObjectiveVisibility() const;
 

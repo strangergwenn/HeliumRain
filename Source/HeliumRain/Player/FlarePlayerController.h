@@ -405,6 +405,8 @@ protected:
 	UPROPERTY()
 	FFlarePlayerObjectiveData                CurrentObjective;
 
+	const FSlateBrush*                       BackgroundDecorator;
+
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
@@ -510,6 +512,11 @@ public:
 	FFlarePlayerSave* GetPlayerData()
 	{
 		return &PlayerData;
+	}
+
+	const FSlateBrush* GetBackgroundDecorator() const
+	{
+		return BackgroundDecorator;
 	}
 
 	bool IsGameBusy() const

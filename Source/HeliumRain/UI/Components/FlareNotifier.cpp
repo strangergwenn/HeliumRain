@@ -80,7 +80,7 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 					.Padding(FMargin(0))
 					[
 						SNew(SBorder)
-						.BorderImage(&Theme.BackgroundBrush)
+						.BorderImage(this, &SFlareNotifier::GetBackgroundBrush)
 						[
 							SNew(SBox)
 							.WidthOverride(ObjectiveInfoWidth)
@@ -218,6 +218,11 @@ void SFlareNotifier::Tick(const FGeometry& AllottedGeometry, const double InCurr
 			NotificationData.Empty();
 		}
 	}
+}
+
+const FSlateBrush* SFlareNotifier::GetBackgroundBrush() const
+{
+	return MenuManager->GetPC()->GetBackgroundDecorator();
 }
 
 EVisibility SFlareNotifier::GetObjectiveVisibility() const

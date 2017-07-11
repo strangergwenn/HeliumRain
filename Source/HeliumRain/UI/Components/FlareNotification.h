@@ -69,6 +69,9 @@ public:
 	/** Get the current text color */
 	FSlateColor GetNotificationTextColor() const;
 
+	/** Get the current background */
+	const FSlateBrush* GetBackgroundBrush() const;
+
 	/** Get the current background color */
 	FSlateColor GetNotificationBackgroundColor() const;
 	

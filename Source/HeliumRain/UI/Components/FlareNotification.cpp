@@ -91,7 +91,7 @@ void SFlareNotification::Construct(const FArguments& InArgs)
 						.Padding(FMargin(0))
 						[
 							SNew(SBorder)
-							.BorderImage(&Theme.BackgroundBrush)
+							.BorderImage(this, &SFlareNotification::GetBackgroundBrush)
 							.BorderBackgroundColor(this, &SFlareNotification::GetNotificationBackgroundColor)
 							[
 								SNew(SBox)
@@ -295,6 +295,11 @@ FSlateColor SFlareNotification::GetNotificationTextColor() const
 	FLinearColor Result = FFlareStyleSet::GetDefaultTheme().NeutralColor;
 	Result.A = CurrentAlpha * FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
 	return Result;
+}
+
+const FSlateBrush* SFlareNotification::GetBackgroundBrush() const
+{
+	return MenuManager->GetPC()->GetBackgroundDecorator();
 }
 
 FSlateColor SFlareNotification::GetNotificationBackgroundColor() const

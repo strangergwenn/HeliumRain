@@ -19,6 +19,9 @@ struct FFlareCustomizationPatternDescription
 	/** Pattern preview image */
 	UPROPERTY(EditAnywhere, Category = Content) FSlateBrush PatternPreviewBrush;
 
+	/** Pattern to apply to UI elements */
+	UPROPERTY(EditAnywhere, Category = Content) FSlateBrush BackgroundDecorator;
+
 };
 
 

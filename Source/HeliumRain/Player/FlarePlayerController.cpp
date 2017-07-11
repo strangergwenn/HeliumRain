@@ -433,6 +433,10 @@ void AFlarePlayerController::PrepareForExit()
 void AFlarePlayerController::SetCompanyDescription(const FFlareCompanyDescription& SaveCompanyData)
 {
 	CompanyData = SaveCompanyData;
+
+	// Load decorator
+	UFlareCustomizationCatalog* CustomizationCatalog = GetGame()->GetCustomizationCatalog();
+	BackgroundDecorator = &CustomizationCatalog->PaintPatterns[SaveCompanyData.CustomizationPatternIndex].BackgroundDecorator;
 }
 
 void AFlarePlayerController::Load(const FFlarePlayerSave& SavePlayerData)
@@ -684,6 +688,7 @@ void AFlarePlayerController::SetupMenu()
 	Possess(MenuPawn);
 	
 	// Spawn the menu manager
+	BackgroundDecorator = FFlareStyleSet::Get().GetBrush("/Brushes/SB_DefaultBackgroundDecorator");
 	FActorSpawnParameters SpawnInfo;
 	SpawnInfo.Owner = this;
 	SpawnInfo.Instigator = Instigator;
@@ -1310,6 +1315,9 @@ void AFlarePlayerController::SetLightColor(FLinearColor Color)
 void AFlarePlayerController::SetPatternIndex(int32 Index)
 {
 	CompanyData.CustomizationPatternIndex = Index;
+
+	UFlareCustomizationCatalog* CustomizationCatalog = GetGame()->GetCustomizationCatalog();
+	BackgroundDecorator = &CustomizationCatalog->PaintPatterns[Index].BackgroundDecorator;
 
 	if (Company)
 	{

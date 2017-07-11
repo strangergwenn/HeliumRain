@@ -98,6 +98,9 @@ public:
 
 	/** Get the icon of the current menu */
 	const FSlateBrush* GetCurrentMenuIcon() const;
+
+	/** Get the current background */
+	const FSlateBrush* GetBackgroundBrush() const;
 	
 	/** Get the player info text */
 	FText GetPlayerInfo() const;
