@@ -31,5 +31,4 @@ commandLine += " -package -ue4exe=UE4Editor-Cmd.exe -build -pak -prereqs -distri
 commandLine += " -utf8output -CookCultures=" + buildCultures
 
 # Call
-print(commandLine)
 os.system(commandLine)
