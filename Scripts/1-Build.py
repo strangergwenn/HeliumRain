@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 import os
 import json
 
@@ -21,13 +21,26 @@ systemData.close()
 
 # Generate paths
 inputProject = os.path.join(inputDir, "HeliumRain.uproject")
-buildTool = os.path.join(engineDir, "Engine", "Build", "BatchFiles", "RunUAT.bat")
+if buildPlatform == "Linux":
+	buildTool = os.path.join(engineDir, "Engine", "Build", "BatchFiles", "RunUAT.sh")
+else:
+	buildTool = os.path.join(engineDir, "Engine", "Build", "BatchFiles", "RunUAT.bat")
 
 # Generate full command line
 commandLine = buildTool
-commandLine += " BuildCookRun -project=" + inputProject + " -nocompile -nocompileeditor -installed -nop4 -clientconfig=" + buildConfiguration
+commandLine += " BuildCookRun -project=" + inputProject + " -nocompile"
+if buildPlatform == "Linux":
+	commandLine += " -LinuxNoEditor"
+else:
+	commandLine += " -nocompileeditor -installed"
+commandLine += "-nop4 -clientconfig=" + buildConfiguration
 commandLine += " -cook -allmaps -stage -archive -archivedirectory=" + outputDir
-commandLine += " -package -ue4exe=UE4Editor-Cmd.exe -build -pak -prereqs -distribution -nodebuginfo -createreleaseversion=" + buildVersion
+commandLine += " -package"
+if buildPlatform == "Linux":
+	commandLine += " -ue4exe=UE4Editor -targetplatform=Linux"
+else:
+	commandLine += " -ue4exe=UE4Editor-Cmd.exe"
+commandLine += " -build -pak -prereqs -distribution -nodebuginfo -createreleaseversion=" + buildVersion
 commandLine += " -utf8output -CookCultures=" + buildCultures
 
 # Call
