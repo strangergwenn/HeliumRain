@@ -100,6 +100,19 @@ void UFlareGameTools::SetDefaultTurret(FName NewDefaultTurretIdentifier)
 	}
 }
 
+void UFlareGameTools::SetCulture(FName CultureName)
+{
+	if(FInternationalization::Get().SetCurrentCulture(CultureName.ToString()))
+	{
+		FLOGV("Culture is now %s", *FInternationalization::Get().GetCurrentCulture()->GetDisplayName());
+	}
+	else
+	{
+		FLOGV("Fail to find culture %s", *CultureName.ToString());
+	}
+
+}
+
 
 #define RESET   "\033[0m"
 #define RED     "\033[31m"      /* Red */

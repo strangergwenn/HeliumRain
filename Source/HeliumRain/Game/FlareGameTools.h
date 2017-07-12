@@ -59,6 +59,9 @@ public:
 	UFUNCTION(exec)
 	void CompleteQuestStep();
 
+	UFUNCTION(exec)
+	void SetCulture(FName CultureName);
+
 	/*----------------------------------------------------
 		World tools
 	----------------------------------------------------*/
