@@ -41,8 +41,11 @@ UAT=$4
 #$UAT  BuildCookRun -nocompile -nop4 -project=$InputProject -cook -compressed -allmaps -build -stage -archive -archivedirectory=$OutputDir -package -LinuxNoEditor -clientconfig=$BuildMode -ue4exe=UE4Editor -clean -pak -targetplatform=Linux -utf8output -CookCultures=en-US+fr-FR
 
 
-$UAT  BuildCookRun -nocompile -nop4 -project=$InputProject -cook -compressed -allmaps -build          -distribution -nodebuginfo -createreleaseversion=$VersionName            -stage -archive -archivedirectory=$OutputDir -package -LinuxNoEditor -clientconfig=$BuildMode -ue4exe=UE4Editor -clean -pak -targetplatform=Linux -utf8output -CookCultures=en-US+fr-FR
+#$UAT  BuildCookRun -nocompile -nop4 -project=$InputProject -cook -compressed -allmaps -build          -distribution -nodebuginfo -createreleaseversion=$VersionName            -stage -archive -archivedirectory=$OutputDir -package -LinuxNoEditor -clientconfig=$BuildMode -ue4exe=UE4Editor -clean -pak -targetplatform=Linux -utf8output -CookCultures=en-US+fr-FR
 
+# ok2
+#$UAT  BuildCookRun -nocompile -nop4 -project=$InputProject -cook -compressed -allmaps -build          -distribution -nodebuginfo -createreleaseversion=$VersionName            -stage -archive -archivedirectory=$OutputDir -package -LinuxNoEditor -clientconfig=$BuildMode -ue4exe=UE4Editor  -pak -targetplatform=Linux -utf8output -CookCultures=en-US+fr-FR
+$UAT  BuildCookRun -nocompile -nop4 -project=$InputProject -cook -allmaps -build          -distribution -nodebuginfo -createreleaseversion=$VersionName            -stage -archive -archivedirectory=$OutputDir -package -LinuxNoEditor -clientconfig=$BuildMode -ue4exe=UE4Editor  -pak -targetplatform=Linux -utf8output -CookCultures=en-US+fr-FR
 
 # working
 #$UAT BuildCookRun -nocompile -nop4 -project=$InputProject -cook -compressed -allmaps -stage -archive -archivedirectory=$OutputDir -package -LinuxNoEditor -clientconfig=$BuildMode -ue4exe=UE4Editor -clean -pak -targetplatform=Linux -utf8output -CookCultures=en-US+fr-FR
