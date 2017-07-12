@@ -42,8 +42,8 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 		[
 			SAssignNew(SaveBox, SHorizontalBox)
 		]
-
-		// Bottom bar
+	
+		// Early access warning
 		+ SVerticalBox::Slot()
 		.VAlign(VAlign_Bottom)
 		.HAlign(HAlign_Fill)
@@ -57,7 +57,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SVerticalBox)
 
-				// Header
+				// Border top
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
@@ -66,7 +66,66 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SImage)
 						.Image(&Theme.InvertedBrush)
-						.ColorAndOpacity(Theme.ObjectiveColor)
+						.ColorAndOpacity(Theme.EnemyColor)
+					]
+				]
+
+				// Container
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SBorder)
+					.HAlign(HAlign_Center)
+					.BorderImage(this, &SFlareMainMenu::GetBackgroundBrush)
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("EarlyAccess", "Helium Rain is in early access ! We're looking for your feedback to fix bugs and improve the game.\nPlease report issues or feature requests at dev.helium-rain.com. We'll track discussions on the Steam community too !"))
+						.TextStyle(&Theme.NameFont)
+						.Justification(ETextJustify::Center)
+					]
+				]
+
+				// Border bottom
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SBox)
+					.HeightOverride(2)
+					[
+						SNew(SImage)
+						.Image(&Theme.InvertedBrush)
+						.ColorAndOpacity(Theme.EnemyColor)
+					]
+				]
+			]
+		]
+
+		// Bottom bar
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.VAlign(VAlign_Bottom)
+		.HAlign(HAlign_Fill)
+		.Padding(FMargin(0, 50, 0, 0))
+		[
+			SNew(SBackgroundBlur)
+			.BlurRadius(Theme.BlurRadius)
+			.BlurStrength(Theme.BlurStrength)
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			.Padding(FMargin(0))
+			[
+				SNew(SVerticalBox)
+
+				// Border top
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SBox)
+					.HeightOverride(2)
+					[
+						SNew(SImage)
+						.Image(&Theme.NearInvisibleBrush)
 					]
 				]
 
@@ -79,17 +138,6 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 					.BorderImage(this, &SFlareMainMenu::GetBackgroundBrush)
 					[
 						SNew(SVerticalBox)
-
-						// Beta warning
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("Beta", "Helium Rain is in beta ! You could encounter bugs or missing features. Please report issues at dev.helium-rain.com."))
-							.TextStyle(&Theme.NameFont)
-							.Justification(ETextJustify::Center)
-						]
 
 						// Buttons
 						+ SVerticalBox::Slot()
@@ -129,7 +177,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SNew(STextBlock)
-								.Text(FText::Format(LOCTEXT("Dont-Translate-Version", "HELIUM RAIN / Beta / {0} / \u00A9 DEIMOS GAMES SAS 2017"),
+								.Text(FText::Format(LOCTEXT("Dont-Translate-Version", "HELIUM RAIN / Early Access / {0} / \u00A9 DEIMOS GAMES SAS 2017"),
 									FText::FromString(__DATE__))) // FString neded here
 								.TextStyle(&Theme.TextFont)
 							]
