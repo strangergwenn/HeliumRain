@@ -26,7 +26,7 @@ if buildPlatform == "Linux":
 else:
 	buildTool = os.path.join(engineDir, "Engine", "Build", "BatchFiles", "RunUAT.bat")
 
-# Generate full command line
+# Build
 commandLine = buildTool
 commandLine += " BuildCookRun -project=" + inputProject + " -nocompile"
 if buildPlatform == "Linux":
@@ -34,13 +34,20 @@ if buildPlatform == "Linux":
 else:
 	commandLine += " -nocompileeditor -installed"
 commandLine += "-nop4 -clientconfig=" + buildConfiguration
+
+# Cook
 commandLine += " -cook -allmaps -stage -archive -archivedirectory=" + outputDir
+
+# Package
 commandLine += " -package"
 if buildPlatform == "Linux":
 	commandLine += " -ue4exe=UE4Editor -targetplatform=Linux"
 else:
 	commandLine += " -ue4exe=UE4Editor-Cmd.exe"
-commandLine += " -build -pak -prereqs -distribution -nodebuginfo -createreleaseversion=" + buildVersion
+commandLine += " -build"
+if buildPlatform == "Windows":
+	commandLine += " -clean"
+commandLine += " -pak -prereqs -distribution -nodebuginfo -createreleaseversion=" + buildVersion
 commandLine += " -utf8output -CookCultures=" + buildCultures
 
 # Call
