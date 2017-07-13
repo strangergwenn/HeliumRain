@@ -99,6 +99,9 @@ public:
 	/** Get the icon of the current menu */
 	const FSlateBrush* GetCurrentMenuIcon() const;
 
+	/** Get the icon color for the current menu */
+	FSlateColor GetMenuIconColor(EFlareMenu::Type Menu) const;
+
 	/** Get the current background */
 	const FSlateBrush* GetBackgroundBrush() const;
 	

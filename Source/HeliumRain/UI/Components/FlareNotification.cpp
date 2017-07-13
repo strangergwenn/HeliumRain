@@ -223,7 +223,7 @@ void SFlareNotification::Tick(const FGeometry& AllottedGeometry, const double In
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
 	// Hidden
-	if (!Notifier->AreNotificationsVisible() || MenuManager->GetPC()->IsGameBusy())
+	if (!Notifier->AreNotificationsVisible())
 	{
 		CurrentAlpha = 0;
 	}

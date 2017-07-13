@@ -177,7 +177,6 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 		.Height(TitleButtonHeight)
 		.Transparent(true)
 		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, EFlareMenu::MENU_Main)
-		.Visibility(this, &SFlareMainOverlay::GetGameButtonVisibility)
 	];
 	SetupMenuLink(MainButton, EFlareMenu::MENU_Main);
 	
@@ -300,6 +299,7 @@ void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, EFlareMen
 			[
 				SNew(SImage)
 				.Image(AFlareMenuManager::GetMenuIcon(Menu))
+				.ColorAndOpacity(this, &SFlareMainOverlay::GetMenuIconColor, Menu)
 			]
 		]
 
@@ -311,6 +311,7 @@ void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, EFlareMen
 			SNew(STextBlock)
 			.TextStyle(&Theme.SmallFont)
 			.Text(AFlareMenuManager::GetMenuName(Menu, false))
+			.ColorAndOpacity(this, &SFlareMainOverlay::GetMenuIconColor, Menu)
 		]
 
 		// Shortcut
@@ -321,6 +322,7 @@ void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, EFlareMen
 			SNew(STextBlock)
 			.TextStyle(&Theme.SmallFont)
 			.Text(this, &SFlareMainOverlay::GetMenuKey, Menu)
+			.ColorAndOpacity(this, &SFlareMainOverlay::GetMenuIconColor, Menu)
 		]
 	);
 }
@@ -544,13 +546,13 @@ EVisibility SFlareMainOverlay::GetCloseVisibility() const
 
 const FSlateBrush* SFlareMainOverlay::GetCloseIcon() const
 {
-	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main)
+	if (MenuManager->GetGame()->IsLoadedOrCreated())
 	{
-		return FFlareStyleSet::GetIcon("Quit");
+		return FFlareStyleSet::GetIcon("Close");
 	}
 	else
 	{
-		return FFlareStyleSet::GetIcon("Close");
+		return FFlareStyleSet::GetIcon("Quit");
 	}
 }
 
@@ -615,6 +617,20 @@ const FSlateBrush* SFlareMainOverlay::GetCurrentMenuIcon() const
 	return AFlareMenuManager::GetMenuIcon(EFlareMenu::MENU_Sector);
 }
 
+FSlateColor SFlareMainOverlay::GetMenuIconColor(EFlareMenu::Type Menu) const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	if (MenuManager->GetCurrentMenu() == Menu)
+	{
+		return Theme.FriendlyColor;
+	}
+	else
+	{
+		return Theme.NeutralColor;
+	}
+}
+
 FText SFlareMainOverlay::GetPlayerInfo() const
 {
 	return PlayerInfoText;
@@ -650,7 +666,7 @@ void SFlareMainOverlay::OnBack()
 
 void SFlareMainOverlay::OnCloseMenu()
 {
-	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Main)
+	if (!MenuManager->GetGame()->IsLoadedOrCreated())
 	{
 		MenuManager->OpenMenu(EFlareMenu::MENU_Quit);
 	}
