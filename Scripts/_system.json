@@ -2,5 +2,6 @@
 	"platform": "Win64",
 	"inputDir": "D:\\HeliumRain",
 	"outputDir": "D:\\HR-Builds-V2",
-	"engineDir": "D:\\Dock\\UE4_Packaged\\UE_4.16"
+	"engineDir": "D:\\Dock\\UE4_Packaged\\UE_4.16",
+	"engineInstalled": false
 }

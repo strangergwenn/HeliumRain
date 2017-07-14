@@ -17,36 +17,38 @@ buildPlatform = systemConfig["platform"]
 inputDir = systemConfig["inputDir"]
 outputDir = systemConfig["outputDir"]
 engineDir = systemConfig["engineDir"]
+engineInstalled = systemConfig["engineInstalled"]
 systemData.close()
 
+# Platform-dependent names
+if buildPlatform == "Linux":
+	scriptExt = ".sh"
+	engineExecutable = "UE4Editor"
+	noCompileEditorOption = " -LinuxNoEditor"
+else:
+	scriptExt = ".bat"
+	engineExecutable = "UE4Editor-Cmd.exe"
+	noCompileEditorOption = " -nocompileeditor"
+
+# Installed vs built engine
+if engineInstalled:
+	installedOption = " -installed"
+	cleanOption = " -clean"
+else:
+	installedOption = ""
+	cleanOption = ""
+	
 # Generate paths
 inputProject = os.path.join(inputDir, "HeliumRain.uproject")
-if buildPlatform == "Linux":
-	buildTool = os.path.join(engineDir, "Engine", "Build", "BatchFiles", "RunUAT.sh")
-else:
-	buildTool = os.path.join(engineDir, "Engine", "Build", "BatchFiles", "RunUAT.bat")
+buildTool = os.path.join(engineDir, "Engine", "Build", "BatchFiles", "RunUAT" + scriptExt)
 
-# Build
+# Generate command line
 commandLine = buildTool
-commandLine += " BuildCookRun -project=" + inputProject + " -nocompile"
-if buildPlatform == "Linux":
-	commandLine += " -LinuxNoEditor"
-else:
-	commandLine += " -nocompileeditor -installed"
-commandLine += "-nop4 -clientconfig=" + buildConfiguration
-
-# Cook
+commandLine += " BuildCookRun -project=" + inputProject + " -nocompile" + noCompileEditorOption + installedOption
+commandLine += " -nop4 -clientconfig=" + buildConfiguration
 commandLine += " -cook -allmaps -stage -archive -archivedirectory=" + outputDir
-
-# Package
-commandLine += " -package"
-if buildPlatform == "Linux":
-	commandLine += " -ue4exe=UE4Editor -targetplatform=Linux"
-else:
-	commandLine += " -ue4exe=UE4Editor-Cmd.exe"
-commandLine += " -build"
-if buildPlatform == "Windows":
-	commandLine += " -clean"
+commandLine += " -package -ue4exe=" + engineExecutable
+commandLine += " -build -targetplatform=" + buildPlatform + cleanOption
 commandLine += " -pak -prereqs -distribution -nodebuginfo -createreleaseversion=" + buildVersion
 commandLine += " -utf8output -CookCultures=" + buildCultures
 
