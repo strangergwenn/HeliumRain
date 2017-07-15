@@ -2396,7 +2396,7 @@ void UFlareQuestConditionTutorialCommandDock::Load(UFlareQuest* ParentQuest, UFl
 	Completed = false;
 	Target = SpacecraftParam;
 
-	InitialLabel = FText::Format(LOCTEXT("StartDocking", "Start docking at {0}"), UFlareGameTools::DisplaySpacecraftName(Target));
+	InitialLabel = FText::Format(LOCTEXT("StartDocking", "Start docking at {0} with the wheel menu"), UFlareGameTools::DisplaySpacecraftName(Target));
 }
 
 void UFlareQuestConditionTutorialCommandDock::OnEvent(FFlareBundle& Bundle)
