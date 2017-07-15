@@ -458,7 +458,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 		// Spawn
 		UDecalComponent* Decal = UGameplayStatics::SpawnDecalAttached(
 			ExplosionEffectMaterial,
-			FMath::FRandRange(50, 150) * FVector(1, 1, 1),
+			FMath::FRandRange(100, 150) * FVector(1, 1, 1),
 			ShipComponent,
 			NAME_None,
 			HitLocation,
