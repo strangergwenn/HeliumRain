@@ -1606,7 +1606,7 @@ void AFlareSpacecraft::FindTarget()
 				continue;
 			}
 
-			CurrentTarget = ActiveCandidate;
+			TargetCandidate = ActiveCandidate;
 			break;
 		}
 	}
