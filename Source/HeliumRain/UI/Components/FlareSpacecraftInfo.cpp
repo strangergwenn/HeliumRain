@@ -746,6 +746,7 @@ void SFlareSpacecraftInfo::OnDockAt()
 		if (DockingConfirmed)
 		{
 			PC->GetMenuManager()->CloseMenu();
+			PC->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("start-docking").PutName("target", TargetSpacecraft->GetImmatriculation()));
 		}
 	}
 }
