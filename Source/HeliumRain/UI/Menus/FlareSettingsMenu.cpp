@@ -1169,7 +1169,10 @@ FText SFlareSettingsMenu::OnGetCurrentJoystickKeyName(FName AxisName) const
 		if (Bind.AxisName == AxisName)
 		{
 			FText InvertedText = (Bind.Scale < 0) ? LOCTEXT("AxisInvertedHint", "(Inverted)") : FText();
-			return FText::Format(FText::FromString("{0} {1}"), Bind.Key.GetDisplayName(), InvertedText);
+			FString DisplayName = Bind.Key.GetDisplayName().ToString();
+			DisplayName = DisplayName.Replace(TEXT("Joystick_"), TEXT(""));
+			DisplayName = DisplayName.Replace(TEXT("_"), TEXT(" "));
+			return FText::Format(FText::FromString("{0} {1}"), FText::FromString(DisplayName), InvertedText);
 		}
 	}
 
@@ -1180,8 +1183,12 @@ TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateJoystickComboLine(TSharedPtr<F
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
+	FString DisplayName = Item->GetDisplayName().ToString();
+	DisplayName = DisplayName.Replace(TEXT("Joystick_"), TEXT(""));
+	DisplayName = DisplayName.Replace(TEXT("_"), TEXT(" "));
+
 	return SNew(STextBlock)
-		.Text(Item->GetDisplayName())
+		.Text(FText::FromString(DisplayName))
 		.TextStyle(&Theme.TextFont);
 }
 
@@ -1561,7 +1568,7 @@ void SFlareSettingsMenu::FillJoystickAxisList()
 	EKeys::GetAllKeys(AllKeys);
 	for (FKey Key : AllKeys)
 	{
-		if (Key.GetFName().ToString().StartsWith("JS")
+		if (Key.GetFName().ToString().StartsWith("Joystick")
 		&& !Key.GetFName().ToString().Contains("Button"))
 		{
 			JoystickAxisKeys.Add(MakeShareable(new FKey(Key)));

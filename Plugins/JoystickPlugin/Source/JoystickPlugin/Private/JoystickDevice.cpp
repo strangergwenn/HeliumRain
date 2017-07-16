@@ -46,13 +46,13 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 	DeviceAxisKeys.Emplace(DeviceId);
 	for (int iAxis = 0; iAxis < InitialState.Axes.Num(); iAxis++)
 	{
-		FString strName = FString::Printf(TEXT("JS_%s_Axis%d"), *DeviceInfo.DeviceName.Left(15), iAxis);
+		FString strName = FString::Printf(TEXT("Joystick_%s_Axis%d"), *DeviceInfo.DeviceName.Left(15), iAxis);
 		UE_LOG(JoystickPluginLog, Log, TEXT("add %s %i"), *strName, DeviceId.value);
 		DeviceAxisKeys[DeviceId].Add(FKey(FName(*strName)));
 
 		if (!EKeys::GetKeyDetails(DeviceAxisKeys[DeviceId][iAxis]).IsValid())
 		{
-			FText textValue = FText::Format(LOCTEXT("DeviceAxis", "{0} Axis {1}"), FText::FromString(DeviceInfo.ProductName), FText::AsNumber(iAxis));
+			FText textValue = FText::FromString(strName);
 			EKeys::AddKey(FKeyDetails(DeviceAxisKeys[DeviceId][iAxis], textValue, FKeyDetails::GamepadKey | FKeyDetails::FloatAxis));
 		}
 	}
@@ -61,13 +61,13 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 	DeviceButtonKeys.Emplace(DeviceId);
 	for (int iButton = 0; iButton < InitialState.Buttons.Num(); iButton++)
 	{
-		FString strName = FString::Printf(TEXT("JS_%s_Button%d"), *DeviceInfo.DeviceName.Left(15), iButton);
+		FString strName = FString::Printf(TEXT("Joystick_%s_Button%d"), *DeviceInfo.DeviceName.Left(15), iButton);
 		UE_LOG(JoystickPluginLog, Log, TEXT("add %s %i"), *strName, DeviceId.value);
 		DeviceButtonKeys[DeviceId].Add(FKey(FName(*strName)));
 
 		if (!EKeys::GetKeyDetails(DeviceButtonKeys[DeviceId][iButton]).IsValid())
 		{
-			FText textValue = FText::Format(LOCTEXT("DeviceButton", "{0} Button {1}"), FText::FromString(DeviceInfo.ProductName), FText::AsNumber(iButton));
+			FText textValue = FText::FromString(strName);
 			EKeys::AddKey(FKeyDetails(DeviceButtonKeys[DeviceId][iButton], textValue, FKeyDetails::GamepadKey));
 		}
 	}
@@ -80,14 +80,14 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 		DeviceHatKeys[iAxis].Emplace(DeviceId);
 		for (int iHat = 0; iHat < InitialState.Hats.Num(); iHat++)
 		{
-			FString strName = FString::Printf(TEXT("JS_%s_Hat%d_%s"), *DeviceInfo.DeviceName.Left(15), iHat, *_2DaxisNames[iAxis]);
+			FString strName = FString::Printf(TEXT("Joystick_%s_Hat%d_%s"), *DeviceInfo.DeviceName.Left(15), iHat, *_2DaxisNames[iAxis]);
 			UE_LOG(JoystickPluginLog, Log, TEXT("add %s %i"), *strName, DeviceId.value);
 			FKey key{ *strName };
 			DeviceHatKeys[iAxis][DeviceId].Add(key);
 
 			if (!EKeys::GetKeyDetails(key).IsValid())
 			{
-				FText textValue = FText::Format(LOCTEXT("DeviceHat", "{0} Hat {1} {2}"), FText::FromString(DeviceInfo.ProductName), FText::AsNumber(iHat), FText::FromString(_2DaxisNames[iAxis]));
+				FText textValue = FText::FromString(strName);
 				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::FloatAxis));
 			}
 		}
@@ -99,14 +99,14 @@ void FJoystickDevice::InitInputDevice(const FDeviceInfoSDL &Device)
 		DeviceBallKeys[iAxis].Emplace(DeviceId);
 		for (int iBall = 0; iBall < InitialState.Balls.Num(); iBall++)
 		{
-			FString strName = FString::Printf(TEXT("JS_%s_Ball%d_%s"), *DeviceInfo.DeviceName.Left(15), iBall, *_2DaxisNames[iAxis]);
+			FString strName = FString::Printf(TEXT("Joystick_%s_Ball%d_%s"), *DeviceInfo.DeviceName.Left(15), iBall, *_2DaxisNames[iAxis]);
 			UE_LOG(JoystickPluginLog, Log, TEXT("add %s %i"), *strName, DeviceId.value);
 			FKey key{ *strName };
 			DeviceBallKeys[iAxis][DeviceId].Add(key);
 
 			if (!EKeys::GetKeyDetails(key).IsValid())
 			{
-				FText textValue = FText::Format(LOCTEXT("DeviceBall", "{0} Ball {1} {2}"), FText::FromString(DeviceInfo.ProductName), FText::AsNumber(iBall), FText::FromString(_2DaxisNames[iAxis]));
+				FText textValue = FText::FromString(strName);
 				EKeys::AddKey(FKeyDetails(key, textValue, FKeyDetails::GamepadKey | FKeyDetails::FloatAxis));
 			}
 		}
