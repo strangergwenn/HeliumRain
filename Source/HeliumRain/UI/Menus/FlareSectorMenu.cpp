@@ -20,6 +20,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 {
 	// Data
 	MenuManager = InArgs._MenuManager;
+	HasWorldChanged.Init(MenuManager->GetGame());
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
@@ -530,7 +531,10 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 	});
 
 	FleetSelector->RefreshOptions();
-	FleetSelector->SetSelectedItem(PC->GetPlayerFleet());
+	if (HasWorldChanged() || FleetSelector->GetSelectedItem() == NULL)
+	{
+		FleetSelector->SetSelectedItem(PC->GetPlayerFleet());
+	}
 }
 
 void SFlareSectorMenu::Exit()
@@ -1360,6 +1364,8 @@ void SFlareSectorMenu::OnStartTravelConfirmed(UFlareFleet* SelectedFleet)
 			Data.Travel = Travel;
 			MenuManager->OpenMenu(EFlareMenu::MENU_Travel, Data);
 		}
+
+		FleetSelector->SetSelectedItem(MenuManager->GetPC()->GetPlayerFleet());
 	}
 }
 

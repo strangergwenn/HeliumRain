@@ -449,3 +449,31 @@ public:
 
 
 };
+
+
+class WorldChangeTracker
+{
+public:
+	void Init(AFlareGame* iGame)
+	{
+		Game = iGame;
+		World = NULL;
+	}
+
+	bool operator()() {
+
+		if(Game->GetGameWorld() == World)
+		{
+			return false;
+		}
+		else
+		{
+			World = Game->GetGameWorld();
+			return true;
+		}
+	}
+
+private:
+	AFlareGame* Game;
+	UFlareWorld* World;
+};

@@ -4,6 +4,7 @@
 #include "../Components/FlareListItem.h"
 #include "../Components/FlareSpacecraftInfo.h"
 #include "../Components/FlareList.h"
+#include "../../Game/FlareGame.h"
 
 
 class SFlareSectorMenu : public SCompoundWidget
@@ -166,5 +167,7 @@ protected:
 
 	// Station data
 	FFlareSpacecraftDescription*               StationDescription;
+
+	WorldChangeTracker                         HasWorldChanged;
 
 };
