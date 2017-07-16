@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 import os
 import json
+import subprocess
 
 # Get project settings
 projectData = open("project.json")
 projectConfig = json.load(projectData)
-buildVersion = projectConfig["version"]
 buildCultures = projectConfig["cultures"]
 buildConfiguration = projectConfig["configuration"]
 projectData.close()
@@ -41,6 +41,8 @@ else:
 # Generate paths
 inputProject = os.path.join(inputDir, "HeliumRain.uproject")
 buildTool = os.path.join(engineDir, "Engine", "Build", "BatchFiles", "RunUAT" + scriptExt)
+buildVersion = subprocess.check_output("git describe").decode("utf-8") 
+buildVersion = buildVersion.replace("\n", "");
 
 # Generate command line
 commandLine = buildTool
