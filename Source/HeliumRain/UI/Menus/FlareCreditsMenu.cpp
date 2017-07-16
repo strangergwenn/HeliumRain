@@ -22,7 +22,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 Width = 1.75 * Theme.ContentWidth;
-	int32 TextWidth = Width - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
+	int32 TextWidth = Width - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right;
 
 	// Build structure
 	ChildSlot
