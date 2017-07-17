@@ -1115,6 +1115,25 @@ void AFlarePlayerController::SetAchievementProgression(FName Name, float Complet
 	}	
 }
 
+void AFlarePlayerController::ClearAchievementProgression(FName Name)
+{
+	if (AchievementsAvailable)
+	{
+		FLOGV("AFlarePlayerController::ClearAchievementProgression : clearing %s for user %s",
+			*Name.ToString(), *UserId->GetHexEncodedString());
+
+		IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
+		FOnlineAchievementsWritePtr WriteObject = MakeShareable(new FOnlineAchievementsWrite());
+		FOnlineAchievementsWriteRef WriteObjectRef = WriteObject.ToSharedRef();
+		WriteObject->SetFloatStat(Name, -1.0f);
+		Achievements->WriteAchievements(*UserId, WriteObjectRef);
+	}
+	else
+	{
+		FLOGV("AFlarePlayerController::ClearAchievementProgression : achievements are unavailable");
+	}
+}
+
 void AFlarePlayerController::OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful)
 {
 	if (bWasSuccessful)
@@ -1824,6 +1843,8 @@ void AFlarePlayerController::Test2()
 {
 	IsTest2 = !IsTest2;
 	FLOGV("AFlarePlayerController::Test2 %d", IsTest2);
+
+	ClearAchievementProgression("ACHIEVEMENT_TEST");
 }
 
 
