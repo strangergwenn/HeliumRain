@@ -62,8 +62,8 @@ public:
 	/** Set the current progress of an achievement */
 	void SetAchievementProgression(FName Name, float CompletionRatio);
 
-	/** Clear the current progress of an achievement */
-	void ClearAchievementProgression(FName Name);
+	/** Clear the current progress of achievements */
+	void ClearAchievementProgression();
 
 	/** Achievements are available now */
 	void OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);

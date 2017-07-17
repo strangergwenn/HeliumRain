@@ -1115,18 +1115,16 @@ void AFlarePlayerController::SetAchievementProgression(FName Name, float Complet
 	}	
 }
 
-void AFlarePlayerController::ClearAchievementProgression(FName Name)
+void AFlarePlayerController::ClearAchievementProgression()
 {
 	if (AchievementsAvailable)
 	{
-		FLOGV("AFlarePlayerController::ClearAchievementProgression : clearing %s for user %s",
-			*Name.ToString(), *UserId->GetHexEncodedString());
+		FLOGV("AFlarePlayerController::ClearAchievementProgression : clearing achievements for user %s", *UserId->GetHexEncodedString());
 
 		IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
-		FOnlineAchievementsWritePtr WriteObject = MakeShareable(new FOnlineAchievementsWrite());
-		FOnlineAchievementsWriteRef WriteObjectRef = WriteObject.ToSharedRef();
-		WriteObject->SetFloatStat(Name, -1.0f);
-		Achievements->WriteAchievements(*UserId, WriteObjectRef);
+#if !UE_BUILD_SHIPPING
+		Achievements->ResetAchievements(*UserId);
+#endif // !UE_BUILD_SHIPPING
 	}
 	else
 	{
@@ -1842,7 +1840,7 @@ void AFlarePlayerController::Test1()
 	}
 	else
 	{
-		ClearAchievementProgression("ACHIEVEMENT_TRAP");
+		SetAchievementProgression("ACHIEVEMENT_ALL_TECHNOLOGIES", 0.5f);
 	}
 }
 
@@ -1851,14 +1849,7 @@ void AFlarePlayerController::Test2()
 	IsTest2 = !IsTest2;
 	FLOGV("AFlarePlayerController::Test2 %d", IsTest2);
 
-	if (IsTest2)
-	{
-		SetAchievementProgression("ACHIEVEMENT_ALL_TECHNOLOGIES", 1);
-	}
-	else
-	{
-		ClearAchievementProgression("ACHIEVEMENT_ALL_TECHNOLOGIES");
-	}
+	ClearAchievementProgression();
 }
 
 
