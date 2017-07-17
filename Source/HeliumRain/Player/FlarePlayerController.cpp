@@ -1836,7 +1836,14 @@ void AFlarePlayerController::Test1()
 	IsTest1 = !IsTest1;
 	FLOGV("AFlarePlayerController::Test1 %d", IsTest1);
 
-	SetAchievementProgression("ACHIEVEMENT_TEST", IsTest1 ? 1 : 0);
+	if (IsTest1)
+	{
+		SetAchievementProgression("ACHIEVEMENT_TRAP", 1);
+	}
+	else
+	{
+		ClearAchievementProgression("ACHIEVEMENT_TRAP");
+	}
 }
 
 void AFlarePlayerController::Test2()
@@ -1844,7 +1851,14 @@ void AFlarePlayerController::Test2()
 	IsTest2 = !IsTest2;
 	FLOGV("AFlarePlayerController::Test2 %d", IsTest2);
 
-	ClearAchievementProgression("ACHIEVEMENT_TEST");
+	if (IsTest2)
+	{
+		SetAchievementProgression("ACHIEVEMENT_ALL_TECHNOLOGIES", 1);
+	}
+	else
+	{
+		ClearAchievementProgression("ACHIEVEMENT_ALL_TECHNOLOGIES");
+	}
 }
 
 
