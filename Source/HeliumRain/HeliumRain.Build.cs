@@ -32,6 +32,7 @@ public class HeliumRain : ModuleRules
             }
         );
 
+        PrivateDependencyModuleNames.Add("OnlineSubsystem");
         DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
-	}
+    }
 }

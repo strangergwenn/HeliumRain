@@ -58,6 +58,12 @@ public:
 
 	/** Discover or visit a sector */
 	void DiscoverSector(UFlareSimulatedSector* Sector, bool MarkedAsVisited, bool NotifyPlayer);
+
+	/** Set the current progress of an achievement */
+	void SetAchievementProgression(FName Name, float CompletionRatio);
+
+	/** Achievements are available now */
+	void OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);
 	
 
 	/*----------------------------------------------------
@@ -406,6 +412,11 @@ protected:
 	FFlarePlayerObjectiveData                CurrentObjective;
 
 	const FSlateBrush*                       BackgroundDecorator;
+
+	// Achievements
+	TSharedPtr<const class FUniqueNetId>     UserId;
+	class IOnlineSubsystem*                  OnlineSub;
+	bool                                     AchievementsAvailable;
 
 	int32                                    QuickSwitchNextOffset;
 	float                                    WeaponSwitchTime;

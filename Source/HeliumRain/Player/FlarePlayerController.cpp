@@ -31,6 +31,11 @@
 #include "Engine/PostProcessVolume.h"
 #include "EngineUtils.h"
 
+#include "OnlineSubsystem.h"
+#include "OnlineStats.h"
+#include "OnlineIdentityInterface.h"
+#include "OnlineAchievementsInterface.h"
+
 
 DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick ControlGroups"), STAT_FlarePlayerTick_ControlGroups, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Battle"), STAT_FlarePlayerTick_Battle, STATGROUP_Flare);
@@ -48,6 +53,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, LowSpeedEffect(NULL)
 	, HighSpeedEffect(NULL)
 	, Company(NULL)
+	, AchievementsAvailable(false)
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
 	, CombatZoomFOVRatio(0.4f)
@@ -109,6 +115,20 @@ void AFlarePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	EnableCheats();
+	
+	// Get online subsystem
+	OnlineSub = IOnlineSubsystem::Get();
+	FCHECK(OnlineSub);
+	FCHECK(OnlineSub->GetIdentityInterface().IsValid());
+
+	// Get online user
+	ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+	UserId = OnlineSub->GetIdentityInterface()->GetUniquePlayerId(0);
+	FCHECK(UserId->IsValid());
+
+	// Query achievements
+	IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
+	Achievements->QueryAchievements(*UserId.Get(), FOnQueryAchievementsCompleteDelegate::CreateUObject(this, &AFlarePlayerController::OnQueryAchievementsComplete));
 
 	// Get settings
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
@@ -1076,6 +1096,54 @@ void AFlarePlayerController::DiscoverSector(UFlareSimulatedSector* Sector, bool 
 	}
 }
 
+void AFlarePlayerController::SetAchievementProgression(FName Name, float CompletionRatio)
+{
+	if (AchievementsAvailable)
+	{
+		FLOGV("AFlarePlayerController::SetAchievementProgression : setting %s to %f completion for user %s",
+			*Name.ToString(), CompletionRatio, *UserId->GetHexEncodedString());
+
+		IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
+		FOnlineAchievementsWritePtr WriteObject = MakeShareable(new FOnlineAchievementsWrite());
+		FOnlineAchievementsWriteRef WriteObjectRef = WriteObject.ToSharedRef();
+		WriteObject->SetFloatStat(Name, CompletionRatio);
+		Achievements->WriteAchievements(*UserId, WriteObjectRef);
+	}
+	else
+	{
+		FLOGV("AFlarePlayerController::SetAchievementProgression : achievements are unavailable");
+	}	
+}
+
+void AFlarePlayerController::OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		FLOGV("AFlarePlayerController::OnQueryAchievementsComplete");
+
+		TArray<FOnlineAchievement> PlayerAchievements;
+		IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
+		if (Achievements->GetCachedAchievements(*UserId.Get(), PlayerAchievements) != EOnlineCachedResult::Success || PlayerAchievements.Num() == 0)
+		{
+			FLOGV("AFlarePlayerController::OnQueryAchievementsComplete : no achievements available");
+		}
+		else
+		{
+			AchievementsAvailable = true;
+
+			for (int32 Idx = 0; Idx < PlayerAchievements.Num(); ++Idx)
+			{
+				FLOGV("AFlarePlayerController::OnQueryAchievementsComplete : Achievement %d : %s",
+					Idx, *PlayerAchievements[Idx].ToDebugString());
+			}
+		}
+	}
+	else
+	{
+		FLOGV("AFlarePlayerController::OnQueryAchievementsComplete : failed to query achievements");
+	}
+}
+
 bool AFlarePlayerController::IsInMenu()
 {
 	return (GetPawn() == MenuPawn);
@@ -1748,21 +1816,14 @@ void AFlarePlayerController::Test1()
 {
 	IsTest1 = !IsTest1;
 	FLOGV("AFlarePlayerController::Test1 %d", IsTest1);
+
+	SetAchievementProgression("ACHIEVEMENT_TEST", IsTest1 ? 1 : 0);
 }
 
 void AFlarePlayerController::Test2()
 {
 	IsTest2 = !IsTest2;
-	FLOGV("AFlarePlayerController::Test2 (benchmark) %d", IsTest2);/*
-
-	if (IsTest2)
-	{
-		ConsoleCommand("stat startfile");
-	}
-	else
-	{
-		ConsoleCommand("stat stopfile");
-	}*/
+	FLOGV("AFlarePlayerController::Test2 %d", IsTest2);
 }
 
 

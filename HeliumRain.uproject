@@ -21,6 +21,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "OnlineSubsystemSteam",
+			"Enabled": true
+		},
+		{
 			"Name": "Paper2D",
 			"Enabled": false
 		},
@@ -94,7 +98,7 @@
 		},
 		{
 			"Name": "PluginBrowser",
-			"Enabled": false
+			"Enabled": true
 		},
 		{
 			"Name": "SlateRemote",
