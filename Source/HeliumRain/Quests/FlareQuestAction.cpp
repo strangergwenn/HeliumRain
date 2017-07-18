@@ -214,4 +214,31 @@ void UFlareQuestActionReputationChange::Perform()
 }
 
 
+/*----------------------------------------------------
+	Generic action
+----------------------------------------------------*/
+UFlareQuestActionGeneric::UFlareQuestActionGeneric(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestActionGeneric* UFlareQuestActionGeneric::Create(UFlareQuest* ParentQuest, std::function<void ()> PerfomFuncParam)
+{
+	UFlareQuestActionGeneric* Action = NewObject<UFlareQuestActionGeneric>(ParentQuest, UFlareQuestActionGeneric::StaticClass());
+	Action->Load(ParentQuest, PerfomFuncParam);
+	return Action;
+}
+
+void UFlareQuestActionGeneric::Load(UFlareQuest* ParentQuest, std::function<void ()> PerfomFuncParam)
+{
+	LoadInternal(ParentQuest);
+	PerfomFunc = PerfomFuncParam;
+}
+
+void UFlareQuestActionGeneric::Perform()
+{
+	PerfomFunc();
+}
+
+
 #undef LOCTEXT_NAMESPACE

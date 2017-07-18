@@ -1,5 +1,7 @@
 #pragma once
 #include "../../Spacecrafts/FlareSpacecraftTypes.h"
+#include "../../Game/FlareGameTypes.h"
+
 #include "FlareSimulatedSpacecraftDamageSystem.generated.h"
 
 const float BROKEN_RATIO = 0.5f;
@@ -154,7 +156,7 @@ protected:
 	bool                                            AmmoDirty;
 	bool											WasAlive;
 	bool											WasControllable;
-	UFlareCompany*			                        LastDamageCauser;
+	DamageCause 			                        LastDamageCause;
 
 public:
 

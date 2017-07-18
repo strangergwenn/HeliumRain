@@ -3,6 +3,7 @@
 #include "../Flare.h"
 #include "FlareSpacecraft.h"
 #include "../Game/FlareGame.h"
+#include "../Game/FlareGameTypes.h"
 #include "../Player/FlarePlayerController.h"
 #include "Components/DecalComponent.h"
 #include "Components/DestructibleComponent.h"
@@ -22,6 +23,7 @@ AFlareShell::AFlareShell(const class FObjectInitializer& PCIP) : Super(PCIP)
 	FlightEffects = NULL;
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
+	ManualTurret = false;
 }
 
 
@@ -75,6 +77,8 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftCompone
 	SetLifeSpan(ShellDescription->WeaponCharacteristics.GunCharacteristics.AmmoRange * 100 / ShellVelocity.Size()); // 10km
 	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->RegisterShell(this);
 	PC = ParentWeapon->GetSpacecraft()->GetGame()->GetPC();
+
+	ManualTurret = ParentWeapon->GetSpacecraft()->GetWeaponsSystem()->IsInFireDirector();
 }
 
 void AFlareShell::Tick(float DeltaSeconds)
@@ -511,7 +515,9 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	AFlareBomb* Bomb = Cast<AFlareBomb>(ActorToDamage);
 	if (Spacecraft)
 	{
-		Spacecraft->GetDamageSystem()->SetLastDamageCauser(Cast<AFlareSpacecraft>(ParentWeapon->GetOwner()));
+		DamageCause Cause(Cast<AFlareSpacecraft>(ParentWeapon->GetOwner()), DamageType);
+		Cause.ManualTurret = ManualTurret;
+		Spacecraft->GetDamageSystem()->SetLastDamageCause(Cause);
 		Spacecraft->GetDamageSystem()->ApplyDamage(AbsorbedEnergy, ImpactRadius, ImpactLocation, DamageType, ParentWeapon->GetSpacecraft()->GetParent(), GetName());
 
 		// Physics impulse

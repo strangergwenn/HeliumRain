@@ -169,6 +169,12 @@ void AFlareBomb::Tick(float DeltaSeconds)
 			{
 				OnBombDetonated(NULL, NULL, FVector(), FVector());
 				//DrawDebugSphere(GetWorld(), GetActorLocation(), 1000, 32, FColor::Red, true);
+
+				// Test Player ship avoidance
+				if(WeaponDescription->WeaponCharacteristics.BombCharacteristics.MaxBurnDuration > 0 && TargetSpacecraft == PlayerShip)
+				{
+					PC->SetAchievementProgression("ACHIEVEMENT_MISSILE_ESCAPE", 1);
+				}
 			}
 
 			// Parent removed destroy
@@ -490,7 +496,7 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 	//DrawDebugSphere(GetWorld(), GetActorLocation(), 1000, 32, FColor::Green, true);
 
 	// Apply damage
-	HitSpacecraft->GetDamageSystem()->SetLastDamageCauser(Cast<AFlareSpacecraft>(ParentWeapon->GetOwner()));
+	HitSpacecraft->GetDamageSystem()->SetLastDamageCause(DamageCause(Cast<AFlareSpacecraft>(ParentWeapon->GetOwner()), SpacecraftHelper::GetWeaponDamageType(WeaponDescription->WeaponCharacteristics.DamageType)));
 	HitSpacecraft->GetDamageSystem()->ApplyDamage(WeaponDescription->WeaponCharacteristics.ExplosionPower,
 		WeaponDescription->WeaponCharacteristics.AmmoDamageRadius,
 		HitLocation,

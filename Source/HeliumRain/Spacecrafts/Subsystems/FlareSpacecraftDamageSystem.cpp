@@ -24,7 +24,7 @@ DECLARE_CYCLE_STAT(TEXT("FlareDamageSystem Tick"), STAT_FlareDamageSystem_Tick, 
 UFlareSpacecraftDamageSystem::UFlareSpacecraftDamageSystem(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, Spacecraft(NULL)
-	, LastDamageCauser(NULL)
+	, LastDamageCause()
 {
 }
 
@@ -85,7 +85,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
 
 		// Player kill
-		if (PC && LastDamageCauser == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn())
+		if (PC && LastDamageCause.Spacecraft == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn())
 		{
 			if(Parent->IsAlive())
 			{
@@ -97,13 +97,13 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		}
 
 		// Company kill
-		else if (PC && LastDamageCauser && PC->GetCompany() == LastDamageCauser->GetParent()->GetCompany())
+		else if (PC && LastDamageCause.Company && PC->GetCompany() == LastDamageCause.Company)
 		{
 			if(Parent->IsAlive())
 			{
 				PC->Notify(LOCTEXT("TargetShipUncontrollableCompany", "Enemy disabled"),
 					FText::Format(LOCTEXT("TargetShipUncontrollableCompanyFormat", "Your {0}-class ship rendered a ship uncontrollable ({1}-class)"),
-						LastDamageCauser->GetParent()->GetDescription()->Name,
+						LastDamageCause.Spacecraft->GetParent()->GetDescription()->Name,
 						Spacecraft->GetParent()->GetDescription()->Name),
 					FName("ship-uncontrollable"),
 					EFlareNotification::NT_Info);
@@ -122,22 +122,57 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 	{
 
 		// Player kill
-		if (PC && LastDamageCauser == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn())
+		if (PC && LastDamageCause.Spacecraft == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn())
 		{
 			PC->Notify(LOCTEXT("TargetShipKilled", "Enemy destroyed"),
 				FText::Format(LOCTEXT("TargetShipKilledFormat", "You destroyed a ship ({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
 				FName("ship-killed"),
 				EFlareNotification::NT_Info);
+
+			if (LastDamageCause.DamageType == EFlareDamage::DAM_Collision)
+			{
+				PC->SetAchievementProgression("ACHIEVEMENT_COLLISION", 1);
+			}
+
+			if (Spacecraft->GetCompany() != PC->GetCompany())
+			{
+				if (Spacecraft->GetDescription()->CargoBayCount > 0)
+				{
+					// Cargo
+					PC->SetAchievementProgression("ACHIEVEMENT_KILL_CARGO", 1);
+				}
+				else
+				{
+					// Military
+					if (Spacecraft->GetSize() == EFlarePartSize::S)
+					{
+						PC->SetAchievementProgression("ACHIEVEMENT_KILL_FIGHTER", 1);
+
+						if(LastDamageCause.ManualTurret)
+						{
+							PC->SetAchievementProgression("ACHIEVEMENT_TURRET", 1);
+						}
+					}
+					else
+					{
+						PC->SetAchievementProgression("ACHIEVEMENT_KILL_CAPITAL", 1);
+					}
+				}
+
+
+
+			}
+
 		}
 
 		// Company kill
-		else if (PC && LastDamageCauser && PC->GetCompany() == LastDamageCauser->GetParent()->GetCompany())
+		else if (PC && LastDamageCause.Spacecraft && PC->GetCompany() == LastDamageCause.Company)
 		{
 			if(Spacecraft->IsStation())
 			{
 				PC->Notify(LOCTEXT("TargetStationKilledCompany", "Enemy destroyed"),
 					FText::Format(LOCTEXT("TargetStationKilledCompanyFormat", "Your {0}-class ship destroyed a station ({1}-class)"),
-						LastDamageCauser->GetParent()->GetDescription()->Name,
+						LastDamageCause.Spacecraft->GetParent()->GetDescription()->Name,
 						Spacecraft->GetParent()->GetDescription()->Name),
 					FName("station-killed"),
 					EFlareNotification::NT_Info);
@@ -146,7 +181,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 			{
 				PC->Notify(LOCTEXT("TargetShipKilledCompany", "Enemy destroyed"),
 					FText::Format(LOCTEXT("TargetShipKilledCompanyFormat", "Your {0}-class ship destroyed a ship ({1}-class)"),
-						LastDamageCauser->GetParent()->GetDescription()->Name,
+						LastDamageCause.Spacecraft->GetParent()->GetDescription()->Name,
 						Spacecraft->GetParent()->GetDescription()->Name),
 					FName("ship-killed"),
 					EFlareNotification::NT_Info);
@@ -188,9 +223,9 @@ void UFlareSpacecraftDamageSystem::Start()
 	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
 }
 
-void UFlareSpacecraftDamageSystem::SetLastDamageCauser(AFlareSpacecraft* Ship)
+void UFlareSpacecraftDamageSystem::SetLastDamageCause(DamageCause Cause)
 {
-	LastDamageCauser = Ship;
+	LastDamageCause = Cause;
 }
 
 void UFlareSpacecraftDamageSystem::UpdatePower()
@@ -209,13 +244,13 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 	// Lost player ship
 	if (Spacecraft == PC->GetShipPawn())
 	{
-		if (LastDamageCauser)
+		if (LastDamageCause.Spacecraft)
 		{
-			if(LastDamageCauser->IsStation())
+			if(LastDamageCause.Spacecraft->IsStation())
 			{
 				PC->Notify(
 					LOCTEXT("PlayerShipDestroyedByStation", "Your ship has been destroyed"),
-					FText::Format(LOCTEXT("ShipDestroyedByStationFormat", "Your ship was destroyed by a {0}-class station"), LastDamageCauser->GetParent()->GetDescription()->Name),
+					FText::Format(LOCTEXT("ShipDestroyedByStationFormat", "Your ship was destroyed by a {0}-class station"), LastDamageCause.Spacecraft->GetParent()->GetDescription()->Name),
 					FName("ship-destroyed"),
 					EFlareNotification::NT_Military,
 					false,
@@ -225,7 +260,7 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 			{
 				PC->Notify(
 					LOCTEXT("PlayerShipDestroyedByShip", "Your ship has been destroyed"),
-					FText::Format(LOCTEXT("ShipDestroyedByShipFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
+					FText::Format(LOCTEXT("ShipDestroyedByShipFormat", "Your ship was destroyed by a {0}-class ship"), LastDamageCause.Spacecraft->GetParent()->GetDescription()->Name),
 					FName("ship-destroyed"),
 					EFlareNotification::NT_Military,
 					false,
@@ -265,13 +300,13 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 	}
 
 	Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft->GetParent(), false,
-																	LastDamageCauser ? LastDamageCauser->GetCompany() : NULL);
+																	LastDamageCause.Spacecraft ? DamageCause(LastDamageCause.Company, LastDamageCause.DamageType) : DamageCause(LastDamageCause.DamageType));
 
 	// This ship has been damaged and someone is to blame
 
 	UFlareCompany* PlayerCompany = PC->GetCompany();
 
-	if (LastDamageCauser != NULL && LastDamageCauser->GetCompany() != Spacecraft->GetCompany() && LastDamageCauser->GetCompany() == PlayerCompany)
+	if (LastDamageCause.Spacecraft != NULL && LastDamageCause.Company != Spacecraft->GetCompany() && LastDamageCause.Company == PlayerCompany)
 	{
 		// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
 		if (Spacecraft->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
@@ -298,6 +333,7 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 				FName("betrayal"),
 				EFlareNotification::NT_Military);
 
+			PC->SetAchievementProgression("ACHIEVEMENT_BETRAYAL", 1);
 		}
 	}
 }
@@ -309,13 +345,13 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	// Lost player ship
 	if (Spacecraft == PC->GetShipPawn())
 	{
-		if (LastDamageCauser)
+		if (LastDamageCause.Spacecraft)
 		{
 			if (Parent->IsAlive())
 			{
 				PC->Notify(
 					LOCTEXT("PlayerShipUncontrollable", "Your ship is uncontrollable"),
-					FText::Format(LOCTEXT("ShipUncontrollableFormat", "Your ship has been rendered uncontrollable by a {0}-class ship"), LastDamageCauser->GetParent()->GetDescription()->Name),
+					FText::Format(LOCTEXT("ShipUncontrollableFormat", "Your ship has been rendered uncontrollable by a {0}-class ship"), LastDamageCause.Spacecraft->GetParent()->GetDescription()->Name),
 					FName("ship-uncontrollable"),
 					EFlareNotification::NT_Military,
 					false,
@@ -353,12 +389,12 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	Spacecraft->GetNavigationSystem()->AbortAllCommands();
 
 	Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft->GetParent(), true,
-																	LastDamageCauser ? LastDamageCauser->GetCompany() : NULL);
+																	LastDamageCause.Spacecraft ? DamageCause(LastDamageCause.Company, LastDamageCause.DamageType) : DamageCause(LastDamageCause.DamageType));
 
 
 	UFlareCompany* PlayerCompany = PC->GetCompany();
 
-	if (LastDamageCauser != NULL && LastDamageCauser->GetCompany() != Spacecraft->GetCompany() && LastDamageCauser->GetCompany() == PlayerCompany)
+	if (LastDamageCause.Spacecraft != NULL && LastDamageCause.Company != Spacecraft->GetCompany() && LastDamageCause.Company == PlayerCompany)
 	{
 		// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
 		if (Spacecraft->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
@@ -384,11 +420,13 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 				FText::Format(LOCTEXT("OnControlLostBetrayal", "You betrayed {0}"), Spacecraft->GetCompany()->GetCompanyName()),
 				FName("betrayal"),
 				EFlareNotification::NT_Military);
+
+			PC->SetAchievementProgression("ACHIEVEMENT_BETRAYAL", 1);
 		}
 	}
 
 	if(PC->GetPlayerShip()->IsActive()
-			&& LastDamageCauser == PC->GetPlayerShip()->GetActive()
+			&& LastDamageCause.Spacecraft == PC->GetPlayerShip()->GetActive()
 			&& Spacecraft->GetCompany()->GetWarState(PlayerCompany) == EFlareHostility::Hostile
 			&& Spacecraft->IsMilitary())
 	{
@@ -598,11 +636,11 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 	if (OtherSpacecraft)
 	{
 		DamageSource = OtherSpacecraft->GetParent();
-		LastDamageCauser = OtherSpacecraft;
+		LastDamageCause = DamageCause(OtherSpacecraft, EFlareDamage::DAM_Collision);
 	}
 	else
 	{
-		LastDamageCauser = NULL;
+		LastDamageCause = DamageCause();
 	}
 
 	FString DamageSourceName = OtherSpacecraft ? OtherSpacecraft->GetImmatriculation().ToString() : Other->GetFullName();

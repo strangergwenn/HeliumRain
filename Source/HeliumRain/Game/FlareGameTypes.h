@@ -6,6 +6,7 @@
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareGameTypes.generated.h"
 
+class AFlareSpacecraft;
 
 /*----------------------------------------------------
 	General gameplay enums
@@ -504,6 +505,18 @@ struct FFlareBundle
 	void Clear();
 };
 
+struct DamageCause
+{
+	DamageCause();
+	DamageCause(EFlareDamage::Type DamageTypeParam);
+	DamageCause(AFlareSpacecraft* SpacecraftParam, EFlareDamage::Type DamageTypeParam);
+	DamageCause(UFlareCompany* CompanyParam, EFlareDamage::Type DamageTypeParam);
+
+	AFlareSpacecraft* Spacecraft;
+	UFlareCompany* Company;
+	EFlareDamage::Type DamageType;
+	bool ManualTurret = false;
+};
 
 /*----------------------------------------------------
 	Helper class

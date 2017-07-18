@@ -2558,7 +2558,7 @@ bool UFlareQuestConditionDestroySpacecraft::IsCompleted()
 	return CurrentProgression >= Quantity;
 }
 
-void UFlareQuestConditionDestroySpacecraft::OnSpacecraftDestroyed(UFlareSimulatedSpacecraft *Spacecraft, bool Uncontrollable, UFlareCompany *Source)
+void UFlareQuestConditionDestroySpacecraft::OnSpacecraftDestroyed(UFlareSimulatedSpacecraft *Spacecraft, bool Uncontrollable, DamageCause Cause)
 {
 	if(Spacecraft->GetCompany() != TargetCompany)
 	{
@@ -2581,7 +2581,7 @@ void UFlareQuestConditionDestroySpacecraft::OnSpacecraftDestroyed(UFlareSimulate
 	}
 
 	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
-	if(PlayerCompany != Source)
+	if(PlayerCompany != Cause.Company)
 	{
 		return;
 	}
@@ -2690,7 +2690,7 @@ bool UFlareQuestConditionDestroyCombatValue::IsCompleted()
 	return CurrentProgression >= Quantity;
 }
 
-void UFlareQuestConditionDestroyCombatValue::OnSpacecraftDestroyed(UFlareSimulatedSpacecraft *Spacecraft, bool Uncontrollable, UFlareCompany *Source)
+void UFlareQuestConditionDestroyCombatValue::OnSpacecraftDestroyed(UFlareSimulatedSpacecraft *Spacecraft, bool Uncontrollable, DamageCause Cause)
 {
 	if(Spacecraft->GetCompany() != TargetCompany)
 	{
@@ -2703,7 +2703,7 @@ void UFlareQuestConditionDestroyCombatValue::OnSpacecraftDestroyed(UFlareSimulat
 	}
 
 	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
-	if(PlayerCompany != Source)
+	if(PlayerCompany != Cause.Company)
 	{
 		return;
 	}

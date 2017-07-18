@@ -665,6 +665,8 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 					Data);
 
 				Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("build-ship").PutInt32("size", Spacecraft->GetSize()));
+
+				PC->SetAchievementProgression("ACHIEVEMENT_SHIP", 1);
 			}
 		}
 	}
@@ -815,6 +817,8 @@ void UFlareFactory::PerformBuildStationAction(const FFlareFactoryAction* Action)
 										 .PutInt32("upgrade", int32(Parent->GetLevel() > 1))
 										 .PutName("identifier", Parent->GetDescription()->Identifier)
 										 .PutName("sector", Parent->GetCurrentSector()->GetIdentifier()));
+
+		PC->SetAchievementProgression("ACHIEVEMENT_STATION", 1);
 	}
 
 }

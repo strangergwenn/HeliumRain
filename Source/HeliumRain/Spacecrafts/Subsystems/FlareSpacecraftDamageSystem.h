@@ -35,7 +35,7 @@ public:
 	virtual void Start();
 
 	/** Set who's doing the damage */
-	virtual void SetLastDamageCauser(AFlareSpacecraft* Ship);
+	virtual void SetLastDamageCause(DamageCause Cause);
 
 
 public:
@@ -94,7 +94,7 @@ protected:
 	bool                                            WasAlive;
 	float											TimeSinceLastExternalDamage;
 
-	AFlareSpacecraft*                               LastDamageCauser;
+	DamageCause                                     LastDamageCause;
 
 
 public:

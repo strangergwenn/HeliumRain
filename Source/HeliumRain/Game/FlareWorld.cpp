@@ -747,6 +747,41 @@ void UFlareWorld::Simulate()
 			GetGame()->GetPC()->GetMenuManager()->OpenMenu(EFlareMenu::MENU_GameOver);
 		}
 	}
+
+	// Check player position in leaderboard
+	bool IsFirst = true;
+	bool IsLast = true;
+
+
+	int64 PlayerValue = PlayerCompany->GetCompanyValue().TotalValue;
+
+	for(UFlareCompany* Company: GetCompanies())
+	{
+		if (Company == PlayerCompany)
+		{
+			 continue;
+		}
+		int64 CompanyValue = Company->GetCompanyValue().TotalValue;
+
+		if(CompanyValue > PlayerValue)
+		{
+			IsFirst = false;
+		}
+		else if(CompanyValue < PlayerValue)
+		{
+			IsLast = false;
+		}
+	}
+
+	if(!IsLast)
+	{
+		GetGame()->GetPC()->SetAchievementProgression("ACHIEVEMENT_NOT_LAST", 1);
+	}
+
+	if(IsFirst)
+	{
+		GetGame()->GetPC()->SetAchievementProgression("ACHIEVEMENT_FIRST", 1);
+	}
 }
 
 void UFlareWorld::CheckAIBattleState()
@@ -846,6 +881,8 @@ void UFlareWorld::ProcessShipCapture()
 				false,
 				EFlareMenu::MENU_Sector,
 				MenuData);
+
+			GetGame()->GetPC()->SetAchievementProgression("ACHIEVEMENT_CAPTURE", 1);
 		}
 
 		// Research steal
@@ -857,7 +894,7 @@ void UFlareWorld::ProcessShipCapture()
 
 			if(OwnerResearch > CapturerResearch)
 			{
-				// There is a chance to hava research reward
+				// There is a Fchance to hava research reward
 
 				int32 ResearchSteal = FMath::Sqrt(float(OwnerResearch - CapturerResearch) / 10.f);
 

@@ -230,6 +230,11 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 		Steps.Add(Step);
 	}
 
+	GetSuccessActions().Add(UFlareQuestActionGeneric::Create(this,
+															 [this](){
+		GetQuestManager()->GetGame()->GetPC()->SetAchievementProgression("ACHIEVEMENT_PENDULUM", 1);
+	}));
+
 }
 
 

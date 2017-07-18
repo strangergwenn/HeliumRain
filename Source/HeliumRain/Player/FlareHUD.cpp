@@ -1685,6 +1685,7 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 					&& DockingParameters.DockToDockDistance < (PC->GetShipPawn()->GetSize() == EFlarePartSize::S ? 500: 1500))
 			{
 				PC->GetShipPawn()->GetNavigationSystem()->DockAt(Spacecraft);
+				PC->SetAchievementProgression("ACHIEVEMENT_MANUAL_DOCK", 1);
 			}
 		}
 	}

@@ -423,7 +423,7 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 		Spacecraft->GetCompany()->InvalidateCompanyValueCache();
 	}
 
-	LastDamageCauser = DamageSource;
+	LastDamageCause = DamageCause(DamageSource, DamageType);
 
 	return InflictedDamageRatio;
 }
@@ -776,7 +776,7 @@ void UFlareSimulatedSpacecraftDamageSystem::NotifyDamage()
 		WasControllable = false;
 
 		Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft, true,
-																			LastDamageCauser);
+																			LastDamageCause);
 
 	}
 
@@ -788,7 +788,7 @@ void UFlareSimulatedSpacecraftDamageSystem::NotifyDamage()
 		WasAlive = false;
 
 		Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft, true,
-																			LastDamageCauser);
+																			LastDamageCause);
 	}
 
 }

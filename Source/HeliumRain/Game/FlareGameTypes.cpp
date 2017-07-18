@@ -2,6 +2,7 @@
 #include "FlareGameTypes.h"
 #include "../UI/FlareUITypes.h"
 #include "../Flare.h"
+#include "../Spacecrafts/FlareSpacecraft.h"
 
 #define LOCTEXT_NAMESPACE "FlareNavigationHUD"
 
@@ -353,6 +354,38 @@ void FFlareBundle::Clear()
 	PtrValues.Empty();
 }
 
+DamageCause::DamageCause():
+	Spacecraft(NULL),
+	Company(NULL),
+	DamageType(EFlareDamage::DAM_None)
+{
 
+}
+
+DamageCause::DamageCause(EFlareDamage::Type DamageTypeParam):
+	Spacecraft(NULL),
+	Company(NULL),
+	DamageType(DamageTypeParam)
+{
+
+}
+
+DamageCause::DamageCause(AFlareSpacecraft* SpacecraftParam, EFlareDamage::Type DamageTypeParam):
+	Spacecraft(SpacecraftParam),
+	Company(NULL),
+	DamageType(DamageTypeParam)
+{
+	if(Spacecraft)
+	{
+		Company = Spacecraft->GetCompany();
+	}
+}
+
+DamageCause::DamageCause(UFlareCompany* CompanyParam, EFlareDamage::Type DamageTypeParam):
+	Spacecraft(NULL),
+	Company(CompanyParam),
+	DamageType(DamageTypeParam)
+{
+}
 
 #undef LOCTEXT_NAMESPACE

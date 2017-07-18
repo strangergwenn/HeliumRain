@@ -1353,6 +1353,12 @@ void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave, bool Force
 					EFlareNotification::NT_Info,
 					false);
 				GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("unlock-technology").PutName("technology", Identifier).PutInt32("level", Technology->Level));
+
+				GetGame()->GetPC()->SetAchievementProgression("ACHIEVEMENT_ONE_TECHNOLOGY", 1);
+				if(UnlockedTechnologies.Num() >= GetGame()->GetTechnologyCatalog()->TechnologyCatalog.Num())
+				{
+					GetGame()->GetPC()->SetAchievementProgression("ACHIEVEMENT_ALL_TECHNOLOGIES", 1);
+				}
 			}
 
 			GameLog::UnlockResearch(this, Technology);

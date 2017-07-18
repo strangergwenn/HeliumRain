@@ -266,9 +266,16 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSim
 		{
 			DestinationSpacecraft->SetTrading(true);
 		}
+
+		if(PC->GetPlayerShip() == SourceSpacecraft || PC->GetPlayerShip() == DestinationSpacecraft)
+		{
+			PC->SetAchievementProgression("ACHIEVEMENT_TRADE", 1);
+		}
 	}
 
 	SourceSpacecraft->GetGame()->GetQuestManager()->OnTradeDone(SourceSpacecraft, DestinationSpacecraft, Resource, GivenResources);
+
+
 
 	return GivenResources;
 

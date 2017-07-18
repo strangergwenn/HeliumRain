@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include "FlareQuestAction.generated.h"
 
 class UFlareSimulatedSector;
@@ -224,4 +225,30 @@ protected:
 
 	UFlareCompany* Company;
 	int64 Amount;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestActionGeneric: public UFlareQuestAction
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	/*----------------------------------------------------
+		Gameplay
+	----------------------------------------------------*/
+	static UFlareQuestActionGeneric* Create(UFlareQuest* ParentQuest, std::function<void ()> PerfomFuncParam);
+	void Load(UFlareQuest* ParentQuest, std::function<void ()> PerfomFuncParam);
+
+	virtual void Perform();
+
+protected:
+
+	/*----------------------------------------------------
+		Protected data
+	----------------------------------------------------*/
+
+	std::function<void ()> PerfomFunc;
 };

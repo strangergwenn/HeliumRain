@@ -277,6 +277,11 @@ void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, 
 										false);
 			}
 
+			if (DamageSource == PC->GetShipPawn()->GetParent())
+			{
+				PC->SetAchievementProgression("ACHIEVEMENT_METEORITE", 1);
+			}
+
 			// Spawn FX
 			UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAtLocation(
 				PC,

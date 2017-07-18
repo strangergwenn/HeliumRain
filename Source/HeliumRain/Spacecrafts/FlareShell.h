@@ -93,5 +93,6 @@ protected:
 	// References
 	class UFlareWeapon*                            ParentWeapon;
 	class AFlarePlayerController*                  PC;
+	bool                                           ManualTurret;
 
 };
