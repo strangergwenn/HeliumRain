@@ -1111,7 +1111,7 @@ void AFlarePlayerController::SetAchievementProgression(FName Name, float Complet
 	}
 	else
 	{
-		FLOGV("AFlarePlayerController::SetAchievementProgression : achievements are unavailable");
+		FLOG("AFlarePlayerController::SetAchievementProgression : achievements are unavailable");
 	}	
 }
 
@@ -1136,13 +1136,13 @@ void AFlarePlayerController::OnQueryAchievementsComplete(const FUniqueNetId& Pla
 {
 	if (bWasSuccessful)
 	{
-		FLOGV("AFlarePlayerController::OnQueryAchievementsComplete");
+		FLOG("AFlarePlayerController::OnQueryAchievementsComplete");
 
 		TArray<FOnlineAchievement> PlayerAchievements;
 		IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
 		if (Achievements->GetCachedAchievements(*UserId.Get(), PlayerAchievements) != EOnlineCachedResult::Success || PlayerAchievements.Num() == 0)
 		{
-			FLOGV("AFlarePlayerController::OnQueryAchievementsComplete : no achievements available");
+			FLOG("AFlarePlayerController::OnQueryAchievementsComplete : no achievements available");
 		}
 		else
 		{
@@ -1157,7 +1157,7 @@ void AFlarePlayerController::OnQueryAchievementsComplete(const FUniqueNetId& Pla
 	}
 	else
 	{
-		FLOGV("AFlarePlayerController::OnQueryAchievementsComplete : failed to query achievements");
+		FLOG("AFlarePlayerController::OnQueryAchievementsComplete : failed to query achievements");
 	}
 }
 
