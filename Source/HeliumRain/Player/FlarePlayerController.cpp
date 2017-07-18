@@ -1147,7 +1147,7 @@ void AFlarePlayerController::ClearAchievementProgression()
 	else
 #endif // !UE_BUILD_SHIPPING
 	{
-		FLOGV("AFlarePlayerController::ClearAchievementProgression : can't clear achievements");
+		FLOG("AFlarePlayerController::ClearAchievementProgression : can't clear achievements");
 	}
 }
 
