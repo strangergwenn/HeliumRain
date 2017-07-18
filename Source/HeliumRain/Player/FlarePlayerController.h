@@ -62,6 +62,9 @@ public:
 	/** Set the current progress of an achievement */
 	void SetAchievementProgression(FName Name, float CompletionRatio);
 
+	/** Increment the current progress of an achievement */
+	void IncrementAchievementProgression(FName Name, float AddedRatio);
+
 	/** Clear the current progress of achievements */
 	void ClearAchievementProgression();
 

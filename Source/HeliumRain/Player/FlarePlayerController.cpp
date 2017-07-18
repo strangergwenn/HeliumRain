@@ -1115,20 +1115,39 @@ void AFlarePlayerController::SetAchievementProgression(FName Name, float Complet
 	}	
 }
 
+void AFlarePlayerController::IncrementAchievementProgression(FName Name, float AddedRatio)
+{
+	if (AchievementsAvailable)
+	{
+		FLOGV("AFlarePlayerController::IncrementAchievementProgression : incrementing %s with %f completion for user %s",
+			*Name.ToString(), AddedRatio, *UserId->GetHexEncodedString());
+
+		IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
+		FOnlineAchievementsWritePtr WriteObject = MakeShareable(new FOnlineAchievementsWrite());
+		FOnlineAchievementsWriteRef WriteObjectRef = WriteObject.ToSharedRef();
+		WriteObject->IncrementFloatStat(Name, AddedRatio);
+		Achievements->WriteAchievements(*UserId, WriteObjectRef);
+	}
+	else
+	{
+		FLOG("AFlarePlayerController::IncrementAchievementProgression : achievements are unavailable");
+	}
+}
+
 void AFlarePlayerController::ClearAchievementProgression()
 {
+#if !UE_BUILD_SHIPPING
 	if (AchievementsAvailable)
 	{
 		FLOGV("AFlarePlayerController::ClearAchievementProgression : clearing achievements for user %s", *UserId->GetHexEncodedString());
 
 		IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
-#if !UE_BUILD_SHIPPING
 		Achievements->ResetAchievements(*UserId);
-#endif // !UE_BUILD_SHIPPING
 	}
 	else
+#endif // !UE_BUILD_SHIPPING
 	{
-		FLOGV("AFlarePlayerController::ClearAchievementProgression : achievements are unavailable");
+		FLOGV("AFlarePlayerController::ClearAchievementProgression : can't clear achievements");
 	}
 }
 
