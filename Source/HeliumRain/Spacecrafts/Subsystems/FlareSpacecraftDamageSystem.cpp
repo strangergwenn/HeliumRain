@@ -79,10 +79,13 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 		}
 	}
 
+	bool MakeUncontrolableDestroyed = false;
+
 	// Update uncontrollable status
 	if (WasControllable && Parent->IsUncontrollable())
 	{
 		AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
+		MakeUncontrolableDestroyed = true;
 
 		// Player kill
 		if (PC && LastDamageCause.Spacecraft == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn())
@@ -120,6 +123,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 	// Update alive status
 	if (WasAlive && !Parent->IsAlive())
 	{
+		MakeUncontrolableDestroyed = true;
 
 		// Player kill
 		if (PC && LastDamageCause.Spacecraft == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn())
@@ -128,41 +132,6 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 				FText::Format(LOCTEXT("TargetShipKilledFormat", "You destroyed a ship ({0}-class)"), Spacecraft->GetParent()->GetDescription()->Name),
 				FName("ship-killed"),
 				EFlareNotification::NT_Info);
-
-			if (LastDamageCause.DamageType == EFlareDamage::DAM_Collision)
-			{
-				PC->SetAchievementProgression("ACHIEVEMENT_COLLISION", 1);
-			}
-
-			if (Spacecraft->GetCompany() != PC->GetCompany())
-			{
-				if (Spacecraft->GetDescription()->CargoBayCount > 0)
-				{
-					// Cargo
-					PC->SetAchievementProgression("ACHIEVEMENT_KILL_CARGO", 1);
-				}
-				else
-				{
-					// Military
-					if (Spacecraft->GetSize() == EFlarePartSize::S)
-					{
-						PC->SetAchievementProgression("ACHIEVEMENT_KILL_FIGHTER", 1);
-
-						if(LastDamageCause.ManualTurret)
-						{
-							PC->SetAchievementProgression("ACHIEVEMENT_TURRET", 1);
-						}
-					}
-					else
-					{
-						PC->SetAchievementProgression("ACHIEVEMENT_KILL_CAPITAL", 1);
-					}
-				}
-
-
-
-			}
-
 		}
 
 		// Company kill
@@ -190,6 +159,49 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 
 		WasAlive = false;
 		OnSpacecraftDestroyed();
+	}
+
+	if(MakeUncontrolableDestroyed)
+	{
+		// Player kill
+		if (PC && LastDamageCause.Spacecraft == PC->GetShipPawn() && Spacecraft != PC->GetShipPawn() && Spacecraft->GetCompany()->IsAtWar(PC->GetCompany()))
+		{
+			if (LastDamageCause.DamageType == EFlareDamage::DAM_Collision)
+			{
+				PC->SetAchievementProgression("ACHIEVEMENT_COLLISION", 1);
+			}
+
+			if (Spacecraft->GetCompany() != PC->GetCompany() && !Spacecraft->IsStation())
+			{
+				if (Spacecraft->GetDescription()->CargoBayCount > 0)
+				{
+					// Cargo
+					PC->SetAchievementProgression("ACHIEVEMENT_KILL_CARGO", 1);
+				}
+				else
+				{
+					// Military
+					if (Spacecraft->GetSize() == EFlarePartSize::S)
+					{
+						PC->SetAchievementProgression("ACHIEVEMENT_KILL_FIGHTER", 1);
+
+						if(LastDamageCause.ManualTurret)
+						{
+							PC->SetAchievementProgression("ACHIEVEMENT_TURRET", 1);
+						}
+					}
+					else
+					{
+						PC->SetAchievementProgression("ACHIEVEMENT_KILL_CAPITAL", 1);
+					}
+				}
+			}
+		}
+
+		if(Spacecraft->IsMilitary() && Spacecraft->GetCompany()->IsAtWar(PC->GetCompany()) && Spacecraft->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(PC->GetCompany()).BattleWon)
+		{
+			PC->SetAchievementProgression("ACHIEVEMENT_BATTLE", 1);
+		}
 	}
 
 	if (Spacecraft->GetParent()->GetCurrentFleet() == PC->GetPlayerFleet())

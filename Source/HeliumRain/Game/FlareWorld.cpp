@@ -782,6 +782,24 @@ void UFlareWorld::Simulate()
 	{
 		GetGame()->GetPC()->SetAchievementProgression("ACHIEVEMENT_FIRST", 1);
 	}
+
+	// Check if all ship
+	 int32 ShipTypeCount = GetGame()->GetSpacecraftCatalog()->ShipCatalog.Num();
+
+	 TArray<FFlareSpacecraftDescription*> Descriptions;
+
+	 for(UFlareSimulatedSpacecraft* Ship : GetGame()->GetPC()->GetCompany()->GetCompanyShips())
+	 {
+		 if(Ship->GetDamageSystem()->IsAlive())
+		 {
+			 Descriptions.AddUnique(Ship->GetDescription());
+		 }
+	 }
+
+	 if(Descriptions.Num() == ShipTypeCount)
+	 {
+		 GetGame()->GetPC()->SetAchievementProgression("ACHIEVEMENT_ALL_SHIPS", 1);
+	 }
 }
 
 void UFlareWorld::CheckAIBattleState()

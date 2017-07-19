@@ -1415,7 +1415,7 @@ void SFlareSectorMenu::OnBuildStationSelected(FFlareSpacecraftDescription* NewSt
 			NotificationParameters.Spacecraft = NewStation;
 			MenuManager->GetPC()->Notify(
 				LOCTEXT("StationBuilt", "Station built"),
-				LOCTEXT("StationBuiltInfo", "Your new station has been built."),
+				LOCTEXT("StationBuiltInfo", "The construction of your new station started."),
 				"station-built",
 				EFlareNotification::NT_Economy,
 				false,

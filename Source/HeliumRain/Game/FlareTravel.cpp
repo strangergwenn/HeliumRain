@@ -307,6 +307,32 @@ void UFlareTravel::EndTravel()
 		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("travel-end").PutName("sector", DestinationSector->GetIdentifier()).PutName("fleet", Fleet->GetIdentifier()));
 	}
 
+	if (Fleet == Game->GetPC()->GetPlayerFleet())
+	{
+
+		bool HasLMilitaryShip = false;
+		for (UFlareSimulatedSpacecraft* Ship :Fleet->GetShips())
+		{
+			if (Ship->IsMilitary() && Ship->GetSize() == EFlarePartSize::L)
+			{
+				HasLMilitaryShip = true;
+				break;
+			}
+		}
+
+		if(HasLMilitaryShip)
+		{
+			CompanyValue Value = Game->GetPC()->GetCompany()->GetCompanyValue(DestinationSector, false);
+			int32 CurrentHostilePoints = SectorHelper::GetHostileArmyCombatPoints(DestinationSector, Game->GetPC()->GetCompany(), true);
+
+
+			if(CurrentHostilePoints > Value.ArmyCurrentCombatPoints * 2)
+			{
+				Game->GetPC()->SetAchievementProgression("ACHIEVEMENT_TRAP", 1);
+			}
+		}
+	}
+
 	// Update game
 	Game->GetGameWorld()->DeleteTravel(this);
 	if (Game->GetQuestManager())
