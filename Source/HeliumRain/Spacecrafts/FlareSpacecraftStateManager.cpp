@@ -333,11 +333,6 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 
 void UFlareSpacecraftStateManager::EnablePilot(bool PilotEnabled)
 {
-	if (Spacecraft->GetWeaponsSystem()->IsInFireDirector())
-	{
-		PilotEnabled = true;
-	}
-
 	IsPiloted = PilotEnabled;
 }
 
@@ -600,7 +595,7 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 		if (Spacecraft->IsPlayerShip())
 		{
 			UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-			if (MyGameSettings->UseAnticollision || Spacecraft->GetPC()->GetMenuManager()->IsUIOpen())
+			if (MyGameSettings->UseAnticollision || Spacecraft->GetPC()->GetMenuManager()->IsUIOpen() || Spacecraft->GetWeaponsSystem()->IsInFireDirector())
 			{
 				FinalLinearVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, FinalLinearVelocity, Spacecraft->GetPreferedAnticollisionTime());
 			}

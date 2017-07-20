@@ -1248,12 +1248,6 @@ void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 			}
 		}
 
-		// Capitals move to autopilot when using fire director
-		else
-		{
-			GetStateManager()->EnablePilot(true);
-		}
-
 		// Change group
 		GetWeaponsSystem()->ActivateWeaponGroup(Index);
 		if (GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
