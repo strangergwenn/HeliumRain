@@ -379,25 +379,22 @@ void UFlareSpacecraftStateManager::SetPlayerMousePosition(FVector2D Val)
 void UFlareSpacecraftStateManager::SetPlayerAimMouse(FVector2D Val)
 {
 	auto& App = FSlateApplication::Get();
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Spacecraft->GetWorld()->GetFirstPlayerController());
 
 	// External camera : panning with mouse clicks
-	if (ExternalCamera && !PlayerManualLockDirection && App.HasAnyMouseCaptor())
+	if (ExternalCamera && !PlayerManualLockDirection && GEngine->GameViewport->GetGameViewportWidget()->HasMouseCapture() && !PC->GetNavHUD()->IsWheelMenuOpen())
 	{
 		FVector2D CursorPos = App.GetCursorPos();
 
-		if(IsExternalCameraMouseOffsetInit && CursorPos != LastExternalCameraMouseOffset)
+		if (IsExternalCameraMouseOffsetInit && CursorPos != LastExternalCameraMouseOffset)
 		{
-
 			FVector2D MoveDirection = (CursorPos - LastExternalCameraMouseOffset).GetSafeNormal();
-
 			ExternalCameraYawTarget += MoveDirection.X;
 			ExternalCameraPitchTarget += -MoveDirection.Y;
 		}
 
 		LastExternalCameraMouseOffset = CursorPos;
 		IsExternalCameraMouseOffsetInit = true;
-
-
 		PlayerAim = FVector2D::ZeroVector;
 	}
 		
@@ -406,7 +403,6 @@ void UFlareSpacecraftStateManager::SetPlayerAimMouse(FVector2D Val)
 	{
 		IsExternalCameraMouseOffsetInit = false;
 
-		AFlarePlayerController* PC = Cast<AFlarePlayerController>(Spacecraft->GetWorld()->GetFirstPlayerController());
 		if (PC && !PC->GetNavHUD()->IsWheelMenuOpen())
 		{
 			if (Val.X != LastPlayerAimMouse.X || Val.Y != LastPlayerAimMouse.Y)

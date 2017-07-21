@@ -299,16 +299,15 @@ void AFlareMenuPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 void AFlareMenuPawn::UpdateExternalCameraTarget()
 {
 	auto& App = FSlateApplication::Get();
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
-	if (App.HasAnyMouseCaptor())
+	if (GEngine->GameViewport->GetGameViewportWidget()->HasMouseCapture() && !PC->GetNavHUD()->IsWheelMenuOpen())
 	{
 		FVector2D CursorPos = App.GetCursorPos();
 
-		if(IsExternalCameraMouseOffsetInit && CursorPos != LastExternalCameraMouseOffset)
+		if (IsExternalCameraMouseOffsetInit && CursorPos != LastExternalCameraMouseOffset)
 		{
-
 			FVector2D MoveDirection = (CursorPos - LastExternalCameraMouseOffset).GetSafeNormal();
-
 			ExternalCameraYawTarget += -MoveDirection.X;
 			ExternalCameraPitchTarget += -MoveDirection.Y;
 		}
