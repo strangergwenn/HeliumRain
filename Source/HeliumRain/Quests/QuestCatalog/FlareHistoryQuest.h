@@ -67,8 +67,8 @@ class HELIUMRAIN_API UFlareQuestConditionWaypoints: public UFlareQuestCondition
 
 public:
 
-	static UFlareQuestConditionWaypoints* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan);
-	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan);
+	static UFlareQuestConditionWaypoints* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan, TArray<FText> CustomInitialLabels = TArray<FText>(), TArray<FText> CustomWaypointTextsParam = TArray<FText>());
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan, TArray<FText> CustomInitialLabelsParam, TArray<FText> CustomWaypointTextsParam);
 	virtual void Restore(const FFlareBundle* Bundle);
 	virtual void Save(FFlareBundle* Bundle);
 
@@ -78,6 +78,7 @@ public:
 protected:
 
 	void Init();
+	void UpdateInitalLabel();
 
 	TArray<FVector> VectorList;
 
@@ -86,6 +87,8 @@ protected:
 
 	int32 CurrentProgression;
 	UFlareSimulatedSector* TargetSector;
+	TArray<FText> CustomInitialLabels;
+	TArray<FText> CustomWaypointTexts;
 };
 
 //////////////////////////////////////////////////////

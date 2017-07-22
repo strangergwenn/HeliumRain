@@ -21,7 +21,6 @@ static FName INITIAL_CAPTURING_STATIONS_TAG("initial-capturing-stations");
 static FName CURRENT_PROGRESSION_TAG("current-progression");
 static FName INITIAL_TRANSFORM_TAG("initial-transform");
 static FName WAYPOINTS_TAG("waypoints");
-static FName REQUIRES_SCAN_TAG("requires-scan");
 
 
 /*----------------------------------------------------
@@ -1103,7 +1102,6 @@ void UFlareQuestConditionFollowRelativeWaypoints::Restore(const FFlareBundle* Bu
 		IsInit = true;
 		CurrentProgression = Bundle->GetInt32(CURRENT_PROGRESSION_TAG);
 		InitialTransform = Bundle->GetTransform(INITIAL_TRANSFORM_TAG);
-		TargetRequiresScan = Bundle->GetInt32(REQUIRES_SCAN_TAG) == 1;
 	}
 	else
 	{
@@ -1117,7 +1115,6 @@ void UFlareQuestConditionFollowRelativeWaypoints::Save(FFlareBundle* Bundle)
 	if (IsInit)
 	{
 		Bundle->PutInt32(CURRENT_PROGRESSION_TAG, CurrentProgression);
-		Bundle->PutInt32(REQUIRES_SCAN_TAG, TargetRequiresScan ? 1 : 0);
 		Bundle->PutTransform(INITIAL_TRANSFORM_TAG, InitialTransform);
 	}
 }
@@ -1286,7 +1283,6 @@ void UFlareQuestConditionFollowRandomWaypoints::Restore(const FFlareBundle* Bund
 		IsInit = true;
 		CurrentProgression = Bundle->GetInt32(CURRENT_PROGRESSION_TAG);
 		Waypoints = Bundle->GetVectorArray(WAYPOINTS_TAG);
-		TargetRequiresScan = Bundle->GetInt32(REQUIRES_SCAN_TAG) == 1;
 	}
 	else
 	{
@@ -1300,7 +1296,6 @@ void UFlareQuestConditionFollowRandomWaypoints::Save(FFlareBundle* Bundle)
 	if (IsInit)
 	{
 		Bundle->PutInt32(CURRENT_PROGRESSION_TAG, CurrentProgression);
-		Bundle->PutInt32(REQUIRES_SCAN_TAG, TargetRequiresScan ? 1 : 0);
 		Bundle->PutVectorArray(WAYPOINTS_TAG, Waypoints);
 	}
 }

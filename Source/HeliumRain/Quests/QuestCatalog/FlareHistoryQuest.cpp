@@ -24,7 +24,6 @@
 
 static FName HISTORY_CURRENT_PROGRESSION_TAG("current-progression");
 static FName HISTORY_START_DATE_TAG("start-date");
-static FName HISTORY_REQUIRES_SCAN_TAG("requires-scan");
 
 
 /*----------------------------------------------------
@@ -105,11 +104,14 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Inspect"
-		FText Description = LOCTEXT("InspectDescription","Inspect The Spire in details to gather information about its materials and construction method.");
+		FText Description = LOCTEXT("InspectDescription","Inspect The Spire in details to gather information about its materials and construction method. Our agent attached some transmitter beacon on the structure to help you to locate interesting points");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "inspect-the-spire", Description);
 
 		TArray<FVector> Waypoints;
+		TArray<FText> WaypointTexts;
+		TArray<FText> CustomInitialLabels;
+
 		Waypoints.Add(FVector(0,0,-211084));
 		Waypoints.Add(FVector(0,0,-98414));
 		Waypoints.Add(FVector(-37257,28772,285917));
@@ -119,7 +121,25 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 		Waypoints.Add(FVector(4176.675781,-486.620117,4294.422363));
 		Waypoints.Add(FVector(1422.779175,449.966492,-12945.479492));
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionWaypoints::Create(this, QUEST_TAG"cond1", TheSpire, Waypoints, true));
+		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel1", "Inspect the pipe at reference point A in {0}"), TheSpire->GetSectorName()));
+		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel2", "Inspect the pipe at reference point B in {0}"), TheSpire->GetSectorName()));
+		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel3", "Inspect the counterweight attachement #1 in {0}"), TheSpire->GetSectorName()));
+		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel4", "Inspect the counterweight attachement #3 in {0}"), TheSpire->GetSectorName()));
+		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel5", "Inspect the counterweight cables in {0}"), TheSpire->GetSectorName()));
+		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel6", "Inspect the counterweight station attachement in {0}"), TheSpire->GetSectorName()));
+		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel7", "Inspect the extraction module in {0}"), TheSpire->GetSectorName()));
+		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel8", "Inspect the pipe attachement in {0}"), TheSpire->GetSectorName()));
+
+		WaypointTexts.Add(LOCTEXT("WaypointText1", "pipe inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText2", "pipe inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText3", "attachement inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText4", "attachement inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText5", "cables inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText6", "attachement inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText7", "module inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText8", "attachement inspected. Good job."));
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionWaypoints::Create(this, QUEST_TAG"cond1", TheSpire, Waypoints, true, CustomInitialLabels, WaypointTexts));
 		Steps.Add(Step);
 	}
 
@@ -377,14 +397,14 @@ UFlareQuestConditionWaypoints::UFlareQuestConditionWaypoints(const FObjectInitia
 {
 }
 
-UFlareQuestConditionWaypoints* UFlareQuestConditionWaypoints::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan)
+UFlareQuestConditionWaypoints* UFlareQuestConditionWaypoints::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan, TArray<FText> CustomInitialLabelsParam, TArray<FText> CustomWaypointTextsParam)
 {
 	UFlareQuestConditionWaypoints*Condition = NewObject<UFlareQuestConditionWaypoints>(ParentQuest, UFlareQuestConditionWaypoints::StaticClass());
-	Condition->Load(ParentQuest, ConditionIdentifier, Sector, VectorListParam, RequiresScan);
+	Condition->Load(ParentQuest, ConditionIdentifier, Sector, VectorListParam, RequiresScan, CustomInitialLabelsParam, CustomWaypointTextsParam);
 	return Condition;
 }
 
-void UFlareQuestConditionWaypoints::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan)
+void UFlareQuestConditionWaypoints::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan, TArray<FText> CustomInitialLabelsParam, TArray<FText> CustomWaypointTextsParam)
 {
 	if (ConditionIdentifier == NAME_None)
 	{
@@ -395,6 +415,9 @@ void UFlareQuestConditionWaypoints::Load(UFlareQuest* ParentQuest, FName Conditi
 	VectorList = VectorListParam;
 	TargetSector = Sector;
 	TargetRequiresScan = RequiresScan;
+	CustomInitialLabels = CustomInitialLabelsParam;
+	CustomWaypointTexts = CustomWaypointTextsParam;
+
 
 	if (RequiresScan)
 	{
@@ -422,7 +445,7 @@ void UFlareQuestConditionWaypoints::Restore(const FFlareBundle* Bundle)
 	{
 		IsInit = true;
 		CurrentProgression = Bundle->GetInt32(HISTORY_CURRENT_PROGRESSION_TAG);
-		TargetRequiresScan = Bundle->GetInt32(HISTORY_REQUIRES_SCAN_TAG) == 1;
+		UpdateInitalLabel();
 	}
 	else
 	{
@@ -436,7 +459,6 @@ void UFlareQuestConditionWaypoints::Save(FFlareBundle* Bundle)
 	if (IsInit)
 	{
 		Bundle->PutInt32(HISTORY_CURRENT_PROGRESSION_TAG, CurrentProgression);
-		Bundle->PutInt32(HISTORY_REQUIRES_SCAN_TAG, TargetRequiresScan ? 1 : 0);
 	}
 }
 
@@ -453,6 +475,15 @@ void UFlareQuestConditionWaypoints::Init()
 	{
 		IsInit = true;
 		CurrentProgression = 0;
+		UpdateInitalLabel();
+	}
+}
+
+void UFlareQuestConditionWaypoints::UpdateInitalLabel()
+{
+	if(CurrentProgression < CustomInitialLabels.Num())
+	{
+		InitialLabel = CustomInitialLabels[CurrentProgression];
 	}
 }
 
@@ -487,9 +518,15 @@ bool UFlareQuestConditionWaypoints::IsCompleted()
 				if (CurrentProgression + 2 <= VectorList.Num())
 				{
 					CurrentProgression++;
+					UpdateInitalLabel();
 
 					FText WaypointText;
-					if (TargetRequiresScan)
+
+					if(CurrentProgression-1 < CustomWaypointTexts.Num())
+					{
+						WaypointText = CustomWaypointTexts[CurrentProgression-1];
+					}
+					else if (TargetRequiresScan)
 					{
 						WaypointText = LOCTEXT("ScanProgress", "Signal analyzed, {0} left");
 					}
