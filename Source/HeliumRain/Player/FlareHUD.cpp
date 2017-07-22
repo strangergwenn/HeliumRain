@@ -80,6 +80,8 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHealthIconObj          (TEXT("/Game/Slate/Icons/TX_Icon_LifeSupport.TX_Icon_LifeSupport"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDWeaponIconObj          (TEXT("/Game/Slate/Icons/TX_Icon_Shell.TX_Icon_Shell"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHarpoonedIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_Harpooned.TX_Icon_Harpooned"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDOrientationIconObj     (TEXT("/Game/Slate/Icons/TX_Icon_Travel.TX_Icon_Travel"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDistanceIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_Distance.TX_Icon_Distance"));
 
 	// Load content (fonts)
 	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontSmallObj           (TEXT("/Game/Slate/Fonts/HudFontSmall.HudFontSmall"));
@@ -120,6 +122,8 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDHealthIcon = HUDHealthIconObj.Object;
 	HUDWeaponIcon = HUDWeaponIconObj.Object;
 	HUDHarpoonedIcon = HUDHarpoonedIconObj.Object;
+	HUDOrientationIcon = HUDOrientationIconObj.Object;
+	HUDDistanceIcon = HUDDistanceIconObj.Object;
 
 	// Set content (fonts)
 	HUDFontSmall = HUDFontSmallObj.Object;
@@ -142,8 +146,11 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	InstrumentSize =  FVector2D(380, 115);
 	InstrumentLine =  FVector2D(0, 20);
 	SmallProgressBarSize = 50;
-	LargeProgressBarSize = 150;
-	ProgressBarHeight = 12;
+	LargeProgressBarSize = 120;
+	ProgressBarHeight = 10;
+	ProgressBarInternalMargin = 3;
+	ProgressBarTopMargin = 6;
+	CockpitIconSize = 20;
 	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 }
 
@@ -509,7 +516,6 @@ void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32
 void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 {
 	// Data
-	float CockpitIconSize = 20;
 	FVector2D CurrentPos = LeftInstrument;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 Temperature = PlayerShip->GetParent()->GetDamageSystem()->GetTemperature();
@@ -569,8 +575,57 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareTacticManager* TacticManager = MenuManager->GetPC()->GetCompany()->GetTacticManager();
 
+	// TODO #870 : remove this
+	FVector TargetLocation = FVector::ZeroVector;
+	FVector ShipLocation = PlayerShip->GetActorLocation();
+	FVector TargetDisplacement = TargetLocation - ShipLocation;
+
+	// TODO #870 : scanning mode - Move these calculations to the ship with this API
+	// 
+	//   bool IsInScanningMode();     (Target objective is scan && sector is OK)
+	//   bool IsScanningActive();     (Player is < 100m away and 90% aligned)
+	//   void GetScanningProgress(float& ang, float& lin, float& progress);   (Get values)
+	// 
+	bool IsInScanningMode = false; // PlayerShip->IsInScanningMode()
+	bool IsScanningActive = false; // PlayerShip->IsScanningActive()
+	float ScanningAngularRatio = FVector::DotProduct(PlayerShip->GetFrontVector(), TargetDisplacement.GetSafeNormal());
+	float ScanningLinearRatio = 1 - FMath::Clamp(TargetDisplacement.Size() / 100000, 0.0f, 1.0f); // 1000m
+	float ScanningAnalyzisRatio = 0;
+
+	// Scanner
+	if (IsInScanningMode && !PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup())
+	{
+		// Texts
+		FText ScanningText = LOCTEXT("Scanning", "Unknown signal detected");
+		FText ScanningInfoText = LOCTEXT("ScanningInfo", "Scanning unknown signal...");
+		FText AlignmentText = FText::Format(LOCTEXT("AlignmentFormat", "Signal alignment : {0}%"),
+			FText::AsNumber(FMath::RoundToInt(100 * FMath::Clamp(ScanningAngularRatio, 0.0f, 1.0f))));
+		FText DistanceText = FText::Format(LOCTEXT("DistanceFormat", "Signal distance : {0}m"),
+			FText::AsNumber(FMath::RoundToInt(TargetDisplacement.Size() / 100)));
+		FText AnalyzisText = FText::Format(LOCTEXT("AnalyzisFormat", "Signal analyzis : {0}%"),
+			FText::AsNumber(FMath::RoundToInt(100 * ScanningAnalyzisRatio)));
+
+		// Draw panel
+		FlareDrawText(ScanningText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
+		CurrentPos += 2 * InstrumentLine;
+		FlareDrawText(ScanningInfoText.ToString(), CurrentPos, Theme.FriendlyColor, false, false);
+		CurrentPos += 1.5 * InstrumentLine;
+		DrawProgressBarIconText(CurrentPos, HUDOrientationIcon, AlignmentText,
+			ScanningAngularRatio < 0.3f ? Theme.EnemyColor : Theme.FriendlyColor,
+			ScanningAngularRatio, LargeProgressBarSize);
+		CurrentPos += InstrumentLine;
+		DrawProgressBarIconText(CurrentPos, HUDDistanceIcon, DistanceText,
+			ScanningLinearRatio < 0.3f ? Theme.EnemyColor : Theme.FriendlyColor,
+			ScanningLinearRatio, LargeProgressBarSize);
+		CurrentPos += InstrumentLine;
+		DrawProgressBarIconText(CurrentPos, HUDPowerIcon, AnalyzisText,
+			IsScanningActive ? Theme.FriendlyColor : Theme.EnemyColor,
+			ScanningAnalyzisRatio, LargeProgressBarSize);
+		CurrentPos += InstrumentLine;
+	}
+
 	// Military version
-	if (PlayerShip->GetParent()->IsMilitary())
+	else if (PlayerShip->GetParent()->IsMilitary())
 	{
 		FText TitleText;
 		FText InfoText;
@@ -578,6 +633,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		int32 CurrentWeapongroupIndex = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex();
 		FFlareWeaponGroup* CurrentWeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
 
+		// Peaceful texts
 		FText DisarmText;
 		if (PlayerShip->GetDescription()->Size == EFlarePartSize::S)
 		{
@@ -586,7 +642,8 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		else
 		{
 			DisarmText = LOCTEXT("WeaponsDisabledHeavy", "Navigation mode");
-		}		
+		}
+		InfoText = LOCTEXT("StandingDownInfo", "Toggle weapon groups to enable weapons.");
 
 		if (CurrentWeaponGroup)
 		{
@@ -641,7 +698,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			HealthColor = GetHealthColor(WeaponHealth);
 			int IndexSize = 35;
 			FVector2D TextPosition = CurrentPos + FVector2D(IndexSize + SmallProgressBarSize + 10, 0);
-			FVector2D BarPosition = CurrentPos + FVector2D(IndexSize, 1 + (InstrumentLine.Y - ProgressBarHeight) / 2);
+			FVector2D BarPosition = CurrentPos + FVector2D(IndexSize, ProgressBarTopMargin);
 
 			// Draw
 			FlareDrawText(WeaponIndexString, CurrentPos, HealthColor, false);
@@ -871,24 +928,22 @@ void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVecto
 			break;
 	}
 
-	// Layout
-	float CockpitIconSize = 20;
-	FVector2D IconPosition = Position;
-	FVector2D BarPosition = Position + FVector2D(1.5 * CockpitIconSize, 1 + (InstrumentLine.Y - ProgressBarHeight) / 2);
-	FVector2D TextPosition = Position + FVector2D(1.5 * CockpitIconSize + SmallProgressBarSize + 10, 0);
-	if (HideProgressBar)
-	{
-		TextPosition = Position + FVector2D(1.5 * CockpitIconSize, 0);
-	}
-	Position += InstrumentLine;
-
 	// Draw
-	DrawHUDIcon(IconPosition, CockpitIconSize, Icon, Color);
-	if (!HideProgressBar)
+	DrawProgressBarIconText(Position, Icon, SystemText, Color, DamageSystem->GetSubsystemHealth(Subsystem), HideProgressBar ? 0 : SmallProgressBarSize);
+	Position += InstrumentLine;
+}
+
+void AFlareHUD::DrawProgressBarIconText(FVector2D Position, UTexture2D* Icon, FText Text, FLinearColor Color, float Progress, int ProgressWidth)
+{
+	FVector2D BarPosition = Position + FVector2D(1.5 * CockpitIconSize, ProgressBarTopMargin);
+	FVector2D TextPosition = Position + FVector2D(1.5 * CockpitIconSize + ProgressWidth + 10, 0);
+
+	DrawHUDIcon(Position, CockpitIconSize, Icon, Color);
+	if (ProgressWidth > 0)
 	{
-		FlareDrawProgressBar(BarPosition, SmallProgressBarSize, Color, DamageSystem->GetSubsystemHealth(Subsystem));
+		FlareDrawProgressBar(BarPosition, ProgressWidth, Color, Progress);
 	}
-	FlareDrawText(SystemText.ToString(), TextPosition, Color, false);
+	FlareDrawText(Text.ToString(), TextPosition, Color, false);
 }
 
 
@@ -1804,10 +1859,9 @@ void AFlareHUD::FlareDrawLine(FVector2D Start, FVector2D End, FLinearColor Color
 
 void AFlareHUD::FlareDrawProgressBar(FVector2D Position, int BarWidth, FLinearColor Color, float Ratio)
 {
-	int BarMargin = 3;
-
-	FVector2D ProgressBarPos = Position + FVector2D(BarMargin + 1, BarMargin + 1);
-	FVector2D ProgressBarSize = FVector2D(Ratio * (BarWidth - 2 - BarMargin * 2), ProgressBarHeight - 2 * BarMargin - 2);
+	float ClampedRatio = FMath::Clamp(Ratio, 0.0f, 1.0f);
+	FVector2D ProgressBarPos = Position + FVector2D(ProgressBarInternalMargin + 1, ProgressBarInternalMargin + 1);
+	FVector2D ProgressBarSize = FVector2D(ClampedRatio * (BarWidth - 2 - ProgressBarInternalMargin * 2), ProgressBarHeight - 2 * ProgressBarInternalMargin - 2);
 
 	// Draw border
 	FCanvasBoxItem BarItem(Position, FVector2D(BarWidth, ProgressBarHeight));

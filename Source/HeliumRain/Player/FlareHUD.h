@@ -92,9 +92,12 @@ public:
 	/** Draw on the current canvas the ship's target info */
 	void DrawCockpitTarget(AFlareSpacecraft* PlayerShip);
 
-	/** Draw a subsystem info line on a cockpit intrument */
+	/** Draw a subsystem info line on a cockpit instrument */
 	void DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVector2D& Position);
-	
+
+	/** Draw a progress bar with icon and text */
+	void DrawProgressBarIconText(FVector2D Position, UTexture2D* Icon, FText Text, FLinearColor Color, float Progress, int ProgressWidth);
+
 
 	/*----------------------------------------------------
 		HUD helpers
@@ -264,6 +267,8 @@ protected:
 	UTexture2D*                             HUDHealthIcon;
 	UTexture2D*                             HUDWeaponIcon;
 	UTexture2D*                             HUDHarpoonedIcon;
+	UTexture2D*                             HUDOrientationIcon;
+	UTexture2D*                             HUDDistanceIcon;
 
 	// Font
 	UFont*                                  HUDFontSmall;
@@ -279,6 +284,9 @@ protected:
 	int                                     SmallProgressBarSize;
 	int                                     LargeProgressBarSize;
 	int                                     ProgressBarHeight;
+	float                                   ProgressBarInternalMargin;
+	float                                   ProgressBarTopMargin;
+	float                                   CockpitIconSize;
 	
 	// Slate menus
 	TSharedPtr<SFlareHUDMenu>               HUDMenu;
