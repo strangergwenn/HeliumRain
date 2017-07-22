@@ -1121,7 +1121,6 @@ void AFlareHUD::DrawHUDInternal()
 	DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipSmoothedVelocity);
 
 	// Draw objective
-	// TODO #870 : check if this objective target is a "scanning" one, don't show if it is
 	if (PC->HasObjective() && PC->GetCurrentObjective()->TargetList.Num() > 0
 		&& (PC->GetCurrentObjective()->TargetSectors.Num() == 0 || PC->GetCurrentObjective()->TargetSectors.Contains(PlayerShip->GetParent()->GetCurrentSector())))
 	{
@@ -1137,7 +1136,7 @@ void AFlareHUD::DrawHUDInternal()
 			// Draw icon & distance
 			if (ProjectWorldLocationToCockpit(ObjectiveLocation, ScreenPosition))
 			{
-				if (IsInScreen(ScreenPosition))
+				if (IsInScreen(ScreenPosition) && !Target->RequiresScan)
 				{
 					if (Target->Active)
 					{
@@ -1164,7 +1163,7 @@ void AFlareHUD::DrawHUDInternal()
 			}
 
 			// Draw objective
-			if (ShouldDrawMarker && !IsExternalCamera && Target->Active)
+			if (ShouldDrawMarker && !IsExternalCamera && Target->Active && !Target->RequiresScan)
 			{
 				DrawSearchArrow(ObjectiveLocation, HudColorObjective, true);
 			}

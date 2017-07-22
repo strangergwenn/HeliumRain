@@ -32,6 +32,7 @@ struct FFlarePlayerObjectiveTarget
 	FVector                     Location;
 	float						Radius;
 	bool						Active;
+	bool                        RequiresScan;
 };
 
 /** Player objective data */

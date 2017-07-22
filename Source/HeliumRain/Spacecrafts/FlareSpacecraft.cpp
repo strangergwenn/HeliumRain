@@ -78,6 +78,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	TargetIndex = 0;
 	TimeSinceSelection = 0;
 	MaxTimeBeforeSelectionReset = 3.0;
+	ScanningTimerDuration = 10.0f;
 	StateManager = NULL;
 	CurrentTarget = NULL;
 	NavigationSystem = NULL;
@@ -221,6 +222,23 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 					}
 
 					return;
+				}
+			}
+
+			// Update progress of the scanning mode
+			if (IsInScanningMode())
+			{
+				bool SanningIsActive;
+				float ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio, ScanningDistance;
+				GetScanningProgress(SanningIsActive, ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio, ScanningDistance);
+
+				if (SanningIsActive)
+				{
+					ScanningTimer += DeltaSeconds;
+				}
+				else
+				{
+					ScanningTimer = 0;
 				}
 			}
 
@@ -548,13 +566,13 @@ bool AFlareSpacecraft::IsInScanningMode()
 	const FFlarePlayerObjectiveData* Objective = GetPC()->GetCurrentObjective();
 
 	// Needs a valid target objective, and weapon groups
-	if (Objective && Objective->TargetList.Num() > 0 && !GetWeaponsSystem()->GetActiveWeaponGroup())
+	if (IsPlayerShip() && Objective && Objective->TargetList.Num() > 0 && !GetWeaponsSystem()->GetActiveWeaponGroup())
 	{
 		// Are we in the correct sector ?
 		if (Objective->TargetSectors.Num() == 0 || Objective->TargetSectors.Contains(GetParent()->GetCurrentSector()))
 		{
-			// TODO #870 : check if this objective target is a "scanning" one, return true if it is
-			if (false)
+			// Is this objective a scan one ?
+			if (Objective->TargetList[0].RequiresScan)
 			{
 				return true;
 			}
@@ -576,9 +594,9 @@ void AFlareSpacecraft::GetScanningProgress(bool& ScanningIsActive, float& Angula
 
 				AngularProgress = FVector::DotProduct(GetFrontVector(), TargetDisplacement.GetSafeNormal());
 				LinearProgress = 1 - FMath::Clamp(TargetDisplacement.Size() / 100000, 0.0f, 1.0f); // 1000m
-				AnalyzisProgress = 0;
+				AnalyzisProgress = FMath::Clamp(ScanningTimer / ScanningTimerDuration, 0.0f, 1.0f);
 
-				ScanningIsActive = (AngularProgress > 0.9) && (LinearProgress > 0.9);
+				ScanningIsActive = (AngularProgress > 0.5) && (TargetDisplacement.Size() < Target.Radius);
 				ScanningDistance = (TargetDisplacement.Size() / 100);
 
 				return;
@@ -591,6 +609,11 @@ void AFlareSpacecraft::GetScanningProgress(bool& ScanningIsActive, float& Angula
 	AngularProgress = 0;
 	LinearProgress = 0;
 	AnalyzisProgress = 0;
+}
+
+bool AFlareSpacecraft::IsScanningFinished() const
+{
+	return (ScanningTimer >= ScanningTimerDuration);
 }
 
 

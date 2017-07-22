@@ -96,6 +96,8 @@ public:
 	/** Get the progress of scanning */
 	void GetScanningProgress(bool& ScanningIsActive, float& AngularProgress, float& LinearProgress, float& AnalyzisProgress, float& ScanningDistance);
 
+	/** Are we done with the scan ? */
+	bool IsScanningFinished() const;
 
 	/*----------------------------------------------------
 		Ship interface
@@ -302,6 +304,9 @@ protected:
 	bool                                           LoadedAndReady;
 	
 	bool                                           AttachedToParentActor;
+
+	float                                          ScanningTimer;
+	float                                          ScanningTimerDuration;
 	
 
 	/*----------------------------------------------------
