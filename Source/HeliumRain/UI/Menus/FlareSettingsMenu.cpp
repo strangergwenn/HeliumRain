@@ -425,7 +425,8 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(SHorizontalBox)
-					
+
+#if !UE_BUILD_SHIPPING
 						// Cockpit
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
@@ -437,6 +438,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnCockpitToggle)
 						]
+#endif
 					
 						// Anticollision
 						+ SHorizontalBox::Slot()
@@ -787,7 +789,9 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	TemporalAAButton->SetActive(MyGameSettings->UseTemporalAA);
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
 	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
+#if !UE_BUILD_SHIPPING
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
+#endif
 	AnticollisionButton->SetActive(MyGameSettings->UseAnticollision);
 	//PauseInMenusButton->SetActive(MyGameSettings->PauseGameInMenus);
 
@@ -1250,12 +1254,14 @@ void SFlareSettingsMenu::OnFullscreenToggle()
 
 void SFlareSettingsMenu::OnCockpitToggle()
 {
+#if !UE_BUILD_SHIPPING
 	bool New = CockpitButton->IsActive();
 	MenuManager->GetPC()->SetUseCockpit(New);
 
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	MyGameSettings->UseCockpit = New;
 	MyGameSettings->ApplySettings(false);
+#endif
 }
 
 

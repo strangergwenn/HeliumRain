@@ -212,7 +212,9 @@ protected:
 	TSharedPtr<STextBlock>	        			PostProcessQualityLabel;
 
 	// Gameplay
+#if !UE_BUILD_SHIPPING
 	TSharedPtr<SFlareButton>                    CockpitButton;
+#endif
 	TSharedPtr<SFlareButton>                    AnticollisionButton;
 	TSharedPtr<SFlareButton>                    PauseInMenusButton;
 	TSharedPtr<SSlider>                         ShipCountSlider;
