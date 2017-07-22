@@ -24,6 +24,7 @@
 
 static FName HISTORY_CURRENT_PROGRESSION_TAG("current-progression");
 static FName HISTORY_START_DATE_TAG("start-date");
+static FName HISTORY_REQUIRES_SCAN_TAG("requires-scan");
 
 
 /*----------------------------------------------------
@@ -91,7 +92,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"TravelToSpire"
 		FText Description = LOCTEXT("TravelToSpireDescription","Thanks for attending this meeting. As you may have observed, the Spire, our only source of gas, can't match our needs anymore."
-									"\nWe need to build a new orbital extractor. However, the Spire was built before the war and all the knowledge disappeared when the Daedelus was shot to pieces. Your help is needed to build a new one."
+									"We need to build a new orbital extractor. \nHowever, the Spire was built before the war and all the knowledge disappeared when the Daedelus carrier was shot to pieces. Your help is needed to build a new one."
 									"\nPlease start reverse-engineering the Spire so that we can learn more.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "travel-to-spire", Description);
@@ -118,7 +119,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 		Waypoints.Add(FVector(4176.675781,-486.620117,4294.422363));
 		Waypoints.Add(FVector(1422.779175,449.966492,-12945.479492));
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionWaypoints::Create(this, QUEST_TAG"cond1", TheSpire, Waypoints));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionWaypoints::Create(this, QUEST_TAG"cond1", TheSpire, Waypoints, true));
 		Steps.Add(Step);
 	}
 
@@ -369,20 +370,21 @@ void UFlareQuestConditionVisitSector::AddConditionObjectives(FFlarePlayerObjecti
 ----------------------------------------------------*/
 
 #define ABSOLUTE_WAYPOINTS_RADIUS 2000
+#define SCANNER_RADIUS 10000
 
 UFlareQuestConditionWaypoints::UFlareQuestConditionWaypoints(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
-UFlareQuestConditionWaypoints* UFlareQuestConditionWaypoints::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam)
+UFlareQuestConditionWaypoints* UFlareQuestConditionWaypoints::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan)
 {
 	UFlareQuestConditionWaypoints*Condition = NewObject<UFlareQuestConditionWaypoints>(ParentQuest, UFlareQuestConditionWaypoints::StaticClass());
-	Condition->Load(ParentQuest, ConditionIdentifier, Sector, VectorListParam);
+	Condition->Load(ParentQuest, ConditionIdentifier, Sector, VectorListParam, RequiresScan);
 	return Condition;
 }
 
-void UFlareQuestConditionWaypoints::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam)
+void UFlareQuestConditionWaypoints::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan)
 {
 	if (ConditionIdentifier == NAME_None)
 	{
@@ -392,7 +394,16 @@ void UFlareQuestConditionWaypoints::Load(UFlareQuest* ParentQuest, FName Conditi
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	VectorList = VectorListParam;
 	TargetSector = Sector;
-	InitialLabel = FText::Format(LOCTEXT("FollowWaypointsInSector", "Fly to waypoints in {0}"), TargetSector->GetSectorName());
+	TargetRequiresScan = RequiresScan;
+
+	if (RequiresScan)
+	{
+		InitialLabel = FText::Format(LOCTEXT("ScanWaypointsInSector", "Analyze signals in {0}"), TargetSector->GetSectorName());
+	}
+	else
+	{
+		InitialLabel = FText::Format(LOCTEXT("FollowWaypointsInSector", "Fly to waypoints in {0}"), TargetSector->GetSectorName());
+	}
 }
 
 void UFlareQuestConditionWaypoints::Restore(const FFlareBundle* Bundle)
@@ -411,6 +422,7 @@ void UFlareQuestConditionWaypoints::Restore(const FFlareBundle* Bundle)
 	{
 		IsInit = true;
 		CurrentProgression = Bundle->GetInt32(HISTORY_CURRENT_PROGRESSION_TAG);
+		TargetRequiresScan = Bundle->GetInt32(HISTORY_REQUIRES_SCAN_TAG) == 1;
 	}
 	else
 	{
@@ -424,6 +436,7 @@ void UFlareQuestConditionWaypoints::Save(FFlareBundle* Bundle)
 	if (IsInit)
 	{
 		Bundle->PutInt32(HISTORY_CURRENT_PROGRESSION_TAG, CurrentProgression);
+		Bundle->PutInt32(HISTORY_REQUIRES_SCAN_TAG, TargetRequiresScan ? 1 : 0);
 	}
 }
 
@@ -446,36 +459,54 @@ void UFlareQuestConditionWaypoints::Init()
 bool UFlareQuestConditionWaypoints::IsCompleted()
 {
 	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
-
 	if (Spacecraft)
 	{
 		Init();
 		FVector WorldTargetLocation = VectorList[CurrentProgression];
-
-		float MaxDistance = ABSOLUTE_WAYPOINTS_RADIUS;
-
-		if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
+		float MaxDistance = TargetRequiresScan ? SCANNER_RADIUS : ABSOLUTE_WAYPOINTS_RADIUS;
+		
+		if (Spacecraft->GetParent()->GetCurrentSector() == TargetSector)
 		{
-			// Nearing the target
-			if (CurrentProgression + 2 <= VectorList.Num())
+			// Waypoint completion logic
+			bool HasCompletedWaypoint = false;
+			if (TargetRequiresScan)
 			{
-				if(Spacecraft->GetParent()->GetCurrentSector() == TargetSector)
+				if (Spacecraft->IsScanningFinished())
 				{
-
-				// Progress.
-				CurrentProgression++;
-
-				FText WaypointText = LOCTEXT("WaypointProgress", "Waypoint reached, {0} left");
-
-				Quest->SendQuestNotification(FText::Format(WaypointText, FText::AsNumber(VectorList.Num() - CurrentProgression)),
-									  FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")),
-											 false);
+					HasCompletedWaypoint = true;
 				}
 			}
-			else
+			else if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
 			{
-				// All waypoint reach
-				return true;
+				HasCompletedWaypoint = true;
+			}
+
+			if (HasCompletedWaypoint)
+			{
+				// Nearing the target
+				if (CurrentProgression + 2 <= VectorList.Num())
+				{
+					CurrentProgression++;
+
+					FText WaypointText;
+					if (TargetRequiresScan)
+					{
+						WaypointText = LOCTEXT("ScanProgress", "Signal analyzed, {0} left");
+					}
+					else
+					{
+						WaypointText = LOCTEXT("WaypointProgress", "Waypoint reached, {0} left");
+					}
+
+					Quest->SendQuestNotification(FText::Format(WaypointText, FText::AsNumber(VectorList.Num() - CurrentProgression)),
+						FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")),
+						false);
+				}
+				else
+				{
+					// All waypoints reached
+					return true;
+				}
 			}
 		}
 	}
@@ -502,9 +533,10 @@ void UFlareQuestConditionWaypoints::AddConditionObjectives(FFlarePlayerObjective
 			continue;
 		}
 		FFlarePlayerObjectiveTarget ObjectiveTarget;
+		ObjectiveTarget.RequiresScan = TargetRequiresScan;
 		ObjectiveTarget.Actor = NULL;
 		ObjectiveTarget.Active = (CurrentProgression == TargetIndex);
-		ObjectiveTarget.Radius = ABSOLUTE_WAYPOINTS_RADIUS;
+		ObjectiveTarget.Radius = TargetRequiresScan ? SCANNER_RADIUS : ABSOLUTE_WAYPOINTS_RADIUS;
 
 		FVector WorldTargetLocation = VectorList[TargetIndex]; // In cm
 

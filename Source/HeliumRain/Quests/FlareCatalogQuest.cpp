@@ -141,7 +141,7 @@ TArray<UFlareQuestCondition*> UFlareCatalogQuest::GenerateCatalogCondition(const
 			Conditions.Add(UFlareQuestConditionMaxRotationVelocity::Create(this, FVector(1,0,0), ConditionDescription.FloatParam1));
 			break;
 		case EFlareQuestCondition::SHIP_FOLLOW_RELATIVE_WAYPOINTS:
-			Conditions.Add(UFlareQuestConditionFollowRelativeWaypoints::Create(this, ConditionDescription.ConditionIdentifier, ConditionDescription.VectorListParam));
+			Conditions.Add(UFlareQuestConditionFollowRelativeWaypoints::Create(this, ConditionDescription.ConditionIdentifier, ConditionDescription.VectorListParam, ConditionDescription.BoolParam1));
 			break;
 		case EFlareQuestCondition::SHIP_ALIVE:
 			Conditions.Add(UFlareQuestConditionShipAlive::Create(this, ConditionDescription.Identifier1));

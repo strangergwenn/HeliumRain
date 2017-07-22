@@ -21,6 +21,7 @@ static FName INITIAL_CAPTURING_STATIONS_TAG("initial-capturing-stations");
 static FName CURRENT_PROGRESSION_TAG("current-progression");
 static FName INITIAL_TRANSFORM_TAG("initial-transform");
 static FName WAYPOINTS_TAG("waypoints");
+static FName REQUIRES_SCAN_TAG("requires-scan");
 
 
 /*----------------------------------------------------
@@ -1049,20 +1050,21 @@ void UFlareQuestConditionQuestFailed::AddConditionObjectives(FFlarePlayerObjecti
 ----------------------------------------------------*/
 
 #define WAYPOINTS_RADIUS 5000
+#define SCANNER_RADIUS 10000
 
 UFlareQuestConditionFollowRelativeWaypoints::UFlareQuestConditionFollowRelativeWaypoints(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
-UFlareQuestConditionFollowRelativeWaypoints* UFlareQuestConditionFollowRelativeWaypoints::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, TArray<FVector> VectorListParam)
+UFlareQuestConditionFollowRelativeWaypoints* UFlareQuestConditionFollowRelativeWaypoints::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, TArray<FVector> VectorListParam, bool RequiresScan)
 {
 	UFlareQuestConditionFollowRelativeWaypoints*Condition = NewObject<UFlareQuestConditionFollowRelativeWaypoints>(ParentQuest, UFlareQuestConditionFollowRelativeWaypoints::StaticClass());
-	Condition->Load(ParentQuest, ConditionIdentifier, VectorListParam);
+	Condition->Load(ParentQuest, ConditionIdentifier, VectorListParam, RequiresScan);
 	return Condition;
 }
 
-void UFlareQuestConditionFollowRelativeWaypoints::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, TArray<FVector> VectorListParam)
+void UFlareQuestConditionFollowRelativeWaypoints::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, TArray<FVector> VectorListParam, bool RequiresScan)
 {
 	if (ConditionIdentifier == NAME_None)
 	{
@@ -1071,7 +1073,16 @@ void UFlareQuestConditionFollowRelativeWaypoints::Load(UFlareQuest* ParentQuest,
 	LoadInternal(ParentQuest, ConditionIdentifier);
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 	VectorList = VectorListParam;
-	InitialLabel = LOCTEXT("FollowWaypoints", "Fly to waypoints");
+	TargetRequiresScan = RequiresScan;
+
+	if (RequiresScan)
+	{
+		InitialLabel = LOCTEXT("ScanWaypoints", "Analyze signals");
+	}
+	else
+	{
+		InitialLabel = LOCTEXT("FollowWaypoints", "Fly to waypoints");
+	}
 }
 
 void UFlareQuestConditionFollowRelativeWaypoints::Restore(const FFlareBundle* Bundle)
@@ -1092,6 +1103,7 @@ void UFlareQuestConditionFollowRelativeWaypoints::Restore(const FFlareBundle* Bu
 		IsInit = true;
 		CurrentProgression = Bundle->GetInt32(CURRENT_PROGRESSION_TAG);
 		InitialTransform = Bundle->GetTransform(INITIAL_TRANSFORM_TAG);
+		TargetRequiresScan = Bundle->GetInt32(REQUIRES_SCAN_TAG) == 1;
 	}
 	else
 	{
@@ -1105,6 +1117,7 @@ void UFlareQuestConditionFollowRelativeWaypoints::Save(FFlareBundle* Bundle)
 	if (IsInit)
 	{
 		Bundle->PutInt32(CURRENT_PROGRESSION_TAG, CurrentProgression);
+		Bundle->PutInt32(REQUIRES_SCAN_TAG, TargetRequiresScan ? 1 : 0);
 		Bundle->PutTransform(INITIAL_TRANSFORM_TAG, InitialTransform);
 	}
 }
@@ -1137,25 +1150,46 @@ bool UFlareQuestConditionFollowRelativeWaypoints::IsCompleted()
 		FVector RelativeTargetLocation = VectorList[CurrentProgression] * 100;
 		FVector WorldTargetLocation = InitialLocation + InitialTransform.GetRotation().RotateVector(RelativeTargetLocation);
 
-		float MaxDistance = WAYPOINTS_RADIUS;
+		float MaxDistance = TargetRequiresScan ? SCANNER_RADIUS : WAYPOINTS_RADIUS;
 
-		if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
+		// Waypoint completion logic
+		bool HasCompletedWaypoint = false;
+		if (TargetRequiresScan)
+		{
+			if (Spacecraft->IsScanningFinished())
+			{
+				HasCompletedWaypoint = true;
+			}
+		}
+		else if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
+		{
+			HasCompletedWaypoint = true;
+		}
+
+		if (HasCompletedWaypoint)
 		{
 			// Nearing the target
 			if (CurrentProgression + 2 <= VectorList.Num())
 			{
-				// Progress.
 				CurrentProgression++;
 
-				FText WaypointText = LOCTEXT("WaypointProgress", "Waypoint reached, {0} left");
+				FText WaypointText;
+				if (TargetRequiresScan)
+				{
+					WaypointText = LOCTEXT("ScanProgress", "Signal analyzed, {0} left");
+				}
+				else
+				{
+					WaypointText = LOCTEXT("WaypointProgress", "Waypoint reached, {0} left");
+				}
 
 				Quest->SendQuestNotification(FText::Format(WaypointText, FText::AsNumber(VectorList.Num() - CurrentProgression)),
-									  FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")),
-											 false);
+					FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")),
+					false);
 			}
 			else
 			{
-				// All waypoint reach
+				// All waypoints reached
 				return true;
 			}
 		}
@@ -1183,9 +1217,10 @@ void UFlareQuestConditionFollowRelativeWaypoints::AddConditionObjectives(FFlareP
 			continue;
 		}
 		FFlarePlayerObjectiveTarget ObjectiveTarget;
+		ObjectiveTarget.RequiresScan = TargetRequiresScan;
 		ObjectiveTarget.Actor = NULL;
 		ObjectiveTarget.Active = (CurrentProgression == TargetIndex);
-		ObjectiveTarget.Radius = WAYPOINTS_RADIUS;
+		ObjectiveTarget.Radius = TargetRequiresScan ? SCANNER_RADIUS : WAYPOINTS_RADIUS;
 
 		FVector InitialLocation = InitialTransform.GetTranslation();
 		FVector RelativeTargetLocation = VectorList[TargetIndex] * 100; // In cm
@@ -1206,14 +1241,14 @@ UFlareQuestConditionFollowRandomWaypoints::UFlareQuestConditionFollowRandomWaypo
 {
 }
 
-UFlareQuestConditionFollowRandomWaypoints* UFlareQuestConditionFollowRandomWaypoints::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier)
+UFlareQuestConditionFollowRandomWaypoints* UFlareQuestConditionFollowRandomWaypoints::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, bool RequiresScan)
 {
 	UFlareQuestConditionFollowRandomWaypoints*Condition = NewObject<UFlareQuestConditionFollowRandomWaypoints>(ParentQuest, UFlareQuestConditionFollowRandomWaypoints::StaticClass());
-	Condition->Load(ParentQuest, ConditionIdentifier);
+	Condition->Load(ParentQuest, ConditionIdentifier, RequiresScan);
 	return Condition;
 }
 
-void UFlareQuestConditionFollowRandomWaypoints::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier)
+void UFlareQuestConditionFollowRandomWaypoints::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, bool RequiresScan)
 {
 	if (ConditionIdentifier == NAME_None)
 	{
@@ -1221,7 +1256,16 @@ void UFlareQuestConditionFollowRandomWaypoints::Load(UFlareQuest* ParentQuest, F
 	}
 	LoadInternal(ParentQuest, ConditionIdentifier);
 	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
-	InitialLabel = LOCTEXT("FollowWaypoints", "Fly to waypoints");
+	TargetRequiresScan = RequiresScan;
+
+	if (RequiresScan)
+	{
+		InitialLabel = LOCTEXT("ScanWaypoints", "Analyze signals");
+	}
+	else
+	{
+		InitialLabel = LOCTEXT("FollowWaypoints", "Fly to waypoints");
+	}
 }
 
 void UFlareQuestConditionFollowRandomWaypoints::Restore(const FFlareBundle* Bundle)
@@ -1242,6 +1286,7 @@ void UFlareQuestConditionFollowRandomWaypoints::Restore(const FFlareBundle* Bund
 		IsInit = true;
 		CurrentProgression = Bundle->GetInt32(CURRENT_PROGRESSION_TAG);
 		Waypoints = Bundle->GetVectorArray(WAYPOINTS_TAG);
+		TargetRequiresScan = Bundle->GetInt32(REQUIRES_SCAN_TAG) == 1;
 	}
 	else
 	{
@@ -1255,6 +1300,7 @@ void UFlareQuestConditionFollowRandomWaypoints::Save(FFlareBundle* Bundle)
 	if (IsInit)
 	{
 		Bundle->PutInt32(CURRENT_PROGRESSION_TAG, CurrentProgression);
+		Bundle->PutInt32(REQUIRES_SCAN_TAG, TargetRequiresScan ? 1 : 0);
 		Bundle->PutVectorArray(WAYPOINTS_TAG, Waypoints);
 	}
 }
@@ -1300,32 +1346,52 @@ bool UFlareQuestConditionFollowRandomWaypoints::IsCompleted()
 	if (Spacecraft)
 	{
 		Init();
-		if(Waypoints.Num() == 0)
+		if (Waypoints.Num() == 0)
 		{
 			return true;
 		}
 
 		FVector WorldTargetLocation = Waypoints[CurrentProgression] * 100;
+		float MaxDistance = TargetRequiresScan ? SCANNER_RADIUS : WAYPOINTS_RADIUS;
 
-		float MaxDistance = WAYPOINTS_RADIUS;
+		// Waypoint completion logic
+		bool HasCompletedWaypoint = false;
+		if (TargetRequiresScan)
+		{
+			if (Spacecraft->IsScanningFinished())
+			{
+				HasCompletedWaypoint = true;
+			}
+		}
+		else if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
+		{
+			HasCompletedWaypoint = true;
+		}
 
-		if (FVector::Dist(Spacecraft->GetActorLocation(), WorldTargetLocation) < MaxDistance)
+		if (HasCompletedWaypoint)
 		{
 			// Nearing the target
 			if (CurrentProgression + 2 <= Waypoints.Num())
 			{
-				// Progress.
 				CurrentProgression++;
 
-				FText WaypointText = LOCTEXT("WaypointProgress", "Waypoint reached, {0} left");
+				FText WaypointText;
+				if (TargetRequiresScan)
+				{
+					WaypointText = LOCTEXT("ScanProgress", "Signal analyzed, {0} left");
+				}
+				else
+				{
+					WaypointText = LOCTEXT("WaypointProgress", "Waypoint reached, {0} left");
+				}
 
 				Quest->SendQuestNotification(FText::Format(WaypointText, FText::AsNumber(Waypoints.Num() - CurrentProgression)),
-									  FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")),
-											 false);
+					FName(*(FString("quest-")+GetIdentifier().ToString()+"-step-progress")),
+					false);
 			}
 			else
 			{
-				// All waypoint reach
+				// All waypoints reached
 				return true;
 			}
 		}
@@ -1353,9 +1419,10 @@ void UFlareQuestConditionFollowRandomWaypoints::AddConditionObjectives(FFlarePla
 			continue;
 		}
 		FFlarePlayerObjectiveTarget ObjectiveTarget;
+		ObjectiveTarget.RequiresScan = TargetRequiresScan;
 		ObjectiveTarget.Actor = NULL;
 		ObjectiveTarget.Active = (CurrentProgression == TargetIndex);
-		ObjectiveTarget.Radius = WAYPOINTS_RADIUS;
+		ObjectiveTarget.Radius = TargetRequiresScan ? SCANNER_RADIUS : WAYPOINTS_RADIUS;
 
 		FVector WorldTargetLocation = Waypoints[TargetIndex] * 100; // In cm
 

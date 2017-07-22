@@ -458,8 +458,8 @@ class HELIUMRAIN_API UFlareQuestConditionFollowRelativeWaypoints: public UFlareQ
 
 public:
 
-	static UFlareQuestConditionFollowRelativeWaypoints* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, TArray<FVector> VectorListParam);
-	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, TArray<FVector> VectorListParam);
+	static UFlareQuestConditionFollowRelativeWaypoints* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, TArray<FVector> VectorListParam, bool RequiresScan);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, TArray<FVector> VectorListParam, bool RequiresScan);
 	virtual void Restore(const FFlareBundle* Bundle);
 	virtual void Save(FFlareBundle* Bundle);
 
@@ -473,6 +473,8 @@ protected:
 	TArray<FVector> VectorList;
 
 	bool IsInit;
+	bool TargetRequiresScan;
+
 	int32 CurrentProgression;
 	FTransform InitialTransform;
 };
@@ -486,8 +488,8 @@ class HELIUMRAIN_API UFlareQuestConditionFollowRandomWaypoints: public UFlareQue
 
 public:
 
-	static UFlareQuestConditionFollowRandomWaypoints* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier);
-	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier);
+	static UFlareQuestConditionFollowRandomWaypoints* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, bool RequiresScan);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, bool RequiresScan);
 	virtual void Restore(const FFlareBundle* Bundle);
 	virtual void Save(FFlareBundle* Bundle);
 
@@ -505,6 +507,8 @@ protected:
 
 
 	bool IsInit;
+	bool TargetRequiresScan;
+
 	TArray<FVector> Waypoints;
 	int32 CurrentProgression;
 };

@@ -86,6 +86,9 @@ struct FFlareQuestConditionDescription
 	float FloatParam1;
 
 	UPROPERTY(EditAnywhere, Category = Quest)
+	bool BoolParam1;
+
+	UPROPERTY(EditAnywhere, Category = Quest)
 	TArray<float> FloatListParam;
 
 	UPROPERTY(EditAnywhere, Category = Quest)

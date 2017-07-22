@@ -67,8 +67,8 @@ class HELIUMRAIN_API UFlareQuestConditionWaypoints: public UFlareQuestCondition
 
 public:
 
-	static UFlareQuestConditionWaypoints* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam);
-	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam);
+	static UFlareQuestConditionWaypoints* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan);
 	virtual void Restore(const FFlareBundle* Bundle);
 	virtual void Save(FFlareBundle* Bundle);
 
@@ -82,6 +82,8 @@ protected:
 	TArray<FVector> VectorList;
 
 	bool IsInit;
+	bool TargetRequiresScan;
+
 	int32 CurrentProgression;
 	UFlareSimulatedSector* TargetSector;
 };
