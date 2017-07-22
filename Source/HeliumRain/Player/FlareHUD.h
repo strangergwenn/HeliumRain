@@ -164,6 +164,9 @@ protected:
 	/** Draw a line */
 	void FlareDrawLine(FVector2D Start, FVector2D End, FLinearColor Color);
 
+	/** Draw a progress bar */
+	void FlareDrawProgressBar(FVector2D Position, int BarWidth, FLinearColor Color, float Ratio);
+
 	/** Get an alpha fade to avoid overdrawing two objects */
 	float GetFadeAlpha(FVector2D A, FVector2D B);
 
@@ -273,6 +276,9 @@ protected:
 	FVector2D                               RightInstrument;
 	FVector2D                               InstrumentSize;
 	FVector2D                               InstrumentLine;
+	int                                     SmallProgressBarSize;
+	int                                     LargeProgressBarSize;
+	int                                     ProgressBarHeight;
 	
 	// Slate menus
 	TSharedPtr<SFlareHUDMenu>               HUDMenu;

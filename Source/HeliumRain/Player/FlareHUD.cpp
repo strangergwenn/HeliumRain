@@ -141,6 +141,9 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	RightInstrument = FVector2D(30, 320);
 	InstrumentSize =  FVector2D(380, 115);
 	InstrumentLine =  FVector2D(0, 20);
+	SmallProgressBarSize = 50;
+	LargeProgressBarSize = 150;
+	ProgressBarHeight = 12;
 	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 }
 
@@ -603,7 +606,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 
 			// Final strings
 			TitleText = CurrentWeaponGroup->Description->Name;
-			InfoText = FText::Format(LOCTEXT("WeaponInfoFormat", "{0}: {1}%"),
+			InfoText = FText::Format(LOCTEXT("WeaponInfoFormat", "{0}, {1}% OK"),
 				FText::Format(LOCTEXT("Rounds", "{0} rounds"), FText::AsNumber(RemainingAmmo)),
 				FText::AsNumber((int32)(100 * ComponentHealth)));
 		}
@@ -611,7 +614,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		{
 			TitleText = DisarmText;
 		}
-
+		
 		// Draw text
 		FlareDrawText(TitleText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
 		CurrentPos += 2 * InstrumentLine;
@@ -631,14 +634,19 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		for (int32 i = WeaponGroupList.Num() - 1; i >= 0; i--)
 		{
 			float WeaponHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(i);
-			FText WeaponText = FText::Format(LOCTEXT("WeaponListInfoFormat", "{0}. {1}: {2}%"),
-				FText::AsNumber(i + 2), 
-				WeaponGroupList[i]->Description->Name,
-				FText::AsNumber((int32)(100 * WeaponHealth)));
-			FString WeaponString = ((i == CurrentWeapongroupIndex) ? FString("> ") : FString("   ")) + WeaponText.ToString();
+			FString WeaponIndexString = ((i == CurrentWeapongroupIndex) ? FString("> ") : FString("   ")) + FString::FromInt(i + 2);
+			FText WeaponText = WeaponGroupList[i]->Description->Name;
 
+			// Layout
 			HealthColor = GetHealthColor(WeaponHealth);
-			FlareDrawText(WeaponString, CurrentPos, HealthColor, false);
+			int IndexSize = 35;
+			FVector2D TextPosition = CurrentPos + FVector2D(IndexSize + SmallProgressBarSize + 10, 0);
+			FVector2D BarPosition = CurrentPos + FVector2D(IndexSize, 1 + (InstrumentLine.Y - ProgressBarHeight) / 2);
+
+			// Draw
+			FlareDrawText(WeaponIndexString, CurrentPos, HealthColor, false);
+			FlareDrawText(WeaponText.ToString(), TextPosition, HealthColor, false);
+			FlareDrawProgressBar(BarPosition, SmallProgressBarSize, HealthColor, WeaponHealth);
 			CurrentPos += InstrumentLine;
 		}
 
@@ -812,17 +820,15 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVector2D& Position)
 {
 	UFlareSimulatedSpacecraftDamageSystem* DamageSystem = MenuManager->GetPC()->GetShipPawn()->GetParent()->GetDamageSystem();
-
-	FText SystemText = FText::Format(LOCTEXT("SubsystemInfoFormat", "{0}: {1}%"),
-		UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName(Subsystem),
-		FText::AsNumber((int32)(100 * DamageSystem->GetSubsystemHealth(Subsystem))));
-	
+	FText SystemText = UFlareSimulatedSpacecraftDamageSystem::GetSubsystemName(Subsystem);
+		
 	// Drawing data
 	UTexture2D* Icon = NULL;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor NormalColor = Theme.FriendlyColor;
 	FLinearColor DamageColor = Theme.EnemyColor;
 	FLinearColor Color = NormalColor;
+	bool HideProgressBar = false;
 
 	// Icon
 	switch (Subsystem)
@@ -831,28 +837,33 @@ void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVecto
 			Icon = HUDPropulsionIcon;
 			Color = DamageSystem->IsStranded() ? DamageColor : NormalColor;
 			SystemText = DamageSystem->IsStranded() ? LOCTEXT("CockpitStranded", "STRANDED") : SystemText;
+			HideProgressBar = DamageSystem->IsStranded();
 			break;
 
 		case EFlareSubsystem::SYS_RCS:
 			Icon = HUDRCSIcon;
 			Color = DamageSystem->IsUncontrollable() ? DamageColor : NormalColor;
 			SystemText = DamageSystem->IsUncontrollable() ? LOCTEXT("CockpitUncontrollable", "UNCONTROLLABLE") : SystemText;
+			HideProgressBar = DamageSystem->IsUncontrollable();
 			break;
 
 		case EFlareSubsystem::SYS_Weapon:
 			Icon = HUDWeaponIcon;
 			Color = DamageSystem->IsDisarmed() ? DamageColor : NormalColor;
 			SystemText = DamageSystem->IsDisarmed() ? LOCTEXT("CockpitDisarmed", "DISARMED") : SystemText;
+			HideProgressBar = DamageSystem->IsDisarmed();
 			break;
 
 		case EFlareSubsystem::SYS_Temperature:
 			Icon = HUDTemperatureIcon;
+			Color = (DamageSystem->GetSubsystemHealth(Subsystem) < 0.3f) ? DamageColor : NormalColor;
 			break;
 
 		case EFlareSubsystem::SYS_Power:
 			Icon = HUDPowerIcon;
 			Color = DamageSystem->HasPowerOutage() ? DamageColor : NormalColor;
 			SystemText = DamageSystem->HasPowerOutage() ? LOCTEXT("CockpitOutage", "POWER OUTAGE") : SystemText;
+			HideProgressBar = DamageSystem->HasPowerOutage();
 			break;
 
 		case EFlareSubsystem::SYS_LifeSupport:
@@ -860,11 +871,24 @@ void AFlareHUD::DrawCockpitSubsystemInfo(EFlareSubsystem::Type Subsystem, FVecto
 			break;
 	}
 
-	// Draw
+	// Layout
 	float CockpitIconSize = 20;
-	DrawHUDIcon(Position, CockpitIconSize, Icon, Color);
-	FlareDrawText(SystemText.ToString(), Position + FVector2D(1.5 * CockpitIconSize, 0), Color, false);
+	FVector2D IconPosition = Position;
+	FVector2D BarPosition = Position + FVector2D(1.5 * CockpitIconSize, 1 + (InstrumentLine.Y - ProgressBarHeight) / 2);
+	FVector2D TextPosition = Position + FVector2D(1.5 * CockpitIconSize + SmallProgressBarSize + 10, 0);
+	if (HideProgressBar)
+	{
+		TextPosition = Position + FVector2D(1.5 * CockpitIconSize, 0);
+	}
 	Position += InstrumentLine;
+
+	// Draw
+	DrawHUDIcon(IconPosition, CockpitIconSize, Icon, Color);
+	if (!HideProgressBar)
+	{
+		FlareDrawProgressBar(BarPosition, SmallProgressBarSize, Color, DamageSystem->GetSubsystemHealth(Subsystem));
+	}
+	FlareDrawText(SystemText.ToString(), TextPosition, Color, false);
 }
 
 
@@ -1776,6 +1800,25 @@ void AFlareHUD::FlareDrawLine(FVector2D Start, FVector2D End, FLinearColor Color
 		LineItem.LineThickness = 1.0f;
 		CurrentCanvas->DrawItem(LineItem);
 	}
+}
+
+void AFlareHUD::FlareDrawProgressBar(FVector2D Position, int BarWidth, FLinearColor Color, float Ratio)
+{
+	int BarMargin = 3;
+
+	FVector2D ProgressBarPos = Position + FVector2D(BarMargin + 1, BarMargin + 1);
+	FVector2D ProgressBarSize = FVector2D(Ratio * (BarWidth - 2 - BarMargin * 2), ProgressBarHeight - 2 * BarMargin - 2);
+
+	// Draw border
+	FCanvasBoxItem BarItem(Position, FVector2D(BarWidth, ProgressBarHeight));
+	BarItem.BlendMode = FCanvas::BlendToSimpleElementBlend(EBlendMode::BLEND_Translucent);
+	BarItem.SetColor(Color);
+	CurrentCanvas->DrawItem(BarItem);
+	
+	// Draw progress bar
+	FCanvasTileItem ProgressBarItem(ProgressBarPos, ProgressBarSize, Color);
+	ProgressBarItem.BlendMode = FCanvas::BlendToSimpleElementBlend(EBlendMode::BLEND_Translucent);
+	CurrentCanvas->DrawItem(ProgressBarItem);
 }
 
 void AFlareHUD::FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY, float ScreenW, float ScreenH, float TextureU, float TextureV, float TextureUWidth, float TextureVHeight, FLinearColor Color, EBlendMode BlendMode, float Scale, bool bScalePosition, float Rotation, FVector2D RotPivot)
