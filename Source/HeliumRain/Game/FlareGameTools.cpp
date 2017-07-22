@@ -1702,27 +1702,31 @@ FVector UFlareGameTools::ColorToVector(FLinearColor Color)
 	return FVector(Color.R,Color.G,Color.B);
 }
 
-FString UFlareGameTools::FormatTime(int64 Time, int Deep)
+FText UFlareGameTools::FormatTime(int64 Time, int Deep)
 {
 	if (Time < SECONDS_IN_MINUTE)
 	{
-		return FString::FromInt(Time) + (Time > 2 ? FString(LOCTEXT("seconds", " seconds").ToString()) : FString(LOCTEXT("second", " second").ToString()));
+		return FText::Format(LOCTEXT("FormatSecondConcat", "{0} {1}"),
+							 FText::AsNumber(Time),
+							 Time > 1 ? LOCTEXT("FormatSeconds", "seconds") : LOCTEXT("FormatSecond", "second"));
 	}
 	else if (Time < SECONDS_IN_HOUR)
 	{
 		int64 Minutes = Time / SECONDS_IN_MINUTE;
 		int64 RemainingSeconds = Time % SECONDS_IN_MINUTE;
 
-		FString MinutesString;
+		FText MinutesString;
 
 		if (Minutes > 0)
 		{
-			MinutesString += FString::FromInt(Minutes) + (Minutes > 2 ? FString(LOCTEXT("minutes", " minutes").ToString()) : FString(LOCTEXT("minute", " minute").ToString()));
+			MinutesString = FText::Format(LOCTEXT("FormatMinuteConcat", "{0} {1}"),
+										 FText::AsNumber(Minutes),
+										 Minutes > 1 ? LOCTEXT("FormatMinutes", "minutes") : LOCTEXT("FormatMinute", "minute"));
 		}
 
 		if (Deep > 0 && RemainingSeconds > 0)
 		{
-			MinutesString += FString(" ") + FormatTime(RemainingSeconds, Deep - 1);
+			MinutesString = FText::Format(LOCTEXT("FormatMinuteConcat2", " {0} {1}"), MinutesString, FormatTime(RemainingSeconds, Deep - 1));
 		}
 
 		return MinutesString;
@@ -1733,16 +1737,18 @@ FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 		int64 RemainingSeconds = Time % SECONDS_IN_HOUR;
 		int64 RemainingMinutes = RemainingSeconds / SECONDS_IN_MINUTE;
 
-		FString HoursString;
+		FText HoursString;
 
 		if (Hours > 0)
 		{
-			HoursString += FString::FromInt(Hours) + (Hours > 2 ? FString(LOCTEXT("hours", " hours").ToString()) : FString(LOCTEXT("hour", " hour").ToString()));
+			HoursString = FText::Format(LOCTEXT("FormatHourConcat", "{0} {1}"),
+										 FText::AsNumber(Hours),
+										 Hours > 1 ? LOCTEXT("FormatHours", "hours") : LOCTEXT("FormatHour", "hour"));
 		}
 
 		if (Deep > 0 && RemainingMinutes > 0)
 		{
-			HoursString += FString(" ") + FormatTime(RemainingSeconds, Deep - 1);
+			HoursString = FText::Format(LOCTEXT("FormatHourConcat2", " {0} {1}"), HoursString, FormatTime(RemainingSeconds, Deep - 1));
 		}
 
 		return HoursString;
@@ -1753,16 +1759,18 @@ FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 		int64 RemainingSeconds = Time % SECONDS_IN_DAY;
 		int64 RemainingHours = RemainingSeconds / SECONDS_IN_HOUR;
 
-		FString DaysString;
+		FText DaysString;
 
 		if (Days > 0)
 		{
-			DaysString += FString::FromInt(Days) + (Days > 2 ? FString(LOCTEXT("days", " days").ToString()) : FString(LOCTEXT("day", " day").ToString()));
+			DaysString = FText::Format(LOCTEXT("FormatDayConcat", "{0} {1}"),
+										 FText::AsNumber(Days),
+										 Days > 1 ? LOCTEXT("FormatDays", "days") : LOCTEXT("FormatDay", "day"));
 		}
 
 		if (Deep > 0 && RemainingHours > 0)
 		{
-			DaysString += FString(" ") + FormatTime(RemainingSeconds, Deep - 1);
+			DaysString = FText::Format(LOCTEXT("FormatDayConcat2", " {0} {1}"), DaysString, FormatTime(RemainingSeconds, Deep - 1));
 		}
 
 		return DaysString;
@@ -1773,23 +1781,25 @@ FString UFlareGameTools::FormatTime(int64 Time, int Deep)
 		int64 RemainingSeconds = Time % SECONDS_IN_YEAR;
 		int64 RemainingDays = RemainingSeconds / SECONDS_IN_DAY;
 
-		FString YearsString;
+		FText YearsString;
 
 		if (Years > 0)
 		{
-			YearsString += FString::FromInt(Years) + (Years > 2 ? FString(LOCTEXT("years", " years").ToString()) : FString(LOCTEXT("year", " year").ToString()));
+			YearsString = FText::Format(LOCTEXT("FormatYearConcat", "{0} {1}"),
+										 FText::AsNumber(Years),
+										 Years > 1 ? LOCTEXT("FormatYears", "years") : LOCTEXT("FormatYear", "year"));
 		}
 
 		if (Deep > 0 && RemainingDays > 0)
 		{
-			YearsString += FString(" ") + FormatTime(RemainingSeconds, Deep - 1);
+			YearsString = FText::Format(LOCTEXT("FormatYearConcat2", " {0} {1}"), YearsString, FormatTime(RemainingSeconds, Deep - 1));
 		}
 
 		return YearsString;
 	}
 }
 
-FString UFlareGameTools::FormatDate(int64 Days, int Deep)
+FText UFlareGameTools::FormatDate(int64 Days, int Deep)
 {
 	if (Days < DAYS_IN_YEAR)
 	{
@@ -1797,23 +1807,27 @@ FString UFlareGameTools::FormatDate(int64 Days, int Deep)
 		{
 			Days = 1;
 		}
-		return FString::FromInt(Days) + (Days > 1 ? FString(LOCTEXT("days", " days").ToString()) : FString(LOCTEXT("day", " day").ToString()));
+		return FText::Format(LOCTEXT("FormatDateDaysConcat", "{0} {1}"),
+												 FText::AsNumber(Days),
+												 Days > 1 ? LOCTEXT("FormatDateDays", "days") : LOCTEXT("FormatDateDay", "day"));
 	}
 	else
 	{
 		int64 Years = Days / DAYS_IN_YEAR;
 		int64 RemainingDays = Days % DAYS_IN_YEAR;
 
-		FString YearsString;
+		FText YearsString;
 
 		if (Years > 0)
 		{
-			YearsString += FString::FromInt(Years) + (Years > 2 ? FString(LOCTEXT("years", " years").ToString()) : FString(LOCTEXT("year", " year").ToString()));
+			YearsString = FText::Format(LOCTEXT("FormatDateYearConcat", "{0} {1}"),
+										 FText::AsNumber(Years),
+										 Years > 1 ? LOCTEXT("FormatDateYears", "years") : LOCTEXT("FormatDateYear", "year"));
 		}
 
 		if (Deep > 0 && RemainingDays > 0)
 		{
-			YearsString += FString(" ") + FormatDate(RemainingDays, Deep - 1);
+			YearsString = FText::Format(LOCTEXT("FormatDateYearConcat2", " {0} {1}"), YearsString, FormatDate(RemainingDays, Deep - 1));
 		}
 
 		return YearsString;
@@ -1824,10 +1838,9 @@ FText UFlareGameTools::GetDisplayDate(int64 Days)
 {
 	int64 Years = START_YEAR + (Days / DAYS_IN_YEAR);
 	int64 RemainingDays = Days % DAYS_IN_YEAR;
-	FString YearsString;
 
 	return FText::Format(LOCTEXT("DateFormat", "year {0}, day {1}"),
-		FText::FromString(FString::FromInt(Years + 1)),
+		FText::AsNumber(Years + 1),
 		FText::AsNumber(RemainingDays + 1));
 }
 

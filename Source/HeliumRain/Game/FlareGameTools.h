@@ -279,9 +279,9 @@ public:
 
 	static FVector ColorToVector(FLinearColor Color);
 
-	static FString FormatTime(int64 Time, int Deep);
+	static FText FormatTime(int64 Time, int Deep);
 
-	static FString FormatDate(int64 Date, int Deep);
+	static FText FormatDate(int64 Date, int Deep);
 
 	static FText GetDisplayDate(int64 Days);
 

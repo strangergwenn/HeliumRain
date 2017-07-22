@@ -655,8 +655,6 @@ void UFlareQuestGenerated::SetupGenericReward(const FFlareBundle& Data)
 /*----------------------------------------------------
 	Generated VIP transport quest
 ----------------------------------------------------*/
-#undef QUEST_TAG
-#define QUEST_TAG "GeneratedVipTransport"
 UFlareQuestGeneratedVipTransport::UFlareQuestGeneratedVipTransport(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -814,8 +812,6 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 	FName PickUpShipId = "pick-up-ship-id";
 
 	{
-		#undef QUEST_STEP_TAG
-		#define QUEST_STEP_TAG QUEST_TAG"PickUp"
 		FText Description = FText::Format(LOCTEXT("PickUpDescription", "Pick {0} up at {1} in {2}"), VIPName, UFlareGameTools::DisplaySpacecraftName(Station1), FText::FromString(Sector1->GetSectorName().ToString()));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pick-up", Description);
 
@@ -830,8 +826,6 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 	}
 
 	{
-		#undef QUEST_STEP_TAG
-		#define QUEST_STEP_TAG QUEST_TAG"Drop-off"
 		FText Description = FText::Format(LOCTEXT("Drop-offDescription", "Drop {0} off at {1} in {2}"), VIPName, UFlareGameTools::DisplaySpacecraftName(Station2), FText::FromString(Sector2->GetSectorName().ToString()));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "drop-off", Description);
 
@@ -859,8 +853,7 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 /*----------------------------------------------------
 	Generated resource sale quest
 ----------------------------------------------------*/
-#undef QUEST_TAG
-#define QUEST_TAG "GeneratedResourceSale"
+
 UFlareQuestGeneratedResourceSale::UFlareQuestGeneratedResourceSale(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -1036,7 +1029,7 @@ void UFlareQuestGeneratedResourceSale::Load(UFlareQuestGenerator* Parent, const 
 										  FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(Station), Sector->GetSectorName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "buy", Description);
 
-		UFlareQuestConditionBuyAtStation* Condition = UFlareQuestConditionBuyAtStation::Create(this, QUEST_TAG"cond1", Station, Resource, Quantity);
+		UFlareQuestConditionBuyAtStation* Condition = UFlareQuestConditionBuyAtStation::Create(this, "cond1", Station, Resource, Quantity);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
@@ -1469,9 +1462,9 @@ void UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const
 	}
 	else
 	{
-		QuestName = FText::Format(LOCTEXT(QUEST_TAG"NameDistant","{0} trade to {1}"), Resource->Name,
+		QuestName = FText::Format(LOCTEXT("NameDistant","{0} trade to {1}"), Resource->Name,
 								  Sector2->GetSectorName());
-		QuestDescription = FText::Format(LOCTEXT(QUEST_TAG"DescriptionDistantFormat","Trade {0} {1} from {2} to {3}."),
+		QuestDescription = FText::Format(LOCTEXT("DescriptionDistantFormat","Trade {0} {1} from {2} to {3}."),
 									 FText::AsNumber(Quantity), Resource->Name,
 										 Sector1->GetSectorName(), Sector2->GetSectorName());
 	}
@@ -1851,7 +1844,7 @@ void UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FF
 		Description = FText::Format(LOCTEXT("GeneratedJoinAttackDescriptionBringForce", "Attack {0} with at least {1} combat value on {2}"),
 			Sector->GetSectorName(),
 			FText::AsNumber(ArmyCombatPoints ),
-			UFlareGameTools::GetDisplayDate(AttackDate + 1)); // FString needed here
+			UFlareGameTools::GetDisplayDate(AttackDate + 1));
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
 		{
@@ -2059,7 +2052,7 @@ void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const
 		Description = FText::Format(LOCTEXT("GeneratedSectorDefenseDescriptionBringForce", "Attack {0} with at least {1} combat value on {2}"),
 			Sector->GetSectorName(),
 			FText::AsNumber(ArmyCombatPoints),
-			UFlareGameTools::GetDisplayDate(AttackDate + 1)); // FString needed here
+			UFlareGameTools::GetDisplayDate(AttackDate + 1));
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
 		{

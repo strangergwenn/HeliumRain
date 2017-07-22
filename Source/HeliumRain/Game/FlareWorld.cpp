@@ -1866,7 +1866,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 			FText TravelText;
 			FText TravelPartText = FText::Format(LOCTEXT("ThreatTextTravelPart", "Traveling to {0} ({1} left)"),
 					Sector->GetSectorName(),
-					FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1)));
+					UFlareGameTools::FormatDate(RemainingDuration, 1));
 
 
 
@@ -1966,7 +1966,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 					{
 						ProductionText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "\u2022 {0} ordered ({1} left)"),
 						OrderDesc->Name,
-						FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
+						UFlareGameTools::FormatDate(ProductionTime, 2));
 					}
 
 					FFlareIncomingEvent ProductionEvent;
@@ -1992,7 +1992,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 					{
 						ProductionText = FText::Format(LOCTEXT("ShipProductionTextFormat", "\u2022 {0} being built ({1} left)"),
 							Game->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name,
-							FText::FromString(*UFlareGameTools::FormatDate(ProductionTime, 2))); // FString needed here
+							UFlareGameTools::FormatDate(ProductionTime, 2));
 					}
 
 					FFlareIncomingEvent ProductionEvent;
@@ -2014,7 +2014,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 		{
 			FFlareIncomingEvent RepairEvent;
 			RepairEvent.Text = FText::Format(LOCTEXT("RepairEventTextFormat", "\u2022 {0} being repaired ({1} left)"),
-												 Fleet->GetFleetName(), FText::FromString(*UFlareGameTools::FormatDate(RepairDuration, 2)));
+												 Fleet->GetFleetName(), UFlareGameTools::FormatDate(RepairDuration, 2));
 			RepairEvent.RemainingDuration = RepairDuration;
 			IncomingEvents.Add(RepairEvent);
 		}
@@ -2023,7 +2023,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 		{
 			FFlareIncomingEvent RefillEvent;
 			RefillEvent.Text = FText::Format(LOCTEXT("RefillEventTextFormat", "\u2022 {0} being refilled ({1} left)"),
-											 Fleet->GetFleetName(), FText::FromString(*UFlareGameTools::FormatDate(RefillDuration, 2)));;
+											 Fleet->GetFleetName(), UFlareGameTools::FormatDate(RefillDuration, 2));;
 			RefillEvent.RemainingDuration = RefillDuration;
 			IncomingEvents.Add(RefillEvent);
 		}

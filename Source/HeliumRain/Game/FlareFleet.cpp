@@ -212,7 +212,7 @@ FText UFlareFleet::GetStatusInfo() const
 		int64 RemainingDuration = CurrentTravel->GetRemainingTravelDuration();
 		return FText::Format(LOCTEXT("TravelTextFormat", "Traveling to {0} ({1} left)"),
 			CurrentTravel->GetDestinationSector()->GetSectorName(),
-			FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 1))); //FString needed here
+			UFlareGameTools::FormatDate(RemainingDuration, 1));
 	}
 	else if (IsTrading())
 	{

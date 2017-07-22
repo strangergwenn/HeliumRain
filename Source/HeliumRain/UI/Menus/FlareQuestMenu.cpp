@@ -226,7 +226,7 @@ void SFlareQuestMenu::FillAvailableQuestList()
 			.AutoWidth()
 			[
 				SNew(SFlareButton)
-				.Width(2.5)
+				.Width(2.7)
 				.Icon(FFlareStyleSet::GetIcon("OK"))
 				.Text(LOCTEXT("AcceptQuest", "Accept"))
 				.HelpText(LOCTEXT("AcceptQuestInfo", "Accept this contract"))

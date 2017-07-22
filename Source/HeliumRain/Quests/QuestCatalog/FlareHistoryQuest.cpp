@@ -48,8 +48,8 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	LoadInternal(Parent);
 
 	Identifier = "pendulum";
-	QuestName = LOCTEXT(QUEST_TAG"Name","Pendulum");
-	QuestDescription = LOCTEXT(QUEST_TAG"Description","Help has been requested to all companies around Nema.");
+	QuestName = LOCTEXT("PendulumName","Pendulum");
+	QuestDescription = LOCTEXT("PendulumDescription","Help has been requested to all companies around Nema.");
 	QuestCategory = EFlareQuestCategory::HISTORY;
 
 	UFlareSimulatedSector* Pendulum = FindSector("pendulum");
@@ -787,7 +787,7 @@ FText UFlareQuestConditionWait::GetInitialLabel()
 
 	int64 RemainingDuration = DateLimit - GetGame()->GetGameWorld()->GetDate();
 
-	return FText::Format(LOCTEXT("RemainingDurationWaitFormat", "{0} remaining"), FText::FromString(*UFlareGameTools::FormatDate(RemainingDuration, 2)));
+	return FText::Format(LOCTEXT("RemainingDurationWaitFormat", "{0} remaining"), UFlareGameTools::FormatDate(RemainingDuration, 2));
 }
 
 

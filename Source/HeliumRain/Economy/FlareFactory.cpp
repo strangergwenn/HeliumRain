@@ -1136,7 +1136,7 @@ FText UFlareFactory::GetFactoryCycleInfo()
 
 	return FText::Format(LOCTEXT("FactoryCycleInfoFormat", "Production cycle : {0} \u2192 {1} in {2}"),
 		ProductionCostText, ProductionOutputText,
-		FText::FromString(*UFlareGameTools::FormatDate(GetProductionTime(GetCycleData()), 2))); // FString needed here
+		UFlareGameTools::FormatDate(GetProductionTime(GetCycleData()), 2));
 }
 
 FText UFlareFactory::GetFactoryStatus()
@@ -1161,13 +1161,13 @@ FText UFlareFactory::GetFactoryStatus()
 				ProductionStatusText = FText::Format(LOCTEXT("ShipProductionInProgressFormat", "Building {0} for {1} ({2}{3})"),
 					Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,
 					GameWorld->FindCompany(GetTargetShipCompany())->GetCompanyName(),
-					FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2)), // FString needed here
+					UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2),
 					HasFreeSpace);
 			}
 			else
 			{
 				ProductionStatusText = FText::Format(LOCTEXT("RegularProductionInProgressFormat", "Producing ({0}{1})"),
-					FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2)), // FString needed here
+					UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2),
 					HasFreeSpace);
 			}
 		}
@@ -1221,7 +1221,7 @@ FText UFlareFactory::GetFactoryStatus()
 	else if (IsPaused())
 	{
 		ProductionStatusText = FText::Format(LOCTEXT("ProductionPaused", "Paused ({0} to completion)"),
-			FText::FromString(*UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2))); // FString needed here
+			UFlareGameTools::FormatDate(GetRemainingProductionDuration(), 2));
 	}
 	else
 	{
