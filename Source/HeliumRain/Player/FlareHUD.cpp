@@ -1404,7 +1404,7 @@ FText AFlareHUD::FormatDistance(float Distance)
 {
 	if (Distance < 1000)
 	{
-		return FText::Format(LOCTEXT("FormatDistanceM", "{0}m"), FText::AsNumber(Distance));
+		return FText::Format(LOCTEXT("FormatDistanceM", "{0}m"), FText::AsNumber(FMath::RoundToFloat(Distance)));
 	}
 	else
 	{
