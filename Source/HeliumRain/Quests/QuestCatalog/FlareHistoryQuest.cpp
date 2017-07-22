@@ -104,7 +104,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Inspect"
-		FText Description = LOCTEXT("InspectDescription","Inspect The Spire in details to gather information about its materials and construction method. Our agent attached some transmitter beacon on the structure to help you to locate interesting points");
+		FText Description = LOCTEXT("InspectDescription","Inspect The Spire in details to gather information about its materials and construction methods. Our agent attached transmitter beacons on the structure to help you locating valuable data.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "inspect-the-spire", Description);
 
