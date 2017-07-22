@@ -371,7 +371,7 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	if (OtherSpacecraft)
 	{
 		//FLOGV(">>>>>>>>>> COLL %s %s", *GetImmatriculation().ToString(), *OtherSpacecraft->GetImmatriculation().ToString());
-		//FLOGV(">>>>>>>>>> DIST %s", *AFlareHUD::FormatDistance( (LOC1 - LOC2).Size() / 100) );
+		//FLOGV(">>>>>>>>>> DIST %s", *AFlareHUD::FormatDistance( (LOC1 - LOC2).Size() / 100).ToString() );
 
 		// The other actor is a spacecraft, check if it's not the station we want to dock to.
 		GetNavigationSystem()->CheckCollisionDocking(OtherSpacecraft);

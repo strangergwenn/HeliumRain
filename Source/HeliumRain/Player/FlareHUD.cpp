@@ -322,7 +322,7 @@ void AFlareHUD::DrawHUD()
 				// Speed indication
 				FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
 				int32 SpeedMS = (ShipSmoothedVelocity.Size() + 10.) / 100.0f;
-				FString VelocityText = FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s");
+				FText VelocityText = FText::FromString(FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s"));
 				FlareDrawText(VelocityText, FVector2D(0, 70), HUDNosePowerColor, true);
 			}
 		}
@@ -505,9 +505,9 @@ void AFlareHUD::DrawCockpitInstruments(UCanvas* TargetCanvas, int32 Width, int32
 				// Draw
 				FVector2D CurrentPos = RightInstrument;
 				const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-				FlareDrawText(PowerOut.ToString(), CurrentPos, Theme.EnemyColor, false, true);
+				FlareDrawText(PowerOut, CurrentPos, Theme.EnemyColor, false, true);
 				CurrentPos += 2 * InstrumentLine;
-				FlareDrawText(PowerOutInfo.ToString(), CurrentPos, Theme.EnemyColor, false);
+				FlareDrawText(PowerOutInfo, CurrentPos, Theme.EnemyColor, false);
 			}
 		}
 	}
@@ -522,12 +522,12 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 	int32 MaxTemperature = PlayerShip->GetParent()->GetDamageSystem()->GetOverheatTemperature();
 
 	// Ship name
-	FString FlyingText = UFlareGameTools::DisplaySpacecraftName(PlayerShip->GetParent()).ToString();
+	FText FlyingText = UFlareGameTools::DisplaySpacecraftName(PlayerShip->GetParent());
 	FlareDrawText(FlyingText, CurrentPos, Theme.FriendlyColor, false, true);
 	CurrentPos += 2 * InstrumentLine;
 
 	// Ship status
-	FlareDrawText(PlayerShip->GetShipStatus().ToString(), CurrentPos, Theme.FriendlyColor, false);
+	FlareDrawText(PlayerShip->GetShipStatus(), CurrentPos, Theme.FriendlyColor, false);
 	CurrentPos += InstrumentLine;
 	
 	// Temperature data
@@ -546,7 +546,7 @@ void AFlareHUD::DrawCockpitSubsystems(AFlareSpacecraft* PlayerShip)
 
 	// Temperature draw
 	DrawHUDIcon(CurrentPos, CockpitIconSize, HUDTemperatureIcon, TemperatureColor);
-	FlareDrawText(TemperatureText.ToString(), CurrentPos + FVector2D(1.5 * CockpitIconSize, 0), TemperatureColor, false);
+	FlareDrawText(TemperatureText, CurrentPos + FVector2D(1.5 * CockpitIconSize, 0), TemperatureColor, false);
 	CurrentPos += InstrumentLine;
 
 	// Subsystem health
@@ -606,9 +606,9 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			FText::AsNumber(FMath::RoundToInt(100 * ScanningAnalyzisRatio)));
 
 		// Draw panel
-		FlareDrawText(ScanningText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
+		FlareDrawText(ScanningText, CurrentPos, Theme.FriendlyColor, false, true);
 		CurrentPos += 2 * InstrumentLine;
-		FlareDrawText(ScanningInfoText.ToString(), CurrentPos, Theme.FriendlyColor, false, false);
+		FlareDrawText(ScanningInfoText, CurrentPos, Theme.FriendlyColor, false, false);
 		CurrentPos += 1.5 * InstrumentLine;
 		DrawProgressBarIconText(CurrentPos, HUDOrientationIcon, AlignmentText,
 			ScanningAngularRatio < 0.3f ? Theme.EnemyColor : Theme.FriendlyColor,
@@ -673,9 +673,9 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		}
 		
 		// Draw text
-		FlareDrawText(TitleText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
+		FlareDrawText(TitleText, CurrentPos, Theme.FriendlyColor, false, true);
 		CurrentPos += 2 * InstrumentLine;
-		FlareDrawText(InfoText.ToString(), CurrentPos, HealthColor, false);
+		FlareDrawText(InfoText, CurrentPos, HealthColor, false);
 		CurrentPos += InstrumentLine;
 
 		// Weapon icon
@@ -701,8 +701,8 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			FVector2D BarPosition = CurrentPos + FVector2D(IndexSize, ProgressBarTopMargin);
 
 			// Draw
-			FlareDrawText(WeaponIndexString, CurrentPos, HealthColor, false);
-			FlareDrawText(WeaponText.ToString(), TextPosition, HealthColor, false);
+			FlareDrawText(FText::FromString(WeaponIndexString), CurrentPos, HealthColor, false);
+			FlareDrawText(WeaponText, TextPosition, HealthColor, false);
 			FlareDrawProgressBar(BarPosition, SmallProgressBarSize, HealthColor, WeaponHealth);
 			CurrentPos += InstrumentLine;
 		}
@@ -710,7 +710,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		// No weapon
 		FString DisarmedName = FString("1. ") + DisarmText.ToString();
 		DisarmedName = ((CurrentWeapongroupIndex == -1) ? FString("> ") : FString("    ")) + DisarmedName;
-		FlareDrawText(DisarmedName, CurrentPos, HealthColor, false);
+		FlareDrawText(FText::FromString(DisarmedName), CurrentPos, HealthColor, false);
 		CurrentPos += InstrumentLine;
 	}
 
@@ -723,7 +723,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		// Title
 		FText CargoText = FText::Format(LOCTEXT("CargoInfoFormat", "Cargo bay ({0} / {1})"),
 			FText::AsNumber(CargoBay->GetUsedCargoSpace()), FText::AsNumber(CargoBay->GetCapacity()));
-		FlareDrawText(CargoText.ToString(), CurrentPos, Theme.FriendlyColor, false, true);
+		FlareDrawText(CargoText, CurrentPos, Theme.FriendlyColor, false, true);
 		CurrentPos += 3 * InstrumentLine;
 
 		// Cargo bay slots
@@ -744,7 +744,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			}
 
 			// Draw
-			FlareDrawText(CargoBaySlotText.ToString(), CurrentPos, Theme.FriendlyColor, false);
+			FlareDrawText(CargoBaySlotText, CurrentPos, Theme.FriendlyColor, false);
 			CurrentPos += InstrumentLine;
 		}
 	}
@@ -771,16 +771,16 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 				CurrentSector->GetSectorName(),
 				CurrentSector->GetSectorFriendlynessText(PC->GetCompany()));
 		}
-		FlareDrawText((ShowPerformance ? PerformanceText : SectorText).ToString(), CurrentPos, Theme.FriendlyColor, false);
+		FlareDrawText((ShowPerformance ? PerformanceText : SectorText), CurrentPos, Theme.FriendlyColor, false);
 		CurrentPos += InstrumentLine;
 
 		// Sector forces
-		FlareDrawText(CurrentSector->GetSectorBalanceText(true).ToString(), CurrentPos, Theme.FriendlyColor, false);
+		FlareDrawText(CurrentSector->GetSectorBalanceText(true), CurrentPos, Theme.FriendlyColor, false);
 		CurrentPos += InstrumentLine;
 
 		// Battle status
 		FText BattleStatusText = CurrentSector->GetSectorBattleStateText(PC->GetCompany());
-		FlareDrawText(BattleStatusText.ToString(), CurrentPos, Theme.FriendlyColor, false);
+		FlareDrawText(BattleStatusText, CurrentPos, Theme.FriendlyColor, false);
 		CurrentPos += 2 * InstrumentLine;
 
 		// Target info
@@ -806,7 +806,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 			}
 
 			// Draw
-			FlareDrawText(ShipText.ToString(), CurrentPos, TargetColor, false);
+			FlareDrawText(ShipText, CurrentPos, TargetColor, false);
 			CurrentPos += FVector2D(InstrumentSize.X, 0) * 0.8;
 			DrawHUDDesignatorStatus(CurrentPos, IconSize, TargetShip);
 			CurrentPos -= FVector2D(InstrumentSize.X, 0) * 0.8;
@@ -826,12 +826,12 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 				FText WarningText = FText::Format(LOCTEXT("ThreatFiredUponFormat", "UNDER FIRE FROM {0} ({1})"),
 					UFlareGameTools::DisplaySpacecraftName(Threat),
 					FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
-				FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+				FlareDrawText(WarningText, CurrentPos, Theme.EnemyColor, false);
 			}
 			else
 			{
 				FText WarningText = FText(LOCTEXT("ThreatFiredUponMissile", "INCOMING MISSILE"));
-				FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+				FlareDrawText(WarningText, CurrentPos, Theme.EnemyColor, false);
 			}
 		}
 
@@ -839,14 +839,14 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		else if (CollidingSoon)
 		{
 			FText WarningText = LOCTEXT("ThreatCollisionFormat", "IMMINENT COLLISION");
-			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+			FlareDrawText(WarningText, CurrentPos, Theme.EnemyColor, false);
 		}
 
 		// Leaving sector ?
 		else if (ExitingSoon)
 		{
 			FText WarningText = LOCTEXT("ThreatLeavingFormat", "LEAVING SECTOR");
-			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+			FlareDrawText(WarningText, CurrentPos, Theme.EnemyColor, false);
 		}
 
 		// Targeted ?
@@ -855,21 +855,21 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 			FText WarningText = FText::Format(LOCTEXT("ThreatTargetFormat", "TARGETED BY {0} ({1})"),
 				UFlareGameTools::DisplaySpacecraftName(Threat),
 				FText::FromString(Threat->GetCompany()->GetShortName().ToString()));
-			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+			FlareDrawText(WarningText, CurrentPos, Theme.EnemyColor, false);
 		}
 
 		// Low health
 		else if (LowHealth)
 		{
 			FText WarningText = LOCTEXT("ThreatHealthFormat", "LIFE SUPPORT COMPROMISED");
-			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.EnemyColor, false);
+			FlareDrawText(WarningText, CurrentPos, Theme.EnemyColor, false);
 		}
 
 		// Okay
 		else
 		{
 			FText WarningText = LOCTEXT("ThreatNone", "No active threat");
-			FlareDrawText(WarningText.ToString(), CurrentPos, Theme.FriendlyColor, false);
+			FlareDrawText(WarningText, CurrentPos, Theme.FriendlyColor, false);
 		}
 	}
 }
@@ -943,7 +943,7 @@ void AFlareHUD::DrawProgressBarIconText(FVector2D Position, UTexture2D* Icon, FT
 	{
 		FlareDrawProgressBar(BarPosition, ProgressWidth, Color, Progress);
 	}
-	FlareDrawText(Text.ToString(), TextPosition, Color, false);
+	FlareDrawText(Text, TextPosition, Color, false);
 }
 
 
@@ -1155,7 +1155,7 @@ void AFlareHUD::DrawHUDInternal()
 
 						// Draw distance
 						float Distance = FMath::Max(0.f, ((ObjectiveLocation - PlayerShip->GetActorLocation()).Size() - Target->Radius) / 100);
-						FString ObjectiveText = FormatDistance(Distance);
+						FText ObjectiveText = FormatDistance(Distance);
 						FVector2D CenterScreenPosition = ScreenPosition - CurrentViewportSize / 2 + FVector2D(0, IconSize);
 						FlareDrawText(ObjectiveText, CenterScreenPosition, (Target->Active ? HudColorObjective : HudColorNeutral));
 					}
@@ -1238,7 +1238,7 @@ void AFlareHUD::DrawHUDInternal()
 		// Draw main reticle
 		UTexture2D* NoseIcon = NoseIcon = (HasPlayerHit) ? HUDAimHitIcon : HUDAimIcon;
 		DrawHUDIcon(CurrentViewportSize / 2, IconSize, NoseIcon, TurretColor, true);
-		FlareDrawText(TurretText.ToString(), FVector2D(0, -70), HudColorNeutral);
+		FlareDrawText(TurretText, FVector2D(0, -70), HudColorNeutral);
 	}
 
 	// Draw bomb marker
@@ -1400,11 +1400,11 @@ void AFlareHUD::DrawHUDInternal()
 	}
 }
 
-FString AFlareHUD::FormatDistance(float Distance)
+FText AFlareHUD::FormatDistance(float Distance)
 {
 	if (Distance < 1000)
 	{
-		return FString::FromInt(Distance) + FString("m");
+		return FText::Format(LOCTEXT("FormatDistanceM", "{0}m"), FText::AsNumber(Distance));
 	}
 	else
 	{
@@ -1412,11 +1412,11 @@ FString AFlareHUD::FormatDistance(float Distance)
 		if (Kilometers < 10)
 		{
 			int Hectometer = ((int)(Distance - Kilometers * 1000)) / 100;
-			return FString::FromInt(Kilometers) + "." + FString::FromInt(Hectometer) + FString("km");
+			return FText::Format(LOCTEXT("FormatDistanceHM", "{0}.{1}m"), FText::AsNumber(Kilometers), FText::AsNumber(Hectometer));
 		}
 		else
 		{
-			return FString::FromInt(Kilometers) + FString("km");
+			return FText::Format(LOCTEXT("FormatDistanceKM", "{0}km"), FText::AsNumber(Kilometers));
 		}
 	}
 }
@@ -1512,7 +1512,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			// Draw the target's distance if selected
 			if (Spacecraft == PlayerShip->GetCurrentTarget())
 			{
-				FString DistanceText = FormatDistance(Distance / 100);
+				FText DistanceText = FormatDistance(Distance / 100);
 				FVector2D DistanceTextPosition = ScreenPosition - (CurrentViewportSize / 2)
 					+ FVector2D(-ObjectSize.X / 2, ObjectSize.Y / 2)
 					+ FVector2D(2 * CornerSize, 3 * CornerSize);
@@ -1583,7 +1583,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 					EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
 					if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
 					{
-						FString TimeText = FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s");
+						FText TimeText = FText::FromString(FString::FromInt(InterceptTime) + FString(".") + FString::FromInt( (InterceptTime - (int) InterceptTime ) *10) + FString(" s"));
 						FVector2D TimePosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(42,0);
 						FlareDrawText(TimeText, TimePosition, HUDAimHelperColor);
 					}
@@ -1727,7 +1727,7 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 			
 			// Distance display
 			float DockDistance = DockingParameters.DockToDockDistance / 100;
-			FString TimeText = FString::FromInt(DockDistance) + FString(".") + FString::FromInt( (DockDistance - (int) DockDistance ) *10) + FString(" m");
+			FText TimeText = FText::FromString(FString::FromInt(DockDistance) + FString(".") + FString::FromInt( (DockDistance - (int) DockDistance ) *10) + FString(" m"));
 			FVector2D TimePosition = CameraTargetScreenPosition - CurrentViewportSize / 2 + FVector2D(0,85);
 			FlareDrawText(TimeText, TimePosition, HelperColor);
 			
@@ -1786,7 +1786,7 @@ void AFlareHUD::DrawHUDIconRotated(FVector2D Position, float DesignatorIconSize,
 		EBlendMode::BLEND_Translucent, 1.0f, false, Rotation, FVector2D::UnitVector / 2);
 }
 
-void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Color, bool Center, bool Large)
+void AFlareHUD::FlareDrawText(FText Text, FVector2D Position, FLinearColor Color, bool Center, bool Large)
 {
 	if (CurrentCanvas)
 	{
@@ -1823,7 +1823,7 @@ void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Col
 		if (Center)
 		{
 			float XL, YL;
-			CurrentCanvas->TextSize(Font, Text, XL, YL);
+			CurrentCanvas->TextSize(Font, Text.ToString(), XL, YL);
 			X = CurrentCanvas->ClipX / 2.0f - XL / 2.0f + Position.X;
 			Y = CurrentCanvas->ClipY / 2.0f - YL / 2.0f + Position.Y;
 		}
@@ -1837,7 +1837,7 @@ void AFlareHUD::FlareDrawText(FString Text, FVector2D Position, FLinearColor Col
 		{
 			float ShadowIntensity = 0.05f;
 
-			FCanvasTextItem TextItem(FVector2D(X, Y), FText::FromString(Text), Font, Color);
+			FCanvasTextItem TextItem(FVector2D(X, Y), Text, Font, Color);
 			TextItem.Scale = FVector2D(1, 1);
 			TextItem.bOutlined = true;
 			TextItem.OutlineColor = FLinearColor(ShadowIntensity, ShadowIntensity, ShadowIntensity, 1.0f);

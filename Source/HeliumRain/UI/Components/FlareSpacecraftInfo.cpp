@@ -1006,7 +1006,7 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 				else
 				{
 					float Distance = (PlayerShipPawn->GetActorLocation() - TargetSpacecraftPawn->GetActorLocation()).Size();
-					DistanceText = FText::FromString(AFlareHUD::FormatDistance(Distance / 100) + " - ");
+					DistanceText = FText::Format(LOCTEXT("PlayerDistanceFormat", "{0} - "), AFlareHUD::FormatDistance(Distance / 100));
 				}
 			}
 		}

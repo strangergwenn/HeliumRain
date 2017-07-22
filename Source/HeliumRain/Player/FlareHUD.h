@@ -113,7 +113,7 @@ public:
 	static FLinearColor GetHealthColor(float Current);
 
 	/** Format a distance in meter */
-	static FString FormatDistance(float Distance);
+	static FText FormatDistance(float Distance);
 
 
 	/*----------------------------------------------------
@@ -159,7 +159,7 @@ protected:
 	void DrawHUDIconRotated(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color = FLinearColor::White, float Rotation = 0);
 
 	/** Print a text with a shadow */
-	void FlareDrawText(FString Text, FVector2D Position, FLinearColor Color = FLinearColor::White, bool Center = true, bool Large = false);
+	void FlareDrawText(FText Text, FVector2D Position, FLinearColor Color = FLinearColor::White, bool Center = true, bool Large = false);
 
 	/** Draw a texture */
 	void FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY, float ScreenW, float ScreenH, float TextureU, float TextureV, float TextureUWidth, float TextureVHeight, FLinearColor TintColor = FLinearColor::White, EBlendMode BlendMode = BLEND_Translucent, float Scale = 1.f, bool bScalePosition = false, float Rotation = 0.f, FVector2D RotPivot = FVector2D::ZeroVector);
