@@ -80,7 +80,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("EarlyAccess", "Helium Rain is in early access ! We're looking for your feedback to fix bugs and improve the game.\nPlease report issues or feature requests at dev.helium-rain.com. We'll track discussions on the Steam community too !"))
+						.Text(LOCTEXT("EarlyAccess", "Helium Rain is in early access ! We're looking for your feedback to fix bugs and improve the game.\nPlease report issues or feature requests at dev.helium-rain.com. We'll track discussions on Steam Community too !"))
 						.TextStyle(&Theme.NameFont)
 						.Justification(ETextJustify::Center)
 					]
