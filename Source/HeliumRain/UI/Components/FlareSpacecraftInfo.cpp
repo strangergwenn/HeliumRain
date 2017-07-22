@@ -209,7 +209,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("Inspect", "DETAILS"))
 					.HelpText(LOCTEXT("InspectInfo", "Take a closer look at this spacecraft"))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnInspect)
-					.Width(2.7)
+					.Width(5)
 				]
 
 				// Target
@@ -221,7 +221,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					.HelpText(this, &SFlareSpacecraftInfo::GetTargetButtonHint)
 					.OnClicked(this, &SFlareSpacecraftInfo::OnTarget)
 					.IsDisabled(this, &SFlareSpacecraftInfo::IsTargetDisabled)
-					.Width(2.7)
+					.Width(5)
 				]
 
 				// Fly this ship
@@ -231,8 +231,16 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					SAssignNew(FlyButton, SFlareButton)
 					.Text(LOCTEXT("ShipFly", "FLY"))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnFly)
-					.Width(2.7)
+					.Width(5)
 				]
+			]
+
+			// Buttons 2
+			+ SVerticalBox::Slot()
+			.Padding(Theme.SmallContentPadding)
+			.AutoHeight()
+			[
+				SNew(SHorizontalBox)
 
 				// Trade
 				+ SHorizontalBox::Slot()
@@ -241,7 +249,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					SAssignNew(TradeButton, SFlareButton)
 					.Text(LOCTEXT("Trade", "TRADE"))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
-					.Width(2.7)
+					.Width(5)
 				]
 			
 				// Dock here
@@ -252,7 +260,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("Dock", "DOCK"))
 					.HelpText(LOCTEXT("DockInfo", "Try to dock at this spacecraft"))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnDockAt)
-					.Width(2.7)
+					.Width(5)
 				]
 
 				// Undock
@@ -263,7 +271,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("Undock", "UNDOCK"))
 					.HelpText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnUndock)
-					.Width(2.7)
+					.Width(5)
 				]
 
 				// Upgrade
@@ -273,7 +281,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					SAssignNew(UpgradeButton, SFlareButton)
 					.Text(LOCTEXT("Upgrade", "UPGRADE"))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
-					.Width(2.7)
+					.Width(5)
 				]
 
 				// Scrap
@@ -283,7 +291,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					SAssignNew(ScrapButton, SFlareButton)
 					.Text(LOCTEXT("Scrap", "SCRAP"))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnScrap)
-					.Width(2.7)
+					.Width(5)
 				]
 			]
 		]
