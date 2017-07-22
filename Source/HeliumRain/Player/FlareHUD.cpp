@@ -574,34 +574,22 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	FVector2D CurrentPos = RightInstrument;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareTacticManager* TacticManager = MenuManager->GetPC()->GetCompany()->GetTacticManager();
-
-	// TODO #870 : remove this
-	FVector TargetLocation = FVector::ZeroVector;
-	FVector ShipLocation = PlayerShip->GetActorLocation();
-	FVector TargetDisplacement = TargetLocation - ShipLocation;
-
-	// TODO #870 : scanning mode - Move these calculations to the ship with this API
-	// 
-	//   bool IsInScanningMode();     (Target objective is scan && sector is OK)
-	//   bool IsScanningActive();     (Player is < 100m away and 90% aligned)
-	//   void GetScanningProgress(float& ang, float& lin, float& progress);   (Get values)
-	// 
-	bool IsInScanningMode = false; // PlayerShip->IsInScanningMode()
-	bool IsScanningActive = false; // PlayerShip->IsScanningActive()
-	float ScanningAngularRatio = FVector::DotProduct(PlayerShip->GetFrontVector(), TargetDisplacement.GetSafeNormal());
-	float ScanningLinearRatio = 1 - FMath::Clamp(TargetDisplacement.Size() / 100000, 0.0f, 1.0f); // 1000m
-	float ScanningAnalyzisRatio = 0;
-
+	
 	// Scanner
-	if (IsInScanningMode && !PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup())
+	if (PlayerShip->IsInScanningMode())
 	{
+		// Get progress
+		bool SanningIsActive;
+		float ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio, ScanningDistance;
+		PlayerShip->GetScanningProgress(SanningIsActive, ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio, ScanningDistance);
+
 		// Texts
 		FText ScanningText = LOCTEXT("Scanning", "Unknown signal detected");
 		FText ScanningInfoText = LOCTEXT("ScanningInfo", "Scanning unknown signal...");
 		FText AlignmentText = FText::Format(LOCTEXT("AlignmentFormat", "Signal alignment : {0}%"),
 			FText::AsNumber(FMath::RoundToInt(100 * FMath::Clamp(ScanningAngularRatio, 0.0f, 1.0f))));
 		FText DistanceText = FText::Format(LOCTEXT("DistanceFormat", "Signal distance : {0}m"),
-			FText::AsNumber(FMath::RoundToInt(TargetDisplacement.Size() / 100)));
+			FText::AsNumber(FMath::RoundToInt(ScanningDistance)));
 		FText AnalyzisText = FText::Format(LOCTEXT("AnalyzisFormat", "Signal analyzis : {0}%"),
 			FText::AsNumber(FMath::RoundToInt(100 * ScanningAnalyzisRatio)));
 
@@ -619,7 +607,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			ScanningLinearRatio, LargeProgressBarSize);
 		CurrentPos += InstrumentLine;
 		DrawProgressBarIconText(CurrentPos, HUDPowerIcon, AnalyzisText,
-			IsScanningActive ? Theme.FriendlyColor : Theme.EnemyColor,
+			SanningIsActive ? Theme.FriendlyColor : Theme.EnemyColor,
 			ScanningAnalyzisRatio, LargeProgressBarSize);
 		CurrentPos += InstrumentLine;
 	}
@@ -1133,7 +1121,9 @@ void AFlareHUD::DrawHUDInternal()
 	DrawSpeed(PC, PlayerShip, HUDBackReticleIcon, -ShipSmoothedVelocity);
 
 	// Draw objective
-	if (PC->HasObjective() && PC->GetCurrentObjective()->TargetList.Num() > 0 && (PC->GetCurrentObjective()->TargetSectors.Num() == 0 || PC->GetCurrentObjective()->TargetSectors.Contains(PlayerShip->GetParent()->GetCurrentSector())))
+	// TODO #870 : check if this objective target is a "scanning" one, don't show if it is
+	if (PC->HasObjective() && PC->GetCurrentObjective()->TargetList.Num() > 0
+		&& (PC->GetCurrentObjective()->TargetSectors.Num() == 0 || PC->GetCurrentObjective()->TargetSectors.Contains(PlayerShip->GetParent()->GetCurrentSector())))
 	{
 		FVector2D ScreenPosition;
 

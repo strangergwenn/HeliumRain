@@ -81,7 +81,7 @@ public:
 		Player interface
 	----------------------------------------------------*/
 
-	/** Extrapolate the position of a ship for a given targetting ship. Return time before intersect. If time is negative, no intersection. */
+	/** Extrapolate the position of a ship for a given targeting ship. Return time before intersect. If time is negative, no intersection. */
 	virtual float GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const;
 
 	/** Reset the target */
@@ -89,6 +89,12 @@ public:
 
 	/** Get the current target */
 	AFlareSpacecraft* GetCurrentTarget() const;
+
+	/** Are we scanning for a waypoint ? */
+	bool IsInScanningMode();
+
+	/** Get the progress of scanning */
+	void GetScanningProgress(bool& ScanningIsActive, float& AngularProgress, float& LinearProgress, float& AnalyzisProgress, float& ScanningDistance);
 
 
 	/*----------------------------------------------------

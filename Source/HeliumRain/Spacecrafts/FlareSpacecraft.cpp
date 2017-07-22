@@ -543,6 +543,56 @@ AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
 	}
 }
 
+bool AFlareSpacecraft::IsInScanningMode()
+{
+	const FFlarePlayerObjectiveData* Objective = GetPC()->GetCurrentObjective();
+
+	// Needs a valid target objective, and weapon groups
+	if (Objective && Objective->TargetList.Num() > 0 && !GetWeaponsSystem()->GetActiveWeaponGroup())
+	{
+		// Are we in the correct sector ?
+		if (Objective->TargetSectors.Num() == 0 || Objective->TargetSectors.Contains(GetParent()->GetCurrentSector()))
+		{
+			// TODO #870 : check if this objective target is a "scanning" one, return true if it is
+			if (false)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void AFlareSpacecraft::GetScanningProgress(bool& ScanningIsActive, float& AngularProgress, float& LinearProgress, float& AnalyzisProgress, float& ScanningDistance)
+{
+	// Look for an active "scan" target
+	if (IsInScanningMode())
+	{
+		for (auto Target : GetPC()->GetCurrentObjective()->TargetList)
+		{
+			if (Target.Active)
+			{
+				FVector TargetDisplacement = Target.Location - GetActorLocation();
+
+				AngularProgress = FVector::DotProduct(GetFrontVector(), TargetDisplacement.GetSafeNormal());
+				LinearProgress = 1 - FMath::Clamp(TargetDisplacement.Size() / 100000, 0.0f, 1.0f); // 1000m
+				AnalyzisProgress = 0;
+
+				ScanningIsActive = (AngularProgress > 0.9) && (LinearProgress > 0.9);
+				ScanningDistance = (TargetDisplacement.Size() / 100);
+
+				return;
+			}
+		}
+	}
+
+	// Default values
+	ScanningIsActive = false;
+	AngularProgress = 0;
+	LinearProgress = 0;
+	AnalyzisProgress = 0;
+}
+
 
 /*----------------------------------------------------
 	Ship interface
