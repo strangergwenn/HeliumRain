@@ -1953,6 +1953,12 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddActionMapping("Simulate")
 		->AddDefaults(EKeys::J)));
 
+	// Others
+	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Others", "OTHERS")))->MakeHeader()));
+	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Take high quality screenshot", "Take high quality screenshot")))
+		->AddActionMapping("HighResShot")
+		->AddDefaults(EKeys::R)));
+
 }
 
 bool SFlareSettingsMenu::IsAlreadyUsed(TArray<TSharedPtr<FSimpleBind>> &BindConflicts, FKey Key, FSimpleBind& ExcludeBinding)

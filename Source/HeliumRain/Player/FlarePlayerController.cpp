@@ -36,6 +36,8 @@
 #include "OnlineIdentityInterface.h"
 #include "OnlineAchievementsInterface.h"
 
+#include "HighResScreenshot.h"
+#include "SceneViewport.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick ControlGroups"), STAT_FlarePlayerTick_ControlGroups, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Battle"), STAT_FlarePlayerTick_Battle, STATGROUP_Flare);
@@ -1475,6 +1477,10 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("RightMouseButton", EInputEvent::IE_Pressed, this, &AFlarePlayerController::RightMouseButtonPressed);
 	InputComponent->BindAction("RightMouseButton", EInputEvent::IE_Released, this, &AFlarePlayerController::RightMouseButtonReleased);
 
+	// Others
+	InputComponent->BindAction("HighResShot", EInputEvent::IE_Released, this, &AFlarePlayerController::TakeHighResScreenshot);
+
+
 	// Test
 	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
 	InputComponent->BindAction("Test2", EInputEvent::IE_Released, this, &AFlarePlayerController::Test2);
@@ -1846,6 +1852,26 @@ void AFlarePlayerController::RightMouseButtonPressed()
 void AFlarePlayerController::RightMouseButtonReleased()
 {
 	RightMousePressed = false;
+}
+
+void AFlarePlayerController::TakeHighResScreenshot()
+{
+	if (GetHighResScreenshotConfig().FHighResScreenshotConfig::ParseConsoleCommand(FString::SanitizeFloat(2.f), *GLog))
+	{
+		if (GEngine->GameViewport->Viewport->TakeHighResScreenShot())
+		{
+			FLOG("AFlarePlayerController::TakeHighResScreenShot done");
+			ClientPlaySound(GetSoundManager()->BellSound);
+		}
+		else
+		{
+			FLOG("AFlarePlayerController::TakeHighResScreenShot fail");
+		}
+	}
+	else
+	{
+		FLOG("AFlarePlayerController::TakeHighResScreenShot fail configuration");
+	}
 }
 
 void AFlarePlayerController::Test1()

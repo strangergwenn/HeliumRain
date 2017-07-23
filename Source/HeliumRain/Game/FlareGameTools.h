@@ -65,6 +65,8 @@ public:
 	UFUNCTION(exec)
 	void PickPoint();
 
+	UFUNCTION(exec)
+	void TakeHighResScreenShot();
 
 	/*----------------------------------------------------
 		World tools

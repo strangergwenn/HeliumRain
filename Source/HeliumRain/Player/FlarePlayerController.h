@@ -278,6 +278,9 @@ public:
 	/** Hack for right mouse button triggering drag in external camera */
 	void RightMouseButtonReleased();
 
+	/** Take high res screenshot */
+	void TakeHighResScreenshot();
+
 	/** Test method 1 */
 	void Test1();
 
