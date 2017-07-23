@@ -1524,11 +1524,13 @@ void  SFlareSettingsMenu::ApplyNewBinding(TSharedPtr<FSimpleBind> BindingThatCha
 			if((*(Bind->Key) == KeyToErase) && &(*BindingThatChanged) != &(*Bind))
 			{
 				Bind->KeyWidget->SetKey(FKey(), true, false);
+				Bind->WriteBind();
 			}
 
 			if((*(Bind->AltKey) == KeyToErase) && &(*BindingThatChanged) != &(*Bind))
 			{
 				Bind->AltKeyWidget->SetKey(FKey(), true, false);
+				Bind->WriteBind();
 			}
 		};
 
@@ -1562,6 +1564,9 @@ void SFlareSettingsMenu::OnKeyBindingChanged(FKey PreviousKey, FKey NewKey, SFla
 
 	if (NewKey.ToString() == "None")
 	{
+		UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+		BindingThatChanged->WriteBind();
+		InputSettings->SaveKeyMappings();
 		return;
 	}
 	else if (IsAlreadyUsed(BindConflicts, NewKey, *BindingThatChanged))
