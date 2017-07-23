@@ -228,9 +228,13 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			// Update progress of the scanning mode
 			if (IsInScanningMode())
 			{
-				bool ScanningIsActive;
-				float ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio, ScanningDistance, ScanningSpeed;
-				GetScanningProgress(ScanningIsActive, ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio, ScanningDistance, ScanningSpeed);
+				bool AngularIsActive, LinearIsActive, ScanningIsActive;
+				float ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio;
+				float ScanningDistance, ScanningSpeed;
+
+				GetScanningProgress(AngularIsActive, LinearIsActive, ScanningIsActive,
+					ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio,
+					ScanningDistance, ScanningSpeed);
 
 				if (ScanningIsActive)
 				{
@@ -581,7 +585,8 @@ bool AFlareSpacecraft::IsInScanningMode()
 	return false;
 }
 
-void AFlareSpacecraft::GetScanningProgress(bool& ScanningIsActive, float& AngularProgress, float& LinearProgress, float& AnalyzisProgress, float& ScanningDistance, float& ScanningSpeed)
+void AFlareSpacecraft::GetScanningProgress(bool& AngularIsActive, bool& LinearIsActive, bool& ScanningIsActive,
+	float& AngularProgress, float& LinearProgress, float& AnalyzisProgress, float& ScanningDistance, float& ScanningSpeed)
 {
 	// Look for an active "scan" target
 	if (IsInScanningMode())
@@ -593,8 +598,9 @@ void AFlareSpacecraft::GetScanningProgress(bool& ScanningIsActive, float& Angula
 				FVector TargetDisplacement = Target.Location - GetActorLocation();
 				float Distance = TargetDisplacement.Size();
 
+				// Angular alignment
 				float Alignement = FVector::DotProduct(GetFrontVector(), TargetDisplacement.GetSafeNormal());
-				if(Alignement > 0)
+				if (Alignement > 0)
 				{
 					AngularProgress = FMath::Max(0.f, 1.f - FMath::Acos(Alignement));
 				}
@@ -603,23 +609,26 @@ void AFlareSpacecraft::GetScanningProgress(bool& ScanningIsActive, float& Angula
 					AngularProgress = 0;
 				}
 
+				// Linear & full progress
 				LinearProgress = 1 - FMath::Clamp(Distance / 100000, 0.0f, 1.0f); // 1000m
 				AnalyzisProgress = FMath::Clamp(ScanningTimer / ScanningTimerDuration, 0.0f, 1.0f);
 
+				// Conditions
 				float const AlignementThreshold = 0.7f;
-
-				ScanningIsActive = (AngularProgress > AlignementThreshold) && (Distance < Target.Radius);
+				AngularIsActive = (AngularProgress > AlignementThreshold);
+				LinearIsActive = (Distance < Target.Radius);
 				ScanningSpeed = 0.f;
 				ScanningDistance = (Distance / 100);
 
-				if(ScanningIsActive)
+				// Active scan
+				ScanningIsActive = AngularIsActive && LinearIsActive;
+				if (ScanningIsActive)
 				{
 					float AlignementRatioB = AlignementThreshold / (1-AlignementThreshold);
 					float AlignementRatio = (1 + AlignementRatioB) *  AngularProgress - AlignementRatioB;
 					float DistanceRatio = - (1.f / Target.Radius) * Distance + 1.f;
 
 					ScanningSpeed = 1.f * AlignementRatio * DistanceRatio;
-
 				}
 
 				return;
@@ -628,6 +637,8 @@ void AFlareSpacecraft::GetScanningProgress(bool& ScanningIsActive, float& Angula
 	}
 
 	// Default values
+	AngularIsActive = false;
+	LinearIsActive = false;
 	ScanningIsActive = false;
 	AngularProgress = 0;
 	LinearProgress = 0;
