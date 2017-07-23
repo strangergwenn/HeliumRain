@@ -1409,7 +1409,7 @@ FText AFlareHUD::FormatDistance(float Distance)
 		if (Kilometers < 10)
 		{
 			int Hectometer = ((int)(Distance - Kilometers * 1000)) / 100;
-			return FText::Format(LOCTEXT("FormatDistanceHM", "{0}.{1}m"), FText::AsNumber(Kilometers), FText::AsNumber(Hectometer));
+			return FText::Format(LOCTEXT("FormatDistanceHM", "{0}.{1}km"), FText::AsNumber(Kilometers), FText::AsNumber(Hectometer));
 		}
 		else
 		{
