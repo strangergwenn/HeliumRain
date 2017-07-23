@@ -615,13 +615,13 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	// Military version
 	else if (PlayerShip->GetParent()->IsMilitary())
 	{
-		FText TitleText;
-		FText InfoText;
+		// Data
+		int IndexSize = 35;
 		FLinearColor HealthColor = Theme.FriendlyColor;
 		int32 CurrentWeapongroupIndex = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroupIndex();
 		FFlareWeaponGroup* CurrentWeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
 
-		// Peaceful texts
+		// Disarmed text
 		FText DisarmText;
 		if (PlayerShip->GetDescription()->Size == EFlarePartSize::S)
 		{
@@ -631,17 +631,21 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		{
 			DisarmText = LOCTEXT("WeaponsDisabledHeavy", "Navigation mode");
 		}
-		InfoText = LOCTEXT("StandingDownInfo", "Toggle weapon groups to enable weapons.");
 
+		// Title
+		FText TitleText = (CurrentWeaponGroup) ? CurrentWeaponGroup->Description->Name : DisarmText;
+		FlareDrawText(TitleText, CurrentPos, Theme.FriendlyColor, false, true);
+		CurrentPos += 2 * InstrumentLine;
+
+		// Info
 		if (CurrentWeaponGroup)
 		{
-			float ComponentHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(CurrentWeapongroupIndex);
-			HealthColor = GetHealthColor(ComponentHealth);
-
 			// Get ammo count
 			int32 RemainingAmmo = 0;
+			int32 TotalAmmo = 0;
 			for (int32 i = 0; i < CurrentWeaponGroup->Weapons.Num(); i++)
 			{
+				TotalAmmo += CurrentWeaponGroup->Weapons[i]->GetMaxAmmo();
 				if (CurrentWeaponGroup->Weapons[i]->GetUsableRatio() <= 0.0f)
 				{
 					continue;
@@ -649,21 +653,26 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 				RemainingAmmo += CurrentWeaponGroup->Weapons[i]->GetCurrentAmmo();
 			}
 
-			// Final strings
-			TitleText = CurrentWeaponGroup->Description->Name;
-			InfoText = FText::Format(LOCTEXT("WeaponInfoFormat", "{0}, {1}% OK"),
-				FText::Format(LOCTEXT("Rounds", "{0} rounds"), FText::AsNumber(RemainingAmmo)),
-				FText::AsNumber((int32)(100 * ComponentHealth)));
+			// Texts
+			float WeaponHealth = PlayerShip->GetDamageSystem()->GetWeaponGroupHealth(CurrentWeapongroupIndex);
+			FText WeaponFiringText = PlayerShip->GetStateManager()->IsWantFire() ? LOCTEXT("Firing", "FIR") : FText();
+			FText WeaponInfoText = FText::Format(LOCTEXT("WeaponInfoFormat", "{0} rounds left"), FText::AsNumber(RemainingAmmo));
+
+			// Layout
+			HealthColor = (float)RemainingAmmo / (float)TotalAmmo < 0.3f ? Theme.EnemyColor : Theme.FriendlyColor;
+			FVector2D TextPosition = CurrentPos + FVector2D(IndexSize + SmallProgressBarSize + 10, 0);
+			FVector2D BarPosition = CurrentPos + FVector2D(IndexSize, ProgressBarTopMargin);
+
+			// Draw
+			FlareDrawText(WeaponFiringText, CurrentPos, HealthColor, false);
+			FlareDrawText(WeaponInfoText, TextPosition, HealthColor, false);
+			FlareDrawProgressBar(BarPosition, SmallProgressBarSize, HealthColor, (float)RemainingAmmo / (float)TotalAmmo);
 		}
 		else
 		{
-			TitleText = DisarmText;
+			FText InfoText = LOCTEXT("StandingDownInfo", "Toggle weapon groups to enable weapons.");
+			FlareDrawText(InfoText, CurrentPos, HealthColor, false);
 		}
-		
-		// Draw text
-		FlareDrawText(TitleText, CurrentPos, Theme.FriendlyColor, false, true);
-		CurrentPos += 2 * InstrumentLine;
-		FlareDrawText(InfoText, CurrentPos, HealthColor, false);
 		CurrentPos += InstrumentLine;
 
 		// Weapon icon
@@ -684,7 +693,6 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 
 			// Layout
 			HealthColor = GetHealthColor(WeaponHealth);
-			int IndexSize = 35;
 			FVector2D TextPosition = CurrentPos + FVector2D(IndexSize + SmallProgressBarSize + 10, 0);
 			FVector2D BarPosition = CurrentPos + FVector2D(IndexSize, ProgressBarTopMargin);
 
