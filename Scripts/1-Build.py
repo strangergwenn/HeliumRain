@@ -41,7 +41,9 @@ else:
 # Generate paths
 inputProject = os.path.join(inputDir, "HeliumRain.uproject")
 buildTool = os.path.join(engineDir, "Engine", "Build", "BatchFiles", "RunUAT" + scriptExt)
-buildVersion = subprocess.check_output("git describe").decode("utf-8") 
+
+command = ['git', 'describe']
+buildVersion = subprocess.check_output(command).decode("utf-8")
 buildVersion = buildVersion.replace("\n", "");
 
 # Generate command line
