@@ -34,9 +34,9 @@ public:
 	/*----------------------------------------------------
 		Interaction
 	----------------------------------------------------*/
-
+	
 	/** Show the confirmation overlay */
-	void Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed, FSimpleDelegate OnCancel);
+	void Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed, FSimpleDelegate OnCancel, FSimpleDelegate OnIgnore);
 	
 	/** Is this open */
 	bool IsOpen() const;
@@ -58,6 +58,9 @@ public:
 	/** Cancelled action */
 	void OnCancelled();
 
+	/** Ignored action */
+	void OnIgnored();
+
 
 protected:
 
@@ -74,10 +77,12 @@ protected:
 	FText                                        InfoTitle;
 	FSimpleDelegate                              OnConfirmedCB;
 	FSimpleDelegate                              OnCancelCB;
+	FSimpleDelegate                              OnIgnoreCB;
 
 	// Widgets
 	TSharedPtr<SFlareButton>                     OKButton;
 	TSharedPtr<SFlareButton>                     CancelButton;
+	TSharedPtr<SFlareButton>                     IgnoreButton;
 
 
 };

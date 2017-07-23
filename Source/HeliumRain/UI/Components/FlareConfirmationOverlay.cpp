@@ -90,6 +90,16 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 							.Icon(FFlareStyleSet::GetIcon("Delete"))
 							.OnClicked(this, &SFlareConfirmationOverlay::OnCancelled)
 						]
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SAssignNew(IgnoreButton, SFlareButton)
+							.Text(LOCTEXT("Ignore", "Ignore"))
+							.HelpText(LOCTEXT("IgnoreInfo", "Ignore this message"))
+							.Icon(FFlareStyleSet::GetIcon("Delete"))
+							.OnClicked(this, &SFlareConfirmationOverlay::OnIgnored)
+						]
 					]
 				]
 			]
@@ -104,13 +114,22 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareConfirmationOverlay::Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed, FSimpleDelegate OnCancel)
+void SFlareConfirmationOverlay::Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed, FSimpleDelegate OnCancel, FSimpleDelegate OnIgnore)
 {
 	InfoText = Text;
 	InfoTitle = Title;
 	OnConfirmedCB = OnConfirmed;
 	OnCancelCB = OnCancel;
+	OnIgnoreCB = OnIgnore;
 
+	if (OnIgnore.IsBound())
+	{
+		IgnoreButton->SetVisibility(EVisibility::Visible);
+	}
+	else
+	{
+		IgnoreButton->SetVisibility(EVisibility::Collapsed);
+	}
 	SetVisibility(EVisibility::Visible);
 
 	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->BellSound);
@@ -140,6 +159,7 @@ void SFlareConfirmationOverlay::OnConfirmed()
 {
 	MenuManager->HideTooltip(OKButton.Get());
 	MenuManager->HideTooltip(CancelButton.Get());
+	MenuManager->HideTooltip(IgnoreButton.Get());
 	SetVisibility(EVisibility::Collapsed);
 
 	OnConfirmedCB.ExecuteIfBound();
@@ -151,9 +171,22 @@ void SFlareConfirmationOverlay::OnCancelled()
 {
 	MenuManager->HideTooltip(OKButton.Get());
 	MenuManager->HideTooltip(CancelButton.Get());
+	MenuManager->HideTooltip(IgnoreButton.Get());
 	SetVisibility(EVisibility::Collapsed);
 
 	OnCancelCB.ExecuteIfBound();
+
+	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
+}
+
+void SFlareConfirmationOverlay::OnIgnored()
+{
+	MenuManager->HideTooltip(OKButton.Get());
+	MenuManager->HideTooltip(CancelButton.Get());
+	MenuManager->HideTooltip(IgnoreButton.Get());
+	SetVisibility(EVisibility::Collapsed);
+
+	OnIgnoreCB.ExecuteIfBound();
 
 	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
 }

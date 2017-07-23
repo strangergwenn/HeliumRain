@@ -108,7 +108,7 @@ public:
 	void FlushNotifications();
 
 	/** Show the confirmation overlay */
-	void Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed, FSimpleDelegate OnCancel = FSimpleDelegate());
+	void Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed, FSimpleDelegate OnCancel = FSimpleDelegate(), FSimpleDelegate OnIgnore = FSimpleDelegate());
 
 	/** Start displaying the tooltip */
 	void ShowTooltip(SWidget* TargetWidget, FText Title, FText Content);
