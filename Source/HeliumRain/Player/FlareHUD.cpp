@@ -673,7 +673,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		}
 		else
 		{
-			FText InfoText = LOCTEXT("StandingDownInfo", "Toggle weapon groups to enable weapons.");
+			FText InfoText = LOCTEXT("StandingDownInfo", "Weapons disabled");
 			FlareDrawText(InfoText, CurrentPos, HealthColor, false);
 		}
 		CurrentPos += InstrumentLine;
