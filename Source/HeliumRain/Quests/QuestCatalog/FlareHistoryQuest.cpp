@@ -121,8 +121,8 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 		Waypoints.Add(FVector(4176.675781,-486.620117,4294.422363));
 		Waypoints.Add(FVector(1422.779175,449.966492,-12945.479492));
 
-		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel1", "Inspect the pipe at reference point A in {0}"), TheSpire->GetSectorName()));
-		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel2", "Inspect the pipe at reference point B in {0}"), TheSpire->GetSectorName()));
+		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel1", "Inspect the pipe at the reference point A in {0}"), TheSpire->GetSectorName()));
+		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel2", "Inspect the pipe at the reference point B in {0}"), TheSpire->GetSectorName()));
 		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel3", "Inspect the counterweight attachement #1 in {0}"), TheSpire->GetSectorName()));
 		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel4", "Inspect the counterweight attachement #3 in {0}"), TheSpire->GetSectorName()));
 		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel5", "Inspect the counterweight cables in {0}"), TheSpire->GetSectorName()));
@@ -130,14 +130,14 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel7", "Inspect the extraction module in {0}"), TheSpire->GetSectorName()));
 		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel8", "Inspect the pipe attachement in {0}"), TheSpire->GetSectorName()));
 
-		WaypointTexts.Add(LOCTEXT("WaypointText1", "pipe inspected, {0} left"));
-		WaypointTexts.Add(LOCTEXT("WaypointText2", "pipe inspected, {0} left"));
-		WaypointTexts.Add(LOCTEXT("WaypointText3", "attachement inspected, {0} left"));
-		WaypointTexts.Add(LOCTEXT("WaypointText4", "attachement inspected, {0} left"));
-		WaypointTexts.Add(LOCTEXT("WaypointText5", "cables inspected, {0} left"));
-		WaypointTexts.Add(LOCTEXT("WaypointText6", "attachement inspected, {0} left"));
-		WaypointTexts.Add(LOCTEXT("WaypointText7", "module inspected, {0} left"));
-		WaypointTexts.Add(LOCTEXT("WaypointText8", "attachement inspected. Good job."));
+		WaypointTexts.Add(LOCTEXT("WaypointText1", "Pipe inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText2", "Pipe inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText3", "Attachement inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText4", "Attachement inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText5", "Cables inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText6", "Attachement inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText7", "Module inspected, {0} left"));
+		WaypointTexts.Add(LOCTEXT("WaypointText8", "Attachement inspected. Good job !"));
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionWaypoints::Create(this, QUEST_TAG"cond1", TheSpire, Waypoints, true, CustomInitialLabels, WaypointTexts));
 		Steps.Add(Step);
