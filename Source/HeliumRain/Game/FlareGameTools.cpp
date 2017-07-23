@@ -113,6 +113,63 @@ void UFlareGameTools::SetCulture(FName CultureName)
 
 }
 
+void UFlareGameTools::PickPoint()
+{
+	FLOG("AFlareGame::CreateShipInCompany");
+	if (!GetActiveSector())
+	{
+		FLOG("AFlareGame::PickPoint failed: no active sector");
+		return;
+	}
+
+	AFlarePlayerController* PC = GetPC();
+	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
+
+	FVector CameraAimDirection = PlayerShip->GetCamera()->GetComponentRotation().Vector();
+	FVector CameraLocation = PlayerShip->GetCamera()->GetComponentLocation();
+	CameraAimDirection.Normalize();
+
+
+	FHitResult HitResult(ForceInit);
+
+
+	auto Trace = [this, &PlayerShip](const FVector& Start, const FVector& End, FHitResult& HitOut)
+	{
+		// Ignore Actors
+		FCollisionQueryParams TraceParams(FName(TEXT("Pick point Trace")), true, PlayerShip);
+		TraceParams.bTraceComplex = true;
+		TraceParams.bReturnPhysicalMaterial = false;
+		TraceParams.AddIgnoredActor(PlayerShip);
+
+		// Re-initialize hit info
+		HitOut = FHitResult(ForceInit);
+
+		ECollisionChannel CollisionChannel = (ECollisionChannel) (ECC_WorldStatic | ECC_WorldDynamic | ECC_Pawn);
+
+		// Trace!
+		GetWorld()->LineTraceSingleByChannel(
+			HitOut,		// result
+			Start,	// start
+			End , // end
+			CollisionChannel, // collision channel
+			TraceParams
+		);
+
+		// Hit any Actor?
+		return (HitOut.GetActor() != NULL) ;
+	};
+
+	if (Trace(CameraLocation, CameraLocation + CameraAimDirection * 50000, HitResult))
+	{
+		FLOGV("PickPoint : FVector(%f, %f, %f)", HitResult.Location.X, HitResult.Location.Y, HitResult.Location.Z )
+		UKismetSystemLibrary::DrawDebugPoint(PlayerShip->GetWorld(), HitResult.Location, 100, FColor::Green, 5.f);
+	}
+	else
+	{
+		FLOG("AFlareGame::PickPoint failed: no hit");
+	}
+}
+
 
 #define RESET   "\033[0m"
 #define RED     "\033[31m"      /* Red */

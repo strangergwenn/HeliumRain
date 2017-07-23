@@ -94,7 +94,7 @@ public:
 	bool IsInScanningMode();
 
 	/** Get the progress of scanning */
-	void GetScanningProgress(bool& ScanningIsActive, float& AngularProgress, float& LinearProgress, float& AnalyzisProgress, float& ScanningDistance);
+	void GetScanningProgress(bool& ScanningIsActive, float& AngularProgress, float& LinearProgress, float& AnalyzisProgress, float& ScanningDistance, float& ScanningSpeed);
 
 	/** Are we done with the scan ? */
 	bool IsScanningFinished() const;

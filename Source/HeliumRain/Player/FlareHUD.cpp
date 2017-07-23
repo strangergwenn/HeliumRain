@@ -579,9 +579,9 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	if (PlayerShip->IsInScanningMode())
 	{
 		// Get progress
-		bool SanningIsActive;
-		float ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio, ScanningDistance;
-		PlayerShip->GetScanningProgress(SanningIsActive, ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio, ScanningDistance);
+		bool ScanningIsActive;
+		float ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio, ScanningDistance, ScanningSpeed;
+		PlayerShip->GetScanningProgress(ScanningIsActive, ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio, ScanningDistance, ScanningSpeed);
 
 		// Texts
 		FText ScanningText = LOCTEXT("Scanning", "Unknown signal detected");
@@ -607,7 +607,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			ScanningLinearRatio, LargeProgressBarSize);
 		CurrentPos += InstrumentLine;
 		DrawProgressBarIconText(CurrentPos, HUDPowerIcon, AnalyzisText,
-			SanningIsActive ? Theme.FriendlyColor : Theme.EnemyColor,
+			ScanningIsActive ? Theme.FriendlyColor : Theme.EnemyColor,
 			ScanningAnalyzisRatio, LargeProgressBarSize);
 		CurrentPos += InstrumentLine;
 	}

@@ -114,12 +114,12 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 
 		Waypoints.Add(FVector(0,0,-211084));
 		Waypoints.Add(FVector(0,0,-98414));
-		Waypoints.Add(FVector(-37257,28772,285917));
-		Waypoints.Add(FVector(-7009,-47286,290234));
-		Waypoints.Add(FVector(0,0,82801));
-		Waypoints.Add(FVector(0,0,13138));
-		Waypoints.Add(FVector(4176.675781,-486.620117,4294.422363));
-		Waypoints.Add(FVector(1422.779175,449.966492,-12945.479492));
+		Waypoints.Add(FVector(-34858.507812, 27965.390625, 291240.156250));
+		Waypoints.Add(FVector(-6500.073242, -43279.824219, 290588.531250));
+		Waypoints.Add(FVector(-1783.690918, 2219.517334, 79133.492188));
+		Waypoints.Add(FVector(0,0,12563.443359));
+		Waypoints.Add(FVector(3321.726562, 37.321136, 3937.916504));
+		Waypoints.Add(FVector(901.953857, 174.950699, -12089.154297));
 
 		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel1", "Inspect the pipe at the reference point A in {0}"), TheSpire->GetSectorName()));
 		CustomInitialLabels.Add(FText::Format(LOCTEXT("InspectLabel2", "Inspect the pipe at the reference point B in {0}"), TheSpire->GetSectorName()));
@@ -139,7 +139,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 		WaypointTexts.Add(LOCTEXT("WaypointText7", "Module inspected, {0} left"));
 		WaypointTexts.Add(LOCTEXT("WaypointText8", "Attachement inspected. Good job !"));
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionWaypoints::Create(this, QUEST_TAG"cond1", TheSpire, Waypoints, true, CustomInitialLabels, WaypointTexts));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionWaypoints::Create(this, QUEST_TAG"cond1", TheSpire, Waypoints, 16000, true, CustomInitialLabels, WaypointTexts));
 		Steps.Add(Step);
 	}
 
@@ -389,22 +389,19 @@ void UFlareQuestConditionVisitSector::AddConditionObjectives(FFlarePlayerObjecti
 	Follow absolute waypoints condition
 ----------------------------------------------------*/
 
-#define ABSOLUTE_WAYPOINTS_RADIUS 2000
-#define SCANNER_RADIUS 10000
-
 UFlareQuestConditionWaypoints::UFlareQuestConditionWaypoints(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
-UFlareQuestConditionWaypoints* UFlareQuestConditionWaypoints::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan, TArray<FText> CustomInitialLabelsParam, TArray<FText> CustomWaypointTextsParam)
+UFlareQuestConditionWaypoints* UFlareQuestConditionWaypoints::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, float Radius, bool RequiresScan, TArray<FText> CustomInitialLabelsParam, TArray<FText> CustomWaypointTextsParam)
 {
 	UFlareQuestConditionWaypoints*Condition = NewObject<UFlareQuestConditionWaypoints>(ParentQuest, UFlareQuestConditionWaypoints::StaticClass());
-	Condition->Load(ParentQuest, ConditionIdentifier, Sector, VectorListParam, RequiresScan, CustomInitialLabelsParam, CustomWaypointTextsParam);
+	Condition->Load(ParentQuest, ConditionIdentifier, Sector, VectorListParam, Radius, RequiresScan, CustomInitialLabelsParam, CustomWaypointTextsParam);
 	return Condition;
 }
 
-void UFlareQuestConditionWaypoints::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, bool RequiresScan, TArray<FText> CustomInitialLabelsParam, TArray<FText> CustomWaypointTextsParam)
+void UFlareQuestConditionWaypoints::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, UFlareSimulatedSector* Sector, TArray<FVector> VectorListParam, float Radius, bool RequiresScan, TArray<FText> CustomInitialLabelsParam, TArray<FText> CustomWaypointTextsParam)
 {
 	if (ConditionIdentifier == NAME_None)
 	{
@@ -417,6 +414,7 @@ void UFlareQuestConditionWaypoints::Load(UFlareQuest* ParentQuest, FName Conditi
 	TargetRequiresScan = RequiresScan;
 	CustomInitialLabels = CustomInitialLabelsParam;
 	CustomWaypointTexts = CustomWaypointTextsParam;
+	TargetRadius = Radius;
 
 
 	if (RequiresScan)
@@ -494,7 +492,7 @@ bool UFlareQuestConditionWaypoints::IsCompleted()
 	{
 		Init();
 		FVector WorldTargetLocation = VectorList[CurrentProgression];
-		float MaxDistance = TargetRequiresScan ? SCANNER_RADIUS : ABSOLUTE_WAYPOINTS_RADIUS;
+		float MaxDistance = TargetRadius;
 		
 		if (Spacecraft->GetParent()->GetCurrentSector() == TargetSector)
 		{
@@ -573,7 +571,7 @@ void UFlareQuestConditionWaypoints::AddConditionObjectives(FFlarePlayerObjective
 		ObjectiveTarget.RequiresScan = TargetRequiresScan;
 		ObjectiveTarget.Actor = NULL;
 		ObjectiveTarget.Active = (CurrentProgression == TargetIndex);
-		ObjectiveTarget.Radius = TargetRequiresScan ? SCANNER_RADIUS : ABSOLUTE_WAYPOINTS_RADIUS;
+		ObjectiveTarget.Radius = TargetRadius;
 
 		FVector WorldTargetLocation = VectorList[TargetIndex]; // In cm
 

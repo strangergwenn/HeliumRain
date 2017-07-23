@@ -62,6 +62,10 @@ public:
 	UFUNCTION(exec)
 	void SetCulture(FName CultureName);
 
+	UFUNCTION(exec)
+	void PickPoint();
+
+
 	/*----------------------------------------------------
 		World tools
 	----------------------------------------------------*/
