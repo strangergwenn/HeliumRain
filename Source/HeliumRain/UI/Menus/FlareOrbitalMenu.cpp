@@ -562,7 +562,7 @@ void SFlareOrbitalMenu::OnOpenSector(TSharedPtr<int32> Index)
 void SFlareOrbitalMenu::OnFastForwardClicked()
 {
 	// Confirm and go on
-	bool CanGoAhead = MenuManager->GetPC()->ConfirmFastForward(FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, false), false);
+	bool CanGoAhead = MenuManager->GetPC()->ConfirmFastForward(FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, false), FSimpleDelegate(), false);
 	if (CanGoAhead)
 	{
 		OnFastForwardConfirmed(false);
@@ -581,7 +581,7 @@ void SFlareOrbitalMenu::OnFastForwardAutomaticClicked()
 		}
 
 		// Confirm and go on
-		bool CanGoAhead = MenuManager->GetPC()->ConfirmFastForward(FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, true), true);
+		bool CanGoAhead = MenuManager->GetPC()->ConfirmFastForward(FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardConfirmed, true), FSimpleDelegate::CreateSP(this, &SFlareOrbitalMenu::OnFastForwardCanceled), true);
 		if (CanGoAhead)
 		{
 			OnFastForwardConfirmed(true);
@@ -611,6 +611,11 @@ void SFlareOrbitalMenu::OnFastForwardConfirmed(bool Automatic)
 	{
 		MenuManager->GetPC()->SimulateConfirmed();
 	}
+}
+
+void SFlareOrbitalMenu::OnFastForwardCanceled()
+{
+	FastForwardAuto->SetActive(false);
 }
 
 void SFlareOrbitalMenu::OnWorldEconomyClicked()

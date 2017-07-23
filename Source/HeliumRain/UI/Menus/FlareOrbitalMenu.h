@@ -103,6 +103,9 @@ protected:
 
 	/** Fast forward to the next event */
 	void OnFastForwardConfirmed(bool Automatic);
+
+	/** Cancel fast forward */
+	void OnFastForwardCanceled();
 	
 	/** Open the world economy menu */
 	void OnWorldEconomyClicked();
