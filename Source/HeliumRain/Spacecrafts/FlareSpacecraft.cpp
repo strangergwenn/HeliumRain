@@ -592,7 +592,16 @@ void AFlareSpacecraft::GetScanningProgress(bool& ScanningIsActive, float& Angula
 			{
 				FVector TargetDisplacement = Target.Location - GetActorLocation();
 
-				AngularProgress = FVector::DotProduct(GetFrontVector(), TargetDisplacement.GetSafeNormal());
+				float Alignement = FVector::DotProduct(GetFrontVector(), TargetDisplacement.GetSafeNormal());
+				if(Alignement > 0)
+				{
+					AngularProgress = 1.f - FMath::Acos(Alignement);
+				}
+				else
+				{
+					AngularProgress = 0;
+				}
+
 				LinearProgress = 1 - FMath::Clamp(TargetDisplacement.Size() / 100000, 0.0f, 1.0f); // 1000m
 				AnalyzisProgress = FMath::Clamp(ScanningTimer / ScanningTimerDuration, 0.0f, 1.0f);
 
