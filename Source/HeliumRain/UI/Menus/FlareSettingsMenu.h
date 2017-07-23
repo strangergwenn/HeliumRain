@@ -152,7 +152,7 @@ protected:
 
 	void OnForwardOnlyThrustToggle();
 
-	void  ApplyNewBinding(TSharedPtr<FSimpleBind> BindingThatChanged);
+	void  ApplyNewBinding(TSharedPtr<FSimpleBind> BindingThatChanged, bool Replace, bool bPrimaryKey);
 	void  CancelNewBinding(SFlareKeyBind* UIBinding, FKey PreviousKey);
 
 	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, SFlareKeyBind* UIBinding, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey);

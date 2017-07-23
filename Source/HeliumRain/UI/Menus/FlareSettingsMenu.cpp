@@ -1508,8 +1508,41 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 
 }
 
-void  SFlareSettingsMenu::ApplyNewBinding(TSharedPtr<FSimpleBind> BindingThatChanged)
+void  SFlareSettingsMenu::ApplyNewBinding(TSharedPtr<FSimpleBind> BindingThatChanged, bool Replace, bool bPrimaryKey)
 {
+	if(Replace)
+	{
+		FKey KeyToErase = *BindingThatChanged->Key;
+
+		if(!bPrimaryKey)
+		{
+			KeyToErase = *BindingThatChanged->AltKey;
+		}
+
+		auto EraseIfNeeded = [&KeyToErase, &BindingThatChanged](TSharedPtr<FSimpleBind> Bind)
+		{
+			if((*(Bind->Key) == KeyToErase) && &(*BindingThatChanged) != &(*Bind))
+			{
+				Bind->KeyWidget->SetKey(FKey(), true, false);
+			}
+
+			if((*(Bind->AltKey) == KeyToErase) && &(*BindingThatChanged) != &(*Bind))
+			{
+				Bind->AltKeyWidget->SetKey(FKey(), true, false);
+			}
+		};
+
+		for(TSharedPtr<FSimpleBind> Bind : Binds)
+		{
+			EraseIfNeeded(Bind);
+		}
+
+		for(TSharedPtr<FSimpleBind> Bind : Binds2)
+		{
+			EraseIfNeeded(Bind);
+		}
+	}
+
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
 	BindingThatChanged->WriteBind();
 	InputSettings->SaveKeyMappings();
@@ -1548,16 +1581,17 @@ void SFlareSettingsMenu::OnKeyBindingChanged(FKey PreviousKey, FKey NewKey, SFla
 		}
 
 		AFlareMenuManager::GetSingleton()->Confirm(LOCTEXT("ConfirmKeyConflict", "KEY ALREADY USED"),
-			FText::Format(LOCTEXT("ConfirmKeyConflictInfo", "'{0}' is already used for {1}. Do you really want to assign this key for '{2}'' ?"),
+			FText::Format(LOCTEXT("ConfirmKeyConflictInfo", "'{0}' is already used for {1}. Do you really want to assign this key for '{2}'' ?\n(Ignore will keep both assignements)"),
 						  FText::FromString(NewKey.ToString()),
 						  ConflictKeys,
 						  BindingThatChanged->DisplayName),
-			FSimpleDelegate::CreateSP(this, &SFlareSettingsMenu::ApplyNewBinding, BindingThatChanged),
-			FSimpleDelegate::CreateSP(this, &SFlareSettingsMenu::CancelNewBinding, UIBinding, PreviousKey));
+			FSimpleDelegate::CreateSP(this, &SFlareSettingsMenu::ApplyNewBinding, BindingThatChanged, true, bPrimaryKey),
+			FSimpleDelegate::CreateSP(this, &SFlareSettingsMenu::CancelNewBinding, UIBinding, PreviousKey),
+			FSimpleDelegate::CreateSP(this, &SFlareSettingsMenu::ApplyNewBinding, BindingThatChanged, false, bPrimaryKey));
 	}
 	else
 	{
-		ApplyNewBinding(BindingThatChanged);
+		ApplyNewBinding(BindingThatChanged, false, bPrimaryKey);
 	}
 }
 
