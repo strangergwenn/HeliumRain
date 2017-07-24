@@ -142,8 +142,6 @@ protected:
 
 	void OnCockpitToggle();
 
-	void OnPauseInMenusToggle();
-
 	void OnShipCountSliderChanged(float Value);
 		
 	void OnRotationDeadZoneSliderChanged(float Value);
@@ -216,7 +214,6 @@ protected:
 	TSharedPtr<SFlareButton>                    CockpitButton;
 #endif
 	TSharedPtr<SFlareButton>                    AnticollisionButton;
-	TSharedPtr<SFlareButton>                    PauseInMenusButton;
 	TSharedPtr<SSlider>                         ShipCountSlider;
 	TSharedPtr<STextBlock>	        			ShipCountLabel;
 

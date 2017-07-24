@@ -451,18 +451,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnAnticollisionToggle)
 						]
-					
-						// Pause in menus
-						/*+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(PauseInMenusButton, SFlareButton)
-							.Text(LOCTEXT("PauseInMenus", "Pause in menus"))
-							.HelpText(LOCTEXT("PauseInMenusInfo", "Pause the game when entering a full-screen menu."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnPauseInMenusToggle)
-						]*/
 					]
 				
 					// Ship count level box
@@ -793,7 +781,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
 #endif
 	AnticollisionButton->SetActive(MyGameSettings->UseAnticollision);
-	//PauseInMenusButton->SetActive(MyGameSettings->PauseGameInMenus);
 
 	float MaxShipRatio = ((float) MyGameSettings->MaxShipsInSector - MIN_MAX_SHIPS) / ((float) MAX_MAX_SHIPS - MIN_MAX_SHIPS);
 
@@ -1304,16 +1291,6 @@ void SFlareSettingsMenu::OnAnticollisionToggle()
 	MyGameSettings->ApplySettings(false);
 }
 
-void SFlareSettingsMenu::OnPauseInMenusToggle()
-{
-	bool New = PauseInMenusButton->IsActive();
-	MenuManager->GetPC()->SetPauseGameInMenus(New);
-
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->PauseGameInMenus = New;
-	MyGameSettings->ApplySettings(false);
-}
-
 void SFlareSettingsMenu::OnShipCountSliderChanged(float Value)
 {
 	float NotSteppedValue = Value * (MAX_MAX_SHIPS - MIN_MAX_SHIPS) + MIN_MAX_SHIPS;
@@ -1586,7 +1563,7 @@ void SFlareSettingsMenu::OnKeyBindingChanged(FKey PreviousKey, FKey NewKey, SFla
 		}
 
 		AFlareMenuManager::GetSingleton()->Confirm(LOCTEXT("ConfirmKeyConflict", "KEY ALREADY USED"),
-			FText::Format(LOCTEXT("ConfirmKeyConflictInfo", "'{0}' is already used for {1}. Do you really want to assign this key for '{2}'' ?\n(Ignore will keep both assignements)"),
+			FText::Format(LOCTEXT("ConfirmKeyConflictInfo", "'{0}' is already used for {1}. Do you want to assign this key for '{2}' only ?\nIgnore to keep both assignements"),
 						  FText::FromString(NewKey.ToString()),
 						  ConflictKeys,
 						  BindingThatChanged->DisplayName),
@@ -2091,7 +2068,7 @@ void FSimpleBind::WriteBind()
 	}
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
 
-	// Collapse the keys if the main key is missing.
+	// Collapse the keys if the main key is missing
 	if (*Key == FKey() && *AltKey != FKey())
 	{
 		Key = AltKey;
@@ -2108,7 +2085,7 @@ void FSimpleBind::WriteBind()
 		InputSettings->RemoveAxisMapping(Bind);
 	}
 
-	//Set our new keys and readd them
+	// Set our new keys and read them
 	TArray<FName> ActionMappingNames;
 	TArray<FName> AxisMappingNames;
 	TArray<float> AxisMappingScales;

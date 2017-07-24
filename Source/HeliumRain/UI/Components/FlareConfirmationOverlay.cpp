@@ -68,6 +68,7 @@ void SFlareConfirmationOverlay::Construct(const FArguments& InArgs)
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Center)
 					[
 						SNew(SHorizontalBox)
 
