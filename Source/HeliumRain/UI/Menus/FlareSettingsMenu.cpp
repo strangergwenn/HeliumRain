@@ -1855,18 +1855,24 @@ void SFlareSettingsMenu::CreateBinds()
 
 	// Weapons
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Weapons", "WEAPONS")))->MakeHeader()));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Deactivate Weapons", "Deactivate weapons")))
-		->AddActionMapping("DeactivateWeapon")
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Deactivate Weapons", "Menu 1 / Stand down")))
+		->AddActionMapping("SpacecraftKey1")
 		->AddDefaults(EKeys::One)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate primary weapons", "Weapon group 1")))
-		->AddActionMapping("WeaponGroup1")
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate primary weapons", "Menu 2 / Weapon 1")))
+		->AddActionMapping("SpacecraftKey2")
 		->AddDefaults(EKeys::Two)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate secondary weapons", "Weapon group 2")))
-		->AddActionMapping("WeaponGroup2")
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate secondary weapons", "Menu 3 / Weapon 2")))
+		->AddActionMapping("SpacecraftKey3")
 		->AddDefaults(EKeys::Three)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate tertiary weapons", "Weapon group 3")))
-		->AddActionMapping("WeaponGroup3")
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Activate tertiary weapons", "Menu 4 / Weapon 3")))
+		->AddActionMapping("SpacecraftKey4")
 		->AddDefaults(EKeys::Four)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Menu 5", "Menu 5")))
+		->AddActionMapping("SpacecraftKey5")
+		->AddDefaults(EKeys::Five)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Menu 6", "Menu 6")))
+		->AddActionMapping("SpacecraftKey6")
+		->AddDefaults(EKeys::Six)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Fire Weapon", "Fire")))
 		->AddActionMapping("StartFire")));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Weapons", "Toogle weapons")))

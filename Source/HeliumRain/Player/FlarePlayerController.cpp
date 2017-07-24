@@ -1734,32 +1734,66 @@ void AFlarePlayerController::SettingsMenu()
 
 void AFlarePlayerController::SpacecraftKey1()
 {
-	MenuManager->SpacecraftInfoHotkey(1);
+	if (IsInMenu())
+	{
+		MenuManager->SpacecraftInfoHotkey(1);
+	}
+	else
+	{
+		ShipPawn->DeactivateWeapon();
+	}
 }
 
 void AFlarePlayerController::SpacecraftKey2()
 {
-	MenuManager->SpacecraftInfoHotkey(2);
+	if (IsInMenu())
+	{
+		MenuManager->SpacecraftInfoHotkey(2);
+	}
+	else
+	{
+		ShipPawn->ActivateWeaponGroup1();
+	}
 }
 
 void AFlarePlayerController::SpacecraftKey3()
 {
-	MenuManager->SpacecraftInfoHotkey(3);
+	if (IsInMenu())
+	{
+		MenuManager->SpacecraftInfoHotkey(3);
+	}
+	else
+	{
+		ShipPawn->ActivateWeaponGroup2();
+	}
 }
 
 void AFlarePlayerController::SpacecraftKey4()
 {
-	MenuManager->SpacecraftInfoHotkey(4);
+	if (IsInMenu())
+	{
+		MenuManager->SpacecraftInfoHotkey(3);
+	}
+	else
+	{
+		ShipPawn->ActivateWeaponGroup3();
+	}
 }
 
 void AFlarePlayerController::SpacecraftKey5()
 {
-	MenuManager->SpacecraftInfoHotkey(5);
+	if (IsInMenu())
+	{
+		MenuManager->SpacecraftInfoHotkey(5);
+	}
 }
 
 void AFlarePlayerController::SpacecraftKey6()
 {
-	MenuManager->SpacecraftInfoHotkey(6);
+	if (IsInMenu())
+	{
+		MenuManager->SpacecraftInfoHotkey(6);
+	}
 }
 
 void AFlarePlayerController::ToggleCombat()
