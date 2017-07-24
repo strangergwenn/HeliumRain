@@ -61,6 +61,9 @@ public:
 	/** Hide the menu */
 	void Hide();
 
+	/** A hotkey was received */
+	void Hotkey(int32 Index);
+
 
 	/*----------------------------------------------------
 		Callbacks

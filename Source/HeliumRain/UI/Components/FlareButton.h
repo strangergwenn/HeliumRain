@@ -62,6 +62,12 @@ public:
 	/** Force a new help text */
 	void SetHelpText(FText NewText);
 	
+	/** Is this disabled ?*/
+	bool IsButtonAvailable() const
+	{
+		return GetVisibility() == EVisibility::Visible && !IsDisabled.Get();
+	}
+
 
 	/*----------------------------------------------------
 		Callbacks

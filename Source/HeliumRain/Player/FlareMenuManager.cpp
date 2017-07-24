@@ -56,6 +56,7 @@ AFlareMenuManager::AFlareMenuManager(const class FObjectInitializer& PCIP)
 	, MenuIsOpen(false)
 	, FadeFromBlack(true)
 	, FadeDuration(0.3)
+	, CurrentSpacecraftInfo(NULL)
 {
 }
 
@@ -402,6 +403,27 @@ void AFlareMenuManager::HideTooltip(SWidget* TargetWidget)
 	if (IsValidLowLevel() && Tooltip.IsValid() && !IsFading())
 	{
 		Tooltip->HideTooltip(TargetWidget);
+	}
+}
+
+void AFlareMenuManager::RegisterSpacecraftInfo(SFlareSpacecraftInfo* Info)
+{
+	CurrentSpacecraftInfo = Info;
+}
+
+void AFlareMenuManager::UnregisterSpacecraftInfo(SFlareSpacecraftInfo* Info)
+{
+	if (CurrentSpacecraftInfo == Info)
+	{
+		CurrentSpacecraftInfo = NULL;
+	}
+}
+
+void AFlareMenuManager::SpacecraftInfoHotkey(int32 Index)
+{
+	if (CurrentSpacecraftInfo)
+	{
+		CurrentSpacecraftInfo->Hotkey(Index);
 	}
 }
 
@@ -1127,7 +1149,20 @@ FString AFlareMenuManager::GetKeyNameFromActionName(FName ActionName)
 		FInputActionKeyMapping Action = InputSettings->ActionMappings[i];
 		if (Action.ActionName == ActionName && !Action.Key.IsGamepadKey())
 		{
-			return Action.Key.ToString();
+			FString KeyName = Action.Key.ToString();
+
+			if (KeyName == "Zero" || KeyName == "NumPadZero") return "0";
+			if (KeyName == "One" || KeyName == "NumPadOne") return "1";
+			if (KeyName == "Two" || KeyName == "NumPadTwo") return "2";
+			if (KeyName == "Three" || KeyName == "NumPadThree") return "3";
+			if (KeyName == "Four" || KeyName == "NumPadFour") return "4";
+			if (KeyName == "Five" || KeyName == "NumPadFive") return "5";
+			if (KeyName == "Six" || KeyName == "NumPadSix") return "6";
+			if (KeyName == "Seven" || KeyName == "NumPadSeven") return "7";
+			if (KeyName == "Eight" || KeyName == "NumPadEight") return "8";
+			if (KeyName == "Nine" || KeyName == "NumPadNine") return "9";
+
+			return KeyName;
 		}
 	}
 

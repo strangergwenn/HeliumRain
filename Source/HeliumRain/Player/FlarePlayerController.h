@@ -245,6 +245,14 @@ public:
 	void MainMenu();
 	void SettingsMenu();
 
+	// Hotkeys
+	void SpacecraftKey1();
+	void SpacecraftKey2();
+	void SpacecraftKey3();
+	void SpacecraftKey4();
+	void SpacecraftKey5();
+	void SpacecraftKey6();
+
 	/** Toggle the combat mode */
 	void ToggleCombat();
 

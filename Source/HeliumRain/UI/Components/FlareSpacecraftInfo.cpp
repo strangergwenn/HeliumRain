@@ -206,7 +206,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SAssignNew(InspectButton, SFlareButton)
-					.Text(LOCTEXT("Inspect", "DETAILS"))
+					.Text(FText::FromString("-"))
 					.HelpText(LOCTEXT("InspectInfo", "Take a closer look at this spacecraft"))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnInspect)
 					.Width(5)
@@ -217,7 +217,8 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SAssignNew(TargetButton, SFlareButton)
-					.Text(LOCTEXT("Target", "TARGET"))
+					.Text(FText::Format(LOCTEXT("TargetFormat", "<{0}> TARGET"),
+						FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey2")))))
 					.HelpText(this, &SFlareSpacecraftInfo::GetTargetButtonHint)
 					.OnClicked(this, &SFlareSpacecraftInfo::OnTarget)
 					.IsDisabled(this, &SFlareSpacecraftInfo::IsTargetDisabled)
@@ -229,7 +230,8 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SAssignNew(FlyButton, SFlareButton)
-					.Text(LOCTEXT("ShipFly", "FLY"))
+					.Text(FText::Format(LOCTEXT("ShipFlyFormat", "<{0}> FLY"),
+						FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey3")))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnFly)
 					.Width(5)
 				]
@@ -247,7 +249,8 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SAssignNew(TradeButton, SFlareButton)
-					.Text(LOCTEXT("Trade", "TRADE"))
+					.Text(FText::Format(LOCTEXT("TradeFormat", "<{0}> TRADE"),
+						FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey4")))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
 					.Width(5)
 				]
@@ -257,7 +260,8 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SAssignNew(DockButton, SFlareButton)
-					.Text(LOCTEXT("Dock", "DOCK"))
+					.Text(FText::Format(LOCTEXT("DockFormat", "<{0}> DOCK"),
+						FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey4")))))
 					.HelpText(LOCTEXT("DockInfo", "Try to dock at this spacecraft"))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnDockAt)
 					.Width(5)
@@ -268,7 +272,8 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SAssignNew(UndockButton, SFlareButton)
-					.Text(LOCTEXT("Undock", "UNDOCK"))
+					.Text(FText::Format(LOCTEXT("UndockFormat", "<{0}> UNDOCK"),
+						FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey4")))))
 					.HelpText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnUndock)
 					.Width(5)
@@ -279,7 +284,8 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SAssignNew(UpgradeButton, SFlareButton)
-					.Text(LOCTEXT("Upgrade", "UPGRADE"))
+					.Text(FText::Format(LOCTEXT("UpgradeFormat", "<{0}> UPGRADE"),
+						FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey5")))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
 					.Width(5)
 				]
@@ -289,7 +295,8 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SAssignNew(ScrapButton, SFlareButton)
-					.Text(LOCTEXT("Scrap", "SCRAP"))
+					.Text(FText::Format(LOCTEXT("ScrapFormat", "<{0}> SCRAP"),
+						FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey6")))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnScrap)
 					.Width(5)
 				]
@@ -343,14 +350,15 @@ void SFlareSpacecraftInfo::SetSpacecraft(UFlareSimulatedSpacecraft* Target)
 			}
 		}
 
-		// Set "details" text
+		// Set "details" textFText::Format(LOCTEXT("InspectFormat", "<{0}> DETAILS"),
+		FText InspectKeyName = FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey1")));
 		if (Target->IsShipyard())
 		{
-			InspectButton->SetText(LOCTEXT("InspectShipyard", "BUY SHIP"));
+			InspectButton->SetText(FText::Format(LOCTEXT("InspectShipyard", "<{0}> BUY SHIP"), InspectKeyName));
 		}
 		else
 		{
-			InspectButton->SetText(LOCTEXT("InspectRegular", "DETAILS"));
+			InspectButton->SetText(FText::Format(LOCTEXT("InspectRegular", "<{0}> DETAILS"), InspectKeyName));
 		}
 	}
 
@@ -372,6 +380,7 @@ void SFlareSpacecraftInfo::SetNoInspect(bool NewState)
 void SFlareSpacecraftInfo::SetMinimized(bool NewState)
 {
 	Minimized = NewState;
+	PC->GetMenuManager()->UnregisterSpacecraftInfo(this);
 
 	if (GetVisibility() == EVisibility::Visible)
 	{
@@ -538,6 +547,8 @@ void SFlareSpacecraftInfo::Show()
 	{
 		CargoBay->SetVisibility(EVisibility::Visible);
 	}
+
+	PC->GetMenuManager()->RegisterSpacecraftInfo(this);
 }
 
 void SFlareSpacecraftInfo::Hide()
@@ -546,6 +557,63 @@ void SFlareSpacecraftInfo::Hide()
 	TargetSpacecraft = NULL;
 	TargetSpacecraftDesc = NULL;
 	SetVisibility(EVisibility::Collapsed);
+	PC->GetMenuManager()->UnregisterSpacecraftInfo(this);
+}
+
+void SFlareSpacecraftInfo::Hotkey(int32 Index)
+{
+	FCHECK(TargetSpacecraft);
+	FCHECK(TargetSpacecraftDesc);
+
+	switch (Index)
+	{
+		case 1:
+			if (InspectButton->IsButtonAvailable())
+			{
+				OnInspect();
+			}
+			break;
+		case 2:
+			if (TargetButton->IsButtonAvailable())
+			{
+				OnTarget();
+			}
+			break;
+		case 3:
+			if (FlyButton->IsButtonAvailable())
+			{
+				OnFly();
+			}
+			break;
+		case 4:
+			if (TradeButton->IsButtonAvailable())
+			{
+				OnTrade();
+			}
+			else if (DockButton->IsButtonAvailable())
+			{
+				OnDockAt();
+			}
+			if (UndockButton->IsButtonAvailable())
+			{
+				OnUndock();
+			}
+			break;
+		case 5:
+			if (UpgradeButton->IsButtonAvailable())
+			{
+				OnUpgrade();
+			}
+			break;
+		case 6:
+			if (ScrapButton->IsButtonAvailable())
+			{
+				OnScrap();
+			}
+			break;
+		default:
+			break;
+	}
 }
 
 

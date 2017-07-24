@@ -1465,6 +1465,14 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("MainMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::MainMenu);
 	InputComponent->BindAction("SettingsMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::SettingsMenu);
 
+	// Hotkeys
+	InputComponent->BindAction("SpacecraftKey1", EInputEvent::IE_Released, this, &AFlarePlayerController::SpacecraftKey1);
+	InputComponent->BindAction("SpacecraftKey2", EInputEvent::IE_Released, this, &AFlarePlayerController::SpacecraftKey2);
+	InputComponent->BindAction("SpacecraftKey3", EInputEvent::IE_Released, this, &AFlarePlayerController::SpacecraftKey3);
+	InputComponent->BindAction("SpacecraftKey4", EInputEvent::IE_Released, this, &AFlarePlayerController::SpacecraftKey4);
+	InputComponent->BindAction("SpacecraftKey5", EInputEvent::IE_Released, this, &AFlarePlayerController::SpacecraftKey5);
+	InputComponent->BindAction("SpacecraftKey6", EInputEvent::IE_Released, this, &AFlarePlayerController::SpacecraftKey6);
+
 	// Mouse
 	InputComponent->BindAction("Wheel", EInputEvent::IE_Pressed, this, &AFlarePlayerController::WheelPressed);
 	InputComponent->BindAction("Wheel", EInputEvent::IE_Released, this, &AFlarePlayerController::WheelReleased);
@@ -1722,6 +1730,36 @@ void AFlarePlayerController::SettingsMenu()
 			MenuManager->OpenMenu(EFlareMenu::MENU_Settings);
 		}
 	}
+}
+
+void AFlarePlayerController::SpacecraftKey1()
+{
+	MenuManager->SpacecraftInfoHotkey(1);
+}
+
+void AFlarePlayerController::SpacecraftKey2()
+{
+	MenuManager->SpacecraftInfoHotkey(2);
+}
+
+void AFlarePlayerController::SpacecraftKey3()
+{
+	MenuManager->SpacecraftInfoHotkey(3);
+}
+
+void AFlarePlayerController::SpacecraftKey4()
+{
+	MenuManager->SpacecraftInfoHotkey(4);
+}
+
+void AFlarePlayerController::SpacecraftKey5()
+{
+	MenuManager->SpacecraftInfoHotkey(5);
+}
+
+void AFlarePlayerController::SpacecraftKey6()
+{
+	MenuManager->SpacecraftInfoHotkey(6);
 }
 
 void AFlarePlayerController::ToggleCombat()

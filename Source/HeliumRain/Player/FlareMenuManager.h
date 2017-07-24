@@ -14,6 +14,7 @@
 class SFlareTooltip;
 class SFlareNotifier;
 class SFlareMainOverlay;
+class SFlareSpacecraftInfo;
 class SFlareConfirmationOverlay;
 class SFlareSpacecraftOrderOverlay;
 
@@ -115,6 +116,15 @@ public:
 
 	/** Stop displaying the tooltip */
 	void HideTooltip(SWidget* TargetWidget);
+
+	/** Register as the latest spacecraft info */
+	void RegisterSpacecraftInfo(SFlareSpacecraftInfo* Info);
+
+	/** Unregister as the latest spacecraft info */
+	void UnregisterSpacecraftInfo(SFlareSpacecraftInfo* Info);
+
+	/** Spacecraft info hotkey was pressed */
+	void SpacecraftInfoHotkey(int32 Index);
 
 
 protected:
@@ -354,6 +364,7 @@ protected:
 	TFlareMenuData                          CurrentMenu;
 	TFlareMenuData                          NextMenu;
 	TArray<TFlareMenuData>                  MenuHistory;
+	SFlareSpacecraftInfo*                   CurrentSpacecraftInfo;
 
 	// Menu tools
 	TSharedPtr<SBorder>                     Fader;
