@@ -1663,61 +1663,70 @@ FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float Desig
 
 void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 {
-	int32 DockingIconSize = 64;
-	int32 DockingRoolIconSize = 16;
+	int32 DockingIconSize = 96;
+	int32 DockingRoolIconSize = 32;
 
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
 	// Reasons we might not draw
 	if (!HUDVisible
-	 || PC->GetShipPawn()->GetStateManager()->IsExternalCamera()
 	 || !Spacecraft->IsStation()
 	 || !Spacecraft->GetParent()->GetDamageSystem()->IsAlive()
+	 ||  Spacecraft->GetDockingSystem()->GetDockCount() == 0
 	 ||  Spacecraft->GetCompany()->GetPlayerWarState() == EFlareHostility::Hostile
 	 || !PC->GetShipPawn()->GetNavigationSystem()->IsManualPilot()
+	 ||  PC->GetShipPawn()->GetStateManager()->IsExternalCamera()
 	 ||  PC->GetShipPawn()->GetWeaponsSystem()->GetActiveWeaponGroupIndex() >= 0)
 	{
 		return;
 	}
 
 	// Calculation data
+	FVector CameraLocation = PC->GetShipPawn()->Airframe->GetSocketLocation(FName("Camera"));
 	FVector PlayerLocation = PC->GetShipPawn()->GetActorLocation();
 	FVector TargetLocation = Spacecraft->GetActorLocation();
 
 	// Too far
+	float BestDistance = 30000;
 	float Distance = (TargetLocation - PlayerLocation).Size();
-	if (Distance > 40000)
+	if (Distance >= BestDistance)
 	{
 		return;
 	}
 
+	// Select closest dock
+	bool Found = false;
+	FFlareDockingInfo BestDockingPort;
 	for (int32 DockingPortIndex = 0; DockingPortIndex < Spacecraft->GetDockingSystem()->GetDockCount(); DockingPortIndex++)
 	{
 		FFlareDockingInfo DockingPort = Spacecraft->GetDockingSystem()->GetDockInfo(DockingPortIndex);
-		
-		// Not compatible
-		if (DockingPort.DockSize != PC->GetShipPawn()->GetSize())
-		{
-			continue;
-		}
-
-		FVector CameraLocation = PC->GetShipPawn()->Airframe->GetSocketLocation(FName("Camera"));
 		FFlareDockingParameters DockingParameters = PC->GetShipPawn()->GetNavigationSystem()->GetDockingParameters(DockingPort, CameraLocation);
-		struct FVector DockingPortLocation = DockingParameters.StationDockLocation;
 
-		// Docked
-		if (DockingParameters.DockingPhase == EFlareDockingPhase::Docked)
+		// Check if we should draw it
+		if (DockingPort.DockSize == PC->GetShipPawn()->GetSize()
+		 && DockingParameters.DockingPhase != EFlareDockingPhase::Docked
+		 && DockingParameters.DockingPhase != EFlareDockingPhase::Locked
+		 && DockingParameters.DockingPhase != EFlareDockingPhase::Distant)
 		{
-			continue;
+			// Get distance
+			float Distance = (DockingParameters.StationDockLocation - DockingParameters.ShipDockLocation).Size();
+			if (Distance < BestDistance)
+			{
+				Found = true;
+				BestDistance = Distance;
+				BestDockingPort = DockingPort;
+			}
 		}
 
-		// Locked or rendez-vous
-		else if (DockingParameters.DockingPhase == EFlareDockingPhase::Locked || DockingParameters.DockingPhase == EFlareDockingPhase::Distant)
-		{
-			continue;
-		}
-
+	}
+	
+	// Found the best one
+	if (Found)
+	{
+		FFlareDockingParameters DockingParameters = PC->GetShipPawn()->GetNavigationSystem()->GetDockingParameters(BestDockingPort, CameraLocation);
+		struct FVector DockingPortLocation = DockingParameters.StationDockLocation;		
 		FVector2D CameraTargetScreenPosition;
+
 		if (ProjectWorldLocationToCockpit(DockingParameters.ShipCameraTargetLocation, CameraTargetScreenPosition))
 		{
 			FLinearColor HelperColor = HudColorNeutral;
@@ -1729,24 +1738,21 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 			FVector2D TimePosition = CameraTargetScreenPosition - CurrentViewportSize / 2 + FVector2D(0,85);
 			FlareDrawText(TimeText, TimePosition, HelperColor);
 			
+			// Top icon
 			FVector2D CameraTargetDockDirectionScreenPosition;
 			FVector CameraTargetDockDirectionLocation = DockingParameters.ShipCameraTargetLocation + (DockingPortLocation - DockingParameters.ShipCameraTargetLocation) * 0.01;
-
-			// Top icon
 			if (ProjectWorldLocationToCockpit(CameraTargetDockDirectionLocation, CameraTargetDockDirectionScreenPosition))
 			{
 				FVector2D DockAxis = (CameraTargetScreenPosition - CameraTargetDockDirectionScreenPosition).GetSafeNormal();
+				float Rotation = -FMath::RadiansToDegrees(FMath::Atan2(DockAxis.X, DockAxis.Y)) + 90;
+				FVector2D TopPosition = CameraTargetScreenPosition + DockAxis * 24;
 
-				FVector2D TopPosition = CameraTargetScreenPosition + DockAxis * 26;
-				float Rotation = -FMath::RadiansToDegrees(FMath::Atan2(DockAxis.X, DockAxis.Y)) - 90;
-
-				DrawHUDIconRotated(TopPosition, DockingRoolIconSize, HUDCombatMouseIcon, HelperColor, Rotation);
+				DrawHUDIconRotated(TopPosition, DockingRoolIconSize, HUDSearchArrowIcon, HelperColor, Rotation);
 			}
-
+			
+			// Axis icon
 			FVector2D AlignementScreenPosition;
 			FVector AlignementLocation = DockingParameters.ShipCameraTargetLocation + DockingParameters.StationDockAxis * 5.0f;
-
-			// Axis icon
 			if (ProjectWorldLocationToCockpit(AlignementLocation, AlignementScreenPosition))
 			{
 				FVector2D Alignement = CameraTargetScreenPosition + (AlignementScreenPosition - CameraTargetScreenPosition) * 100;
@@ -1759,7 +1765,7 @@ void AFlareHUD::DrawDockingHelper(AFlareSpacecraft* Spacecraft)
 					&& (DockingParameters.DockingPhase == EFlareDockingPhase::Dockable ||
 					DockingParameters.DockingPhase == EFlareDockingPhase::FinalApproach ||
 					DockingParameters.DockingPhase == EFlareDockingPhase::Approach)
-					&& DockingParameters.DockToDockDistance < (PC->GetShipPawn()->GetSize() == EFlarePartSize::S ? 500: 1500))
+					&& DockingParameters.DockToDockDistance < (PC->GetShipPawn()->GetSize() == EFlarePartSize::S ? 1000: 2500))
 			{
 				PC->GetShipPawn()->GetNavigationSystem()->DockAt(Spacecraft);
 				PC->SetAchievementProgression("ACHIEVEMENT_MANUAL_DOCK", 1);
