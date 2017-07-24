@@ -1106,12 +1106,10 @@ void AFlareHUD::DrawHUDInternal()
 			bool ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
 
 			// Draw docking guides
+			DrawDockingHelper(Spacecraft);
+			
+			// Get more info
 			bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
-			if (Highlighted)
-			{
-				DrawDockingHelper(Spacecraft);
-			}
-
 			bool IsObjective = (PC->GetCurrentObjective() && PC->GetCurrentObjective()->TargetSpacecrafts.Find(Spacecraft->GetParent()) != INDEX_NONE);
 
 			// Draw search markers for alive ships or highlighted stations when not in external camera
