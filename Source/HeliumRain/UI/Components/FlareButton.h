@@ -23,6 +23,7 @@ class SFlareButton : public SCompoundWidget
 
 	SLATE_ATTRIBUTE(FText, Text)
 	SLATE_ATTRIBUTE(FText, HelpText)
+	SLATE_ATTRIBUTE(FText, HotkeyText)
 	SLATE_ATTRIBUTE(const FSlateBrush*, Icon)
 	SLATE_ATTRIBUTE(FSlateColor, Color)
 	SLATE_ATTRIBUTE(bool, IsDisabled)

@@ -32,7 +32,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Center)
 	.HAlign(HAlign_Center)
 	[
-		// Button (behaviour only, no display)
+		// Button (behavior only, no display)
 		SAssignNew(InternalButton, SButton)
 		.OnClicked(this, &SFlareButton::OnButtonClicked)
 		.ContentPadding(FMargin(0))
@@ -120,10 +120,11 @@ void SFlareButton::Construct(const FArguments& InArgs)
 	if (InArgs._Text.IsSet())
 	{
 		TSharedPtr<SVerticalBox> IconBox;
+		TSharedPtr<SHorizontalBox> InternalBox;
 		
 		InnerContainer->SetPadding(IsSmall ? FMargin(0) : Theme.ButtonPadding);
 		InnerContainer->SetContent(
-			SNew(SHorizontalBox)
+			SAssignNew(InternalBox, SHorizontalBox)
 
 			// Icon
 			+ SHorizontalBox::Slot()
@@ -144,6 +145,18 @@ void SFlareButton::Construct(const FArguments& InArgs)
 				.ColorAndOpacity(this, &SFlareButton::GetMainColor)
 			]
 		);
+
+		if (InArgs._HotkeyText.IsSet())
+		{
+			InternalBox->InsertSlot(0)
+				.VAlign(VAlign_Center)
+				.AutoWidth()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.SmallFont)
+					.Text(FText::FromString(FString("<" + InArgs._HotkeyText.Get().ToString() + FString(">"))))
+				];
+		}
 
 		if (Icon.IsSet() || IsToggle)
 		{
