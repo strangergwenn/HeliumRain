@@ -188,6 +188,8 @@ void SFlareStoryMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
+	MenuManager->GetPC()->GetSoundManager()->RequestMusicTrack(EFlareMusicTrack::Intro);
+
 	ExitingMenu = false;
 	FadingIn = true;
 	GoingToNext = true;

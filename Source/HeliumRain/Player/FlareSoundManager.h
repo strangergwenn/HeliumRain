@@ -18,6 +18,7 @@ namespace EFlareMusicTrack
 	enum Type
 	{
 		None,
+		Intro,
 		Menu,
 		Ambient1,
 		Ambient2,
@@ -25,7 +26,9 @@ namespace EFlareMusicTrack
 		Exploration,
 		Danger,
 		Combat,
-		Battle
+		Battle,
+		Anomaly1,
+		Anomaly2
 	};
 }
 
@@ -38,7 +41,7 @@ struct FFlareSoundPlayer
 
 	/** Sound component */
 	UPROPERTY()
-	UAudioComponent*                         Sound;
+	class UAudioComponent*                   Sound;
 
 	/** Fade speed */
 	float                                    FadeSpeed;

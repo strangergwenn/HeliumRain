@@ -31,6 +31,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 
 	// Music track references
 	static ConstructorHelpers::FObjectFinder<USoundCue> MenuMusicObj(TEXT("/Game/Music/A_Menu_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> IntroMusicObj(TEXT("/Game/Music/A_Intro_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> Ambient1MusicObj(TEXT("/Game/Music/A_Ambient1_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> Ambient2MusicObj(TEXT("/Game/Music/A_Ambient2_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> TravelMusicObj(TEXT("/Game/Music/A_Travel_Cue"));
@@ -38,6 +39,8 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<USoundCue> DangerMusicObj(TEXT("/Game/Music/A_Danger_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> CombatMusicObj(TEXT("/Game/Music/A_Combat_Cue"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> BattleMusicObj(TEXT("/Game/Music/A_Battle_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> Anomaly1MusicObj(TEXT("/Game/Music/A_Anomaly1_Cue"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> Anomaly2MusicObj(TEXT("/Game/Music/A_Anomaly2_Cue"));
 
 	// Mix references
 	static ConstructorHelpers::FObjectFinder<USoundClass> MasterClassObj(TEXT("/Game/Sound/Class_Master.Class_Master"));
@@ -68,6 +71,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 
 	// Music track store
 	MusicTracks.Add(NULL);
+	MusicTracks.Add(IntroMusicObj.Object);
 	MusicTracks.Add(MenuMusicObj.Object);
 	MusicTracks.Add(Ambient1MusicObj.Object);
 	MusicTracks.Add(Ambient2MusicObj.Object);
@@ -76,6 +80,8 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	MusicTracks.Add(DangerMusicObj.Object);
 	MusicTracks.Add(CombatMusicObj.Object);
 	MusicTracks.Add(BattleMusicObj.Object);
+	MusicTracks.Add(Anomaly1MusicObj.Object);
+	MusicTracks.Add(Anomaly2MusicObj.Object);
 
 	// Sound references
 	TargetWarningSound = TargetWarningSoundObj.Object;
