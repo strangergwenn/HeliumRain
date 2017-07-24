@@ -778,6 +778,13 @@ void SFlareSpacecraftInfo::OnUndock()
 
 void SFlareSpacecraftInfo::OnScrap()
 {
+	PC->GetMenuManager()->Confirm(LOCTEXT("AreYouSure", "ARE YOU SURE ?"),
+		LOCTEXT("ConfirmScrap", "Do you really want to break up this spacecraft for credits ?"),
+		FSimpleDelegate::CreateSP(this, &SFlareSpacecraftInfo::OnScrapConfirmed));
+}
+
+void SFlareSpacecraftInfo::OnScrapConfirmed()
+{
 	if (PC && TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
 	{
 		FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping '%s'", *TargetSpacecraft->GetImmatriculation().ToString());

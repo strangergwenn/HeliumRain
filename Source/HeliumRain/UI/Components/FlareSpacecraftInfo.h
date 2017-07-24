@@ -107,6 +107,9 @@ public:
 
 	/** Scrap this spacecraft */
 	void OnScrap();
+
+	/** Scrap this spacecraft */
+	void OnScrapConfirmed();
 	
 
 	/*----------------------------------------------------
