@@ -50,9 +50,10 @@ void SFlareTradeRouteInfo::Construct(const FArguments& InArgs)
 				SNew(SFlareButton)
 				.Width(8)
 				.Text(LOCTEXT("NewTradeRouteButton", "Add new trade route"))
-				.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route and edit it"))
+				.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route and edit it. You need an available fleet to create a new trade route."))
 				.Icon(FFlareStyleSet::GetIcon("New"))
 				.OnClicked(this, &SFlareTradeRouteInfo::OnNewTradeRouteClicked)
+				.IsDisabled(this, &SFlareTradeRouteInfo::IsNewTradeRouteDisabled)
 			]
 
 			// Trade route list
@@ -174,6 +175,22 @@ FText SFlareTradeRouteInfo::GetDetailText(UFlareTradeRoute* TradeRoute) const
 			FText::AsNumber(CreditsGain),
 			FText::AsNumber(SuccessPercentage));
 	}
+}
+
+bool SFlareTradeRouteInfo::IsNewTradeRouteDisabled() const
+{
+	int32 FleetCount = 0;
+	TArray<UFlareFleet*>& Fleets = MenuManager->GetGame()->GetPC()->GetCompany()->GetCompanyFleets();
+
+	for (int FleetIndex = 0; FleetIndex < Fleets.Num(); FleetIndex++)
+	{
+		if (!Fleets[FleetIndex]->GetCurrentTradeRoute() && Fleets[FleetIndex] != MenuManager->GetPC()->GetPlayerFleet())
+		{
+			FleetCount++;
+		}
+	}
+
+	return (FleetCount == 0);
 }
 
 void SFlareTradeRouteInfo::OnNewTradeRouteClicked()

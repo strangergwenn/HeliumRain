@@ -40,6 +40,9 @@ public:
 	/** Info text */
 	FText GetDetailText(UFlareTradeRoute* TradeRoute) const;
 
+	/** Can we add more fleets ? */
+	bool IsNewTradeRouteDisabled() const;
+
 	/** Create a new trade route and open trade route menu */
 	void OnNewTradeRouteClicked();
 
