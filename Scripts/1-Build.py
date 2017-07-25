@@ -53,7 +53,7 @@ commandLine += " -nop4 -clientconfig=" + buildConfiguration
 commandLine += " -cook -allmaps -stage -archive -archivedirectory=" + outputDir
 commandLine += " -package -ue4exe=" + engineExecutable
 commandLine += " -build -targetplatform=" + buildPlatform + cleanOption
-commandLine += " -pak -prereqs -distribution -nodebuginfo -createreleaseversion=" + buildVersion
+commandLine += " -pak -prereqs -distribution -createreleaseversion=" + buildVersion
 commandLine += " -utf8output -CookCultures=" + buildCultures
 
 # Call
