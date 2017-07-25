@@ -584,12 +584,13 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		// Angular / linear errors
 		float AngularDot = FVector::DotProduct(DockingParameters->ShipDockAxis.GetSafeNormal(), -DockingParameters->StationDockAxis.GetSafeNormal());
 		float AngularError = FMath::RadiansToDegrees(FMath::Acos(AngularDot));
-		float LinearError = FVector::VectorPlaneProject(DockingParameters->DockToDockDeltaLocation, DockingParameters->ShipDockAxis).Size() / 100;
+		float LinearError = FVector::VectorPlaneProject(DockingParameters->DockToDockDeltaLocation, DockingParameters->StationDockAxis).Size() / 100;
 
 		// Roll error
 		FVector StationTopAxis = (DockingParameters->ShipCameraTargetLocation - DockingParameters->StationDockLocation) / DockingParameters->ShipCameraOffset;
 		FVector TopAxis = PlayerShip->GetActorRotation().RotateVector(FVector(0, 0, 1));
-		float RollDot = FVector::DotProduct(StationTopAxis, TopAxis) / AngularDot;
+		FVector LocalTopAxis = FVector::VectorPlaneProject(TopAxis, DockingParameters->StationDockAxis).GetSafeNormal();
+		float RollDot = FVector::DotProduct(StationTopAxis, LocalTopAxis);
 		float RollError = FMath::RadiansToDegrees(FMath::Acos(RollDot));
 
 		// Ratios
@@ -598,7 +599,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		float RollRatio = 1 - RollError / 30; // 30° max error
 		float AngularRatio = 1 - FMath::Clamp(AngularError / 30, 0.0f, 1.0f); // 30° max error
 		float LinearRatio = 1 - FMath::Clamp(LinearError / 20, 0.0f, 1.0f); // 20m max error
-		
+
 		// Texts
 		FText DockingText = LOCTEXT("Docking", "Docking computer");
 		FText DockingPhase = UFlareSpacecraftNavigationSystem::GetDockingPhaseName(DockingParameters->DockingPhase);
