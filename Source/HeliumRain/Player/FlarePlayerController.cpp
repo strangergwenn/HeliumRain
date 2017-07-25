@@ -1958,11 +1958,11 @@ void AFlarePlayerController::Test1()
 
 	if (IsTest1)
 	{
-		SetAchievementProgression("ACHIEVEMENT_TRAP", 1);
+		//SetAchievementProgression("ACHIEVEMENT_TRAP", 1);
 	}
 	else
 	{
-		SetAchievementProgression("ACHIEVEMENT_ALL_TECHNOLOGIES", 0.5f);
+		//SetAchievementProgression("ACHIEVEMENT_ALL_TECHNOLOGIES", 0.5f);
 	}
 }
 
