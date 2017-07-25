@@ -245,6 +245,65 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 					ScanningTimer = 0;
 				}
 			}
+			
+			// Detect manual docking
+			IsManualDocking = false;
+			float MaxDistance = 30000;
+			float BestDistance = MaxDistance;
+			for (int SpacecraftIndex = 0; SpacecraftIndex < GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
+			{
+				// Calculation data
+				FVector CameraLocation = Airframe->GetSocketLocation(FName("Camera"));
+				AFlareSpacecraft* Spacecraft = GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
+				
+				// Required conditions for docking
+				if ((Spacecraft->GetActorLocation() - GetActorLocation()).Size() < MaxDistance
+				 && Spacecraft != this
+				 && Spacecraft->IsStation()
+				 && Spacecraft->GetParent()->GetDamageSystem()->IsAlive()
+				 && Spacecraft->GetDockingSystem()->GetDockCount() > 0
+				 && Spacecraft->GetCompany()->GetPlayerWarState() != EFlareHostility::Hostile
+				 && !GetStateManager()->IsExternalCamera()
+				 && GetNavigationSystem()->IsManualPilot()
+				 && GetWeaponsSystem()->GetActiveWeaponGroupIndex() < 0)
+				{
+					// Select closest dock
+					FFlareDockingInfo BestDockingPort;
+					for (int32 DockingPortIndex = 0; DockingPortIndex < Spacecraft->GetDockingSystem()->GetDockCount(); DockingPortIndex++)
+					{
+						FFlareDockingInfo DockingPort = Spacecraft->GetDockingSystem()->GetDockInfo(DockingPortIndex);
+						FFlareDockingParameters DockingParameters = GetNavigationSystem()->GetDockingParameters(DockingPort, CameraLocation);
+
+						// Check if we should draw it
+						if (DockingPort.DockSize == GetSize()
+						 && DockingParameters.DockingPhase != EFlareDockingPhase::Docked
+						 && DockingParameters.DockingPhase != EFlareDockingPhase::Locked
+						 && DockingParameters.DockingPhase != EFlareDockingPhase::Distant)
+						{
+							// Get distance
+							float DockDistance = (DockingParameters.StationDockLocation - DockingParameters.ShipDockLocation).Size();
+							if (DockDistance < BestDistance)
+							{
+								IsManualDocking = true;
+								BestDistance = DockDistance;
+								BestDockingPort = DockingPort;
+								ManualDockingTarget = Spacecraft;
+								ManualDockingStatus = DockingParameters;
+
+								// Auto-dock when ready
+								if ((DockingParameters.DockingPhase == EFlareDockingPhase::Dockable
+									|| DockingParameters.DockingPhase == EFlareDockingPhase::FinalApproach
+									|| DockingParameters.DockingPhase == EFlareDockingPhase::Approach)
+								 && DockingParameters.DockToDockDistance < (GetSize() == EFlarePartSize::S ? 1000 : 2500))
+								{
+									GetNavigationSystem()->DockAt(Spacecraft);
+									PC->SetAchievementProgression("ACHIEVEMENT_MANUAL_DOCK", 1);
+								}
+							}
+						}
+					}
+				}
+			}
 
 			// Make ship bounce lost ships if they are outside 1.5 * limit
 			float Distance = GetActorLocation().Size();
@@ -648,6 +707,20 @@ void AFlareSpacecraft::GetScanningProgress(bool& AngularIsActive, bool& LinearIs
 bool AFlareSpacecraft::IsScanningFinished() const
 {
 	return (ScanningTimer >= ScanningTimerDuration);
+}
+
+const FFlareDockingParameters* AFlareSpacecraft::GetManualDockingProgress(AFlareSpacecraft*& OutSpacecraft) const
+{
+	if (IsManualDocking)
+	{
+		OutSpacecraft = ManualDockingTarget;
+		return &ManualDockingStatus;
+	}
+	else
+	{
+		OutSpacecraft = NULL;
+		return NULL;
+	}
 }
 
 

@@ -100,6 +100,10 @@ public:
 	/** Are we done with the scan ? */
 	bool IsScanningFinished() const;
 
+	/** Are we currently docking ? */
+	const FFlareDockingParameters* GetManualDockingProgress(AFlareSpacecraft*& OutSpacecraft) const;
+
+
 	/*----------------------------------------------------
 		Ship interface
 	----------------------------------------------------*/
@@ -309,6 +313,10 @@ protected:
 	float                                          ScanningTimer;
 	float                                          ScanningTimerDuration;
 	
+	bool                                           IsManualDocking;
+	FFlareDockingParameters                        ManualDockingStatus;
+	AFlareSpacecraft*                              ManualDockingTarget;
+
 
 	/*----------------------------------------------------
 		Target selection
