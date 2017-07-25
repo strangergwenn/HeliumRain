@@ -595,23 +595,19 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		// Ratios
 		float DangerThreshold = 0.3f;
 		float DistanceRatio = 1 - FMath::Clamp(DockingParameters->DockToDockDistance / 20000, 0.0f, 1.0f); // 200m max distance
-		float RollRatio = 1 - RollError / 180; // 180° max error
-		float AngularRatio = 1 - FMath::Clamp(AngularDot / 20, 0.0f, 1.0f); // 20° max error
+		float RollRatio = 1 - RollError / 30; // 30° max error
+		float AngularRatio = 1 - FMath::Clamp(AngularError / 30, 0.0f, 1.0f); // 30° max error
 		float LinearRatio = 1 - FMath::Clamp(LinearError / 20, 0.0f, 1.0f); // 20m max error
-
-		// Numbers
-		FNumberFormattingOptions Options;
-		Options.MaximumFractionalDigits = 1;
-
+		
 		// Texts
 		FText DockingText = LOCTEXT("Docking", "Docking computer");
 		FText DockingPhase = UFlareSpacecraftNavigationSystem::GetDockingPhaseName(DockingParameters->DockingPhase);
 		FText DistanceText = FText::Format(LOCTEXT("DockingDistanceFormat", "Distance : {0}m"),
 			FText::AsNumber(FMath::RoundToInt(DockingParameters->DockToDockDistance / 100)));
 		FText RollText = FText::Format(LOCTEXT("DockingAlignmentFormat", "Roll error : {0}\u00B0"),
-			FText::AsNumber(RollError, &Options));
+			FText::AsNumber(FMath::RoundToInt(RollError)));
 		FText AngularText = FText::Format(LOCTEXT("DockingAlignmentFormat", "Angular error : {0}\u00B0"),
-			FText::AsNumber(AngularError, &Options));
+			FText::AsNumber(FMath::RoundToInt(AngularError)));
 		FText LinearText = FText::Format(LOCTEXT("DockingOffsetFormat", "Lateral error : {0}m"),
 			FText::AsNumber(FMath::RoundToInt(LinearError)));
 
