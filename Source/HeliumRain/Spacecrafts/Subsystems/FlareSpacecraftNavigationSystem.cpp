@@ -373,6 +373,38 @@ static const float FinalApproachLateralVelocityLimit = 50; // 0.5 m/s
 static const float DockingAngularVelocityLimit = 10; // 5 °/s
 static const float FinalApproachAngularVelocityLimit = 10; // 10 °/s
 
+FText UFlareSpacecraftNavigationSystem::GetDockingPhaseName(EFlareDockingPhase::Type Phase)
+{
+	switch (Phase)
+	{
+	case EFlareDockingPhase::Docked:        return LOCTEXT("Docked", "Docked");
+	case EFlareDockingPhase::Dockable:      return LOCTEXT("Dockable", "Ready to dock");
+	case EFlareDockingPhase::FinalApproach: return LOCTEXT("FinalApproach", "On final approach");
+	case EFlareDockingPhase::Approach:      return LOCTEXT("Approach", "On close approach");
+	case EFlareDockingPhase::RendezVous:    return LOCTEXT("RendezVous", "On approach");
+	case EFlareDockingPhase::Distant:       return LOCTEXT("Distant", "Distant");
+	case EFlareDockingPhase::Locked:        return LOCTEXT("Locked", "Locked on");
+	}
+
+	return FText();
+}
+
+float UFlareSpacecraftNavigationSystem::GetDockingPhaseSpeed(EFlareDockingPhase::Type Phase)
+{
+	switch (Phase)
+	{
+	case EFlareDockingPhase::Docked:        return DockingVelocityLimit;
+	case EFlareDockingPhase::Dockable:      return DockingVelocityLimit;
+	case EFlareDockingPhase::FinalApproach: return FinalApproachVelocityLimit;
+	case EFlareDockingPhase::Approach:      return 2000;  // 20m/s
+	case EFlareDockingPhase::RendezVous:    return 10000; // 100 m/s
+	case EFlareDockingPhase::Distant:       return 50000; // 500 m/s
+	case EFlareDockingPhase::Locked:        return 50000; // 500 m/s
+	}
+
+	return 0;
+}
+
 FFlareDockingParameters UFlareSpacecraftNavigationSystem::GetDockingParameters(FFlareDockingInfo StationDockInfo, FVector CameraLocation)
 {
 	FFlareDockingParameters Params;

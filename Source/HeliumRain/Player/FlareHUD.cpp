@@ -576,8 +576,70 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareTacticManager* TacticManager = MenuManager->GetPC()->GetCompany()->GetTacticManager();
 	
+	// Docking helper
+	AFlareSpacecraft* DockSpacecraft = NULL;
+	const FFlareDockingParameters* DockingParameters = PlayerShip->GetManualDockingProgress(DockSpacecraft);
+	if (DockingParameters)
+	{
+		// Angular / linear errors
+		float AngularDot = FVector::DotProduct(DockingParameters->ShipDockAxis.GetSafeNormal(), -DockingParameters->StationDockAxis.GetSafeNormal());
+		float AngularError = FMath::RadiansToDegrees(FMath::Acos(AngularDot));
+		float LinearError = FVector::VectorPlaneProject(DockingParameters->DockToDockDeltaLocation, DockingParameters->ShipDockAxis).Size() / 100;
+
+		// Roll error
+		FVector StationTopAxis = (DockingParameters->ShipCameraTargetLocation - DockingParameters->StationDockLocation) / DockingParameters->ShipCameraOffset;
+		FVector TopAxis = PlayerShip->GetActorRotation().RotateVector(FVector(0, 0, 1));
+		float RollDot = FVector::DotProduct(StationTopAxis, TopAxis) / AngularDot;
+		float RollError = FMath::RadiansToDegrees(FMath::Acos(RollDot));
+
+		// Ratios
+		float DangerThreshold = 0.3f;
+		float DistanceRatio = 1 - FMath::Clamp(DockingParameters->DockToDockDistance / 20000, 0.0f, 1.0f); // 200m max distance
+		float RollRatio = 1 - RollError / 180; // 180° max error
+		float AngularRatio = 1 - FMath::Clamp(AngularDot / 20, 0.0f, 1.0f); // 20° max error
+		float LinearRatio = 1 - FMath::Clamp(LinearError / 20, 0.0f, 1.0f); // 20m max error
+
+		// Numbers
+		FNumberFormattingOptions Options;
+		Options.MaximumFractionalDigits = 1;
+
+		// Texts
+		FText DockingText = LOCTEXT("Docking", "Docking computer");
+		FText DockingPhase = UFlareSpacecraftNavigationSystem::GetDockingPhaseName(DockingParameters->DockingPhase);
+		FText DistanceText = FText::Format(LOCTEXT("DockingDistanceFormat", "Distance : {0}m"),
+			FText::AsNumber(FMath::RoundToInt(DockingParameters->DockToDockDistance / 100)));
+		FText RollText = FText::Format(LOCTEXT("DockingAlignmentFormat", "Roll error : {0}\u00B0"),
+			FText::AsNumber(RollError, &Options));
+		FText AngularText = FText::Format(LOCTEXT("DockingAlignmentFormat", "Angular error : {0}\u00B0"),
+			FText::AsNumber(AngularError, &Options));
+		FText LinearText = FText::Format(LOCTEXT("DockingOffsetFormat", "Lateral error : {0}m"),
+			FText::AsNumber(FMath::RoundToInt(LinearError)));
+
+		// Draw panel
+		FlareDrawText(DockingText, CurrentPos, Theme.FriendlyColor, false, true);
+		CurrentPos += 2 * InstrumentLine;
+		FlareDrawText(DockingPhase, CurrentPos, Theme.FriendlyColor, false, false);
+		CurrentPos += InstrumentLine;
+		DrawProgressBarIconText(CurrentPos, HUDDistanceIcon, DistanceText,
+			DistanceRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
+			DistanceRatio, LargeProgressBarSize);
+		CurrentPos += InstrumentLine;
+		DrawProgressBarIconText(CurrentPos, HUDRCSIcon, RollText,
+			RollRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
+			RollRatio, LargeProgressBarSize);
+		CurrentPos += InstrumentLine;
+		DrawProgressBarIconText(CurrentPos, HUDRCSIcon, AngularText,
+			AngularRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
+			AngularRatio, LargeProgressBarSize);
+		CurrentPos += InstrumentLine;
+		DrawProgressBarIconText(CurrentPos, HUDRCSIcon, LinearText,
+			LinearRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
+			LinearRatio, LargeProgressBarSize);
+		CurrentPos += InstrumentLine;
+	}
+
 	// Scanner
-	if (PlayerShip->IsInScanningMode())
+	else if (PlayerShip->IsInScanningMode())
 	{
 		// Get progress
 		bool AngularIsActive, LinearIsActive, ScanningIsActive;

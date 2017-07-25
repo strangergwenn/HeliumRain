@@ -174,6 +174,13 @@ public:
 
 	virtual AFlareSpacecraft* GetDockStation();
 
+	/** Get a friendly text for the current phase */
+	static FText GetDockingPhaseName(EFlareDockingPhase::Type Phase);
+
+	/** Get the recommended speed for the current phase */
+	static float GetDockingPhaseSpeed(EFlareDockingPhase::Type Phase);
+
+
 	/*----------------------------------------------------
 		Navigation commands and helpers
 	----------------------------------------------------*/
