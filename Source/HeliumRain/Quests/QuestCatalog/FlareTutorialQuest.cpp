@@ -421,9 +421,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"GainResearchPoint"
-		FText Description = LOCTEXT("GainResearchPointDescription","You can develop technologies to increase your capabilities and your company's performance. "
-									"To develop a technology, you need research points. Companies with a high research value sometimes offer you contracts with research points as a reward. You will learn a more efficient way to get research points in the future !"
-									"\nGain some research points to move forward.");
+		FText Description = LOCTEXT("GainResearchPointDescription","You can develop technologies to increase your capabilities and your company's performance. To develop a technology, you need research points. Companies with a high research value sometimes offer you contracts with research points as a reward. You will learn a more efficient way to get research points in the future !\nGain some research points to move forward.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "gain-research-points", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 30));
@@ -443,8 +441,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ResearchTechnology"
-		FText Description = LOCTEXT("ResearchTechnologyDescription","You can manage research in the technology menu. Select a level 1 technology and research it !"
-									"\nChoose wisely, for the price of all technology is increased after each research.");
+		FText Description = LOCTEXT("ResearchTechnologyDescription","You can manage research in the technology menu. Select a level 1 technology and research it !\nChoose wisely, for the price of all technology is increased after each research.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-technology", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchTechnology::Create(this, 1));
@@ -454,8 +451,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ReachLevelTechnology3"
-		FText Description = LOCTEXT("ReachLevelTechnology3Description","High level technology require an increased technology level. Your technology level is incremented every new technology."
-																"\nResearch more technologies to unlock level 3 technologies.");
+		FText Description = LOCTEXT("ReachLevelTechnology3Description","High level technology require an increased technology level. Your technology level is incremented every new technology.\nResearch more technologies to unlock level 3 technologies.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "track-quest", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialTechnologyLevel::Create(this, 3));
@@ -553,8 +549,7 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"OrderShip"
-		FText Description = LOCTEXT("OrderShipDescription","Open the shipyard details, either with the wheel menu or through the sector menu. You will have the details of production lines."
-									"\nPick a production line for small ships and order a freighter of your choice.");
+		FText Description = LOCTEXT("OrderShipDescription","Open the shipyard details, either with the wheel menu or through the sector menu. You will have the details of production lines.\nPick a production line for small ships and order a freighter of your choice.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "order-ship", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOrderFreigther::Create(this, EFlarePartSize::S));
@@ -614,8 +609,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"SectorMenu"
-		FText Description = LOCTEXT("SectorMenuDescription", "You have now unlocked some station-building capabilities. You can build stations in any sector, but there are various limitations depending on the kind of station you want to build, and the sector itself. You can't build solar stations in clouds of dust !"
-																 "\nOpen the current sector menu (<input-action:SectorMenu>), or another known sector from the orbital menu");
+		FText Description = LOCTEXT("SectorMenuDescription", "You have now unlocked some station-building capabilities. You can build stations in any sector, but there are various limitations depending on the kind of station you want to build, and the sector itself. You can't build solar stations in clouds of dust !\nOpen the current sector menu (<input-action:SectorMenu>), or another known sector from the orbital menu");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "dock", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Sector));
@@ -646,8 +640,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"StartUpgrade"
-		FText Description = LOCTEXT("StartUpgradeDescription","Your station is now ready, you can inspect it to see its production needs. You can upgrade stations to increase their productivity and cargo bay. Upgrading a station will put it back in construction until you bring the missing resources."
-																"\nUpgrade a station using the upgrade button in the station details");
+		FText Description = LOCTEXT("StartUpgradeDescription","Your station is now ready, you can inspect it to see its production needs. You can upgrade stations to increase their productivity and cargo bay. Upgrading a station will put it back in construction until you bring the missing resources.\nUpgrade a station using the upgrade button in the station details");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-upgrade", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialStartStationConstruction::Create(this, true));
@@ -757,8 +750,7 @@ void UFlareQuestTutorialRepairShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"StartRepair"
-		FText Description = LOCTEXT("StartRepairDescription","You have a damaged ship, you need to repair it. Go to the sector menu (<input-action:SectorMenu>) and click on the repair button, at the top right of the menu."
-															 "\nRepairing requires Fleet Supply in a station or cargo in the sector.");
+		FText Description = LOCTEXT("StartRepairDescription","You have a damaged ship, you need to repair it. Go to the sector menu (<input-action:SectorMenu>) and click on the repair button, at the top right of the menu.\nRepairing requires Fleet Supply in a station or cargo in the sector.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-repair", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialRepairRefill::Create(this, false, false));
@@ -810,8 +802,7 @@ void UFlareQuestTutorialRefillShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"StartRefill"
-		FText Description = LOCTEXT("StartRefillDescription","One of your ships used ammunition and needs to refill."
-															 "\nGo to the sector menu (<input-action:SectorMenu>) and click on the refill button at the top right of the menu. Refilling requires Fleet Supply in a station or cargo in the same sector.");
+		FText Description = LOCTEXT("StartRefillDescription","One of your ships used ammunition and needs to refill.\nGo to the sector menu (<input-action:SectorMenu>) and click on the refill button at the top right of the menu. Refilling requires Fleet Supply in a station or cargo in the same sector.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-refill", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialRepairRefill::Create(this, true, false));
@@ -1092,8 +1083,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 
 	{
-		FText Description = LOCTEXT("TargetCargoDescription", "Asteroids don't move, so it's easy, but a moving targest will require you to anticipate its movement. Your onboard computer can help you."
-															  "\nTarget one of your cargos and approach at less than 1km");
+		FText Description = LOCTEXT("TargetCargoDescription", "Asteroids don't move, so it's easy, but a moving targest will require you to anticipate its movement. Your onboard computer can help you.\nTarget one of your cargos and approach at less than 1km");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "target-cargo", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
@@ -1129,9 +1119,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 
 	{
-		FText Description = LOCTEXT("ZoomDescription", "If you look at your cargo, you will see a rhombus : the aim indicator. It appears when the target is in weapon range."
-													   "\nIf the target keeps its current velocity, shooting the aim indicator will hit the center of the target."
-													   "\nYou can have a better view by holding the zoom key <input-action:CombatZoom>. It can be useful to aim precisely from a distance.");
+		FText Description = LOCTEXT("ZoomDescription", "If you look at your cargo, you will see a rhombus : the aim indicator. It appears when the target is in weapon range.\nIf the target keeps its current velocity, shooting the aim indicator will hit the center of the target.\nYou can have a better view by holding the zoom key <input-action:CombatZoom>. It can be useful to aim precisely from a distance.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "zoom-cargo	", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
@@ -1245,8 +1233,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 
 	{
-		FText Description = LOCTEXT("MultipleQuickSwitchDescription", "When you have multiple ships in a battle, all the ships your are not piloting are still fighting autonomously for you. You can fly other ships in your fleet at any time, should yours be damaged."
-															 "\nThe <input-action:QuickSwitch> key allows you to quickly jump to another ship. Press this key a few times.");
+		FText Description = LOCTEXT("MultipleQuickSwitchDescription", "When you have multiple ships in a battle, all the ships your are not piloting are still fighting autonomously for you. You can fly other ships in your fleet at any time, should yours be damaged.\nThe <input-action:QuickSwitch> key allows you to quickly jump to another ship. Press this key a few times.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "multiple-quick-switch", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCounterCondition::Create(this,
@@ -1271,8 +1258,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("BattleSectorDescription", "Wait for someone to attack you, or start a battle. You can declare war using the diplomatic menu (<input-action:LeaderboardMenu>)."
-									"\nOnce you are at war, you can see sectors with hostile ships in red in the orbital map. Find one with enemy fighters.");
+		FText Description = LOCTEXT("BattleSectorDescription", "Wait for someone to attack you, or start a battle. You can declare war using the diplomatic menu (<input-action:LeaderboardMenu>).\nOnce you are at war, you can see sectors with hostile ships in red in the orbital map. Find one with enemy fighters.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "battle-sector", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,

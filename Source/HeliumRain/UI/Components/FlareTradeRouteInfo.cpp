@@ -5,7 +5,7 @@
 #include "../../Game/FlareTradeRoute.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
-
+#include "../../Game/FlareGame.h"
 
 #define LOCTEXT_NAMESPACE "FlareTradeRouteInfo"
 

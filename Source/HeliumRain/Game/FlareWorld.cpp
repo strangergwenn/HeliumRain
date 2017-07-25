@@ -1873,9 +1873,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 			if (PlayerCompany->IsTechnologyUnlocked("advanced-radar"))
 			{
 
-				TravelText = FText::Format(LOCTEXT("ThreatTextAdvancedFormat", "\u2022 <WarningText>{0} (Combat value of {1})</>"
-																			   "\n    <WarningText>{3}</>"
-																			   "\n    <WarningText>{2}</>"),
+				TravelText = FText::Format(LOCTEXT("ThreatTextAdvancedFormat", "\u2022 <WarningText>{0} (Combat value of {1})</>\n    <WarningText>{3}</>\n    <WarningText>{2}</>"),
 						Company->GetCompanyName(),
 						EnemyValue,
 						GetShipsText(Entry.Value.LightShipCount, Entry.Value.HeavyShipCount),
@@ -1883,9 +1881,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 			}
 			else
 			{
-				TravelText = FText::Format(LOCTEXT("ThreatTextFormat", "\u2022 <WarningText>{0}</>"
-																	   "\n    <WarningText>{2}</>"
-																	   "\n    <WarningText>{1}</>"),
+				TravelText = FText::Format(LOCTEXT("ThreatTextFormat", "\u2022 <WarningText>{0}</>\n    <WarningText>{2}</>\n    <WarningText>{1}</>"),
 
 					Company->GetCompanyName(),
 					GetUnknownShipText (Entry.Value.LightShipCount + Entry.Value.HeavyShipCount),

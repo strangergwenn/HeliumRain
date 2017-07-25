@@ -90,9 +90,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"TravelToSpire"
-		FText Description = LOCTEXT("TravelToSpireDescription","Thanks for attending this meeting. As you may have observed, the Spire, our only source of gas, can't match our needs anymore."
-									"We need to build a new orbital extractor. \nHowever, the Spire was built before the war and all the knowledge disappeared when the Daedelus carrier was shot to pieces. Your help is needed to build a new one."
-									"\nPlease start reverse-engineering the Spire so that we can learn more.");
+		FText Description = LOCTEXT("TravelToSpireDescription","Thanks for attending this meeting. As you may have observed, the Spire, our only source of gas, can't match our needs anymore. We need to build a new orbital extractor. \nHowever, the Spire was built before the war and all the knowledge disappeared when the Daedalus carrier was shot to pieces. Your help is needed to build a new one.\nPlease start reverse-engineering the Spire so that we can learn more.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "travel-to-spire", Description);
 
@@ -201,8 +199,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"peace"
-		FText Description = LOCTEXT("peaceDescription","We've started construction for the Pendulum elevator. We need to be cautious of pirate activity, since we gathered a lot of resources here."
-																"\nReduce pirates to silence for a while. If needed, use a telescope to locate their base in the Boneyard.");
+		FText Description = LOCTEXT("peaceDescription","We've started construction for the Pendulum elevator. We need to be cautious of pirate activity, since we gathered a lot of resources here.\nReduce pirates to silence for a while. If needed, use a telescope to locate their base in the Boneyard.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pirates", Description);
 

@@ -259,8 +259,7 @@ FText SFlareTechnologyMenu::GetCompanyTechnologyInfo() const
 
 	CompanyValue CompanyValue = Company->GetCompanyValue(NULL, false);
 
-	return FText::Format(LOCTEXT("TechnologyCompanyFormat",
-			"\u2022 You can currently research technology up to level {0}.\n\u2022 You have {1} research left to spend in technology.\n\u2022 You have already spent {2} research."),
+	return FText::Format(LOCTEXT("TechnologyCompanyFormat", "\u2022 You can currently research technology up to level {0}.\n\u2022 You have {1} research left to spend in technology.\n\u2022 You have already spent {2} research."),
 		FText::AsNumber(Company->GetTechnologyLevel()),
 		FText::AsNumber(Company->GetResearchAmount()),
 		FText::AsNumber(Company->GetResearchSpent()));
