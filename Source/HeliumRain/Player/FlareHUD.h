@@ -258,6 +258,7 @@ protected:
 	UTexture2D*                             HUDDesignatorSelectionTexture;
 	UTexture2D*                             HUDDockingCircleTexture;
 	UTexture2D*                             HUDDockingAxisTexture;
+	UTexture2D*                             HUDDockingForbiddenTexture;
 
 	// Ship status content
 	UTexture2D*                             HUDTemperatureIcon;

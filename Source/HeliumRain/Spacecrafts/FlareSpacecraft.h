@@ -101,7 +101,7 @@ public:
 	bool IsScanningFinished() const;
 
 	/** Are we currently docking ? */
-	const FFlareDockingParameters* GetManualDockingProgress(AFlareSpacecraft*& OutSpacecraft) const;
+	bool GetManualDockingProgress(AFlareSpacecraft*& OutStation, FFlareDockingParameters& OutParameters, FText& OutInfo) const;
 
 
 	/*----------------------------------------------------
@@ -136,8 +136,7 @@ public:
 	void UpdateDynamicComponents();
 	
 	UFlareSimulatedSector* GetOwnerSector();
-
-
+	
 	void SetCurrentTarget(AFlareSpacecraft* Target);
 
 public:
@@ -313,8 +312,10 @@ protected:
 	float                                          ScanningTimer;
 	float                                          ScanningTimerDuration;
 	
+	// Docking info
 	bool                                           IsManualDocking;
 	FFlareDockingParameters                        ManualDockingStatus;
+	FFlareDockingInfo                              ManualDockingInfo;
 	AFlareSpacecraft*                              ManualDockingTarget;
 
 

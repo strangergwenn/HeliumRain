@@ -95,10 +95,12 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(AFlareSpacecraft* S
 	float BestDistance = 0;
 
 	// Deny all docking requests if the player is docking
+	FText PlayerDockInfo;
 	AFlareSpacecraft* PlayerDockSpacecraft;
+	FFlareDockingParameters PlayerDockingParameters;
 	AFlareSpacecraft* PlayerShip = Ship->GetGame()->GetPC()->GetShipPawn();
-	const FFlareDockingParameters* PlayerDockingParameters = PlayerShip->GetManualDockingProgress(PlayerDockSpacecraft);
-	if (PlayerDockSpacecraft == Spacecraft && PlayerShip != Ship)
+	bool DockingInProgress = PlayerShip->GetManualDockingProgress(PlayerDockSpacecraft, PlayerDockingParameters, PlayerDockInfo);
+	if (DockingInProgress && PlayerDockSpacecraft == Spacecraft && PlayerShip != Ship)
 	{
 		FLOG("UFlareSpacecraftDockingSystem::RequestDock : denied, player is docking");
 		FFlareDockingInfo Info;

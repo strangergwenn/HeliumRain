@@ -262,7 +262,6 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				 && Spacecraft->IsStation()
 				 && Spacecraft->GetParent()->GetDamageSystem()->IsAlive()
 				 && Spacecraft->GetDockingSystem()->GetDockCount() > 0
-				 && Spacecraft->GetCompany()->GetPlayerWarState() != EFlareHostility::Hostile
 				 && !GetStateManager()->IsExternalCamera()
 				 && GetNavigationSystem()->IsManualPilot()
 				 && GetWeaponsSystem()->GetActiveWeaponGroupIndex() < 0)
@@ -273,27 +272,29 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 					{
 						FFlareDockingInfo DockingPort = Spacecraft->GetDockingSystem()->GetDockInfo(DockingPortIndex);
 						FFlareDockingParameters DockingParameters = GetNavigationSystem()->GetDockingParameters(DockingPort, CameraLocation);
-
+						
 						// Check if we should draw it
 						if (DockingPort.DockSize == GetSize()
 						 && DockingParameters.DockingPhase != EFlareDockingPhase::Docked
-						 && DockingParameters.DockingPhase != EFlareDockingPhase::Locked
 						 && DockingParameters.DockingPhase != EFlareDockingPhase::Distant)
 						{
 							// Get distance
 							float DockDistance = (DockingParameters.StationDockLocation - DockingParameters.ShipDockLocation).Size();
 							if (DockDistance < BestDistance)
 							{
+								// Set parameters
 								IsManualDocking = true;
 								BestDistance = DockDistance;
 								BestDockingPort = DockingPort;
 								ManualDockingTarget = Spacecraft;
 								ManualDockingStatus = DockingParameters;
+								ManualDockingInfo = DockingPort;
 
 								// Auto-dock when ready
-								if ((DockingParameters.DockingPhase == EFlareDockingPhase::Dockable
-									|| DockingParameters.DockingPhase == EFlareDockingPhase::FinalApproach
-									|| DockingParameters.DockingPhase == EFlareDockingPhase::Approach)
+								if (Spacecraft->GetCompany()->GetPlayerWarState() != EFlareHostility::Hostile								
+									&& (DockingParameters.DockingPhase == EFlareDockingPhase::Dockable
+									 || DockingParameters.DockingPhase == EFlareDockingPhase::FinalApproach
+									 || DockingParameters.DockingPhase == EFlareDockingPhase::Approach)
 								 && DockingParameters.DockToDockDistance < (GetSize() == EFlarePartSize::S ? 250 : 7500))
 								{
 									GetNavigationSystem()->DockAt(Spacecraft);
@@ -709,17 +710,51 @@ bool AFlareSpacecraft::IsScanningFinished() const
 	return (ScanningTimer >= ScanningTimerDuration);
 }
 
-const FFlareDockingParameters* AFlareSpacecraft::GetManualDockingProgress(AFlareSpacecraft*& OutSpacecraft) const
+bool AFlareSpacecraft::GetManualDockingProgress(AFlareSpacecraft*& OutStation, FFlareDockingParameters& OutParameters, FText& OutInfo) const
 {
+	// No target
 	if (IsManualDocking)
 	{
-		OutSpacecraft = ManualDockingTarget;
-		return &ManualDockingStatus;
+		// Dock is occupied, don't draw
+		if (ManualDockingInfo.Occupied)
+		{
+			OutStation = NULL;
+			return false;
+		}
+
+		// Dock is already used, draw as enemy
+		else if (ManualDockingInfo.Granted)
+		{
+			OutInfo = LOCTEXT("ManualDockingUsed", "This dock is already reserved");
+			OutStation = ManualDockingTarget;
+			OutParameters = ManualDockingStatus;
+			return false;
+		}
+
+		// Enemy station, draw as enemy
+		else if (ManualDockingTarget->GetCompany()->GetPlayerWarState() < EFlareHostility::Neutral)
+		{
+			OutInfo = LOCTEXT("ManualDockingEnemy", "This station is hostile");
+			OutStation = ManualDockingTarget;
+			OutParameters = ManualDockingStatus;
+			return false;
+		}
+
+		// Docking in progress, draw as OK
+		else
+		{
+			OutInfo = UFlareSpacecraftNavigationSystem::GetDockingPhaseName(ManualDockingStatus.DockingPhase);
+			OutStation = ManualDockingTarget;
+			OutParameters = ManualDockingStatus;
+			return true;
+		}
 	}
+	
+	// No docking port detected
 	else
 	{
-		OutSpacecraft = NULL;
-		return NULL;
+		OutStation = NULL;
+		return false;
 	}
 }
 

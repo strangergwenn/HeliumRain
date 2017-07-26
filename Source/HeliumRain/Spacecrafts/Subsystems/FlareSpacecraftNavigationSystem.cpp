@@ -434,12 +434,6 @@ FFlareDockingParameters UFlareSpacecraftNavigationSystem::GetDockingParameters(F
 		return Params;
 	}
 
-	if(StationDockInfo.Granted && StationDockInfo.Ship != Spacecraft)
-	{
-		Params.DockingPhase = EFlareDockingPhase::Locked;
-		return Params;
-	}
-
 	// Compute ship infos
 	Params.ShipDockLocation = GetDockLocation();
 	Params.ShipDockAxis = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1, 0, 0)).GetUnsafeNormal(); // Ship docking port are always at front
@@ -501,6 +495,12 @@ FFlareDockingParameters UFlareSpacecraftNavigationSystem::GetDockingParameters(F
 		UKismetSystemLibrary::DrawDebugPoint(Spacecraft->GetWorld(), Params.StationDockLocation + Params.StationDockTopAxis *100, 10, FColor::Green, 5.f);
 		UKismetSystemLibrary::DrawDebugPoint(Spacecraft->GetWorld(), Params.StationDockLocation + StationLeftDockVector * 100, 10, FColor::Blue, 5.f);
 */
+	}
+
+	if (StationDockInfo.Granted && StationDockInfo.Ship != Spacecraft)
+	{
+		Params.DockingPhase = EFlareDockingPhase::Locked;
+		return Params;
 	}
 
 	float DockToDockAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(-Params.ShipDockAxis, Params.StationDockAxis)));

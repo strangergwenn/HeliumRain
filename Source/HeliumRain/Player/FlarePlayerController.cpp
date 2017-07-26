@@ -874,7 +874,10 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 	IsTargeted = false;
 	IsFiredUpon = false;
 	Threat = NULL;
+
 	AFlareSpacecraft* DockSpacecraft = NULL;
+	FFlareDockingParameters DockParams;
+	FText DockInfo;
 
 	float MaxSDangerDistance = 250000;
 	float MaxLDangerDistance = 500000;
@@ -954,11 +957,12 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 		// Collision
 		UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 		bool NoCollisionRisk = (MyGameSettings->UseAnticollision || MenuManager->IsUIOpen());
-		const FFlareDockingParameters* DockingParameters = GetShipPawn()->GetManualDockingProgress(DockSpacecraft);
-		bool DockingInProgress = (DockingParameters != NULL) && GetShipPawn()->GetLinearVelocity().Size() < 20;
+		bool DockingInProgress = GetShipPawn()->GetManualDockingProgress(DockSpacecraft, DockParams, DockInfo);
+		bool LowSpeed = GetShipPawn()->GetLinearVelocity().Size() < 20;
+		bool SafeDocking = DockingInProgress && LowSpeed;
 
 		// Other helpers
-		CollidingSoon = PilotHelper::IsAnticollisionImminent(GetShipPawn(), GetShipPawn()->GetPreferedAnticollisionTime()) && !NoCollisionRisk && !DockingInProgress;
+		CollidingSoon = PilotHelper::IsAnticollisionImminent(GetShipPawn(), GetShipPawn()->GetPreferedAnticollisionTime()) && !NoCollisionRisk && !SafeDocking;
 		ExitingSoon = PilotHelper::IsSectorExitImminent(GetShipPawn(), 15.0f);
 	}
 }

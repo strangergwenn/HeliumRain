@@ -63,6 +63,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDObjectiveIconObj       (TEXT("/Game/Gameplay/HUD/TX_Objective.TX_Objective"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDockingCircleObj       (TEXT("/Game/Gameplay/HUD/TX_DockingCircle.TX_DockingCircle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDockingAxisObj         (TEXT("/Game/Gameplay/HUD/TX_DockingAxis.TX_DockingAxis"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDockingForbiddenObj    (TEXT("/Game/Slate/Icons/TX_Icon_Delete.TX_Icon_Delete"));
 
 	// Load content (designator icons)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj     (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
@@ -105,6 +106,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDObjectiveIcon = HUDObjectiveIconObj.Object;
 	HUDDockingCircleTexture = HUDDockingCircleObj.Object;
 	HUDDockingAxisTexture = HUDDockingAxisObj.Object;
+	HUDDockingForbiddenTexture = HUDDockingForbiddenObj.Object;
 
 	// Load content (designator icons)
 	HUDCombatMouseIcon = HUDCombatMouseIconObj.Object;
@@ -576,35 +578,38 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	UFlareTacticManager* TacticManager = MenuManager->GetPC()->GetCompany()->GetTacticManager();
 	
-	// Docking helper
+	// Docking info
+	FText DockInfo;
 	AFlareSpacecraft* DockSpacecraft = NULL;
-	const FFlareDockingParameters* DockingParameters = PlayerShip->GetManualDockingProgress(DockSpacecraft);
-	if (DockingParameters)
+	FFlareDockingParameters DockParameters;
+	bool DockingInProgress = PlayerShip->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
+
+	// Docking helper
+	if (DockSpacecraft)
 	{
 		// Angular / linear errors
-		float AngularDot = FVector::DotProduct(DockingParameters->ShipDockAxis.GetSafeNormal(), -DockingParameters->StationDockAxis.GetSafeNormal());
+		float AngularDot = FVector::DotProduct(DockParameters.ShipDockAxis.GetSafeNormal(), -DockParameters.StationDockAxis.GetSafeNormal());
 		float AngularError = FMath::RadiansToDegrees(FMath::Acos(AngularDot));
-		float LinearError = FVector::VectorPlaneProject(DockingParameters->DockToDockDeltaLocation, DockingParameters->StationDockAxis).Size() / 100;
+		float LinearError = FVector::VectorPlaneProject(DockParameters.DockToDockDeltaLocation, DockParameters.StationDockAxis).Size() / 100;
 
 		// Roll error
-		FVector StationTopAxis = DockingParameters->StationDockTopAxis;
+		FVector StationTopAxis = DockParameters.StationDockTopAxis;
 		FVector TopAxis = PlayerShip->GetActorRotation().RotateVector(FVector(0, 0, 1));
-		FVector LocalTopAxis = FVector::VectorPlaneProject(TopAxis, DockingParameters->StationDockAxis).GetSafeNormal();
+		FVector LocalTopAxis = FVector::VectorPlaneProject(TopAxis, DockParameters.StationDockAxis).GetSafeNormal();
 		float RollDot = FVector::DotProduct(StationTopAxis, LocalTopAxis);
 		float RollError = FMath::RadiansToDegrees(FMath::Acos(RollDot));
 
 		// Ratios
 		float DangerThreshold = 0.3f;
-		float DistanceRatio = 1 - FMath::Clamp(DockingParameters->DockToDockDistance / 20000, 0.0f, 1.0f); // 200m max distance
+		float DistanceRatio = 1 - FMath::Clamp(DockParameters.DockToDockDistance / 20000, 0.0f, 1.0f); // 200m max distance
 		float RollRatio = 1 - RollError / 30; // 30° max error
 		float AngularRatio = 1 - FMath::Clamp(AngularError / 30, 0.0f, 1.0f); // 30° max error
 		float LinearRatio = 1 - FMath::Clamp(LinearError / 20, 0.0f, 1.0f); // 20m max error
 
 		// Texts
 		FText DockingText = LOCTEXT("Docking", "Docking computer");
-		FText DockingPhase = UFlareSpacecraftNavigationSystem::GetDockingPhaseName(DockingParameters->DockingPhase);
 		FText DistanceText = FText::Format(LOCTEXT("DockingDistanceFormat", "Distance : {0}m"),
-			FText::AsNumber(FMath::RoundToInt(DockingParameters->DockToDockDistance / 100)));
+			FText::AsNumber(FMath::RoundToInt(DockParameters.DockToDockDistance / 100)));
 		FText RollText = FText::Format(LOCTEXT("DockingAlignmentFormat", "Roll error : {0}\u00B0"),
 			FText::AsNumber(FMath::RoundToInt(RollError)));
 		FText AngularText = FText::Format(LOCTEXT("DockingAlignmentFormat", "Angular error : {0}\u00B0"),
@@ -615,7 +620,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		// Draw panel
 		FlareDrawText(DockingText, CurrentPos, Theme.FriendlyColor, false, true);
 		CurrentPos += 2 * InstrumentLine;
-		FlareDrawText(DockingPhase, CurrentPos, Theme.FriendlyColor, false, false);
+		FlareDrawText(DockInfo, CurrentPos, DockingInProgress ? Theme.FriendlyColor : Theme.EnemyColor, false, false);
 		CurrentPos += InstrumentLine;
 		DrawProgressBarIconText(CurrentPos, HUDDistanceIcon, DistanceText,
 			DistanceRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
@@ -1725,54 +1730,62 @@ void AFlareHUD::DrawDockingHelper()
 {
 	int32 DockingIconSize = 96;
 	int32 DockingRollIconSize = 32;
-
-	// Get status
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+
+	// Docking info
+	FText DockInfo;
 	AFlareSpacecraft* DockSpacecraft = NULL;
-	const FFlareDockingParameters* DockingParameters = PC->GetShipPawn()->GetManualDockingProgress(DockSpacecraft);
+	FFlareDockingParameters DockParameters;
+	bool DockingInProgress = PC->GetShipPawn()->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
 
 	// Valid docking target found
-	if (DockingParameters)
+	if (DockSpacecraft)
 	{
-		struct FVector DockingPortLocation = DockingParameters->StationDockLocation;		
+		struct FVector DockingPortLocation = DockParameters.StationDockLocation;		
 		FVector2D CameraTargetScreenPosition;
 
-		if (ProjectWorldLocationToCockpit(DockingParameters->ShipCameraTargetLocation, CameraTargetScreenPosition))
+		if (ProjectWorldLocationToCockpit(DockParameters.ShipCameraTargetLocation, CameraTargetScreenPosition))
 		{
-			FLinearColor HelperColor = HudColorNeutral;
+			FLinearColor HelperColor = DockingInProgress ? HudColorNeutral : HudColorEnemy;
 			DrawHUDIcon(CameraTargetScreenPosition, DockingIconSize, HUDDockingCircleTexture, HelperColor, true);
-			
-			// Distance display
-			float DockDistance = DockingParameters->DockToDockDistance / 100;
-			FText TimeText = FText::FromString(FString::FromInt(DockDistance) + FString(".") + FString::FromInt((DockDistance - (int)DockDistance) * 10) + FString(" m"));
-			FVector2D TimePosition = CameraTargetScreenPosition - CurrentViewportSize / 2 + FVector2D(0,85);
-			FlareDrawText(TimeText, TimePosition, HelperColor);
-			
-			// Top icon
-			FVector2D DockTopAxis;
-			FVector CameraTargetDockDirectionLocation = DockingParameters->ShipCameraTargetLocation + DockingParameters->StationDockTopAxis * 10;
 
-			if (ProjectWorldLocationToCockpit(CameraTargetDockDirectionLocation, DockTopAxis))
+			// Docking in progress
+			if (DockingInProgress)
 			{
-
-
-				FVector2D DockAxis = (CameraTargetScreenPosition - DockTopAxis).GetSafeNormal();
-				float Rotation = -FMath::RadiansToDegrees(FMath::Atan2(DockAxis.X, DockAxis.Y)) + 90;
-				FVector2D TopPosition = CameraTargetScreenPosition - DockAxis * 24;
-
-				DrawHUDIconRotated(TopPosition, DockingRollIconSize, HUDSearchArrowIcon, HelperColor, Rotation);
-			}
+				// Distance display
+				float DockDistance = DockParameters.DockToDockDistance / 100;
+				FText TimeText = FText::FromString(FString::FromInt(DockDistance) + FString(".") + FString::FromInt((DockDistance - (int)DockDistance) * 10) + FString(" m"));
+				FVector2D TimePosition = CameraTargetScreenPosition - CurrentViewportSize / 2 + FVector2D(0,85);
+				FlareDrawText(TimeText, TimePosition, HelperColor);
 			
-			// Axis icon
-			FVector2D AlignementScreenPosition;
-			FVector AlignementLocation = DockingParameters->ShipCameraTargetLocation + DockingParameters->StationDockAxis * 5.0f;
-			if (ProjectWorldLocationToCockpit(AlignementLocation, AlignementScreenPosition))
-			{
-				FVector2D Alignement = CameraTargetScreenPosition + (AlignementScreenPosition - CameraTargetScreenPosition) * 100;
+				// Top icon
+				FVector2D DockTopAxis;
+				FVector CameraTargetDockDirectionLocation = DockParameters.ShipCameraTargetLocation + DockParameters.StationDockTopAxis * 10;
+				if (ProjectWorldLocationToCockpit(CameraTargetDockDirectionLocation, DockTopAxis))
+				{
+					FVector2D DockAxis = (CameraTargetScreenPosition - DockTopAxis).GetSafeNormal();
+					float Rotation = -FMath::RadiansToDegrees(FMath::Atan2(DockAxis.X, DockAxis.Y)) + 90;
+					FVector2D TopPosition = CameraTargetScreenPosition - DockAxis * 24;
 
-				DrawHUDIcon(Alignement, DockingIconSize, HUDDockingAxisTexture, HelperColor, true);
+					DrawHUDIconRotated(TopPosition, DockingRollIconSize, HUDSearchArrowIcon, HelperColor, Rotation);
+				}
+			
+				// Axis icon
+				FVector2D AlignementScreenPosition;
+				FVector AlignementLocation = DockParameters.ShipCameraTargetLocation + DockParameters.StationDockAxis * 5.0f;
+				if (ProjectWorldLocationToCockpit(AlignementLocation, AlignementScreenPosition))
+				{
+					FVector2D Alignement = CameraTargetScreenPosition + (AlignementScreenPosition - CameraTargetScreenPosition) * 100;
+
+					DrawHUDIcon(Alignement, DockingIconSize, HUDDockingAxisTexture, HelperColor, true);
+				}
 			}
 
+			// Docking denied
+			else
+			{
+				DrawHUDIcon(CameraTargetScreenPosition, DockingIconSize / 2, HUDDockingForbiddenTexture, HelperColor, true);
+			}
 		}
 	}
 }
