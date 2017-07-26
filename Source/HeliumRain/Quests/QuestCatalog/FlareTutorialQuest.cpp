@@ -446,7 +446,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 		FText Description = LOCTEXT("GainResearchPointDescription","You can develop technologies to increase your capabilities and your company's performance. To develop a technology, you need research points. Companies with a high research value sometimes offer you contracts with research points as a reward. You will learn a more efficient way to get research points in the future !\nGain some research points to move forward.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "gain-research-points", Description);
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 30));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 20));
 		Steps.Add(Step);
 	}
 
@@ -615,7 +615,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 	QuestDescription = LOCTEXT("TutorialBuildStationDescription","Learn how to build stations.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
-	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 30));
+	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 20));
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-build-ship"));
 
 	{
