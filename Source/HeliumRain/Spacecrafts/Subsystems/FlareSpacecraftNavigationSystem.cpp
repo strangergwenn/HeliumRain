@@ -449,7 +449,7 @@ FFlareDockingParameters UFlareSpacecraftNavigationSystem::GetDockingParameters(F
 	Params.StationDockLocation =  DockStation->Airframe->GetComponentTransform().TransformPosition(StationDockInfo.LocalLocation);
 	Params.StationDockAxis = DockStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(StationDockInfo.LocalAxis).GetUnsafeNormal();
 	Params.StationAngularVelocity = DockStation->Airframe->GetPhysicsAngularVelocity();
-	FVector StationDockTopAxis = DockStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(StationDockInfo.LocalTopAxis).GetUnsafeNormal();
+	Params.StationDockTopAxis = DockStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(StationDockInfo.LocalTopAxis).GetUnsafeNormal();
 
 
 	// Compute approch infos
@@ -460,21 +460,48 @@ FFlareDockingParameters UFlareSpacecraftNavigationSystem::GetDockingParameters(F
 	FVector DockToCamera = CameraLocation - Params.ShipDockLocation;
 	if (DockToCamera.IsNearlyZero())
 	{
-		Params.ShipCameraOffset = 0.f;
+		Params.ShipHorizontalCameraOffset = 0.f;
+		Params.ShipVerticalCameraOffset = 0.f;
+		Params.ShipCameraTargetLocation = Params.StationDockLocation;
 	}
 	else
 	{
-		float DockToCameraDistance = DockToCamera.Size();
+		FVector LocalDockToCamera = FVector::VectorPlaneProject(DockToCamera, Params.ShipDockAxis);
+		FVector StationLeftDockVector = FVector::CrossProduct(Params.StationDockTopAxis, Params.StationDockAxis);
+
+
+		FVector ShipTopAxis = Spacecraft->GetActorRotation().RotateVector(FVector(0, 0, 1));
+		FVector ShipLeftAxis = FVector::CrossProduct(Params.ShipDockAxis, ShipTopAxis);
+
+		/*float DockToCameraDistance = DockToCamera.Size();
 		FVector DockToCameraAxis = DockToCamera.GetUnsafeNormal();
 		float Dot = FVector::DotProduct(Params.ShipDockAxis, DockToCameraAxis);
-		float Angle = FMath::Acos(FMath::Abs(Dot));
+		float Angle = FMath::Acos(FMath::Abs(Dot));*/
 
-		Params.ShipCameraOffset = DockToCameraDistance * FMath::Sin(Angle);
+		Params.ShipHorizontalCameraOffset = FVector::DotProduct(LocalDockToCamera, ShipLeftAxis);
+		Params.ShipVerticalCameraOffset = FVector::DotProduct(LocalDockToCamera, ShipTopAxis);
+		Params.ShipCameraTargetLocation = Params.StationDockLocation + Params.ShipHorizontalCameraOffset * StationLeftDockVector + Params.ShipVerticalCameraOffset *  Params.StationDockTopAxis;
+
+		/*FLOG("-------------");
+		FLOGV("DockToCamera %s", *DockToCamera.ToString());
+		FLOGV("LocalDockToCamera %s", *LocalDockToCamera.ToString());
+		FLOGV("Params.ShipDockAxis %s", *Params.ShipDockAxis.ToString());
+		FLOGV("ShipTopAxis %s", *ShipTopAxis.ToString());
+		FLOGV("ShipLeftAxis %s", *ShipLeftAxis.ToString());
+		FLOGV("Params.StationDockTopAxis %s", *Params.StationDockTopAxis.ToString());
+		FLOGV("StationLeftDockVector %s", *StationLeftDockVector.ToString());
+		FLOGV("Params.ShipHorizontalCameraOffset %f", Params.ShipHorizontalCameraOffset);
+		FLOGV("Params.ShipVerticalCameraOffset %f", Params.ShipVerticalCameraOffset);
+		FLOGV("Params.ShipCameraTargetLocatio %s", *Params.ShipCameraTargetLocation.ToString());
+
+		UKismetSystemLibrary::DrawDebugPoint(Spacecraft->GetWorld(), Params.ShipCameraTargetLocation, 10, FColor::White, 5.f);
+
+		UKismetSystemLibrary::DrawDebugPoint(Spacecraft->GetWorld(), Params.StationDockLocation, 10, FColor::Magenta, 5.f);
+		UKismetSystemLibrary::DrawDebugPoint(Spacecraft->GetWorld(), Params.StationDockLocation + Params.ShipDockAxis * 100, 10, FColor::Red, 5.f);
+		UKismetSystemLibrary::DrawDebugPoint(Spacecraft->GetWorld(), Params.StationDockLocation + Params.StationDockTopAxis *100, 10, FColor::Green, 5.f);
+		UKismetSystemLibrary::DrawDebugPoint(Spacecraft->GetWorld(), Params.StationDockLocation + StationLeftDockVector * 100, 10, FColor::Blue, 5.f);
+*/
 	}
-	Params.ShipCameraTargetLocation = Params.StationDockLocation + StationDockTopAxis * Params.ShipCameraOffset;
-
-
-
 
 	float DockToDockAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(-Params.ShipDockAxis, Params.StationDockAxis)));
 	float ApproachAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(-Params.DockToDockDeltaLocation.GetUnsafeNormal(), Params.StationDockAxis)));

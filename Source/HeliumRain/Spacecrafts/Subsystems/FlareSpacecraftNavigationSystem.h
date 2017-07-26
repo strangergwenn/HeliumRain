@@ -97,12 +97,14 @@ struct FFlareDockingParameters
 	FVector ShipDockOffset;
 
 	// Camera
-	float ShipCameraOffset;
+	float ShipHorizontalCameraOffset;
+	float ShipVerticalCameraOffset;
 	FVector ShipCameraTargetLocation;
 
 	// Station
 	FVector StationDockLocation;
 	FVector StationDockAxis;
+	FVector StationDockTopAxis;
 	FVector StationAngularVelocity;
 
 	// Approach

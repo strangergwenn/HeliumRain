@@ -587,7 +587,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		float LinearError = FVector::VectorPlaneProject(DockingParameters->DockToDockDeltaLocation, DockingParameters->StationDockAxis).Size() / 100;
 
 		// Roll error
-		FVector StationTopAxis = (DockingParameters->ShipCameraTargetLocation - DockingParameters->StationDockLocation) / DockingParameters->ShipCameraOffset;
+		FVector StationTopAxis = DockingParameters->StationDockTopAxis;
 		FVector TopAxis = PlayerShip->GetActorRotation().RotateVector(FVector(0, 0, 1));
 		FVector LocalTopAxis = FVector::VectorPlaneProject(TopAxis, DockingParameters->StationDockAxis).GetSafeNormal();
 		float RollDot = FVector::DotProduct(StationTopAxis, LocalTopAxis);
@@ -1749,13 +1749,16 @@ void AFlareHUD::DrawDockingHelper()
 			FlareDrawText(TimeText, TimePosition, HelperColor);
 			
 			// Top icon
-			FVector2D CameraTargetDockDirectionScreenPosition;
-			FVector CameraTargetDockDirectionLocation = DockingParameters->ShipCameraTargetLocation + (DockingPortLocation - DockingParameters->ShipCameraTargetLocation) * 0.01;
-			if (ProjectWorldLocationToCockpit(CameraTargetDockDirectionLocation, CameraTargetDockDirectionScreenPosition))
+			FVector2D DockTopAxis;
+			FVector CameraTargetDockDirectionLocation = DockingParameters->ShipCameraTargetLocation + DockingParameters->StationDockTopAxis * 10;
+
+			if (ProjectWorldLocationToCockpit(CameraTargetDockDirectionLocation, DockTopAxis))
 			{
-				FVector2D DockAxis = (CameraTargetScreenPosition - CameraTargetDockDirectionScreenPosition).GetSafeNormal();
+
+
+				FVector2D DockAxis = (CameraTargetScreenPosition - DockTopAxis).GetSafeNormal();
 				float Rotation = -FMath::RadiansToDegrees(FMath::Atan2(DockAxis.X, DockAxis.Y)) + 90;
-				FVector2D TopPosition = CameraTargetScreenPosition + DockAxis * 24;
+				FVector2D TopPosition = CameraTargetScreenPosition - DockAxis * 24;
 
 				DrawHUDIconRotated(TopPosition, DockingRollIconSize, HUDSearchArrowIcon, HelperColor, Rotation);
 			}
@@ -1769,6 +1772,7 @@ void AFlareHUD::DrawDockingHelper()
 
 				DrawHUDIcon(Alignement, DockingIconSize, HUDDockingAxisTexture, HelperColor, true);
 			}
+
 		}
 	}
 }
