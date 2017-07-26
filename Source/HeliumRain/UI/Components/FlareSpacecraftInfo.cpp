@@ -262,7 +262,6 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(DockButton, SFlareButton)
 					.Text(LOCTEXT("Dock", "DOCK"))
-					.HelpText(LOCTEXT("DockInfo", "Try to dock at this spacecraft"))
 					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey4"))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnDockAt)
 					.Width(5)
@@ -481,6 +480,18 @@ void SFlareSpacecraftInfo::Show()
 		{
 			FlyButton->SetHelpText(LOCTEXT("ShipFlyInfo", "Take command of this spacecraft"));
 			FlyButton->SetDisabled(false);
+		}
+
+		// Can dock
+		if (!TargetSpacecraft->GetCompany()->IsTechnologyUnlocked("auto-docking"))
+		{
+			DockButton->SetHelpText(LOCTEXT("ShipAutoDockNeededInfo", "You need the Auto Docking technology to dock automatically at stations"));
+			DockButton->SetDisabled(true);
+		}
+		else
+		{
+			DockButton->SetHelpText(LOCTEXT("ShipDockInfo", "Try to dock at this spacecraft"));
+			DockButton->SetDisabled(false);
 		}
 
 		// Can undock
