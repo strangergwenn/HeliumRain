@@ -450,6 +450,11 @@ public:
 		return GetActorRotation().RotateVector(FVector(1,0,0));
 	}
 
+	inline FVector GetUpVector() const
+	{
+		return GetActorRotation().RotateVector(FVector(0, 0, 1));
+	}
+
 	inline bool IsPaused()
 	{
 		return Paused;

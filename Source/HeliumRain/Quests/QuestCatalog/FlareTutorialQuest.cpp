@@ -52,7 +52,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"GoForward"
-		FText Description = LOCTEXT("GoForwardDescription","Spaceships feature small maneuvering engines called the RCS, and large orbital engines for accelerating. To go forward press <input-axis:NormalThrustInput,1.0> slightly. You can modify the key binding in the settings menu (<input-action:SettingsMenu>).");
+		FText Description = LOCTEXT("GoForwardDescription","Spaceships feature small maneuvering engines called the RCS, and large orbital engines for accelerating. To move forward, press <input-axis:NormalThrustInput,1.0> slightly. You can modify the key binding in the settings menu (<input-action:SettingsMenu>).");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "go-forward", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -139,8 +139,30 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 
 	{
 		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"Up"
+		FText Description = LOCTEXT("UpDescription","Your spacecraft can move along any axis - up, down, left, right... Try moving up with <input-axis:MoveVerticalInput,1.0>.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "up", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionMinVerticalVelocity::Create(this, QUEST_TAG"cond1", 20));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"Down"
+		FText Description = LOCTEXT("DownDescription","Move your spacecraft down with <input-axis:MoveVerticalInput,-1.0>.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "down", Description);
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionMinVerticalVelocity::Create(this, QUEST_TAG"cond1", -20));
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"Forward"
-		FText Description = LOCTEXT("ForwardDescription","Move your ship forward again.");
+		FText Description = LOCTEXT("ForwardDescription","Almost there ! Move your ship forward again before we try some real flying.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "forward", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
@@ -151,7 +173,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"FollowAdvancedPath"
-		FText Description = LOCTEXT("FollowAdvancedPathDescription","You can use the prograde vector to follow a path. Keep a constant velocity and aim for your target, your ship's engine controller will automatically align your velocity with your ship's orientation.");
+		FText Description = LOCTEXT("FollowAdvancedPathDescription","You can use the circular prograde vector on your HUD to follow a path. Keep a constant velocity and aim for your target, your ship's engine controller will automatically align your velocity with your ship's orientation.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "follow-advanced-path", Description);
 
 

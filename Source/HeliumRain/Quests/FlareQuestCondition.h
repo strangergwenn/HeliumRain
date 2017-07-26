@@ -244,6 +244,32 @@ protected:
 
 //////////////////////////////////////////////////////
 UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionMinVerticalVelocity: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionMinVerticalVelocity* Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam);
+	void Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam);
+	virtual void Restore(const FFlareBundle* Bundle);
+	virtual void Save(FFlareBundle* Bundle);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+	float GetVerticalVelocity();
+
+protected:
+
+	float VelocityLimit;
+	bool HasInitialVelocity;
+	float InitialVelocity;
+};
+
+//////////////////////////////////////////////////////
+UCLASS()
 class HELIUMRAIN_API UFlareQuestConditionMinCollinearVelocity: public UFlareQuestCondition
 {
 	GENERATED_UCLASS_BODY()
