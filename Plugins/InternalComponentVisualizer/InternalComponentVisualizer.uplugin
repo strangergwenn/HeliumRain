@@ -4,7 +4,6 @@
     "FriendlyName" : "Component visualizer plugin for Helium Rain",
     "Version" : 1,
     "VersionName": "1.0",
-    "EngineVersion" : "4.16",
     "Description" : "Display the radius of internal components of ships in Helium Rain",
     "Category" : "Flare.Module",
     "CreatedBy" : "Frédéric Bertolus",

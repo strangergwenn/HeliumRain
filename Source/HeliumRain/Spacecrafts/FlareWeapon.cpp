@@ -483,7 +483,7 @@ void UFlareWeapon::FillBombs()
 
 		//FLOGV("Bomb %d Roll=%f", Roll);
 		
-		FTransform Rotation = LocalRotation * ComponentToWorld;
+		FTransform Rotation = LocalRotation * GetComponentTransform();
 		
 		//FLOGV("Bomb %d LocalRotation.Rotator()=%s", BombIndex, *(LocalRotation.Rotator().ToString()));
 		//FLOGV("Bomb %d Rotation.Rotator()=%s", BombIndex, *(Rotation.Rotator().ToString()));

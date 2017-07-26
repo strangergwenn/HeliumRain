@@ -454,3 +454,7 @@ FVector AFlarePlanetarium::GetStellarDustVelocity() const
 	return FVector(25000, 0, 0);
 }
 
+AFlareGame* AFlarePlanetarium::GetGame() const
+{
+	return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
+}

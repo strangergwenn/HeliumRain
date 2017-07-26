@@ -114,7 +114,7 @@ FReply SFlareKeyBind::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoin
 	else if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
 	{
 		// Get the center of the widget so we can lock our mouse there
-		FSlateRect Rect = MyGeometry.GetClippingRect();
+		FSlateRect Rect = MyGeometry.GetLayoutBoundingRect();
 		WaitingMousePos.X = (Rect.Left + Rect.Right) * 0.5f;
 		WaitingMousePos.Y = (Rect.Top + Rect.Bottom) * 0.5f;
 		FSlateApplication::Get().GetPlatformApplication().Get()->Cursor->SetPosition(WaitingMousePos.X, WaitingMousePos.Y);

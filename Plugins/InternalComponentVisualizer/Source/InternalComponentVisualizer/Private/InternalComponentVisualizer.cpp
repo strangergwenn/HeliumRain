@@ -17,7 +17,7 @@ public:
 			const UFlareInternalComponent* InternalComponent = Cast<const UFlareInternalComponent>(Component);
 			if (InternalComponent != NULL)
 			{
-				FTransform TM = InternalComponent->ComponentToWorld;
+				FTransform TM = InternalComponent->GetComponentTransform();
 				TM.RemoveScaling();
 
 				// Draw component radius

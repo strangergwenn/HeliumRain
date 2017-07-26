@@ -57,7 +57,7 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 
 	PlayerManualLinearVelocity = FVector::ZeroVector;
 	PlayerManualAngularVelocity = FVector::ZeroVector;
-	FVector FrontVector = Spacecraft->Airframe->ComponentToWorld.TransformVector(FVector(1, 0, 0));
+	FVector FrontVector = Spacecraft->Airframe-> GetComponentTransform().TransformVector(FVector(1, 0, 0));
 	float ForwardVelocity = FVector::DotProduct(ParentSpacecraft->GetLinearVelocity(), FrontVector);
 	PlayerManualVelocityCommand = ForwardVelocity;
 
@@ -262,8 +262,8 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 
 		if (!IsFireDirectorInit)
 		{
-			FVector FrontVector = Spacecraft->Airframe->ComponentToWorld.TransformVector(FVector(1, 0, 0));
-			FireDirectorLookRotation =  Spacecraft->Airframe->ComponentToWorld.GetRotation();
+			FVector FrontVector = Spacecraft->Airframe-> GetComponentTransform().TransformVector(FVector(1, 0, 0));
+			FireDirectorLookRotation =  Spacecraft->Airframe-> GetComponentTransform().GetRotation();
 			IsFireDirectorInit = true;
 		}
 
@@ -685,7 +685,7 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 void UFlareSpacecraftStateManager::OnStatusChanged()
 {
 	// Maybe set to manual, in this case, forgot the old command
-	FVector FrontVector = Spacecraft->Airframe->ComponentToWorld.TransformVector(FVector(1, 0, 0));
+	FVector FrontVector = Spacecraft->Airframe-> GetComponentTransform().TransformVector(FVector(1, 0, 0));
 	float ForwardVelocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), FrontVector);
 	PlayerManualVelocityCommand = ForwardVelocity / Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
 }

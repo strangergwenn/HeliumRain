@@ -112,11 +112,14 @@ void AFlareBomb::OnLaunched(AFlareSpacecraft* Target)
 
 	CombatLog::BombDropped(this);
 
-	DetachRootComponentFromParent(true);
+	// Detach
+	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
+	DetachFromActor(DetachRules);
+
 	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->RegisterBomb(this);
 
 	// Spin to stabilize
-	FVector FrontVector = BombComp->ComponentToWorld.TransformVector(FVector(1, 0, 0));
+	FVector FrontVector = BombComp-> GetComponentTransform().TransformVector(FVector(1, 0, 0));
 	BombComp->SetPhysicsAngularVelocity(FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropAngularVelocity);
 	BombComp->SetPhysicsLinearVelocity(ParentWeapon->GetSpacecraft()->Airframe->GetPhysicsLinearVelocity() + FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropLinearVelocity * 100);
 

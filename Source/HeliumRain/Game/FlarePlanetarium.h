@@ -107,10 +107,7 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	inline AFlareGame* GetGame() const
-	{
-		return Cast<AFlareGame>(GetWorld()->GetAuthGameMode());
-	}
+	AFlareGame* GetGame() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Flare")
 	float GetSunOcclusion() const
