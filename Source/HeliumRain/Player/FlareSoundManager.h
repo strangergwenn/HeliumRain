@@ -22,13 +22,16 @@ namespace EFlareMusicTrack
 		Menu,
 		Ambient1,
 		Ambient2,
-		Travel,
+		Travel1,
+		Travel2,
 		Exploration,
 		Danger,
 		Combat,
 		Battle,
 		Anomaly1,
-		Anomaly2
+		Anomaly2,
+		Daedalus1,
+		Daedalus2
 	};
 }
 

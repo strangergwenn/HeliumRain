@@ -63,7 +63,7 @@ void UFlareTravel::Load(const FFlareTravelSave& Data)
 	SectorDescription.IsSolarPoor = false;
 	SectorDescription.LevelName = NAME_None;
 	SectorDescription.DebrisFieldInfo.DebrisCatalog = NULL;
-	SectorDescription.LevelTrack = EFlareMusicTrack::Travel;
+	SectorDescription.LevelTrack = FMath::RandBool() ? EFlareMusicTrack::Travel1 : EFlareMusicTrack::Travel2;
 	SectorDescription.DebrisFieldInfo.DebrisFieldDensity = 0;
 	SectorDescription.DebrisFieldInfo.MaxDebrisSize = 0;
 	SectorDescription.DebrisFieldInfo.MinDebrisSize = 0;

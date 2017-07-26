@@ -544,7 +544,7 @@ void AFlarePlayerController::UpdateMusicTrack(FFlareSectorBattleState NewBattleS
 		if (GetPlayerFleet()->IsTraveling() || !GetGame()->GetActiveSector())
 		{
 			FLOG("AFlarePlayerController::UpdateMusicTrack : travel");
-			SoundManager->RequestMusicTrack(EFlareMusicTrack::Travel);
+			SoundManager->RequestMusicTrack(FMath::RandBool() ? EFlareMusicTrack::Travel1 : EFlareMusicTrack::Travel2);
 		}
 		else
 		{
