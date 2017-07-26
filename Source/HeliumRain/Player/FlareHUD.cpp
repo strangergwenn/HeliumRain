@@ -626,6 +626,10 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			DistanceRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
 			DistanceRatio, LargeProgressBarSize);
 		CurrentPos += InstrumentLine;
+		DrawProgressBarIconText(CurrentPos, HUDRCSIcon, LinearText,
+			LinearRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
+			LinearRatio, LargeProgressBarSize);
+		CurrentPos += InstrumentLine;
 		DrawProgressBarIconText(CurrentPos, HUDRCSIcon, RollText,
 			RollRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
 			RollRatio, LargeProgressBarSize);
@@ -633,10 +637,6 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		DrawProgressBarIconText(CurrentPos, HUDRCSIcon, AngularText,
 			AngularRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
 			AngularRatio, LargeProgressBarSize);
-		CurrentPos += InstrumentLine;
-		DrawProgressBarIconText(CurrentPos, HUDRCSIcon, LinearText,
-			LinearRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
-			LinearRatio, LargeProgressBarSize);
 		CurrentPos += InstrumentLine;
 	}
 
