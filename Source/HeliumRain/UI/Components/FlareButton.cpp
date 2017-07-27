@@ -154,7 +154,7 @@ void SFlareButton::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.SmallFont)
-					.Text(FText::FromString(FString("<" + InArgs._HotkeyText.Get().ToString() + FString(">"))))
+					.Text(InArgs._HotkeyText.Get())
 				];
 		}
 
