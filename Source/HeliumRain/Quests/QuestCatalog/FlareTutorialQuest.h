@@ -601,8 +601,11 @@ public:
 	virtual bool IsCompleted();
 	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
 
+
+	std::function<void (FFlarePlayerObjectiveData* ObjectiveData)> AddConditionObjectivesFunc;
 protected:
 	std::function<bool (UFlareQuestCondition*)> IsCompletedFunc;
+
 	std::function<FText ()> GetInitalLabelFunc;
 };
 

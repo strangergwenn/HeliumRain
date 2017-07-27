@@ -204,6 +204,14 @@ UFlareQuest* UFlareQuestTutorialNavigation::Create(UFlareQuestManager* Parent)
 	return Quest;
 }
 
+static float InverseRamp(float Input, float Target, float StepInput, float StepOutput)
+{
+	float B = Target * (1-StepOutput) / (StepOutput * (StepInput - Target));
+	float A = Target * (1- B);
+
+	return FMath::Clamp(Target / (A + B * Input), 0.f, 1.f);
+}
+
 void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 {
 	LoadInternal(Parent);
@@ -300,9 +308,178 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		Steps.Add(Step);
 	}
 
+
+
+	// Manual Docking
 	{
-		#undef QUEST_STEP_TAG
-		#define QUEST_STEP_TAG QUEST_TAG"CommandDock"
+		int const Distance = 250;
+		int const Speed = 2;
+
+		FText Description = FText::Format(LOCTEXT("Approach1", "We will learn to dock to this station. First approach and stop at less than {0}m of the station."), FText::AsNumber(Distance));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "approach-1", Description);
+
+		UFlareQuestConditionTutorialGenericStateCondition* DistanceCondition = UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+		[this, StationC](UFlareQuestCondition* Condition)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+			if (PlayerShip && StationC->IsActive())
+			{
+				FVector PlayerLocation = PlayerShip->GetActorLocation();
+				FVector StationLocation = StationC->GetActive()->GetActorLocation();
+
+				if ((PlayerLocation - StationLocation).SizeSquared() < (Distance * Distance * 10000))
+				{
+					return true;
+				}
+			}
+
+			return false;
+		},
+		[StationC]()
+		{
+			return FText::Format(LOCTEXT("Approache1Label", "Approach at less than {0}m of {1}"),FText::AsNumber(Distance), UFlareGameTools::DisplaySpacecraftName(StationC));
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+		});
+
+		DistanceCondition->AddConditionObjectivesFunc = [this, StationC, DistanceCondition](FFlarePlayerObjectiveData* ObjectiveData)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+
+			FFlarePlayerObjectiveCondition ObjectiveCondition;
+			ObjectiveCondition.InitialLabel = DistanceCondition->GetInitialLabel();
+			ObjectiveCondition.TerminalLabel = FText();
+			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.MaxProgress = 1;
+			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.MaxCounter = 0;
+
+			if (PlayerShip && StationC->IsActive())
+			{
+				FVector PlayerLocation = PlayerShip->GetActorLocation();
+				FVector StationLocation = StationC->GetActive()->GetActorLocation();
+
+				float CurrentDistance  = (PlayerLocation - StationLocation).Size();
+
+				ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("Approach1Label", "{0}m"), FText::AsNumber(FMath::RoundToInt(CurrentDistance /100)));
+				ObjectiveCondition.Progress = InverseRamp(CurrentDistance, 100 * Distance, 100000, 0.5);
+			}
+
+			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+		};
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(DistanceCondition);
+
+
+		UFlareQuestConditionTutorialGenericStateCondition* SpeedCondition = UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+		[this, StationC](UFlareQuestCondition* Condition)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+			if (PlayerShip)
+			{
+				FVector PlayerVelocity = PlayerShip->GetLinearVelocity();
+				FVector StationLocation = StationC->GetActive()->GetActorLocation();
+
+				if (PlayerVelocity.SizeSquared() < Speed * Speed)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		},
+		[]()
+		{
+			return FText::Format(LOCTEXT("Stop1Label", "Stop (< {0}m/s)"), FText::AsNumber(Speed));
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+		});
+
+		SpeedCondition->AddConditionObjectivesFunc = [this, SpeedCondition](FFlarePlayerObjectiveData* ObjectiveData)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+
+			FFlarePlayerObjectiveCondition ObjectiveCondition;
+			ObjectiveCondition.InitialLabel = SpeedCondition->GetInitialLabel();
+			ObjectiveCondition.TerminalLabel = FText();
+			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.MaxProgress = 1;
+			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.MaxCounter = 0;
+
+			if (PlayerShip)
+			{
+				float CurrentVelocity  = PlayerShip->GetLinearVelocity().Size();
+
+				ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("Approach1Label", "{0}m/s"), FText::AsNumber(FMath::RoundToInt(CurrentVelocity)));
+				ObjectiveCondition.Progress = InverseRamp(CurrentVelocity, Speed, 50, 0.5);
+			}
+
+			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+		};
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(SpeedCondition);
+
+		Steps.Add(Step);
+	}
+
+	/*{
+		find-docking port
+		alignement of localtion < 45
+		approach-50
+		valid docking param
+		speed < 5m/s
+
+	}
+
+	{
+		reduce lateral error display on your docking computer below 5 m
+		for this use qd SHIFt and ctrl
+				to help you, you can look at your hud : translate your ship make move the small circle relative to the big. You must have the small circle and the large circle aligned to zero the lateral error.
+														reduce your latera error below 5m
+
+
+
+		lateral error < 3m
+
+	}
+
+
+	{
+		The ajust the roll of your ship with A and E.
+
+		roll error < 5°
+
+	}
+
+	{
+		The ajust the alignemnt of the ship with the mouse
+
+		alignement error < 5°
+
+	}
+
+	{
+			When all your axis ok, approach slowly keeping all the error values as low as you can. Don't exceed 3 m/s for your first docking and stop to ajust the axis. At 3 m the magnetic grab you snap your ship to the docking port.
+
+
+	}
+
+
+	{
+			Congratulations, you are docked. When you are to trade with the station you can undock your ship with the wheel menu.
+
+					Undock the ship
+
+
+	}
+*/
+
+	{
 		FText Description = LOCTEXT("CommandDockDescription", "Press <input-action:Wheel> to select the docking option");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "command-dock", Description);
 
@@ -311,10 +488,8 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	}
 	
 	{
-		#undef QUEST_STEP_TAG
-		#define QUEST_STEP_TAG QUEST_TAG"DockAt"
 		FText Description = LOCTEXT("NavigationDockAtDescription", "Your ship is now docking automatically, but you can brake to disengage the autopilot. Use the wheel menu to undock, trade, or upgrade your ship.");
-		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pick-up", Description);
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "dock-at", Description);
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, StationC);
 		Condition->TargetShipSaveId = PickUpShipId;
@@ -3424,15 +3599,22 @@ FText UFlareQuestConditionTutorialGenericStateCondition::GetInitialLabel()
 void UFlareQuestConditionTutorialGenericStateCondition::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
 
-	FFlarePlayerObjectiveCondition ObjectiveCondition;
-	ObjectiveCondition.InitialLabel = GetInitialLabel();
-	ObjectiveCondition.TerminalLabel = FText();
-	ObjectiveCondition.Progress = 0;
-	ObjectiveCondition.MaxProgress = 0;
-	ObjectiveCondition.Counter = 0;
-	ObjectiveCondition.MaxCounter = 0;
+	if(AddConditionObjectivesFunc)
+	{
+		AddConditionObjectivesFunc(ObjectiveData);
+	}
+	else
+	{
+		FFlarePlayerObjectiveCondition ObjectiveCondition;
+		ObjectiveCondition.InitialLabel = GetInitialLabel();
+		ObjectiveCondition.TerminalLabel = FText();
+		ObjectiveCondition.Progress = IsCompleted() ? 1 : 0;
+		ObjectiveCondition.MaxProgress = 1;
+		ObjectiveCondition.Counter = 0;
+		ObjectiveCondition.MaxCounter = 0;
 
-	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+		ObjectiveData->ConditionList.Add(ObjectiveCondition);
+	}
 }
 
 /*----------------------------------------------------
