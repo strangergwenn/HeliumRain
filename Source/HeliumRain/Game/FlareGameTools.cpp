@@ -573,11 +573,6 @@ void UFlareGameTools::DeclareWar(FName Company1ShortName, FName Company2ShortNam
 		return;
 	}
 
-	if (GetActiveSector())
-	{
-		FLOG("UFlareGameTools::DeclareWar failed: a sector is active");
-		return;
-	}
 
 	UFlareCompany* Company1 = GetGameWorld()->FindCompanyByShortName(Company1ShortName);
 	UFlareCompany* Company2 = GetGameWorld()->FindCompanyByShortName(Company2ShortName);
@@ -1233,6 +1228,8 @@ void UFlareGameTools::PrintSector(FName SectorIdentifier)
 	for (int i = 0; i < SectorStations.Num(); i++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = SectorStations[i];
+		FLOGV("%d", i);
+		FLOGV("%s", *Spacecraft->GetImmatriculation().ToString());
 		FLOGV("   %2d - %s (%d)", i,  *Spacecraft->GetImmatriculation().ToString(), Spacecraft->IsStation());
 	}
 

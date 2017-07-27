@@ -1271,7 +1271,7 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 	}
 	else if (Tactic == EFlareCombatTactic::AttackMilitary)
 	{
-		TargetPreferences.IsStation = 0.0;
+		TargetPreferences.IsStation = 0.1;
 	}
 	else if (Tactic == EFlareCombatTactic::AttackCivilians)
 	{

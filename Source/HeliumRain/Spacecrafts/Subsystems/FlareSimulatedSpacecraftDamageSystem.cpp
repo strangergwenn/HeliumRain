@@ -73,6 +73,10 @@ void UFlareSimulatedSpacecraftDamageSystem::TickSystem()
 
 bool UFlareSimulatedSpacecraftDamageSystem::IsAlive() const
 {
+	if(Spacecraft->GetDescription()->IsSubstation)
+	{
+		return true;
+	}
 	return GetSubsystemHealth(EFlareSubsystem::SYS_LifeSupport) > 0;
 }
 

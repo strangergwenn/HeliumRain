@@ -384,6 +384,12 @@ UFlareSimulatedSpacecraft* UFlareBattle::GetBestTarget(UFlareSimulatedSpacecraft
 			continue;
 		}
 
+		if (ShipCandidate->IsStation() && ShipCandidate->GetStationEfficiency() <= 0)
+		{
+			// Ignore damaged stations
+			continue;
+		}
+
 		float Score;
 		float StateScore;
 		float DistanceScore;
