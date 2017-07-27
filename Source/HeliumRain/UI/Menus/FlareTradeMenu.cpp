@@ -980,6 +980,10 @@ int32 SFlareTradeMenu::GetMaxTransactionAmount() const
 {
 	int32 ResourcePrice = TransactionSourceSpacecraft->GetCurrentSector()->GetTransfertResourcePrice(TransactionSourceSpacecraft, TransactionDestinationSpacecraft, TransactionResource);
 	int32 MaxAffordableQuantity = FMath::Max(int64(0), TransactionDestinationSpacecraft->GetCompany()->GetMoney()) / ResourcePrice;
+	if(TransactionDestinationSpacecraft->GetCompany() == TransactionSourceSpacecraft->GetCompany())
+	{
+		MaxAffordableQuantity = INT_MAX;
+	}
 
 	int32 ResourceMaxQuantity = FMath::Min(TransactionSourceSpacecraft->GetCargoBay()->GetResourceQuantity(TransactionResource, MenuManager->GetPC()->GetCompany()),
 		TransactionDestinationSpacecraft->GetCargoBay()->GetFreeSpaceForResource(TransactionResource, MenuManager->GetPC()->GetCompany()));
