@@ -319,7 +319,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "approach-1", Description);
 
 		UFlareQuestConditionTutorialGenericStateCondition* DistanceCondition = UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-		[this, StationC](UFlareQuestCondition* Condition)
+		[this, StationC, Distance](UFlareQuestCondition* Condition)
 		{
 			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
 			if (PlayerShip && StationC->IsActive())
@@ -335,7 +335,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 
 			return false;
 		},
-		[StationC]()
+		[StationC, Distance]()
 		{
 			return FText::Format(LOCTEXT("Approache1Label", "Approach at less than {0}m of {1}"),FText::AsNumber(Distance), UFlareGameTools::DisplaySpacecraftName(StationC));
 		},
@@ -344,7 +344,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			Condition->Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 		});
 
-		DistanceCondition->AddConditionObjectivesFunc = [this, StationC, DistanceCondition](FFlarePlayerObjectiveData* ObjectiveData)
+		DistanceCondition->AddConditionObjectivesFunc = [this, StationC, DistanceCondition, Distance](FFlarePlayerObjectiveData* ObjectiveData)
 		{
 			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
 
@@ -374,7 +374,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 
 
 		UFlareQuestConditionTutorialGenericStateCondition* SpeedCondition = UFlareQuestConditionTutorialGenericStateCondition::Create(this,
-		[this, StationC](UFlareQuestCondition* Condition)
+		[this, StationC, Speed](UFlareQuestCondition* Condition)
 		{
 			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
 			if (PlayerShip)
@@ -390,7 +390,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 
 			return false;
 		},
-		[]()
+		[Speed]()
 		{
 			return FText::Format(LOCTEXT("Stop1Label", "Stop (< {0}m/s)"), FText::AsNumber(Speed));
 		},
@@ -399,7 +399,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			Condition->Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 		});
 
-		SpeedCondition->AddConditionObjectivesFunc = [this, SpeedCondition](FFlarePlayerObjectiveData* ObjectiveData)
+		SpeedCondition->AddConditionObjectivesFunc = [this, SpeedCondition, Speed](FFlarePlayerObjectiveData* ObjectiveData)
 		{
 			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
 
