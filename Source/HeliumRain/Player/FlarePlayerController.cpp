@@ -1481,6 +1481,7 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("SpacecraftKey4", EInputEvent::IE_Released, this, &AFlarePlayerController::SpacecraftKey4);
 	InputComponent->BindAction("SpacecraftKey5", EInputEvent::IE_Released, this, &AFlarePlayerController::SpacecraftKey5);
 	InputComponent->BindAction("SpacecraftKey6", EInputEvent::IE_Released, this, &AFlarePlayerController::SpacecraftKey6);
+	InputComponent->BindAction("SpacecraftKey7", EInputEvent::IE_Released, this, &AFlarePlayerController::SpacecraftKey7);
 
 	// Mouse
 	InputComponent->BindAction("Wheel", EInputEvent::IE_Pressed, this, &AFlarePlayerController::WheelPressed);
@@ -1802,6 +1803,14 @@ void AFlarePlayerController::SpacecraftKey6()
 	if (IsInMenu())
 	{
 		MenuManager->SpacecraftInfoHotkey(6);
+	}
+}
+
+void AFlarePlayerController::SpacecraftKey7()
+{
+	if (IsInMenu())
+	{
+		MenuManager->SpacecraftInfoHotkey(7);
 	}
 }
 

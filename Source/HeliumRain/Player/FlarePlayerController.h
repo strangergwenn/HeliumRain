@@ -252,6 +252,7 @@ public:
 	void SpacecraftKey4();
 	void SpacecraftKey5();
 	void SpacecraftKey6();
+	void SpacecraftKey7();
 
 	/** Toggle the combat mode */
 	void ToggleCombat();

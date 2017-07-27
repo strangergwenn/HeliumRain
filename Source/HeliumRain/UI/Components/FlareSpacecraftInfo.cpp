@@ -210,7 +210,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					.HelpText(LOCTEXT("InspectInfo", "Take a closer look at this spacecraft"))
 					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey1"))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnInspect)
-					.Width(5)
+					.Width(4)
 				]
 
 				// Target
@@ -223,7 +223,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey2"))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnTarget)
 					.IsDisabled(this, &SFlareSpacecraftInfo::IsTargetDisabled)
-					.Width(5)
+					.Width(4)
 				]
 
 				// Fly this ship
@@ -234,7 +234,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("ShipFly", "FLY"))
 					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey3"))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnFly)
-					.Width(5)
+					.Width(4)
 				]
 			]
 
@@ -253,7 +253,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("Trade", "TRADE"))
 					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey4"))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnTrade)
-					.Width(5)
+					.Width(4)
 				]
 			
 				// Dock here
@@ -262,9 +262,9 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(DockButton, SFlareButton)
 					.Text(LOCTEXT("Dock", "DOCK"))
-					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey4"))))
+					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey5"))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnDockAt)
-					.Width(5)
+					.Width(4)
 				]
 
 				// Undock
@@ -274,9 +274,9 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 					SAssignNew(UndockButton, SFlareButton)
 					.Text(LOCTEXT("Undock", "UNDOCK"))
 					.HelpText(LOCTEXT("UndockInfo", "Undock from this spacecraft and go back to flying the ship"))
-					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey4"))))
+					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey5"))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnUndock)
-					.Width(5)
+					.Width(4)
 				]
 
 				// Upgrade
@@ -285,9 +285,9 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(UpgradeButton, SFlareButton)
 					.Text(LOCTEXT("Upgrade", "UPGRADE"))
-					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey5"))))
+					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey6"))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnUpgrade)
-					.Width(5)
+					.Width(4)
 				]
 
 				// Scrap
@@ -296,9 +296,9 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(ScrapButton, SFlareButton)
 					.Text(LOCTEXT("Scrap", "SCRAP"))
-					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey6"))))
+					.HotkeyText(FText::FromString(AFlareMenuManager::GetKeyNameFromActionName(FName("SpacecraftKey7"))))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnScrap)
-					.Width(5)
+					.Width(4)
 				]
 			]
 		]
@@ -601,7 +601,8 @@ void SFlareSpacecraftInfo::Hotkey(int32 Index)
 			{
 				OnTrade();
 			}
-			else if (DockButton->IsButtonAvailable())
+		case 5:
+			if (DockButton->IsButtonAvailable())
 			{
 				OnDockAt();
 			}
@@ -610,13 +611,13 @@ void SFlareSpacecraftInfo::Hotkey(int32 Index)
 				OnUndock();
 			}
 			break;
-		case 5:
+		case 6:
 			if (UpgradeButton->IsButtonAvailable())
 			{
 				OnUpgrade();
 			}
 			break;
-		case 6:
+		case 7:
 			if (ScrapButton->IsButtonAvailable())
 			{
 				OnScrap();

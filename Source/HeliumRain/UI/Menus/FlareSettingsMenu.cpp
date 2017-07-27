@@ -1873,6 +1873,9 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Menu 6", "Menu 6")))
 		->AddActionMapping("SpacecraftKey6")
 		->AddDefaults(EKeys::Six)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Menu 7", "Menu 7")))
+		->AddActionMapping("SpacecraftKey7")
+		->AddDefaults(EKeys::Seven)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Fire Weapon", "Fire")))
 		->AddActionMapping("StartFire")));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Weapons", "Toogle weapons")))
