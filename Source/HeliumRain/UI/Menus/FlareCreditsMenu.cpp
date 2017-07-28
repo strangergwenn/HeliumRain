@@ -161,7 +161,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 							.AutoHeight()
 							[
 								SNew(STextBlock)
-								.Text(LOCTEXT("DONT-TRANSLATE-Daisy", "Music by Daisy HERBAULT"))
+								.Text(LOCTEXT("DONT-TRANSLATE-Daisy", "Music by Daisy HERBAUT"))
 								.TextStyle(&Theme.SubTitleFont)
 							]
 
