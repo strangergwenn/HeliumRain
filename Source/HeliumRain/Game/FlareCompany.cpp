@@ -1210,8 +1210,7 @@ bool UFlareCompany::IsTechnologyUnlockedStation(const FFlareSpacecraftDescriptio
 {
 	FName Identifier = Description->Identifier;
 
-	if(Identifier == "station-habitation" ||
-			Identifier == "station-hub" ||
+	if (    Identifier == "station-habitation" ||
 			Identifier == "station-outpost" ||
 			Identifier == "station-solar-plant")
 	{
@@ -1246,6 +1245,7 @@ bool UFlareCompany::IsTechnologyUnlockedStation(const FFlareSpacecraftDescriptio
 		return IsTechnologyUnlocked("shipyard-station");
 	}
 	else if(Identifier == "station-tokamak" ||
+			Identifier == "station-hub" ||
 			Identifier == "station-foundry")
 	{
 		return IsTechnologyUnlocked("advanced-stations");
