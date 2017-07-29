@@ -315,7 +315,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		int const Distance = 250;
 		int const Speed = 2;
 
-		FText Description = FText::Format(LOCTEXT("Approach1", "We will learn to dock to this station. First approach and stop at less than {0}m of the station."), FText::AsNumber(Distance));
+		FText Description = FText::Format(LOCTEXT("Approach1", "Approach and stop at less than {0}m away from the station."), FText::AsNumber(Distance));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "approach-1", Description);
 
 		UFlareQuestConditionTutorialGenericStateCondition* DistanceCondition = UFlareQuestConditionTutorialGenericStateCondition::Create(this,
@@ -337,7 +337,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		},
 		[StationC, Distance]()
 		{
-			return FText::Format(LOCTEXT("Approache1Label", "Approach at less than {0}m of {1}"),FText::AsNumber(Distance), UFlareGameTools::DisplaySpacecraftName(StationC));
+			return FText::Format(LOCTEXT("Approache1Label", "Approach at less than {0}m away from {1}"),FText::AsNumber(Distance), UFlareGameTools::DisplaySpacecraftName(StationC));
 		},
 		[](UFlareQuestCondition* Condition)
 		{
