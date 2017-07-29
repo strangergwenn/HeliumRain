@@ -610,7 +610,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		FText DockingText = LOCTEXT("Docking", "Docking computer");
 		FText DistanceText = FText::Format(LOCTEXT("DockingDistanceFormat", "Distance : {0}m"),
 			FText::AsNumber(FMath::RoundToInt(DockParameters.DockToDockDistance / 100)));
-		FText RollText = FText::Format(LOCTEXT("DockingAlignmentFormat", "Roll error : {0}\u00B0"),
+		FText RollText = FText::Format(LOCTEXT("DockingRollFormat", "Roll error : {0}\u00B0"),
 			FText::AsNumber(FMath::RoundToInt(RollError)));
 		FText AngularText = FText::Format(LOCTEXT("DockingAlignmentFormat", "Angular error : {0}\u00B0"),
 			FText::AsNumber(FMath::RoundToInt(AngularError)));

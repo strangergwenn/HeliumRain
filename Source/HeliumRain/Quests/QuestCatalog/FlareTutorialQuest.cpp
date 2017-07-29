@@ -363,7 +363,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 
 				float CurrentDistance  = (PlayerLocation - StationLocation).Size();
 
-				ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("Approach1Label", "{0}m"), FText::AsNumber(FMath::RoundToInt(CurrentDistance /100)));
+				ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("Approach1DistanceLabel", "{0}m"), FText::AsNumber(FMath::RoundToInt(CurrentDistance /100)));
 				ObjectiveCondition.Progress = InverseRamp(CurrentDistance, 100 * Distance, 100000, 0.5);
 			}
 
@@ -415,7 +415,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			{
 				float CurrentVelocity  = PlayerShip->GetLinearVelocity().Size();
 
-				ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("Approach1Label", "{0}m/s"), FText::AsNumber(FMath::RoundToInt(CurrentVelocity)));
+				ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("Approach1SpeedLabel", "{0}m/s"), FText::AsNumber(FMath::RoundToInt(CurrentVelocity)));
 				ObjectiveCondition.Progress = InverseRamp(CurrentVelocity, Speed, 50, 0.5);
 			}
 
