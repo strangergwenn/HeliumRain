@@ -427,59 +427,426 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		Steps.Add(Step);
 	}
 
-	/*{
-		find-docking port
-		alignement of localtion < 45
-		approach-50
-		valid docking param
-		speed < 5m/s
+	{
+		int const Distance = 50;
+		int const Speed = 2;
 
+		FText Description = FText::Format(LOCTEXT("FindDockingPortDescription", "Stations have multiple docking port, for light and heavy ships. Turn around the station to find an available docking port: you will docking parameter in your right screen and a white helper in the HUD \n. Approach a docking port at less than {0}m with the help of your docking computer and mark a stop."), FText::AsNumber(Distance));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "find-docking port", Description);
+
+
+		UFlareQuestConditionTutorialGenericStateCondition* DistanceCondition = UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+		[this, StationC, Distance](UFlareQuestCondition* Condition)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+
+			if (!PlayerShip || !StationC->IsActive())
+			{
+				return false;
+			}
+
+			FText DockInfo;
+			AFlareSpacecraft* DockSpacecraft = NULL;
+			FFlareDockingParameters DockParameters;
+			bool DockingInProgress = PlayerShip->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
+
+			if (DockSpacecraft && DockingInProgress && DockSpacecraft == StationC->GetActive())
+			{
+				return DockParameters.DockToDockDistance < Distance * 100;
+			}
+
+			return false;
+		},
+		[StationC, Distance]()
+		{
+			return FText::Format(LOCTEXT("Approache2Label", "Approach a valid docking port of {1} a less than {0}m"),FText::AsNumber(Distance), UFlareGameTools::DisplaySpacecraftName(StationC));
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+		});
+
+		DistanceCondition->AddConditionObjectivesFunc = [this, StationC, DistanceCondition, Distance](FFlarePlayerObjectiveData* ObjectiveData)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+
+			FFlarePlayerObjectiveCondition ObjectiveCondition;
+			ObjectiveCondition.InitialLabel = DistanceCondition->GetInitialLabel();
+			ObjectiveCondition.TerminalLabel = FText();
+			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.MaxProgress = 1;
+			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.MaxCounter = 0;
+
+			if (PlayerShip && StationC->IsActive())
+			{
+				FVector PlayerLocation = PlayerShip->GetActorLocation();
+				AFlareSpacecraft* DockSpacecraft = NULL;
+
+				FText DockInfo;
+				FFlareDockingParameters DockParameters;
+				bool DockingInProgress = PlayerShip->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
+
+				if (DockSpacecraft && DockingInProgress && DockSpacecraft == StationC->GetActive())
+				{
+					ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("Approach2DistanceLabel", "{0}m"), FText::AsNumber(FMath::RoundToInt(DockParameters.DockToDockDistance /100)));
+					ObjectiveCondition.Progress = InverseRamp(DockParameters.DockToDockDistance, 100 * Distance, 10000, 0.5);
+				}
+			}
+
+			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+		};
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(DistanceCondition);
+
+		UFlareQuestConditionTutorialGenericStateCondition* SpeedCondition = UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+		[this, StationC, Speed](UFlareQuestCondition* Condition)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+			if (PlayerShip)
+			{
+				FVector PlayerVelocity = PlayerShip->GetLinearVelocity();
+				FVector StationLocation = StationC->GetActive()->GetActorLocation();
+
+				if (PlayerVelocity.SizeSquared() < Speed * Speed)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		},
+		[Speed]()
+		{
+			return FText::Format(LOCTEXT("Stop2Label", "Stop (< {0}m/s)"), FText::AsNumber(Speed));
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+		});
+
+		SpeedCondition->AddConditionObjectivesFunc = [this, SpeedCondition, Speed](FFlarePlayerObjectiveData* ObjectiveData)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+
+			FFlarePlayerObjectiveCondition ObjectiveCondition;
+			ObjectiveCondition.InitialLabel = SpeedCondition->GetInitialLabel();
+			ObjectiveCondition.TerminalLabel = FText();
+			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.MaxProgress = 1;
+			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.MaxCounter = 0;
+
+			if (PlayerShip)
+			{
+				float CurrentVelocity  = PlayerShip->GetLinearVelocity().Size();
+
+				ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("Approach2SpeedLabel", "{0}m/s"), FText::AsNumber(FMath::RoundToInt(CurrentVelocity)));
+				ObjectiveCondition.Progress = InverseRamp(CurrentVelocity, Speed, 50, 0.5);
+			}
+
+			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+		};
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(SpeedCondition);
+
+
+		Steps.Add(Step);
 	}
 
 	{
-		reduce lateral error display on your docking computer below 5 m
-		for this use qd SHIFt and ctrl
-				to help you, you can look at your hud : translate your ship make move the small circle relative to the big. You must have the small circle and the large circle aligned to zero the lateral error.
-														reduce your latera error below 5m
+		int const LateralError = 5;
 
 
+		FText Description = FText::Format(LOCTEXT("ReduceLateralErrorDescription", "Bring you ship in front of the docking port, reducing the lateral error displayed on your docking computer to less than {0}m.\nThe simplier way is to aim the center of the small circle in the HUD and translate with <input-axis:MoveVerticalInput,1.0>, <input-axis:MoveVerticalInput,-1.0>, <input-axis:MoveHorizontalInput,1.0> and <input-axis:MoveHorizontalInput,-1.0> to bring the small circle in the HUD at the center of the big circle. Keep your velocity low during the manoeuver."), FText::AsNumber(LateralError));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "reduce-lateral-error", Description);
 
-		lateral error < 3m
 
+		UFlareQuestConditionTutorialGenericStateCondition* LateralErrorCondition = UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+		[this, StationC, LateralError](UFlareQuestCondition* Condition)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+
+			if (!PlayerShip || !StationC->IsActive())
+			{
+				return false;
+			}
+
+			FText DockInfo;
+			AFlareSpacecraft* DockSpacecraft = NULL;
+			FFlareDockingParameters DockParameters;
+			bool DockingInProgress = PlayerShip->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
+
+			if (DockSpacecraft && DockingInProgress && DockSpacecraft == StationC->GetActive())
+			{
+				float LinearError = FVector::VectorPlaneProject(DockParameters.DockToDockDeltaLocation, DockParameters.StationDockAxis).Size() / 100;
+
+				return LinearError < LateralError;
+			}
+
+			return false;
+		},
+		[StationC, LateralError]()
+		{
+			return FText::Format(LOCTEXT("LateralErrorLabel", "Reduce lateral error on {1} dock to less than {0}m"),FText::AsNumber(LateralError), UFlareGameTools::DisplaySpacecraftName(StationC));
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+		});
+
+		LateralErrorCondition->AddConditionObjectivesFunc = [this, StationC, LateralErrorCondition, LateralError](FFlarePlayerObjectiveData* ObjectiveData)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+
+			FFlarePlayerObjectiveCondition ObjectiveCondition;
+			ObjectiveCondition.InitialLabel = LateralErrorCondition->GetInitialLabel();
+			ObjectiveCondition.TerminalLabel = FText();
+			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.MaxProgress = 1;
+			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.MaxCounter = 0;
+
+			if (PlayerShip && StationC->IsActive())
+			{
+				AFlareSpacecraft* DockSpacecraft = NULL;
+
+				FText DockInfo;
+				FFlareDockingParameters DockParameters;
+				bool DockingInProgress = PlayerShip->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
+
+				if (DockSpacecraft && DockingInProgress && DockSpacecraft == StationC->GetActive())
+				{
+					float LinearError = FVector::VectorPlaneProject(DockParameters.DockToDockDeltaLocation, DockParameters.StationDockAxis).Size() / 100;
+
+					ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("LateralErrorDistanceLabel", "{0}m"), FText::AsNumber(FMath::RoundToInt(LinearError)));
+					ObjectiveCondition.Progress = InverseRamp(LinearError, LateralError, 15, 0.5);
+				}
+			}
+
+			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+		};
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(LateralErrorCondition);
+
+		Steps.Add(Step);
 	}
 
 
 	{
-		The ajust the roll of your ship with A and E.
+		int const RollErrorTarget = 5;
 
-		roll error < 5°
 
+		FText Description = FText::Format(LOCTEXT("ReduceRollErrorDescription", "While keeping your speed and lateral error, low, fix your ship roll error displayed on your docking computer to less than {0}\u00B0.\nWhen the roll is correct, the two line in the HUD must be opposite. Use <input-axis:NormalRollInput,-1.0> and <input-axis:NormalRollInput,1.0> to roll."), FText::AsNumber(RollErrorTarget));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "reduce-roll-error", Description);
+
+
+		UFlareQuestConditionTutorialGenericStateCondition* RollErrorCondition = UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+		[this, StationC, RollErrorTarget](UFlareQuestCondition* Condition)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+
+			if (!PlayerShip || !StationC->IsActive())
+			{
+				return false;
+			}
+
+			FText DockInfo;
+			AFlareSpacecraft* DockSpacecraft = NULL;
+			FFlareDockingParameters DockParameters;
+			bool DockingInProgress = PlayerShip->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
+
+			if (DockSpacecraft && DockingInProgress && DockSpacecraft == StationC->GetActive())
+			{
+				// Roll error
+				FVector StationTopAxis = DockParameters.StationDockTopAxis;
+				FVector TopAxis = PlayerShip->GetActorRotation().RotateVector(FVector(0, 0, 1));
+				FVector LocalTopAxis = FVector::VectorPlaneProject(TopAxis, DockParameters.StationDockAxis).GetSafeNormal();
+				float RollDot = FVector::DotProduct(StationTopAxis, LocalTopAxis);
+				float RollError = FMath::RadiansToDegrees(FMath::Acos(RollDot));
+
+				return RollError < RollErrorTarget;
+			}
+
+			return false;
+		},
+		[StationC, RollErrorTarget]()
+		{
+			return FText::Format(LOCTEXT("RollErrorLabel", "Reduce roll error on {1} dock to less than {0}\u00B0"),FText::AsNumber(RollErrorTarget), UFlareGameTools::DisplaySpacecraftName(StationC));
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+		});
+
+		RollErrorCondition->AddConditionObjectivesFunc = [this, StationC, RollErrorCondition, RollErrorTarget](FFlarePlayerObjectiveData* ObjectiveData)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+
+			FFlarePlayerObjectiveCondition ObjectiveCondition;
+			ObjectiveCondition.InitialLabel = RollErrorCondition->GetInitialLabel();
+			ObjectiveCondition.TerminalLabel = FText();
+			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.MaxProgress = 1;
+			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.MaxCounter = 0;
+
+			if (PlayerShip && StationC->IsActive())
+			{
+				AFlareSpacecraft* DockSpacecraft = NULL;
+
+				FText DockInfo;
+				FFlareDockingParameters DockParameters;
+				bool DockingInProgress = PlayerShip->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
+
+				if (DockSpacecraft && DockingInProgress && DockSpacecraft == StationC->GetActive())
+				{
+					// Roll error
+					FVector StationTopAxis = DockParameters.StationDockTopAxis;
+					FVector TopAxis = PlayerShip->GetActorRotation().RotateVector(FVector(0, 0, 1));
+					FVector LocalTopAxis = FVector::VectorPlaneProject(TopAxis, DockParameters.StationDockAxis).GetSafeNormal();
+					float RollDot = FVector::DotProduct(StationTopAxis, LocalTopAxis);
+					float RollError = FMath::RadiansToDegrees(FMath::Acos(RollDot));
+
+					ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("RollErrorDistanceLabel", "{0}\u00B0"), FText::AsNumber(FMath::RoundToInt(RollError)));
+					ObjectiveCondition.Progress = InverseRamp(RollErrorTarget, RollError, 20, 0.5);
+				}
+			}
+
+			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+		};
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(RollErrorCondition);
+
+		Steps.Add(Step);
+	}
+
+
+	{
+		int const AlignmentErrorTarget = 3;
+
+
+		FText Description = FText::Format(LOCTEXT("ReduceAlignementErrorDescription", "Then fix your ship alignment error displayed on your docking computer to less than {0}\u00B0.\nAim the center of the small circle in the HUD when the roll and lateral error is correct to fix your alignment."), FText::AsNumber(AlignmentErrorTarget));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "reduce-alignment-error", Description);
+
+
+		UFlareQuestConditionTutorialGenericStateCondition* AlignmentErrorCondition = UFlareQuestConditionTutorialGenericStateCondition::Create(this,
+		[this, StationC, AlignmentErrorTarget](UFlareQuestCondition* Condition)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+
+			if (!PlayerShip || !StationC->IsActive())
+			{
+				return false;
+			}
+
+			FText DockInfo;
+			AFlareSpacecraft* DockSpacecraft = NULL;
+			FFlareDockingParameters DockParameters;
+			bool DockingInProgress = PlayerShip->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
+
+			if (DockSpacecraft && DockingInProgress && DockSpacecraft == StationC->GetActive())
+			{
+				float AngularDot = FVector::DotProduct(DockParameters.ShipDockAxis.GetSafeNormal(), -DockParameters.StationDockAxis.GetSafeNormal());
+				float AngularError = FMath::RadiansToDegrees(FMath::Acos(AngularDot));
+
+				return AngularError < AlignmentErrorTarget;
+			}
+
+			return false;
+		},
+		[StationC, AlignmentErrorTarget]()
+		{
+			return FText::Format(LOCTEXT("AngularErrorLabel", "Reduce alignment error on {1} dock to less than {0}\u00B0"),FText::AsNumber(AlignmentErrorTarget), UFlareGameTools::DisplaySpacecraftName(StationC));
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+		});
+
+		AlignmentErrorCondition->AddConditionObjectivesFunc = [this, StationC, AlignmentErrorCondition, AlignmentErrorTarget](FFlarePlayerObjectiveData* ObjectiveData)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+
+			FFlarePlayerObjectiveCondition ObjectiveCondition;
+			ObjectiveCondition.InitialLabel = AlignmentErrorCondition->GetInitialLabel();
+			ObjectiveCondition.TerminalLabel = FText();
+			ObjectiveCondition.Progress = 0;
+			ObjectiveCondition.MaxProgress = 1;
+			ObjectiveCondition.Counter = 0;
+			ObjectiveCondition.MaxCounter = 0;
+
+			if (PlayerShip && StationC->IsActive())
+			{
+				AFlareSpacecraft* DockSpacecraft = NULL;
+
+				FText DockInfo;
+				FFlareDockingParameters DockParameters;
+				bool DockingInProgress = PlayerShip->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
+
+				if (DockSpacecraft && DockingInProgress && DockSpacecraft == StationC->GetActive())
+				{
+					float AngularDot = FVector::DotProduct(DockParameters.ShipDockAxis.GetSafeNormal(), -DockParameters.StationDockAxis.GetSafeNormal());
+					float AngularError = FMath::RadiansToDegrees(FMath::Acos(AngularDot));
+
+
+					ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("AngularErrorDistanceLabel", "{0}\u00B0"), FText::AsNumber(FMath::RoundToInt(AngularError)));
+					ObjectiveCondition.Progress = InverseRamp(AlignmentErrorTarget, AngularError, 20, 0.5);
+				}
+			}
+
+			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+		};
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(AlignmentErrorCondition);
+
+		Steps.Add(Step);
+	}
+
+{
+		FText Description = LOCTEXT("NavigationDockAtDescription", "Once all the docking computer parameters are ok, slowly speed up to reduce the distance, keeping all the error values as low as you can. At 3 m the magnetic grab you snap your ship to the docking port. For your first docking, try to keep below 5m/s and don't hesitate to stop to fix your alignements.");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "dock-at", Description);
+
+		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, StationC);
+		Condition->TargetShipSaveId = PickUpShipId;
+
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+
+		Steps.Add(Step);
 	}
 
 	{
-		The ajust the alignemnt of the ship with the mouse
+		FText Description = LOCTEXT("CommandUndockDescription", "Congratulations, you are docked. When you are done with trading with the station. Press <input-action:Wheel> to select the undocking option");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "command-undock", Description);
 
-		alignement error < 5°
 
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
+		[this](UFlareQuestCondition* Condition, FFlareBundle& Bundle)
+		{
+			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
+
+			if (PlayerShip && Bundle.HasTag("undock") && Bundle.GetName("target") == PlayerShip->GetImmatriculation())
+			{
+				return true;
+			}
+			return false;
+		},
+		[]()
+		{
+			return LOCTEXT("CommandUndockLabel", "Undock");
+		},
+		[](UFlareQuestCondition* Condition)
+		{
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
+		}));
+
+
+
+		Steps.Add(Step);
 	}
 
-	{
-			When all your axis ok, approach slowly keeping all the error values as low as you can. Don't exceed 3 m/s for your first docking and stop to ajust the axis. At 3 m the magnetic grab you snap your ship to the docking port.
 
-
-	}
-
-
-	{
-			Congratulations, you are docked. When you are to trade with the station you can undock your ship with the wheel menu.
-
-					Undock the ship
-
-
-	}
-*/
-
-	{
+/*	{
 		FText Description = LOCTEXT("CommandDockDescription", "Press <input-action:Wheel> to select the docking option");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "command-dock", Description);
 
@@ -497,7 +864,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
 
 		Steps.Add(Step);
-	}
+	}*/
 }
 
 /*----------------------------------------------------

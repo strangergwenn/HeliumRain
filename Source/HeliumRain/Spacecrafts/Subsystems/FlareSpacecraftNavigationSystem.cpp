@@ -275,6 +275,8 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 		Spacecraft->Airframe->SetSimulatePhysics(false);
 		Spacecraft->Airframe->SetSimulatePhysics(true);
 
+		Spacecraft->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("undock").PutName("target", Spacecraft->GetImmatriculation()));
+
 		return true;
 	}
 
