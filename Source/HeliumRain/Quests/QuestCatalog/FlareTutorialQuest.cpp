@@ -431,7 +431,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		int const Distance = 50;
 		int const Speed = 2;
 
-		FText Description = FText::Format(LOCTEXT("FindDockingPortDescription", "Stations have multiple docking port, for light and heavy ships. Turn around the station to find an available docking port: you will docking parameter in your right screen and a white helper in the HUD \n. Approach a docking port at less than {0}m with the help of your docking computer and mark a stop."), FText::AsNumber(Distance));
+		FText Description = FText::Format(LOCTEXT("FindDockingPortDescription", "Stations have multiple docking ports for light and heavy ships. Turn around the station to find an available docking port - your docking computer will automatically start.\nApproach a docking port at less than {0}m with your docking computer and stop."), FText::AsNumber(Distance));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "find-docking port", Description);
 
 
@@ -459,7 +459,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		},
 		[StationC, Distance]()
 		{
-			return FText::Format(LOCTEXT("Approache2Label", "Approach a valid docking port of {1} a less than {0}m"),FText::AsNumber(Distance), UFlareGameTools::DisplaySpacecraftName(StationC));
+			return FText::Format(LOCTEXT("Approache2Label", "Approach a docking port of {1} at less than {0}m"),FText::AsNumber(Distance), UFlareGameTools::DisplaySpacecraftName(StationC));
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -558,7 +558,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		int const LateralError = 5;
 
 
-		FText Description = FText::Format(LOCTEXT("ReduceLateralErrorDescription", "Bring you ship in front of the docking port, reducing the lateral error displayed on your docking computer to less than {0}m.\nThe simplier way is to aim the center of the small circle in the HUD and translate with <input-axis:MoveVerticalInput,1.0>, <input-axis:MoveVerticalInput,-1.0>, <input-axis:MoveHorizontalInput,1.0> and <input-axis:MoveHorizontalInput,-1.0> to bring the small circle in the HUD at the center of the big circle. Keep your velocity low during the manoeuver."), FText::AsNumber(LateralError));
+		FText Description = FText::Format(LOCTEXT("ReduceLateralErrorDescription", "Bring you ship in front of the docking port and reduce the lateral error displayed on your docking computer to less than {0}m.\nThe easiest way is to aim for the center of the small circle in the HUD and translate with <input-axis:MoveVerticalInput,1.0>, <input-axis:MoveVerticalInput,-1.0>, <input-axis:MoveHorizontalInput,1.0> and <input-axis:MoveHorizontalInput,-1.0> to bring the small circle in the HUD at the center of the bigger circle. Keep your velocity low during the manoeuver."), FText::AsNumber(LateralError));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "reduce-lateral-error", Description);
 
 
@@ -588,7 +588,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		},
 		[StationC, LateralError]()
 		{
-			return FText::Format(LOCTEXT("LateralErrorLabel", "Reduce lateral error on {1} dock to less than {0}m"),FText::AsNumber(LateralError), UFlareGameTools::DisplaySpacecraftName(StationC));
+			return FText::Format(LOCTEXT("LateralErrorLabel", "Reduce lateral error to less than {0}m"),FText::AsNumber(LateralError));
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -637,7 +637,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		int const RollErrorTarget = 5;
 
 
-		FText Description = FText::Format(LOCTEXT("ReduceRollErrorDescription", "While keeping your speed and lateral error, low, fix your ship roll error displayed on your docking computer to less than {0}\u00B0.\nWhen the roll is correct, the two line in the HUD must be opposite. Use <input-axis:NormalRollInput,-1.0> and <input-axis:NormalRollInput,1.0> to roll."), FText::AsNumber(RollErrorTarget));
+		FText Description = FText::Format(LOCTEXT("ReduceRollErrorDescription", "While keeping both speed and lateral error low, correct the roll error displayed on your docking computer to less than {0}\u00B0.\nOnce roll is correct, the two lines in the HUD must be opposite. Use <input-axis:NormalRollInput,-1.0> and <input-axis:NormalRollInput,1.0> to roll."), FText::AsNumber(RollErrorTarget));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "reduce-roll-error", Description);
 
 
@@ -672,7 +672,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		},
 		[StationC, RollErrorTarget]()
 		{
-			return FText::Format(LOCTEXT("RollErrorLabel", "Reduce roll error on {1} dock to less than {0}\u00B0"),FText::AsNumber(RollErrorTarget), UFlareGameTools::DisplaySpacecraftName(StationC));
+			return FText::Format(LOCTEXT("RollErrorLabel", "Reduce roll error to less than {0}\u00B0"), FText::AsNumber(RollErrorTarget));
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -726,7 +726,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		int const AlignmentErrorTarget = 3;
 
 
-		FText Description = FText::Format(LOCTEXT("ReduceAlignementErrorDescription", "Then fix your ship alignment error displayed on your docking computer to less than {0}\u00B0.\nAim the center of the small circle in the HUD when the roll and lateral error is correct to fix your alignment."), FText::AsNumber(AlignmentErrorTarget));
+		FText Description = FText::Format(LOCTEXT("ReduceAlignementErrorDescription", "Then correct your alignment error to less than {0}\u00B0.\nAim for the center of the small circle in the HUD when the roll and lateral error are low to correct your alignment."), FText::AsNumber(AlignmentErrorTarget));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "reduce-alignment-error", Description);
 
 
@@ -757,7 +757,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		},
 		[StationC, AlignmentErrorTarget]()
 		{
-			return FText::Format(LOCTEXT("AngularErrorLabel", "Reduce alignment error on {1} dock to less than {0}\u00B0"),FText::AsNumber(AlignmentErrorTarget), UFlareGameTools::DisplaySpacecraftName(StationC));
+			return FText::Format(LOCTEXT("AngularErrorLabel", "Reduce alignment error to less than {0}\u00B0"), FText::AsNumber(AlignmentErrorTarget));
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -804,7 +804,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	}
 
 {
-		FText Description = LOCTEXT("NavigationDockAtDescription", "Once all the docking computer parameters are ok, slowly speed up to reduce the distance, keeping all the error values as low as you can. At 3 m the magnetic grab you snap your ship to the docking port. For your first docking, try to keep below 5m/s and don't hesitate to stop to fix your alignements.");
+		FText Description = LOCTEXT("NavigationDockAtDescription", "Once all the docking parameters are good, slowly speed up to reduce the distance, keeping all the error values as low as you can. Once you're 3 meters away, the magnetic grab will snap your ship to the docking port. For your first docking, try staying below 5m/s and don't hesitate to stop to correct your alignements.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "dock-at", Description);
 
 		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, StationC);
@@ -816,7 +816,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("CommandUndockDescription", "Congratulations, you are docked. When you are done with trading with the station. Press <input-action:Wheel> to select the undocking option");
+		FText Description = LOCTEXT("CommandUndockDescription", "Congratulations, you are docked ! Once you are done with trading, press <input-action:Wheel> to select the undocking option.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "command-undock", Description);
 
 
@@ -840,31 +840,8 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 		}));
 
-
-
 		Steps.Add(Step);
 	}
-
-
-/*	{
-		FText Description = LOCTEXT("CommandDockDescription", "Press <input-action:Wheel> to select the docking option");
-		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "command-dock", Description);
-
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialCommandDock::Create(this, StationC));
-		Steps.Add(Step);
-	}
-	
-	{
-		FText Description = LOCTEXT("NavigationDockAtDescription", "Your ship is now docking automatically, but you can brake to disengage the autopilot. Use the wheel menu to undock, trade, or upgrade your ship.");
-		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "dock-at", Description);
-
-		UFlareQuestConditionDockAt* Condition = UFlareQuestConditionDockAt::Create(this, StationC);
-		Condition->TargetShipSaveId = PickUpShipId;
-
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
-
-		Steps.Add(Step);
-	}*/
 }
 
 /*----------------------------------------------------
