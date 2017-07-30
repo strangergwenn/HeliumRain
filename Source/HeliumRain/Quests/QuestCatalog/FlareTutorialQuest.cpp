@@ -173,7 +173,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"FollowAdvancedPath"
-		FText Description = LOCTEXT("FollowAdvancedPathDescription","You can use the circular prograde vector on your HUD to follow a path. Keep a constant velocity and aim for your target, your ship's engine controller will automatically align your velocity with your ship's orientation.");
+		FText Description = LOCTEXT("FollowAdvancedPathDescription","Keep a constant velocity and aim for your target, your ship's engine controller will automatically align your velocity with your ship's orientation.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "follow-advanced-path", Description);
 
 
