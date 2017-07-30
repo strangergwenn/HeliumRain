@@ -228,7 +228,9 @@ public:
 	void SimulateConfirmed();
 
 	/** Toggle the performance logger */
+#if !UE_BUILD_SHIPPING
 	void TogglePerformance();
+#endif
 
 	/** Is busy */
 	void MarkAsBusy();

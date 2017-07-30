@@ -1460,7 +1460,9 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("DisengagePilot", EInputEvent::IE_Released, this, &AFlarePlayerController::DisengagePilot);
 	InputComponent->BindAction("ToggleHUD", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleHUD);
 	InputComponent->BindAction("QuickSwitch", EInputEvent::IE_Released, this, &AFlarePlayerController::QuickSwitch);
+#if !UE_BUILD_SHIPPING
 	InputComponent->BindAction("TogglePerformance", EInputEvent::IE_Released, this, &AFlarePlayerController::TogglePerformance);
+#endif
 
 	// Menus
 	InputComponent->BindAction("ShipMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ShipMenu);
@@ -1640,10 +1642,12 @@ void AFlarePlayerController::SimulateConfirmed()
 	}
 }
 
+#if !UE_BUILD_SHIPPING
 void AFlarePlayerController::TogglePerformance()
 {
 	GetNavHUD()->TogglePerformance();
 }
+#endif
 
 void AFlarePlayerController::ShipMenu()
 {
