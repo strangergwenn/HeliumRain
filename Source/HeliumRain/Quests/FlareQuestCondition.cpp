@@ -1687,7 +1687,7 @@ void UFlareQuestConditionDockAt::AddConditionObjectives(FFlarePlayerObjectiveDat
 	ObjectiveCondition.Counter = 0;
 	ObjectiveCondition.MaxCounter = 0;
 	ObjectiveCondition.Progress = 0;
-	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.MaxProgress = 1;
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 	ObjectiveData->AddTargetSpacecraft(TargetStation);
 }
