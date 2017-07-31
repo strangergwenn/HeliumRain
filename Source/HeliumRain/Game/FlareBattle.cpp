@@ -211,7 +211,7 @@ bool UFlareBattle::SimulateSmallShipTurn(UFlareSimulatedSpacecraft* Ship)
     TargetPreferences.IsStranded = 1;
     TargetPreferences.IsNotStranded = 0.5;
 	TargetPreferences.IsUncontrollableCivil = 0.0;
-	TargetPreferences.IsUncontrollableSmallMilitary = 0.01;
+	TargetPreferences.IsUncontrollableSmallMilitary = 0.;
 	TargetPreferences.IsUncontrollableLargeMilitary = 0.;
 	TargetPreferences.IsNotUncontrollable = 1;
     TargetPreferences.IsHarpooned = 0;
@@ -310,7 +310,7 @@ bool UFlareBattle::SimulateLargeShipTurn(UFlareSimulatedSpacecraft* Ship)
 		TargetPreferences.IsStranded = 1;
 		TargetPreferences.IsNotStranded = 0.5;
 		TargetPreferences.IsUncontrollableCivil = 0.0;
-		TargetPreferences.IsUncontrollableSmallMilitary = 0.01;
+		TargetPreferences.IsUncontrollableSmallMilitary = 0.0;
 		TargetPreferences.IsUncontrollableLargeMilitary = 0.0;
 		TargetPreferences.IsNotUncontrollable = 1;
 		TargetPreferences.IsHarpooned = 0;

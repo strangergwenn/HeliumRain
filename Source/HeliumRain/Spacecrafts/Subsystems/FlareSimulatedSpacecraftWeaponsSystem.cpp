@@ -187,8 +187,6 @@ void UFlareSimulatedSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall,
 		else
 		{
 			NotUncontrollablePool += 1.0;
-			UncontrollableSmallMilitaryPool += 0.01;
-			UncontrollableLargeMilitaryPool += 0.01;
 			HarpoonedPool += 1.0;
 		}
 
