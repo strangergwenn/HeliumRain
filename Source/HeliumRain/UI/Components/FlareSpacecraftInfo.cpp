@@ -207,7 +207,7 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 				[
 					SAssignNew(InspectButton, SFlareButton)
 					.Text(FText::FromString("-"))
-					.HelpText(LOCTEXT("InspectInfo", "Take a closer look at this spacecraft"))
+					.HelpText(FText::FromString("-"))
 					.HotkeyText(LOCTEXT("SpacecraftKey1", "M1"))
 					.OnClicked(this, &SFlareSpacecraftInfo::OnInspect)
 					.Width(4)
@@ -354,10 +354,12 @@ void SFlareSpacecraftInfo::SetSpacecraft(UFlareSimulatedSpacecraft* Target)
 		if (Target->IsShipyard())
 		{
 			InspectButton->SetText(LOCTEXT("InspectShipyard", "BUY SHIP"));
+			InspectButton->SetHelpText(LOCTEXT("InspectShipyardInfo", "Order ships or manage ships production."));
 		}
 		else
 		{
 			InspectButton->SetText(LOCTEXT("InspectRegular", "DETAILS"));
+			InspectButton->SetHelpText(LOCTEXT("InspectRegularInfo", "Take a closer look at this spacecraft"));
 		}
 	}
 
