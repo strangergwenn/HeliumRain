@@ -979,12 +979,12 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 
 	int32 MaxPlayerTransportCapacity = FMath::Max(100, PlayerCompany->GetTransportCapacity());
 	int32 PlayerFleetTransportCapacity = Parent->GetGame()->GetPC()->GetPlayerFleet()->GetTransportCapacity();
-	int32 PreferedCapacity = FMath::RandRange(FMath::Max(100,PlayerFleetTransportCapacity / 2), MaxPlayerTransportCapacity);
+	int32 PreferedCapacity = FMath::RandRange(PlayerFleetTransportCapacity / 5, PlayerFleetTransportCapacity / 2);
 
 	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, PreferedCapacity);
 
 	// Setup reward
-	int64 QuestValue = 50000 + 10000 * FMath::Sqrt(QuestResourceQuantity);
+	int64 QuestValue = 200000 + 20000 * FMath::Sqrt(QuestResourceQuantity);
 
 	// Create the quest
 	UFlareQuestGeneratedResourceSale* Quest = NewObject<UFlareQuestGeneratedResourceSale>(Parent, UFlareQuestGeneratedResourceSale::StaticClass());
@@ -1183,13 +1183,14 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 
 	int32 MaxPlayerTransportCapacity = FMath::Max(100, PlayerCompany->GetTransportCapacity());
 	int32 PlayerFleetTransportCapacity = Parent->GetGame()->GetPC()->GetPlayerFleet()->GetTransportCapacity();
-	int32 PreferedCapacity = FMath::RandRange(FMath::Max(100,PlayerFleetTransportCapacity / 2), MaxPlayerTransportCapacity);
+	int32 PreferedCapacity = FMath::RandRange(PlayerFleetTransportCapacity / 5, PlayerFleetTransportCapacity / 2);
+
 
 	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, PreferedCapacity);
 
 
 	// Setup reward
-	int64 QuestValue = 50000 + 10000 * FMath::Sqrt(QuestResourceQuantity);
+	int64 QuestValue = 200000 + 30000 * FMath::Sqrt(QuestResourceQuantity);
 
 	// Create the quest
 	UFlareQuestGeneratedResourcePurchase* Quest = NewObject<UFlareQuestGeneratedResourcePurchase>(Parent, UFlareQuestGeneratedResourcePurchase::StaticClass());
@@ -1408,7 +1409,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	int32 BestResourceQuantity = FMath::Min(BestBuyResourceQuantity, BestSellResourceQuantity);
 	int32 MaxPlayerTransportCapacity = FMath::Max(100, PlayerCompany->GetTransportCapacity());
 	int32 PlayerFleetTransportCapacity = Parent->GetGame()->GetPC()->GetPlayerFleet()->GetTransportCapacity();
-	int32 PreferedCapacity = FMath::RandRange(FMath::Max(100,PlayerFleetTransportCapacity / 2), MaxPlayerTransportCapacity);
+	int32 PreferedCapacity = FMath::RandRange(PlayerFleetTransportCapacity / 5, PlayerFleetTransportCapacity / 2);
 
 
 	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, PreferedCapacity);
@@ -1417,7 +1418,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 
 	// Setup reward
 	int64 TravelDuration = UFlareTravel::ComputeTravelDuration(Parent->GetGame()->GetGameWorld(), Station1->GetCurrentSector(), Station2->GetCurrentSector(), NULL);
-	int64 QuestValue = 100000 + FMath::Sqrt(TravelDuration) * 100000 + 10000 * FMath::Sqrt(QuestResourceQuantity);
+	int64 QuestValue = 100000 + FMath::Sqrt(TravelDuration) * 100000 + 20000 * FMath::Sqrt(QuestResourceQuantity);
 
 	// Create the quest
 	UFlareQuestGeneratedResourceTrade* Quest = NewObject<UFlareQuestGeneratedResourceTrade>(Parent, UFlareQuestGeneratedResourceTrade::StaticClass());
