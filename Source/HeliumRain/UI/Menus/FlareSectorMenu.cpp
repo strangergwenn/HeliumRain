@@ -1062,12 +1062,12 @@ FText SFlareSectorMenu::GetSectorLocation() const
 			// Light ratio
 			if (TargetSector->GetDescription()->IsSolarPoor)
 			{
-				LightRatioString = LOCTEXT("SectorLightRatioFoggy", "Reduced");
+				LightRatioString = LOCTEXT("SectorLightRatioFoggy", "Reduced light");
 				AttributeString += LOCTEXT("Dusty", "Dusty").ToString();
 			}
 			else
 			{
-				LightRatioString = LOCTEXT("SectorGoodLightRatioFormat", "Good");
+				LightRatioString = LOCTEXT("SectorGoodLightRatioFormat", "Good light");
 			}
 
 			// Icy
@@ -1097,7 +1097,7 @@ FText SFlareSectorMenu::GetSectorLocation() const
 			}
 
 			// Add orbital parameters
-			Result = FText::Format(LOCTEXT("SectorLocation",  "Orbiting {0} at {1} km - {2} light {3}"),
+			Result = FText::Format(LOCTEXT("SectorLocation",  "Orbiting {0} at {1} km - {2} {3}"),
 				Body->Name,
 				FText::AsNumber(TargetSector->GetOrbitParameters()->Altitude),
 				LightRatioString,
