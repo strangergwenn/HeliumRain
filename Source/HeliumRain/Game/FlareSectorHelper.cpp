@@ -369,15 +369,9 @@ bool SectorHelper::HasShipRepairing(UFlareSimulatedSector* TargetSector, UFlareC
 	return false;
 }
 
-
 void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration)
 {
-	float PreciseCurrentNeededFleetSupply = 0;
-	float PreciseTotalNeededFleetSupply = 0;
-	MaxDuration = 0;
-	UFlareSpacecraftComponentsCatalog* Catalog = Company->GetGame()->GetShipPartsCatalog();
-
-
+	TArray<UFlareSimulatedSpacecraft*> CompanySpacecraft;
 
 	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
 	{
@@ -387,6 +381,22 @@ void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 			continue;
 		}
 
+		CompanySpacecraft.Add(Spacecraft);
+	}
+
+	GetRepairFleetSupplyNeeds(Sector, CompanySpacecraft, CurrentNeededFleetSupply, TotalNeededFleetSupply, MaxDuration);
+}
+
+void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector,  TArray<UFlareSimulatedSpacecraft*>& ships, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration)
+{
+	float PreciseCurrentNeededFleetSupply = 0;
+	float PreciseTotalNeededFleetSupply = 0;
+	MaxDuration = 0;
+
+	UFlareSpacecraftComponentsCatalog* Catalog = Sector->GetGame()->GetShipPartsCatalog();
+
+	for(UFlareSimulatedSpacecraft* Spacecraft: ships)
+	{
 		if (!Spacecraft->GetDamageSystem()->IsAlive()) {
 			continue;
 		}
@@ -402,7 +412,7 @@ void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 
 			float DamageRatio = Spacecraft->GetDamageSystem()->GetDamageRatio(ComponentDescription, ComponentData);
 
-			float TechnologyBonus = Company->IsTechnologyUnlocked("quick-repair") ? 1.5f: 1.f;
+			float TechnologyBonus = Spacecraft->GetCompany()->IsTechnologyUnlocked("quick-repair") ? 1.5f: 1.f;
 
 			float ComponentMaxRepairRatio = GetComponentMaxRepairRatio(ComponentDescription) * (Spacecraft->GetSize() == EFlarePartSize::L ? 0.2f : 1.f) * TechnologyBonus;
 
@@ -438,12 +448,10 @@ void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 	TotalNeededFleetSupply = FMath::CeilToInt(PreciseTotalNeededFleetSupply);
 }
 
+
 void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration)
 {
-	float PreciseCurrentNeededFleetSupply = 0;
-	float PreciseTotalNeededFleetSupply = 0;
-	MaxDuration = 0;
-	UFlareSpacecraftComponentsCatalog* Catalog = Company->GetGame()->GetShipPartsCatalog();
+	TArray<UFlareSimulatedSpacecraft*> CompanySpacecraft;
 
 	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
 	{
@@ -453,6 +461,21 @@ void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFla
 			continue;
 		}
 
+		CompanySpacecraft.Add(Spacecraft);
+	}
+
+	GetRefillFleetSupplyNeeds(Sector, CompanySpacecraft, CurrentNeededFleetSupply, TotalNeededFleetSupply, MaxDuration);
+}
+
+void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, TArray<UFlareSimulatedSpacecraft*>& ships, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration)
+{
+	float PreciseCurrentNeededFleetSupply = 0;
+	float PreciseTotalNeededFleetSupply = 0;
+	MaxDuration = 0;
+	UFlareSpacecraftComponentsCatalog* Catalog = Sector->GetGame()->GetShipPartsCatalog();
+
+	for(UFlareSimulatedSpacecraft* Spacecraft: ships)
+	{
 		if (!Spacecraft->GetDamageSystem()->IsAlive()) {
 			continue;
 		}

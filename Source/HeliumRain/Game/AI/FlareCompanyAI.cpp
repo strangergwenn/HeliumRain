@@ -1368,7 +1368,9 @@ TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList(AIWarContext& W
 
 	for (UFlareSimulatedSector* Sector : WarContext.KnownSectors)
 	{
-		if (Sector->GetSectorBattleState(Company).HasDanger)
+		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(Company);
+
+		if (BattleState.HasDanger)
 		{
 			continue;
 		}
@@ -1382,6 +1384,31 @@ TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList(AIWarContext& W
 		Target.ArmySmallShipCombatPoints = 0;
 		Target.LargeShipArmyCount = 0;
 		Target.SmallShipArmyCount = 0;
+		Target.PrisonersKeeper = NULL;
+
+		if(BattleState.BattleWon)
+		{
+			// Keep prisoners
+			int32 MinCombatPoints = MAX_int32;
+
+			for (UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
+			{
+				int32 ShipCombatPoints= Ship->GetCombatPoints(true);
+
+				if (!WarContext.Allies.Contains(Ship->GetCompany())
+				 || Ship->CanTravel() == false
+				 || ShipCombatPoints == 0)
+				{
+					continue;
+				}
+
+				if (ShipCombatPoints < MinCombatPoints)
+				{
+					MinCombatPoints = ShipCombatPoints;
+					Target.PrisonersKeeper = Ship;
+				}
+			}
+		}
 
 		for (UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
 		{
@@ -1389,7 +1416,8 @@ TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList(AIWarContext& W
 
 			if (!WarContext.Allies.Contains(Ship->GetCompany())
 			 || Ship->CanTravel() == false
-			 || ShipCombatPoints == 0)
+			 || ShipCombatPoints == 0
+			 || Ship == Target.PrisonersKeeper)
 			{
 				continue;
 			}
@@ -1438,7 +1466,7 @@ TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList(AIWarContext& W
 	return DefenseSectorList;
 }
 
-TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::GenerateWarShipList(AIWarContext& WarContext, UFlareSimulatedSector* Sector)
+TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::GenerateWarShipList(AIWarContext& WarContext, UFlareSimulatedSector* Sector, UFlareSimulatedSpacecraft* ExcludeShip)
 {
 	TArray<UFlareSimulatedSpacecraft*> WarShips;
 
@@ -1447,7 +1475,8 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::GenerateWarShipList(AIWarCon
 		if (WarContext.Allies.Contains(Ship->GetCompany())
 		 &&  Ship->CanTravel()
 		 && !Ship->GetDamageSystem()->IsDisarmed()
-		 && !Ship->GetDamageSystem()->IsStranded())
+		 && !Ship->GetDamageSystem()->IsStranded()
+		 && Ship != ExcludeShip)
 		{
 			WarShips.Add(Ship);
 		}
@@ -1681,7 +1710,7 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 			int32 AntiSFleetCombatPoints = 0;
 			int32 AntiLFleetCombatPointsLimit = Target.EnemyArmyLCombatPoints * WarContext.AttackThreshold * 1.5;
 			int32 AntiSFleetCombatPointsLimit = Target.EnemyArmySCombatPoints * WarContext.AttackThreshold * 1.5;
-			TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(WarContext, Sector.Sector);
+			TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(WarContext, Sector.Sector, Sector.PrisonersKeeper);
 
 
 			// Check if weapon are optimal
@@ -1793,14 +1822,13 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 		int32 CumulatedTotalNeededFS = 0;
 		int64 MaxDuration;
 
-		for(UFlareCompany* Ally : WarContext.Allies)
-		{
-			SectorHelper::GetRefillFleetSupplyNeeds(Sector.Sector, Ally, NeededFS, TotalNeededFS, MaxDuration);
-			CumulatedTotalNeededFS += TotalNeededFS;
+		TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(WarContext, Sector.Sector, Sector.PrisonersKeeper);
 
-			SectorHelper::GetRepairFleetSupplyNeeds(Sector.Sector, Ally, NeededFS, TotalNeededFS, MaxDuration);
-			CumulatedTotalNeededFS += TotalNeededFS;
-		}
+		SectorHelper::GetRefillFleetSupplyNeeds(Sector.Sector, MovableShips, NeededFS, TotalNeededFS, MaxDuration);
+		CumulatedTotalNeededFS += TotalNeededFS;
+
+		SectorHelper::GetRepairFleetSupplyNeeds(Sector.Sector, MovableShips, NeededFS, TotalNeededFS, MaxDuration);
+		CumulatedTotalNeededFS += TotalNeededFS;
 
 		if (CumulatedTotalNeededFS > 0)
 		{
@@ -1817,7 +1845,6 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 				UFlareSimulatedSector* RepairSector = FindNearestSectorWithFS(WarContext, Sector.Sector);
 				if (RepairSector)
 				{
-					TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(WarContext, Sector.Sector);
 					for (UFlareSimulatedSpacecraft* Ship : MovableShips)
 					{
 						FLOGV("UpdateWarMilitaryMovement %s : move %s from %s to %s for repair/refill",
@@ -1892,8 +1919,8 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 				}
 				
 				// Send ships
-				TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(WarContext, Sector.Sector);
-				for (UFlareSimulatedSpacecraft* Ship : MovableShips)
+				TArray<UFlareSimulatedSpacecraft*> StillMovableShips = GenerateWarShipList(WarContext, Sector.Sector, Sector.PrisonersKeeper);
+				for (UFlareSimulatedSpacecraft* Ship : StillMovableShips)
 				{
 					FLOGV("UpdateWarMilitaryMovement%s : move %s from %s to %s for defense",
 						*Company->GetCompanyName().ToString(),

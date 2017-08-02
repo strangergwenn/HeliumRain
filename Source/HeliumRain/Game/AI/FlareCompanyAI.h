@@ -78,6 +78,7 @@ struct DefenseSector
 	int32 LargeShipArmyCount;
 	int32 SmallShipArmyCount;
 	bool CapturingStation;
+	UFlareSimulatedSpacecraft* PrisonersKeeper;
 
 	bool operator==(const DefenseSector& lhs)
 	{
@@ -189,7 +190,7 @@ public:
 
 	TArray<WarTarget> GenerateWarTargetList(AIWarContext& WarContext);
 
-	TArray<UFlareSimulatedSpacecraft*> GenerateWarShipList(AIWarContext& WarContext, UFlareSimulatedSector* Sector);
+	TArray<UFlareSimulatedSpacecraft*> GenerateWarShipList(AIWarContext& WarContext, UFlareSimulatedSector* Sector, UFlareSimulatedSpacecraft* ExcludeShip = NULL);
 
 	TArray<DefenseSector> SortSectorsByDistance(UFlareSimulatedSector* BaseSector, TArray<DefenseSector> SectorsToSort);
 
