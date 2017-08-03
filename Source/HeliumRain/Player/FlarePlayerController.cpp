@@ -1273,7 +1273,7 @@ void AFlarePlayerController::NotifyDockingComplete(AFlareSpacecraft* DockStation
 
 	// Reload if we were in a real menu
 	EFlareMenu::Type CurrentMenu = MenuManager->GetCurrentMenu();
-	if (CurrentMenu != EFlareMenu::MENU_None && CurrentMenu != EFlareMenu::MENU_ReloadSector && CurrentMenu != EFlareMenu::MENU_FastForwardSingle)
+	if (CurrentMenu != EFlareMenu::MENU_None && CurrentMenu != EFlareMenu::MENU_ReloadSector && CurrentMenu != EFlareMenu::MENU_FastForwardSingle && CurrentMenu != EFlareMenu::MENU_GameOver)
 	{
 		MenuManager->Reload();
 	}
