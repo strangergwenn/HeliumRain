@@ -174,13 +174,13 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 
 		// Player ship updates
 		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-		if (PC)
+		if (PC && this == PC->GetShipPawn())
 		{
 			SCOPE_CYCLE_COUNTER(STAT_FlareSpacecraft_PlayerShip);
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
 			// Reload the sector if player leave the limits
-			if (this == PlayerShip && !HasExitedSector)
+			if (!HasExitedSector)
 			{
 				float Distance = GetActorLocation().Size();
 				float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
@@ -306,16 +306,8 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				}
 			}
 
-			// Make ship bounce lost ships if they are outside 1.5 * limit
-			float Distance = GetActorLocation().Size();
-			float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
-			if (Distance > Limits * 1.5f)
-			{
-				Airframe->SetPhysicsLinearVelocity(- Airframe->GetPhysicsLinearVelocity() / 2.f);
-			}
-
 			// Set a default target if there is current target
-			if (this == PlayerShip && !CurrentTarget)
+			if (!CurrentTarget)
 			{
 				TArray<FFlareScreenTarget>& ScreenTargets = GetCurrentTargets();
 				if (ScreenTargets.Num())
@@ -327,6 +319,15 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 
 			TimeSinceSelection += DeltaSeconds;
 		}
+
+		// Make ship bounce lost ships if they are outside 1.5 * limit
+		float Distance = GetActorLocation().Size();
+		float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
+		if (Distance > Limits * 1.5f)
+		{
+			Airframe->SetPhysicsLinearVelocity(-Airframe->GetPhysicsLinearVelocity() / 2.f);
+		}
+
 
 		float SmoothedVelocityChangeSpeed = FMath::Clamp(DeltaSeconds * 8, 0.f, 1.f);
 		SmoothedVelocity = SmoothedVelocity * (1 - SmoothedVelocityChangeSpeed) + GetLinearVelocity() * SmoothedVelocityChangeSpeed;
