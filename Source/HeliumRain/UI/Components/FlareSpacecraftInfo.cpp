@@ -485,7 +485,7 @@ void SFlareSpacecraftInfo::Show()
 		}
 
 		// Can dock
-		if (!TargetSpacecraft->GetCompany()->IsTechnologyUnlocked("auto-docking"))
+		if (!PlayerShip->GetCompany()->IsTechnologyUnlocked("auto-docking"))
 		{
 			DockButton->SetHelpText(LOCTEXT("ShipAutoDockNeededInfo", "You need the Auto Docking technology to dock automatically at stations"));
 			DockButton->SetDisabled(true);
