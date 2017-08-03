@@ -82,6 +82,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	StateManager = NULL;
 	CurrentTarget = NULL;
 	NavigationSystem = NULL;
+	TimeSinceUncontrollable = FLT_MAX;
 }
 
 
@@ -142,7 +143,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			Redock();
 		}
 	}
-	
+
 	// Attach to parent actor, if any
 	if (GetData().AttachActorName != NAME_None && !AttachedToParentActor)
 	{
@@ -151,6 +152,15 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 
 	if (!IsPresentationMode() && StateManager && !Paused)
 	{
+		if(GetParent()->GetDamageSystem()->IsUncontrollable())
+		{
+			TimeSinceUncontrollable += DeltaSeconds;
+		}
+		else
+		{
+			TimeSinceUncontrollable	 = 0.f;
+		}
+
 		// Tick systems
 		{
 			SCOPE_CYCLE_COUNTER(STAT_FlareSpacecraft_Systems);
@@ -332,6 +342,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 		float SmoothedVelocityChangeSpeed = FMath::Clamp(DeltaSeconds * 8, 0.f, 1.f);
 		SmoothedVelocity = SmoothedVelocity * (1 - SmoothedVelocityChangeSpeed) + GetLinearVelocity() * SmoothedVelocityChangeSpeed;
 	}
+
 
 	// The FlareSpacecraftPawn do the camera effective update in its Tick so call it after camera order update
 	Super::Tick(DeltaSeconds);

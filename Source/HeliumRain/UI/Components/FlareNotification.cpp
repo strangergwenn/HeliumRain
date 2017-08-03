@@ -192,6 +192,11 @@ bool SFlareNotification::IsDuplicate(const FName& OtherTag) const
 	return (OtherTag == Tag);
 }
 
+bool SFlareNotification::IsRecent() const
+{
+	return (Lifetime < 0.5f);
+}
+
 void SFlareNotification::Finish(bool Now)
 {
 	// 1s to finish quietly

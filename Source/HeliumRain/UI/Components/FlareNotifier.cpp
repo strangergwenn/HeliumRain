@@ -118,10 +118,32 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareNotifier::Notify(FText Text, FText Info, FName Identifier, EFlareNotification::Type Type, bool Pinned, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo)
+bool SFlareNotifier::Notify(FText Text, FText Info, FName Identifier, EFlareNotification::Type Type, bool Pinned, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo)
 {
+	// search for recent notification with the same tag
+
+	bool DuplicateFound = false;
+
+	if (Identifier != NAME_None)
+	{
+		for (int Index = 0; Index < NotificationData.Num(); Index++)
+		{
+			if (NotificationData[Index]->IsDuplicate(Identifier))
+			{
+				DuplicateFound = true;
+				if(NotificationData[Index]->IsRecent())
+				{
+					return false;
+				}
+			}
+		}
+	}
+
 	// Remove notification with the same tag.
-	ClearNotifications(Identifier, true);
+	if(DuplicateFound)
+	{
+		ClearNotifications(Identifier, true);
+	}
 
 	// Add notification
 	TSharedPtr<SFlareNotification> NotificationEntry;
@@ -143,6 +165,8 @@ void SFlareNotifier::Notify(FText Text, FText Info, FName Identifier, EFlareNoti
 	// Store a reference to it
 	NotificationData.Add(NotificationEntry);
 	NotificationsVisible = true;
+
+	return true;
 }
 
 void SFlareNotifier::ClearNotifications(FName Identifier, bool Now)

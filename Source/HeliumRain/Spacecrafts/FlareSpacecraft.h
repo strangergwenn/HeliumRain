@@ -318,6 +318,8 @@ protected:
 	FFlareDockingInfo                              ManualDockingInfo;
 	AFlareSpacecraft*                              ManualDockingTarget;
 
+	float										   TimeSinceUncontrollable;
+
 
 	/*----------------------------------------------------
 		Target selection
@@ -459,6 +461,11 @@ public:
 	inline bool IsPaused()
 	{
 		return Paused;
+	}
+
+	float GetTimeSinceUncontrollable() const
+	{
+		return TimeSinceUncontrollable;
 	}
 
 	float GetPreferedAnticollisionTime() const;

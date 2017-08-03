@@ -38,7 +38,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Show a notification to the user */
-	void Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, bool Pinned, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo = FFlareMenuParameterData());
+	bool Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, bool Pinned, EFlareMenu::Type TargetMenu, FFlareMenuParameterData TargetInfo = FFlareMenuParameterData());
 
 	/** Remove all notifications with the given tag */
 	void ClearNotifications(FName Tag, bool Now);

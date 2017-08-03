@@ -11,6 +11,7 @@
 #include "../../Game/FlarePlanetarium.h"
 
 #include "../../Player/FlarePlayerController.h"
+#include "../../Game/FlareGameTools.h"
 
 #include "FlareSimulatedSpacecraftWeaponsSystem.h"
 
@@ -395,16 +396,21 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 		// This ship has been damaged and someone is to blame
 		if (DamageSource != NULL && DamageSource != Spacecraft->GetCompany())
 		{
-			float ReputationCost;
+			float ReputationCost = 0.f;
 
 			if (Spacecraft->IsStation())
 			{
-				ReputationCost = -InflictedDamageRatio * 100;
+				if(DamageType != EFlareDamage::DAM_Collision)
+				{
+					ReputationCost = -InflictedDamageRatio * 100;
+				}
 			}
 			else
 			{
 				ReputationCost = -InflictedDamageRatio * 2;
 			}
+
+
 
 			UFlareCompany* PlayerCompany = Spacecraft->GetGame()->GetPC()->GetCompany();
 
@@ -418,7 +424,28 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 					// Lower attacker's reputation on victim
 					Spacecraft->GetCompany()->GivePlayerReputationToOthers(ReputationCost/2);
 					Spacecraft->GetCompany()->GivePlayerReputation(ReputationCost);
+
+					Spacecraft->GetGame()->GetPC()->Notify(LOCTEXT("NeutralAttack", "Violation of neutrality"),
+						   FText::Format(LOCTEXT("NeutralAttackDescription", "Attacking neutral properties ({0}) will have diplomatic consequences"), UFlareGameTools::DisplaySpacecraftName(Spacecraft)),
+						   FName("neutrality-violation"),
+						   EFlareNotification::NT_Military);
+
+
 				}
+				else if(Spacecraft->IsActive() && Spacecraft->GetActive()->GetTimeSinceUncontrollable() > 5.f)
+				{
+					// If an attack on a prisoner, lower attacker's reputation on everyone, give rep to victim
+
+					// Lower attacker's reputation on victim
+					Spacecraft->GetCompany()->GivePlayerReputationToOthers(ReputationCost/5);
+					Spacecraft->GetCompany()->GivePlayerReputation(ReputationCost/5);
+
+					Spacecraft->GetGame()->GetPC()->Notify(LOCTEXT("PrisonerAttack", "Attack of prisoner"),
+						   FText::Format(LOCTEXT("NeutralAttackDescription", "Attacking uncontrollable ships ({0}) will have diplomatic consequences"), UFlareGameTools::DisplaySpacecraftName(Spacecraft)),
+						   FName("prisoner-attack"),
+						   EFlareNotification::NT_Military);
+				}
+
 
 
 			}

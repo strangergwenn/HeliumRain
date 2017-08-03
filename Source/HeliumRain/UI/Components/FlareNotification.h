@@ -47,6 +47,9 @@ public:
 	/** Check if this notification is similar to... */
 	bool IsDuplicate(const FName& OtherTag) const;
 
+	/** Check if this notification is recent */
+	bool IsRecent() const;
+
 	/** Complete this notification */
 	void Finish(bool Now = true);
 

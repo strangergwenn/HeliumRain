@@ -662,19 +662,20 @@ void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNo
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
 
 	// Notify
-	MenuManager->Notify(Title, Info, Tag, Type, Pinned, TargetMenu, TargetInfo);
-
-	// Play sound
-	USoundCue* NotifSound = NULL;
-	switch (Type)
+	if(MenuManager->Notify(Title, Info, Tag, Type, Pinned, TargetMenu, TargetInfo))
 	{
-		case EFlareNotification::NT_Info:      NotifSound = NotificationInfoSound;      break;
-		case EFlareNotification::NT_Military:  NotifSound = NotificationCombatSound;    break;
-		case EFlareNotification::NT_Quest:	   NotifSound = NotificationQuestSound;     break;
-		case EFlareNotification::NT_NewQuest:	   NotifSound = NotificationQuestSound;     break;
-		case EFlareNotification::NT_Economy:   NotifSound = NotificationTradingSound;   break;
+		// Play sound
+		USoundCue* NotifSound = NULL;
+		switch (Type)
+		{
+			case EFlareNotification::NT_Info:      NotifSound = NotificationInfoSound;      break;
+			case EFlareNotification::NT_Military:  NotifSound = NotificationCombatSound;    break;
+			case EFlareNotification::NT_Quest:	   NotifSound = NotificationQuestSound;     break;
+			case EFlareNotification::NT_NewQuest:	   NotifSound = NotificationQuestSound;     break;
+			case EFlareNotification::NT_Economy:   NotifSound = NotificationTradingSound;   break;
+		}
+		MenuManager->GetPC()->ClientPlaySound(NotifSound);
 	}
-	MenuManager->GetPC()->ClientPlaySound(NotifSound);
 }
 
 void AFlarePlayerController::SetupCockpit()
