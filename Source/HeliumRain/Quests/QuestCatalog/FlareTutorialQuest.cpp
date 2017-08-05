@@ -1826,7 +1826,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("MakeFighterUncontrollableDescription", "Shoot down an enemy figther. Ships disabled by a wingman don't count, you need the training !");
+		FText Description = LOCTEXT("MakeFighterUncontrollableDescription", "Shoot down an enemy figther. Ships disabled by a wingman don't count, you need the training ! An don't fire at disabled ships, treat them like prisoners.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "hit-cargo", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
