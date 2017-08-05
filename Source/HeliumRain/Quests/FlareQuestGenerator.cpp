@@ -1017,7 +1017,7 @@ void UFlareQuestGeneratedResourceSale::Load(UFlareQuestGenerator* Parent, const 
 
 	QuestClass = UFlareQuestGeneratedResourceSale::GetClass();
 	Identifier = InitData.GetName("identifier");
-	QuestName = FText::Format(LOCTEXT("GeneratedResourceSaleName","{0} sale in {1}"), Resource->Name, Sector->GetSectorName());
+	QuestName = FText::Format(LOCTEXT("GeneratedResourceSaleName","{0} destocking in {1}"), Resource->Name, Sector->GetSectorName());
 	QuestDescription = FText::Format(LOCTEXT("GeneratedResourceSaleDescriptionFormat","Buy {0} {1} from {2} at {3}."),
 									 FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(Station), Sector->GetSectorName());
 	QuestCategory = EFlareQuestCategory::SECONDARY;
@@ -1222,7 +1222,7 @@ void UFlareQuestGeneratedResourcePurchase::Load(UFlareQuestGenerator* Parent, co
 
 	QuestClass = UFlareQuestGeneratedResourcePurchase::GetClass();
 	Identifier = InitData.GetName("identifier");
-	QuestName = FText::Format(LOCTEXT("GeneratedResourcePurchaseName","{0} purchase in {1}"), Resource->Name, Sector->GetSectorName());
+	QuestName = FText::Format(LOCTEXT("GeneratedResourcePurchaseName","{0} delivery in {1}"), Resource->Name, Sector->GetSectorName());
 	QuestDescription = FText::Format(LOCTEXT("GeneratedResourcePurchaseDescriptionFormat","Sell {0} {1} to {2} at {3}."),
 									 FText::AsNumber(Quantity), Resource->Name, UFlareGameTools::DisplaySpacecraftName(Station), Sector->GetSectorName());
 	QuestCategory = EFlareQuestCategory::SECONDARY;
@@ -1457,13 +1457,13 @@ void UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const
 	Identifier = InitData.GetName("identifier");
 	if(Sector1 == Sector2)
 	{
-		QuestName = FText::Format(LOCTEXT("GeneratedResourceTradeNameLocal","{0} trade in {1}"), Resource->Name, Sector1->GetSectorName());
+		QuestName = FText::Format(LOCTEXT("GeneratedResourceTradeNameLocal","{0} haulage in {1}"), Resource->Name, Sector1->GetSectorName());
 		QuestDescription = FText::Format(LOCTEXT("GeneratedResourceTradeDescriptionLocalFormat","Trade {0} {1} in {2}."),
 									 FText::AsNumber(Quantity), Resource->Name, Sector1->GetSectorName());
 	}
 	else
 	{
-		QuestName = FText::Format(LOCTEXT("NameDistant","{0} trade to {1}"), Resource->Name,
+		QuestName = FText::Format(LOCTEXT("NameDistant","{0} haulage to {1}"), Resource->Name,
 								  Sector2->GetSectorName());
 		QuestDescription = FText::Format(LOCTEXT("DescriptionDistantFormat","Trade {0} {1} from {2} to {3}."),
 									 FText::AsNumber(Quantity), Resource->Name,
