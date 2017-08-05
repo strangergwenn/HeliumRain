@@ -748,7 +748,14 @@ FText SFlareCompanyInfo::GetToggleHostilityText() const
 		}
 		else
 		{
-			return LOCTEXT("RequestPeace", "Request peace");
+			if (Company->GetHostility(Player->GetCompany()) == EFlareHostility::Hostile)
+			{
+				return LOCTEXT("RequestPeace", "Request peace");
+			}
+			else
+			{
+				return LOCTEXT("AcceptPeace", "Accept peace");
+			}
 		}
 	}
 
