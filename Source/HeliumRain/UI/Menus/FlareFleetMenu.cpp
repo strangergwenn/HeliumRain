@@ -433,11 +433,6 @@ bool SFlareFleetMenu::IsRenameDisabled() const
 	}
 	else
 	{
-		if (MenuManager->GetPC()->GetPlayerFleet() == FleetToEdit)
-		{
-			return true;
-		}
-
 		return false;
 	}
 }
