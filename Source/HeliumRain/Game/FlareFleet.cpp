@@ -56,11 +56,6 @@ FText UFlareFleet::GetName()
 
 FText  UFlareFleet::GetFleetName() const
 {
-	if(Game->GetPC()->GetPlayerFleet() == this)
-	{
-		return LOCTEXT("PlayerFleetName", "Player Fleet");
-	}
-
 	return FleetData.Name;
 }
 

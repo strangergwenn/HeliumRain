@@ -433,7 +433,14 @@ bool SFlareFleetMenu::IsRenameDisabled() const
 	}
 	else
 	{
-		return false;
+		if (EditFleetName->GetText().ToString() == FleetToEdit->GetFleetName().ToString())
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }
 
@@ -441,9 +448,9 @@ FText SFlareFleetMenu::GetRenameHintText() const
 {
 	if (FleetToEdit)
 	{
-		if (MenuManager->GetPC()->GetPlayerFleet() == FleetToEdit)
+		if (EditFleetName->GetText().ToString() == FleetToEdit->GetFleetName().ToString())
 		{
-			return LOCTEXT("NoPlayeFleetRenameInfo", "Can't rename the player fleet");
+			return LOCTEXT("NoSameRenameInfo", "Enter a new name for this fleet in order to rename it");
 		}
 		else
 		{
