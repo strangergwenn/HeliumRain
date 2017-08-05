@@ -79,6 +79,10 @@ protected:
 	
 	/** Is abandon quest button visible */
 	EVisibility GetAbandonButtonVisibility(UFlareQuest* Quest) const;
+	
+	/** Warning on no military */
+	EVisibility GetNoMilitaryWarningVisibility() const;
+
 
 	/*----------------------------------------------------
 		Callbacks

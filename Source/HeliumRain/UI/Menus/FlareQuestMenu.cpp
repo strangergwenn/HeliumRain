@@ -82,6 +82,28 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 
 						+ SVerticalBox::Slot()
 						.AutoHeight()
+						[
+							SNew(SBox)
+							.HAlign(HAlign_Left)
+							.WidthOverride(0.8 * Theme.ContentWidth)
+							.Padding(FMargin(20, 0, 0, 0))
+							[
+								SNew(SBorder)
+								.HAlign(HAlign_Left)
+								.BorderImage(&Theme.NearInvisibleBrush)
+								.Padding(Theme.SmallContentPadding)
+								.Visibility(this, &SFlareQuestMenu::GetNoMilitaryWarningVisibility)
+								[
+									SNew(STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(LOCTEXT("NoMilitaryInfo", "Military contracts will be offered once you own a fighting force."))
+									.WrapTextAt(0.75 * Theme.ContentWidth)
+								]
+							]
+						]
+
+						+ SVerticalBox::Slot()
+						.AutoHeight()
 						.Padding(Theme.ContentPadding)
 						[
 							SAssignNew(AvailableQuestList, SVerticalBox)
@@ -848,7 +870,7 @@ bool SFlareQuestMenu::IsTrackButtonDisabled(UFlareQuest* Quest) const
 
 EVisibility SFlareQuestMenu::GetAbandonButtonVisibility(UFlareQuest* Quest) const
 {
-	if(Quest->GetQuestCategory() == EFlareQuestCategory::HISTORY
+	if (Quest->GetQuestCategory() == EFlareQuestCategory::HISTORY
 			|| Quest->GetQuestCategory() == EFlareQuestCategory::TUTORIAL)
 	{
 		return EVisibility::Collapsed;
@@ -856,6 +878,14 @@ EVisibility SFlareQuestMenu::GetAbandonButtonVisibility(UFlareQuest* Quest) cons
 	return EVisibility::Visible;
 }
 
+EVisibility SFlareQuestMenu::GetNoMilitaryWarningVisibility() const
+{
+	if (MenuManager->GetPC()->GetCompany()->GetCompanyValue().ArmyCurrentCombatPoints > 0)
+	{
+		return EVisibility::Collapsed;
+	}
+	return EVisibility::Visible;
+}
 
 FSlateColor SFlareQuestMenu::GetQuestColor(UFlareQuest* Quest) const
 {
