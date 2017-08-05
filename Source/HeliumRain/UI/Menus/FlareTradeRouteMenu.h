@@ -140,6 +140,12 @@ protected:
 	/** Sector added */
 	void OnAddSectorClicked();
 
+	/** Move trade route */
+	void OnMoveLeft(UFlareSimulatedSector* Sector);
+	void OnMoveRight(UFlareSimulatedSector* Sector);
+	bool IsMoveLeftDisabled(UFlareSimulatedSector* Sector) const;
+	bool IsMoveRightDisabled(UFlareSimulatedSector* Sector) const;
+
 	/** Sector removed */
 	void OnRemoveSectorClicked(UFlareSimulatedSector* Sector);
 

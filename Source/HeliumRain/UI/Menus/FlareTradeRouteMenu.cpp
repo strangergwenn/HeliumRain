@@ -649,6 +649,55 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 						.Icon(FFlareStyleSet::GetIcon("New"))
 						.HelpText(LOCTEXT("UnloadHelp", "Add an operation for this sector"))
 					]
+
+					// Move left / right
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("SectorMoveTitle", "Move sector in route"))
+						.TextStyle(&Theme.NameFont)
+					]
+
+					// Add operation button
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					[
+						SNew(SHorizontalBox)
+
+						// Left
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.HAlign(HAlign_Left)
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(SFlareButton)
+							.Width(2.5)
+							.OnClicked(this, &SFlareTradeRouteMenu::OnMoveLeft, Sector)
+							.IsDisabled(this, &SFlareTradeRouteMenu::IsMoveLeftDisabled, Sector)
+							.Text(LOCTEXT("SectorMoveLeft", "Move"))
+							.Icon(FFlareStyleSet::GetIcon("MoveLeft"))
+							.HelpText(LOCTEXT("SectorMoveLeftHelp", "Move this sector before the previous one in the trade route"))
+						]
+
+						// Right
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.HAlign(HAlign_Right)
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(SFlareButton)
+							.Width(2.4)
+							.OnClicked(this, &SFlareTradeRouteMenu::OnMoveRight, Sector)
+							.IsDisabled(this, &SFlareTradeRouteMenu::IsMoveRightDisabled, Sector)
+							.Text(LOCTEXT("SectorMoveRight", "Move"))
+							.Icon(FFlareStyleSet::GetIcon("MoveRight"))
+							.HelpText(LOCTEXT("SectorMoveRightHelp", "Move this sector after the next one in the trade route"))
+						]
+					]
 				]
 			];
 
@@ -1273,6 +1322,28 @@ void SFlareTradeRouteMenu::OnAddSectorClicked()
 		OnAddOperationClicked(Item);
 		GenerateSectorList();
 	}
+}
+
+void SFlareTradeRouteMenu::OnMoveLeft(UFlareSimulatedSector* Sector)
+{
+	TargetTradeRoute->MoveSectorUp(Sector);
+	GenerateSectorList();
+}
+
+void SFlareTradeRouteMenu::OnMoveRight(UFlareSimulatedSector* Sector)
+{
+	TargetTradeRoute->MoveSectorDown(Sector);
+	GenerateSectorList();
+}
+
+bool SFlareTradeRouteMenu::IsMoveLeftDisabled(UFlareSimulatedSector* Sector) const
+{
+	return (TargetTradeRoute->GetSectorIndex(Sector) == 0);
+}
+
+bool SFlareTradeRouteMenu::IsMoveRightDisabled(UFlareSimulatedSector* Sector) const
+{
+	return (TargetTradeRoute->GetSectorIndex(Sector) == TargetTradeRoute->GetSectors().Num() - 1);
 }
 
 void SFlareTradeRouteMenu::OnResourceComboLineSelectionChanged(UFlareResourceCatalogEntry* Item, ESelectInfo::Type SelectInfo)
