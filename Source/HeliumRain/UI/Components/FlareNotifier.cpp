@@ -247,21 +247,28 @@ EVisibility SFlareNotifier::GetObjectiveVisibility() const
 
 FText SFlareNotifier::GetHideText() const
 {
+	// Count objects
+	int32 Count = NotificationData.Num();
+	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
+	if (QuestManager && QuestManager->GetSelectedQuest())
+	{
+		Count++;
+	}
+
+	// Format text
 	if (NotificationsVisible)
 	{
-		return LOCTEXT("HideButtonVisible", "Hide items");
+		if (Count > 1)
+		{
+			return FText::Format(LOCTEXT("HideButtonVisiblePlural", "Hide {0} items"), FText::AsNumber(Count));
+		}
+		else
+		{
+			return LOCTEXT("HideButtonVisible", "Hide one item");
+		}
 	}
 	else
 	{
-		// Count objects
-		int32 Count = NotificationData.Num();
-		UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
-		if (QuestManager && QuestManager->GetSelectedQuest())
-		{
-			Count++;
-		}
-
-		// Show count
 		if (Count > 1)
 		{
 			return FText::Format(LOCTEXT("HideButtonMaskedPlural", "Show {0} items"), FText::AsNumber(Count));
