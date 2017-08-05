@@ -186,6 +186,12 @@ public:
 
 	virtual void RemoveSector(UFlareSimulatedSector* Sector);
 
+	void ReplaceSector(UFlareSimulatedSector* Sector, UFlareSimulatedSector* NewSector);
+
+	void MoveSectorUp(UFlareSimulatedSector* Sector);
+
+	void MoveSectorDown(UFlareSimulatedSector* Sector);
+
 	virtual FFlareTradeRouteSectorOperationSave* AddSectorOperation(int32 SectorIndex, EFlareTradeRouteOperation::Type Type, FFlareResourceDescription* Resource);
 
 	virtual void RemoveSectorOperation(int32 SectorIndex, int32 OperationIndex);

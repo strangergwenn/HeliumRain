@@ -497,6 +497,58 @@ void UFlareTradeRoute::RemoveSector(UFlareSimulatedSector* Sector)
 	}
 }
 
+void UFlareTradeRoute::ReplaceSector(UFlareSimulatedSector* Sector, UFlareSimulatedSector* NewSector)
+{
+	for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
+	{
+		if (TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
+		{
+			TradeRouteData.Sectors[SectorIndex].SectorIdentifier = NewSector->GetIdentifier();
+			return;
+		}
+	}
+}
+
+void UFlareTradeRoute::MoveSectorUp(UFlareSimulatedSector* Sector)
+{
+	for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
+	{
+		if (TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
+		{
+			if(SectorIndex > 0)
+			{
+
+				int32 SwapIndex = SectorIndex - 1;
+				FFlareTradeRouteSectorSave SwapTradeRouteSector = TradeRouteData.Sectors[SwapIndex];
+
+				TradeRouteData.Sectors[SwapIndex] = TradeRouteData.Sectors[SectorIndex];
+				TradeRouteData.Sectors[SectorIndex] = SwapTradeRouteSector;
+			}
+			return;
+		}
+	}
+}
+
+void UFlareTradeRoute::MoveSectorDown(UFlareSimulatedSector* Sector)
+{
+	for (int32 SectorIndex = 0; SectorIndex < TradeRouteData.Sectors.Num(); SectorIndex++)
+	{
+		if (TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
+		{
+			if(SectorIndex < TradeRouteData.Sectors.Num() - 1)
+			{
+
+				int32 SwapIndex = SectorIndex + 1;
+				FFlareTradeRouteSectorSave SwapTradeRouteSector = TradeRouteData.Sectors[SwapIndex];
+
+				TradeRouteData.Sectors[SwapIndex] = TradeRouteData.Sectors[SectorIndex];
+				TradeRouteData.Sectors[SectorIndex] = SwapTradeRouteSector;
+			}
+			return;
+		}
+	}
+}
+
 FFlareTradeRouteSectorOperationSave* UFlareTradeRoute::AddSectorOperation(int32 SectorIndex, EFlareTradeRouteOperation::Type Type, FFlareResourceDescription* Resource)
 {
 	if (SectorIndex >= TradeRouteData.Sectors.Num())
