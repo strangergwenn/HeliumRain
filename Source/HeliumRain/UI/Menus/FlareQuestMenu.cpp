@@ -306,7 +306,7 @@ void SFlareQuestMenu::FillOngoingQuestList()
 				SNew(SFlareButton)
 				.Transparent(true)
 				.Text(FText())
-				.HelpText(LOCTEXT("AbandonQuestInfo", "Abandon this contract"))
+				.HelpText(LOCTEXT("AbandonQuestInfo", "Abandon this contract and pay the failure penalties associated"))
 				.Icon(FFlareStyleSet::GetIcon("Stop"))
 				.OnClicked(this, &SFlareQuestMenu::OnQuestAbandoned, Quest)
 				.Visibility(this, &SFlareQuestMenu::GetAbandonButtonVisibility, Quest)
@@ -905,7 +905,7 @@ void SFlareQuestMenu::OnQuestAccepted(UFlareQuest* Quest)
 void SFlareQuestMenu::OnQuestAbandoned(UFlareQuest* Quest)
 {
 	MenuManager->Confirm(LOCTEXT("ConfirmAbandon", "ARE YOU SURE ?"),
-		LOCTEXT("ConfirmAbandonInfo", "Do you really want to abandon this contract ?"),
+		LOCTEXT("ConfirmAbandonInfo", "Do you really want to abandon this contract and pay the failure penalties ?"),
 		FSimpleDelegate::CreateSP(this, &SFlareQuestMenu::OnQuestAbandonedConfirmed, Quest));
 }
 
