@@ -498,6 +498,34 @@ void UFlareCompany::RemoveFleet(UFlareFleet* Fleet)
 	CompanyFleets.Remove(Fleet);
 }
 
+void UFlareCompany::MoveFleetUp(UFlareFleet* Fleet)
+{
+	int32 Index = CompanyFleets.IndexOfByKey(Fleet);
+
+	if(Index != INDEX_NONE && Index > 0)
+	{
+		int32 SwapIndex = Index - 1;
+		UFlareFleet* SwapFleet = CompanyFleets[SwapIndex];
+
+		 CompanyFleets[SwapIndex] = Fleet;
+		 CompanyFleets[Index] = SwapFleet;
+	}
+}
+
+void UFlareCompany::MoveFleetDown(UFlareFleet* Fleet)
+{
+	int32 Index = CompanyFleets.IndexOfByKey(Fleet);
+
+	if(Index != INDEX_NONE && Index < CompanyFleets.Num() - 1)
+	{
+		int32 SwapIndex = Index + 1;
+		UFlareFleet* SwapFleet = CompanyFleets[SwapIndex];
+
+		 CompanyFleets[SwapIndex] = Fleet;
+		 CompanyFleets[Index] = SwapFleet;
+	}
+}
+
 UFlareTradeRoute* UFlareCompany::CreateTradeRoute(FText TradeRouteName)
 {
 	// Create the trade route

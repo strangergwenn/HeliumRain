@@ -94,6 +94,12 @@ public:
 	/** Destroy a fleet */
 	virtual void RemoveFleet(UFlareFleet* Fleet);
 
+	/** Change fleet order in list */
+	void MoveFleetUp(UFlareFleet* Fleet);
+
+	/** Change fleet order in list */
+	void MoveFleetDown(UFlareFleet* Fleet);
+
 	/** Create a new trade route */
 	virtual UFlareTradeRoute* CreateTradeRoute(FText TradeRouteName);
 
