@@ -18,7 +18,7 @@
 	"Plugins": [
 		{
 			"Name": "InternalComponentVisualizer",
-			"Enabled": true
+			"Enabled": false
 		},
 		{
 			"Name": "OnlineSubsystemSteam",
