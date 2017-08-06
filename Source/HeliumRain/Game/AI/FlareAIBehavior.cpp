@@ -53,7 +53,7 @@ void UFlareAIBehavior::Load(UFlareCompany* ParentCompany)
 
 inline static bool CompanyValueComparator(const UFlareCompany& ip1, const UFlareCompany& ip2)
 {
-	return ip1.GetCompanyValue().ArmyCurrentCombatPoints < ip2.GetCompanyValue().ArmyCurrentCombatPoints;
+	return ip1.GetCompanyValue().TotalValue < ip2.GetCompanyValue().TotalValue;
 }
 
 
@@ -65,13 +65,14 @@ void UFlareAIBehavior::Simulate()
 	SortedCompany.Sort(&CompanyValueComparator);
 
 	int32 PlayerCompanyIndex = SortedCompany.IndexOfByKey(GetGame()->GetPC()->GetCompany());
+	int32 PlayerArmy = GetGame()->GetPC()->GetCompany()->GetCompanyValue().ArmyCurrentCombatPoints;
 
-	if(Company == ST->Pirates)
+	if(PlayerCompanyIndex > 0 &&  Company == ST->Pirates)
 	{
-		Company->GivePlayerReputation(-1);
+		Company->GivePlayerReputation(-0.5);
 	}
 
-	if(GetGame()->GetPC()->GetCompany()->GetCompanyValue().ArmyCurrentCombatPoints > 0 && Company != ST->AxisSupplies)
+	if(PlayerArmy > 0 && Company != ST->AxisSupplies)
 	{
 		Company->GivePlayerReputation(-PlayerCompanyIndex/30.f);
 	}
@@ -419,7 +420,7 @@ void UFlareAIBehavior::GenerateAffilities()
 		BudgetTradeWeight = 0.1;
 
 		PacifismIncrementRate = 1.f;
-		PacifismDecrementRate = 2.f;
+		PacifismDecrementRate = 0.8f;
 
 	}
 	else if(Company == ST->GhostWorksShipyards)
