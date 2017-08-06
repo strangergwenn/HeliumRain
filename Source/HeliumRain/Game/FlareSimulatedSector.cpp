@@ -956,15 +956,20 @@ FText UFlareSimulatedSector::GetSectorBalanceText(bool ActiveOnly)
 int64 UFlareSimulatedSector::GetStationConstructionFee(int64 BasePrice, UFlareCompany* Company)
 {
 	int32 CompanyStationCountInSector = 0;
+	int32 OtherCompanyStationCountInSector = 0;
 	for(UFlareSimulatedSpacecraft* Station : SectorStations)
 	{
 		if(Station->GetCompany() == Company)
 		{
 			++CompanyStationCountInSector;
 		}
+		else
+		{
+			++OtherCompanyStationCountInSector;
+		}
 	}
 
-	return BasePrice * (Company->GetCompanyStations().Num() + 1) *  (CompanyStationCountInSector + 1);
+	return BasePrice * (Company->GetCompanyStations().Num() + 1) *  (CompanyStationCountInSector + 1) * (1 + 0.1 * FMath::Sqrt(OtherCompanyStationCountInSector));
 }
 
 uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource, bool IncludeShips, bool AllowTrade)
