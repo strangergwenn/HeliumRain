@@ -441,7 +441,7 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 					Spacecraft->GetCompany()->GivePlayerReputation(ReputationCost/5);
 
 					Spacecraft->GetGame()->GetPC()->Notify(LOCTEXT("PrisonerAttack", "Attack of prisoner"),
-						   FText::Format(LOCTEXT("NeutralAttackDescription", "Attacking uncontrollable ships ({0}) will have diplomatic consequences"), UFlareGameTools::DisplaySpacecraftName(Spacecraft)),
+						   FText::Format(LOCTEXT("PrisonerAttackDescription", "Attacking uncontrollable ships ({0}) will have diplomatic consequences"), UFlareGameTools::DisplaySpacecraftName(Spacecraft)),
 						   FName("prisoner-attack"),
 						   EFlareNotification::NT_Military);
 				}
