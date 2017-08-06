@@ -103,7 +103,7 @@ public:
 	virtual void OnStatusChanged();
 
 	// Output
-	virtual FVector GetLinearTargetVelocity() const;
+	virtual FFlareEngineTarget GetLinearEngineTarget() const;
 	virtual FVector GetAngularTargetVelocity() const;
 	virtual bool IsUseOrbitalBoost() const;
 	virtual bool IsWantFire() const;

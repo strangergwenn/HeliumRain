@@ -61,7 +61,7 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 	{
 		SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_Manual);
 
-		LinearTargetVelocity = Spacecraft->GetStateManager()->GetLinearTargetVelocity();
+		LinearEngineTarget = Spacecraft->GetStateManager()->GetLinearEngineTarget();
 		AngularTargetVelocity = Spacecraft->GetStateManager()->GetAngularTargetVelocity();
 		UseOrbitalBoost = Spacecraft->GetStateManager()->IsUseOrbitalBoost();
 	}
@@ -80,7 +80,8 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 				{
 					ClearCurrentCommand();
 				}
-				LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, Spacecraft->GetPreferedAnticollisionTime(), PilotHelper::AnticollisionConfig(), 0.f);
+				//TODO
+				//LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, Spacecraft->GetPreferedAnticollisionTime(), PilotHelper::AnticollisionConfig(), 0.f);
 			}
 			else if (CurrentCommand.Type == EFlareCommandDataType::CDT_BrakeLocation)
 			{
@@ -125,6 +126,63 @@ void UFlareSpacecraftNavigationSystem::Initialize(AFlareSpacecraft* OwnerSpacecr
 	{
 		LinearMaxVelocity = Description->LinearMaxVelocity;
 		AngularMaxVelocity = Description->AngularMaxVelocity;
+	}
+
+	// Initialize
+	XEngines.Key.Empty();
+	YEngines.Key.Empty();
+	ZEngines.Key.Empty();
+	XEngines.Value.Empty();
+	YEngines.Value.Empty();
+	ZEngines.Value.Empty();
+
+	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
+	for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
+	{
+		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
+
+		FVector LocalThrustAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(Engine->GetThrustAxis());
+
+		float XAlignement = FVector::DotProduct(LocalThrustAxis, FVector(1.f, 0.f, 0.f));
+		float YAlignement = FVector::DotProduct(LocalThrustAxis, FVector(0.f, 1.f, 0.f));
+		float ZAlignement = FVector::DotProduct(LocalThrustAxis, FVector(0.f, 0.f, 1.f));
+
+		int MatchCount = 0;
+		if(XAlignement > 0.8)
+		{
+			XEngines.Value.Add(EngineIndex);
+			MatchCount++;
+		}
+		if(XAlignement < -0.8)
+		{
+			XEngines.Key.Add(EngineIndex);
+			MatchCount++;
+		}
+		if(YAlignement > 0.8)
+		{
+			YEngines.Value.Add(EngineIndex);
+			MatchCount++;
+		}
+		if(YAlignement < -0.8)
+		{
+			YEngines.Key.Add(EngineIndex);
+			MatchCount++;
+		}
+		if(ZAlignement > 0.8)
+		{
+			ZEngines.Value.Add(EngineIndex);
+			MatchCount++;
+		}
+		if(ZAlignement < -0.8)
+		{
+			ZEngines.Key.Add(EngineIndex);
+			MatchCount++;
+		}
+
+		if(MatchCount != 1)
+		{
+			FLOGV("WARNING: engine #%d for %s as %d axis match", EngineIndex, *Spacecraft->GetImmatriculation().ToString(), MatchCount);
+		}
 	}
 }
 
@@ -749,13 +807,13 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 		case EFlareDockingPhase::Locked:
 		default:
 		// Do nothink
-		LinearTargetVelocity = FVector::ZeroVector;
+		LinearEngineTarget.SetVelocity(FVector::ZeroVector);
 		AngularTargetVelocity = FVector::ZeroVector;
 		break;
 	}
 
 	// Not in approach, just go to the docking entrance point
-	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity, 0.3);
+	UpdateLinearAttitudeAuto(DeltaSeconds, LocationTarget, VelocityTarget/100, MaxVelocity, 0.1);
 	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), AxisTarget, AngularVelocityTarget, DeltaSeconds);
 
 	if (Anticollision)
@@ -766,7 +824,10 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 		PilotHelper::AnticollisionConfig IgnoreConfig;
 		IgnoreConfig.SpacecraftToIgnore = AnticollisionDockStation;
 
-		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, Spacecraft->GetPreferedAnticollisionTime(), IgnoreConfig, 0.f);
+		FVector Global = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LinearEngineTarget.Target);
+		FVector GlobalFixed = PilotHelper::AnticollisionCorrection(Spacecraft, Global, Spacecraft->GetPreferedAnticollisionTime(), IgnoreConfig, 0.f);
+
+		LinearEngineTarget.SetVelocity(Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(GlobalFixed));
 	}
 }
 
@@ -1085,17 +1146,17 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 	// Under this distance we consider the variation negligible, and ensure null delta + null speed
 	if (Distance < LinearDeadDistance && DeltaVelocity.Size() < NegligibleSpeedRatio * MaxVelocity)
 	{
-		LinearTargetVelocity = TargetVelocity;
+		LinearEngineTarget.SetVelocity(Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(TargetVelocity));
 		return true;
 	}
 	//FLOGV("RelativeResultSpeed %s", *RelativeResultSpeed.ToString());
-	LinearTargetVelocity = RelativeResultSpeed;
+	LinearEngineTarget.SetVelocity(Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(RelativeResultSpeed));
 	return false;
 }
 
 void UFlareSpacecraftNavigationSystem::UpdateLinearBraking(float DeltaSeconds, FVector TargetVelocity)
 {
-	LinearTargetVelocity = TargetVelocity;
+	LinearEngineTarget.SetVelocity(Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(TargetVelocity));
 	FVector DeltaLinearVelocity = TargetVelocity*100 - Spacecraft->Airframe->GetPhysicsLinearVelocity();
 
 	// Null speed detection
@@ -1282,60 +1343,193 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 		return;
 	}
 
-	//FLOGV("LinearTargetVelocity %s", *LinearTargetVelocity.ToString());
+	TArray<float> EnginesAlpha;
 
-	// Linear physics
-	FVector DeltaV = LinearTargetVelocity - Spacecraft->GetLinearVelocity();
-	FVector DeltaVAxis = DeltaV;
-	DeltaVAxis.Normalize();
+	for(int i = 0 ; i < Engines.Num() ; i++)
+	{
+		EnginesAlpha.Add(0.f);
+	}
 
 	bool Log = false;
-	if (Spacecraft->GetParent()->GetCompany() == Spacecraft->GetGame()->GetPC()->GetCompany())
+	if (false && Spacecraft == Spacecraft->GetGame()->GetPC()->GetShipPawn())
 	{
-		//Log = true;
+		Log = true;
 	}
 
-	float LinearMasterAlpha = 0.f;
-	float LinearMasterBoostAlpha = 0.f;
+
+
+	FVector LocalLinearVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(Spacecraft->GetLinearVelocity());
+
+
+	FVector LocalDeltaV = FVector::ZeroVector;
+
 
 	if(Log) {
+		FLOG("==========================");
 		FLOGV("PhysicSubTick DeltaSeconds=%f", DeltaSeconds);
 
-		FLOGV("PhysicSubTick LinearTargetVelocity=%s", *LinearTargetVelocity.ToString());
 		FLOGV("PhysicSubTick Spacecraft->GetLinearVelocity()=%s", *Spacecraft->GetLinearVelocity().ToString());
+		FLOGV("PhysicSubTick LocalLinearVelocity=%s", *LocalLinearVelocity.ToString());
 
-		FLOGV("PhysicSubTick DeltaV=%s", *DeltaV.ToString());
+		FLOGV("PhysicSubTick LinearEngineTarget.XVelocityControl=%d", LinearEngineTarget.XVelocityControl);
+		FLOGV("PhysicSubTick LinearEngineTarget.YVelocityControl=%d", LinearEngineTarget.YVelocityControl);
+		FLOGV("PhysicSubTick LinearEngineTarget.ZVelocityControl=%d", LinearEngineTarget.ZVelocityControl);
+		FLOGV("PhysicSubTick LinearEngineTarget.Target=%s", *LinearEngineTarget.Target.ToString());
 	}
 
-	if (!DeltaV.IsNearlyZero())
+
+
+	float SharableBoostAcceleration = 0.f;
+
+	auto ProcessVelocityEngineAxis = [&](float VelocityTargetInAxis, FVector Axis, TPair<TArray<int>, TArray<int>> AxisEngines)
 	{
-		// First, try without using the boost
-		FVector Acceleration = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, false).Size() / Spacecraft->GetSpacecraftMass();
+		float LocalLinearVelocityInAxis = FVector::DotProduct(Axis, LocalLinearVelocity);
+		float DeltaV = VelocityTargetInAxis - LocalLinearVelocityInAxis;
 
-		float AccelerationDeltaV = Acceleration.Size() * DeltaSeconds;
+		/*FLOGV("ProcessVelocityEngineAxis VelocityTargetInAxis=%f Axis=%s", VelocityTargetInAxis, *Axis.ToString());
+		FLOGV("    - LocalLinearVelocityInAxis=%f", LocalLinearVelocityInAxis);
+		FLOGV("    - DeltaV=%f", DeltaV);*/
 
-		LinearMasterAlpha = FMath::Clamp(DeltaV.Size()/ AccelerationDeltaV, 0.0f, 1.0f);
-		// Second, if the not enought trust check with the boost
-		if (UseOrbitalBoost && AccelerationDeltaV < DeltaV.Size() )
+		TArray<int>& UsefulEngines = DeltaV > 0 ? AxisEngines.Key: AxisEngines.Value;
+
+		float LinearMasterAlpha = 0.f;
+		float LinearMasterBoostAlpha = 0.f;
+
+
+		if (!FMath::IsNearlyZero(DeltaV))
 		{
-			FVector AccelerationWithBoost = DeltaVAxis * GetTotalMaxThrustInAxis(Engines, -DeltaVAxis, true).Size() / Spacecraft->GetSpacecraftMass();
+			// First, try without using the boost
+			float Acceleration = SharableBoostAcceleration + GetTotalMaxThrustWithEngines(Engines, UsefulEngines, false) / Spacecraft->GetSpacecraftMass();
 
-			if (AccelerationWithBoost.Size() > Acceleration.Size())
+			float AccelerationDeltaV = Acceleration * DeltaSeconds;
+
+			LinearMasterAlpha = FMath::Clamp(FMath::Abs(DeltaV)/ AccelerationDeltaV, 0.0f, 1.0f);
+			// Second, if the not enought trust check with the boost
+			if (UseOrbitalBoost && AccelerationDeltaV < FMath::Abs(DeltaV) )
 			{
-				HasUsedOrbitalBoost = true;
+				float AccelerationWithBoost = GetTotalMaxThrustWithEngines(Engines, UsefulEngines, true) / Spacecraft->GetSpacecraftMass();
 
-				float BoostDeltaV = (AccelerationWithBoost.Size() - Acceleration.Size()) * DeltaSeconds;
-				float DeltaVAfterClassicalAcceleration = DeltaV.Size() - AccelerationDeltaV;
+				if (AccelerationWithBoost > Acceleration)
+				{
+					HasUsedOrbitalBoost = true;
 
-				LinearMasterBoostAlpha = FMath::Clamp(DeltaVAfterClassicalAcceleration/ BoostDeltaV, 0.0f, 1.0f);
+					float BoostDeltaV = (AccelerationWithBoost - Acceleration) * DeltaSeconds;
+					float DeltaVAfterClassicalAcceleration = FMath::Abs(DeltaV) - AccelerationDeltaV;
 
-				Acceleration = AccelerationWithBoost;
+					LinearMasterBoostAlpha = FMath::Clamp(DeltaVAfterClassicalAcceleration/ BoostDeltaV, 0.0f, 1.0f);
+
+					SharableBoostAcceleration += (AccelerationWithBoost - Acceleration) * LinearMasterBoostAlpha * 0.2;
+
+					Acceleration = AccelerationWithBoost;
+
+					/*FLOGV("    - Acceleration=%f", Acceleration);
+					FLOGV("    - AccelerationWithBoost=%f", AccelerationWithBoost);
+					FLOGV("    - LinearMasterBoostAlpha=%f", LinearMasterBoostAlpha);*/
+				}
 			}
+
+			// Apply alpha
+
+			for(int EngineIndex : UsefulEngines)
+			{
+				UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
+
+
+				if (!Engine->IsA(UFlareOrbitalEngine::StaticClass()))
+				{
+					EnginesAlpha[EngineIndex] += LinearMasterAlpha;
+				}
+				else
+				{
+					if(HasUsedOrbitalBoost)
+					{
+						EnginesAlpha[EngineIndex] += LinearMasterBoostAlpha;
+					}
+				}
+
+			}
+
+			float ClampedAcceleration = FMath::Clamp(Acceleration, 0.f, FMath::Abs(DeltaV) / DeltaSeconds);
+
+
+
+			FVector Increment = Axis * (DeltaV > 0 ? 1.f : -1.f) * ClampedAcceleration * DeltaSeconds * 100; // Multiply by 100 because UE4 works in cm
+
+			/*FLOGV("    - Acceleration=%f", Acceleration);
+			FLOGV("    - ClampedAcceleration=%f", ClampedAcceleration);
+			FLOGV("    - LinearMasterAlpha=%f", LinearMasterAlpha);
+			FLOGV("    - Increment=%s", *Increment.ToString());*/
+
+
+			LocalDeltaV += Increment;
 		}
+	};
 
-		FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaV.Size() / DeltaSeconds);
+	auto ProcessAccelerationEngineAxis = [&](float AccelerationTargetInAxis, FVector Axis, TPair<TArray<int>, TArray<int>> AxisEngines)
+	{
+		float ClampedAccelerationTargetInAxis = FMath::Clamp(AccelerationTargetInAxis, -1.f, 1.f);
 
-		Spacecraft->Airframe->SetPhysicsLinearVelocity(ClampedAcceleration * DeltaSeconds * 100, true); // Multiply by 100 because UE4 works in cm
+		TArray<int>& UsefulEngines = ClampedAccelerationTargetInAxis > 0 ? AxisEngines.Key: AxisEngines.Value;
+
+		if (!FMath::IsNearlyZero(ClampedAccelerationTargetInAxis))
+		{
+			// First, try without using the boost
+			float MaxAcceleration = SharableBoostAcceleration + GetTotalMaxThrustWithEngines(Engines, UsefulEngines, true) / Spacecraft->GetSpacecraftMass();
+
+			if(Axis.X == 1.f)
+			{
+				SharableBoostAcceleration += MaxAcceleration * 0.2;
+			}
+
+
+
+			// Apply alpha
+
+			for(int EngineIndex : UsefulEngines)
+			{
+				EnginesAlpha[EngineIndex] += FMath::Abs(ClampedAccelerationTargetInAxis);
+			}
+
+			LocalDeltaV += Axis * ClampedAccelerationTargetInAxis * MaxAcceleration * DeltaSeconds * 100; // Multiply by 100 because UE4 works in cm
+		}
+	};
+
+
+	if(LinearEngineTarget.XVelocityControl)
+	{
+		ProcessVelocityEngineAxis(LinearEngineTarget.Target.X, FVector(1, 0, 0), XEngines);
+	}
+	else
+	{
+		ProcessAccelerationEngineAxis(LinearEngineTarget.Target.X, FVector(1, 0, 0), XEngines);
+	}
+
+	if(LinearEngineTarget.YVelocityControl)
+	{
+		ProcessVelocityEngineAxis(LinearEngineTarget.Target.Y, FVector(0, 1, 0), YEngines);
+	}
+	else
+	{
+		ProcessAccelerationEngineAxis(LinearEngineTarget.Target.Y, FVector(0, 1, 0), YEngines);
+	}
+
+	if(LinearEngineTarget.ZVelocityControl)
+	{
+		ProcessVelocityEngineAxis(LinearEngineTarget.Target.Z, FVector(0, 0, 1), ZEngines);
+	}
+	else
+	{
+		ProcessAccelerationEngineAxis(LinearEngineTarget.Target.Z, FVector(0, 0, 1), ZEngines);
+	}
+
+	FVector GlobalDeltaV = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalDeltaV);
+	Spacecraft->Airframe->SetPhysicsLinearVelocity(GlobalDeltaV, true);
+
+	if(Log) {
+
+		FLOGV("PhysicSubTick LocalDeltaV=%s", *LocalDeltaV.ToString());
+		FLOGV("PhysicSubTick GlobalDeltaV=%s", *GlobalDeltaV.ToString());
+		FLOGV("PhysicSubTick SharableBoostAcceleration=%f", SharableBoostAcceleration);
 	}
 
 	// Angular physics
@@ -1364,36 +1558,26 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 	{
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
 		FVector ThrustAxis = Engine->GetThrustAxis();
-		float LinearAlpha = 0;
+		float LinearAlpha = EnginesAlpha[EngineIndex];
 		float AngularAlpha = 0;
 
 		if (Spacecraft->IsPresentationMode())
 		{
 			LinearAlpha = true;
 		}
-		else if (!DeltaV.IsNearlyZero() || !DeltaAngularV.IsNearlyZero())
+		else if (!DeltaAngularV.IsNearlyZero() && !Engine->IsA(UFlareOrbitalEngine::StaticClass()))
 		{
-			if(Engine->IsA(UFlareOrbitalEngine::StaticClass()))
-			{
-				if(HasUsedOrbitalBoost)
-				{
-					LinearAlpha = (-FVector::DotProduct(ThrustAxis, DeltaVAxis) + 0.2) * LinearMasterBoostAlpha;
-				}
-				AngularAlpha = 0;
-			}
-			else
-			{
-				LinearAlpha = -FVector::DotProduct(ThrustAxis, DeltaVAxis) * LinearMasterAlpha;
 				FVector EngineOffset = (Engine->GetComponentLocation() - COM) / 100;
 				FVector TorqueDirection = FVector::CrossProduct(EngineOffset, ThrustAxis);
 				TorqueDirection.Normalize();
 
-				if (!DeltaAngularV.IsNearlyZero() && !Engine->IsA(UFlareOrbitalEngine::StaticClass()))
-				{
-					AngularAlpha = -FVector::DotProduct(TorqueDirection, DeltaAngularVAxis);
-				}
-			}
+				AngularAlpha = -FVector::DotProduct(TorqueDirection, DeltaAngularVAxis);
 		}
+
+		/*if(Log) {
+			FLOGV("PhysicSubTick Engine %d alpha=%f + %f", EngineIndex , LinearAlpha, AngularAlpha);
+		}*/
+
 
 		Engine->SetAlpha(FMath::Clamp(LinearAlpha + AngularAlpha, 0.0f, 1.0f));
 	}
@@ -1422,7 +1606,7 @@ FVector UFlareSpacecraftNavigationSystem::GetTotalMaxThrustInAxis(TArray<UActorC
 		FVector WorldThrustAxis = Engine->GetThrustAxis();
 		float Ratio = FVector::DotProduct(WorldThrustAxis, Axis);
 
-		if (Engine->IsA(UFlareOrbitalEngine::StaticClass()))
+		/*if (Engine->IsA(UFlareOrbitalEngine::StaticClass()))
 		{
 			if(WithOrbitalEngines && Ratio + 0.2 > 0)
 			{
@@ -1430,16 +1614,38 @@ FVector UFlareSpacecraftNavigationSystem::GetTotalMaxThrustInAxis(TArray<UActorC
 			}
 		}
 		else
-		{
+		{*/
 			if (Ratio > 0)
 			{
 				TotalMaxThrust += WorldThrustAxis * Engine->GetMaxThrust() * Ratio;
+			}
+		/*}*/
+	}
+
+	return TotalMaxThrust;
+}
+
+float UFlareSpacecraftNavigationSystem::GetTotalMaxThrustWithEngines(TArray<UActorComponent*>& Engines, TArray<int>& UsefulEngines, bool WithOrbitalEngines)
+{
+	float TotalMaxThrust = 0.f;
+	for (int i : UsefulEngines)
+	{
+		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
+
+		TotalMaxThrust += Engine->GetMaxThrust();
+
+		if (Engine->IsA(UFlareOrbitalEngine::StaticClass()))
+		{
+			if(WithOrbitalEngines)
+			{
+				TotalMaxThrust += Engine->GetMaxThrust();
 			}
 		}
 	}
 
 	return TotalMaxThrust;
 }
+
 
 float UFlareSpacecraftNavigationSystem::GetTotalMaxTorqueInAxis(TArray<UActorComponent*>& Engines, FVector TorqueAxis, bool WithDamages) const
 {

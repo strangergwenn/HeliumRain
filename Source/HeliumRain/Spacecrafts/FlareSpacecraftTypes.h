@@ -9,6 +9,24 @@
 class UFlareResourceCatalogEntry;
 class UFlareFactoryCatalogEntry;
 
+
+struct FFlareEngineTarget
+{
+	bool XVelocityControl;
+	bool YVelocityControl;
+	bool ZVelocityControl;
+	FVector Target;
+
+	void SetVelocity(FVector Velocity)
+	{
+		Target = Velocity;
+		XVelocityControl = true;
+		YVelocityControl = true;
+		ZVelocityControl = true;
+	}
+};
+
+
 /** Damage Type */
 UENUM()
 namespace EFlareDamage

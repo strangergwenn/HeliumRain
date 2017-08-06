@@ -70,6 +70,7 @@ struct FFlareShipCommandData
 
 };
 
+
 /** Docking phase */
 UENUM()
 namespace EFlareDockingPhase
@@ -290,11 +291,14 @@ protected:
 	bool                                     HasUsedOrbitalBoost;
 
 	// Physics simulation
-	FVector                                  LinearTargetVelocity;
+	FFlareEngineTarget                       LinearEngineTarget;
 	FVector                                  AngularTargetVelocity;
 	bool                                     UseOrbitalBoost;
 	FVector                                  COM;
 
+	TPair<TArray<int>, TArray<int>> XEngines;
+	TPair<TArray<int>, TArray<int>> YEngines;
+	TPair<TArray<int>, TArray<int>> ZEngines;
 
 public:
 
@@ -309,6 +313,15 @@ public:
 	 * WithObitalEngines : if false, ignore orbitals engines
 	 */
 	FVector GetTotalMaxThrustInAxis(TArray<UActorComponent*>& Engines, FVector Axis, bool WithOrbitalEngines) const;
+
+
+	/**
+	 * Return the maximum current (with damages) trust the ship can provide with specifics engines.
+	 * Engines : List of engine to use to compute the max thrust
+	 * UsefulEngines : engine to sum
+	 * WithObitalEngines : if false, ignore orbitals engines
+	 */
+	float GetTotalMaxThrustWithEngines(TArray<UActorComponent*>& Engines, TArray<int>& UsefulEngines, bool WithOrbitalEngines);
 
 	/**
 	 * Return the maximum torque the ship can provide in a specific axis.
