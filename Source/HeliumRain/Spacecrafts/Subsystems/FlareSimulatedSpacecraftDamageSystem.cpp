@@ -425,8 +425,8 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 					Spacecraft->GetCompany()->GivePlayerReputationToOthers(ReputationCost/2);
 					Spacecraft->GetCompany()->GivePlayerReputation(ReputationCost);
 
-					Spacecraft->GetGame()->GetPC()->Notify(LOCTEXT("NeutralAttack", "Violation of neutrality"),
-						   FText::Format(LOCTEXT("NeutralAttackDescription", "Attacking neutral properties ({0}) will have diplomatic consequences"), UFlareGameTools::DisplaySpacecraftName(Spacecraft)),
+					Spacecraft->GetGame()->GetPC()->Notify(LOCTEXT("NeutralAttack", "Neutrality violation"),
+						   FText::Format(LOCTEXT("NeutralAttackDescription", "Attacking neutral properties ({0}) will have diplomatic consequences."), UFlareGameTools::DisplaySpacecraftName(Spacecraft)),
 						   FName("neutrality-violation"),
 						   EFlareNotification::NT_Military);
 
@@ -440,8 +440,8 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 					Spacecraft->GetCompany()->GivePlayerReputationToOthers(ReputationCost/5);
 					Spacecraft->GetCompany()->GivePlayerReputation(ReputationCost/5);
 
-					Spacecraft->GetGame()->GetPC()->Notify(LOCTEXT("PrisonerAttack", "Attack of prisoner"),
-						   FText::Format(LOCTEXT("PrisonerAttackDescription", "Attacking uncontrollable ships ({0}) will have diplomatic consequences"), UFlareGameTools::DisplaySpacecraftName(Spacecraft)),
+					Spacecraft->GetGame()->GetPC()->Notify(LOCTEXT("PrisonerAttack", "Attacking prisoners"),
+						   FText::Format(LOCTEXT("PrisonerAttackDescription", "Attacking uncontrollable ships ({0}) will have diplomatic consequences."), UFlareGameTools::DisplaySpacecraftName(Spacecraft)),
 						   FName("prisoner-attack"),
 						   EFlareNotification::NT_Military);
 				}
