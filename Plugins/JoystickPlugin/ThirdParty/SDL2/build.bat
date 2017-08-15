@@ -23,7 +23,7 @@ copy SDL_Patches\*.* %SDL_DIR%\
 
 cd %BUILD_DIR%
 
-"C:\Program Files (x86)\CMake\bin\cmake.exe" -DCMAKE_GENERATOR_PLATFORM=x64 -DSDL_STATIC=ON -DSDL_SHARED=ON -DLIB_C=ON-DFORCE_STATIC_VCRT=ON -DEPIC_EXTENSIONS=OFF --build-64bit --config Release ../%SDL_DIR%
+cmake -DCMAKE_GENERATOR_PLATFORM=x64 -DSDL_STATIC=ON -DSDL_SHARED=ON -DLIB_C=ON-DFORCE_STATIC_VCRT=ON -DEPIC_EXTENSIONS=OFF --build-64bit --config Release ../%SDL_DIR%
 
 msbuild sdl2.sln /t:ALL_BUILD /p:Configuration="Release"
 rem cls
