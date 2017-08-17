@@ -1981,7 +1981,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 					if (TargetFactory->IsActive() && TargetFactory->IsNeedProduction() && !TargetFactory->HasCostReserved() && !TargetFactory->HasInputResources())
 					{
 
-						ProductionText = FText::Format(LOCTEXT("ShipProductionNoResourcesProdTextFormat", "\u2022 {0}  being built (missing resources)"),
+						ProductionText = FText::Format(LOCTEXT("ShipProductionNoResourcesProdTextFormat", "\u2022 {0} being built (missing resources)"),
 						Game->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name);
 					}
 					else
