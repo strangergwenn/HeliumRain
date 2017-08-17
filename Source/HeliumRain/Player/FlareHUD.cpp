@@ -738,7 +738,15 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		}
 		else
 		{
-			FText InfoText = LOCTEXT("StandingDownInfo", "Weapons disabled");
+			FText InfoText;
+			if (PlayerShip->GetDescription()->Size == EFlarePartSize::S)
+			{
+				InfoText = LOCTEXT("StandingDownInfo", "Weapons disabled");
+			}
+			else
+			{
+				InfoText = LOCTEXT("NavigationInfo", "Turrets are automated");
+			}
 			FlareDrawText(InfoText, CurrentPos, HealthColor, false);
 		}
 		CurrentPos += InstrumentLine;
