@@ -2284,7 +2284,7 @@ void AFlarePlayerController::MatchSpeedWithTargetSpacecraft()
 
 void AFlarePlayerController::LookAtTargetSpacecraft()
 {
-	if (ShipPawn)
+	if (ShipPawn && !ShipPawn->GetNavigationSystem()->IsDocked())
 	{
 		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
 		if (TargetSpacecraft)
