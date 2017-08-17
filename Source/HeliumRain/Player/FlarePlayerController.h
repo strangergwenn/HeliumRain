@@ -221,6 +221,10 @@ public:
 	/** Send back to menu */
 	void BackMenu();
 
+	/** Enter a menu */
+	void EnterMenuDown();
+	void EnterMenuUp();
+
 	/** Simulate a turn */
 	void Simulate();
 
@@ -282,6 +286,12 @@ public:
 
 	/** Joystick lateral movement Y */
 	void JoystickMoveVerticalInput(float Val);
+
+	/** Joystick angular movement X */
+	void JoystickYawInput(float Val);
+
+	/** Joystick angular movement Y */
+	void JoystickPitchInput(float Val);
 
 	/** Hack for right mouse button triggering drag in external camera */
 	void RightMouseButtonPressed();

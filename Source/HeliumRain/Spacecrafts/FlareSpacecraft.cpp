@@ -1354,8 +1354,6 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("NormalRollInput", this, &AFlareSpacecraft::RollInput);
 	PlayerInputComponent->BindAxis("NormalThrustInput", this, &AFlareSpacecraft::ThrustInput);
 
-	PlayerInputComponent->BindAxis("JoystickYawInput", this, &AFlareSpacecraft::JoystickYawInput);
-	PlayerInputComponent->BindAxis("JoystickPitchInput", this, &AFlareSpacecraft::JoystickPitchInput);
 	PlayerInputComponent->BindAxis("JoystickRollInput", this, &AFlareSpacecraft::JoystickRollInput);
 	PlayerInputComponent->BindAxis("JoystickThrustInput", this, &AFlareSpacecraft::JoystickThrustInput);
 

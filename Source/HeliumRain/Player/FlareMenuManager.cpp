@@ -31,9 +31,9 @@
 #include "../Game/FlareGame.h"
 #include "../Game/FlareGameTools.h"
 
-#include "../Player/FlareHUD.h"
-#include "../Player/FlareMenuPawn.h"
-#include "../Player/FlarePlayerController.h"
+#include "FlareHUD.h"
+#include "FlareMenuPawn.h"
+#include "FlarePlayerController.h"
 
 #include "../HeliumRainLoadingScreen/FlareLoadingScreen.h"
 
@@ -426,6 +426,20 @@ void AFlareMenuManager::SpacecraftInfoHotkey(int32 Index)
 	{
 		CurrentSpacecraftInfo->Hotkey(Index);
 	}
+}
+
+void AFlareMenuManager::JoystickCursorMove(FVector2D Move)
+{
+	auto Cursor = FSlateApplication::Get().GetPlatformApplication().Get()->Cursor;
+	JoystickCursorPosition = Cursor->GetPosition();
+
+	float Power = 2;
+	float Intensity = 10;
+
+	JoystickCursorPosition.X += Intensity * FMath::Sign(Move.X) * FMath::Pow(Move.X, Power);
+	JoystickCursorPosition.Y += Intensity * FMath::Sign(Move.Y) * FMath::Pow(Move.Y, Power);
+
+	Cursor->SetPosition(JoystickCursorPosition.X, JoystickCursorPosition.Y);
 }
 
 

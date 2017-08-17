@@ -1890,14 +1890,16 @@ void SFlareSettingsMenu::CreateBinds()
 	// Menus
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Menus", "MENUS")))->MakeHeader()));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toggle menus", "Open / close menus")))
-		->AddActionMapping("ToggleMenu")
-		->AddDefaults(EKeys::Enter)));
+		->AddActionMapping("ToggleMenu")));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toggle overlay", "Open / close flight overlay")))
 		->AddActionMapping("ToggleOverlay")
 		->AddDefaults(EKeys::RightMouseButton)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toggle wheel menu", "Open / close wheel menu")))
 		->AddActionMapping("Wheel")
 		->AddDefaults(EKeys::MiddleMouseButton)));
+	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Enter menu", "Enter menu")))
+		->AddActionMapping("EnterMenu")
+		->AddDefaults(EKeys::Enter)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Back", "Previous menu")))
 		->AddActionMapping("BackMenu")
 		->AddDefaults(EKeys::Escape)));

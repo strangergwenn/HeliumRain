@@ -1454,6 +1454,8 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("ToggleCamera", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCamera);
 	InputComponent->BindAction("ToggleMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleMenu);
 	InputComponent->BindAction("ToggleOverlay", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleOverlay);
+	InputComponent->BindAction("EnterMenu", EInputEvent::IE_Pressed, this, &AFlarePlayerController::EnterMenuDown);
+	InputComponent->BindAction("EnterMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::EnterMenuUp);
 	InputComponent->BindAction("BackMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::BackMenu);
 	InputComponent->BindAction("Simulate", EInputEvent::IE_Released, this, &AFlarePlayerController::Simulate);
 	InputComponent->BindAction("ToggleCombat", EInputEvent::IE_Released, this, &AFlarePlayerController::ToggleCombat);
@@ -1493,6 +1495,8 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAxis("MouseInputY", this, &AFlarePlayerController::MouseInputY);
 	InputComponent->BindAxis("JoystickMoveHorizontalInput", this, &AFlarePlayerController::JoystickMoveHorizontalInput);
 	InputComponent->BindAxis("JoystickMoveVerticalInput", this, &AFlarePlayerController::JoystickMoveVerticalInput);
+	InputComponent->BindAxis("JoystickYawInput", this, &AFlarePlayerController::JoystickYawInput);
+	InputComponent->BindAxis("JoystickPitchInput", this, &AFlarePlayerController::JoystickPitchInput);
 
 	// Hack for right mouse button triggering drag in external camera
 	InputComponent->BindAction("RightMouseButton", EInputEvent::IE_Pressed, this, &AFlarePlayerController::RightMouseButtonPressed);
@@ -1500,7 +1504,6 @@ void AFlarePlayerController::SetupInputComponent()
 
 	// Others
 	InputComponent->BindAction("HighResShot", EInputEvent::IE_Released, this, &AFlarePlayerController::TakeHighResScreenshot);
-
 
 	// Test
 	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
@@ -1567,6 +1570,24 @@ void AFlarePlayerController::ToggleOverlay()
 			ClientPlaySound(GetSoundManager()->TickSound);
 		}
 	}
+}
+
+void AFlarePlayerController::EnterMenuDown()
+{
+	FLOG("AFlarePlayerController::EnterMenuDown");
+
+	auto& App = FSlateApplication::Get();
+	TSharedPtr<FGenericWindow> GenWindow;
+	App.OnMouseDown(GenWindow, EMouseButtons::Left);
+}
+
+void AFlarePlayerController::EnterMenuUp()
+{
+	FLOG("AFlarePlayerController::EnterMenuUp");
+
+	auto& App = FSlateApplication::Get();
+	App.OnMouseUp(EMouseButtons::Left);
+	App.SetAllUserFocusToGameViewport(EFocusCause::SetDirectly);
 }
 
 void AFlarePlayerController::BackMenu()
@@ -1921,6 +1942,10 @@ void AFlarePlayerController::JoystickMoveHorizontalInput(float Val)
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
 	}
+	else if (MenuManager->IsUIOpen())
+	{
+		MenuManager->JoystickCursorMove(FVector2D(Val, 0));
+	}
 	else if (ShipPawn)
 	{
 		ShipPawn->JoystickMoveHorizontalInput(Val);
@@ -1933,9 +1958,45 @@ void AFlarePlayerController::JoystickMoveVerticalInput(float Val)
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(0, -Val));
 	}
+	else if (MenuManager->IsUIOpen())
+	{
+		MenuManager->JoystickCursorMove(FVector2D(0, -Val));
+	}
 	else if (ShipPawn)
 	{
 		ShipPawn->JoystickMoveVerticalInput(Val);
+	}
+}
+
+void AFlarePlayerController::JoystickYawInput(float Val)
+{
+	if (GetNavHUD()->IsWheelMenuOpen())
+	{
+		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
+	}
+	else if (MenuManager->IsUIOpen())
+	{
+		MenuManager->JoystickCursorMove(FVector2D(Val, 0));
+	}
+	else if (ShipPawn)
+	{
+		ShipPawn->JoystickYawInput(Val);
+	}
+}
+
+void AFlarePlayerController::JoystickPitchInput(float Val)
+{
+	if (GetNavHUD()->IsWheelMenuOpen())
+	{
+		GetNavHUD()->SetWheelCursorMove(FVector2D(0, Val));
+	}
+	else if (MenuManager->IsUIOpen())
+	{
+		MenuManager->JoystickCursorMove(FVector2D(0, Val));
+	}
+	else if (ShipPawn)
+	{
+		ShipPawn->JoystickPitchInput(Val);
 	}
 }
 

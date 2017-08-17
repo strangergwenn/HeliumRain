@@ -126,6 +126,9 @@ public:
 	/** Spacecraft info hotkey was pressed */
 	void SpacecraftInfoHotkey(int32 Index);
 
+	/** Focus navigation with joystick */
+	void JoystickCursorMove(FVector2D Move);
+
 
 protected:
 
@@ -336,7 +339,13 @@ public:
 	TSharedPtr<SFlareNotifier> GetNotifier()
 	{
 		return Notifier;
-	}	
+	}
+
+	/** Get the joystick position */
+	FVector2D GetJoystickCursorPosition() const
+	{
+		return JoystickCursorPosition;
+	}
 
 	/** Get the height of the main overlay */
 	static int32 GetMainOverlayHeight();
@@ -365,6 +374,7 @@ protected:
 	TFlareMenuData                          NextMenu;
 	TArray<TFlareMenuData>                  MenuHistory;
 	SFlareSpacecraftInfo*                   CurrentSpacecraftInfo;
+	FVector2D                               JoystickCursorPosition;
 
 	// Menu tools
 	TSharedPtr<SBorder>                     Fader;
