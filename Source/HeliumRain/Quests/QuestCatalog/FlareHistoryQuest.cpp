@@ -76,7 +76,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"DockAt"
-		FText Description = LOCTEXT("DockAtDescription", "You are summoned by the Nema Colonial Administration to a meeting on the Pendulum project. Please dock to an habitation center in Blue Heart.");
+		FText Description = LOCTEXT("DockAtDescription", "You are summoned by the Nema Colonial Administration to a meeting on the Pendulum project. Please dock at one of the habitation centers of the Blue Heart capital station.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "meeting", Description);
 
 		UFlareQuestConditionDockAtType* Condition = UFlareQuestConditionDockAtType::Create(this, BlueHeart, "station-bh-habitation");
