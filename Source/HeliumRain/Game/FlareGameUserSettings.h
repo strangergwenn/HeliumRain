@@ -48,6 +48,10 @@ public:
 	UPROPERTY(Config)
 	bool                                     UseCockpit;
 		
+	/** Whether to invert Y axis */
+	UPROPERTY(Config)
+	bool                                     InvertY;
+	
 	/** Whether to use anti collision */
 	UPROPERTY(Config)
 	bool                                     UseAnticollision;

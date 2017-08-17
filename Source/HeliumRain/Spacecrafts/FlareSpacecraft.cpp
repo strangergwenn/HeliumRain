@@ -1585,7 +1585,9 @@ void AFlareSpacecraft::YawInput(float Val)
 
 void AFlareSpacecraft::PitchInput(float Val)
 {
-	StateManager->SetPlayerAimMouse(FVector2D(0, Val));
+	float Inverter = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->InvertY ? -1.0f : 1.0f;
+
+	StateManager->SetPlayerAimMouse(FVector2D(0, Inverter * Val));
 }
 
 void AFlareSpacecraft::RollInput(float Val)
@@ -1621,12 +1623,14 @@ void AFlareSpacecraft::JoystickYawInput(float Val)
 
 void AFlareSpacecraft::JoystickPitchInput(float Val)
 {
+	float Inverter = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->InvertY ? -1.0f : 1.0f;
+
 	if (FMath::Abs(Val) < Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->RotationDeadZone)
 	{
 		Val = 0;
 	}
 
-	StateManager->SetPlayerAimJoystickPitch(-Val);
+	StateManager->SetPlayerAimJoystickPitch(Inverter  * -Val);
 }
 
 void AFlareSpacecraft::JoystickRollInput(float Val)

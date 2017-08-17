@@ -425,6 +425,18 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(SHorizontalBox)
+					
+						// Anticollision
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(InvertYButton, SFlareButton)
+							.Text(LOCTEXT("InvertY", "Invert vertical"))
+							.HelpText(LOCTEXT("InvertYInfo", "Invert the vertical axis of the mouse while flying"))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnInvertYToggle)
+						]
 
 #if !UE_BUILD_SHIPPING
 						// Cockpit
@@ -777,6 +789,9 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	TemporalAAButton->SetActive(MyGameSettings->UseTemporalAA);
 	FullscreenButton->SetActive(MyGameSettings->GetFullscreenMode() == EWindowMode::Fullscreen);
 	SupersamplingButton->SetActive(MyGameSettings->ScreenPercentage > 100);
+
+	// Gameplay defaults
+	InvertYButton->SetActive(MyGameSettings->InvertY);
 #if !UE_BUILD_SHIPPING
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
 #endif
@@ -1237,6 +1252,15 @@ void SFlareSettingsMenu::OnInvertAxisClicked(FName AxisName)
 void SFlareSettingsMenu::OnFullscreenToggle()
 {
 	UpdateResolution(true);
+}
+
+void SFlareSettingsMenu::OnInvertYToggle()
+{
+	bool New = InvertYButton->IsActive();
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->InvertY = New;
+	MyGameSettings->ApplySettings(false);
 }
 
 void SFlareSettingsMenu::OnCockpitToggle()

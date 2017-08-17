@@ -24,6 +24,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	UseMotionBlur = true;
 
 	// Gameplay
+	InvertY = false;
 	UseCockpit = true;
 	UseAnticollision = false;
 	PauseGameInMenus = false;

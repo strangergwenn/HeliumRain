@@ -138,6 +138,8 @@ protected:
 
 	void OnSupersamplingToggle();
 	
+	void OnInvertYToggle();
+
 	void OnAnticollisionToggle();
 
 	void OnCockpitToggle();
@@ -210,6 +212,7 @@ protected:
 	TSharedPtr<STextBlock>	        			PostProcessQualityLabel;
 
 	// Gameplay
+	TSharedPtr<SFlareButton>                    InvertYButton;
 #if !UE_BUILD_SHIPPING
 	TSharedPtr<SFlareButton>                    CockpitButton;
 #endif
