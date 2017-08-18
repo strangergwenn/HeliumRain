@@ -606,6 +606,10 @@ void UFlareSimulatedSpacecraft::RecoveryRepair()
 				|| ComponentDescription->Type == EFlarePartType::InternalComponent)
 		{
 			float MaxDamage = (1-(BROKEN_RATIO + 0.1)) * ComponentDescription->HitPoints;
+			if(ComponentDescription->Type == EFlarePartType::OrbitalEngine)
+			{
+				MaxDamage = BROKEN_RATIO * 0.6 * ComponentDescription->HitPoints;
+			}
 
 			ComponentData->Damage = FMath::Min(ComponentData->Damage, MaxDamage);
 
