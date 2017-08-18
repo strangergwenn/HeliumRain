@@ -416,9 +416,9 @@ void UFlareQuestConditionMinVerticalVelocity::Load(UFlareQuest* ParentQuest, FNa
 	}
 	else
 	{
-		ReachSpeedText = LOCTEXT("ReachMinDownSpeedFormat", "Reach at least {0} m/s down");
+		ReachSpeedText = LOCTEXT("ReachMinDownSpeedFormat", "Reach at most {0} m/s down");
 	}
-	InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(VelocityLimit)));
+	InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(FMath::Abs(VelocityLimit))));
 }
 
 void UFlareQuestConditionMinVerticalVelocity::Restore(const FFlareBundle* Bundle)
@@ -495,6 +495,120 @@ void UFlareQuestConditionMinVerticalVelocity::AddConditionObjectives(FFlarePlaye
 		ObjectiveData->ConditionList.Add(ObjectiveCondition);
 	}
 }
+
+
+/*----------------------------------------------------
+	Max vertical velocity condition
+----------------------------------------------------*/
+UFlareQuestConditionMaxVerticalVelocity::UFlareQuestConditionMaxVerticalVelocity(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionMaxVerticalVelocity* UFlareQuestConditionMaxVerticalVelocity::Create(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam)
+{
+	UFlareQuestConditionMaxVerticalVelocity* Condition = NewObject<UFlareQuestConditionMaxVerticalVelocity>(ParentQuest, UFlareQuestConditionMaxVerticalVelocity::StaticClass());
+	Condition->Load(ParentQuest, ConditionIdentifier, VelocityLimitParam);
+	return Condition;
+}
+
+void UFlareQuestConditionMaxVerticalVelocity::Load(UFlareQuest* ParentQuest, FName ConditionIdentifier, float VelocityLimitParam)
+{
+	if (ConditionIdentifier == NAME_None)
+	{
+		FLOG("WARNING: UFlareQuestConditionMaxVerticalVelocity need identifier for state saving");
+	}
+	LoadInternal(ParentQuest, ConditionIdentifier);
+	Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
+	VelocityLimit = VelocityLimitParam;
+
+	FText ReachSpeedText;
+	if (VelocityLimit > 0)
+	{
+		ReachSpeedText = LOCTEXT("ReachMaxUpSpeedFormat", "Reach at most {0} m/s up");
+	}
+	else
+	{
+		ReachSpeedText = LOCTEXT("ReachMaxDownSpeedFormat", "Reach at least {0} m/s down");
+	}
+	InitialLabel = FText::Format(ReachSpeedText, FText::AsNumber((int)(FMath::Abs(VelocityLimit))));
+}
+
+void UFlareQuestConditionMaxVerticalVelocity::Restore(const FFlareBundle* Bundle)
+{
+	if (Bundle)
+	{
+		HasInitialVelocity = Bundle->HasFloat(INITIAL_VELOCITY_TAG);
+		InitialVelocity = Bundle->GetFloat(INITIAL_VELOCITY_TAG);
+	}
+	else
+	{
+		HasInitialVelocity = false;
+	}
+}
+
+void UFlareQuestConditionMaxVerticalVelocity::Save(FFlareBundle* Bundle)
+{
+	if (HasInitialVelocity)
+	{
+		Bundle->PutFloat(INITIAL_VELOCITY_TAG, InitialVelocity);
+	}
+}
+
+float UFlareQuestConditionMaxVerticalVelocity::GetVerticalVelocity()
+{
+	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
+	if (Spacecraft)
+	{
+		float Velocity = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetUpVector());
+		if(!HasInitialVelocity)
+		{
+			HasInitialVelocity = true;
+			InitialVelocity = Velocity;
+		}
+
+		return Velocity;
+	}
+
+	return 0;
+}
+
+bool UFlareQuestConditionMaxVerticalVelocity::IsCompleted()
+{
+	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
+	if (Spacecraft)
+	{
+		return GetVerticalVelocity() < VelocityLimit;
+	}
+	return false;
+}
+
+void UFlareQuestConditionMaxVerticalVelocity::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
+	if (Spacecraft)
+	{
+		float Velocity = GetVerticalVelocity();
+
+		FText ReachSpeedShortText = LOCTEXT("ReachMaxVerticalSpeedShortFormat", "{0} m/s");
+
+		FFlarePlayerObjectiveCondition ObjectiveCondition;
+		ObjectiveCondition.InitialLabel = InitialLabel;
+		ObjectiveCondition.TerminalLabel = FText::Format(ReachSpeedShortText, FText::AsNumber((int)(Velocity)));
+		ObjectiveCondition.Counter = 0;
+		ObjectiveCondition.MaxCounter = 0;
+		ObjectiveCondition.MaxProgress = FMath::Abs(InitialVelocity - VelocityLimit);
+		ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress - FMath::Abs(Velocity - VelocityLimit);
+
+		if (Velocity < VelocityLimit)
+		{
+			ObjectiveCondition.Progress = ObjectiveCondition.MaxProgress;
+		}
+
+		ObjectiveData->ConditionList.Add(ObjectiveCondition);
+	}
+}
+
 
 /*----------------------------------------------------
 	Min collinear velocity condition

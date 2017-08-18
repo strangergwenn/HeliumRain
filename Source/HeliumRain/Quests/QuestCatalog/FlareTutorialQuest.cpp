@@ -155,7 +155,7 @@ void UFlareQuestTutorialFlying::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "down", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEnableCondition())->AddChildCondition(FlyShip);
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionMinVerticalVelocity::Create(this, QUEST_TAG"cond1", -20));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionMaxVerticalVelocity::Create(this, QUEST_TAG"cond1", -20));
 		Steps.Add(Step);
 	}
 
