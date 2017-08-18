@@ -120,7 +120,8 @@ void UFlareTradeRoute::Simulate()
 				Data.Sector = TargetSector;
 
 				Game->GetPC()->Notify(LOCTEXT("TradeRouteDanger", "Trade route destination is defended"),
-					FText::Format(LOCTEXT("TradeRouteDangerFormat", "Your trade route don't start travel because destination is dangerous. Manually travel to {0} or pause the trade route."),
+					FText::Format(LOCTEXT("TradeRouteDangerFormat", "Your trade route {0} is stuck because its next destination is dangerous. Travel to {1} manually or pause the trade route."),
+						GetTradeRouteName(),
 						TargetSector->GetSectorName()),
 					FName("trade-route-danger"),
 					EFlareNotification::NT_Military,
