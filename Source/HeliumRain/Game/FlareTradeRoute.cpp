@@ -16,6 +16,7 @@
 #include "FlareGame.h"
 #include "FlareSectorHelper.h"
 
+#define LOCTEXT_NAMESPACE "FlareTradeRouteInfos"
 
 /*----------------------------------------------------
 	Constructor
@@ -111,11 +112,31 @@ void UFlareTradeRoute::Simulate()
 
 	if (TargetSector && TargetSector != CurrentSector)
 	{
-		if (!TargetSector->GetSectorBattleState(TradeRouteCompany).HasDanger && ! TradeRouteFleet->IsTrading())
+		if (! TradeRouteFleet->IsTrading())
 		{
-			FLOGV("  -> start travel to %s", *TargetSector->GetSectorName().ToString());
-			// Travel to next sector
-			Game->GetGameWorld()->StartTravel(TradeRouteFleet, TargetSector);
+			if(TargetSector->GetSectorBattleState(TradeRouteCompany).HasDanger)
+			{
+				FFlareMenuParameterData Data;
+				Data.Sector = TargetSector;
+
+				Game->GetPC()->Notify(LOCTEXT("TradeRouteDanger", "Trade route destination is defended"),
+					FText::Format(LOCTEXT("TradeRouteDangerFormat", "Your trade route don't start travel because destination is dangerous. Manually travel to {0} or pause the trade route."),
+						TargetSector->GetSectorName()),
+					FName("trade-route-danger"),
+					EFlareNotification::NT_Military,
+					false,
+					EFlareMenu::MENU_Sector,
+					Data);
+
+				FLOGV("  -> travel to %s abort because of danger", *TargetSector->GetSectorName().ToString());
+			}
+			else
+			{
+
+				FLOGV("  -> start travel to %s", *TargetSector->GetSectorName().ToString());
+				// Travel to next sector
+				Game->GetGameWorld()->StartTravel(TradeRouteFleet, TargetSector);
+			}
 		}
 	}
 	
@@ -864,3 +885,4 @@ void UFlareTradeRoute::ResetStats()
 	TradeRouteData.StatsOperationSuccessCount = 0;
 	TradeRouteData.StatsOperationFailCount = 0;
 }
+#undef LOCTEXT_NAMESPACE
