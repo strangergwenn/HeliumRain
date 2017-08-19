@@ -446,7 +446,7 @@ public:
 		return IsLoadingStreamingLevel;
 	}
 
-
+	FText GetBuildDate() const;
 
 };
 

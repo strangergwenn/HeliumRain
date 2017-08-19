@@ -1343,10 +1343,14 @@ const FFlareCompanyDescription* AFlareGame::GetPlayerCompanyDescription() const
 	return PC->GetCompanyDescription();
 }
 
-const int32  AFlareGame::GetCompanyCatalogCount() const
+const int32 AFlareGame::GetCompanyCatalogCount() const
 {
 	return (CompanyCatalog ? CompanyCatalog->Companies.Num() : 0);
 }
 
+FText AFlareGame::GetBuildDate() const
+{
+	return FText::FromString(__DATE__);
+}
 
 #undef LOCTEXT_NAMESPACE
