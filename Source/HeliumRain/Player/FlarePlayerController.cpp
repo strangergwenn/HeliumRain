@@ -28,6 +28,8 @@
 #include "../Spacecrafts/FlarePilotHelper.h"
 #include "../Spacecrafts/FlareTurretPilot.h"
 
+#include "GameFramework/InputSettings.h"
+
 #include "Engine/PostProcessVolume.h"
 #include "EngineUtils.h"
 
@@ -110,6 +112,23 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	Gameplay
 ----------------------------------------------------*/
 
+void AddMissingActionMapping(UInputSettings* InputSettings, FName ActionName, FName KeyName)
+{
+	FInputActionKeyMapping Bind;
+	Bind.ActionName = ActionName;
+	Bind.Key = FKey(KeyName);
+	InputSettings->AddActionMapping(Bind);
+}
+
+void AddMissingAxisMapping(UInputSettings* InputSettings, FName AxisName, FName KeyName, float Scale)
+{
+	FInputAxisKeyMapping Bind;
+	Bind.AxisName = AxisName;
+	Bind.Key = FKey(KeyName);
+	Bind.Scale = Scale;
+	InputSettings->AddAxisMapping(Bind);
+}
+
 void AFlarePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -142,6 +161,28 @@ void AFlarePlayerController::BeginPlay()
 	UseCockpit = MyGameSettings->UseCockpit;
 	PauseGameInMenus = MyGameSettings->PauseGameInMenus;
 	SetUseMotionBlur(MyGameSettings->UseMotionBlur);
+
+	// Add missing gamepad mappings (#903, hotfix 1, Early Access)
+	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+	AddMissingAxisMapping(InputSettings, "GamepadMoveHorizontalInput", "Gamepad_LeftX", 1.0f);
+	AddMissingAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftY", -1.0f);
+	AddMissingAxisMapping(InputSettings, "GamepadYawInput", "Gamepad_RightX", 1.0f);
+	AddMissingAxisMapping(InputSettings, "GamepadPitchInput", "Gamepad_RightY", -1.0f);
+	AddMissingAxisMapping(InputSettings, "NormalRollInput", "Gamepad_LeftShoulder", -1.0f);
+	AddMissingAxisMapping(InputSettings, "NormalRollInput", "Gamepad_RightShoulder", 1.0f);
+	AddMissingActionMapping(InputSettings, "CombatZoom", "Gamepad_LeftTrigger");
+	AddMissingActionMapping(InputSettings, "StartFire", "Gamepad_RightTrigger");
+	AddMissingActionMapping(InputSettings, "NextTarget", "Gamepad_DPad_Right");
+	AddMissingActionMapping(InputSettings, "PreviousWeapon", "Gamepad_DPad_Down");
+	AddMissingActionMapping(InputSettings, "PreviousTarget", "Gamepad_DPad_Left");
+	AddMissingActionMapping(InputSettings, "NextWeapon", "Gamepad_DPad_Up");
+	AddMissingActionMapping(InputSettings, "BackMenu", "Gamepad_FaceButton_Right");
+	AddMissingActionMapping(InputSettings, "EnterMenu", "Gamepad_FaceButton_Bottom");
+	AddMissingActionMapping(InputSettings, "QuickSwitch", "Gamepad_FaceButton_Left");
+	AddMissingActionMapping(InputSettings, "FindTarget", "Gamepad_FaceButton_Top");
+	AddMissingActionMapping(InputSettings, "ToggleOverlay", "Gamepad_Special_Left");
+	AddMissingActionMapping(InputSettings, "Wheel", "Gamepad_Special_Right");
+	InputSettings->SaveKeyMappings();
 
 	// Cockpit
 	SetupCockpit();
