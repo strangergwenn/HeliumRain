@@ -583,9 +583,49 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	AFlareSpacecraft* DockSpacecraft = NULL;
 	FFlareDockingParameters DockParameters;
 	bool DockingInProgress = PlayerShip->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
+	
+	// Scanner
+	if (PlayerShip->IsInScanningMode())
+	{
+		// Get progress
+		bool AngularIsActive, LinearIsActive, ScanningIsActive;
+		float ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio;
+		float ScanningDistance, ScanningSpeed;
+		PlayerShip->GetScanningProgress(AngularIsActive, LinearIsActive, ScanningIsActive,
+			ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio,
+			ScanningDistance, ScanningSpeed);
+
+		// Texts
+		FText ScanningText = LOCTEXT("Scanning", "Unknown signal detected");
+		FText ScanningInfoText = LOCTEXT("ScanningInfo", "Scanning unknown signal...");
+		FText AlignmentText = FText::Format(LOCTEXT("AlignmentFormat", "Signal alignment : {0}%"),
+			FText::AsNumber(FMath::RoundToInt(100 * FMath::Clamp(ScanningAngularRatio, 0.0f, 1.0f))));
+		FText DistanceText = FText::Format(LOCTEXT("DistanceFormat", "Signal distance : {0}m"),
+			FText::AsNumber(FMath::RoundToInt(ScanningDistance)));
+		FText AnalyzisText = FText::Format(LOCTEXT("AnalyzisFormat", "Signal analyzis : {0}%"),
+			FText::AsNumber(FMath::RoundToInt(100 * ScanningAnalyzisRatio)));
+
+		// Draw panel
+		FlareDrawText(ScanningText, CurrentPos, Theme.FriendlyColor, false, true);
+		CurrentPos += 2 * InstrumentLine;
+		FlareDrawText(ScanningInfoText, CurrentPos, Theme.FriendlyColor, false, false);
+		CurrentPos += 1.5 * InstrumentLine;
+		DrawProgressBarIconText(CurrentPos, HUDOrientationIcon, AlignmentText,
+			AngularIsActive ? Theme.FriendlyColor : Theme.EnemyColor,
+			ScanningAngularRatio, LargeProgressBarSize);
+		CurrentPos += InstrumentLine;
+		DrawProgressBarIconText(CurrentPos, HUDDistanceIcon, DistanceText,
+			LinearIsActive ? Theme.FriendlyColor : Theme.EnemyColor,
+			ScanningLinearRatio, LargeProgressBarSize);
+		CurrentPos += InstrumentLine;
+		DrawProgressBarIconText(CurrentPos, HUDPowerIcon, AnalyzisText,
+			ScanningIsActive ? Theme.FriendlyColor : Theme.EnemyColor,
+			ScanningAnalyzisRatio, LargeProgressBarSize);
+		CurrentPos += InstrumentLine;
+	}
 
 	// Docking helper
-	if (DockSpacecraft)
+	else if (DockSpacecraft)
 	{
 		// Angular / linear errors
 		float AngularDot = FVector::DotProduct(DockParameters.ShipDockAxis.GetSafeNormal(), -DockParameters.StationDockAxis.GetSafeNormal());
@@ -637,46 +677,6 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		DrawProgressBarIconText(CurrentPos, HUDRCSIcon, AngularText,
 			AngularRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
 			AngularRatio, LargeProgressBarSize);
-		CurrentPos += InstrumentLine;
-	}
-
-	// Scanner
-	else if (PlayerShip->IsInScanningMode())
-	{
-		// Get progress
-		bool AngularIsActive, LinearIsActive, ScanningIsActive;
-		float ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio;
-		float ScanningDistance, ScanningSpeed;
-		PlayerShip->GetScanningProgress(AngularIsActive, LinearIsActive, ScanningIsActive,
-			ScanningAngularRatio, ScanningLinearRatio, ScanningAnalyzisRatio,
-			ScanningDistance, ScanningSpeed);
-
-		// Texts
-		FText ScanningText = LOCTEXT("Scanning", "Unknown signal detected");
-		FText ScanningInfoText = LOCTEXT("ScanningInfo", "Scanning unknown signal...");
-		FText AlignmentText = FText::Format(LOCTEXT("AlignmentFormat", "Signal alignment : {0}%"),
-			FText::AsNumber(FMath::RoundToInt(100 * FMath::Clamp(ScanningAngularRatio, 0.0f, 1.0f))));
-		FText DistanceText = FText::Format(LOCTEXT("DistanceFormat", "Signal distance : {0}m"),
-			FText::AsNumber(FMath::RoundToInt(ScanningDistance)));
-		FText AnalyzisText = FText::Format(LOCTEXT("AnalyzisFormat", "Signal analyzis : {0}%"),
-			FText::AsNumber(FMath::RoundToInt(100 * ScanningAnalyzisRatio)));
-
-		// Draw panel
-		FlareDrawText(ScanningText, CurrentPos, Theme.FriendlyColor, false, true);
-		CurrentPos += 2 * InstrumentLine;
-		FlareDrawText(ScanningInfoText, CurrentPos, Theme.FriendlyColor, false, false);
-		CurrentPos += 1.5 * InstrumentLine;
-		DrawProgressBarIconText(CurrentPos, HUDOrientationIcon, AlignmentText,
-			AngularIsActive ? Theme.FriendlyColor : Theme.EnemyColor,
-			ScanningAngularRatio, LargeProgressBarSize);
-		CurrentPos += InstrumentLine;
-		DrawProgressBarIconText(CurrentPos, HUDDistanceIcon, DistanceText,
-			LinearIsActive ? Theme.FriendlyColor : Theme.EnemyColor,
-			ScanningLinearRatio, LargeProgressBarSize);
-		CurrentPos += InstrumentLine;
-		DrawProgressBarIconText(CurrentPos, HUDPowerIcon, AnalyzisText,
-			ScanningIsActive ? Theme.FriendlyColor : Theme.EnemyColor,
-			ScanningAnalyzisRatio, LargeProgressBarSize);
 		CurrentPos += InstrumentLine;
 	}
 
