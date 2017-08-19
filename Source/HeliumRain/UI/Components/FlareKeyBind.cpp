@@ -89,7 +89,7 @@ void SFlareKeyBind::SetKey(FKey NewKey, bool bCanReset, bool bNotify)
 
 FReply SFlareKeyBind::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
 {
-	if (bWaitingForKey)
+	if (bWaitingForKey && !InKeyEvent.GetKey().IsGamepadKey())
 	{
 		SetKey(InKeyEvent.GetKey());
 		return FReply::Handled();

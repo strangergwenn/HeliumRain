@@ -207,6 +207,11 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSector* Sector, FOrderDel
 	ConfirmText->SetText(FText());
 }
 
+bool SFlareSpacecraftOrderOverlay::IsOpen() const
+{
+	return (GetVisibility() == EVisibility::Visible);
+}
+
 void SFlareSpacecraftOrderOverlay::Close()
 {
 	SetVisibility(EVisibility::Collapsed);

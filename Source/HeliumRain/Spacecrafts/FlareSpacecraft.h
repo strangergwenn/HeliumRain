@@ -208,6 +208,14 @@ public:
 	virtual void MoveHorizontalInput(float Val);
 
 
+
+	virtual void GamepadThrustInput(float Val);
+
+	virtual void GamepadYawInput(float Val);
+
+	virtual void GamepadPitchInput(float Val);
+
+
 	virtual void JoystickYawInput(float Val);
 
 	virtual void JoystickPitchInput(float Val);

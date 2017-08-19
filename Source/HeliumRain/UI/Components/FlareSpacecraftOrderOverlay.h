@@ -46,6 +46,9 @@ public:
 	/** Show the overlay for a sector */
 	void Open(UFlareSimulatedSector* Sector, FOrderDelegate ConfirmationCallback);
 
+	/** Is this open */
+	bool IsOpen() const;
+
 	/** Close the overlay */
 	void Close();
 

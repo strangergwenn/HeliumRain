@@ -281,6 +281,20 @@ public:
 	/** Move hidden cursor */
 	void MouseInputY(float Val);
 
+
+	/** Gamepad lateral movement X */
+	void GamepadMoveHorizontalInput(float Val);
+
+	/** Gamepad thrust movement Y */
+	void GamepadThrustInput(float Val);
+
+	/** Gamepad angular movement X */
+	void GamepadYawInput(float Val);
+
+	/** Gamepad angular movement Y */
+	void GamepadPitchInput(float Val);
+
+
 	/** Joystick lateral movement X */
 	void JoystickMoveHorizontalInput(float Val);
 
@@ -292,6 +306,7 @@ public:
 
 	/** Joystick angular movement Y */
 	void JoystickPitchInput(float Val);
+
 
 	/** Hack for right mouse button triggering drag in external camera */
 	void RightMouseButtonPressed();

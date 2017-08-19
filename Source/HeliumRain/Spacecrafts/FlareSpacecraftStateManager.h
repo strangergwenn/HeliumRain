@@ -58,6 +58,10 @@ public:
 	// Joystick aim
 	virtual void SetPlayerAimJoystickYaw(float Val);
 	virtual void SetPlayerAimJoystickPitch(float Val);
+
+	// Gamepad aim
+	virtual void SetPlayerAimGamepadYaw(float Val);
+	virtual void SetPlayerAimGamepadPitch(float Val);
 	
 	// Mouse zoom
 	virtual void ExternalCameraZoom(bool ZoomIn);
@@ -68,6 +72,9 @@ public:
 	virtual void SetPlayerXLinearVelocity(float Val);
 	virtual void SetPlayerYLinearVelocity(float Val);
 	virtual void SetPlayerZLinearVelocity(float Val);
+
+	// Gamepad
+	virtual void SetPlayerXLinearVelocityGamepad(float Val);	
 
 	// Joystick movement
 	virtual void SetPlayerXLinearVelocityJoystick(float Val);
@@ -143,7 +150,9 @@ protected:
 	// Linear movement state
 	FVector                                  LastPlayerLinearVelocityKeyboard;
 	FVector                                  LastPlayerLinearVelocityJoystick;
+	FVector                                  LastPlayerLinearVelocityGamepad;
 	bool                                     LinearVelocityIsJoystick;
+	bool                                     LinearVelocityIsGamepad;
 
 	// Roll state
 	float	                                 LastPlayerAngularRollKeyboard;
@@ -153,6 +162,7 @@ protected:
 	FVector2D                                PlayerAim;
 	FVector2D                                LastPlayerAimJoystick;
 	FVector2D                                LastPlayerAimMouse;
+	FVector2D                                LastPlayerAimGamepad;
 	FQuat                                    FireDirectorLookRotation;
 	bool                                     IsFireDirectorInit;
 };

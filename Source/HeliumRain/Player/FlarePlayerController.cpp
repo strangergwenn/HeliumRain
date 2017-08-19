@@ -1512,6 +1512,14 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("Wheel", EInputEvent::IE_Released, this, &AFlarePlayerController::WheelReleased);
 	InputComponent->BindAxis("MouseInputX", this, &AFlarePlayerController::MouseInputX);
 	InputComponent->BindAxis("MouseInputY", this, &AFlarePlayerController::MouseInputY);
+
+	// Gamepad
+	InputComponent->BindAxis("GamepadMoveHorizontalInput", this, &AFlarePlayerController::GamepadMoveHorizontalInput);
+	InputComponent->BindAxis("GamepadThrustInput", this, &AFlarePlayerController::GamepadThrustInput);
+	InputComponent->BindAxis("GamepadYawInput", this, &AFlarePlayerController::GamepadYawInput);
+	InputComponent->BindAxis("GamepadPitchInput", this, &AFlarePlayerController::GamepadPitchInput);
+
+	// Joystick
 	InputComponent->BindAxis("JoystickMoveHorizontalInput", this, &AFlarePlayerController::JoystickMoveHorizontalInput);
 	InputComponent->BindAxis("JoystickMoveVerticalInput", this, &AFlarePlayerController::JoystickMoveVerticalInput);
 	InputComponent->BindAxis("JoystickYawInput", this, &AFlarePlayerController::JoystickYawInput);
@@ -1614,26 +1622,7 @@ void AFlarePlayerController::BackMenu()
 	if (!IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::BackMenu");
-		if (IsInMenu())
-		{
-			if (MenuManager->HasPreviousMenu())
-			{
-				FLOG("AFlarePlayerController::BackMenu Back");
-				MenuManager->Back();
-				ClientPlaySound(GetSoundManager()->NegativeClickSound);
-			}
-			else
-			{
-				FLOG("AFlarePlayerController::BackMenu Close");
-				MenuManager->CloseMenu();
-				ClientPlaySound(GetSoundManager()->NegativeClickSound);
-			}
-		}
-		else if (MenuManager->IsOverlayOpen())
-		{
-			FLOG("AFlarePlayerController::BackMenu Toggle");
-			MenuManager->CloseMainOverlay();
-		}
+		MenuManager->Back();
 	}
 }
 
@@ -1955,7 +1944,8 @@ void AFlarePlayerController::MouseInputY(float Val)
 	}
 }
 
-void AFlarePlayerController::JoystickMoveHorizontalInput(float Val)
+
+void AFlarePlayerController::GamepadMoveHorizontalInput(float Val)
 {
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
@@ -1968,6 +1958,71 @@ void AFlarePlayerController::JoystickMoveHorizontalInput(float Val)
 	else if (ShipPawn)
 	{
 		ShipPawn->JoystickMoveHorizontalInput(Val);
+	}
+}
+
+void AFlarePlayerController::GamepadThrustInput(float Val)
+{
+	if (GetNavHUD()->IsWheelMenuOpen())
+	{
+		GetNavHUD()->SetWheelCursorMove(FVector2D(0, Val));
+	}
+	else if (MenuManager->IsUIOpen())
+	{
+		MenuManager->JoystickCursorMove(FVector2D(0, Val));
+	}
+	else if (ShipPawn)
+	{
+		ShipPawn->GamepadThrustInput(Val);
+	}
+}
+
+void AFlarePlayerController::GamepadYawInput(float Val)
+{
+	if (GetNavHUD()->IsWheelMenuOpen())
+	{
+		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
+	}
+	else if (MenuManager->IsUIOpen())
+	{
+		MenuManager->JoystickCursorMove(FVector2D(Val, 0));
+	}
+	else if (ShipPawn)
+	{
+		ShipPawn->GamepadYawInput(Val);
+	}
+}
+
+void AFlarePlayerController::GamepadPitchInput(float Val)
+{
+	if (GetNavHUD()->IsWheelMenuOpen())
+	{
+		GetNavHUD()->SetWheelCursorMove(FVector2D(0, -Val));
+	}
+	else if (MenuManager->IsUIOpen())
+	{
+		MenuManager->JoystickCursorMove(FVector2D(0, -Val));
+	}
+	else if (ShipPawn)
+	{
+		ShipPawn->GamepadPitchInput(Val);
+	}
+}
+
+
+void AFlarePlayerController::JoystickMoveHorizontalInput(float Val)
+{
+	if (GetNavHUD()->IsWheelMenuOpen())
+	{
+		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
+	}
+	else if (MenuManager->IsUIOpen())
+	{
+		MenuManager->JoystickCursorMove(FVector2D(Val, 0));
+	}
+	else if (ShipPawn)
+	{
+		ShipPawn->MoveHorizontalInput(Val);
 	}
 }
 
@@ -2018,6 +2073,7 @@ void AFlarePlayerController::JoystickPitchInput(float Val)
 		ShipPawn->JoystickPitchInput(Val);
 	}
 }
+
 
 void AFlarePlayerController::RightMouseButtonPressed()
 {

@@ -317,31 +317,65 @@ void AFlareMenuManager::OpenSpacecraftOrder(FFlareMenuParameterData Data, FOrder
 
 void AFlareMenuManager::Back()
 {
-	if (MenuIsOpen)
+	// Close confirmation
+	if (Confirmation->IsOpen())
 	{
-		FLOG("AFlareMenuManager::Back");
+		Confirmation->Close();
+	}
 
-		while (MenuHistory.Num())
+	// Close spacecraft order
+	else if (SpacecraftOrder->IsOpen())
+	{
+		SpacecraftOrder->Close();
+	}
+
+	// Is in menu
+	else if (MenuIsOpen)
+	{
+		// Back
+		if (HasPreviousMenu())
 		{
-			// Pop from stack
-			TFlareMenuData PreviousMenu = MenuHistory.Last();
-			MenuHistory.RemoveAt(MenuHistory.Num() - 1);
+			FLOG("AFlarePlayerController::Back Back");
 
-			// Check consistency of target, open the previous menu if nothing looks wrong
-			if ((PreviousMenu.Value.Spacecraft && !PreviousMenu.Value.Spacecraft->IsValidLowLevel())
-			 || (PreviousMenu.Value.Fleet      && !PreviousMenu.Value.Fleet->IsValidLowLevel())
-			 || (PreviousMenu.Value.Route      && !PreviousMenu.Value.Route->IsValidLowLevel()))
+			while (MenuHistory.Num())
 			{
-				FLOGV("AFlareMenuManager::Back : ignore corrupted target '%s'", *GetMenuName(PreviousMenu.Key).ToString());
-				continue;
+				// Pop from stack
+				TFlareMenuData PreviousMenu = MenuHistory.Last();
+				MenuHistory.RemoveAt(MenuHistory.Num() - 1);
+
+				// Check consistency of target, open the previous menu if nothing looks wrong
+				if ((PreviousMenu.Value.Spacecraft && !PreviousMenu.Value.Spacecraft->IsValidLowLevel())
+					|| (PreviousMenu.Value.Fleet && !PreviousMenu.Value.Fleet->IsValidLowLevel())
+					|| (PreviousMenu.Value.Route && !PreviousMenu.Value.Route->IsValidLowLevel()))
+				{
+					FLOGV("AFlareMenuManager::Back : ignore corrupted target '%s'", *GetMenuName(PreviousMenu.Key).ToString());
+					continue;
+				}
+				else
+				{
+					FLOGV("AFlareMenuManager::Back : backing to '%s'", *GetMenuName(PreviousMenu.Key).ToString());
+					OpenMenu(PreviousMenu.Key, PreviousMenu.Value, false);
+					return;
+				}
 			}
-			else
-			{
-				FLOGV("AFlareMenuManager::Back : backing to '%s'", *GetMenuName(PreviousMenu.Key).ToString());
-				OpenMenu(PreviousMenu.Key, PreviousMenu.Value, false);
-				return;
-			}
+
+			GetPC()->ClientPlaySound(GetPC()->GetSoundManager()->NegativeClickSound);
 		}
+
+		// Close menu
+		else
+		{
+			FLOG("AFlarePlayerController::Back Close");
+			CloseMenu();
+			GetPC()->ClientPlaySound(GetPC()->GetSoundManager()->NegativeClickSound);
+		}
+	}
+
+	// Is in overlay
+	else if (IsOverlayOpen())
+	{
+		FLOG("AFlarePlayerController::Back Toggle");
+		CloseMainOverlay();
 	}
 }
 

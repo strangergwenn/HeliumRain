@@ -41,6 +41,9 @@ public:
 	/** Is this open */
 	bool IsOpen() const;
 
+	/** Close this window */
+	void Close();
+
 
 	/*----------------------------------------------------
 		Callbacks

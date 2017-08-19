@@ -141,6 +141,11 @@ bool SFlareConfirmationOverlay::IsOpen() const
 	return (GetVisibility() == EVisibility::Visible);
 }
 
+void SFlareConfirmationOverlay::Close()
+{
+	OnCancelled();
+}
+
 
 /*----------------------------------------------------
 	Callbacks

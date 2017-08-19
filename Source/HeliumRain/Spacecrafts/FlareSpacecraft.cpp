@@ -1611,6 +1611,34 @@ void AFlareSpacecraft::MoveHorizontalInput(float Val)
 }
 
 
+void AFlareSpacecraft::GamepadThrustInput(float Val)
+{
+	StateManager->SetPlayerXLinearVelocityGamepad(-Val * NavigationSystem->GetLinearMaxVelocity());
+}
+
+void AFlareSpacecraft::GamepadYawInput(float Val)
+{
+	if (FMath::Abs(Val) < Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->RotationDeadZone)
+	{
+		Val = 0;
+	}
+
+	StateManager->SetPlayerAimGamepadYaw(Val);
+}
+
+void AFlareSpacecraft::GamepadPitchInput(float Val)
+{
+	float Inverter = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->InvertY ? -1.0f : 1.0f;
+
+	if (FMath::Abs(Val) < Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->RotationDeadZone)
+	{
+		Val = 0;
+	}
+
+	StateManager->SetPlayerAimGamepadPitch(Inverter  * -Val);
+}
+
+
 void AFlareSpacecraft::JoystickYawInput(float Val)
 {
 	if (FMath::Abs(Val) < Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->RotationDeadZone)

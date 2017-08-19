@@ -38,6 +38,7 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 	PlayerAim = FVector2D::ZeroVector;
 	PlayerMousePosition = FVector2D::ZeroVector;
 	LastPlayerAimJoystick = FVector2D::ZeroVector;
+	LastPlayerAimGamepad = FVector2D::ZeroVector;
 	LastPlayerAimMouse = FVector2D::ZeroVector;
 
 	CombatZoomEnabled = false;
@@ -46,10 +47,12 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 
 	ExternalCamera = true;
 	LinearVelocityIsJoystick = false;
+	LinearVelocityIsGamepad = false;
 	PlayerManualVelocityCommandActive = true;
 
 	LastPlayerLinearVelocityKeyboard = FVector::ZeroVector;
 	LastPlayerLinearVelocityJoystick = FVector::ZeroVector;
+	LastPlayerLinearVelocityGamepad = FVector::ZeroVector;
 	LastPlayerAngularRollKeyboard = 0;
 	LastPlayerAngularRollJoystick = 0;
 
@@ -140,6 +143,19 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 				PlayerManualVelocityCommand -= 0.1;
 			}
 			else if (PlayerManualLinearVelocity.X / MaxVelocity> PlayerManualVelocityCommand)
+			{
+				PlayerManualVelocityCommand += 0.1;
+			}
+		}
+
+		// Gamepad speed setting
+		else if (LinearVelocityIsGamepad)
+		{
+			if (PlayerManualLinearVelocity.X < 0)
+			{
+				PlayerManualVelocityCommand -= 0.1;
+			}
+			else if (PlayerManualLinearVelocity.X > 0)
 			{
 				PlayerManualVelocityCommand += 0.1;
 			}
@@ -439,6 +455,24 @@ void UFlareSpacecraftStateManager::SetPlayerAimJoystickPitch(float Val)
 	}
 }
 
+void UFlareSpacecraftStateManager::SetPlayerAimGamepadYaw(float Val)
+{
+	if (Val != LastPlayerAimGamepad.X)
+	{
+		LastPlayerAimGamepad.X = Val;
+		PlayerAim.X = Val;
+	}
+}
+
+void UFlareSpacecraftStateManager::SetPlayerAimGamepadPitch(float Val)
+{
+	if (Val != LastPlayerAimGamepad.Y)
+	{
+		LastPlayerAimGamepad.Y = Val;
+		PlayerAim.Y = Val;
+	}
+}
+
 void UFlareSpacecraftStateManager::SetPlayerLeftMouse(bool Val)
 {
 	PlayerLeftMousePressed = Val;
@@ -488,6 +522,7 @@ void UFlareSpacecraftStateManager::SetPlayerXLinearVelocity(float Val)
 	{
 		EnablePilot(false);
 		LinearVelocityIsJoystick = false;
+		LinearVelocityIsGamepad = false;
 		LastPlayerLinearVelocityKeyboard.X = Val;
 		PlayerManualLinearVelocity.X = Val;
 	}
@@ -513,10 +548,24 @@ void UFlareSpacecraftStateManager::SetPlayerZLinearVelocity(float Val)
 	}
 }
 
+
+void UFlareSpacecraftStateManager::SetPlayerXLinearVelocityGamepad(float Val)
+{
+	if (Val != LastPlayerLinearVelocityGamepad.X)
+	{
+		LinearVelocityIsJoystick = false;
+		EnablePilot(false);
+		LinearVelocityIsGamepad = true;
+		LastPlayerLinearVelocityGamepad.X = Val;
+		PlayerManualLinearVelocity.X = Val;
+	}
+}
+
 void UFlareSpacecraftStateManager::SetPlayerXLinearVelocityJoystick(float Val)
 {
 	if (Val != LastPlayerLinearVelocityJoystick.X)
 	{
+		LinearVelocityIsGamepad = false;
 		EnablePilot(false);
 		LinearVelocityIsJoystick = true;
 		LastPlayerLinearVelocityJoystick.X = Val;
