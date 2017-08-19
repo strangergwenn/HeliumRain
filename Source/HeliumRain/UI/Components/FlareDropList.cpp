@@ -28,10 +28,26 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		.HAlign(HAlign_Left)
 		[
-			SAssignNew(HeaderButton, SFlareButton)
-			.OnClicked(this, &SFlareDropList::OnHeaderClicked)
-			.Width(InArgs._HeaderWidth)
-			.Height(InArgs._HeaderHeight)
+			SNew(SOverlay)
+
+			// Header
+			+ SOverlay::Slot()
+			[
+				SAssignNew(HeaderButton, SFlareButton)
+				.OnClicked(this, &SFlareDropList::OnHeaderClicked)
+				.Width(InArgs._HeaderWidth)
+				.Height(InArgs._HeaderHeight)
+			]
+
+			// Icon
+			+ SOverlay::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Bottom)
+			[
+				SNew(SImage)
+				.Image(FFlareStyleSet::GetIcon("Droplist"))
+				.Visibility(EVisibility::HitTestInvisible)
+			]
 		]
 
 		// Item picker below
@@ -51,6 +67,7 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 		[
 			SNew(SBorder)
 			.BorderImage(&Theme.BackgroundBrush)
+			.Visibility(this, &SFlareDropList::GetColorPickerVisibility)
 			[
 				SNew(SVerticalBox)
 
@@ -70,7 +87,6 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
-					// value slider
 					MakeColorSlider()
 				]
 			]
@@ -226,24 +242,23 @@ TSharedRef<SWidget> SFlareDropList::MakeColorSlider() const
 	return SNew(SOverlay)
 
 	+ SOverlay::Slot()
-		.Padding(FMargin(4.0f, 0.0f))
-		[
-			SNew(SSimpleGradient)
-				.EndColor(this, &SFlareDropList::HandleColorSliderEndColor)
-				.StartColor(this, &SFlareDropList::HandleColorSliderStartColor)
-				.Orientation(Orient_Vertical)
-				.UseSRGB(false)
-		]
+	.Padding(FMargin(4.0f, 0.0f))
+	[
+		SNew(SSimpleGradient)
+			.EndColor(this, &SFlareDropList::HandleColorSliderEndColor)
+			.StartColor(this, &SFlareDropList::HandleColorSliderStartColor)
+			.Orientation(Orient_Vertical)
+			.UseSRGB(false)
+	]
 
 	+ SOverlay::Slot()
-		[
-			SNew(SSlider)
-				.IndentHandle(false)
-				.Orientation(Orient_Horizontal)
-				.Visibility(this, &SFlareDropList::GetColorPickerVisibility)
-				.SliderBarColor(FLinearColor::Transparent)
-				.Value(this, &SFlareDropList::HandleColorSpinBoxValue)
-				.OnValueChanged(this, &SFlareDropList::HandleColorSpinBoxValueChanged)
-		];
+	[
+		SNew(SSlider)
+			.IndentHandle(false)
+			.Orientation(Orient_Horizontal)
+			.SliderBarColor(FLinearColor::Transparent)
+			.Value(this, &SFlareDropList::HandleColorSpinBoxValue)
+			.OnValueChanged(this, &SFlareDropList::HandleColorSpinBoxValueChanged)
+	];
 }
 

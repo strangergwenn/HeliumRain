@@ -206,60 +206,77 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 					SAssignNew(CompanyIDHint, STextBlock)
 					.TextStyle(&Theme.SmallFont)
 				]
+				
+				// Emblem
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				.HAlign(HAlign_Fill)
+				[
+					SNew(SHorizontalBox)
+
+					// Help
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Top)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(LOCTEXT("EmblemTitle", "Company emblem"))
+					]
+
+					// Emblem picker
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Right)
+					[
+						SNew(SBox)
+						.WidthOverride(0.4 * Theme.ContentWidth)
+						[
+							SAssignNew(EmblemPicker, SFlareDropList)
+							.LineSize(2)
+							.HeaderWidth(3)
+							.HeaderHeight(3)
+							.ItemWidth(3)
+							.ItemHeight(2.7)
+							.ShowColorWheel(false)
+							.OnItemPicked(this, &SFlareNewGameMenu::OnEmblemPicked)
+						]
+					]
+				]
 
 				// Bottom box
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.HAlign(HAlign_Fill)
 				[
-					SNew(SHorizontalBox)
-					
-					// Emblem
-					+ SHorizontalBox::Slot()
-					.Padding(Theme.ContentPadding)
-					.HAlign(HAlign_Left)
-					[
-						SAssignNew(EmblemPicker, SFlareDropList)
-						.LineSize(2)
-						.HeaderWidth(2.5)
-						.HeaderHeight(2.5)
-						.ItemWidth(2.5)
-						.ItemHeight(2.225)
-						.ShowColorWheel(false)
-						.OnItemPicked(this, &SFlareNewGameMenu::OnEmblemPicked)
-					]
+					SNew(SVerticalBox)
 
-					// Buttons
-					+ SHorizontalBox::Slot()
+					// Tutorial
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
 					.HAlign(HAlign_Right)
 					[
-						SNew(SVerticalBox)
+						SAssignNew(TutorialButton, SFlareButton)
+						.Text(LOCTEXT("Tutorial", "Training contract"))
+						.HelpText(LOCTEXT("TutorialInfo", "Start with a few training contracts"))
+						.Toggle(true)
+						.Width(6.5)
+					]
 
-						// Tutorial
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Right)
-						[
-							SAssignNew(TutorialButton, SFlareButton)
-							.Text(LOCTEXT("Tutorial", "Training contract"))
-							.HelpText(LOCTEXT("TutorialInfo", "Start with a few training contracts"))
-							.Toggle(true)
-						]
-
-						// Start
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Right)
-						[
-							SNew(SFlareButton)
-							.Text(LOCTEXT("Start", "Start"))
-							.HelpText(LOCTEXT("StartInfo", "Confirm the creation of a new game and start playing"))
-							.Icon(FFlareStyleSet::GetIcon("Load"))
-							.OnClicked(this, &SFlareNewGameMenu::OnLaunch)
-							.IsDisabled(this, &SFlareNewGameMenu::IsLaunchDisabled)
-						]
+					// Start
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Right)
+					[
+						SNew(SFlareButton)
+						.Text(LOCTEXT("Start", "Start"))
+						.HelpText(LOCTEXT("StartInfo", "Confirm the creation of a new game and start playing"))
+						.Icon(FFlareStyleSet::GetIcon("Load"))
+						.OnClicked(this, &SFlareNewGameMenu::OnLaunch)
+						.IsDisabled(this, &SFlareNewGameMenu::IsLaunchDisabled)
+						.Width(6.5)
 					]
 				]
 			]
