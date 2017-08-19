@@ -1952,7 +1952,12 @@ FVector AFlareSpacecraft::GetLinearVelocity() const
 
 float AFlareSpacecraft::GetPreferedAnticollisionTime() const
 {
-	return GetTimeToStop() * 1.5;
+	return GetTimeToStop() * 1.5f;
+}
+
+float AFlareSpacecraft::GetAgressiveAnticollisionTime() const
+{
+	return GetTimeToStop() * 0.3f;
 }
 
 float AFlareSpacecraft::GetTimeToStop() const

@@ -1021,7 +1021,7 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 		bool SafeDocking = DockingInProgress && LowSpeed;
 
 		// Other helpers
-		CollidingSoon = PilotHelper::IsAnticollisionImminent(GetShipPawn(), GetShipPawn()->GetPreferedAnticollisionTime()) && !NoCollisionRisk && !SafeDocking;
+		CollidingSoon = PilotHelper::IsAnticollisionImminent(GetShipPawn(), GetShipPawn()->GetAgressiveAnticollisionTime()) && !NoCollisionRisk && !SafeDocking;
 		ExitingSoon = PilotHelper::IsSectorExitImminent(GetShipPawn(), 15.0f);
 	}
 }

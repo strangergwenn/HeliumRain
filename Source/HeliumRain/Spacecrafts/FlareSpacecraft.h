@@ -477,4 +477,7 @@ public:
 	}
 
 	float GetPreferedAnticollisionTime() const;
+
+	float GetAgressiveAnticollisionTime() const;
+
 };
