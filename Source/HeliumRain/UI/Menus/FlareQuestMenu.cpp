@@ -880,7 +880,7 @@ EVisibility SFlareQuestMenu::GetAbandonButtonVisibility(UFlareQuest* Quest) cons
 
 EVisibility SFlareQuestMenu::GetNoMilitaryWarningVisibility() const
 {
-	if (MenuManager->GetPC()->GetCompany()->GetCompanyValue().ArmyCurrentCombatPoints > 0)
+	if (IsEnabled() && MenuManager->GetPC()->GetCompany() && MenuManager->GetPC()->GetCompany()->GetCompanyValue().ArmyCurrentCombatPoints > 0)
 	{
 		return EVisibility::Collapsed;
 	}
