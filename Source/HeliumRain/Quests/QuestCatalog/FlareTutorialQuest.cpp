@@ -558,7 +558,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		int const LateralError = 5;
 
 
-		FText Description = FText::Format(LOCTEXT("ReduceLateralErrorDescription", "Bring you ship in front of the docking port and reduce the lateral error displayed on your docking computer to less than {0}m.\nThe easiest way is to aim for the center of the small circle in the HUD and translate with <input-axis:MoveVerticalInput,1.0>, <input-axis:MoveVerticalInput,-1.0>, <input-axis:MoveHorizontalInput,1.0> and <input-axis:MoveHorizontalInput,-1.0> to bring the small circle in the HUD at the center of the bigger circle. Keep your velocity low during the manoeuver."), FText::AsNumber(LateralError));
+		FText Description = FText::Format(LOCTEXT("ReduceLateralErrorDescription", "Bring your ship in front of the docking port and reduce the lateral error displayed on your docking computer to less than {0}m.\nThe easiest way is to aim for the center of the small circle in the HUD and translate with <input-axis:MoveVerticalInput,1.0>, <input-axis:MoveVerticalInput,-1.0>, <input-axis:MoveHorizontalInput,1.0> and <input-axis:MoveHorizontalInput,-1.0> to bring the small circle in the HUD at the center of the bigger circle. Keep your velocity low during the manoeuver."), FText::AsNumber(LateralError));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "reduce-lateral-error", Description);
 
 
