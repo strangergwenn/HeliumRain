@@ -316,13 +316,7 @@ public:
 
 	/** Take high res screenshot */
 	void TakeHighResScreenshot();
-
-	/** Test method 1 */
-	void Test1();
-
-	/** Test method 2 */
-	void Test2();
-
+	
 
 	/*----------------------------------------------------
 		Wheel menu
@@ -369,14 +363,6 @@ public:
 
 	/** trade with the station we're docked to */
 	void StartTrading();
-
-
-	/*----------------------------------------------------
-		Test
-	----------------------------------------------------*/
-
-	bool                                     IsTest1;
-	bool                                     IsTest2;
 
 
 protected:

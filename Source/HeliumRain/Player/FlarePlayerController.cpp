@@ -91,8 +91,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	QuickSwitchNextOffset = 0;
 	HasCurrentObjective = false;
 	RightMousePressed = false;
-	IsTest1 = false;
-	IsTest2 = false;
 	LastBattleState.Init();
 
 	// Setup
@@ -1531,10 +1529,6 @@ void AFlarePlayerController::SetupInputComponent()
 
 	// Others
 	InputComponent->BindAction("HighResShot", EInputEvent::IE_Released, this, &AFlarePlayerController::TakeHighResScreenshot);
-
-	// Test
-	InputComponent->BindAction("Test1", EInputEvent::IE_Released, this, &AFlarePlayerController::Test1);
-	InputComponent->BindAction("Test2", EInputEvent::IE_Released, this, &AFlarePlayerController::Test2);
 }
 
 void AFlarePlayerController::MousePositionInput(FVector2D Val)
@@ -1601,8 +1595,6 @@ void AFlarePlayerController::ToggleOverlay()
 
 void AFlarePlayerController::EnterMenuDown()
 {
-	FLOG("AFlarePlayerController::EnterMenuDown");
-
 	auto& App = FSlateApplication::Get();
 	TSharedPtr<FGenericWindow> GenWindow;
 	App.OnMouseDown(GenWindow, EMouseButtons::Left);
@@ -1610,8 +1602,6 @@ void AFlarePlayerController::EnterMenuDown()
 
 void AFlarePlayerController::EnterMenuUp()
 {
-	FLOG("AFlarePlayerController::EnterMenuUp");
-
 	auto& App = FSlateApplication::Get();
 	App.OnMouseUp(EMouseButtons::Left);
 	App.SetAllUserFocusToGameViewport(EFocusCause::SetDirectly);
@@ -2121,29 +2111,6 @@ void AFlarePlayerController::TakeHighResScreenshot()
 	{
 		FLOG("AFlarePlayerController::TakeHighResScreenShot fail configuration");
 	}
-}
-
-void AFlarePlayerController::Test1()
-{
-	IsTest1 = !IsTest1;
-	FLOGV("AFlarePlayerController::Test1 %d", IsTest1);
-
-	if (IsTest1)
-	{
-		//SetAchievementProgression("ACHIEVEMENT_TRAP", 1);
-	}
-	else
-	{
-		//SetAchievementProgression("ACHIEVEMENT_ALL_TECHNOLOGIES", 0.5f);
-	}
-}
-
-void AFlarePlayerController::Test2()
-{
-	IsTest2 = !IsTest2;
-	FLOGV("AFlarePlayerController::Test2 %d", IsTest2);
-
-	ClearAchievementProgression();
 }
 
 
