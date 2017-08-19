@@ -271,8 +271,17 @@ EVisibility SFlareNotifier::GetObjectiveVisibility() const
 
 FText SFlareNotifier::GetHideText() const
 {
-	// Count objects
-	int32 Count = NotificationData.Num();
+	// Count notifications
+	int32 Count = 0;
+	for (int i = 0; i < NotificationData.Num(); i++)
+	{
+		if (!NotificationData[i]->IsFinished())
+		{
+			Count++;
+		}
+	}
+
+	// Add objective
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 	if (QuestManager && QuestManager->GetSelectedQuest())
 	{
