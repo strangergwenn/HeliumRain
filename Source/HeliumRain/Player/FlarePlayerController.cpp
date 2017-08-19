@@ -2136,21 +2136,25 @@ void AFlarePlayerController::RightMouseButtonReleased()
 
 void AFlarePlayerController::TakeHighResScreenshot()
 {
-	if (GetHighResScreenshotConfig().FHighResScreenshotConfig::ParseConsoleCommand(FString::SanitizeFloat(2.f), *GLog))
+	if (!MenuManager->IsMenuOpen() && !IsTyping())
 	{
-		if (GEngine->GameViewport->Viewport->TakeHighResScreenShot())
+		if (GetHighResScreenshotConfig().FHighResScreenshotConfig::ParseConsoleCommand(FString::SanitizeFloat(2.f), *GLog))
 		{
-			FLOG("AFlarePlayerController::TakeHighResScreenShot done");
-			ClientPlaySound(GetSoundManager()->BellSound);
+			if (GEngine->GameViewport->Viewport->TakeHighResScreenShot())
+			{
+				FLOG("AFlarePlayerController::TakeHighResScreenShot done");
+				ClientPlaySound(GetSoundManager()->BellSound);
+			}
+			else
+			{
+				FLOG("AFlarePlayerController::TakeHighResScreenShot fail");
+			}
 		}
 		else
 		{
-			FLOG("AFlarePlayerController::TakeHighResScreenShot fail");
+			FLOG("AFlarePlayerController::TakeHighResScreenShot fail configuration");
 		}
-	}
-	else
-	{
-		FLOG("AFlarePlayerController::TakeHighResScreenShot fail configuration");
+
 	}
 }
 
