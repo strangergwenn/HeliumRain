@@ -1983,6 +1983,10 @@ void AFlarePlayerController::GamepadYawInput(float Val)
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
 	}
+	else if (MenuManager->IsMenuOpen())
+	{
+		// Do nothing, scroll mode
+	}
 	else if (MenuManager->IsUIOpen())
 	{
 		MenuManager->JoystickCursorMove(FVector2D(Val, 0));
@@ -1998,6 +2002,11 @@ void AFlarePlayerController::GamepadPitchInput(float Val)
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(0, -Val));
+	}
+	else if (MenuManager->IsMenuOpen())
+	{
+		auto& App = FSlateApplication::Get();
+		App.OnMouseWheel(Val);
 	}
 	else if (MenuManager->IsUIOpen())
 	{
@@ -2048,6 +2057,10 @@ void AFlarePlayerController::JoystickYawInput(float Val)
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
 	}
+	else if (MenuManager->IsMenuOpen())
+	{
+		// Do nothing, scroll mode
+	}
 	else if (MenuManager->IsUIOpen())
 	{
 		MenuManager->JoystickCursorMove(FVector2D(Val, 0));
@@ -2063,6 +2076,11 @@ void AFlarePlayerController::JoystickPitchInput(float Val)
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(0, Val));
+	}
+	else if (MenuManager->IsMenuOpen())
+	{
+		auto& App = FSlateApplication::Get();
+		App.OnMouseWheel(-Val);
 	}
 	else if (MenuManager->IsUIOpen())
 	{
