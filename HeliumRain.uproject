@@ -65,10 +65,6 @@
 			"Enabled": false
 		},
 		{
-			"Name": "AndroidMedia",
-			"Enabled": false
-		},
-		{
 			"Name": "AndroidMoviePlayer",
 			"Enabled": false
 		},
@@ -130,6 +126,26 @@
 		},
 		{
 			"Name": "GearVR",
+			"Enabled": false
+		},
+		{
+			"Name": "OculusRift",
+			"Enabled": false
+		},
+		{
+			"Name": "AndroidMedia",
+			"Enabled": false
+		},
+		{
+			"Name": "SteamVR",
+			"Enabled": false
+		},
+		{
+			"Name": "OculusLibrary",
+			"Enabled": false
+		},
+		{
+			"Name": "OculusInput",
 			"Enabled": false
 		}
 	],
