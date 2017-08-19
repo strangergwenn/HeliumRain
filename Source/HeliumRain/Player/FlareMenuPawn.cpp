@@ -2,6 +2,7 @@
 #include "FlareMenuPawn.h"
 #include "../Flare.h"
 #include "FlarePlayerController.h"
+#include "../Game/FlareGameUserSettings.h"
 
 
 /*----------------------------------------------------
@@ -20,6 +21,7 @@ AFlareMenuPawn::AFlareMenuPawn(const class FObjectInitializer& PCIP)
 	, CurrentSpacecraft(NULL)
 	, SlideFromAToB(true)
 	, SlideDirection(1)
+	, LastMenuScale(1.0f)
 {
 	// Structure to hold one-time initialization
 	struct FConstructorStatics
@@ -143,6 +145,16 @@ void AFlareMenuPawn::Tick(float DeltaSeconds)
 	{
 		PartContainer->AddLocalRotation(DeltaRot);
 	}
+
+	// Update scale to keep constant scale at different FoVs
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	float Scale = FMath::Tan(FMath::DegreesToRadians(PC->GetNormalFOV() / 2.f)) / FMath::Tan(FMath::DegreesToRadians(PC->GetMinFOV() / 2.f));
+	RootComponent->SetRelativeScale3D(FVector(1.0, LastMenuScale, LastMenuScale));
+	PartContainer->SetRelativeScale3D(FVector(1.0, 1/LastMenuScale, 1/LastMenuScale));
+	if (!FMath::IsNaN(Scale))
+	{
+		LastMenuScale = Scale;
+	}
 }
 
 
@@ -166,9 +178,14 @@ void AFlareMenuPawn::ShowShip(UFlareSimulatedSpacecraft* Spacecraft)
 	CurrentSpacecraft = GetWorld()->SpawnActor<AFlareSpacecraft>(Spacecraft->GetDescription()->SpacecraftTemplate, Params);
 	CurrentSpacecraft->AttachToActor(this, AttachRules, NAME_None);
 
+	// FOV scale
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	float MinFOV = GetPC()->GetMinVerticalFOV();
+	float FOVScalingRatio = ((MyGameSettings->VerticalFOV - MinFOV) / (GetPC()->GetMaxVerticalFOV() - MinFOV)) / 3;
+
 	// Setup rotation and scale
 	CurrentSpacecraft->SetActorScale3D(FVector(1, 1, 1));
-	float Scale = ShipDisplaySize / CurrentSpacecraft->GetMeshScale();
+	float Scale = (1 + FOVScalingRatio) * (ShipDisplaySize / CurrentSpacecraft->GetMeshScale());
 	FLOGV("AFlareMenuPawn::ShowShip : DS=%f, MS=%f, S=%f", ShipDisplaySize, CurrentSpacecraft->GetMeshScale(), Scale);
 	CurrentSpacecraft->SetActorScale3D(Scale * FVector(1, 1, 1));
 	CurrentSpacecraft->SetActorRelativeRotation(FRotator(0, InitialYaw, 0));

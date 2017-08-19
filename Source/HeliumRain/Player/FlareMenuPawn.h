@@ -140,6 +140,7 @@ protected:
 	float                      SlideDirection;
 	float                      SlideInOutCurrentTime;
 	FVector                    SlideInOutOffset;
+	float                      LastMenuScale;
 
 	// Camera
 	float                      ExternalCameraPitch;

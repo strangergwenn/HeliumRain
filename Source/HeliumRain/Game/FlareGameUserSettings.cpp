@@ -19,6 +19,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	Super::SetToDefaults();
 
 	// Graphics
+	VerticalFOV = 60;
 	ScreenPercentage = 100;
 	UseTemporalAA = true;
 	UseMotionBlur = true;

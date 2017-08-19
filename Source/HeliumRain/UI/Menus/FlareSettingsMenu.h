@@ -116,6 +116,8 @@ protected:
 	
 	void OnInvertAxisClicked(FName AxisName);
 
+	void OnFOVSliderChanged(float Value);
+
 	void OnTextureQualitySliderChanged(float Value);
 
 	void OnEffectsQualitySliderChanged(float Value);
@@ -174,6 +176,7 @@ protected:
 	/** Update the current game state after a resolution change */
 	void UpdateResolution(bool CanAdaptResolution);
 
+	FText GetFOVLabel(int32 Value) const;
 	FText GetTextureQualityLabel(int32 Value) const;
 	FText GetEffectsQualityLabel(int32 Value) const;
 	FText GetAntiAliasingQualityLabel(int32 Value) const;
@@ -202,10 +205,12 @@ protected:
 	TSharedPtr<SFlareButton>                    MotionBlurButton;
 	TSharedPtr<SFlareButton>                    TemporalAAButton;
 	TSharedPtr<SFlareButton>                    SupersamplingButton;
+	TSharedPtr<SSlider>                         FOVSlider;
 	TSharedPtr<SSlider>                         TextureQualitySlider;
 	TSharedPtr<SSlider>                         EffectsQualitySlider;
 	TSharedPtr<SSlider>                         AntiAliasingQualitySlider;
 	TSharedPtr<SSlider>                         PostProcessQualitySlider;
+	TSharedPtr<STextBlock>	        			FOVLabel;
 	TSharedPtr<STextBlock>	        			TextureQualityLabel;
 	TSharedPtr<STextBlock>	        			EffectsQualityLabel;
 	TSharedPtr<STextBlock>	        			AntiAliasingQualityLabel;

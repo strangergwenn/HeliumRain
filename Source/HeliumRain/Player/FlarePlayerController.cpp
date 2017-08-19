@@ -59,7 +59,6 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
 	, CombatZoomFOVRatio(0.4f)
-	, NormalVerticalFOV(60)
 {
 	CheatClass = UFlareGameTools::StaticClass();
 		
@@ -135,9 +134,13 @@ void AFlarePlayerController::BeginPlay()
 	// Get settings
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	FCHECK(MyGameSettings);
+	if (MyGameSettings->VerticalFOV < GetMinVerticalFOV())
+	{
+		MyGameSettings->VerticalFOV = GetMinVerticalFOV();
+	}
+	MyGameSettings->ApplySettings(false);
 
 	// Apply settings
-	MyGameSettings->ApplySettings(false);
 	UseCockpit = MyGameSettings->UseCockpit;
 	PauseGameInMenus = MyGameSettings->PauseGameInMenus;
 	SetUseMotionBlur(MyGameSettings->UseMotionBlur);
@@ -335,15 +338,31 @@ float AFlarePlayerController::VerticalToHorizontalFOV(float VerticalFOV) const
 	return 2 * FMath::RadiansToDegrees(HorizontalFOVRadians);
 }
 
+float AFlarePlayerController::GetMaxVerticalFOV() const
+{
+	return 90.0f;
+}
+
+float AFlarePlayerController::GetMinVerticalFOV() const
+{
+	return 60.0f;
+}
+
+float AFlarePlayerController::GetMinFOV() const
+{
+	return VerticalToHorizontalFOV(GetMinVerticalFOV());
+}
+
 float AFlarePlayerController::GetNormalFOV() const
 {
-	return VerticalToHorizontalFOV(NormalVerticalFOV);
+	int VerticalFOV = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->VerticalFOV;
+	return VerticalToHorizontalFOV(VerticalFOV);
 }
 
 float AFlarePlayerController::GetCurrentFOV() const
 {
 	// Zooming just decreases FOV
-	float VerticalFOV = NormalVerticalFOV;
+	int VerticalFOV = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->VerticalFOV;
 	if (ShipPawn)
 	{
 		VerticalFOV *= FMath::Lerp(1.0f, CombatZoomFOVRatio, ShipPawn->GetStateManager()->GetCombatZoomAlpha());

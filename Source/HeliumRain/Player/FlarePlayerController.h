@@ -452,7 +452,6 @@ protected:
 	float                                    WeaponSwitchTime;
 	float                                    TimeSinceWeaponSwitch;
 	float                                    CombatZoomFOVRatio;
-	float                                    NormalVerticalFOV;
 
 	bool                                     RightMousePressed;
 	bool                                     HasCurrentObjective;
@@ -567,6 +566,15 @@ public:
 
 	/** Convert vertical to horizontal FOV - We want vertical for the cockpit, UE uses horizontal */
 	float VerticalToHorizontalFOV(float VerticalFOV) const;
+
+	/** Get the maximum vertical FOV */
+	float GetMaxVerticalFOV() const;
+
+	/** Get the default vertical FOV */
+	float GetMinVerticalFOV() const;
+
+	/** Get the default horizontal FOV */
+	float GetMinFOV() const;
 
 	/** Get the unzoomed horizontal FOV */
 	float GetNormalFOV() const;

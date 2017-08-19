@@ -31,6 +31,10 @@ public:
 	/*----------------------------------------------------
 		Public data
 	----------------------------------------------------*/
+	
+	/** Screen FOV */
+	UPROPERTY(config)
+	int32                                    VerticalFOV;
 
 	/** Screen percentage */
 	UPROPERTY(config)

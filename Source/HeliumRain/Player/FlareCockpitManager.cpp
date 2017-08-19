@@ -210,12 +210,10 @@ void AFlareCockpitManager::Tick(float DeltaSeconds)
 			}
 		}
 
-		// Update scale - minimum scale value depends on MinimalFOV in PC
-		float Scale = FMath::Tan(FMath::DegreesToRadians(PC->GetCurrentFOV() / 2.f)) / FMath::Tan(FMath::DegreesToRadians(PC->GetNormalFOV() / 2.f));
-
-
+		// Update scale to keep constant scale at different FoVs
+		float Scale = FMath::Tan(FMath::DegreesToRadians(PC->GetCurrentFOV() / 2.f)) / FMath::Tan(FMath::DegreesToRadians(PC->GetMinFOV() / 2.f));
 		CockpitMesh->SetRelativeScale3D(FVector(1.0, LastCockpitScale, LastCockpitScale));
-		if(!FMath::IsNaN(Scale))
+		if (!FMath::IsNaN(Scale))
 		{
 			LastCockpitScale = Scale;
 		}

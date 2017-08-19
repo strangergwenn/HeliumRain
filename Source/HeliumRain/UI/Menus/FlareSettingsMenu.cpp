@@ -35,6 +35,8 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 
 	// Current settings
+	float MinFOV = MenuManager->GetPC()->GetMinVerticalFOV();
+	float CurrentFOVRatio = (MyGameSettings->VerticalFOV - MinFOV) / (MenuManager->GetPC()->GetMaxVerticalFOV() - MinFOV);
 	float CurrentTextureQualityRatio = MyGameSettings->ScalabilityQuality.TextureQuality / 3.f;
 	float CurrentEffectsQualityRatio = MyGameSettings->ScalabilityQuality.EffectsQuality / 3.f;
 	float CurrentAntiAliasingQualityRatio = MyGameSettings->ScalabilityQuality.AntiAliasingQuality / 2.f;
@@ -426,7 +428,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SHorizontalBox)
 					
-						// Anticollision
+						// Invert vertical
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						.Padding(Theme.SmallContentPadding)
@@ -462,6 +464,52 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.HelpText(LOCTEXT("AnticollisionInfo", "Anti-collision will prevent your ship from crahsing into objects and forbid close fly-bys."))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnAnticollisionToggle)
+						]
+					]
+
+					// FOV box
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+
+						// FOV text
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(LabelSize)
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("FOVLabel", "Field of view"))
+								.TextStyle(&Theme.TextFont)
+							]
+						]
+
+						// FOV slider
+						+ SHorizontalBox::Slot()
+						.VAlign(VAlign_Center)
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(FOVSlider, SSlider)
+							.Value(CurrentFOVRatio)
+							.Style(&Theme.SliderStyle)
+							.OnValueChanged(this, &SFlareSettingsMenu::OnFOVSliderChanged)
+						]
+
+						// FOV label
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(ValueSize)
+							[
+								SAssignNew(FOVLabel, STextBlock)
+								.TextStyle(&Theme.TextFont)
+								.Text(GetFOVLabel(MyGameSettings->VerticalFOV))
+							]
 						]
 					]
 				
@@ -1333,6 +1381,23 @@ void SFlareSettingsMenu::OnShipCountSliderChanged(float Value)
 	}
 }
 
+void SFlareSettingsMenu::OnFOVSliderChanged(float Value)
+{
+	int32 Step = MenuManager->GetPC()->GetMaxVerticalFOV() - MenuManager->GetPC()->GetMinVerticalFOV();
+	int32 StepValue = FMath::RoundToInt(Step * Value);
+	FOVSlider->SetValue((float)StepValue / (float)Step);
+	StepValue += MenuManager->GetPC()->GetMinVerticalFOV();
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	if (MyGameSettings->VerticalFOV != StepValue)
+	{
+		FLOGV("SFlareSettingsMenu::OnFOVSliderChanged : Set fov to %d (current is %d)", StepValue, MyGameSettings->VerticalFOV);
+		MyGameSettings->VerticalFOV = StepValue;
+		MyGameSettings->ApplySettings(false);
+		FOVLabel->SetText(GetFOVLabel(StepValue));
+	}
+}
+
 void SFlareSettingsMenu::OnTextureQualitySliderChanged(float Value)
 {
 	int32 Step = 3;
@@ -1735,6 +1800,11 @@ void SFlareSettingsMenu::UpdateResolution(bool CanAdaptResolution)
 		MyGameSettings->SaveConfig();
 		GEngine->SaveConfig();
 	}
+}
+
+FText SFlareSettingsMenu::GetFOVLabel(int32 Value) const
+{
+	return FText::Format(LOCTEXT("FOVFormat", "{0}"), FText::AsNumber(Value));
 }
 
 FText SFlareSettingsMenu::GetTextureQualityLabel(int32 Value) const
