@@ -232,7 +232,6 @@ void UFlareSpacecraftNavigationSystem::BreakDock()
 
 bool UFlareSpacecraftNavigationSystem::Undock()
 {
-
 	// Try undocking
 	if (IsDocked())
 	{
@@ -267,16 +266,24 @@ bool UFlareSpacecraftNavigationSystem::Undock()
 		Spacecraft->OnUndocked(DockStation);
 
 		// Leave
-		FVector UndockDestination = 10000 * FVector(-1, 0, 0) + 5000 * FMath::VRand();
-		PushCommandLocation(Spacecraft->GetRootComponent()->GetComponentTransform().TransformPositionNoScale(UndockDestination));
-		FLOG("UFlareSpacecraftNavigationSystem::Undock : successful");
+		if (Spacecraft->IsPlayerShip())
+		{
+			FVector UndockDestination = 1000 * FVector(-1, 0, 0);
+			PushCommandLocation(Spacecraft->GetRootComponent()->GetComponentTransform().TransformPositionNoScale(UndockDestination));
+		}
+		else
+		{
+			FVector UndockDestination = 10000 * FVector(-1, 0, 0) + 5000 * FMath::VRand();
+			PushCommandLocation(Spacecraft->GetRootComponent()->GetComponentTransform().TransformPositionNoScale(UndockDestination));
+		}
 
 		// Hack for bug #195: for ue4 to reweld all.
 		Spacecraft->Airframe->SetSimulatePhysics(false);
 		Spacecraft->Airframe->SetSimulatePhysics(true);
 
+		// Successful
+		FLOG("UFlareSpacecraftNavigationSystem::Undock : successful");
 		Spacecraft->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("undock").PutName("target", Spacecraft->GetImmatriculation()));
-
 		return true;
 	}
 
