@@ -392,7 +392,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		},
 		[Speed]()
 		{
-			return FText::Format(LOCTEXT("Stop1Label", "Stop (< {0}m/s)"), FText::AsNumber(Speed));
+			return FText::Format(LOCTEXT("Stop1Label", "Stop (< {0} m/s)"), FText::AsNumber(Speed));
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -415,7 +415,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			{
 				float CurrentVelocity  = PlayerShip->GetLinearVelocity().Size();
 
-				ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("Approach1SpeedLabel", "{0}m/s"), FText::AsNumber(FMath::RoundToInt(CurrentVelocity)));
+				ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("Approach1SpeedLabel", "{0} m/s"), FText::AsNumber(FMath::RoundToInt(CurrentVelocity)));
 				ObjectiveCondition.Progress = InverseRamp(CurrentVelocity, Speed, 50, 0.5);
 			}
 
@@ -518,7 +518,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 		},
 		[Speed]()
 		{
-			return FText::Format(LOCTEXT("Stop2Label", "Stop (< {0}m/s)"), FText::AsNumber(Speed));
+			return FText::Format(LOCTEXT("Stop2Label", "Stop (< {0} m/s)"), FText::AsNumber(Speed));
 		},
 		[](UFlareQuestCondition* Condition)
 		{
@@ -541,7 +541,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			{
 				float CurrentVelocity  = PlayerShip->GetLinearVelocity().Size();
 
-				ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("Approach2SpeedLabel", "{0}m/s"), FText::AsNumber(FMath::RoundToInt(CurrentVelocity)));
+				ObjectiveCondition.TerminalLabel = FText::Format(LOCTEXT("Approach2SpeedLabel", "{0} m/s"), FText::AsNumber(FMath::RoundToInt(CurrentVelocity)));
 				ObjectiveCondition.Progress = InverseRamp(CurrentVelocity, Speed, 50, 0.5);
 			}
 

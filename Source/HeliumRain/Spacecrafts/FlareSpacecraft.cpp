@@ -1928,7 +1928,7 @@ FText AFlareSpacecraft::GetShipStatus() const
 	{
 		int32 Speed = GetLinearVelocity().Size();
 		Speed = IsMovingForward() ? Speed : -Speed;
-		ModeText = FText::Format(LOCTEXT("SpeedNotPausedFormat", "{0}m/s - {1} in {2}"),
+		ModeText = FText::Format(LOCTEXT("SpeedNotPausedFormat", "{0} m/s - {1} in {2}"),
 			FText::AsNumber(FMath::RoundToInt(Speed)),
 			ActionInfo,
 			CurrentSector->GetSimulatedSector()->GetSectorName());

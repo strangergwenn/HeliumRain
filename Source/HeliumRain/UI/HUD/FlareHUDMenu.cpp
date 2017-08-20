@@ -347,7 +347,7 @@ FText SFlareHUDMenu::GetInfoText() const
 			CurrentSector->GetSectorFriendlynessText(PlayerShip->GetCompany()));
 
 		// Full flight info
-		FText FlightInfo = FText::Format(LOCTEXT("ShipInfoTextFormat", "{0}m/s - {1} {2} in {3}"),
+		FText FlightInfo = FText::Format(LOCTEXT("ShipInfoTextFormat", "{0} m/s - {1} {2} in {3}"),
 			FText::AsNumber(FMath::RoundToInt(ActivePlayerShip->GetLinearVelocity().Size())),
 			ModeText,
 			AutopilotText,
