@@ -267,6 +267,7 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 									.Padding(Theme.ContentPadding)
 									[
 										SAssignNew(QuantityText, SEditableText)
+										.AllowContextMenu(false)
 										.Style(&Theme.TextInputStyle)
 										.OnTextChanged(this, &SFlareTradeMenu::OnResourceQuantityEntered)
 										.Visibility(this, &SFlareTradeMenu::GetTransactionDetailsVisibility)

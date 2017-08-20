@@ -82,6 +82,7 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.SmallContentPadding)
 					[
 						SAssignNew(EditFleetName, SEditableText)
+						.AllowContextMenu(false)
 						.Style(&Theme.TextInputStyle)
 						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
 					]

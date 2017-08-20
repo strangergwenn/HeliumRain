@@ -126,6 +126,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 					.VAlign(VAlign_Center)
 					[
 						SAssignNew(EditRouteName, SEditableText)
+						.AllowContextMenu(false)
 						.Style(&Theme.TextInputStyle)
 					]
 

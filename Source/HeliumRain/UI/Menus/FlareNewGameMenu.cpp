@@ -155,6 +155,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SAssignNew(CompanyName, SEditableText)
+								.AllowContextMenu(false)
 								.Text(DefaultName)
 								.Style(&Theme.TextInputStyle)
 							]
@@ -190,6 +191,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SAssignNew(CompanyIdentifier, SEditableText)
+								.AllowContextMenu(false)
 								.Text(DefaultIdentifier)
 								.Style(&Theme.TextInputStyle)
 							]
