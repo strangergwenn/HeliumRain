@@ -262,6 +262,7 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 	Request.Resource = Resource;
 	Request.Operation = Operation->Type;
 	Request.CargoLimit = -1;
+	Request.MaxQuantity = Operation->MaxQuantity;
 
 	for (int ShipIndex = 0; ShipIndex < UsefullShips.Num(); ShipIndex++)
 	{
@@ -372,6 +373,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 	Request.Resource = Resource;
 	Request.Operation = Operation->Type;
 	Request.CargoLimit = -1;
+	Request.MaxQuantity = Operation->MaxQuantity;
 
 	for (int ShipIndex = 0; ShipIndex < UsefullShips.Num(); ShipIndex++)
 	{
@@ -431,7 +433,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 
 int32 UFlareTradeRoute::GetOperationRemainingQuantity(FFlareTradeRouteSectorOperationSave* Operation)
 {
-	if (Operation->MaxQuantity != -1)
+	if (Operation->MaxQuantity == -1)
 	{
 		return MAX_int32;
 	}
