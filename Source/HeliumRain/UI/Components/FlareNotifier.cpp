@@ -317,7 +317,11 @@ EVisibility SFlareNotifier::GetHideButtonVisibility() const
 {
 	UFlareQuestManager* QuestManager = MenuManager->GetGame()->GetQuestManager();
 
-	if (NotificationData.Num() > 0 || (QuestManager && QuestManager->GetSelectedQuest()))
+	if (!MenuManager->IsUIOpen())
+	{
+		return EVisibility::Collapsed;
+	}
+	else if (NotificationData.Num() > 0 || (QuestManager && QuestManager->GetSelectedQuest()))
 	{
 		return EVisibility::Visible;
 	}
