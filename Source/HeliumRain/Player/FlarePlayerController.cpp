@@ -180,7 +180,7 @@ void AFlarePlayerController::BeginPlay()
 	AddMissingActionMapping(InputSettings, "EnterMenu", "Gamepad_FaceButton_Bottom");
 	AddMissingActionMapping(InputSettings, "QuickSwitch", "Gamepad_FaceButton_Left");
 	AddMissingActionMapping(InputSettings, "FindTarget", "Gamepad_FaceButton_Top");
-	AddMissingActionMapping(InputSettings, "ToggleOverlay", "Gamepad_Special_Left");
+	AddMissingActionMapping(InputSettings, "ToggleMenu", "Gamepad_Special_Left");
 	AddMissingActionMapping(InputSettings, "Wheel", "Gamepad_Special_Right");
 	InputSettings->SaveKeyMappings();
 
