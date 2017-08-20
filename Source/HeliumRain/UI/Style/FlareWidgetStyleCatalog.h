@@ -153,6 +153,7 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	// Advanced widgets
 	UPROPERTY(EditAnywhere, Category = Advanced) FProgressBarStyle ProgressBarStyle;
 	UPROPERTY(EditAnywhere, Category = Advanced) FEditableTextStyle TextInputStyle;
+	UPROPERTY(EditAnywhere, Category = Advanced) FComboBoxStyle ComboBoxStyle;
 	UPROPERTY(EditAnywhere, Category = Advanced) FSliderStyle SliderStyle;
 
 };

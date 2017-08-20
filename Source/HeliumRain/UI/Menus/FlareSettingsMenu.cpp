@@ -1103,22 +1103,18 @@ void SFlareSettingsMenu::BuildJoystickBinding(FText AxisDisplayName, FName AxisN
 		.VAlign(VAlign_Center)
 		.Padding(Theme.SmallContentPadding)
 		[
-			SNew(SFlareDropList<TSharedPtr<FKey>>)
+			SNew(SComboBox<TSharedPtr<FKey>>)
 			.OptionsSource(&JoystickAxisKeys)
 			.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateJoystickComboLine, AxisName)
 			.OnSelectionChanged(this, &SFlareSettingsMenu::OnJoystickComboLineSelectionChanged, AxisName)
-			.HeaderWidth(10)
-			.ItemWidth(10)
-			[
-				SNew(SBox)
-				.Padding(Theme.ListContentPadding)
+			.ComboBoxStyle(&Theme.ComboBoxStyle)
+			.ForegroundColor(FLinearColor::White)
 				[
 					SNew(STextBlock)
 					.Text(this, &SFlareSettingsMenu::OnGetCurrentJoystickKeyName, AxisName)
 					.TextStyle(&Theme.TextFont)
 				]
 			]
-		]
 
 		// Inversion switch
 		+ SHorizontalBox::Slot()
@@ -1295,13 +1291,9 @@ TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateJoystickComboLine(TSharedPtr<F
 	DisplayName = DisplayName.Replace(TEXT("Joystick_"), TEXT(""));
 	DisplayName = DisplayName.Replace(TEXT("_"), TEXT(" "));
 
-	return SNew(SBox)
-	.Padding(Theme.ListContentPadding)
-	[
-		SNew(STextBlock)
+	return SNew(STextBlock)
 		.Text(FText::FromString(DisplayName))
-		.TextStyle(&Theme.TextFont)
-	];
+		.TextStyle(&Theme.TextFont);
 }
 
 void SFlareSettingsMenu::OnJoystickComboLineSelectionChanged(TSharedPtr<FKey> KeyItem, ESelectInfo::Type SelectInfo, FName AxisName)
