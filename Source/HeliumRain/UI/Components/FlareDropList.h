@@ -196,8 +196,8 @@ public:
 	/** Select item */
 	void SetSelectedItem(OptionType InSelectedItem)
 	{
-		int32 Index = 0;
-		if (OptionsSource->Find(InSelectedItem))
+		int32 Index = OptionsSource->Find(InSelectedItem);
+		if (Index != INDEX_NONE)
 		{
 			SetSelectedIndex(Index);
 		}
