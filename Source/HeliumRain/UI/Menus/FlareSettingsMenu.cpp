@@ -693,6 +693,27 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				BuildKeyBindingBox()
 			]
 
+			// Gamepad
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.TitlePadding)
+			.HAlign(HAlign_Left)
+			[
+				SNew(STextBlock)
+				.Text(LOCTEXT("GamepadSettingsHint", "GAMEPAD"))
+				.TextStyle(&Theme.NameFont)
+			]
+			
+			// Gamepad
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.TitlePadding)
+			.HAlign(HAlign_Left)
+			[
+				SNew(SImage)
+				.Image(FFlareStyleSet::GetImage("Pad"))
+			]
+
 			// Joystick
 			+ SVerticalBox::Slot()
 			.AutoHeight()
