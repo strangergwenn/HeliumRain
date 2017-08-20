@@ -1536,6 +1536,7 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("QuestMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::QuestMenu);
 	InputComponent->BindAction("MainMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::MainMenu);
 	InputComponent->BindAction("SettingsMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::SettingsMenu);
+	InputComponent->BindAction("TradeMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::TradeMenu);
 
 	// Hotkeys
 	InputComponent->BindAction("SpacecraftKey1", EInputEvent::IE_Released, this, &AFlarePlayerController::SpacecraftKey1);
@@ -1806,6 +1807,28 @@ void AFlarePlayerController::SettingsMenu()
 		}
 	}
 }
+
+void AFlarePlayerController::TradeMenu()
+{
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
+	{
+		FLOG("AFlarePlayerController::TradeMenu");
+
+		// Is a battle in progress ?
+		bool IsBattleInProgress = false;
+		if (GetPlayerShip()->GetCurrentSector())
+		{
+			IsBattleInProgress = GetPlayerShip()->GetCurrentSector()->IsPlayerBattleInProgress();
+		}
+
+		// Trade if possible
+		if (ShipPawn && ShipPawn->GetNavigationSystem()->IsDocked() && !IsBattleInProgress && ShipPawn->GetParent()->GetDescription()->CargoBayCount > 0)
+		{
+			StartTrading();
+		}
+	}
+}
+
 
 void AFlarePlayerController::SpacecraftKey1()
 {

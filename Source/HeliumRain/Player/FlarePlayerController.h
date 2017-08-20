@@ -250,6 +250,7 @@ public:
 	void QuestMenu();
 	void MainMenu();
 	void SettingsMenu();
+	void TradeMenu();
 
 	// Hotkeys
 	void SpacecraftKey1();

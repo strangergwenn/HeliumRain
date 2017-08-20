@@ -1978,7 +1978,7 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddDefaults(EKeys::F)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Find best target", "Find best target")))
 		->AddActionMapping("FindTarget")
-		->AddDefaults(EKeys::T)));
+		->AddDefaults(EKeys::R)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Combat zoom", "Combat zoom")))
 		->AddActionMapping("CombatZoom")
 		->AddDefaults(EKeys::SpaceBar)));
@@ -2029,6 +2029,9 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open settings menu", "Open settings menu")))
 		->AddActionMapping("SettingsMenu")
 		->AddDefaults(EKeys::F10)));
+	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open trade menu", "Open trade menu")))
+		->AddActionMapping("TradeMenu")
+		->AddDefaults(EKeys::T)));
 
 	// Strategy
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Strategy", "STRATEGY")))->MakeHeader()));
@@ -2039,8 +2042,7 @@ void SFlareSettingsMenu::CreateBinds()
 	// Others
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Others", "OTHERS")))->MakeHeader()));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Take high quality screenshot", "Take high quality screenshot")))
-		->AddActionMapping("HighResShot")
-		->AddDefaults(EKeys::R)));
+		->AddActionMapping("HighResShot")));
 
 }
 
