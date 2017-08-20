@@ -1065,7 +1065,7 @@ EVisibility SFlareSpacecraftInfo::GetSpacecraftInfoVisibility() const
 
 	else
 	{
-		return (GetSpacecraftInfo().ToString().Len() > 0) ? EVisibility::Visible : EVisibility::Collapsed;
+		return EVisibility::Visible;
 	}
 }
 
@@ -1078,7 +1078,7 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 		return FText();
 	}
 
-	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
+	if (IsValid(TargetSpacecraft))
 	{
 		// Get the object's distance
 		FText DistanceText;

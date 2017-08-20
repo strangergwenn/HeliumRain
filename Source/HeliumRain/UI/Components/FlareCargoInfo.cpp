@@ -308,8 +308,9 @@ EVisibility SFlareCargoInfo::GetPermissionVisibility() const
 {
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
 
-	if (IsEnabled() && TargetSpacecraft->IsStation()
-	 && TargetSpacecraft->GetCompany() == TargetSpacecraft->GetGame()->GetPC()->GetCompany()
+	if (IsEnabled() && IsValid(TargetSpacecraft)
+	 && TargetSpacecraft->IsStation()
+	 && TargetSpacecraft->GetCompany() == MenuManager->GetPC()->GetCompany()
 	 && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Trade)
 	{
 		return EVisibility::Visible;
