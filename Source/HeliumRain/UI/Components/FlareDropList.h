@@ -55,34 +55,63 @@ public:
 	/** Force the selected item */
 	void SetSelectedIndex(int32 ItemIndex);
 
-	/** Force the color */
-	void SetColor(FLinearColor Color);
-
 	/** Selected index */
 	int32 GetSelectedIndex() const;
 
 	/** Get an item's content */
 	TSharedRef<SWidget> GetItemContent(int32 ItemIndex) const;
 
+	/** Make the header a solid color block */
+	void SetColor(FLinearColor Color);
+
+
+protected:
+
+	/*----------------------------------------------------
+		Internal
+	----------------------------------------------------*/
+
 	/** Drop the list down */
 	void OnHeaderClicked();
 
-	/** Choose a color*/
+	/** Choose a color */
 	void OnItemPicked(int32 ItemIndex);
 
+	/** Callback for value changes in the color spectrum picker */
+	void HandleColorSpectrumValueChanged(FLinearColor NewValue);
+
+	/** Create the color slider */
+	TSharedRef<SWidget> MakeColorSlider() const;
+
+	// Color picker 
+	bool SetNewTargetColorHSV(const FLinearColor& NewValue, bool bForceUpdate = false);
+	FLinearColor HandleColorSliderEndColor() const;
+	FLinearColor HandleColorSliderStartColor() const;
+	float HandleColorSpinBoxValue() const;
+	void HandleColorSpinBoxValueChanged(float NewValue);
+	EVisibility GetColorPickerVisibility() const;
+
+	/** Get color */
+	FLinearColor GetCurrentColor() const
+	{
+		return CurrentColorHSV;
+	}
 
 protected:
 
 	/*----------------------------------------------------
 		Protected data
 	----------------------------------------------------*/
-	
-	// Data
-	bool                          IsDropped;
-	bool                          HasColorWheel;
+
+	// Parameters
 	int32                         LineSize;
 	FFlareItemPicked              OnItemPickedCallback;
 	FFlareColorPicked             OnColorPickedCallback;
+
+	// Data
+	bool                          IsDropped;
+	bool                          HasColorWheel;
+	bool                          ColorPickerVisible;
 	
 	// Slate data
 	TSharedPtr<SFlareButton>      HeaderButton;
@@ -90,30 +119,9 @@ protected:
 	TSharedPtr<SColorWheel>       ColorWheel;
 	TArray< TSharedRef<SWidget> > ContentArray;
 	
-	// Callback for value changes in the color spectrum picker.
-	void HandleColorSpectrumValueChanged( FLinearColor NewValue );
-
-	TSharedRef<SWidget> MakeColorSlider() const;
-
-
-	bool SetNewTargetColorHSV( const FLinearColor& NewValue, bool bForceUpdate = false );
-	FLinearColor HandleColorSliderEndColor() const;
-	FLinearColor HandleColorSliderStartColor() const;
-	float HandleColorSpinBoxValue() const;
-	void HandleColorSpinBoxValueChanged( float NewValue);
-	EVisibility GetColorPickerVisibility() const;
+	// Colors
+	FLinearColor                  CurrentColorHSV;
+	FLinearColor                  CurrentColorRGB;
 
 
-	FLinearColor GetCurrentColor() const
-	{
-		return CurrentColorHSV;
-	}
-
-	/** The current color being picked in HSV */
-	FLinearColor CurrentColorHSV;
-
-	/** The current color being picked in RGB */
-	FLinearColor CurrentColorRGB;
-
-	bool ColorPickerVisible;
 };

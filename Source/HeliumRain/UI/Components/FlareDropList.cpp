@@ -101,6 +101,11 @@ void SFlareDropList::Construct(const FArguments& InArgs)
 	HeaderButton->GetContainer()->SetVAlign(VAlign_Fill);
 }
 
+
+/*----------------------------------------------------
+	Interaction
+----------------------------------------------------*/
+
 void SFlareDropList::AddItem(const TSharedRef< SWidget >& InContent)
 {
 	ItemArray->AddItem(InContent);
@@ -114,12 +119,6 @@ void SFlareDropList::ClearItems()
 	ItemArray->ClearItems();
 }
 
-void SFlareDropList::SetSelectedIndex(int32 ItemIndex)
-{
-	ItemArray->SetSelectedIndex(ItemIndex);
-	HeaderButton->GetContainer()->SetContent(ContentArray[ItemIndex]);
-}
-
 void SFlareDropList::SetColor(FLinearColor Color)
 {
 	CurrentColorHSV = Color.LinearRGBToHSV();
@@ -128,20 +127,26 @@ void SFlareDropList::SetColor(FLinearColor Color)
 	HeaderButton->GetContainer()->SetContent(SNew(SColorBlock).Color(CurrentColorRGB));
 }
 
+void SFlareDropList::SetSelectedIndex(int32 ItemIndex)
+{
+	ItemArray->SetSelectedIndex(ItemIndex);
+	HeaderButton->GetContainer()->SetContent(ContentArray[ItemIndex]);
+}
+
 int32 SFlareDropList::GetSelectedIndex() const
 {
 	return ItemArray->GetSelectedIndex();
-}
-
-void SFlareDropList::HandleColorSpectrumValueChanged( FLinearColor NewValue )
-{
-	SetNewTargetColorHSV(NewValue);
 }
 
 TSharedRef<SWidget> SFlareDropList::GetItemContent(int32 ItemIndex) const
 {
 	return ItemArray->GetItemContent(ItemIndex);
 }
+
+
+/*----------------------------------------------------
+	Callbacks
+----------------------------------------------------*/
 
 void SFlareDropList::OnHeaderClicked()
 {
@@ -171,6 +176,16 @@ void SFlareDropList::OnItemPicked(int32 ItemIndex)
 	ItemArray->SetVisibility(EVisibility::Collapsed);
 	ColorWheel->SetVisibility(EVisibility::Collapsed);
 	ColorPickerVisible = false;
+}
+
+
+/*----------------------------------------------------
+	Color slider
+----------------------------------------------------*/
+
+void SFlareDropList::HandleColorSpectrumValueChanged( FLinearColor NewValue )
+{
+	SetNewTargetColorHSV(NewValue);
 }
 
 FLinearColor SFlareDropList::HandleColorSliderEndColor() const
