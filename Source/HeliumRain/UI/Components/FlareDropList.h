@@ -113,7 +113,7 @@ public:
 			.AutoHeight()
 			[
 				SNew(SBox)
-				.MaxDesiredHeight(500)
+				.MaxDesiredHeight(300)
 				.MinDesiredHeight(0)
 				[
 					SAssignNew(ItemScrollBox, SScrollBox)
