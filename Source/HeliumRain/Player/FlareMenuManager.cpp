@@ -470,7 +470,7 @@ void AFlareMenuManager::JoystickCursorMove(FVector2D Move)
 		JoystickCursorPosition = Cursor->GetPosition();
 
 		float Power = 2;
-		float Intensity = 10;
+		float Intensity = 15;
 
 		JoystickCursorPosition.X += Intensity * FMath::Sign(Move.X) * FMath::Pow(Move.X, Power);
 		JoystickCursorPosition.Y += Intensity * FMath::Sign(Move.Y) * FMath::Pow(Move.Y, Power);
