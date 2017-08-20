@@ -84,12 +84,15 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHarpoonedIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_Harpooned.TX_Icon_Harpooned"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDOrientationIconObj     (TEXT("/Game/Slate/Icons/TX_Icon_Travel.TX_Icon_Travel"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDistanceIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_Distance.TX_Icon_Distance"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDContractIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_ContractTarget.TX_Icon_ContractTarget"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDShipyardIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_Shipyard.TX_Icon_Shipyard"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDUpgradeIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_UpgradeCapability.TX_Icon_UpgradeCapability"));
 
 	// Load content (fonts)
 	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontSmallObj           (TEXT("/Game/Slate/Fonts/HudFontSmall.HudFontSmall"));
 	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontObj                (TEXT("/Game/Slate/Fonts/HudFont.HudFont"));
 	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontLargeObj           (TEXT("/Game/Slate/Fonts/HudFontLarge.HudFontLarge"));
-
+	
 	// Load content (materials)
 	static ConstructorHelpers::FObjectFinder<UMaterial> HUDRenderTargetMaterialTemplateObj(TEXT("/Game/Gameplay/HUD/MT_HUDMaterial.MT_HUDMaterial"));
 
@@ -127,6 +130,9 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDHarpoonedIcon = HUDHarpoonedIconObj.Object;
 	HUDOrientationIcon = HUDOrientationIconObj.Object;
 	HUDDistanceIcon = HUDDistanceIconObj.Object;
+	HUDContractIcon = HUDContractIconObj.Object;
+	HUDShipyardIcon = HUDShipyardIconObj.Object;
+	HUDUpgradeIcon = HUDUpgradeIconObj.Object;
 
 	// Set content (fonts)
 	HUDFontSmall = HUDFontSmallObj.Object;
@@ -879,9 +885,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 
 			// Draw
 			FlareDrawText(ShipText, CurrentPos, TargetColor, false);
-			CurrentPos += FVector2D(InstrumentSize.X, 0) * 0.8;
-			DrawHUDDesignatorStatus(CurrentPos, IconSize, TargetShip);
-			CurrentPos -= FVector2D(InstrumentSize.X, 0) * 0.8;
+			DrawHUDDesignatorStatus(CurrentPos + FVector2D(InstrumentSize.X, 0) * 0.8, IconSize, TargetShip);
 		}
 		CurrentPos += InstrumentLine;
 
@@ -1590,14 +1594,17 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 				FlareDrawText(DistanceText, DistanceTextPosition, Color);
 			}
 
+			// Prepare icon layout
+			FVector2D StatusPos = CenterPos;
+			int32 NumberOfIcons = Spacecraft->GetParent()->IsMilitary() ? 3 : 2;
+			StatusPos.X += 0.5 * (ObjectSize.X - NumberOfIcons * IconSize);
+			StatusPos.Y -= (IconSize + 0.5 * CornerSize);
+
 			// Draw the status for close targets or highlighted
+			FVector2D TempPos = DrawHUDDesignatorHint(StatusPos, IconSize, Spacecraft);
 			if (!Spacecraft->GetParent()->IsStation() && (ObjectSize.X > 0.15 * IconSize || Highlighted))
 			{
-				int32 NumberOfIcons = Spacecraft->GetParent()->IsMilitary() ? 3 : 2;
-				FVector2D StatusPos = CenterPos;
-				StatusPos.X += 0.5 * (ObjectSize.X - NumberOfIcons * IconSize);
-				StatusPos.Y -= (IconSize + 0.5 * CornerSize);
-				DrawHUDDesignatorStatus(StatusPos, IconSize, Spacecraft);
+				DrawHUDDesignatorStatus(TempPos, IconSize, Spacecraft);
 			}
 		}
 	}
@@ -1698,37 +1705,65 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 		Rotation);
 }
 
-void AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship)
+FVector2D AFlareHUD::DrawHUDDesignatorHint(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship)
 {
-	UFlareSimulatedSpacecraftDamageSystem* DamageSystem = Ship->GetParent()->GetDamageSystem();
-
-	if (DamageSystem->IsStranded())
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor Color = Theme.NeutralColor;
+	Color.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
+	
+	if (Ship->GetParent()->IsShipyard())
 	{
-		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDPropulsionIcon);
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDShipyardIcon, Color);
 	}
 
-	if (DamageSystem->IsUncontrollable())
+	if (Ship->GetParent()->HasCapability(EFlareSpacecraftCapability::Upgrade))
 	{
-		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDRCSIcon);
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDUpgradeIcon, Color);
 	}
 
-	if (Ship->GetParent()->IsMilitary() && DamageSystem->IsDisarmed())
+	if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->TargetSpacecrafts.Find(Ship->GetParent()) != INDEX_NONE)
 	{
-		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDWeaponIcon);
+		Color = Theme.ObjectiveColor;
+		Color.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDContractIcon, Color);
 	}
 
-	if (Ship->GetParent()->IsHarpooned() && Ship->GetParent()->GetCompany()->GetPlayerHostility() != EFlareHostility::Owned)
-	{
-		DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDHarpoonedIcon);
-	}
+	return Position;
 }
 
-FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float DesignatorIconSize, UTexture2D* Texture)
+FVector2D AFlareHUD::DrawHUDDesignatorStatus(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship)
 {
+	UFlareSimulatedSpacecraftDamageSystem* DamageSystem = Ship->GetParent()->GetDamageSystem();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FLinearColor Color = Theme.DamageColor;
 	Color.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
 
+	if (DamageSystem->IsStranded())
+	{
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDPropulsionIcon, Color);
+	}
+
+	if (DamageSystem->IsUncontrollable())
+	{
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDRCSIcon, Color);
+	}
+
+	if (Ship->GetParent()->IsMilitary() && DamageSystem->IsDisarmed())
+	{
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDWeaponIcon, Color);
+	}
+
+	if (Ship->GetParent()->IsHarpooned() && Ship->GetParent()->GetCompany()->GetPlayerHostility() != EFlareHostility::Owned)
+	{
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDHarpoonedIcon, Color);
+	}
+
+	return Position;
+}
+
+FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float DesignatorIconSize, UTexture2D* Texture, FLinearColor Color)
+{
 	DrawHUDIcon(Position, DesignatorIconSize, Texture, Color);
 
 	return Position + DesignatorIconSize * FVector2D(1, 0);

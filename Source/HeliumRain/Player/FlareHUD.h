@@ -144,13 +144,16 @@ protected:
 	void DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize, float IconSize, FVector2D MainOffset, float Rotation, FLinearColor HudColor, bool Dangerous, bool Highlighted);
 
 	/** Draw a status block for the ship */
-	void DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareSpacecraft* Ship);
+	FVector2D DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareSpacecraft* Ship);
+
+	/** Draw a hint block for the ship */
+	FVector2D DrawHUDDesignatorHint(FVector2D Position, float IconSize, AFlareSpacecraft* Ship);
 
 	/** Draw a docking helper around the current best target */
 	void DrawDockingHelper();
 
 	/** Draw a status icon */
-	FVector2D DrawHUDDesignatorStatusIcon(FVector2D Position, float IconSize, UTexture2D* Texture);
+	FVector2D DrawHUDDesignatorStatusIcon(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color);
 
 	/** Draw an icon */
 	void DrawHUDIcon(FVector2D Position, float IconSize, UTexture2D* Texture, FLinearColor Color = FLinearColor::White, bool Center = false);
@@ -270,6 +273,9 @@ protected:
 	UTexture2D*                             HUDHarpoonedIcon;
 	UTexture2D*                             HUDOrientationIcon;
 	UTexture2D*                             HUDDistanceIcon;
+	UTexture2D*                             HUDContractIcon;
+	UTexture2D*                             HUDShipyardIcon;
+	UTexture2D*                             HUDUpgradeIcon;
 
 	// Font
 	UFont*                                  HUDFontSmall;
