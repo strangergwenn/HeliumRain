@@ -1793,8 +1793,11 @@ void SFlareSettingsMenu::UpdateResolutionList(FIntPoint Resolution)
 	}
 
 	// Update the list
-	ResolutionSelector->SetSelectedItem(ResolutionList[CurrentResolutionIndex]);
 	ResolutionSelector->RefreshOptions();
+	if (CurrentResolutionIndex >= 0 && CurrentResolutionIndex < ResolutionList.Num())
+	{
+		ResolutionSelector->SetSelectedItem(ResolutionList[CurrentResolutionIndex]);
+	}
 }
 
 void SFlareSettingsMenu::UpdateResolution(bool CanAdaptResolution)
