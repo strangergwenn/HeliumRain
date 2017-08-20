@@ -73,8 +73,10 @@ public:
 	virtual void SetPlayerYLinearVelocity(float Val);
 	virtual void SetPlayerZLinearVelocity(float Val);
 
-	// Gamepad
-	virtual void SetPlayerXLinearVelocityGamepad(float Val);	
+	// Gamepad movement
+	virtual void SetPlayerXLinearVelocityGamepad(float Val);
+	virtual void SetPlayerYLinearVelocityGamepad(float Val);
+	virtual void SetPlayerZLinearVelocityGamepad(float Val);
 
 	// Joystick movement
 	virtual void SetPlayerXLinearVelocityJoystick(float Val);

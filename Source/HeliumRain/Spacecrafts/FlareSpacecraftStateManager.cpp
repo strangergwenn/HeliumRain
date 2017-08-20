@@ -561,6 +561,30 @@ void UFlareSpacecraftStateManager::SetPlayerXLinearVelocityGamepad(float Val)
 	}
 }
 
+void UFlareSpacecraftStateManager::SetPlayerYLinearVelocityGamepad(float Val)
+{
+	if (Val != LastPlayerLinearVelocityGamepad.Y)
+	{
+		LinearVelocityIsJoystick = false;
+		EnablePilot(false);
+		LinearVelocityIsGamepad = true;
+		LastPlayerLinearVelocityGamepad.Y = Val;
+		PlayerManualLinearVelocity.Y = Val;
+	}
+}
+
+void UFlareSpacecraftStateManager::SetPlayerZLinearVelocityGamepad(float Val)
+{
+	if (Val != LastPlayerLinearVelocityGamepad.Z)
+	{
+		LinearVelocityIsJoystick = false;
+		EnablePilot(false);
+		LinearVelocityIsGamepad = true;
+		LastPlayerLinearVelocityGamepad.Z = Val;
+		PlayerManualLinearVelocity.Z = Val;
+	}
+}
+
 void UFlareSpacecraftStateManager::SetPlayerXLinearVelocityJoystick(float Val)
 {
 	if (Val != LastPlayerLinearVelocityJoystick.X)

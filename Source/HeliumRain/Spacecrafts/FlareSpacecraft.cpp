@@ -1611,6 +1611,26 @@ void AFlareSpacecraft::MoveHorizontalInput(float Val)
 }
 
 
+void AFlareSpacecraft::GamepadMoveVerticalInput(float Val)
+{
+	if (FMath::Abs(Val) < Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->TranslationDeadZone)
+	{
+		Val = 0;
+	}
+
+	StateManager->SetPlayerZLinearVelocityGamepad(Val * NavigationSystem->GetLinearMaxVelocity());
+}
+
+void AFlareSpacecraft::GamepadMoveHorizontalInput(float Val)
+{
+	if (FMath::Abs(Val) < Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->TranslationDeadZone)
+	{
+		Val = 0;
+	}
+
+	StateManager->SetPlayerYLinearVelocityGamepad(Val * NavigationSystem->GetLinearMaxVelocity());
+}
+
 void AFlareSpacecraft::GamepadThrustInput(float Val)
 {
 	StateManager->SetPlayerXLinearVelocityGamepad(-Val * NavigationSystem->GetLinearMaxVelocity());

@@ -165,6 +165,8 @@ void AFlarePlayerController::BeginPlay()
 	// Add missing gamepad mappings (#903, hotfix 1, Early Access)
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
 	AddMissingAxisMapping(InputSettings, "GamepadMoveHorizontalInput", "Gamepad_LeftX", 1.0f);
+	AddMissingAxisMapping(InputSettings, "GamepadMoveVerticalInput", "Gamepad_LeftThumbstick", -1.0f);
+	AddMissingAxisMapping(InputSettings, "GamepadMoveVerticalInput", "Gamepad_RightThumbstick", 1.0f);
 	AddMissingAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftY", -1.0f);
 	AddMissingAxisMapping(InputSettings, "GamepadYawInput", "Gamepad_RightX", 1.0f);
 	AddMissingAxisMapping(InputSettings, "GamepadPitchInput", "Gamepad_RightY", -1.0f);
@@ -1555,6 +1557,7 @@ void AFlarePlayerController::SetupInputComponent()
 
 	// Gamepad
 	InputComponent->BindAxis("GamepadMoveHorizontalInput", this, &AFlarePlayerController::GamepadMoveHorizontalInput);
+	InputComponent->BindAxis("GamepadMoveVerticalInput", this, &AFlarePlayerController::GamepadMoveVerticalInput);
 	InputComponent->BindAxis("GamepadThrustInput", this, &AFlarePlayerController::GamepadThrustInput);
 	InputComponent->BindAxis("GamepadYawInput", this, &AFlarePlayerController::GamepadYawInput);
 	InputComponent->BindAxis("GamepadPitchInput", this, &AFlarePlayerController::GamepadPitchInput);
@@ -2011,7 +2014,15 @@ void AFlarePlayerController::GamepadMoveHorizontalInput(float Val)
 	}
 	else if (ShipPawn)
 	{
-		ShipPawn->JoystickMoveHorizontalInput(Val);
+		ShipPawn->GamepadMoveHorizontalInput(Val);
+	}
+}
+
+void AFlarePlayerController::GamepadMoveVerticalInput(float Val)
+{
+	if (ShipPawn && !MenuManager->IsUIOpen())
+	{
+		ShipPawn->GamepadMoveVerticalInput(Val);
 	}
 }
 
