@@ -1547,8 +1547,8 @@ void UFlareQuestConditionFollowRandomWaypoints::Init()
 		FVector BaseDirection= CurrentDirection;
 		FVector BaseLocation = (CurrentLocation / 100) + CurrentDirection * 200;
 		float Distance = 0;
-		float MaxDistance = 3000;
-		float StepDistance = 100;
+		float MaxDistance = 1500;
+		float StepDistance = 150;
 
 		while(Distance < MaxDistance)
 		{
