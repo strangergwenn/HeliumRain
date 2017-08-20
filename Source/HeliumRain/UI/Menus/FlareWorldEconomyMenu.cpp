@@ -94,16 +94,18 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 								.Padding(FMargin(0))
 								.HAlign(HAlign_Left)
 								[
-									SAssignNew(ResourceSelector, SComboBox<UFlareResourceCatalogEntry*>)
+									SAssignNew(ResourceSelector, SFlareDropList<UFlareResourceCatalogEntry*>)
 									.OptionsSource(&MenuManager->GetPC()->GetGame()->GetResourceCatalog()->Resources)
 									.OnGenerateWidget(this, &SFlareWorldEconomyMenu::OnGenerateResourceComboLine)
 									.OnSelectionChanged(this, &SFlareWorldEconomyMenu::OnResourceComboLineSelectionChanged)
-									.ComboBoxStyle(&Theme.ComboBoxStyle)
-									.ForegroundColor(FLinearColor::White)
 									[
-										SNew(STextBlock)
-										.Text(this, &SFlareWorldEconomyMenu::OnGetCurrentResourceComboLine)
-										.TextStyle(&Theme.TextFont)
+										SNew(SBox)
+										.Padding(Theme.ListContentPadding)
+										[
+											SNew(STextBlock)
+											.Text(this, &SFlareWorldEconomyMenu::OnGetCurrentResourceComboLine)
+											.TextStyle(&Theme.TextFont)
+										]
 									]
 								]
 							]
@@ -746,9 +748,13 @@ TSharedRef<SWidget> SFlareWorldEconomyMenu::OnGenerateResourceComboLine(UFlareRe
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	return SNew(STextBlock)
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
 		.Text(Item->Data.Name)
-		.TextStyle(&Theme.TextFont);
+		.TextStyle(&Theme.TextFont)
+	];
 }
 
 FText SFlareWorldEconomyMenu::OnGetCurrentResourceComboLine() const

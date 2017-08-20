@@ -197,16 +197,20 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 								SNew(SBox)
 								.WidthOverride(10 * Theme.ButtonWidth)
 								[
-									SAssignNew(FleetSelector, SComboBox<UFlareFleet*>)
+									SAssignNew(FleetSelector, SFlareDropList<UFlareFleet*>)
 									.OptionsSource(&FleetList)
 									.OnGenerateWidget(this, &SFlareSectorMenu::OnGenerateFleetComboLine)
 									.OnSelectionChanged(this, &SFlareSectorMenu::OnFleetComboLineSelectionChanged)
-									.ComboBoxStyle(&Theme.ComboBoxStyle)
-									.ForegroundColor(FLinearColor::White)
+									.HeaderWidth(10)
+									.ItemWidth(10)
 									[
-										SNew(STextBlock)
-										.Text(this, &SFlareSectorMenu::OnGetCurrentFleetComboLine)
-										.TextStyle(&Theme.TextFont)
+										SNew(SBox)
+										.Padding(Theme.ListContentPadding)
+										[
+											SNew(STextBlock)
+											.Text(this, &SFlareSectorMenu::OnGetCurrentFleetComboLine)
+											.TextStyle(&Theme.TextFont)
+										]
 									]
 								]
 							]
@@ -215,6 +219,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
 							.HAlign(HAlign_Right)
+							.VAlign(VAlign_Top)
 							[
 								SNew(SFlareButton)
 								.Width(6)
@@ -340,7 +345,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					.Style(&Theme.ScrollBoxStyle)
 					.ScrollBarStyle(&Theme.ScrollBarStyle)
 					.Visibility(this, &SFlareSectorMenu::GetVisitedListVisibility)
-
 
 					+ SScrollBox::Slot()
 					[
@@ -642,9 +646,13 @@ TSharedRef<SWidget> SFlareSectorMenu::OnGenerateFleetComboLine(UFlareFleet* Item
 		Name = Item->GetFleetName();
 	}
 
-	return SNew(STextBlock)
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
 		.Text(Name)
-		.TextStyle(&Theme.TextFont);
+		.TextStyle(&Theme.TextFont)
+	];
 }
 
 FText SFlareSectorMenu::OnGetCurrentFleetComboLine() const

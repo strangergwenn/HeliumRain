@@ -72,17 +72,17 @@ protected:
 
 	TSharedPtr<SHorizontalBox> PickerList;
 
-	TSharedPtr<SFlareDropList> BasePaintColorPicker;
+	TSharedPtr<SFlareDropList<FLinearColor> > BasePaintColorPicker;
 
-	TSharedPtr<SFlareDropList> PaintColorPicker;
+	TSharedPtr<SFlareDropList<FLinearColor> > PaintColorPicker;
 
-	TSharedPtr<SFlareDropList> OverlayColorPicker;
+	TSharedPtr<SFlareDropList<FLinearColor> > OverlayColorPicker;
 
-	TSharedPtr<SFlareDropList> LightColorPicker;
+	TSharedPtr<SFlareDropList<FLinearColor> > LightColorPicker;
 
-	TSharedPtr<SFlareDropList> BaseColorPicker;
+	TSharedPtr<SFlareDropList<FLinearColor> > BaseColorPicker;
 	
-	TSharedPtr<SFlareDropList> PatternPicker;
+	TSharedPtr<SFlareDropList<int32> > PatternPicker;
 		
 
 };

@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
+#include "../Components/FlareDropList.h"
 #include "../../Game/FlareWorldHelper.h"
 #include "../../Data/FlareResourceCatalogEntry.h"
 #include "../FlareUITypes.h"
@@ -113,6 +114,6 @@ protected:
 
 	// Slate data
 	TSharedPtr<SVerticalBox>                        SectorList;
-	TSharedPtr<SComboBox<UFlareResourceCatalogEntry*>> ResourceSelector;
+	TSharedPtr<SFlareDropList<UFlareResourceCatalogEntry*>> ResourceSelector;
 
 };

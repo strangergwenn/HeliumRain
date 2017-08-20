@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
+#include "../Components/FlareDropList.h"
 #include "../Components/FlareColorPanel.h"
 #include "../../Game/FlareSaveGame.h"
 #include "../FlareUITypes.h"
@@ -85,10 +86,10 @@ protected:
 	TSharedPtr<SEditableText>                   CompanyIdentifier;
 	TSharedPtr<SFlareColorPanel>                ColorBox;
 	TSharedPtr<SFlareButton>                    TutorialButton;
-	TSharedPtr<SFlareDropList>                  EmblemPicker;
+	TSharedPtr<SFlareDropList<int32>>           EmblemPicker;
 
 	// Scenario data
-	TSharedPtr<SComboBox<TSharedPtr<FString> >> ScenarioSelector;
+	TSharedPtr<SFlareDropList<TSharedPtr<FString> >> ScenarioSelector;
 	TArray<TSharedPtr<FString>>                 ScenarioList;
 
 

@@ -104,16 +104,26 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					.Padding(Theme.ContentPadding)
 					[
-						SAssignNew(ResolutionSelector, SComboBox<TSharedPtr<FScreenResolutionRHI>>)
-						.OptionsSource(&ResolutionList)
-						.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateResolutionComboLine)
-						.OnSelectionChanged(this, &SFlareSettingsMenu::OnResolutionComboLineSelectionChanged)
-						.ComboBoxStyle(&Theme.ComboBoxStyle)
-						.ForegroundColor(FLinearColor::White)
+						SNew(SHorizontalBox)
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
 						[
-							SNew(STextBlock)
-							.Text(this, &SFlareSettingsMenu::OnGetCurrentResolutionComboLine)
-							.TextStyle(&Theme.TextFont)
+							SAssignNew(ResolutionSelector, SFlareDropList<TSharedPtr<FScreenResolutionRHI>>)
+							.OptionsSource(&ResolutionList)
+							.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateResolutionComboLine)
+							.OnSelectionChanged(this, &SFlareSettingsMenu::OnResolutionComboLineSelectionChanged)
+							.HeaderWidth(10.1)
+							.ItemWidth(10.1)
+							[
+								SNew(SBox)
+								.Padding(Theme.ListContentPadding)
+								[
+									SNew(STextBlock)
+									.Text(this, &SFlareSettingsMenu::OnGetCurrentResolutionComboLine)
+									.TextStyle(&Theme.TextFont)
+								]
+							]
 						]
 					]
 
@@ -122,16 +132,26 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					.Padding(Theme.ContentPadding)
 					[
-						SAssignNew(CultureSelector, SComboBox<TSharedPtr<FString>>)
-						.OptionsSource(&CultureList)
-						.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateCultureComboLine)
-						.OnSelectionChanged(this, &SFlareSettingsMenu::OnCultureComboLineSelectionChanged)
-						.ComboBoxStyle(&Theme.ComboBoxStyle)
-						.ForegroundColor(FLinearColor::White)
+						SNew(SHorizontalBox)
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
 						[
-							SNew(STextBlock)
-							.Text(this, &SFlareSettingsMenu::OnGetCurrentCultureComboLine)
-							.TextStyle(&Theme.TextFont)
+							SAssignNew(CultureSelector, SFlareDropList<TSharedPtr<FString>>)
+							.OptionsSource(&CultureList)
+							.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateCultureComboLine)
+							.OnSelectionChanged(this, &SFlareSettingsMenu::OnCultureComboLineSelectionChanged)
+							.HeaderWidth(10.1)
+							.ItemWidth(10.1)
+							[
+								SNew(SBox)
+								.Padding(Theme.ListContentPadding)
+								[
+									SNew(STextBlock)
+									.Text(this, &SFlareSettingsMenu::OnGetCurrentCultureComboLine)
+									.TextStyle(&Theme.TextFont)
+								]
+							]
 						]
 					]
 
@@ -1062,16 +1082,20 @@ void SFlareSettingsMenu::BuildJoystickBinding(FText AxisDisplayName, FName AxisN
 		.VAlign(VAlign_Center)
 		.Padding(Theme.SmallContentPadding)
 		[
-			SNew(SComboBox<TSharedPtr<FKey>>)
+			SNew(SFlareDropList<TSharedPtr<FKey>>)
 			.OptionsSource(&JoystickAxisKeys)
 			.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateJoystickComboLine, AxisName)
 			.OnSelectionChanged(this, &SFlareSettingsMenu::OnJoystickComboLineSelectionChanged, AxisName)
-			.ComboBoxStyle(&Theme.ComboBoxStyle)
-			.ForegroundColor(FLinearColor::White)
+			.HeaderWidth(10)
+			.ItemWidth(10)
 			[
-				SNew(STextBlock)
-				.Text(this, &SFlareSettingsMenu::OnGetCurrentJoystickKeyName, AxisName)
-				.TextStyle(&Theme.TextFont)
+				SNew(SBox)
+				.Padding(Theme.ListContentPadding)
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareSettingsMenu::OnGetCurrentJoystickKeyName, AxisName)
+					.TextStyle(&Theme.TextFont)
+				]
 			]
 		]
 
@@ -1135,6 +1159,7 @@ void SFlareSettingsMenu::Enter()
 	FillResolutionList();
 
 	// Set list of cultures to the current one
+	CultureSelector->RefreshOptions();
 	FString CurrentCultureString = FInternationalization::Get().GetCurrentCulture().Get().GetName();
 	for (TSharedPtr<FString> Culture : CultureList)
 	{
@@ -1181,9 +1206,13 @@ TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateCultureComboLine(TSharedPtr<FS
 	FString NativeName = Culture->GetNativeName();
 	NativeName = NativeName.Left(1).ToUpper() + NativeName.RightChop(1); // FString needed here
 
-	return SNew(STextBlock)
-	.Text(FText::FromString(NativeName))
-	.TextStyle(&Theme.TextFont);
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
+		.Text(FText::FromString(NativeName))
+		.TextStyle(&Theme.TextFont)
+	];
 }
 
 void SFlareSettingsMenu::OnCultureComboLineSelectionChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo)
@@ -1205,9 +1234,13 @@ TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateResolutionComboLine(TSharedPtr
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	return SNew(STextBlock)
-	.Text(FText::FromString(FString::Printf(TEXT("%dx%d"), Item->Width, Item->Height)))
-	.TextStyle(&Theme.TextFont);
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
+		.Text(FText::FromString(FString::Printf(TEXT("%dx%d"), Item->Width, Item->Height)))
+		.TextStyle(&Theme.TextFont)
+	];
 }
 
 void SFlareSettingsMenu::OnResolutionComboLineSelectionChanged(TSharedPtr<FScreenResolutionRHI> StringItem, ESelectInfo::Type SelectInfo)
@@ -1241,9 +1274,13 @@ TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateJoystickComboLine(TSharedPtr<F
 	DisplayName = DisplayName.Replace(TEXT("Joystick_"), TEXT(""));
 	DisplayName = DisplayName.Replace(TEXT("_"), TEXT(" "));
 
-	return SNew(STextBlock)
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
 		.Text(FText::FromString(DisplayName))
-		.TextStyle(&Theme.TextFont);
+		.TextStyle(&Theme.TextFont)
+	];
 }
 
 void SFlareSettingsMenu::OnJoystickComboLineSelectionChanged(TSharedPtr<FKey> KeyItem, ESelectInfo::Type SelectInfo, FName AxisName)

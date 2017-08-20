@@ -156,17 +156,21 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 					+ SHorizontalBox::Slot()
 					.Padding(Theme.SmallContentPadding)
 					[
-						SAssignNew(FleetSelector, SComboBox<UFlareFleet*>)
+						SAssignNew(FleetSelector, SFlareDropList<UFlareFleet*>)
 						.OptionsSource(&FleetList)
 						.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateFleetComboLine)
 						.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnFleetComboLineSelectionChanged)
-						.ComboBoxStyle(&Theme.ComboBoxStyle)
-						.ForegroundColor(FLinearColor::White)
 						.Visibility(this, &SFlareTradeRouteMenu::GetAssignFleetVisibility)
+						.HeaderWidth(7)
+						.ItemWidth(7)
 						[
-							SNew(STextBlock)
-							.Text(this, &SFlareTradeRouteMenu::OnGetCurrentFleetComboLine)
-							.TextStyle(&Theme.TextFont)
+							SNew(SBox)
+							.Padding(Theme.ListContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareTradeRouteMenu::OnGetCurrentFleetComboLine)
+								.TextStyle(&Theme.TextFont)
+							]
 						]
 					]
 
@@ -175,6 +179,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 					.AutoWidth()
 					.Padding(Theme.SmallContentPadding)
 					.HAlign(HAlign_Right)
+					.VAlign(VAlign_Top)
 					[
 						SNew(SFlareButton)
 						.Width(3)
@@ -203,16 +208,20 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 					+ SHorizontalBox::Slot()
 					.Padding(Theme.SmallContentPadding)
 					[
-						SAssignNew(SectorSelector, SComboBox<UFlareSimulatedSector*>)
+						SAssignNew(SectorSelector, SFlareDropList<UFlareSimulatedSector*>)
 						.OptionsSource(&SectorList)
 						.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateSectorComboLine)
 						.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnSectorComboLineSelectionChanged)
-						.ComboBoxStyle(&Theme.ComboBoxStyle)
-						.ForegroundColor(FLinearColor::White)
+						.HeaderWidth(7)
+						.ItemWidth(7)
 						[
-							SNew(STextBlock)
-							.Text(this, &SFlareTradeRouteMenu::OnGetCurrentSectorComboLine)
-							.TextStyle(&Theme.TextFont)
+							SNew(SBox)
+							.Padding(Theme.ListContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareTradeRouteMenu::OnGetCurrentSectorComboLine)
+								.TextStyle(&Theme.TextFont)
+							]
 						]
 					]
 
@@ -220,6 +229,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
 					.Padding(Theme.SmallContentPadding)
+					.VAlign(VAlign_Top)
 					[
 						SNew(SFlareButton)
 						.Width(3)
@@ -322,16 +332,20 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					.Padding(Theme.SmallContentPadding)
 					[
-						SAssignNew(OperationSelector, SComboBox<TSharedPtr<FText>>)
+						SAssignNew(OperationSelector, SFlareDropList<TSharedPtr<FText>>)
 						.OptionsSource(&OperationNameList)
 						.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateOperationComboLine)
 						.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnOperationComboLineSelectionChanged)
-						.ComboBoxStyle(&Theme.ComboBoxStyle)
-						.ForegroundColor(FLinearColor::White)
+						.HeaderWidth(10)
+						.ItemWidth(10)
 						[
-							SNew(STextBlock)
-							.Text(this, &SFlareTradeRouteMenu::OnGetCurrentOperationComboLine)
-							.TextStyle(&Theme.TextFont)
+							SNew(SBox)
+							.Padding(Theme.ListContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareTradeRouteMenu::OnGetCurrentOperationComboLine)
+								.TextStyle(&Theme.TextFont)
+							]
 						]
 					]
 
@@ -340,16 +354,20 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 					.AutoHeight()
 					.Padding(Theme.SmallContentPadding)
 					[
-						SAssignNew(ResourceSelector, SComboBox<UFlareResourceCatalogEntry*>)
+						SAssignNew(ResourceSelector, SFlareDropList<UFlareResourceCatalogEntry*>)
 						.OptionsSource(&PC->GetGame()->GetResourceCatalog()->Resources)
 						.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateResourceComboLine)
 						.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnResourceComboLineSelectionChanged)
-						.ComboBoxStyle(&Theme.ComboBoxStyle)
-						.ForegroundColor(FLinearColor::White)
+						.HeaderWidth(10)
+						.ItemWidth(10)
 						[
-							SNew(STextBlock)
-							.Text(this, &SFlareTradeRouteMenu::OnGetCurrentResourceComboLine)
-							.TextStyle(&Theme.TextFont)
+							SNew(SBox)
+							.Padding(Theme.ListContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareTradeRouteMenu::OnGetCurrentResourceComboLine)
+								.TextStyle(&Theme.TextFont)
+							]
 						]
 					]
 					
@@ -486,6 +504,9 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 		]
 	];
 
+	// Setup lists
+	OperationSelector->RefreshOptions();
+	ResourceSelector->RefreshOptions();
 	if (ResourceList.Num() > 0)
 	{
 		ResourceSelector->SetSelectedItem(ResourceList[0]);
@@ -989,9 +1010,13 @@ TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateSectorComboLine(UFlareSimula
 	UFlareSimulatedPlanetarium* Planetarium = MenuManager->GetGame()->GetGameWorld()->GetPlanerarium();
 	FFlareCelestialBody* CelestialBody = Planetarium->FindCelestialBody(Item->GetOrbitParameters()->CelestialBodyIdentifier);
 
-	return SNew(STextBlock)
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
 		.Text(FText::Format(LOCTEXT("SectorLineFormat", "{0} (Orbiting {1})"), Item->GetSectorName(), CelestialBody->Name))
-		.TextStyle(&Theme.TextFont);
+		.TextStyle(&Theme.TextFont)
+	];
 }
 
 void SFlareTradeRouteMenu::OnSectorComboLineSelectionChanged(UFlareSimulatedSector* Item, ESelectInfo::Type SelectInfo)
@@ -1038,9 +1063,13 @@ TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateResourceComboLine(UFlareReso
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	return SNew(STextBlock)
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
 		.Text(Item->Data.Name)
-		.TextStyle(&Theme.TextFont);
+		.TextStyle(&Theme.TextFont)
+	];
 }
 
 FText SFlareTradeRouteMenu::OnGetCurrentResourceComboLine() const
@@ -1060,9 +1089,13 @@ TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateOperationComboLine(TSharedPt
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	return SNew(STextBlock)
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
 		.Text(*Item) // FString needed here
-		.TextStyle(&Theme.TextFont);
+		.TextStyle(&Theme.TextFont)
+	];
 }
 
 FText SFlareTradeRouteMenu::OnGetCurrentOperationComboLine() const
@@ -1254,9 +1287,13 @@ TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateFleetComboLine(UFlareFleet* 
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	return SNew(STextBlock)
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
 		.Text(Item->GetFleetName())
-		.TextStyle(&Theme.TextFont);
+		.TextStyle(&Theme.TextFont)
+	];
 }
 
 FText SFlareTradeRouteMenu::OnGetCurrentFleetComboLine() const

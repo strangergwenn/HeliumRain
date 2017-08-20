@@ -155,7 +155,7 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
 
 	// Fleet list
-	TSharedPtr<SComboBox<UFlareFleet*>>        FleetSelector;
+	TSharedPtr<SFlareDropList<UFlareFleet*>>   FleetSelector;
 	TArray<UFlareFleet*>                       FleetList;
 
 	// Menu components

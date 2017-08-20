@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
+#include "../Components/FlareDropList.h"
 #include "../../Game/FlareTradeRoute.h"
 #include "../../Game/FlareSimulatedSector.h"
 #include "../../Game/FlareFleet.h"
@@ -196,16 +197,16 @@ protected:
 	FFlareTradeRouteSectorOperationSave*               SelectedOperation;
 
 	// Sector data
-	TSharedPtr<SComboBox<UFlareSimulatedSector*>>      SectorSelector;
+	TSharedPtr<SFlareDropList<UFlareSimulatedSector*>> SectorSelector;
 	TArray<UFlareSimulatedSector*>                     SectorList;
 
 	// Fleet list
-	TSharedPtr<SComboBox<UFlareFleet*>>                FleetSelector;
+	TSharedPtr<SFlareDropList<UFlareFleet*>>           FleetSelector;
 	TArray<UFlareFleet*>                               FleetList;
 
 	// Items
-	TSharedPtr<SComboBox<UFlareResourceCatalogEntry*>> ResourceSelector;
-	TSharedPtr<SComboBox<TSharedPtr<FText> >>          OperationSelector;
+	TSharedPtr<SFlareDropList<UFlareResourceCatalogEntry*>> ResourceSelector;
+	TSharedPtr<SFlareDropList<TSharedPtr<FText> >>     OperationSelector;
 	TArray<TSharedPtr<FText>>                          OperationNameList;
 	TArray<EFlareTradeRouteOperation::Type>            OperationList;
 

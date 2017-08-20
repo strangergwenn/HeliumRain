@@ -110,17 +110,18 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 							.BorderImage(&Theme.BackgroundBrush)
 							.Padding(Theme.ContentPadding)
 							[
-								SAssignNew(ScenarioSelector, SComboBox<TSharedPtr<FString>>)
+								SAssignNew(ScenarioSelector, SFlareDropList<TSharedPtr<FString>>)
 								.OptionsSource(&ScenarioList)
-								.InitiallySelectedItem(ScenarioList[0])
 								.OnGenerateWidget(this, &SFlareNewGameMenu::OnGenerateComboLine)
 								.OnSelectionChanged(this, &SFlareNewGameMenu::OnComboLineSelectionChanged)
-								.ComboBoxStyle(&Theme.ComboBoxStyle)
-								.ForegroundColor(FLinearColor::White)
 								[
-									SNew(STextBlock)
-									.Text(this, &SFlareNewGameMenu::OnGetCurrentComboLine)
-									.TextStyle(&Theme.TextFont)
+									SNew(SBox)
+									.Padding(Theme.ListContentPadding)
+									[
+										SNew(STextBlock)
+										.Text(this, &SFlareNewGameMenu::OnGetCurrentComboLine)
+										.TextStyle(&Theme.TextFont)
+									]
 								]
 							]
 						]
@@ -234,7 +235,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 						SNew(SBox)
 						.WidthOverride(0.4 * Theme.ContentWidth)
 						[
-							SAssignNew(EmblemPicker, SFlareDropList)
+							SAssignNew(EmblemPicker, SFlareDropList<int32>)
 							.LineSize(2)
 							.HeaderWidth(3)
 							.HeaderHeight(3)
@@ -295,6 +296,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 	];
 
 	TutorialButton->SetActive(true);
+	//ScenarioSelector->SetSelectedIndex(0);
 }
 
 
@@ -430,9 +432,13 @@ TSharedRef<SWidget> SFlareNewGameMenu::OnGenerateComboLine(TSharedPtr<FString> I
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	return SNew(STextBlock)
-	.Text(FText::FromString(*Item)) // FString needed here
-	.TextStyle(&Theme.TextFont);
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
+		.Text(FText::FromString(*Item)) // FString needed here
+		.TextStyle(&Theme.TextFont)
+	];
 }
 
 void SFlareNewGameMenu::OnComboLineSelectionChanged(TSharedPtr<FString> StringItem, ESelectInfo::Type SelectInfo)

@@ -242,11 +242,11 @@ protected:
 	TArray<TSharedPtr<FKey>>                    JoystickAxisKeys;
 
 	// Resolution data
-	TSharedPtr<SComboBox<TSharedPtr<FScreenResolutionRHI>>> ResolutionSelector;
+	TSharedPtr<SFlareDropList<TSharedPtr<FScreenResolutionRHI>>> ResolutionSelector;
 	TArray<TSharedPtr<FScreenResolutionRHI>>                ResolutionList;
 
 	// Culture data
-	TSharedPtr<SComboBox<TSharedPtr<FString>>> CultureSelector;
+	TSharedPtr<SFlareDropList<TSharedPtr<FString>>> CultureSelector;
 	TArray<TSharedPtr<FString>>							CultureList;
 
 };

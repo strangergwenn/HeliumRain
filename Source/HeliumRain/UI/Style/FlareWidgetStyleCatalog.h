@@ -72,6 +72,7 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	UPROPERTY(EditAnywhere, Category = Main) FMargin TitleButtonPadding;
 	UPROPERTY(EditAnywhere, Category = Main) FMargin ContentPadding;
 	UPROPERTY(EditAnywhere, Category = Main) FMargin SmallContentPadding;
+	UPROPERTY(EditAnywhere, Category = Main) FMargin ListContentPadding;
 	UPROPERTY(EditAnywhere, Category = Main) float DefaultAlpha;
 	UPROPERTY(EditAnywhere, Category = Main) int32 ContentWidth;
 	UPROPERTY(EditAnywhere, Category = Main) FScrollBoxStyle ScrollBoxStyle;
@@ -152,7 +153,6 @@ struct FFlareStyleCatalog : public FSlateWidgetStyle
 	// Advanced widgets
 	UPROPERTY(EditAnywhere, Category = Advanced) FProgressBarStyle ProgressBarStyle;
 	UPROPERTY(EditAnywhere, Category = Advanced) FEditableTextStyle TextInputStyle;
-	UPROPERTY(EditAnywhere, Category = Advanced) FComboBoxStyle ComboBoxStyle;
 	UPROPERTY(EditAnywhere, Category = Advanced) FSliderStyle SliderStyle;
 
 };
