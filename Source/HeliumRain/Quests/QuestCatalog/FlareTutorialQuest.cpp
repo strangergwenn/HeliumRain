@@ -982,7 +982,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ResearchTechnology"
-		FText Description = LOCTEXT("ResearchTechnologyDescription","You can manage research in the technology menu. Select a level 1 technology and research it !\nChoose wisely, for the price of all technology is increased after each research.");
+		FText Description = LOCTEXT("ResearchTechnologyDescription","You can manage research in the technology menu. Select a level 1 technology and research it !\nChoose wisely, for the price of all technology is increased after each research : for example you may consider research 'Science' technology to get research station quickly.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-technology", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchTechnology::Create(this, 1));
