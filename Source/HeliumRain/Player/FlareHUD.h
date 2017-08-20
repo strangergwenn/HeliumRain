@@ -147,7 +147,7 @@ protected:
 	FVector2D DrawHUDDesignatorStatus(FVector2D Position, float IconSize, AFlareSpacecraft* Ship);
 
 	/** Draw a hint block for the ship */
-	FVector2D DrawHUDDesignatorHint(FVector2D Position, float IconSize, AFlareSpacecraft* Ship);
+	FVector2D DrawHUDDesignatorHint(FVector2D Position, float IconSize, AFlareSpacecraft* Ship, FLinearColor Color);
 
 	/** Draw a docking helper around the current best target */
 	void DrawDockingHelper();

@@ -1601,7 +1601,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			StatusPos.Y -= (IconSize + 0.5 * CornerSize);
 
 			// Draw the status for close targets or highlighted
-			FVector2D TempPos = DrawHUDDesignatorHint(StatusPos, IconSize, Spacecraft);
+			FVector2D TempPos = DrawHUDDesignatorHint(StatusPos, IconSize, Spacecraft, Color);
 			if (!Spacecraft->GetParent()->IsStation() && (ObjectSize.X > 0.15 * IconSize || Highlighted))
 			{
 				DrawHUDDesignatorStatus(TempPos, IconSize, Spacecraft);
@@ -1705,12 +1705,9 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 		Rotation);
 }
 
-FVector2D AFlareHUD::DrawHUDDesignatorHint(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship)
+FVector2D AFlareHUD::DrawHUDDesignatorHint(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship, FLinearColor Color)
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FLinearColor Color = Theme.NeutralColor;
-	Color.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
 	
 	if (Ship->GetParent()->IsShipyard())
 	{
@@ -1724,8 +1721,6 @@ FVector2D AFlareHUD::DrawHUDDesignatorHint(FVector2D Position, float DesignatorI
 
 	if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->TargetSpacecrafts.Find(Ship->GetParent()) != INDEX_NONE)
 	{
-		Color = Theme.ObjectiveColor;
-		Color.A = FFlareStyleSet::GetDefaultTheme().DefaultAlpha;
 		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDContractIcon, Color);
 	}
 
