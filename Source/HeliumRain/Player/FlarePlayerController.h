@@ -327,16 +327,7 @@ public:
 
 	/** Close the wheel menu */
 	void WheelReleased();
-
-	/** Align to the ship's speed */
-	void AlignToSpeed();
-
-	/** Align to the ship's reverse speed */
-	void AlignToReverse();
-
-	/** Brake */
-	void Brake();
-
+	
 	/** Inspect the target */
 	void InspectTargetSpacecraft();
 

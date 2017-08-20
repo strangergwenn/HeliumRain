@@ -1751,7 +1751,6 @@ void AFlareSpacecraft::CombatZoomOut()
 
 void AFlareSpacecraft::FaceForward()
 {
-	// TODO do better
 	if (!StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
 	{
 		NavigationSystem->PushCommandRotation(Airframe->GetPhysicsLinearVelocity(), FVector(1,0,0));
@@ -1760,7 +1759,6 @@ void AFlareSpacecraft::FaceForward()
 
 void AFlareSpacecraft::FaceBackward()
 {
-	// TODO do better
 	if (!StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
 	{
 		NavigationSystem->PushCommandRotation((-Airframe->GetPhysicsLinearVelocity()), FVector(1, 0, 0));
@@ -1769,12 +1767,14 @@ void AFlareSpacecraft::FaceBackward()
 
 void AFlareSpacecraft::Brake()
 {
-	BrakeToVelocity();
+	if (!StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
+	{
+		BrakeToVelocity();
+	}
 }
 
 void AFlareSpacecraft::BrakeToVelocity(const FVector& VelocityTarget)
 {
-	// TODO do better
 	if (!StateManager->IsPilotMode() && NavigationSystem->IsManualPilot())
 	{
 		NavigationSystem->PushCommandLinearBrake(VelocityTarget);

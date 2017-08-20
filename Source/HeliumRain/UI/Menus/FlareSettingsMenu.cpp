@@ -1939,6 +1939,8 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("AlignRetrograde", "Align to reverse")))
 		->AddActionMapping("FaceBackward")
 		->AddDefaults(EKeys::X)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("CutSpeed", "Cut speed")))
+		->AddActionMapping("Brake")));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Start Autopilot", "Engage autopilot")))
 		->AddActionMapping("EnablePilot")
 		->AddDefaults(EKeys::P)));

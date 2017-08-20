@@ -2290,33 +2290,6 @@ void AFlarePlayerController::WheelReleased()
 	}
 }
 
-void AFlarePlayerController::AlignToSpeed()
-{
-	if (ShipPawn)
-	{
-		DisengagePilot();
-		ShipPawn->FaceForward();
-	}
-}
-
-void AFlarePlayerController::AlignToReverse()
-{
-	if (ShipPawn)
-	{
-		DisengagePilot();
-		ShipPawn->FaceBackward();
-	}
-}
-
-void AFlarePlayerController::Brake()
-{
-	if (ShipPawn)
-	{
-		DisengagePilot();
-		ShipPawn->Brake();
-	}
-}
-
 void AFlarePlayerController::InspectTargetSpacecraft()
 {
 	if (ShipPawn)
