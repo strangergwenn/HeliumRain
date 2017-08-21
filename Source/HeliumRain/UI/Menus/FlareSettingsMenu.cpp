@@ -12,6 +12,7 @@
 #include "../../Data/FlareSpacecraftComponentsCatalog.h"
 
 #include "STextComboBox.h"
+#include "SWidgetSwitcher.h"
 #include "Internationalization/Culture.h"
 #include "GameFramework/InputSettings.h"
 
@@ -72,470 +73,813 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 		.Style(&Theme.ScrollBoxStyle)
 		.ScrollBarStyle(&Theme.ScrollBarStyle)
 
+		// Tabs
+		+ SScrollBox::Slot()
+		.HAlign(HAlign_Fill)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(SHorizontalBox)
+					
+			// Gameplay
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Text(LOCTEXT("GameplayTab", "Gameplay"))
+				.HelpText(LOCTEXT("GameplayTabInfo", "Tweak the gameplay options"))
+				.OnClicked(this, &SFlareSettingsMenu::SetCurrentTabIndex, 0)
+				.IsDisabled(this, &SFlareSettingsMenu::IsCurrentTab, 0)
+				.Width(4)
+			]
+			
+			// Graphics
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Text(LOCTEXT("GraphicsTab", "Graphics"))
+				.HelpText(LOCTEXT("GraphicsTabInfo", "Tweak the graphics settings"))
+				.OnClicked(this, &SFlareSettingsMenu::SetCurrentTabIndex, 1)
+				.IsDisabled(this, &SFlareSettingsMenu::IsCurrentTab, 1)
+				.Width(4)
+			]
+			
+			// Keyboard
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Text(LOCTEXT("KeyboardTab", "Keyboard"))
+				.HelpText(LOCTEXT("KeyboardTabInfo", "Change your key bindings"))
+				.OnClicked(this, &SFlareSettingsMenu::SetCurrentTabIndex, 2)
+				.IsDisabled(this, &SFlareSettingsMenu::IsCurrentTab, 2)
+				.Width(4)
+			]
+			
+			// Gamepad & joystick
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Text(LOCTEXT("GamepadJoystickTab", "Gamepad / Joystick"))
+				.HelpText(LOCTEXT("GamepadJoystickTabInfo", "Configure your gamepad or joystick"))
+				.OnClicked(this, &SFlareSettingsMenu::SetCurrentTabIndex, 3)
+				.IsDisabled(this, &SFlareSettingsMenu::IsCurrentTab, 3)
+				.Width(4)
+			]
+		]
+
+		// Main
 		+ SScrollBox::Slot()
 		.HAlign(HAlign_Fill)
 		[
-			SNew(SVerticalBox)
-				
-			// Title
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.TitlePadding)
-			.HAlign(HAlign_Left)
+			SNew(SWidgetSwitcher)
+			.WidgetIndex(this, &SFlareSettingsMenu::GetCurrentTabIndex)
+			
+			// Gameplay options
+			+ SWidgetSwitcher::Slot()
 			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("GraphicsSettingsHint", "Graphics"))
-				.TextStyle(&Theme.SubTitleFont)
-			]
+				SNew(SVerticalBox)
 
-			// Graphic form
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Left)
-			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
-				.HAlign(HAlign_Fill)
+				// Title
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				.HAlign(HAlign_Left)
 				[
-					SNew(SVerticalBox)
-
-					// Resolution
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
+					SNew(STextBlock)
+					.Text(LOCTEXT("GameplayHint", "Gameplay"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+		
+				// Content
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ContentWidth)
+					.HAlign(HAlign_Fill)
 					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
+						SNew(SVerticalBox)
+
+						// Culture
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
 						[
-							SAssignNew(ResolutionSelector, SFlareDropList<TSharedPtr<FScreenResolutionRHI>>)
-							.OptionsSource(&ResolutionList)
-							.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateResolutionComboLine)
-							.OnSelectionChanged(this, &SFlareSettingsMenu::OnResolutionComboLineSelectionChanged)
-							.HeaderWidth(10.1)
-							.ItemWidth(10.1)
+							SNew(SHorizontalBox)
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
 							[
-								SNew(SBox)
-								.Padding(Theme.ListContentPadding)
+								SAssignNew(CultureSelector, SFlareDropList<TSharedPtr<FString>>)
+								.OptionsSource(&CultureList)
+								.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateCultureComboLine)
+								.OnSelectionChanged(this, &SFlareSettingsMenu::OnCultureComboLineSelectionChanged)
+								.HeaderWidth(10.1)
+								.ItemWidth(10.1)
 								[
-									SNew(STextBlock)
-									.Text(this, &SFlareSettingsMenu::OnGetCurrentResolutionComboLine)
-									.TextStyle(&Theme.TextFont)
+									SNew(SBox)
+									.Padding(Theme.ListContentPadding)
+									[
+										SNew(STextBlock)
+										.Text(this, &SFlareSettingsMenu::OnGetCurrentCultureComboLine)
+										.TextStyle(&Theme.TextFont)
+									]
 								]
 							]
 						]
-					]
-
-					// Culture
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SHorizontalBox)
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
+				
+						// Options
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
 						[
-							SAssignNew(CultureSelector, SFlareDropList<TSharedPtr<FString>>)
-							.OptionsSource(&CultureList)
-							.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateCultureComboLine)
-							.OnSelectionChanged(this, &SFlareSettingsMenu::OnCultureComboLineSelectionChanged)
-							.HeaderWidth(10.1)
-							.ItemWidth(10.1)
-							[
-								SNew(SBox)
-								.Padding(Theme.ListContentPadding)
-								[
-									SNew(STextBlock)
-									.Text(this, &SFlareSettingsMenu::OnGetCurrentCultureComboLine)
-									.TextStyle(&Theme.TextFont)
-								]
-							]
-						]
-					]
-
-					// Buttons
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					.HAlign(HAlign_Left)
-					[
-						SNew(SHorizontalBox)
-							
-						// Fullscreen
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(FullscreenButton, SFlareButton)
-							.Text(LOCTEXT("Fullscreen", "Fullscreen"))
-							.HelpText(LOCTEXT("FullscreenInfo", "Show the game in full screen"))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnFullscreenToggle)
-						]
-
-						// VSync
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(VSyncButton, SFlareButton)
-							.Text(LOCTEXT("V-sync", "V-Sync"))
-							.HelpText(LOCTEXT("VSyncInfo", "Vertical synchronization ensures that every image is consistent, even with low performance."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
-						]
-					]
+							SNew(SHorizontalBox)
 					
-
-					// Buttons 2
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					.HAlign(HAlign_Left)
-					[
-						SNew(SHorizontalBox)
-
-						// Motion blur
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(MotionBlurButton, SFlareButton)
-							.Text(LOCTEXT("MotionBlur", "Use motion blur"))
-							.HelpText(LOCTEXT("MotionBlurInfo", "Motion blur makes the game feel much more responsive and fluid."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnMotionBlurToggle)
-						]
-
-						// Temporal AA
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(TemporalAAButton, SFlareButton)
-							.Text(LOCTEXT("TemporalAA", "Use Temporal AA"))
-							.HelpText(LOCTEXT("TemporalAAInfo", "Temporal Anti-Aliasing is a cleaner AA method, but might create ghosting artifacts on some computers."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnTemporalAAToggle)
-						]
-
-						// Supersampling
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(SupersamplingButton, SFlareButton)
-							.Text(LOCTEXT("Supersampling", "2x Supersampling (!)"))
-							.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the scenes at double the resolution. This is a very demanding feature."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
-						]
-					]
-
-					// Texture quality box
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SNew(SHorizontalBox)
-
-						// Texture quality text
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SBox)
-							.WidthOverride(LabelSize)
+							// Invert vertical
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
 							[
-								SNew(STextBlock)
-								.Text(LOCTEXT("TextureLabel", "Texture quality"))
-								.TextStyle(&Theme.TextFont)
+								SAssignNew(InvertYButton, SFlareButton)
+								.Text(LOCTEXT("InvertY", "Invert vertical"))
+								.HelpText(LOCTEXT("InvertYInfo", "Invert the vertical axis of the mouse while flying"))
+								.Toggle(true)
+								.OnClicked(this, &SFlareSettingsMenu::OnInvertYToggle)
+							]
+
+#if !UE_BUILD_SHIPPING
+							// Cockpit
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(CockpitButton, SFlareButton)
+								.Text(LOCTEXT("Cockpit", "Use cockpit"))
+								.HelpText(LOCTEXT("CockpitInfo", "Use the immersive 3D cockpit instead of a flat interface."))
+								.Toggle(true)
+								.OnClicked(this, &SFlareSettingsMenu::OnCockpitToggle)
+							]
+#endif
+					
+							// Anticollision
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(AnticollisionButton, SFlareButton)
+								.Text(LOCTEXT("Anticollision", "Use anticollision"))
+								.HelpText(LOCTEXT("AnticollisionInfo", "Anti-collision will prevent your ship from crahsing into objects and forbid close fly-bys."))
+								.Toggle(true)
+								.OnClicked(this, &SFlareSettingsMenu::OnAnticollisionToggle)
 							]
 						]
 
-						// Texture quality slider
-						+ SHorizontalBox::Slot()
-						.VAlign(VAlign_Center)
-						.Padding(Theme.ContentPadding)
+						// FOV box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
 						[
-							SAssignNew(TextureQualitySlider, SSlider)
-							.Value(CurrentTextureQualityRatio)
-							.Style(&Theme.SliderStyle)
-							.OnValueChanged(this, &SFlareSettingsMenu::OnTextureQualitySliderChanged)
-						]
+							SNew(SHorizontalBox)
 
-						// Texture quality label
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SBox)
-							.WidthOverride(ValueSize)
+							// FOV text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
 							[
-								SAssignNew(TextureQualityLabel, STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(GetTextureQualityLabel(MyGameSettings->ScalabilityQuality.TextureQuality))
+								SNew(SBox)
+								.WidthOverride(LabelSize)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("FOVLabel", "Field of view"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// FOV slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(FOVSlider, SSlider)
+								.Value(CurrentFOVRatio)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnFOVSliderChanged)
+							]
+
+							// FOV label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(ValueSize)
+								[
+									SAssignNew(FOVLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetFOVLabel(MyGameSettings->VerticalFOV))
+								]
 							]
 						]
-					]
-
-					// Effets quality box
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SNew(SHorizontalBox)
-
-						// Effects quality text
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
+				
+						// Ship count level box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
 						[
-							SNew(SBox)
-							.WidthOverride(LabelSize)
+							SNew(SHorizontalBox)
+
+							// Text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
 							[
-								SNew(STextBlock)
-								.Text(LOCTEXT("EffectsLabel", "Effects quality"))
-								.TextStyle(&Theme.TextFont)
+								SNew(SBox)
+								.WidthOverride(LabelSize)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("ShipCountLabel", "Max ships in sector"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// Slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(ShipCountSlider, SSlider)
+								.Value(MyGameSettings->MaxShipsInSector / 100.0f)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnShipCountSliderChanged)
+							]
+
+							// Label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(ValueSize)
+								[
+									SAssignNew(ShipCountLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetShipCountLabel(MyGameSettings->MaxShipsInSector))
+								]
 							]
 						]
-
-						// Effects quality slider
-						+ SHorizontalBox::Slot()
-						.VAlign(VAlign_Center)
-						.Padding(Theme.ContentPadding)
+				
+						// Master sound level box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
 						[
-							SAssignNew(EffectsQualitySlider, SSlider)
-							.Value(CurrentEffectsQualityRatio)
-							.Style(&Theme.SliderStyle)
-							.OnValueChanged(this, &SFlareSettingsMenu::OnEffectsQualitySliderChanged)
-						]
+							SNew(SHorizontalBox)
 
-						// Effects quality label
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SBox)
-							.WidthOverride(ValueSize)
+							// Master volume text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
 							[
-								SAssignNew(EffectsQualityLabel, STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(GetEffectsQualityLabel(MyGameSettings->ScalabilityQuality.EffectsQuality))
+								SNew(SBox)
+								.WidthOverride(LabelSize)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("MasterLabel", "Master volume"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// Master volume slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(MasterVolumeSlider, SSlider)
+								.Value(MyGameSettings->MasterVolume / 10.0f)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnMasterVolumeSliderChanged)
+							]
+
+							// Master volume label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(ValueSize)
+								[
+									SAssignNew(MasterVolumeLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetMusicVolumeLabel(MyGameSettings->MasterVolume))
+								]
 							]
 						]
-					]
-
-					// AntiAliasing quality box
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SNew(SHorizontalBox)
-
-						// Anti aliasing quality text
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
+				
+						// Music level box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
 						[
-							SNew(SBox)
-							.WidthOverride(LabelSize)
+							SNew(SHorizontalBox)
+
+							// Music volume text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
 							[
-								SNew(STextBlock)
-								.Text(LOCTEXT("AntiAliasingLabel", "Anti-aliasing quality"))
-								.TextStyle(&Theme.TextFont)
+								SNew(SBox)
+								.WidthOverride(LabelSize)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("MusicLabel", "Music volume"))
+									.TextStyle(&Theme.TextFont)
+								]
 							]
-						]
 
-						// AntiAliasing quality slider
-						+ SHorizontalBox::Slot()
-						.VAlign(VAlign_Center)
-						.Padding(Theme.ContentPadding)
-						[
-							SAssignNew(AntiAliasingQualitySlider, SSlider)
-							.Value(CurrentAntiAliasingQualityRatio)
-							.Style(&Theme.SliderStyle)
-							.OnValueChanged(this, &SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged)
-						]
-
-						// AntiAliasing quality label
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SBox)
-							.WidthOverride(ValueSize)
+							// Music volume slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
 							[
-								SAssignNew(AntiAliasingQualityLabel, STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(GetAntiAliasingQualityLabel(MyGameSettings->ScalabilityQuality.AntiAliasingQuality))
+								SAssignNew(MusicVolumeSlider, SSlider)
+								.Value(MyGameSettings->MusicVolume / 10.0f)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnMusicVolumeSliderChanged)
 							]
-						]
-					]
 
-					// PostProcess quality box
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SNew(SHorizontalBox)
-
-						// PostProcess quality text
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SBox)
-							.WidthOverride(LabelSize)
+							// Music volume label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
 							[
-								SNew(STextBlock)
-								.Text(LOCTEXT("PostProcessLabel", "Post-process quality"))
-								.TextStyle(&Theme.TextFont)
-							]
-						]
-
-						// PostProcess quality slider
-						+ SHorizontalBox::Slot()
-						.VAlign(VAlign_Center)
-						.Padding(Theme.ContentPadding)
-						[
-							SAssignNew(PostProcessQualitySlider, SSlider)
-							.Value(CurrentPostProcessQualityRatio)
-							.Style(&Theme.SliderStyle)
-							.OnValueChanged(this, &SFlareSettingsMenu::OnPostProcessQualitySliderChanged)
-						]
-
-						// PostProcess quality label
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SBox)
-							.WidthOverride(ValueSize)
-							[
-								SAssignNew(PostProcessQualityLabel, STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(GetPostProcessQualityLabel(MyGameSettings->ScalabilityQuality.PostProcessQuality))
+								SNew(SBox)
+								.WidthOverride(ValueSize)
+								[
+									SAssignNew(MusicVolumeLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetMusicVolumeLabel(MyGameSettings->MusicVolume))
+								]
 							]
 						]
 					]
 				]
 			]
 
-			// Gameplay options
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.TitlePadding)
-			.HAlign(HAlign_Left)
+			// Graphics
+			+ SWidgetSwitcher::Slot()
 			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
+				SNew(SVerticalBox)
+				
+				// Title
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("GraphicsSettingsHint", "Graphics"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				// Graphic form
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ContentWidth)
+					.HAlign(HAlign_Fill)
+					[
+						SNew(SVerticalBox)
+
+						// Resolution
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SHorizontalBox)
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(ResolutionSelector, SFlareDropList<TSharedPtr<FScreenResolutionRHI>>)
+								.OptionsSource(&ResolutionList)
+								.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateResolutionComboLine)
+								.OnSelectionChanged(this, &SFlareSettingsMenu::OnResolutionComboLineSelectionChanged)
+								.HeaderWidth(10.1)
+								.ItemWidth(10.1)
+								[
+									SNew(SBox)
+									.Padding(Theme.ListContentPadding)
+									[
+										SNew(STextBlock)
+										.Text(this, &SFlareSettingsMenu::OnGetCurrentResolutionComboLine)
+										.TextStyle(&Theme.TextFont)
+									]
+								]
+							]
+						]
+
+						// Buttons
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(SHorizontalBox)
+							
+							// Fullscreen
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(FullscreenButton, SFlareButton)
+								.Text(LOCTEXT("Fullscreen", "Fullscreen"))
+								.HelpText(LOCTEXT("FullscreenInfo", "Show the game in full screen"))
+								.Toggle(true)
+								.OnClicked(this, &SFlareSettingsMenu::OnFullscreenToggle)
+							]
+
+							// VSync
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(VSyncButton, SFlareButton)
+								.Text(LOCTEXT("V-sync", "V-Sync"))
+								.HelpText(LOCTEXT("VSyncInfo", "Vertical synchronization ensures that every image is consistent, even with low performance."))
+								.Toggle(true)
+								.OnClicked(this, &SFlareSettingsMenu::OnVSyncToggle)
+							]
+						]
+					
+
+						// Buttons 2
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(SHorizontalBox)
+
+							// Motion blur
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(MotionBlurButton, SFlareButton)
+								.Text(LOCTEXT("MotionBlur", "Use motion blur"))
+								.HelpText(LOCTEXT("MotionBlurInfo", "Motion blur makes the game feel much more responsive and fluid."))
+								.Toggle(true)
+								.OnClicked(this, &SFlareSettingsMenu::OnMotionBlurToggle)
+							]
+
+							// Temporal AA
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(TemporalAAButton, SFlareButton)
+								.Text(LOCTEXT("TemporalAA", "Use Temporal AA"))
+								.HelpText(LOCTEXT("TemporalAAInfo", "Temporal Anti-Aliasing is a cleaner AA method, but might create ghosting artifacts on some computers."))
+								.Toggle(true)
+								.OnClicked(this, &SFlareSettingsMenu::OnTemporalAAToggle)
+							]
+
+							// Supersampling
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							[
+								SAssignNew(SupersamplingButton, SFlareButton)
+								.Text(LOCTEXT("Supersampling", "2x Supersampling (!)"))
+								.HelpText(LOCTEXT("SupersamplingInfo", "Supersampling will render the scenes at double the resolution. This is a very demanding feature."))
+								.Toggle(true)
+								.OnClicked(this, &SFlareSettingsMenu::OnSupersamplingToggle)
+							]
+						]
+
+						// Texture quality box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
+
+							// Texture quality text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(LabelSize)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("TextureLabel", "Texture quality"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// Texture quality slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(TextureQualitySlider, SSlider)
+								.Value(CurrentTextureQualityRatio)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnTextureQualitySliderChanged)
+							]
+
+							// Texture quality label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(ValueSize)
+								[
+									SAssignNew(TextureQualityLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetTextureQualityLabel(MyGameSettings->ScalabilityQuality.TextureQuality))
+								]
+							]
+						]
+
+						// Effets quality box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
+
+							// Effects quality text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(LabelSize)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("EffectsLabel", "Effects quality"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// Effects quality slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(EffectsQualitySlider, SSlider)
+								.Value(CurrentEffectsQualityRatio)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnEffectsQualitySliderChanged)
+							]
+
+							// Effects quality label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(ValueSize)
+								[
+									SAssignNew(EffectsQualityLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetEffectsQualityLabel(MyGameSettings->ScalabilityQuality.EffectsQuality))
+								]
+							]
+						]
+
+						// AntiAliasing quality box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
+
+							// Anti aliasing quality text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(LabelSize)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("AntiAliasingLabel", "Anti-aliasing quality"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// AntiAliasing quality slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(AntiAliasingQualitySlider, SSlider)
+								.Value(CurrentAntiAliasingQualityRatio)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged)
+							]
+
+							// AntiAliasing quality label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(ValueSize)
+								[
+									SAssignNew(AntiAliasingQualityLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetAntiAliasingQualityLabel(MyGameSettings->ScalabilityQuality.AntiAliasingQuality))
+								]
+							]
+						]
+
+						// PostProcess quality box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
+
+							// PostProcess quality text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(LabelSize)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("PostProcessLabel", "Post-process quality"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// PostProcess quality slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(PostProcessQualitySlider, SSlider)
+								.Value(CurrentPostProcessQualityRatio)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnPostProcessQualitySliderChanged)
+							]
+
+							// PostProcess quality label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(ValueSize)
+								[
+									SAssignNew(PostProcessQualityLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetPostProcessQualityLabel(MyGameSettings->ScalabilityQuality.PostProcessQuality))
+								]
+							]
+						]
+					]
+				]
+			]
+			
+			// Controls 1
+			+ SWidgetSwitcher::Slot()
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("ControlsSettingsHint", "Controls"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				// Controls form
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
 				.HAlign(HAlign_Fill)
 				[
-					SNew(SVerticalBox)
+					BuildKeyBindingBox()
+				]
+			]
 
-					// Title
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+			// Gamepad and joystick
+			+ SWidgetSwitcher::Slot()
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("ControlsSettings2Hint", "Controls"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				// Gamepad
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("GamepadSettingsHint", "GAMEPAD"))
+					.TextStyle(&Theme.NameFont)
+				]
+
+				// Gamepad options
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(SHorizontalBox)
+							
+					// Alternate input
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
 					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("GameplayHint", "Gameplay"))
-						.TextStyle(&Theme.SubTitleFont)
+						SAssignNew(TurnWithLeftStickButton, SFlareButton)
+						.Text(LOCTEXT("TurnWithLeftStick", "Turn with left stick"))
+						.HelpText(LOCTEXT("TurnWithLeftStickInfo", "Use the left thumbstick to turn and the tight thumbstick to move"))
+						.Toggle(true)
+						.OnClicked(this, &SFlareSettingsMenu::OnTurnWithLeftStickToggle)
 					]
-				
-					// Options
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
+				]
+			
+				// Gamepad
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(SImage)
+					.Image(this, &SFlareSettingsMenu::GetGamepadDrawing)
+				]
+
+				// Joystick
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("JoystickSettingsHint", "JOYSTICK"))
+					.TextStyle(&Theme.NameFont)
+				]
+
+				// Controls form
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Fill)
+				[
+					BuildJoystickBindingBox()
+				]
+
+				// Joystick options
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(SHorizontalBox)
+							
+					// Forward only
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
 					[
-						SNew(SHorizontalBox)
-					
-						// Invert vertical
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(InvertYButton, SFlareButton)
-							.Text(LOCTEXT("InvertY", "Invert vertical"))
-							.HelpText(LOCTEXT("InvertYInfo", "Invert the vertical axis of the mouse while flying"))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnInvertYToggle)
-						]
-
-#if !UE_BUILD_SHIPPING
-						// Cockpit
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(CockpitButton, SFlareButton)
-							.Text(LOCTEXT("Cockpit", "Use cockpit"))
-							.HelpText(LOCTEXT("CockpitInfo", "Use the immersive 3D cockpit instead of a flat interface."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnCockpitToggle)
-						]
-#endif
-					
-						// Anticollision
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(AnticollisionButton, SFlareButton)
-							.Text(LOCTEXT("Anticollision", "Use anticollision"))
-							.HelpText(LOCTEXT("AnticollisionInfo", "Anti-collision will prevent your ship from crahsing into objects and forbid close fly-bys."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnAnticollisionToggle)
-						]
+						SAssignNew(ForwardOnlyThrustButton, SFlareButton)
+						.Text(LOCTEXT("ForwardOnlyThrust", "Forward-only thrust"))
+						.HelpText(LOCTEXT("ForwardOnlyThrustInfo", "Prevent the thrust control on the joystick from creating backward thrust"))
+						.Toggle(true)
+						.OnClicked(this, &SFlareSettingsMenu::OnForwardOnlyThrustToggle)
 					]
-
-					// FOV box
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					[
-						SNew(SHorizontalBox)
-
-						// FOV text
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SBox)
-							.WidthOverride(LabelSize)
-							[
-								SNew(STextBlock)
-								.Text(LOCTEXT("FOVLabel", "Field of view"))
-								.TextStyle(&Theme.TextFont)
-							]
-						]
-
-						// FOV slider
-						+ SHorizontalBox::Slot()
-						.VAlign(VAlign_Center)
-						.Padding(Theme.ContentPadding)
-						[
-							SAssignNew(FOVSlider, SSlider)
-							.Value(CurrentFOVRatio)
-							.Style(&Theme.SliderStyle)
-							.OnValueChanged(this, &SFlareSettingsMenu::OnFOVSliderChanged)
-						]
-
-						// FOV label
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SBox)
-							.WidthOverride(ValueSize)
-							[
-								SAssignNew(FOVLabel, STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(GetFOVLabel(MyGameSettings->VerticalFOV))
-							]
-						]
-					]
-				
-					// Ship count level box
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+				]
+			
+				// Joystick dead zone (rotation)
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ContentWidth)
+					.HAlign(HAlign_Fill)
 					[
 						SNew(SHorizontalBox)
 
@@ -548,7 +892,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.WidthOverride(LabelSize)
 							[
 								SNew(STextBlock)
-								.Text(LOCTEXT("ShipCountLabel", "Max ships in sector"))
+								.Text(LOCTEXT("JoystickRotationDeadZone", "Rotation dead zone"))
 								.TextStyle(&Theme.TextFont)
 							]
 						]
@@ -558,34 +902,26 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						.VAlign(VAlign_Center)
 						.Padding(Theme.ContentPadding)
 						[
-							SAssignNew(ShipCountSlider, SSlider)
-							.Value(MyGameSettings->MaxShipsInSector / 100.0f)
+							SNew(SSlider)
+							.Value(MyGameSettings->RotationDeadZone)
 							.Style(&Theme.SliderStyle)
-							.OnValueChanged(this, &SFlareSettingsMenu::OnShipCountSliderChanged)
-						]
-
-						// Label
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SBox)
-							.WidthOverride(ValueSize)
-							[
-								SAssignNew(ShipCountLabel, STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(GetShipCountLabel(MyGameSettings->MaxShipsInSector))
-							]
+							.OnValueChanged(this, &SFlareSettingsMenu::OnRotationDeadZoneSliderChanged)
 						]
 					]
-				
-					// Master sound level box
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+				]
+			
+				// Joystick dead zone (roll)
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ContentWidth)
+					.HAlign(HAlign_Fill)
 					[
 						SNew(SHorizontalBox)
 
-						// Master volume text
+						// Text
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						.Padding(Theme.ContentPadding)
@@ -594,44 +930,36 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.WidthOverride(LabelSize)
 							[
 								SNew(STextBlock)
-								.Text(LOCTEXT("MasterLabel", "Master volume"))
+								.Text(LOCTEXT("JoystickRollDeadZone", "Roll dead zone"))
 								.TextStyle(&Theme.TextFont)
 							]
 						]
 
-						// Master volume slider
+						// Slider
 						+ SHorizontalBox::Slot()
 						.VAlign(VAlign_Center)
 						.Padding(Theme.ContentPadding)
 						[
-							SAssignNew(MasterVolumeSlider, SSlider)
-							.Value(MyGameSettings->MasterVolume / 10.0f)
+							SNew(SSlider)
+							.Value(MyGameSettings->RollDeadZone)
 							.Style(&Theme.SliderStyle)
-							.OnValueChanged(this, &SFlareSettingsMenu::OnMasterVolumeSliderChanged)
-						]
-
-						// Master volume label
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SBox)
-							.WidthOverride(ValueSize)
-							[
-								SAssignNew(MasterVolumeLabel, STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(GetMusicVolumeLabel(MyGameSettings->MasterVolume))
-							]
+							.OnValueChanged(this, &SFlareSettingsMenu::OnRollDeadZoneSliderChanged)
 						]
 					]
-				
-					// Music level box
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+				]
+			
+				// Joystick dead zone (translation)
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ContentWidth)
+					.HAlign(HAlign_Fill)
 					[
 						SNew(SHorizontalBox)
 
-						// Music volume text
+						// Text
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						.Padding(Theme.ContentPadding)
@@ -640,252 +968,21 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.WidthOverride(LabelSize)
 							[
 								SNew(STextBlock)
-								.Text(LOCTEXT("MusicLabel", "Music volume"))
+								.Text(LOCTEXT("JoystickTranslationDeadZone", "Translation dead zone"))
 								.TextStyle(&Theme.TextFont)
 							]
 						]
 
-						// Music volume slider
+						// Slider
 						+ SHorizontalBox::Slot()
 						.VAlign(VAlign_Center)
 						.Padding(Theme.ContentPadding)
 						[
-							SAssignNew(MusicVolumeSlider, SSlider)
-							.Value(MyGameSettings->MusicVolume / 10.0f)
+							SNew(SSlider)
+							.Value(MyGameSettings->TranslationDeadZone)
 							.Style(&Theme.SliderStyle)
-							.OnValueChanged(this, &SFlareSettingsMenu::OnMusicVolumeSliderChanged)
+							.OnValueChanged(this, &SFlareSettingsMenu::OnTranslationDeadZoneSliderChanged)
 						]
-
-						// Music volume label
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SBox)
-							.WidthOverride(ValueSize)
-							[
-								SAssignNew(MusicVolumeLabel, STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(GetMusicVolumeLabel(MyGameSettings->MusicVolume))
-							]
-						]
-					]
-				]
-			]
-
-			// Controls
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.TitlePadding)
-			.HAlign(HAlign_Left)
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("ControlsSettingsHint", "Controls"))
-				.TextStyle(&Theme.SubTitleFont)
-			]
-
-			// Controls form
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			.HAlign(HAlign_Fill)
-			[
-				BuildKeyBindingBox()
-			]
-
-			// Gamepad
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.TitlePadding)
-			.HAlign(HAlign_Left)
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("GamepadSettingsHint", "GAMEPAD"))
-				.TextStyle(&Theme.NameFont)
-			]
-
-			// Gamepad options
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			.HAlign(HAlign_Left)
-			[
-				SNew(SHorizontalBox)
-							
-				// Alternate input
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.SmallContentPadding)
-				[
-					SAssignNew(TurnWithLeftStickButton, SFlareButton)
-					.Text(LOCTEXT("TurnWithLeftStick", "Turn with left stick"))
-					.HelpText(LOCTEXT("TurnWithLeftStickInfo", "Use the left thumbstick to turn and the tight thumbstick to move"))
-					.Toggle(true)
-					.OnClicked(this, &SFlareSettingsMenu::OnTurnWithLeftStickToggle)
-				]
-			]
-			
-			// Gamepad
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.TitlePadding)
-			.HAlign(HAlign_Left)
-			[
-				SNew(SImage)
-				.Image(this, &SFlareSettingsMenu::GetGamepadDrawing)
-			]
-
-			// Joystick
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.TitlePadding)
-			.HAlign(HAlign_Left)
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("JoystickSettingsHint", "JOYSTICK"))
-				.TextStyle(&Theme.NameFont)
-			]
-
-			// Controls form
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			.HAlign(HAlign_Fill)
-			[
-				BuildJoystickBindingBox()
-			]
-
-			// Joystick options
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			.HAlign(HAlign_Left)
-			[
-				SNew(SHorizontalBox)
-							
-				// Forward only
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.SmallContentPadding)
-				[
-					SAssignNew(ForwardOnlyThrustButton, SFlareButton)
-					.Text(LOCTEXT("ForwardOnlyThrust", "Forward-only thrust"))
-					.HelpText(LOCTEXT("ForwardOnlyThrustInfo", "Prevent the thrust control on the joystick from creating backward thrust"))
-					.Toggle(true)
-					.OnClicked(this, &SFlareSettingsMenu::OnForwardOnlyThrustToggle)
-				]
-			]
-			
-			// Joystick dead zone (rotation)
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Left)
-			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
-				.HAlign(HAlign_Fill)
-				[
-					SNew(SHorizontalBox)
-
-					// Text
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.WidthOverride(LabelSize)
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("JoystickRotationDeadZone", "Rotation dead zone"))
-							.TextStyle(&Theme.TextFont)
-						]
-					]
-
-					// Slider
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SSlider)
-						.Value(MyGameSettings->RotationDeadZone)
-						.Style(&Theme.SliderStyle)
-						.OnValueChanged(this, &SFlareSettingsMenu::OnRotationDeadZoneSliderChanged)
-					]
-				]
-			]
-			
-			// Joystick dead zone (roll)
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Left)
-			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
-				.HAlign(HAlign_Fill)
-				[
-					SNew(SHorizontalBox)
-
-					// Text
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.WidthOverride(LabelSize)
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("JoystickRollDeadZone", "Roll dead zone"))
-							.TextStyle(&Theme.TextFont)
-						]
-					]
-
-					// Slider
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SSlider)
-						.Value(MyGameSettings->RollDeadZone)
-						.Style(&Theme.SliderStyle)
-						.OnValueChanged(this, &SFlareSettingsMenu::OnRollDeadZoneSliderChanged)
-					]
-				]
-			]
-			
-			// Joystick dead zone (translation)
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Left)
-			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
-				.HAlign(HAlign_Fill)
-				[
-					SNew(SHorizontalBox)
-
-					// Text
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.WidthOverride(LabelSize)
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("JoystickTranslationDeadZone", "Translation dead zone"))
-							.TextStyle(&Theme.TextFont)
-						]
-					]
-
-					// Slider
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SSlider)
-						.Value(MyGameSettings->TranslationDeadZone)
-						.Style(&Theme.SliderStyle)
-						.OnValueChanged(this, &SFlareSettingsMenu::OnTranslationDeadZoneSliderChanged)
 					]
 				]
 			]
@@ -1220,6 +1317,21 @@ void SFlareSettingsMenu::Exit()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+int32 SFlareSettingsMenu::GetCurrentTabIndex() const
+{
+	return CurrentTabIndex;
+}
+
+bool SFlareSettingsMenu::IsCurrentTab(int32 Index) const
+{
+	return (CurrentTabIndex == Index);
+}
+
+void SFlareSettingsMenu::SetCurrentTabIndex(int32 Index)
+{
+	CurrentTabIndex = Index;
+}
 
 FText SFlareSettingsMenu::OnGetCurrentCultureComboLine() const
 {
