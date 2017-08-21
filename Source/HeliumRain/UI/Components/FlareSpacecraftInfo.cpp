@@ -392,6 +392,8 @@ void SFlareSpacecraftInfo::SetMinimized(bool NewState)
 void SFlareSpacecraftInfo::Show()
 {
 	FCHECK(PC);
+
+	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
 	if (Minimized)
@@ -566,11 +568,14 @@ void SFlareSpacecraftInfo::Show()
 
 void SFlareSpacecraftInfo::Hide()
 {
+	PC->GetMenuManager()->UnregisterSpacecraftInfo(this);
+
 	MessageBox->ClearChildren();
 	TargetSpacecraft = NULL;
 	TargetSpacecraftDesc = NULL;
+
 	SetVisibility(EVisibility::Collapsed);
-	PC->GetMenuManager()->UnregisterSpacecraftInfo(this);
+	SetEnabled(false);
 }
 
 void SFlareSpacecraftInfo::Hotkey(int32 Index)
