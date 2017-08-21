@@ -648,6 +648,20 @@ void SFlareSpacecraftInfo::UpdateCapabilitiesInfo()
 			AddMessage(PC->GetCurrentObjective()->Name, FFlareStyleSet::GetIcon("ContractSmall"), NULL, 0);
 		}
 
+		if (TargetSpacecraft->IsStation())
+		{
+			float Efficiency = TargetSpacecraft->GetStationEfficiency();
+			if (Efficiency < 1)
+			{
+				int EfficiencyPercent = FMath::RoundToInt(100 * Efficiency);
+
+				AddMessage(FText::Format(LOCTEXT("StationEfficiencyFormat", "This station was damaged and operates at {0}% efficiency"), FText::AsNumber(EfficiencyPercent)),
+					FFlareStyleSet::GetIcon("Damage"),
+					NULL,
+					0);
+			}
+		}
+
 		if (TargetSpacecraft->IsShipyard())
 		{
 			AddMessage(LOCTEXT("ShipyardCapability", "You can order and upgrade ships at this station"), FFlareStyleSet::GetIcon("Shipyard"), NULL, 0);
