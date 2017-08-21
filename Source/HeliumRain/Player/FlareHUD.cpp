@@ -85,8 +85,10 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDOrientationIconObj     (TEXT("/Game/Slate/Icons/TX_Icon_Travel.TX_Icon_Travel"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDistanceIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_Distance.TX_Icon_Distance"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDContractIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_ContractTarget.TX_Icon_ContractTarget"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDShipyardIconObj       (TEXT("/Game/Slate/Icons/TX_Icon_Shipyard.TX_Icon_Shipyard"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDUpgradeIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_UpgradeCapability.TX_Icon_UpgradeCapability"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDShipyardIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_Shipyard.TX_Icon_Shipyard"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDUpgradeIconObj         (TEXT("/Game/Slate/Icons/TX_Icon_UpgradeCapability.TX_Icon_UpgradeCapability"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDConstructionIconObj    (TEXT("/Game/Slate/Icons/TX_Icon_New.TX_Icon_New"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDConsumerIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_Sector.TX_Icon_Sector"));
 
 	// Load content (fonts)
 	static ConstructorHelpers::FObjectFinder<UFont>      HUDFontSmallObj           (TEXT("/Game/Slate/Fonts/HudFontSmall.HudFontSmall"));
@@ -133,6 +135,8 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDContractIcon = HUDContractIconObj.Object;
 	HUDShipyardIcon = HUDShipyardIconObj.Object;
 	HUDUpgradeIcon = HUDUpgradeIconObj.Object;
+	HUDConstructionIcon = HUDConstructionIconObj.Object;
+	HUDConsumerIcon = HUDConsumerIconObj.Object;
 
 	// Set content (fonts)
 	HUDFontSmall = HUDFontSmallObj.Object;
@@ -1705,21 +1709,31 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 		Rotation);
 }
 
-FVector2D AFlareHUD::DrawHUDDesignatorHint(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* Ship, FLinearColor Color)
+FVector2D AFlareHUD::DrawHUDDesignatorHint(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* TargetSpacecraft, FLinearColor Color)
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	
-	if (Ship->GetParent()->IsShipyard())
+	if (TargetSpacecraft->GetParent()->IsShipyard())
 	{
 		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDShipyardIcon, Color);
 	}
 
-	if (Ship->GetParent()->HasCapability(EFlareSpacecraftCapability::Upgrade))
+	if (TargetSpacecraft->GetParent()->HasCapability(EFlareSpacecraftCapability::Upgrade))
 	{
 		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDUpgradeIcon, Color);
 	}
 
-	if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->TargetSpacecrafts.Find(Ship->GetParent()) != INDEX_NONE)
+	if (TargetSpacecraft->IsStation() && TargetSpacecraft->GetParent()->HasCapability(EFlareSpacecraftCapability::Consumer))
+	{
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDConsumerIcon, Color);
+	}
+
+	if (TargetSpacecraft->IsStation() && TargetSpacecraft->GetParent()->IsUnderConstruction())
+	{
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDConstructionIcon, Color);
+	}
+
+	if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->TargetSpacecrafts.Find(TargetSpacecraft->GetParent()) != INDEX_NONE)
 	{
 		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDContractIcon, Color);
 	}

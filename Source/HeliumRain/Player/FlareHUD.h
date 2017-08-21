@@ -276,6 +276,8 @@ protected:
 	UTexture2D*                             HUDContractIcon;
 	UTexture2D*                             HUDShipyardIcon;
 	UTexture2D*                             HUDUpgradeIcon;
+	UTexture2D*                             HUDConstructionIcon;
+	UTexture2D*                             HUDConsumerIcon;
 
 	// Font
 	UFont*                                  HUDFontSmall;

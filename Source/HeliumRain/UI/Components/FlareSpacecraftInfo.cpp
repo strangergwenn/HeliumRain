@@ -554,9 +554,8 @@ void SFlareSpacecraftInfo::Show()
 
 	// Update message box
 	MessageBox->ClearChildren();
-	UpdateObjectiveInfo();
-	UpdateConstructionInfo();
 	UpdateCaptureList();
+	UpdateCapabilitiesInfo();
 
 	if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Trade)
 	{
@@ -640,25 +639,42 @@ void SFlareSpacecraftInfo::Hotkey(int32 Index)
 	Callbacks
 ----------------------------------------------------*/
 
-void SFlareSpacecraftInfo::UpdateObjectiveInfo()
+void SFlareSpacecraftInfo::UpdateCapabilitiesInfo()
 {
-	if (TargetSpacecraft && PC->GetCurrentObjective() && PC->GetCurrentObjective()->IsTarget(TargetSpacecraft))
+	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
 	{
-		AddMessage(PC->GetCurrentObjective()->Name, NULL, 0);
+		if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->IsTarget(TargetSpacecraft))
+		{
+			AddMessage(PC->GetCurrentObjective()->Name, FFlareStyleSet::GetIcon("ContractSmall"), NULL, 0);
+		}
+
+		if (TargetSpacecraft->IsShipyard())
+		{
+			AddMessage(LOCTEXT("ShipyardCapability", "You can order ships at this station."), FFlareStyleSet::GetIcon("Shipyard"), NULL, 0);
+		}
+
+		if (TargetSpacecraft->IsStation() && TargetSpacecraft->HasCapability(EFlareSpacecraftCapability::Upgrade))
+		{
+			AddMessage(LOCTEXT("UpgradeCapability", "You can upgrade your ship at this station."), FFlareStyleSet::GetIcon("ShipUpgradeSmall"), NULL, 0);
+		}
+
+		if (TargetSpacecraft->IsStation() && TargetSpacecraft->HasCapability(EFlareSpacecraftCapability::Consumer))
+		{
+			AddMessage(LOCTEXT("ConsumerCapability", "This station can buy consumer resources."), FFlareStyleSet::GetIcon("Sector_Small"), NULL, 0);
+		}
+
+		if (TargetSpacecraft->IsStation() && TargetSpacecraft->IsUnderConstruction())
+		{
+			FText ConstructionInfo = LOCTEXT("ConstructionInfo", "This station is under construction and needs resources to be completed.");
+			AddMessage(ConstructionInfo, FFlareStyleSet::GetIcon("New"), NULL, 0);
+		}
 	}
 }
 
-void SFlareSpacecraftInfo::UpdateConstructionInfo()
+bool SFlareSpacecraftInfo::UpdateCaptureList()
 {
-	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel() && TargetSpacecraft->IsStation() && TargetSpacecraft->IsUnderConstruction())
-	{
-		FText ConstructionInfo = LOCTEXT("ConstructionInfo", "This station is under construction and needs resources to be completed.");
-		AddMessage(ConstructionInfo, NULL, 0);
-	}
-}
+	bool CaptureInProgress = false;
 
-void SFlareSpacecraftInfo::UpdateCaptureList()
-{
 	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel() && TargetSpacecraft->IsStation())
 	{
 		// Find all companies that could capture this
@@ -672,13 +688,20 @@ void SFlareSpacecraftInfo::UpdateCaptureList()
 					Company->GetCompanyName(),
 					Company->GetPlayerHostilityText());
 
-				AddMessage(CaptureInfo, Company, static_cast<float>(TargetSpacecraft->GetCapturePoint(Company)) / static_cast<float>(TargetSpacecraft->GetCapturePointThreshold()));
+				CaptureInProgress = true;
+
+				AddMessage(CaptureInfo,
+					NULL,
+					Company,
+					static_cast<float>(TargetSpacecraft->GetCapturePoint(Company)) / static_cast<float>(TargetSpacecraft->GetCapturePointThreshold()));
 			}
 		}
 	}
+
+	return CaptureInProgress;
 }
 
-void SFlareSpacecraftInfo::AddMessage(FText Message, UFlareCompany* CaptureCompany, float Progress)
+void SFlareSpacecraftInfo::AddMessage(FText Message, const FSlateBrush* Icon, UFlareCompany* CaptureCompany, float Progress)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
@@ -694,7 +717,19 @@ void SFlareSpacecraftInfo::AddMessage(FText Message, UFlareCompany* CaptureCompa
 		[
 			SAssignNew(Temp, SHorizontalBox)
 		]
-	];	
+	];
+
+	// Icon
+	if (Icon)
+	{
+		Temp->AddSlot()
+		.AutoWidth()
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(SImage)
+			.Image(Icon)
+		];
+	}
 
 	// Flag
 	if (CaptureCompany)

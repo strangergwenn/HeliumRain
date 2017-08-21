@@ -68,18 +68,15 @@ public:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-
-	/** Update the objective state */
-	void UpdateObjectiveInfo();
-
-	/** Update the construction state */
-	void UpdateConstructionInfo();
-
+	
 	/** Update a list of capturing companies */
-	void UpdateCaptureList();
+	bool UpdateCaptureList();
+
+	/** Update the capabilities info */
+	void UpdateCapabilitiesInfo();
 
 	/** Add a message info */
-	void AddMessage(FText Message, UFlareCompany* CaptureCompany, float Progress);
+	void AddMessage(FText Message, const FSlateBrush* Icon, UFlareCompany* CaptureCompany, float Progress);
 
 	/** Can we target the current spacecraft ? */
 	bool IsTargetDisabled() const;
