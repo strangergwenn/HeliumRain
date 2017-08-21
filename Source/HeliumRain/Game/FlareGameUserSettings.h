@@ -64,6 +64,10 @@ public:
 	UPROPERTY(Config)
 	bool                                     PauseGameInMenus;
 
+	/** Whether to use the alternate gamepad inputs */
+	UPROPERTY(Config)
+	bool                                     TurnWithLeftStick;
+
 	/** Whether to restrict thrust to forward */
 	UPROPERTY(Config)
 	bool                                     ForwardOnlyThrust;

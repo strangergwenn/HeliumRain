@@ -120,6 +120,15 @@ void AddMissingActionMapping(UInputSettings* InputSettings, FName ActionName, FN
 	InputSettings->AddActionMapping(Bind);
 }
 
+void RemoveAxisMapping(UInputSettings* InputSettings, FName AxisName, FName KeyName, float Scale)
+{
+	FInputAxisKeyMapping Bind;
+	Bind.AxisName = AxisName;
+	Bind.Key = FKey(KeyName);
+	Bind.Scale = Scale;
+	InputSettings->RemoveAxisMapping(Bind);
+}
+
 void AddMissingAxisMapping(UInputSettings* InputSettings, FName AxisName, FName KeyName, float Scale)
 {
 	FInputAxisKeyMapping Bind;
@@ -162,16 +171,23 @@ void AFlarePlayerController::BeginPlay()
 	PauseGameInMenus = MyGameSettings->PauseGameInMenus;
 	SetUseMotionBlur(MyGameSettings->UseMotionBlur);
 
-	// Add missing gamepad mappings (#903, hotfix 1, Early Access)
+	// Remove previous gamepad mappings (#931)
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+	RemoveAxisMapping(InputSettings, "GamepadMoveVerticalInput", "Gamepad_LeftThumbstick", -1.0f);
+	RemoveAxisMapping(InputSettings, "GamepadMoveVerticalInput", "Gamepad_RightThumbstick", 1.0f);
+	RemoveAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftY", -1.0f);
+	RemoveAxisMapping(InputSettings, "NormalRollInput", "Gamepad_LeftShoulder", -1.0f);
+	RemoveAxisMapping(InputSettings, "NormalRollInput", "Gamepad_RightShoulder", 1.0f);
+	
+	// Add gamepad mappings (#930, #931)
 	AddMissingAxisMapping(InputSettings, "GamepadMoveHorizontalInput", "Gamepad_LeftX", 1.0f);
-	AddMissingAxisMapping(InputSettings, "GamepadMoveVerticalInput", "Gamepad_LeftThumbstick", -1.0f);
-	AddMissingAxisMapping(InputSettings, "GamepadMoveVerticalInput", "Gamepad_RightThumbstick", 1.0f);
-	AddMissingAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftY", -1.0f);
+	AddMissingAxisMapping(InputSettings, "GamepadMoveVerticalInput", "Gamepad_LeftY", -1.0f);
 	AddMissingAxisMapping(InputSettings, "GamepadYawInput", "Gamepad_RightX", 1.0f);
 	AddMissingAxisMapping(InputSettings, "GamepadPitchInput", "Gamepad_RightY", -1.0f);
-	AddMissingAxisMapping(InputSettings, "NormalRollInput", "Gamepad_LeftShoulder", -1.0f);
-	AddMissingAxisMapping(InputSettings, "NormalRollInput", "Gamepad_RightShoulder", 1.0f);
+	AddMissingAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftShoulder", -1.0f);
+	AddMissingAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_RightShoulder", 1.0f);
+	AddMissingAxisMapping(InputSettings, "NormalRollInput", "Gamepad_LeftThumbstick", -1.0f);
+	AddMissingAxisMapping(InputSettings, "NormalRollInput", "Gamepad_RightThumbstick", 1.0f);
 	AddMissingActionMapping(InputSettings, "CombatZoom", "Gamepad_LeftTrigger");
 	AddMissingActionMapping(InputSettings, "StartFire", "Gamepad_RightTrigger");
 	AddMissingActionMapping(InputSettings, "NextTarget", "Gamepad_DPad_Right");
@@ -1556,11 +1572,11 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAxis("MouseInputY", this, &AFlarePlayerController::MouseInputY);
 
 	// Gamepad
-	InputComponent->BindAxis("GamepadMoveHorizontalInput", this, &AFlarePlayerController::GamepadMoveHorizontalInput);
-	InputComponent->BindAxis("GamepadMoveVerticalInput", this, &AFlarePlayerController::GamepadMoveVerticalInput);
+	InputComponent->BindAxis("GamepadMoveHorizontalInput", this, &AFlarePlayerController::GamepadLeftStickX);
+	InputComponent->BindAxis("GamepadMoveVerticalInput", this, &AFlarePlayerController::GamepadLeftStickY);
+	InputComponent->BindAxis("GamepadYawInput", this, &AFlarePlayerController::GamepadRightStickX);
+	InputComponent->BindAxis("GamepadPitchInput", this, &AFlarePlayerController::GamepadRightStickY);
 	InputComponent->BindAxis("GamepadThrustInput", this, &AFlarePlayerController::GamepadThrustInput);
-	InputComponent->BindAxis("GamepadYawInput", this, &AFlarePlayerController::GamepadYawInput);
-	InputComponent->BindAxis("GamepadPitchInput", this, &AFlarePlayerController::GamepadPitchInput);
 
 	// Joystick
 	InputComponent->BindAxis("JoystickMoveHorizontalInput", this, &AFlarePlayerController::JoystickMoveHorizontalInput);
@@ -2001,9 +2017,10 @@ void AFlarePlayerController::MouseInputY(float Val)
 	}
 }
 
-
-void AFlarePlayerController::GamepadMoveHorizontalInput(float Val)
+void AFlarePlayerController::GamepadLeftStickX(float Val)
 {
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
@@ -2014,20 +2031,21 @@ void AFlarePlayerController::GamepadMoveHorizontalInput(float Val)
 	}
 	else if (ShipPawn)
 	{
-		ShipPawn->GamepadMoveHorizontalInput(Val);
+		if (MyGameSettings->TurnWithLeftStick)
+		{
+			ShipPawn->GamepadYawInput(Val);
+		}
+		else
+		{
+			ShipPawn->GamepadMoveHorizontalInput(Val);
+		}
 	}
 }
 
-void AFlarePlayerController::GamepadMoveVerticalInput(float Val)
+void AFlarePlayerController::GamepadLeftStickY(float Val)
 {
-	if (ShipPawn && !MenuManager->IsUIOpen())
-	{
-		ShipPawn->GamepadMoveVerticalInput(Val);
-	}
-}
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 
-void AFlarePlayerController::GamepadThrustInput(float Val)
-{
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(0, Val));
@@ -2038,12 +2056,21 @@ void AFlarePlayerController::GamepadThrustInput(float Val)
 	}
 	else if (ShipPawn)
 	{
-		ShipPawn->GamepadThrustInput(Val);
+		if (MyGameSettings->TurnWithLeftStick)
+		{
+			ShipPawn->GamepadPitchInput(-Val);
+		}
+		else
+		{
+			ShipPawn->GamepadMoveVerticalInput(-Val);
+		}
 	}
 }
 
-void AFlarePlayerController::GamepadYawInput(float Val)
+void AFlarePlayerController::GamepadRightStickX(float Val)
 {
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
@@ -2058,12 +2085,21 @@ void AFlarePlayerController::GamepadYawInput(float Val)
 	}
 	else if (ShipPawn)
 	{
-		ShipPawn->GamepadYawInput(Val);
+		if (MyGameSettings->TurnWithLeftStick)
+		{
+			ShipPawn->GamepadMoveHorizontalInput(Val);
+		}
+		else
+		{
+			ShipPawn->GamepadYawInput(Val);
+		}
 	}
 }
 
-void AFlarePlayerController::GamepadPitchInput(float Val)
+void AFlarePlayerController::GamepadRightStickY(float Val)
 {
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(0, -Val));
@@ -2079,7 +2115,22 @@ void AFlarePlayerController::GamepadPitchInput(float Val)
 	}
 	else if (ShipPawn)
 	{
-		ShipPawn->GamepadPitchInput(Val);
+		if (MyGameSettings->TurnWithLeftStick)
+		{
+			ShipPawn->GamepadMoveVerticalInput(Val);
+		}
+		else
+		{
+			ShipPawn->GamepadPitchInput(Val);
+		}
+	}
+}
+
+void AFlarePlayerController::GamepadThrustInput(float Val)
+{
+	if (ShipPawn && !MenuManager->IsUIOpen())
+	{
+		ShipPawn->GamepadThrustInput(-Val);
 	}
 }
 

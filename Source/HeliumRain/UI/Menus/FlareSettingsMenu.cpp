@@ -703,6 +703,27 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				.Text(LOCTEXT("GamepadSettingsHint", "GAMEPAD"))
 				.TextStyle(&Theme.NameFont)
 			]
+
+			// Gamepad options
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Left)
+			[
+				SNew(SHorizontalBox)
+							
+				// Alternate input
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.Padding(Theme.SmallContentPadding)
+				[
+					SAssignNew(TurnWithLeftStickButton, SFlareButton)
+					.Text(LOCTEXT("TurnWithLeftStick", "Turn with left stick"))
+					.HelpText(LOCTEXT("TurnWithLeftStickInfo", "Use the left thumbstick to turn and the tight thumbstick to move"))
+					.Toggle(true)
+					.OnClicked(this, &SFlareSettingsMenu::OnTurnWithLeftStickToggle)
+				]
+			]
 			
 			// Gamepad
 			+ SVerticalBox::Slot()
@@ -711,7 +732,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 			.HAlign(HAlign_Left)
 			[
 				SNew(SImage)
-				.Image(FFlareStyleSet::GetImage("Pad"))
+				.Image(this, &SFlareSettingsMenu::GetGamepadDrawing)
 			]
 
 			// Joystick
@@ -872,6 +893,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	];
 
 	// Default settings
+	TurnWithLeftStickButton->SetActive(MyGameSettings->TurnWithLeftStick);
 	ForwardOnlyThrustButton->SetActive(MyGameSettings->ForwardOnlyThrust);
 	VSyncButton->SetActive(MyGameSettings->IsVSyncEnabled());
 	MotionBlurButton->SetActive(MyGameSettings->UseMotionBlur);
@@ -1393,6 +1415,28 @@ void SFlareSettingsMenu::OnTranslationDeadZoneSliderChanged(float Value)
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	MyGameSettings->TranslationDeadZone = Value;
 	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnTurnWithLeftStickToggle()
+{
+	bool New = TurnWithLeftStickButton->IsActive();
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->TurnWithLeftStick = New;
+	MyGameSettings->ApplySettings(false);
+}
+
+const FSlateBrush* SFlareSettingsMenu::GetGamepadDrawing() const
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	if (MyGameSettings->TurnWithLeftStick)
+	{
+		return FFlareStyleSet::GetImage("Pad_TurnWithLeft");
+	}
+	else
+	{
+		return FFlareStyleSet::GetImage("Pad");
+	}
 }
 
 void SFlareSettingsMenu::OnForwardOnlyThrustToggle()

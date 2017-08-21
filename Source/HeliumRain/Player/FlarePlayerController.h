@@ -284,19 +284,19 @@ public:
 
 
 	/** Gamepad lateral movement X */
-	void GamepadMoveHorizontalInput(float Val);
+	void GamepadLeftStickX(float Val);
 
 	/** Gamepad lateral movement Y */
-	void GamepadMoveVerticalInput(float Val);
+	void GamepadLeftStickY(float Val);
 
-	/** Gamepad thrust movement */
+	/** Gamepad lateral movement X */
+	void GamepadRightStickX(float Val);
+
+	/** Gamepad lateral movement Y */
+	void GamepadRightStickY(float Val);
+
+	/** Gamepad thrust */
 	void GamepadThrustInput(float Val);
-
-	/** Gamepad angular movement X */
-	void GamepadYawInput(float Val);
-
-	/** Gamepad angular movement Y */
-	void GamepadPitchInput(float Val);
 
 
 	/** Joystick lateral movement X */

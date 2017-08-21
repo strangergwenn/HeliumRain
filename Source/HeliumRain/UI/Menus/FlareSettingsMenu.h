@@ -152,10 +152,14 @@ protected:
 	void OnRollDeadZoneSliderChanged(float Value);
 	void OnTranslationDeadZoneSliderChanged(float Value);
 
+	void OnTurnWithLeftStickToggle();
+
+	const FSlateBrush* GetGamepadDrawing() const;
+
 	void OnForwardOnlyThrustToggle();
 
-	void  ApplyNewBinding(TSharedPtr<FSimpleBind> BindingThatChanged, bool Replace, bool bPrimaryKey);
-	void  CancelNewBinding(SFlareKeyBind* UIBinding, FKey PreviousKey);
+	void ApplyNewBinding(TSharedPtr<FSimpleBind> BindingThatChanged, bool Replace, bool bPrimaryKey);
+	void CancelNewBinding(SFlareKeyBind* UIBinding, FKey PreviousKey);
 
 	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, SFlareKeyBind* UIBinding, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey);
 
@@ -232,6 +236,7 @@ protected:
 	TSharedPtr<STextBlock>	        			MasterVolumeLabel;
 	
 	// Controls
+	TSharedPtr<SFlareButton>                    TurnWithLeftStickButton;
 	TSharedPtr<SFlareButton>                    ForwardOnlyThrustButton;
 	TSharedPtr<SVerticalBox>                    ControlListLeft;
 	TSharedPtr<SVerticalBox>                    ControlListRight;

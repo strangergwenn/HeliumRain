@@ -32,6 +32,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	MaxShipsInSector = 30;
 
 	// Input
+	TurnWithLeftStick = false;
 	ForwardOnlyThrust = false;
 	RotationDeadZone = 0.0f;
 	TranslationDeadZone = 0.0f;
