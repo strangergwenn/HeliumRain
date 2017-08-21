@@ -1494,7 +1494,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("ActivateWeaponDescription", "You can also activate one of your weapons directly with <input-action:WeaponGroup1> and following keys. You can have multiple differents weapons in a ship.");
+		FText Description = LOCTEXT("ActivateWeaponDescription", "You can also activate one of your weapons directly with <input-action:SpacecraftKey2> and following keys. You can have multiple differents weapons in a ship.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "activate-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
@@ -1519,7 +1519,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("DeactivateWeaponDescription", "Finally, you can directly disable your weapons with <input-action:DeactivateWeapon>.");
+		FText Description = LOCTEXT("DeactivateWeaponDescription", "Finally, you can directly disable your weapons with <input-action:SpacecraftKey1>.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "deactivate-weapon", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericEventCondition::Create(this,
