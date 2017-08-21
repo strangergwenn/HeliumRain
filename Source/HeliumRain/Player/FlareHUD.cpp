@@ -367,6 +367,11 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 	AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
+	if (!GEngine)
+	{
+		return;
+	}
+
 	// Power timer
 	if (PlayerShip
 		&& PlayerShip->GetParent()->GetDamageSystem()->IsAlive()
