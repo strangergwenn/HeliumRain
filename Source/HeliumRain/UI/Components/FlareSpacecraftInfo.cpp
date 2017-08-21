@@ -650,12 +650,11 @@ void SFlareSpacecraftInfo::UpdateCapabilitiesInfo()
 
 		if (TargetSpacecraft->IsShipyard())
 		{
-			AddMessage(LOCTEXT("ShipyardCapability", "You can order ships at this station"), FFlareStyleSet::GetIcon("Shipyard"), NULL, 0);
+			AddMessage(LOCTEXT("ShipyardCapability", "You can order and upgrade ships at this station"), FFlareStyleSet::GetIcon("Shipyard"), NULL, 0);
 		}
-
-		if (TargetSpacecraft->IsStation() && TargetSpacecraft->HasCapability(EFlareSpacecraftCapability::Upgrade))
+		else if (TargetSpacecraft->IsStation() && TargetSpacecraft->HasCapability(EFlareSpacecraftCapability::Upgrade))
 		{
-			AddMessage(LOCTEXT("UpgradeCapability", "You can upgrade your ship at this station"), FFlareStyleSet::GetIcon("ShipUpgradeSmall"), NULL, 0);
+			AddMessage(LOCTEXT("UpgradeCapability", "You can upgrade your ship by docking at this station"), FFlareStyleSet::GetIcon("ShipUpgradeSmall"), NULL, 0);
 		}
 
 		if (TargetSpacecraft->IsStation() && TargetSpacecraft->HasCapability(EFlareSpacecraftCapability::Consumer))

@@ -1717,8 +1717,7 @@ FVector2D AFlareHUD::DrawHUDDesignatorHint(FVector2D Position, float DesignatorI
 	{
 		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDShipyardIcon, Color);
 	}
-
-	if (TargetSpacecraft->GetParent()->HasCapability(EFlareSpacecraftCapability::Upgrade))
+	else if (TargetSpacecraft->GetParent()->HasCapability(EFlareSpacecraftCapability::Upgrade))
 	{
 		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDUpgradeIcon, Color);
 	}
