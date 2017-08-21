@@ -998,16 +998,6 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialTechnologyLevel::Create(this, 3));
 		Steps.Add(Step);
 	}
-
-	{
-		#undef QUEST_STEP_TAG
-		#define QUEST_STEP_TAG QUEST_TAG"ResearchTechnologyLevel3"
-		FText Description = LOCTEXT("ResearchTechnologyLevel3Description","You are now ready to research a level 3 technology.");
-		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-technology-3", Description);
-
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchTechnology::Create(this, 3));
-		Steps.Add(Step);
-	}
 }
 
 
