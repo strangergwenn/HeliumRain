@@ -5,6 +5,19 @@
 #include "Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 #include "FlareSpacecraftStateManager.generated.h"
 
+
+UENUM()
+namespace EFlareInputSource
+{
+	enum Type
+	{
+		Keyboard,
+		Gamepad,
+		Joystick
+	};
+}
+
+
 /** Combat mode manager class */
 UCLASS()
 class HELIUMRAIN_API UFlareSpacecraftStateManager : public UObject
@@ -153,6 +166,7 @@ protected:
 	FVector                                  LastPlayerLinearVelocityKeyboard;
 	FVector                                  LastPlayerLinearVelocityJoystick;
 	FVector                                  LastPlayerLinearVelocityGamepad;
+	TEnumAsByte<EFlareInputSource::Type>     LinearVelocitySource;
 	bool                                     LinearVelocityIsJoystick;
 	bool                                     LinearVelocityIsGamepad;
 

@@ -46,8 +46,7 @@ void UFlareSpacecraftStateManager::Initialize(AFlareSpacecraft* ParentSpacecraft
 	CombatZoomDuration = 0.3f;
 
 	ExternalCamera = true;
-	LinearVelocityIsJoystick = false;
-	LinearVelocityIsGamepad = false;
+	LinearVelocitySource = EFlareInputSource::Keyboard;
 	PlayerManualVelocityCommandActive = true;
 
 	LastPlayerLinearVelocityKeyboard = FVector::ZeroVector;
@@ -84,7 +83,7 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 	AFlarePlayerController* PC = Spacecraft->GetPC();
 	EFlareWeaponGroupType::Type CurrentWeaponType = Spacecraft->GetWeaponsSystem()->GetActiveWeaponType();
 	float MaxVelocity = Spacecraft->GetNavigationSystem()->GetLinearMaxVelocity();
-
+	
 	// Do not tick the pilot if a player has disable the pilot
 	if (Spacecraft->GetParent()->GetDamageSystem()->IsAlive() && IsPiloted)
 	{
@@ -135,21 +134,8 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		PlayerManualVelocityCommandActive = true;
 		PlayerManualVelocityCommand = FVector::DotProduct(Spacecraft->GetLinearVelocity(), Spacecraft->GetFrontVector()) / MaxVelocity;
 
-		// Joystick speed setting
-		if (LinearVelocityIsJoystick)
-		{
-			if (PlayerManualLinearVelocity.X / MaxVelocity < PlayerManualVelocityCommand)
-			{
-				PlayerManualVelocityCommand -= 0.1;
-			}
-			else if (PlayerManualLinearVelocity.X / MaxVelocity> PlayerManualVelocityCommand)
-			{
-				PlayerManualVelocityCommand += 0.1;
-			}
-		}
-
-		// Gamepad speed setting
-		else if (LinearVelocityIsGamepad)
+		// Keyboard speed setting
+		if (LinearVelocitySource == EFlareInputSource::Keyboard)
 		{
 			if (PlayerManualLinearVelocity.X < 0)
 			{
@@ -161,8 +147,21 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 			}
 		}
 
-		// Keyboard speed setting
-		else
+		// Joystick speed setting
+		else if (LinearVelocitySource == EFlareInputSource::Joystick)
+		{
+			if (PlayerManualLinearVelocity.X / MaxVelocity < PlayerManualVelocityCommand)
+			{
+				PlayerManualVelocityCommand -= 0.1;
+			}
+			else if (PlayerManualLinearVelocity.X / MaxVelocity > PlayerManualVelocityCommand)
+			{
+				PlayerManualVelocityCommand += 0.1;
+			}
+		}
+
+		// Gamepad speed setting
+		else if (LinearVelocitySource == EFlareInputSource::Gamepad)
 		{
 			if (PlayerManualLinearVelocity.X < 0)
 			{
@@ -520,9 +519,8 @@ void UFlareSpacecraftStateManager::SetPlayerXLinearVelocity(float Val)
 {
 	if (Val != LastPlayerLinearVelocityKeyboard.X)
 	{
+		LinearVelocitySource = EFlareInputSource::Keyboard;
 		EnablePilot(false);
-		LinearVelocityIsJoystick = false;
-		LinearVelocityIsGamepad = false;
 		LastPlayerLinearVelocityKeyboard.X = Val;
 		PlayerManualLinearVelocity.X = Val;
 	}
@@ -532,6 +530,7 @@ void UFlareSpacecraftStateManager::SetPlayerYLinearVelocity(float Val)
 {
 	if (Val != LastPlayerLinearVelocityKeyboard.Y)
 	{
+		LinearVelocitySource = EFlareInputSource::Keyboard;
 		EnablePilot(false);
 		LastPlayerLinearVelocityKeyboard.Y = Val;
 		PlayerManualLinearVelocity.Y = Val;
@@ -542,6 +541,7 @@ void UFlareSpacecraftStateManager::SetPlayerZLinearVelocity(float Val)
 {
 	if (Val != LastPlayerLinearVelocityKeyboard.Z)
 	{
+		LinearVelocitySource = EFlareInputSource::Keyboard;
 		EnablePilot(false);
 		LastPlayerLinearVelocityKeyboard.Z = Val;
 		PlayerManualLinearVelocity.Z = Val;
@@ -553,9 +553,8 @@ void UFlareSpacecraftStateManager::SetPlayerXLinearVelocityGamepad(float Val)
 {
 	if (Val != LastPlayerLinearVelocityGamepad.X)
 	{
-		LinearVelocityIsJoystick = false;
+		LinearVelocitySource = EFlareInputSource::Gamepad;
 		EnablePilot(false);
-		LinearVelocityIsGamepad = true;
 		LastPlayerLinearVelocityGamepad.X = Val;
 		PlayerManualLinearVelocity.X = Val;
 	}
@@ -565,9 +564,8 @@ void UFlareSpacecraftStateManager::SetPlayerYLinearVelocityGamepad(float Val)
 {
 	if (Val != LastPlayerLinearVelocityGamepad.Y)
 	{
-		LinearVelocityIsJoystick = false;
+		LinearVelocitySource = EFlareInputSource::Gamepad;
 		EnablePilot(false);
-		LinearVelocityIsGamepad = true;
 		LastPlayerLinearVelocityGamepad.Y = Val;
 		PlayerManualLinearVelocity.Y = Val;
 	}
@@ -577,9 +575,8 @@ void UFlareSpacecraftStateManager::SetPlayerZLinearVelocityGamepad(float Val)
 {
 	if (Val != LastPlayerLinearVelocityGamepad.Z)
 	{
-		LinearVelocityIsJoystick = false;
+		LinearVelocitySource = EFlareInputSource::Gamepad;
 		EnablePilot(false);
-		LinearVelocityIsGamepad = true;
 		LastPlayerLinearVelocityGamepad.Z = Val;
 		PlayerManualLinearVelocity.Z = Val;
 	}
@@ -589,9 +586,8 @@ void UFlareSpacecraftStateManager::SetPlayerXLinearVelocityJoystick(float Val)
 {
 	if (Val != LastPlayerLinearVelocityJoystick.X)
 	{
-		LinearVelocityIsGamepad = false;
+		LinearVelocitySource = EFlareInputSource::Joystick;
 		EnablePilot(false);
-		LinearVelocityIsJoystick = true;
 		LastPlayerLinearVelocityJoystick.X = Val;
 		PlayerManualLinearVelocity.X = Val;
 	}
@@ -601,6 +597,7 @@ void UFlareSpacecraftStateManager::SetPlayerYLinearVelocityJoystick(float Val)
 {
 	if (Val != LastPlayerLinearVelocityJoystick.Y)
 	{
+		LinearVelocitySource = EFlareInputSource::Joystick;
 		EnablePilot(false);
 		LastPlayerLinearVelocityJoystick.Y = Val;
 		PlayerManualLinearVelocity.Y = Val;
@@ -611,6 +608,7 @@ void UFlareSpacecraftStateManager::SetPlayerZLinearVelocityJoystick(float Val)
 {
 	if (Val != LastPlayerLinearVelocityJoystick.Z)
 	{
+		LinearVelocitySource = EFlareInputSource::Joystick;
 		EnablePilot(false);
 		LastPlayerLinearVelocityJoystick.Z = Val;
 		PlayerManualLinearVelocity.Z = Val;
@@ -659,7 +657,7 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 
 		FVector LocalPlayerLateralLinearVelocity = FVector(0, PlayerManualLinearVelocity.Y, PlayerManualLinearVelocity.Z);
 		FVector FinalLinearVelocity = PlayerForwardVelocity + Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalPlayerLateralLinearVelocity);
-
+				
 		// Check if we should apply anticollision to the player ship ?
 		if (Spacecraft->IsPlayerShip())
 		{
