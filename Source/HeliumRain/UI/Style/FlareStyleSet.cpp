@@ -79,6 +79,9 @@ TSharedRef< FSlateStyleSet > FFlareStyleSet::Create()
 	Style.Set("TradeText", FTextBlockStyle(DefaultTheme.TextFont)
 		.SetColorAndOpacity(DefaultTheme.TradingColor)
 	);
+	Style.Set("HighlightText", FTextBlockStyle(DefaultTheme.TextFont)
+		.SetColorAndOpacity(DefaultTheme.FriendlyColor)
+	);
 
 	return StyleRef;
 }
