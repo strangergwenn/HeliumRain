@@ -1283,7 +1283,7 @@ FText UFlareSimulatedSector::GetSectorBattleStateText(UFlareCompany* Company)
 			}
 			else
 			{
-				BattleStatusText = LOCTEXT("SectorBattleBattleLoosing", "Battle in progress, loosing");
+				BattleStatusText = LOCTEXT("SectorBattleBattleLoosing", "Battle in progress, losing");
 			}
 		}
 		else if(BattleState.BattleWon)
