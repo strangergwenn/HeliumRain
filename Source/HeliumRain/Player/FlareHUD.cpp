@@ -598,6 +598,18 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	AFlareSpacecraft* DockSpacecraft = NULL;
 	FFlareDockingParameters DockParameters;
 	bool DockingInProgress = PlayerShip->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
+
+	// Docking port visibility
+	bool DockIsVisible = false;
+	FVector2D DockingPortScreenLocation;
+	if (DockSpacecraft)
+	{
+		if (ProjectWorldLocationToCockpit(DockParameters.StationDockLocation, DockingPortScreenLocation))
+		{
+			DockIsVisible = (DockingPortScreenLocation.X > 0 && DockingPortScreenLocation.X < ViewportSize.X
+				&& DockingPortScreenLocation.Y > 0 && DockingPortScreenLocation.Y < ViewportSize.Y);
+		}
+	}
 	
 	// Scanner
 	if (PlayerShip->IsInScanningMode())
@@ -640,7 +652,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	}
 
 	// Docking helper
-	else if (DockSpacecraft)
+	else if (DockSpacecraft && DockIsVisible)
 	{
 		// Angular / linear errors
 		float AngularDot = FVector::DotProduct(DockParameters.ShipDockAxis.GetSafeNormal(), -DockParameters.StationDockAxis.GetSafeNormal());
