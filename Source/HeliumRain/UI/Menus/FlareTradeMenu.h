@@ -135,7 +135,6 @@ protected:
 	TSharedPtr<SSlider>                             QuantitySlider;
 	TSharedPtr<SEditableText>                       QuantityText;
 	TSharedPtr<SFlareConfirmationBox>               PriceBox;
-	TSharedPtr<SVerticalBox>                        ResourcePriceList;
 
 	// Data
 	UFlareSimulatedSector*                          TargetSector;

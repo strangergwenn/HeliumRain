@@ -94,26 +94,6 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("HelpText", "Your ship is ready to trade with another spacecraft."))
 							.WrapTextAt(TextWidth)
 						]
-
-						// Resource prices title
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.TitlePadding)
-						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.SubTitleFont)
-							.Text(LOCTEXT("ResourcePrices", "Local resource prices"))
-							.WrapTextAt(TextWidth)
-						]
-
-						// Help text
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						.HAlign(HAlign_Fill)
-						[
-							SAssignNew(ResourcePriceList, SVerticalBox)
-						]
 					]
 				]
 			]
@@ -375,64 +355,6 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 				ShipList->AddShip(ShipCandidate);
 			}
 		}
-	}
-
-	// Resource prices
-	ResourcePriceList->ClearChildren();
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	TArray<UFlareResourceCatalogEntry*> ResourceList = MenuManager->GetGame()->GetResourceCatalog()->GetResourceList();
-	ResourceList.Sort(&SortByResourceType);
-
-	// Resource prices
-	for (int32 ResourceIndex = 0; ResourceIndex < ResourceList.Num(); ResourceIndex++)
-	{
-		FFlareResourceDescription& Resource = ResourceList[ResourceIndex]->Data;
-		ResourcePriceList->AddSlot()
-		.Padding(FMargin(1))
-		[
-			SNew(SBorder)
-			.Padding(FMargin(1))
-			.BorderImage((ResourceIndex % 2 == 0 ? &Theme.EvenBrush : &Theme.OddBrush))
-			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
-				.Padding(FMargin(0))
-				.HAlign(HAlign_Fill)
-				[
-					SNew(SHorizontalBox)
-
-					// Icon
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					[
-						SNew(SBorder)
-						.Padding(FMargin(0))
-						.BorderImage(&Resource.Icon)
-						[
-							SNew(SBox)
-							.WidthOverride(Theme.ResourceWidth)
-							.HeightOverride(Theme.ResourceHeight)
-							.Padding(FMargin(0))
-							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(Resource.Acronym)
-							]
-						]
-					]
-
-					// Price
-					+ SHorizontalBox::Slot()
-					.Padding(Theme.ContentPadding)
-					.VAlign(VAlign_Center)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareTradeMenu::GetResourcePriceInfo, &Resource)
-					]
-				]
-			]
-		];
 	}
 
 	// Setup widgets
