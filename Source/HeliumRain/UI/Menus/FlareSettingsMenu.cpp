@@ -749,7 +749,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				]
 			]
 			
-			// Controls 1
+			// Keyboard
 			+ SWidgetSwitcher::Slot()
 			[
 				SNew(SVerticalBox)
@@ -762,6 +762,16 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					SNew(STextBlock)
 					.Text(LOCTEXT("ControlsSettingsHint", "Controls"))
 					.TextStyle(&Theme.SubTitleFont)
+				]
+			
+				// Keyboard hint
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("KeyboardBindingsHint", "The left mouse button is always used to fire, but you can add another binding."))
+					.TextStyle(&Theme.TextFont)
 				]
 
 				// Controls form
