@@ -1802,7 +1802,18 @@ void AFlareHUD::DrawDockingHelper()
 
 		if (ProjectWorldLocationToCockpit(DockParameters.ShipCameraTargetLocation, CameraTargetScreenPosition))
 		{
-			FLinearColor HelperColor = DockingInProgress ? HudColorNeutral : HudColorEnemy;
+			// Get color
+			FLinearColor HelperColor = HudColorNeutral;
+			if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->TargetSpacecrafts.Find(DockSpacecraft->GetParent()) != INDEX_NONE)
+			{
+				HelperColor = HudColorObjective;
+			}
+			if (!DockingInProgress)
+			{
+				HelperColor = HudColorEnemy;
+			}
+
+			// Draw circle
 			DrawHUDIcon(CameraTargetScreenPosition, DockingIconSize, HUDDockingCircleTexture, HelperColor, true);
 
 			// Docking in progress
