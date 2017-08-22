@@ -87,7 +87,7 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDContractIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_ContractTarget.TX_Icon_ContractTarget"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDShipyardIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_Shipyard.TX_Icon_Shipyard"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDUpgradeIconObj         (TEXT("/Game/Slate/Icons/TX_Icon_UpgradeCapability.TX_Icon_UpgradeCapability"));
-	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDConstructionIconObj    (TEXT("/Game/Slate/Icons/TX_Icon_New.TX_Icon_New"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDConstructionIconObj    (TEXT("/Game/Slate/Icons/TX_Icon_Build.TX_Icon_Build"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDConsumerIconObj        (TEXT("/Game/Slate/Icons/TX_Icon_Sector.TX_Icon_Sector"));
 
 	// Load content (fonts)

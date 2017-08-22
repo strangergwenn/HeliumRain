@@ -679,7 +679,7 @@ void SFlareSpacecraftInfo::UpdateCapabilitiesInfo()
 		if (TargetSpacecraft->IsStation() && TargetSpacecraft->IsUnderConstruction())
 		{
 			FText ConstructionInfo = LOCTEXT("ConstructionInfo", "This station is under construction and needs resources to be completed");
-			AddMessage(ConstructionInfo, FFlareStyleSet::GetIcon("New"), NULL, 0);
+			AddMessage(ConstructionInfo, FFlareStyleSet::GetIcon("Build"), NULL, 0);
 		}
 	}
 }

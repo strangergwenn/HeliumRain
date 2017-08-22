@@ -282,7 +282,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 								.Width(6)
 								.Text(this, &SFlareSectorMenu::GetBuildStationText)
 								.HelpText(this, &SFlareSectorMenu::GetBuildStationHelpText)
-								.Icon(FFlareStyleSet::GetIcon("Travel"))
+								.Icon(FFlareStyleSet::GetIcon("Build"))
 								.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
 								.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
 							]
