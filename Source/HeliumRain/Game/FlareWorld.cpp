@@ -663,6 +663,21 @@ void UFlareWorld::Simulate()
 		}
 	}
 	FLOG("* Simulate > Travels");
+
+	// Undock and make move AI ships
+	for (UFlareSimulatedSector* Sector : Sectors)
+	{
+		for(UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
+		{
+			if(Ship->GetCompany() != PlayerCompany)
+			{
+				// Undock
+				Ship->ForceUndock();
+				Ship->SetSpawnMode(EFlareSpawnMode::Travel);
+			}
+		}
+	}
+
 	// Travels
 	TArray<UFlareTravel*> TravelsToProcess = Travels;
 	for (int TravelIndex = 0; TravelIndex < TravelsToProcess.Num(); TravelIndex++)
