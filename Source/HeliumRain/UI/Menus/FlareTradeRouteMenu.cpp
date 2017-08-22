@@ -439,7 +439,6 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.VAlign(VAlign_Top)
 			.HAlign(HAlign_Fill)
-			.Padding(Theme.ContentPadding)
 			[
 				SNew(SScrollBox)
 				.Style(&Theme.ScrollBoxStyle)
@@ -447,6 +446,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 
 				+ SScrollBox::Slot()
 				.HAlign(HAlign_Fill)
+				.Padding(Theme.ContentPadding)
 				[
 					SNew(SVerticalBox)
 				

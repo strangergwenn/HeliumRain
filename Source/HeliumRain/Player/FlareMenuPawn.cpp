@@ -310,7 +310,7 @@ void AFlareMenuPawn::UseLightBackground()
 
 void AFlareMenuPawn::UseDarkBackground()
 {
-	UpdateBackgroundColor(0.04, 0.7);
+	UpdateBackgroundColor(0.08, 0.7);
 }
 
 

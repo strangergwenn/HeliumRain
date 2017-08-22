@@ -97,7 +97,7 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 									SNew(STextBlock)
 									.TextStyle(&Theme.TextFont)
 									.Text(LOCTEXT("NoMilitaryInfo", "Military contracts will be offered once you own a fighting force."))
-									.WrapTextAt(0.75 * Theme.ContentWidth)
+									.WrapTextAt(0.85 * Theme.ContentWidth)
 								]
 							]
 						]

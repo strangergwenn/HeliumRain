@@ -81,85 +81,99 @@ public:
 		// Layout
 		ChildSlot
 		[
-			SNew(SVerticalBox)
+			SNew(SHorizontalBox)
 
-			// List header
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Left)
+			// Border
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
 			[
-				SNew(SOverlay)
-
-				// Header
-				+ SOverlay::Slot()
-				[
-					SAssignNew(HeaderButton, SFlareButton)
-					.OnClicked(this, &SFlareDropList<OptionType>::OnHeaderClicked)
-					.Width(InArgs._HeaderWidth)
-					.Height(InArgs._HeaderHeight)
-				]
-
-				// Icon
-				+ SOverlay::Slot()
-				.HAlign(HAlign_Right)
-				.VAlign(VAlign_Bottom)
-				[
-					SNew(SImage)
-					.Image(FFlareStyleSet::GetIcon("Droplist"))
-					.Visibility(EVisibility::HitTestInvisible)
-				]
+				SNew(SImage)
+				.Image(&Theme.NearInvisibleBrush)
 			]
 
-			// Item picker below
-			+ SVerticalBox::Slot()
-			.AutoHeight()
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
 			[
-				SNew(SBox)
-				.MaxDesiredHeight(InArgs._MaximumHeight)
-				.MinDesiredHeight(0)
-				[
-					SAssignNew(ItemScrollBox, SScrollBox)
-					.Style(&Theme.ScrollBoxStyle)
-					.ScrollBarStyle(&Theme.ScrollBarStyle)
+				SNew(SVerticalBox)
 
-					+ SScrollBox::Slot()
+				// List header
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(SOverlay)
+
+					// Header
+					+ SOverlay::Slot()
 					[
-						SAssignNew(ItemArray, SFlareItemArray)
-						.OnItemPicked(this, &SFlareDropList<OptionType>::OnItemPicked)
-						.LineSize(LineSize)
-						.Width(InArgs._ItemWidth)
-						.Height(InArgs._ItemHeight)
+						SAssignNew(HeaderButton, SFlareButton)
+						.OnClicked(this, &SFlareDropList<OptionType>::OnHeaderClicked)
+						.Width(InArgs._HeaderWidth)
+						.Height(InArgs._HeaderHeight)
+					]
+
+					// Icon
+					+ SOverlay::Slot()
+					.HAlign(HAlign_Right)
+					.VAlign(VAlign_Bottom)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("Droplist"))
+						.Visibility(EVisibility::HitTestInvisible)
 					]
 				]
-			]
 
-			// Color picker
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SNew(SBorder)
-				.BorderImage(&Theme.BackgroundBrush)
-				.Visibility(this, &SFlareDropList<OptionType>::GetColorPickerVisibility)
+				// Item picker below
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				[
-					SNew(SVerticalBox)
-
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+					SNew(SBox)
+					.MaxDesiredHeight(InArgs._MaximumHeight)
+					.MinDesiredHeight(0)
 					[
-						SNew(SBox)
-						.WidthOverride(LineSize * Theme.ButtonWidth * InArgs._ItemWidth)
-						.HeightOverride(LineSize * Theme.ButtonWidth * InArgs._ItemWidth)
+						SAssignNew(ItemScrollBox, SScrollBox)
+						.Style(&Theme.ScrollBoxStyle)
+						.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+						+ SScrollBox::Slot()
 						[
-							SAssignNew(ColorWheel, SColorWheel)
-							.SelectedColor(this, &SFlareDropList<OptionType>::GetCurrentColor)
-							.OnValueChanged(this, &SFlareDropList<OptionType>::HandleColorSpectrumValueChanged)
+							SAssignNew(ItemArray, SFlareItemArray)
+							.OnItemPicked(this, &SFlareDropList<OptionType>::OnItemPicked)
+							.LineSize(LineSize)
+							.Width(InArgs._ItemWidth)
+							.Height(InArgs._ItemHeight)
 						]
 					]
+				]
 
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+				// Color picker
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SBorder)
+					.BorderImage(&Theme.BackgroundBrush)
+					.Visibility(this, &SFlareDropList<OptionType>::GetColorPickerVisibility)
 					[
-						MakeColorSlider()
+						SNew(SVerticalBox)
+
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SBox)
+							.WidthOverride(LineSize * Theme.ButtonWidth * InArgs._ItemWidth)
+							.HeightOverride(LineSize * Theme.ButtonWidth * InArgs._ItemWidth)
+							[
+								SAssignNew(ColorWheel, SColorWheel)
+								.SelectedColor(this, &SFlareDropList<OptionType>::GetCurrentColor)
+								.OnValueChanged(this, &SFlareDropList<OptionType>::HandleColorSpectrumValueChanged)
+							]
+						]
+
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							MakeColorSlider()
+						]
 					]
 				]
 			]
