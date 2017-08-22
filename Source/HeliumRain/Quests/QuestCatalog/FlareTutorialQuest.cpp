@@ -2185,7 +2185,7 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("DistantTradeDescription","If you click on a remote ship, the trade bouton should be available. Trade something with a station.");
+		FText Description = LOCTEXT("DistantTradeDescription","If you click on a remote ship, the trade button should be available. Trade something with a station.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "distant-trade", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
