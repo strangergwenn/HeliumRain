@@ -224,7 +224,7 @@ void AFlareMenuManager::CloseMainOverlay()
 	}
 }
 
-bool AFlareMenuManager::ToogleMenu(EFlareMenu::Type Target)
+bool AFlareMenuManager::ToggleMenu(EFlareMenu::Type Target)
 {
 	if(GetCurrentMenu() != Target)
 	{

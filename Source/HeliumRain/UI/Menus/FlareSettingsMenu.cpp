@@ -2141,13 +2141,13 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Quick Ship Switch", "Quick ship switch")))
 		->AddActionMapping("QuickSwitch")
 		->AddDefaults(EKeys::N)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Camera", "Toogle camera")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Camera", "Toggle camera")))
 		->AddActionMapping("ToggleCamera")
 		->AddDefaults(EKeys::C)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("LockDirection", "Lock direction")))
 		->AddActionMapping("LockDirection")
 		->AddDefaults(EKeys::CapsLock)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle HUD", "Toogle HUD")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle HUD", "Toggle HUD")))
 		->AddActionMapping("ToggleHUD")
 		->AddDefaults(EKeys::H)));
 
@@ -2193,7 +2193,7 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddDefaults(EKeys::Seven)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Fire Weapon", "Fire")))
 		->AddActionMapping("StartFire")));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Weapons", "Toogle weapons")))
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Toogle Weapons", "Toggle weapons")))
 		->AddActionMapping("ToggleCombat")
 		->AddDefaults(EKeys::F)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Find best target", "Find best target")))

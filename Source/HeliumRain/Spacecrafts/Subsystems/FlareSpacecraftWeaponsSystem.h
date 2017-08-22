@@ -57,7 +57,7 @@ public:
 
 	virtual void ActivateWeaponGroup(int32 Index);
 
-	virtual void ToogleWeaponActivation();
+	virtual void ToggleWeaponActivation();
 
 	virtual void ActivateWeapons();
 	virtual void DeactivateWeapons();

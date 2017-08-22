@@ -390,7 +390,7 @@ bool UFlareSpacecraftWeaponsSystem::IsInFireDirector()
 	return (ActiveWeaponGroupIndex >= 0 && Spacecraft->GetDescription()->Size != EFlarePartSize::S);
 }
 
-void UFlareSpacecraftWeaponsSystem::ToogleWeaponActivation()
+void UFlareSpacecraftWeaponsSystem::ToggleWeaponActivation()
 {
 	if (ActiveWeaponGroupIndex < 0)
 	{

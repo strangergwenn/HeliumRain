@@ -1735,7 +1735,7 @@ void AFlarePlayerController::ShipMenu()
 	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::ShipMenu");
-		MenuManager->ToogleMenu(EFlareMenu::MENU_Ship);
+		MenuManager->ToggleMenu(EFlareMenu::MENU_Ship);
 	}
 }
 
@@ -1744,7 +1744,7 @@ void AFlarePlayerController::SectorMenu()
 	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::SectorMenu");
-		MenuManager->ToogleMenu(EFlareMenu::MENU_Sector);
+		MenuManager->ToggleMenu(EFlareMenu::MENU_Sector);
 	}
 }
 
@@ -1753,7 +1753,7 @@ void AFlarePlayerController::OrbitMenu()
 	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::OrbitMenu");
-		MenuManager->ToogleMenu(EFlareMenu::MENU_Orbit);
+		MenuManager->ToggleMenu(EFlareMenu::MENU_Orbit);
 	}
 }
 
@@ -1762,7 +1762,7 @@ void AFlarePlayerController::LeaderboardMenu()
 	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::LeaderboardMenu");
-		MenuManager->ToogleMenu(EFlareMenu::MENU_Leaderboard);
+		MenuManager->ToggleMenu(EFlareMenu::MENU_Leaderboard);
 	}
 }
 
@@ -1771,7 +1771,7 @@ void AFlarePlayerController::CompanyMenu()
 	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::CompanyMenu");
-		MenuManager->ToogleMenu(EFlareMenu::MENU_Company);
+		MenuManager->ToggleMenu(EFlareMenu::MENU_Company);
 	}
 }
 
@@ -1780,7 +1780,7 @@ void AFlarePlayerController::FleetMenu()
 	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::FleetMenu");
-		MenuManager->ToogleMenu(EFlareMenu::MENU_Fleet);
+		MenuManager->ToggleMenu(EFlareMenu::MENU_Fleet);
 	}
 }
 
@@ -1789,7 +1789,7 @@ void AFlarePlayerController::TechnologyMenu()
 	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::TechnologyMenu");
-		MenuManager->ToogleMenu(EFlareMenu::MENU_Technology);
+		MenuManager->ToggleMenu(EFlareMenu::MENU_Technology);
 	}
 }
 
@@ -1798,7 +1798,7 @@ void AFlarePlayerController::QuestMenu()
 	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::QuestMenu");
-		MenuManager->ToogleMenu(EFlareMenu::MENU_Quest);
+		MenuManager->ToggleMenu(EFlareMenu::MENU_Quest);
 	}
 }
 
@@ -1818,7 +1818,7 @@ void AFlarePlayerController::SettingsMenu()
 		FLOG("AFlarePlayerController::SettingsMenu");
 		if (GetGame()->IsLoadedOrCreated())
 		{
-			MenuManager->ToogleMenu(EFlareMenu::MENU_Settings);
+			MenuManager->ToggleMenu(EFlareMenu::MENU_Settings);
 		}
 		else if (MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Settings)
 		{
@@ -1926,7 +1926,7 @@ void AFlarePlayerController::ToggleCombat()
 	if (ShipPawn && ShipPawn->GetParent()->IsMilitary() && !IsTyping() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
 	{
 		FLOG("AFlarePlayerController::ToggleCombat");
-		ShipPawn->GetWeaponsSystem()->ToogleWeaponActivation();
+		ShipPawn->GetWeaponsSystem()->ToggleWeaponActivation();
 		if (ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB || ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_MISSILE || ShipPawn->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN)
 		{
 			SetExternalCamera(false);
