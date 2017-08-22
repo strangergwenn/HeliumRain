@@ -43,6 +43,10 @@ AFlareMenuPawn::AFlareMenuPawn(const class FObjectInitializer& PCIP)
 	PartContainer = PCIP.CreateDefaultSubobject<USceneComponent>(this, TEXT("PartContainer"));
 	PartContainer->AttachToComponent(RootComponent, AttachRules);
 
+	// Ship container turnplate
+	ShipContainer = PCIP.CreateDefaultSubobject<USceneComponent>(this, TEXT("ShipContainer"));
+	ShipContainer->AttachToComponent(RootComponent, AttachRules);
+	
 	// Create static mesh component for the part
 	CurrentPartA = PCIP.CreateDefaultSubobject<UFlareSpacecraftComponent>(this, TEXT("PartA"));
 	CurrentPartA->SetStaticMesh(ConstructorStatics.CurrentPart.Get());
@@ -84,7 +88,7 @@ void AFlareMenuPawn::Tick(float DeltaSeconds)
 	// Ship sliding
 	if (CurrentSpacecraft)
 	{
-		CurrentSpacecraft->SetActorLocation(GetActorLocation() + CurrentShipOffset + SlideInDelta);
+		ShipContainer->SetWorldLocation(GetActorLocation() + CurrentShipOffset + SlideInDelta);
 	}
 
 	// Camera
@@ -176,7 +180,7 @@ void AFlareMenuPawn::ShowShip(UFlareSimulatedSpacecraft* Spacecraft)
 	// Spawn and setup the ship
 	FAttachmentTransformRules AttachRules(EAttachmentRule::SnapToTarget, false);
 	CurrentSpacecraft = GetWorld()->SpawnActor<AFlareSpacecraft>(Spacecraft->GetDescription()->SpacecraftTemplate, Params);
-	CurrentSpacecraft->AttachToActor(this, AttachRules, NAME_None);
+	CurrentSpacecraft->AttachToComponent(ShipContainer, AttachRules, NAME_None);
 
 	// FOV scale
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
@@ -188,7 +192,13 @@ void AFlareMenuPawn::ShowShip(UFlareSimulatedSpacecraft* Spacecraft)
 	float Scale = (1 + FOVScalingRatio) * (ShipDisplaySize / CurrentSpacecraft->GetMeshScale());
 	FLOGV("AFlareMenuPawn::ShowShip : DS=%f, MS=%f, S=%f", ShipDisplaySize, CurrentSpacecraft->GetMeshScale(), Scale);
 	CurrentSpacecraft->SetActorScale3D(Scale * FVector(1, 1, 1));
-	CurrentSpacecraft->SetActorRelativeRotation(FRotator(0, InitialYaw, 0));
+	ShipContainer->SetRelativeRotation(FRotator(0, InitialYaw, 0));
+
+	// Center
+	FVector Origin, Extent;
+	CurrentSpacecraft->GetActorBounds(true, Origin, Extent);
+	Origin -= CurrentSpacecraft->GetActorLocation();
+	CurrentSpacecraft->SetActorRelativeLocation(-Origin);
 
 	// Slide
 	SlideInOutCurrentTime = 0.0f;

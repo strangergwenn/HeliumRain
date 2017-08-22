@@ -81,6 +81,10 @@ protected:
 		Component data
 	----------------------------------------------------*/
 
+	/** Spacecraft container (we will rotate this on Yaw) */
+	UPROPERTY(Category = PartViewer, VisibleDefaultsOnly, BlueprintReadOnly)
+	class USceneComponent* ShipContainer;
+
 	/** StaticMesh container (we will rotate this on Yaw) */
 	UPROPERTY(Category = PartViewer, VisibleDefaultsOnly, BlueprintReadOnly)
 	class USceneComponent* PartContainer;
