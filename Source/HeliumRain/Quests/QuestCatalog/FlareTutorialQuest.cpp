@@ -3552,7 +3552,7 @@ void UFlareQuestConditionTutorialBuildStation::Load(UFlareQuest* ParentQuest, bo
 		{
 			if(Desc)
 			{
-				InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionNewInSector", "Build a {0} in {1}"), Desc->Name, TargetSector->GetSectorName());
+				InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionNewInSector", "Build a new {0} in {1}"), Desc->Name, TargetSector->GetSectorName());
 			}
 			else
 			{
@@ -3563,7 +3563,7 @@ void UFlareQuestConditionTutorialBuildStation::Load(UFlareQuest* ParentQuest, bo
 		{
 			if(Desc)
 			{
-					InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionUpgradeInSector", "Upgrade a {0}  in {1}"), Desc->Name, TargetSector->GetSectorName());
+					InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionUpgradeInSector", "Upgrade {0} in {1}"), Desc->Name, TargetSector->GetSectorName());
 			}
 			else
 			{
@@ -3577,7 +3577,7 @@ void UFlareQuestConditionTutorialBuildStation::Load(UFlareQuest* ParentQuest, bo
 		{
 			if(Desc)
 			{
-				InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionNew", "Build a {0} "), Desc->Name);
+				InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionNew", "Build {0}"), Desc->Name);
 			}
 			else
 			{
@@ -3588,7 +3588,7 @@ void UFlareQuestConditionTutorialBuildStation::Load(UFlareQuest* ParentQuest, bo
 		{
 			if(Desc)
 			{
-					InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionUpgrade", "Upgrade a {0} "), Desc->Name);
+					InitialLabel = FText::Format(LOCTEXT("FinishSpecificStationConstructionUpgrade", "Upgrade {0}"), Desc->Name);
 			}
 			else
 			{
