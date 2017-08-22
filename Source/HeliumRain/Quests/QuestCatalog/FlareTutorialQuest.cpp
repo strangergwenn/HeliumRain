@@ -1621,7 +1621,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 
 	{
-		FText Description = LOCTEXT("TargetCargoDescription", "Asteroids don't move, so it's easy, but a moving targest will require you to anticipate its movement. Your onboard computer can help you.\nTarget one of your cargos and approach at less than 1km");
+		FText Description = LOCTEXT("TargetCargoDescription", "Asteroids don't move, so it's easy, but a moving targest will require you to anticipate its movement. Your onboard computer can help you.\nTarget one of your freighters and approach at less than 1km");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "target-cargo", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialGenericStateCondition::Create(this,
@@ -1645,7 +1645,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		},
 		[]()
 		{
-			return LOCTEXT("TargetCargoConditionLabel", "Target one of your cargos and approach at less than 1km.");
+			return LOCTEXT("TargetCargoConditionLabel", "Target one of your freighters and approach at less than 1km.");
 		},
 		[](UFlareQuestCondition* Condition)
 		{
