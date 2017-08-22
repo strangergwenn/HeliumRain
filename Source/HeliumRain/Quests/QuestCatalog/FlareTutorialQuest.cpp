@@ -368,6 +368,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			}
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			ObjectiveData->AddTargetSpacecraft(StationC);
 		};
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(DistanceCondition);
@@ -399,7 +400,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			Condition->Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 		});
 
-		SpeedCondition->AddConditionObjectivesFunc = [this, SpeedCondition, Speed](FFlarePlayerObjectiveData* ObjectiveData)
+		SpeedCondition->AddConditionObjectivesFunc = [this, StationC, SpeedCondition, Speed](FFlarePlayerObjectiveData* ObjectiveData)
 		{
 			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
 
@@ -420,6 +421,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			}
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			ObjectiveData->AddTargetSpacecraft(StationC);
 		};
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(SpeedCondition);
@@ -495,6 +497,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			}
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			ObjectiveData->AddTargetSpacecraft(StationC);
 		};
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(DistanceCondition);
@@ -525,7 +528,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			Condition->Callbacks.AddUnique(EFlareQuestCallback::TICK_FLYING);
 		});
 
-		SpeedCondition->AddConditionObjectivesFunc = [this, SpeedCondition, Speed](FFlarePlayerObjectiveData* ObjectiveData)
+		SpeedCondition->AddConditionObjectivesFunc = [this, StationC, SpeedCondition, Speed](FFlarePlayerObjectiveData* ObjectiveData)
 		{
 			AFlareSpacecraft* PlayerShip = GetQuestManager()->GetGame()->GetPC()->GetShipPawn();
 
@@ -546,6 +549,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			}
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			ObjectiveData->AddTargetSpacecraft(StationC);
 		};
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(SpeedCondition);
@@ -625,6 +629,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			}
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			ObjectiveData->AddTargetSpacecraft(StationC);
 		};
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(LateralErrorCondition);
@@ -714,6 +719,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			}
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			ObjectiveData->AddTargetSpacecraft(StationC);
 		};
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(RollErrorCondition);
@@ -796,6 +802,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 			}
 
 			ObjectiveData->ConditionList.Add(ObjectiveCondition);
+			ObjectiveData->AddTargetSpacecraft(StationC);
 		};
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(AlignmentErrorCondition);
