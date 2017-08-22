@@ -375,9 +375,8 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 	Request.CargoLimit = -1;
 	Request.MaxQuantity = Operation->MaxQuantity;
 
-	for (int ShipIndex = 0; ShipIndex < UsefullShips.Num(); ShipIndex++)
+	for (UFlareSimulatedSpacecraft* Ship : UsefullShips)
 	{
-		UFlareSimulatedSpacecraft* Ship = RouteShips[ShipIndex];
 
 		if (Ship->IsTrading())
 		{
