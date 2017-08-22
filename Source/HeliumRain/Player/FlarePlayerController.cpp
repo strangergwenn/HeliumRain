@@ -2317,10 +2317,13 @@ void AFlarePlayerController::WheelPressed()
 			AFlareSpacecraft* Target = ShipPawn->GetCurrentTarget();
 			if (Target)
 			{
-				// Inspect
-				FText Text = FText::Format(LOCTEXT("InspectTargetFormat", "Details for {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
-				MouseMenu->AddWidget(Target->GetParent()->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
+				if (!IsBattleInProgress)
+				{
+					// Inspect
+					FText Text = FText::Format(LOCTEXT("InspectTargetFormat", "Details for {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
+					MouseMenu->AddWidget(Target->GetParent()->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
+						FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
+				}
 
 				// Look at
 				Text = FText::Format(LOCTEXT("LookAtTargetFormat", "Focus on {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
@@ -2329,7 +2332,7 @@ void AFlarePlayerController::WheelPressed()
 				// Fly
 				if (Target->GetParent()->GetCompany() == GetCompany() && !Target->GetParent()->IsStation())
 				{
-					Text = FText::Format(LOCTEXT("FlyTargetFormat", "Fly {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
+					FText Text = FText::Format(LOCTEXT("FlyTargetFormat", "Fly {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
 					MouseMenu->AddWidget("Mouse_Fly", Text,	FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::FlyTargetSpacecraft));
 				}
 
@@ -2339,13 +2342,13 @@ void AFlarePlayerController::WheelPressed()
 				 && GetCompany()->IsTechnologyUnlocked("auto-docking")
 				 && Target->GetParent()->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral)
 				{
-					Text = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
+					FText Text = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
 					MouseMenu->AddWidget("Mouse_DockAt", Text, FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::DockAtTargetSpacecraft));
 				}
 			}
 
-			// Capital ship controls
-			if (ShipPawn->GetParent()->GetDescription()->Size == EFlarePartSize::L && ShipPawn->IsMilitary())
+			// Fleet controls
+			if (IsBattleInProgress && ShipPawn->IsMilitary())
 			{
 				MouseMenu->AddWidget("Mouse_ProtectMe", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::ProtectMe),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::ProtectMe));
@@ -2355,11 +2358,6 @@ void AFlarePlayerController::WheelPressed()
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::AttackStations));
 				MouseMenu->AddWidget("Mouse_AttackCivilians", UFlareGameTypes::GetCombatTacticDescription(EFlareCombatTactic::AttackCivilians),
 					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::SetTacticForCurrentGroup, EFlareCombatTactic::AttackCivilians));
-			}
-
-			// Fighter controls
-			else
-			{
 			}
 		}
 
