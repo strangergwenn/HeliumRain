@@ -86,10 +86,7 @@ public:
 
 	/** Get icon for the close button */
 	const FSlateBrush* GetCloseIcon() const;
-
-	/** Get the key binding for the mouse */
-	FText GetHelperText() const;
-
+	
 	/** Get the key binding for this menu */
 	FText GetMenuKey(EFlareMenu::Type Menu) const;
 
@@ -110,10 +107,7 @@ public:
 
 	/** Get the player info text visibility */
 	EVisibility GetPlayerInfoVisibility() const;
-
-	/** Hint visibility */
-	EVisibility GetHintVisibility() const;
-
+	
 	/** Switch menu */
 	void OnOpenMenu(EFlareMenu::Type Menu);
 

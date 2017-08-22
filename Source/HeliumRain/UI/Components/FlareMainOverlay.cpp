@@ -141,19 +141,6 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 					]
 				]
 			]
-
-			// Helper
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Right)
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.SmallFont)
-				.Text(this, &SFlareMainOverlay::GetHelperText)
-				.ColorAndOpacity(HintColor)
-				.Visibility(this, &SFlareMainOverlay::GetHintVisibility)
-			]
 		]
 	];
 
@@ -561,19 +548,6 @@ FText SFlareMainOverlay::GetMenuKey(EFlareMenu::Type Menu) const
 	return FText::Format(LOCTEXT("MenuKeyFormat", "<{0}>"), FText::FromString(AFlareMenuManager::GetMenuKey(Menu)));
 }
 
-FText SFlareMainOverlay::GetHelperText() const
-{
-	if (!MenuManager->IsMenuOpen())
-	{
-		FString KeyName = AFlareMenuManager::GetKeyNameFromActionName(FName("ToggleOverlay"));
-		return FText::Format(LOCTEXT("ToggleHelperFormat", "<{0}>"), FText::FromString(KeyName));
-	}
-	else
-	{
-		return FText();
-	}
-}
-
 FText SFlareMainOverlay::GetCurrentMenuName() const
 {
 	FText Name;
@@ -639,11 +613,6 @@ FText SFlareMainOverlay::GetPlayerInfo() const
 EVisibility SFlareMainOverlay::GetPlayerInfoVisibility() const
 {
 	return (PlayerInfoText.ToString().Len() ? EVisibility::Visible : EVisibility::Collapsed);
-}
-
-EVisibility SFlareMainOverlay::GetHintVisibility() const
-{
-	return (MenuManager->GetPC()->GetNavHUD()->IsHUDVisible()) ? EVisibility::Visible : EVisibility::Hidden;
 }
 
 void SFlareMainOverlay::OnOpenMenu(EFlareMenu::Type Menu)
