@@ -2513,7 +2513,7 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 	{
 		FText Description;
 
-		Description = LOCTEXT("GeneratedMeteoriteDestructionPrepareToInterceptoon", "Prepare to interception");
+		Description = LOCTEXT("GeneratedMeteoriteDestructionPrepareToInterceptoon", "Prepare to intercept");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "prepare", Description);
 
 
