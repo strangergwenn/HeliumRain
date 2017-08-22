@@ -1729,6 +1729,16 @@ void AFlareHUD::DrawHUDDesignatorCorner(FVector2D Position, FVector2D ObjectSize
 FVector2D AFlareHUD::DrawHUDDesignatorHint(FVector2D Position, float DesignatorIconSize, AFlareSpacecraft* TargetSpacecraft, FLinearColor Color)
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+
+	if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->TargetSpacecrafts.Find(TargetSpacecraft->GetParent()) != INDEX_NONE)
+	{
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDContractIcon, Color);
+	}
+
+	if (TargetSpacecraft->IsStation() && TargetSpacecraft->GetParent()->IsUnderConstruction())
+	{
+		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDConstructionIcon, Color);
+	}
 	
 	if (TargetSpacecraft->GetParent()->IsShipyard())
 	{
@@ -1742,16 +1752,6 @@ FVector2D AFlareHUD::DrawHUDDesignatorHint(FVector2D Position, float DesignatorI
 	if (TargetSpacecraft->IsStation() && TargetSpacecraft->GetParent()->HasCapability(EFlareSpacecraftCapability::Consumer))
 	{
 		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDConsumerIcon, Color);
-	}
-
-	if (TargetSpacecraft->IsStation() && TargetSpacecraft->GetParent()->IsUnderConstruction())
-	{
-		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDConstructionIcon, Color);
-	}
-
-	if (PC->GetCurrentObjective() && PC->GetCurrentObjective()->TargetSpacecrafts.Find(TargetSpacecraft->GetParent()) != INDEX_NONE)
-	{
-		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDContractIcon, Color);
 	}
 
 	return Position;

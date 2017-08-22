@@ -648,6 +648,12 @@ void SFlareSpacecraftInfo::UpdateCapabilitiesInfo()
 			AddMessage(PC->GetCurrentObjective()->Name, FFlareStyleSet::GetIcon("ContractSmall"), NULL, 0);
 		}
 
+		if (TargetSpacecraft->IsStation() && TargetSpacecraft->IsUnderConstruction())
+		{
+			FText ConstructionInfo = LOCTEXT("ConstructionInfo", "This station is under construction and needs resources to be completed");
+			AddMessage(ConstructionInfo, FFlareStyleSet::GetIcon("Build"), NULL, 0);
+		}
+
 		if (TargetSpacecraft->IsStation())
 		{
 			float Efficiency = TargetSpacecraft->GetStationEfficiency();
@@ -674,12 +680,6 @@ void SFlareSpacecraftInfo::UpdateCapabilitiesInfo()
 		if (TargetSpacecraft->IsStation() && TargetSpacecraft->HasCapability(EFlareSpacecraftCapability::Consumer))
 		{
 			AddMessage(LOCTEXT("ConsumerCapability", "This station can buy consumer resources"), FFlareStyleSet::GetIcon("Sector_Small"), NULL, 0);
-		}
-
-		if (TargetSpacecraft->IsStation() && TargetSpacecraft->IsUnderConstruction())
-		{
-			FText ConstructionInfo = LOCTEXT("ConstructionInfo", "This station is under construction and needs resources to be completed");
-			AddMessage(ConstructionInfo, FFlareStyleSet::GetIcon("Build"), NULL, 0);
 		}
 	}
 }
