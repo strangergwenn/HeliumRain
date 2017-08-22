@@ -32,6 +32,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		
 		// Pattern picker
 		+ SHorizontalBox::Slot().AutoWidth()
+		.VAlign(VAlign_Top)
 		[
 			SAssignNew(PatternPicker, SFlareDropList<int32>)
 			.OnItemPicked(this, &SFlareColorPanel::OnPatternPicked)
@@ -39,6 +40,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		
 		// Base paint picker
 		+ SHorizontalBox::Slot().AutoWidth()
+		.VAlign(VAlign_Top)
 		[
 			SAssignNew(BasePaintColorPicker, SFlareDropList<FLinearColor>)
 			.OnItemPicked(this, &SFlareColorPanel::OnBasePaintColorPickedByIndex)
@@ -51,6 +53,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		
 		// Paint picker
 		+ SHorizontalBox::Slot().AutoWidth()
+		.VAlign(VAlign_Top)
 		[
 			SAssignNew(PaintColorPicker, SFlareDropList<FLinearColor>)
 			.OnItemPicked(this, &SFlareColorPanel::OnPaintColorPickedByIndex)
@@ -63,6 +66,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		
 		// Overlay picker
 		+ SHorizontalBox::Slot().AutoWidth()
+		.VAlign(VAlign_Top)
 		[
 			SAssignNew(OverlayColorPicker, SFlareDropList<FLinearColor>)
 			.OnItemPicked(this, &SFlareColorPanel::OnOverlayColorPickedByIndex)
@@ -75,6 +79,7 @@ void SFlareColorPanel::Construct(const FArguments& InArgs)
 		
 		// Light picker
 		+ SHorizontalBox::Slot().AutoWidth()
+		.VAlign(VAlign_Top)
 		[
 			SAssignNew(LightColorPicker, SFlareDropList<FLinearColor>)
 			.OnItemPicked(this, &SFlareColorPanel::OnLightColorPickedByIndex)
