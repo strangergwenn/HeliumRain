@@ -172,7 +172,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"telescope"
-		FText Description = LOCTEXT("telescopeDescription","Congratulations, you now have the blueprints for a new orbital extractor. Two things are still needed : some construction resources, and a massive counterweight for the space elevator. Build a telescope station to help finding a good sector.");
+		FText Description = LOCTEXT("telescopeDescription","Congratulations, you've just acquired the blueprints for a new orbital extractor. This is huge ! Two things are still needed : construction resources, and a massive counterweight for the space elevator. Build a telescope station to help finding a good sector.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "telescope", Description);
 
@@ -184,7 +184,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"resources"
-		FText Description = LOCTEXT("resourcesDescription","Bring construction resources to Blue Heart.");
+		FText Description = LOCTEXT("resourcesDescription","How many freighters do you own ? We need you to bring ships loaded with construction resources in Blue Heart.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "resources", Description);
 
@@ -199,7 +199,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"peace"
-		FText Description = LOCTEXT("peaceDescription","We've started construction for the Pendulum elevator. We need to be cautious of pirate activity, since we gathered a lot of resources here.\nReduce pirates to silence for a while. If needed, use a telescope to locate their base in the Boneyard.");
+		FText Description = LOCTEXT("peaceDescription","We've started construction for the Pendulum elevator. You need to be cautious of pirate activity, since we gathered a lot of resources here.\nReduce pirates to silence for a while. You should use your orbital telescope to locate their Boneyard base.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pirates", Description);
 
@@ -210,7 +210,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"wait"
-		FText Description = LOCTEXT("waitDescription","Good job. Now wait for the construction end.");
+		FText Description = LOCTEXT("waitDescription","Good job. We'll get this up and running now.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "wait", Description);
 
@@ -236,7 +236,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"pumps"
-		FText Description = LOCTEXT("pumpsDescription","Welcome to the Pendulum. Other companies will come here too, but you helped build this extractor. Build some gas terminals while the administrative fees are low !");
+		FText Description = LOCTEXT("pumpsDescription","Welcome to the Pendulum. Other companies will come here too, but you helped build this extractor, so you've earned a timed exclusivity. Build some gas terminals while the administrative fees are low !");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pumps", Description);
 		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));
@@ -682,7 +682,7 @@ void UFlareQuestBringResource::Load(UFlareQuest* ParentQuest, UFlareSimulatedSec
 
 	if(Desc)
 	{
-		InitialLabel = FText::Format(LOCTEXT("BringResource", "Bring {0} {1} at {2}"),
+		InitialLabel = FText::Format(LOCTEXT("BringResource", "Bring ships loaded with {0} {1} at {2}"),
 									 FText::AsNumber(TargetResourceCount), Desc->Name, TargetSector->GetSectorName());
 	}
 }
