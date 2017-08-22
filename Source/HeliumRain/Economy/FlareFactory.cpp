@@ -40,6 +40,12 @@ void UFlareFactory::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, const FFla
 	FactoryDescription = Description;
 	Parent = ParentSpacecraft;
 	CycleCostCacheLevel = -1;
+
+	if (IsShipyard() && FactoryData.TargetShipClass == NAME_None && FactoryData.Active)
+	{
+		FLOG("WARNING: fix corrupted shipyard state");
+		FactoryData.Active = false;
+	}
 }
 
 
@@ -1156,7 +1162,7 @@ FText UFlareFactory::GetFactoryStatus()
 			FText HasFreeSpace = HasOutputFreeSpace() ? FText() : LOCTEXT("ProductionNoSpace", ", not enough space");
 
 			// Shipyards are a special case
-			if (IsShipyard())
+			if (IsShipyard() && GetTargetShipClass() != NAME_None)
 			{
 				ProductionStatusText = FText::Format(LOCTEXT("ShipProductionInProgressFormat", "Building {0} for {1} ({2}{3})"),
 					Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,
@@ -1173,7 +1179,7 @@ FText UFlareFactory::GetFactoryStatus()
 		}
 		else if (HasInputMoney() && HasInputResources())
 		{
-			if (IsShipyard())
+			if (IsShipyard() && GetTargetShipClass() != NAME_None)
 			{
 				ProductionStatusText = FText::Format(LOCTEXT("ShipProductionWillStartFormat", "Starting building {0} for {1}"),
 					Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,
@@ -1188,7 +1194,7 @@ FText UFlareFactory::GetFactoryStatus()
 		{
 			if (!HasInputMoney())
 			{
-				if (IsShipyard())
+				if (IsShipyard() && GetTargetShipClass() != NAME_None)
 				{
 					ProductionStatusText = FText::Format(LOCTEXT("ShipProductionNotEnoughMoneyFormat", "Waiting for credits to build {0} for {1}"),
 						Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,
@@ -1202,7 +1208,7 @@ FText UFlareFactory::GetFactoryStatus()
 
 			if (!HasInputResources())
 			{
-				if (IsShipyard())
+				if (IsShipyard() && GetTargetShipClass() != NAME_None)
 				{
 					ProductionStatusText = FText::Format(LOCTEXT("ShipProductionNotEnoughResourcesFormat", "Waiting for resources to build {0} for {1}"),
 						Game->GetSpacecraftCatalog()->Get(GetTargetShipClass())->Name,

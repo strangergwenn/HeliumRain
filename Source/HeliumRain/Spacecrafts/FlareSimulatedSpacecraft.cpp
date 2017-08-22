@@ -892,6 +892,13 @@ void UFlareSimulatedSpacecraft::FinishConstruction()
 	SpacecraftData.IsUnderConstruction = false;
 	SpacecraftData.Cargo = SpacecraftData.CargoBackup;
 	Load(SpacecraftData);
+	if (IsShipyard())
+	{
+		for (UFlareFactory* Factory : Factories)
+		{
+			Factory->Stop();
+		}
+	}
 }
 
 void UFlareSimulatedSpacecraft::OrderRepairStock(float FS)
