@@ -350,14 +350,14 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					[
 						SAssignNew(OwnedShipList, SFlareList)
 						.MenuManager(MenuManager)
-						.Title(LOCTEXT("OwnedSpacecraftsSector", "Owned spacecrafts in sector"))
+						.Title(LOCTEXT("OwnedSpacecraftsSector", "Owned spacecraft in sector"))
 					]
 
 					+ SScrollBox::Slot()
 					[
 						SAssignNew(OwnedReserveShipList, SFlareList)
 						.MenuManager(MenuManager)
-						.Title(LOCTEXT("OwnedSpacecraftsReserve", "Owned spacecrafts in reserve"))
+						.Title(LOCTEXT("OwnedSpacecraftsReserve", "Owned spacecraft in reserve"))
 						.Visibility(this, &SFlareSectorMenu::GetOwnedReserveVisibility)
 					]
 				]
@@ -375,14 +375,14 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					[
 						SAssignNew(OtherShipList, SFlareList)
 						.MenuManager(MenuManager)
-						.Title(LOCTEXT("OtherSpacecraftsSector", "Other spacecrafts in sector"))
+						.Title(LOCTEXT("OtherSpacecraftsSector", "Other spacecraft in sector"))
 					]
 
 					+ SScrollBox::Slot()
 					[
 						SAssignNew(OtherReserveShipList, SFlareList)
 						.MenuManager(MenuManager)
-						.Title(LOCTEXT("OtherSpacecraftsReserve", "Other spacecrafts in reserve"))
+						.Title(LOCTEXT("OtherSpacecraftsReserve", "Other spacecraft in reserve"))
 						.Visibility(this, &SFlareSectorMenu::GetOtherReserveVisibility)
 					]
 				]

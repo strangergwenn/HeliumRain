@@ -312,7 +312,7 @@ bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpa
 	// Check if spacecraft are are not already trading
 	if (IsTrading() || OtherSpacecraft->IsTrading())
 	{
-		Reason = LOCTEXT("CantTradeAlreadyTrading", "Can't trade with spacecrafts that are already in a trading transaction");
+		Reason = LOCTEXT("CantTradeAlreadyTrading", "Can't trade with spacecraft that are already in a trading transaction");
 		return false;
 	}
 

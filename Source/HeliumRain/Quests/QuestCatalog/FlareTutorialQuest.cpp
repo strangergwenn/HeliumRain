@@ -1381,7 +1381,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 	Identifier = "tutorial-fighter";
 	QuestName = LOCTEXT("TutorialFighterShipName","Combat tutorial");
-	QuestDescription = LOCTEXT("TutorialFighterDescription","Learn how to use armed spacecrafts.");
+	QuestDescription = LOCTEXT("TutorialFighterDescription","Learn how to use armed spacecraft.");
 	QuestCategory = EFlareQuestCategory::TUTORIAL;
 
 	Cast<UFlareQuestConditionGroup>(TriggerCondition)->AddChildCondition(UFlareQuestConditionQuestSuccessful::Create(this, "tutorial-build-ship"));

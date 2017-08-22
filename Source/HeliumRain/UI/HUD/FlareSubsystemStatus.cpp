@@ -150,7 +150,7 @@ FText SFlareSubsystemStatus::GetInfoText() const
 			Text = LOCTEXT("SYS_PowerInfo", "The power subsystem feeds energy to every system on your ship, including propulsion, weapons or life support.");
 			break;
 		case EFlareSubsystem::SYS_Weapon:        
-			Text = LOCTEXT("SYS_WeaponInfo", "Weapons can be used to damage other spacecrafts. They produce a lot of heat.");         
+			Text = LOCTEXT("SYS_WeaponInfo", "Weapons can be used to damage other spacecraft. They produce a lot of heat.");         
 			break;
 	}
 
