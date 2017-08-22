@@ -107,7 +107,7 @@ public:
 	}
 
 	/* If client is not null, restriction are used*/
-	bool WantSell(FFlareResourceDescription* Resource, UFlareCompany* Client) const;
+	bool WantSell(FFlareResourceDescription* Resource, UFlareCompany* Client, bool RequireStock = false) const;
 
 	/* If client is not null, restriction are used*/
 	bool WantBuy(FFlareResourceDescription* Resource, UFlareCompany* Client) const;

@@ -6,6 +6,7 @@
 
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareGameTools.h"
+#include "../../Game/FlareTradeRoute.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
@@ -54,53 +55,14 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 
 		// UI container
 		+ SVerticalBox::Slot()
-		.Padding(Theme.ContentPadding)
 		[
 			SNew(SHorizontalBox)
-			
-			// Content block
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Top)
-			.HAlign(HAlign_Fill)
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(SScrollBox)
-				.Style(&Theme.ScrollBoxStyle)
-				.ScrollBarStyle(&Theme.ScrollBarStyle)
-
-				+ SScrollBox::Slot()
-				.HAlign(HAlign_Fill)
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SVerticalBox)
-
-					// Status of the current fleet
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					.HAlign(HAlign_Center)
-					[
-						SNew(SRichTextBlock)
-						.Text(this, &SFlareTradeRouteMenu::GetFleetInfo)
-						.TextStyle(&Theme.TextFont)
-						.DecoratorStyleSet(&FFlareStyleSet::Get())
-					]
-
-					// Map
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					.HAlign(HAlign_Center)
-					[
-						SAssignNew(TradeSectorList, SHorizontalBox)
-					]
-				]
-			]
 
 			// Side panel
 			+ SHorizontalBox::Slot()
 			.AutoWidth()
-			.HAlign(HAlign_Right)
+			.HAlign(HAlign_Left)
+			.Padding(Theme.ContentPadding)
 			[
 				SNew(SVerticalBox)
 				
@@ -110,8 +72,21 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.TitlePadding)
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("TradeRouteControlsTitle", "Trade route controls"))
+					.Text(this, &SFlareTradeRouteMenu::GetTradeRouteName)
 					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				// Status of the current fleet
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(SRichTextBlock)
+					.Text(this, &SFlareTradeRouteMenu::GetFleetInfo)
+					.TextStyle(&Theme.TextFont)
+					.DecoratorStyleSet(&FFlareStyleSet::Get())
+					.WrapTextAt(Theme.ContentWidth / 2)
 				]
 				
 				// Sector selection
@@ -196,48 +171,6 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 				.HAlign(HAlign_Fill)
 				[
 					SAssignNew(TradeFleetList, SVerticalBox)
-				]
-
-				// Sector selection
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(SHorizontalBox)
-
-					// List
-					+ SHorizontalBox::Slot()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SAssignNew(SectorSelector, SFlareDropList<UFlareSimulatedSector*>)
-						.OptionsSource(&SectorList)
-						.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateSectorComboLine)
-						.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnSectorComboLineSelectionChanged)
-						.HeaderWidth(7)
-						.ItemWidth(7)
-						[
-							SNew(SBox)
-							.Padding(Theme.ListContentPadding)
-							[
-								SNew(STextBlock)
-								.Text(this, &SFlareTradeRouteMenu::OnGetCurrentSectorComboLine)
-								.TextStyle(&Theme.TextFont)
-							]
-						]
-					]
-
-					// Button
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.SmallContentPadding)
-					.VAlign(VAlign_Top)
-					[
-						SNew(SFlareButton)
-						.Width(3)
-						.Text(this, &SFlareTradeRouteMenu::GetAddSectorText)
-						.HelpText(LOCTEXT("AddSectorInfo", "Add this sector to the trade route"))
-						.OnClicked(this, &SFlareTradeRouteMenu::OnAddSectorClicked)
-						.IsDisabled(this, &SFlareTradeRouteMenu::IsAddSectorDisabled)
-					]
 				]
 				
 				// Next trade operation
@@ -490,7 +423,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(Theme.ContentPadding)
-					.HAlign(HAlign_Center)
+					.HAlign(HAlign_Left)
 					[
 						SNew(SFlareButton)
 						.Width(4)
@@ -498,6 +431,104 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 						.Text(LOCTEXT("DoneEditing", "Done"))
 						.HelpText(LOCTEXT("DoneEditingInfo", "Finish editing this operation"))
 						.OnClicked(this, &SFlareTradeRouteMenu::OnDoneClicked)
+					]
+				]
+			]
+			
+			// Content block
+			+ SHorizontalBox::Slot()
+			.VAlign(VAlign_Top)
+			.HAlign(HAlign_Fill)
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(SScrollBox)
+				.Style(&Theme.ScrollBoxStyle)
+				.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+				+ SScrollBox::Slot()
+				.HAlign(HAlign_Fill)
+				[
+					SNew(SVerticalBox)
+				
+					// Title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("TradeRouteSectorsTitle", "Add a sector"))
+						.TextStyle(&Theme.SubTitleFont)
+					]
+
+					// Sector selection
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Fill)
+					[
+						SNew(SBox)
+						.WidthOverride(Theme.ContentWidth)
+						[
+							SNew(SHorizontalBox)
+
+							// List
+							+ SHorizontalBox::Slot()
+							.Padding(Theme.SmallContentPadding)
+							.AutoWidth()
+							[
+								SAssignNew(SectorSelector, SFlareDropList<UFlareSimulatedSector*>)
+								.OptionsSource(&SectorList)
+								.OnGenerateWidget(this, &SFlareTradeRouteMenu::OnGenerateSectorComboLine)
+								.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnSectorComboLineSelectionChanged)
+								.HeaderWidth(15)
+								.HeaderHeight(2.5)
+								.ItemWidth(15)
+								.ItemHeight(2.5)
+								.MaximumHeight(500)
+								[
+									SNew(SBox)
+									.Padding(Theme.ListContentPadding)
+									[
+										SNew(STextBlock)
+										.Text(this, &SFlareTradeRouteMenu::OnGetCurrentSectorComboLine)
+										.TextStyle(&Theme.TextFont)
+									]
+								]
+							]
+
+							// Button
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
+							.VAlign(VAlign_Top)
+							[
+								SNew(SFlareButton)
+								.Width(3)
+								.Text(this, &SFlareTradeRouteMenu::GetAddSectorText)
+								.HelpText(LOCTEXT("AddSectorInfo", "Add this sector to the trade route"))
+								.OnClicked(this, &SFlareTradeRouteMenu::OnAddSectorClicked)
+								.IsDisabled(this, &SFlareTradeRouteMenu::IsAddSectorDisabled)
+							]
+						]
+					]
+				
+					// Title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("TradeRouteMapTitle", "Flight plan"))
+						.TextStyle(&Theme.SubTitleFont)
+					]
+
+					// Map
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Center)
+					[
+						SAssignNew(TradeSectorList, SHorizontalBox)
 					]
 				]
 			]
@@ -895,7 +926,7 @@ FText SFlareTradeRouteMenu::GetFleetInfo() const
 	if (TargetTradeRoute && TargetTradeRoute->GetFleet())
 	{
 		// Fleet info
-		FText FleetInfo = FText::Format(LOCTEXT("FleetCargoInfoFormat", "\u2022 Current fleet status : {0} - Total fleet capacity : {1} ({2} free)"),
+		FText FleetInfo = FText::Format(LOCTEXT("FleetCargoInfoFormat", "\u2022 Current fleet status : {0} \n\u2022 Total fleet capacity : {1} ({2} free)"),
 			TargetTradeRoute->GetFleet()->GetStatusInfo(),
 			FText::AsNumber(TargetTradeRoute->GetFleet()->GetFleetCapacity()),
 			FText::AsNumber(TargetTradeRoute->GetFleet()->GetFleetFreeCargoSpace()));
@@ -1003,20 +1034,231 @@ FText SFlareTradeRouteMenu::GetOperationInfo(FFlareTradeRouteSectorOperationSave
 	return LOCTEXT("NoNextOperation", "No operation");
 }
 
-TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateSectorComboLine(UFlareSimulatedSector* Item)
+TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateSectorComboLine(UFlareSimulatedSector* TargetSector)
 {
+	// Common resources
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-
 	UFlareSimulatedPlanetarium* Planetarium = MenuManager->GetGame()->GetGameWorld()->GetPlanerarium();
-	FFlareCelestialBody* CelestialBody = Planetarium->FindCelestialBody(Item->GetOrbitParameters()->CelestialBodyIdentifier);
+	FFlareCelestialBody* CelestialBody = Planetarium->FindCelestialBody(TargetSector->GetOrbitParameters()->CelestialBodyIdentifier);
+	UFlareResourceCatalog* ResourceCatalog = MenuManager->GetGame()->GetResourceCatalog();
 
-	return SNew(SBox)
+	// Resource lists
+	TArray<FFlareResourceDescription*> CurrentlyBoughtResources;
+	TArray<FFlareResourceDescription*> CurrentlySoldResources;
+	TArray<FFlareResourceDescription*> SellableResources;
+	TArray<FFlareResourceDescription*> BuyableResources;
+	TArray<FFlareResourceDescription*> BestSellableResources;
+	TArray<FFlareResourceDescription*> BestBuyableResources;
+
+	// Identify all resources used
+	for (FFlareTradeRouteSectorSave& Sector : TargetTradeRoute->GetSectors())
+	{
+		for (FFlareTradeRouteSectorOperationSave& Operation : Sector.Operations)
+		{
+			FFlareResourceDescription* Resource = ResourceCatalog->Get(Operation.ResourceIdentifier);
+			switch (Operation.Type)
+			{
+				case EFlareTradeRouteOperation::Load:
+				case EFlareTradeRouteOperation::Buy:
+				case EFlareTradeRouteOperation::LoadOrBuy:
+					CurrentlyBoughtResources.AddUnique(Resource);
+					break;
+
+				case EFlareTradeRouteOperation::Unload:
+				case EFlareTradeRouteOperation::Sell:
+				case EFlareTradeRouteOperation::UnloadOrSell:
+					CurrentlySoldResources.AddUnique(Resource);
+					break;
+			}
+		}
+	}
+
+	// Find buyers and sellers, then add all resources
+	for (FFlareResourceDescription* Resource : CurrentlyBoughtResources)
+	{
+		if (TargetSector->WantBuy(Resource, MenuManager->GetPC()->GetCompany()))
+		{
+			SellableResources.AddUnique(Resource);
+			BestSellableResources.AddUnique(Resource);
+		}
+	}
+	for (FFlareResourceDescription* Resource : CurrentlySoldResources)
+	{
+		if (TargetSector->WantSell(Resource, MenuManager->GetPC()->GetCompany()))
+		{
+			BuyableResources.AddUnique(Resource);
+			BestBuyableResources.AddUnique(Resource);
+		}
+	}
+	for (UFlareResourceCatalogEntry* ResourceEntry : ResourceCatalog->GetResourceList())
+	{
+		FFlareResourceDescription* Resource = &ResourceEntry->Data;
+		if (TargetSector->WantBuy(Resource, MenuManager->GetPC()->GetCompany()))
+		{
+			SellableResources.AddUnique(Resource);
+		}
+		if (TargetSector->WantSell(Resource, MenuManager->GetPC()->GetCompany()))
+		{
+			BuyableResources.AddUnique(Resource);
+		}
+	}
+
+	// Build layout
+	TSharedPtr<SHorizontalBox> SuggestedPurchasesBox;
+	TSharedPtr<SHorizontalBox> SuggestedSalesBox;
+	TSharedPtr<SWidget> Layout = SNew(SBox)
 	.Padding(Theme.ListContentPadding)
 	[
-		SNew(STextBlock)
-		.Text(FText::Format(LOCTEXT("SectorLineFormat", "{0} (Orbiting {1})"), Item->GetSectorName(), CelestialBody->Name))
-		.TextStyle(&Theme.TextFont)
+		SNew(SHorizontalBox)
+
+		// Sector info
+		+ SHorizontalBox::Slot()
+		[
+			SNew(STextBlock)
+			.Text(FText::Format(LOCTEXT("SectorOrbitingFormat", "{0}\n\u2022 Orbiting {1}"), TargetSector->GetSectorName(), CelestialBody->Name))
+			.TextStyle(&Theme.TextFont)
+		]
+
+		// Sold resources
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Right)
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(SBox)
+			.WidthOverride(3 * Theme.ResourceWidth)
+			.Padding(FMargin(0))
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("SectorLineSellers", "Suggested purchases"))
+					.TextStyle(&Theme.TextFont)
+				]
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(SuggestedPurchasesBox, SHorizontalBox)
+				]
+			]
+		]
+		
+		// Bought resources
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Right)
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(SBox)
+			.WidthOverride(3 * Theme.ResourceWidth)
+			.Padding(FMargin(0))
+			[
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("SectorLineBuyers", "Suggested sales"))
+					.TextStyle(&Theme.TextFont)
+				]
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(SuggestedSalesBox, SHorizontalBox)
+				]
+			]
+		]
 	];
+
+	// Add deals
+	AddResourceDeals(SuggestedPurchasesBox, BuyableResources, BestBuyableResources);
+	AddResourceDeals(SuggestedSalesBox, SellableResources, BestSellableResources);
+
+	return Layout.ToSharedRef();
+}
+
+
+void SFlareTradeRouteMenu::AddResourceDeals(TSharedPtr<SHorizontalBox> ResourcesBox, TArray<FFlareResourceDescription*> Resources, TArray<FFlareResourceDescription*> BestResources)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	
+	for (int i = 0; i < 3; i++)
+	{
+		// Resource
+		if (i < Resources.Num())
+		{
+			FFlareResourceDescription* Resource = Resources[i];
+			const FSlateBrush* InfoIcon = FFlareStyleSet::GetIcon("EmptySmall");
+			if (BestResources.Find(Resource) != INDEX_NONE)
+			{
+				InfoIcon = FFlareStyleSet::GetIcon("Owned");
+			}
+
+			ResourcesBox->AddSlot()
+			.AutoWidth()
+			[
+				SNew(SBorder)
+				.Padding(FMargin(0))
+				.BorderImage(&Resource->Icon)
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ResourceWidth)
+					.HeightOverride(Theme.ResourceHeight)
+					.Padding(FMargin(0))
+					[
+						SNew(SVerticalBox)
+			
+						// Resource name
+						+ SVerticalBox::Slot()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(Resource->Acronym)
+						]
+
+						// Deal info
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						.VAlign(VAlign_Bottom)
+						.HAlign(HAlign_Center)
+						[
+							SNew(SImage)
+							.Image(InfoIcon)
+						]
+					]
+				]
+			];
+		}
+
+		// Empty
+		else
+		{
+			ResourcesBox->AddSlot()
+			.AutoWidth()
+			[
+				SNew(SBorder)
+				.Padding(FMargin(0))
+				.BorderImage(&Theme.ResourceBackground)
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ResourceWidth)
+					.HeightOverride(Theme.ResourceHeight)
+					.Padding(FMargin(0))
+				]
+			];
+		}
+
+	}
 }
 
 void SFlareTradeRouteMenu::OnSectorComboLineSelectionChanged(UFlareSimulatedSector* Item, ESelectInfo::Type SelectInfo)
@@ -1415,6 +1657,7 @@ void SFlareTradeRouteMenu::OnRemoveSectorClicked(UFlareSimulatedSector* Sector)
 	if (TargetTradeRoute)
 	{
 		TargetTradeRoute->RemoveSector(Sector);
+		OnDoneClicked();
 		GenerateSectorList();
 	}
 }

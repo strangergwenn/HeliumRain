@@ -411,6 +411,12 @@ public:
 
 	void SimulatePriceVariation(FFlareResourceDescription* Resource);
 
+	/** Can we load or buy this resource in this sector ? */
+	bool WantSell(FFlareResourceDescription* Resource, UFlareCompany* Client);
+
+	/** Can we unload or sell this resource in this sector ? */
+	bool WantBuy(FFlareResourceDescription* Resource, UFlareCompany* Client);
+
 	void ClearBombs();
 
 	/** Get the balance of forces in the sector */

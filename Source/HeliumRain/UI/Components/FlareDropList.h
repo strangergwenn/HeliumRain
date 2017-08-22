@@ -30,6 +30,7 @@ class SFlareDropList : public SCompoundWidget
 		, _HeaderHeight(1)
 		, _ItemWidth(3)
 		, _ItemHeight(1)
+		, _MaximumHeight(300)
 		, _ShowColorWheel(false)
 	{}
 	
@@ -45,6 +46,7 @@ class SFlareDropList : public SCompoundWidget
 	SLATE_ARGUMENT(float, HeaderHeight)
 	SLATE_ARGUMENT(float, ItemWidth)
 	SLATE_ARGUMENT(float, ItemHeight)
+	SLATE_ARGUMENT(int32, MaximumHeight)
 	SLATE_ARGUMENT(bool, ShowColorWheel)
 
 	SLATE_DEFAULT_SLOT(FArguments, Content)
@@ -113,7 +115,7 @@ public:
 			.AutoHeight()
 			[
 				SNew(SBox)
-				.MaxDesiredHeight(300)
+				.MaxDesiredHeight(InArgs._MaximumHeight)
 				.MinDesiredHeight(0)
 				[
 					SAssignNew(ItemScrollBox, SScrollBox)

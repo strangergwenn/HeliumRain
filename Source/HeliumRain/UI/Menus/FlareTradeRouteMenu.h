@@ -71,7 +71,9 @@ protected:
 	/** Get a description of a trade operation */
 	FText GetOperationInfo(FFlareTradeRouteSectorOperationSave* Operation) const;
 	
+	// Sector list
 	TSharedRef<SWidget> OnGenerateSectorComboLine(UFlareSimulatedSector* Item);
+	void AddResourceDeals(TSharedPtr<SHorizontalBox> ResourcesBox, TArray<FFlareResourceDescription*> Resources, TArray<FFlareResourceDescription*> BestResources);
 	
 	FText OnGetCurrentSectorComboLine() const;
 	

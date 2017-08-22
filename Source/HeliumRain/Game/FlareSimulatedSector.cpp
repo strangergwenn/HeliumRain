@@ -894,6 +894,30 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 	}
 }
 
+bool UFlareSimulatedSector::WantSell(FFlareResourceDescription* Resource, UFlareCompany* Client)
+{
+	for (UFlareSimulatedSpacecraft* Station : GetSectorStations())
+	{
+		if (Station->GetCargoBay()->WantSell(Resource, Client, true))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UFlareSimulatedSector::WantBuy(FFlareResourceDescription* Resource, UFlareCompany* Client)
+{
+	for (UFlareSimulatedSpacecraft* Station : GetSectorStations())
+	{
+		if (Station->GetCargoBay()->WantBuy(Resource, Client))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void UFlareSimulatedSector::ClearBombs()
 {
 	for (int i = 0 ; i < SectorData.BombData.Num(); i++)

@@ -506,22 +506,27 @@ void UFlareCargoBay::SetSlotRestriction(int32 SlotIndex, EFlareResourceRestricti
 	CargoBay[SlotIndex].Restriction = RestrictionType;
 }
 
-bool UFlareCargoBay::WantSell(FFlareResourceDescription* Resource, UFlareCompany* Client) const
+bool UFlareCargoBay::WantSell(FFlareResourceDescription* Resource, UFlareCompany* Client, bool RequireStock) const
 {
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
 		const FFlareCargo& Cargo = CargoBay[CargoIndex];
-		if(Cargo.Resource != NULL && Cargo.Resource != Resource)
+		if (Cargo.Resource != NULL && Cargo.Resource != Resource)
 		{
 			continue;
 		}
 
-		if(!CheckRestriction(&Cargo, Client))
+		if (!CheckRestriction(&Cargo, Client))
 		{
 			continue;
 		}
 
-		if(Cargo.Lock == EFlareResourceLock::NoLock ||
+		if (RequireStock && Cargo.Quantity == 0)
+		{
+			continue;
+		}
+
+		if (Cargo.Lock == EFlareResourceLock::NoLock ||
 				Cargo.Lock == EFlareResourceLock::Output ||
 				Cargo.Lock == EFlareResourceLock::Trade)
 		{
