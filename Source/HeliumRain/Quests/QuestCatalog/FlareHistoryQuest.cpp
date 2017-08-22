@@ -325,6 +325,14 @@ void UFlareQuestConditionDockAtType::AddConditionObjectives(FFlarePlayerObjectiv
 	ObjectiveCondition.MaxProgress = 0;
 	ObjectiveData->ConditionList.Add(ObjectiveCondition);
 	ObjectiveData->TargetSectors.Add(TargetSector);
+
+	for (UFlareSimulatedSpacecraft* Station : TargetSector->GetSectorStations())
+	{
+		if (Station->GetDescription()->Identifier == TargetStationType)
+		{
+			ObjectiveData->AddTargetSpacecraft(Station);
+		}
+	}
 }
 
 /*----------------------------------------------------

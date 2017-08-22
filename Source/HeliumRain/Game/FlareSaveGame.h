@@ -70,7 +70,7 @@ struct FFlarePlayerObjectiveData
 			TargetSpacecrafts.Add(Spacecraft);
 			if(Spacecraft->GetCurrentSector())
 			{
-				TargetSectors.Add(Spacecraft->GetCurrentSector());
+				TargetSectors.AddUnique(Spacecraft->GetCurrentSector());
 			}
 		}
 	}
