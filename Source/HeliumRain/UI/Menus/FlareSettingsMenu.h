@@ -107,8 +107,7 @@ protected:
 	FText OnGetCurrentCultureComboLine() const;
 	TSharedRef<SWidget> OnGenerateCultureComboLine(TSharedPtr<FString> Item);
 	void OnCultureComboLineSelectionChanged(TSharedPtr<FString> Item, ESelectInfo::Type SelectInfo);
-
-
+	
 	// Resolution list
 	FText OnGetCurrentResolutionComboLine() const;
 	TSharedRef<SWidget> OnGenerateResolutionComboLine(TSharedPtr<FScreenResolutionRHI> Item);
@@ -118,60 +117,67 @@ protected:
 	FText OnGetCurrentJoystickKeyName(FName AxisName) const;
 	TSharedRef<SWidget> OnGenerateJoystickComboLine(TSharedPtr<FKey> Item, FName AxisName);
 	void OnJoystickComboLineSelectionChanged(TSharedPtr<FKey> KeyItem, ESelectInfo::Type SelectInfo, FName AxisName);
-	
 	void OnInvertAxisClicked(FName AxisName);
 
+	// FOV
 	void OnFOVSliderChanged(float Value);
+	FText GetFOVLabel(int32 Value) const;
 
+	// Gamma
+	void OnGammaSliderChanged(float Value);
+	FText GetGammaLabel(float Value) const;
+
+	// Texture quality
 	void OnTextureQualitySliderChanged(float Value);
+	FText GetTextureQualityLabel(int32 Value) const;
 
+	// Effects quality
 	void OnEffectsQualitySliderChanged(float Value);
+	FText GetEffectsQualityLabel(int32 Value) const;
 
+	// AA quality
 	void OnAntiAliasingQualitySliderChanged(float Value);
+	FText GetAntiAliasingQualityLabel(int32 Value) const;
 
+	// Post-process quality
 	void OnPostProcessQualitySliderChanged(float Value);
+	FText GetPostProcessQualityLabel(int32 Value) const;
 
+	// Music volume
 	void OnMusicVolumeSliderChanged(float Value);
+	FText GetMusicVolumeLabel(int32 Value) const;
 
+	// Master volume
 	void OnMasterVolumeSliderChanged(float Value);
+	FText GetMasterVolumeLabel(int32 Value) const;
 
-	void OnFullscreenToggle();
-
-	void OnVSyncToggle();
-
-	void OnMotionBlurToggle();
-
-	void OnTemporalAAToggle();
-
-	void OnSupersamplingToggle();
-	
-	void OnInvertYToggle();
-
-	void OnAnticollisionToggle();
-
-	void OnCockpitToggle();
-
+	// Ship count
 	void OnShipCountSliderChanged(float Value);
-		
+	FText GetShipCountLabel(int32 Value) const;
+
+	// Toggles
+	void OnFullscreenToggle();
+	void OnVSyncToggle();
+	void OnMotionBlurToggle();
+	void OnTemporalAAToggle();
+	void OnSupersamplingToggle();	
+	void OnInvertYToggle();
+	void OnAnticollisionToggle();
+	void OnCockpitToggle();
+	void OnTurnWithLeftStickToggle();
+	void OnForwardOnlyThrustToggle();
+	
+	// Dead zone sliders
 	void OnRotationDeadZoneSliderChanged(float Value);
 	void OnRollDeadZoneSliderChanged(float Value);
 	void OnTranslationDeadZoneSliderChanged(float Value);
-
-	void OnTurnWithLeftStickToggle();
-
+	
 	const FSlateBrush* GetGamepadDrawing() const;
-
-	void OnForwardOnlyThrustToggle();
-
+	
+	// Bindings
 	void ApplyNewBinding(TSharedPtr<FSimpleBind> BindingThatChanged, bool Replace, bool bPrimaryKey);
 	void CancelNewBinding(SFlareKeyBind* UIBinding, FKey PreviousKey);
-
 	void OnKeyBindingChanged( FKey PreviousKey, FKey NewKey, SFlareKeyBind* UIBinding, TSharedPtr<FSimpleBind> BindingThatChanged, bool bPrimaryKey);
-
-
-	/*----------------------------------------------------
-		Helpers
-	----------------------------------------------------*/
 
 	/** Get all axis bindings */
 	void FillJoystickAxisList();
@@ -184,16 +190,7 @@ protected:
 
 	/** Update the current game state after a resolution change */
 	void UpdateResolution(bool CanAdaptResolution);
-
-	FText GetFOVLabel(int32 Value) const;
-	FText GetTextureQualityLabel(int32 Value) const;
-	FText GetEffectsQualityLabel(int32 Value) const;
-	FText GetAntiAliasingQualityLabel(int32 Value) const;
-	FText GetPostProcessQualityLabel(int32 Value) const;
-	FText GetMusicVolumeLabel(int32 Value) const;
-	FText GetMasterVolumeLabel(int32 Value) const;
-	FText GetShipCountLabel(int32 Value) const;
-
+	
 	void CreateBinds();
 
 	bool IsAlreadyUsed(TArray<TSharedPtr<FSimpleBind>> &BindConflicts, FKey Key, FSimpleBind& ExcludeBinding);
@@ -218,11 +215,13 @@ protected:
 	TSharedPtr<SFlareButton>                    TemporalAAButton;
 	TSharedPtr<SFlareButton>                    SupersamplingButton;
 	TSharedPtr<SSlider>                         FOVSlider;
+	TSharedPtr<SSlider>                         GammaSlider;
 	TSharedPtr<SSlider>                         TextureQualitySlider;
 	TSharedPtr<SSlider>                         EffectsQualitySlider;
 	TSharedPtr<SSlider>                         AntiAliasingQualitySlider;
 	TSharedPtr<SSlider>                         PostProcessQualitySlider;
 	TSharedPtr<STextBlock>	        			FOVLabel;
+	TSharedPtr<STextBlock>	        			GammaLabel;
 	TSharedPtr<STextBlock>	        			TextureQualityLabel;
 	TSharedPtr<STextBlock>	        			EffectsQualityLabel;
 	TSharedPtr<STextBlock>	        			AntiAliasingQualityLabel;

@@ -23,6 +23,10 @@
 #define MAX_MAX_SHIPS 100
 #define STEP_MAX_SHIPS 5
 
+#define MIN_GAMMA 1.0f
+#define MAX_GAMMA 3.0f
+
+
 /*----------------------------------------------------
 	Construct
 ----------------------------------------------------*/
@@ -35,8 +39,11 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	Game = MenuManager->GetPC()->GetGame();
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 
-	// Current settings
+	// Minima
 	float MinFOV = MenuManager->GetPC()->GetMinVerticalFOV();
+
+	// Current settings
+	float CurrentGammaRatio = (MyGameSettings->Gamma - MIN_GAMMA) / (MAX_GAMMA - MIN_GAMMA);
 	float CurrentFOVRatio = (MyGameSettings->VerticalFOV - MinFOV) / (MenuManager->GetPC()->GetMaxVerticalFOV() - MinFOV);
 	float CurrentTextureQualityRatio = MyGameSettings->ScalabilityQuality.TextureQuality / 3.f;
 	float CurrentEffectsQualityRatio = MyGameSettings->ScalabilityQuality.EffectsQuality / 3.f;
@@ -283,6 +290,52 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 									SAssignNew(FOVLabel, STextBlock)
 									.TextStyle(&Theme.TextFont)
 									.Text(GetFOVLabel(MyGameSettings->VerticalFOV))
+								]
+							]
+						]
+
+						// Gamma box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
+
+							// Gamma text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(LabelSize)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("GammaLabel", "Gamma"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// Gamma slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(GammaSlider, SSlider)
+								.Value(CurrentGammaRatio)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnGammaSliderChanged)
+							]
+
+							// Gamma label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(ValueSize)
+								[
+									SAssignNew(GammaLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetGammaLabel(MyGameSettings->Gamma))
 								]
 							]
 						]
@@ -1471,113 +1524,10 @@ void SFlareSettingsMenu::OnJoystickComboLineSelectionChanged(TSharedPtr<FKey> Ke
 	}
 }
 
-void SFlareSettingsMenu::OnInvertAxisClicked(FName AxisName)
-{
-	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-	for (int i = 0; i < InputSettings->AxisMappings.Num(); i++)
-	{
-		if (InputSettings->AxisMappings[i].AxisName == AxisName && i != InputSettings->AxisMappings.Num() - 1)
-		{
-			// Remove the original binding
-			FInputAxisKeyMapping Bind = InputSettings->AxisMappings[i];
-			InputSettings->RemoveAxisMapping(Bind);
 
-			// Re-add to force update
-			Bind.Scale = (Bind.Scale < 0) ? 1 : -1;
-			InputSettings->AddAxisMapping(Bind);
-		}
-	}
-
-	InputSettings->SaveKeyMappings();
-}
-
-void SFlareSettingsMenu::OnFullscreenToggle()
-{
-	UpdateResolution(true);
-}
-
-void SFlareSettingsMenu::OnInvertYToggle()
-{
-	bool New = InvertYButton->IsActive();
-
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->InvertY = New;
-	MyGameSettings->ApplySettings(false);
-}
-
-void SFlareSettingsMenu::OnCockpitToggle()
-{
-#if !UE_BUILD_SHIPPING
-	bool New = CockpitButton->IsActive();
-	MenuManager->GetPC()->SetUseCockpit(New);
-
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->UseCockpit = New;
-	MyGameSettings->ApplySettings(false);
-#endif
-}
-
-
-void SFlareSettingsMenu::OnRotationDeadZoneSliderChanged(float Value)
-{
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->RotationDeadZone = Value;
-	MyGameSettings->ApplySettings(false);
-}
-
-void SFlareSettingsMenu::OnRollDeadZoneSliderChanged(float Value)
-{
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->RollDeadZone = Value;
-	MyGameSettings->ApplySettings(false);
-}
-
-void SFlareSettingsMenu::OnTranslationDeadZoneSliderChanged(float Value)
-{
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->TranslationDeadZone = Value;
-	MyGameSettings->ApplySettings(false);
-}
-
-void SFlareSettingsMenu::OnTurnWithLeftStickToggle()
-{
-	bool New = TurnWithLeftStickButton->IsActive();
-
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->TurnWithLeftStick = New;
-	MyGameSettings->ApplySettings(false);
-}
-
-const FSlateBrush* SFlareSettingsMenu::GetGamepadDrawing() const
-{
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	if (MyGameSettings->TurnWithLeftStick)
-	{
-		return FFlareStyleSet::GetImage("Pad_TurnWithLeft");
-	}
-	else
-	{
-		return FFlareStyleSet::GetImage("Pad");
-	}
-}
-
-void SFlareSettingsMenu::OnForwardOnlyThrustToggle()
-{
-	bool New = ForwardOnlyThrustButton->IsActive();
-
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->ForwardOnlyThrust = New;
-	MyGameSettings->ApplySettings(false);
-}
-
-void SFlareSettingsMenu::OnAnticollisionToggle()
-{
-	bool New = AnticollisionButton->IsActive();
-
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->UseAnticollision = New;
-	MyGameSettings->ApplySettings(false);
-}
+/*----------------------------------------------------
+	Sliders
+----------------------------------------------------*/
 
 void SFlareSettingsMenu::OnShipCountSliderChanged(float Value)
 {
@@ -1597,6 +1547,11 @@ void SFlareSettingsMenu::OnShipCountSliderChanged(float Value)
 	}
 }
 
+FText SFlareSettingsMenu::GetShipCountLabel(int32 Value) const
+{
+	return FText::AsNumber(Value);
+}
+
 void SFlareSettingsMenu::OnFOVSliderChanged(float Value)
 {
 	int32 Step = MenuManager->GetPC()->GetMaxVerticalFOV() - MenuManager->GetPC()->GetMinVerticalFOV();
@@ -1612,6 +1567,37 @@ void SFlareSettingsMenu::OnFOVSliderChanged(float Value)
 		MyGameSettings->ApplySettings(false);
 		FOVLabel->SetText(GetFOVLabel(StepValue));
 	}
+}
+
+FText SFlareSettingsMenu::GetFOVLabel(int32 Value) const
+{
+	return FText::Format(LOCTEXT("FOVFormat", "{0}"), FText::AsNumber(Value));
+}
+
+void SFlareSettingsMenu::OnGammaSliderChanged(float Value)
+{
+	float Step = 1 / 0.1f;
+	float NewValue = MIN_GAMMA + Value * MAX_GAMMA;
+	int SteppedNewValue = FMath::RoundToInt(Step * NewValue);
+	NewValue = SteppedNewValue / Step;
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	if (MyGameSettings->Gamma != NewValue)
+	{
+		FLOGV("SFlareSettingsMenu::OnGammaSliderChanged : Set gamma to %f (current is %f)", NewValue, MyGameSettings->Gamma);
+		MyGameSettings->Gamma = NewValue;
+		MyGameSettings->ApplySettings(false);
+
+		FString GammaCommand = FString::Printf(TEXT("gamma %f"), NewValue);
+		GEngine->GameViewport->ConsoleCommand(GammaCommand);
+
+		GammaLabel->SetText(GetGammaLabel(NewValue));
+	}
+}
+
+FText SFlareSettingsMenu::GetGammaLabel(float Value) const
+{
+	return FText::Format(LOCTEXT("GammaFormat", "{0}"), FText::AsNumber(Value));
 }
 
 void SFlareSettingsMenu::OnTextureQualitySliderChanged(float Value)
@@ -1631,6 +1617,22 @@ void SFlareSettingsMenu::OnTextureQualitySliderChanged(float Value)
 	}
 }
 
+FText SFlareSettingsMenu::GetTextureQualityLabel(int32 Value) const
+{
+	switch(Value)
+	{
+		case 1:
+			return LOCTEXT("TextureQualityMedium", "Medium");
+		case 2:
+			return LOCTEXT("TextureQualityHigh", "High");
+		case 3:
+			return LOCTEXT("TextureQualityUltra", "Ultra");
+		case 0:
+		default:
+			return LOCTEXT("TextureQualityLow", "Low");
+	}
+}
+
 void SFlareSettingsMenu::OnEffectsQualitySliderChanged(float Value)
 {
 	int32 Step = 3;
@@ -1645,6 +1647,22 @@ void SFlareSettingsMenu::OnEffectsQualitySliderChanged(float Value)
 		MyGameSettings->ScalabilityQuality.EffectsQuality = StepValue;
 		MyGameSettings->ApplySettings(false);
 		EffectsQualityLabel->SetText(GetEffectsQualityLabel(StepValue));
+	}
+}
+
+FText SFlareSettingsMenu::GetEffectsQualityLabel(int32 Value) const
+{
+	switch(Value)
+	{
+		case 1:
+			return LOCTEXT("EffectsQualityMedium", "Medium");
+		case 2:
+			return LOCTEXT("EffectsQualityHigh", "High");
+		case 3:
+			return LOCTEXT("EffectsQualityUltra", "Ultra");
+		case 0:
+		default:
+			return LOCTEXT("EffectsQualityLow", "Low");
 	}
 }
 
@@ -1666,6 +1684,21 @@ void SFlareSettingsMenu::OnAntiAliasingQualitySliderChanged(float Value)
 	}
 }
 
+FText SFlareSettingsMenu::GetAntiAliasingQualityLabel(int32 Value) const
+{
+	switch(Value)
+	{
+		case 1:
+			return LOCTEXT("AntiAliasingQualityMedium", "Medium");
+		case 2:
+		case 3:
+			return LOCTEXT("AntiAliasingQualityUltra", "Ultra");
+		case 0:
+		default:
+			return LOCTEXT("AntiAliasingQualityDisabled", "Off");		
+	}
+}
+
 void SFlareSettingsMenu::OnPostProcessQualitySliderChanged(float Value)
 {
 	int32 Step = 3;
@@ -1680,6 +1713,22 @@ void SFlareSettingsMenu::OnPostProcessQualitySliderChanged(float Value)
 		MyGameSettings->ScalabilityQuality.PostProcessQuality = StepValue;
 		MyGameSettings->ApplySettings(false);
 		PostProcessQualityLabel->SetText(GetPostProcessQualityLabel(StepValue));
+	}
+}
+
+FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value) const
+{
+	switch(Value)
+	{
+		case 1:
+			return LOCTEXT("PostProcessQualityMedium", "Medium");
+		case 2:
+			return LOCTEXT("PostProcessQualityHigh", "High");
+		case 3:
+			return LOCTEXT("PostProcessQualityUltra", "Ultra");
+		case 0:
+		default:
+			return LOCTEXT("PostProcessQualityLow", "Low");
 	}
 }
 
@@ -1703,6 +1752,14 @@ void SFlareSettingsMenu::OnMusicVolumeSliderChanged(float Value)
 	}
 }
 
+FText SFlareSettingsMenu::GetMusicVolumeLabel(int32 Value) const
+{
+	if (Value == 0)
+		return LOCTEXT("Muted", "Muted");
+	else
+		return FText::Format(LOCTEXT("MusicVolumeFormat", "{0}%"), FText::AsNumber(10 * Value));
+}
+
 void SFlareSettingsMenu::OnMasterVolumeSliderChanged(float Value)
 {
 	int32 Step = 10;
@@ -1722,6 +1779,19 @@ void SFlareSettingsMenu::OnMasterVolumeSliderChanged(float Value)
 		PC->SetMasterVolume(StepValue);
 	}
 }
+
+FText SFlareSettingsMenu::GetMasterVolumeLabel(int32 Value) const
+{
+	if (Value == 0)
+		return LOCTEXT("Muted", "Muted");
+	else
+		return FText::Format(LOCTEXT("MasterVolumeFormat", "{0}%"), FText::AsNumber(10 * Value));
+}
+
+
+/*----------------------------------------------------
+	Toggles
+----------------------------------------------------*/
 
 void SFlareSettingsMenu::OnVSyncToggle()
 {
@@ -1788,6 +1858,113 @@ void SFlareSettingsMenu::OnSupersamplingToggle()
 	MyGameSettings->SetScreenPercentage(SupersamplingButton->IsActive() ? 142 : 100);
 	MyGameSettings->ApplySettings(false);
 
+}
+
+void SFlareSettingsMenu::OnFullscreenToggle()
+{
+	UpdateResolution(true);
+}
+
+void SFlareSettingsMenu::OnInvertYToggle()
+{
+	bool New = InvertYButton->IsActive();
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->InvertY = New;
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnCockpitToggle()
+{
+#if !UE_BUILD_SHIPPING
+	bool New = CockpitButton->IsActive();
+	MenuManager->GetPC()->SetUseCockpit(New);
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->UseCockpit = New;
+	MyGameSettings->ApplySettings(false);
+#endif
+}
+
+void SFlareSettingsMenu::OnTurnWithLeftStickToggle()
+{
+	bool New = TurnWithLeftStickButton->IsActive();
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->TurnWithLeftStick = New;
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnForwardOnlyThrustToggle()
+{
+	bool New = ForwardOnlyThrustButton->IsActive();
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->ForwardOnlyThrust = New;
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnAnticollisionToggle()
+{
+	bool New = AnticollisionButton->IsActive();
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->UseAnticollision = New;
+	MyGameSettings->ApplySettings(false);
+}
+
+const FSlateBrush* SFlareSettingsMenu::GetGamepadDrawing() const
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	if (MyGameSettings->TurnWithLeftStick)
+	{
+		return FFlareStyleSet::GetImage("Pad_TurnWithLeft");
+	}
+	else
+	{
+		return FFlareStyleSet::GetImage("Pad");
+	}
+}
+
+void SFlareSettingsMenu::OnInvertAxisClicked(FName AxisName)
+{
+	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+	for (int i = 0; i < InputSettings->AxisMappings.Num(); i++)
+	{
+		if (InputSettings->AxisMappings[i].AxisName == AxisName && i != InputSettings->AxisMappings.Num() - 1)
+		{
+			// Remove the original binding
+			FInputAxisKeyMapping Bind = InputSettings->AxisMappings[i];
+			InputSettings->RemoveAxisMapping(Bind);
+
+			// Re-add to force update
+			Bind.Scale = (Bind.Scale < 0) ? 1 : -1;
+			InputSettings->AddAxisMapping(Bind);
+		}
+	}
+
+	InputSettings->SaveKeyMappings();
+}
+
+void SFlareSettingsMenu::OnRotationDeadZoneSliderChanged(float Value)
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->RotationDeadZone = Value;
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnRollDeadZoneSliderChanged(float Value)
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->RollDeadZone = Value;
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnTranslationDeadZoneSliderChanged(float Value)
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->TranslationDeadZone = Value;
+	MyGameSettings->ApplySettings(false);
 }
 
 void  SFlareSettingsMenu::ApplyNewBinding(TSharedPtr<FSimpleBind> BindingThatChanged, bool Replace, bool bPrimaryKey)
@@ -2019,95 +2196,6 @@ void SFlareSettingsMenu::UpdateResolution(bool CanAdaptResolution)
 		MyGameSettings->SaveConfig();
 		GEngine->SaveConfig();
 	}
-}
-
-FText SFlareSettingsMenu::GetFOVLabel(int32 Value) const
-{
-	return FText::Format(LOCTEXT("FOVFormat", "{0}"), FText::AsNumber(Value));
-}
-
-FText SFlareSettingsMenu::GetTextureQualityLabel(int32 Value) const
-{
-	switch(Value)
-	{
-		case 1:
-			return LOCTEXT("TextureQualityMedium", "Medium");
-		case 2:
-			return LOCTEXT("TextureQualityHigh", "High");
-		case 3:
-			return LOCTEXT("TextureQualityUltra", "Ultra");
-		case 0:
-		default:
-			return LOCTEXT("TextureQualityLow", "Low");
-	}
-}
-
-FText SFlareSettingsMenu::GetEffectsQualityLabel(int32 Value) const
-{
-	switch(Value)
-	{
-		case 1:
-			return LOCTEXT("EffectsQualityMedium", "Medium");
-		case 2:
-			return LOCTEXT("EffectsQualityHigh", "High");
-		case 3:
-			return LOCTEXT("EffectsQualityUltra", "Ultra");
-		case 0:
-		default:
-			return LOCTEXT("EffectsQualityLow", "Low");
-	}
-}
-
-FText SFlareSettingsMenu::GetAntiAliasingQualityLabel(int32 Value) const
-{
-	switch(Value)
-	{
-		case 1:
-			return LOCTEXT("AntiAliasingQualityMedium", "Medium");
-		case 2:
-		case 3:
-			return LOCTEXT("AntiAliasingQualityUltra", "Ultra");
-		case 0:
-		default:
-			return LOCTEXT("AntiAliasingQualityDisabled", "Off");		
-	}
-}
-
-FText SFlareSettingsMenu::GetPostProcessQualityLabel(int32 Value) const
-{
-	switch(Value)
-	{
-		case 1:
-			return LOCTEXT("PostProcessQualityMedium", "Medium");
-		case 2:
-			return LOCTEXT("PostProcessQualityHigh", "High");
-		case 3:
-			return LOCTEXT("PostProcessQualityUltra", "Ultra");
-		case 0:
-		default:
-			return LOCTEXT("PostProcessQualityLow", "Low");
-	}
-}
-
-FText SFlareSettingsMenu::GetShipCountLabel(int32 Value) const
-{
-	return FText::AsNumber(Value);
-}
-
-FText SFlareSettingsMenu::GetMusicVolumeLabel(int32 Value) const
-{
-	if (Value == 0)
-		return LOCTEXT("Muted", "Muted");
-	else
-		return FText::Format(LOCTEXT("MusicVolumeFormat", "{0}%"), FText::AsNumber(10 * Value));
-}
-
-FText SFlareSettingsMenu::GetMasterVolumeLabel(int32 Value) const
-{
-	if (Value == 0)
-		return LOCTEXT("Muted", "Muted");
-	else
-		return FText::Format(LOCTEXT("MasterVolumeFormat", "{0}%"), FText::AsNumber(10 * Value));
 }
 
 void SFlareSettingsMenu::CreateBinds()
