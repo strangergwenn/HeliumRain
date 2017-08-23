@@ -1954,6 +1954,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 			{
 				// Get shipyard if existing
 				UFlareFactory* TargetFactory = CompanyStations[StationIndex]->GetFactories()[FactoryIndex];
+				FText SectorName = CompanyStations[StationIndex]->GetCurrentSector()->GetSectorName();
 				FName CompanyIdentifier = PlayerCompany->GetIdentifier();
 				if (!TargetFactory->IsShipyard())
 				{
@@ -1970,13 +1971,15 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 					if (TargetFactory->IsActive() && TargetFactory->IsNeedProduction() && !TargetFactory->HasCostReserved() && !TargetFactory->HasInputResources())
 					{
 
-						ProductionText = FText::Format(LOCTEXT("ShipNoResourcesProdTextFormat", "\u2022 {0} ordered (missing resources)"),
-						OrderDesc->Name);
+						ProductionText = FText::Format(LOCTEXT("ShipNoResourcesProdTextFormat", "\u2022 {0} ordered at {1} (missing resources)"),
+						OrderDesc->Name,
+							SectorName);
 					}
 					else
 					{
-						ProductionText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "\u2022 {0} ordered ({1} left)"),
+						ProductionText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "\u2022 {0} ordered at {1} ({2} left)"),
 						OrderDesc->Name,
+						SectorName,
 						UFlareGameTools::FormatDate(ProductionTime, 2));
 					}
 
@@ -1996,13 +1999,15 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 					if (TargetFactory->IsActive() && TargetFactory->IsNeedProduction() && !TargetFactory->HasCostReserved() && !TargetFactory->HasInputResources())
 					{
 
-						ProductionText = FText::Format(LOCTEXT("ShipProductionNoResourcesProdTextFormat", "\u2022 {0} being built (missing resources)"),
-						Game->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name);
+						ProductionText = FText::Format(LOCTEXT("ShipProductionNoResourcesProdTextFormat", "\u2022 {0} being built at {1} (missing resources)"),
+						Game->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name,
+						SectorName);
 					}
 					else
 					{
-						ProductionText = FText::Format(LOCTEXT("ShipProductionTextFormat", "\u2022 {0} being built ({1} left)"),
+						ProductionText = FText::Format(LOCTEXT("ShipProductionTextFormat", "\u2022 {0} being built at {1} ({2} left)"),
 							Game->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name,
+							SectorName,
 							UFlareGameTools::FormatDate(ProductionTime, 2));
 					}
 
