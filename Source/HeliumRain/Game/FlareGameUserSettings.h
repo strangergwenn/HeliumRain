@@ -23,6 +23,8 @@ public:
 
 	virtual void ApplySettings(bool bCheckForCommandLineOverrides) override;
 
+	void EnsureConsistency();
+
 	void SetUseTemporalAA(bool NewSetting);
 
 	void SetScreenPercentage(int32 NewScreenPercentage);
@@ -47,6 +49,10 @@ public:
 	/** Whether to use Temporal AA */
 	UPROPERTY(Config)
 	bool                                     UseTemporalAA;
+
+	/** Gamma */
+	UPROPERTY(Config)
+	float                                    Gamma;
 		
 	/** Whether to use the 3D cockpit */
 	UPROPERTY(Config)
@@ -83,6 +89,10 @@ public:
 	/** Dead zone */
 	UPROPERTY(Config)
 	float                                    TranslationDeadZone;
+
+	/** Sensitivity */
+	UPROPERTY(Config)
+	float                                    InputSensitivity;
 
 	/** Max ship count in a sector */
 	UPROPERTY(Config)

@@ -157,16 +157,14 @@ void AFlarePlayerController::BeginPlay()
 	IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
 	Achievements->QueryAchievements(*UserId.Get(), FOnQueryAchievementsCompleteDelegate::CreateUObject(this, &AFlarePlayerController::OnQueryAchievementsComplete));
 
-	// Get settings
+	// Get settings, ensure settings added in updates have the default value
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	FCHECK(MyGameSettings);
-	if (MyGameSettings->VerticalFOV < GetMinVerticalFOV())
-	{
-		MyGameSettings->VerticalFOV = GetMinVerticalFOV();
-	}
-	MyGameSettings->ApplySettings(false);
+	MyGameSettings->EnsureConsistency();
 
 	// Apply settings
+	FString GammaCommand = FString::Printf(TEXT("gamma %f"), MyGameSettings->Gamma);
+	GEngine->GameViewport->ConsoleCommand(GammaCommand);
 	UseCockpit = MyGameSettings->UseCockpit;
 	PauseGameInMenus = MyGameSettings->PauseGameInMenus;
 	SetUseMotionBlur(MyGameSettings->UseMotionBlur);

@@ -23,6 +23,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	ScreenPercentage = 100;
 	UseTemporalAA = true;
 	UseMotionBlur = true;
+	Gamma = 2.2f;
 
 	// Gameplay
 	InvertY = false;
@@ -37,10 +38,31 @@ void UFlareGameUserSettings::SetToDefaults()
 	RotationDeadZone = 0.0f;
 	TranslationDeadZone = 0.0f;
 	RollDeadZone = 0.0f;
+	InputSensitivity = 1.0f;
 
 	// Sound
 	MusicVolume = 10;
 	MasterVolume = 10;
+}
+
+void UFlareGameUserSettings::EnsureConsistency()
+{
+	FLOG("UFlareGameUserSettings::EnsureConsistency");
+
+	if (VerticalFOV < 60)
+	{
+		VerticalFOV = 60;
+	}
+	if (Gamma < KINDA_SMALL_NUMBER)
+	{
+		Gamma = 2.2f;
+	}
+	if (InputSensitivity < KINDA_SMALL_NUMBER)
+	{
+		InputSensitivity = 1.0f;
+	}
+
+	ApplySettings(false);
 }
 
 void UFlareGameUserSettings::ApplySettings(bool bCheckForCommandLineOverrides)
