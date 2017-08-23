@@ -1231,7 +1231,7 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 		FText Description = LOCTEXT("ResearchStationTechnologyDescription","The fastest way to research technology is by building research stations. First, unlock the technology to build research stations.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-station-technology", Description);
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialUnlockTechnology::Create(this, "stations"));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialUnlockTechnology::Create(this, "science"));
 		Steps.Add(Step);
 	}
 
