@@ -23,8 +23,11 @@
 #define MAX_MAX_SHIPS 100
 #define STEP_MAX_SHIPS 5
 
-#define MIN_GAMMA 1.0f
+#define MIN_GAMMA 1.5f
 #define MAX_GAMMA 3.0f
+
+#define MIN_SENSITIVITY 0.5f
+#define MAX_SENSITIVITY 1.5f
 
 
 /*----------------------------------------------------
@@ -44,6 +47,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 
 	// Current settings
 	float CurrentGammaRatio = (MyGameSettings->Gamma - MIN_GAMMA) / (MAX_GAMMA - MIN_GAMMA);
+	float CurrentSensitivityRatio = (MyGameSettings->InputSensitivity - MIN_SENSITIVITY) / (MAX_SENSITIVITY - MIN_SENSITIVITY);
 	float CurrentFOVRatio = (MyGameSettings->VerticalFOV - MinFOV) / (MenuManager->GetPC()->GetMaxVerticalFOV() - MinFOV);
 	float CurrentTextureQualityRatio = MyGameSettings->ScalabilityQuality.TextureQuality / 3.f;
 	float CurrentEffectsQualityRatio = MyGameSettings->ScalabilityQuality.EffectsQuality / 3.f;
@@ -336,6 +340,52 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 									SAssignNew(GammaLabel, STextBlock)
 									.TextStyle(&Theme.TextFont)
 									.Text(GetGammaLabel(MyGameSettings->Gamma))
+								]
+							]
+						]
+
+						// Sensitivity box
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(SHorizontalBox)
+
+							// Sensitivity text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(LabelSize)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("SensitivityLabel", "Input sensitivity"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// Sensitivity slider
+							+ SHorizontalBox::Slot()
+							.VAlign(VAlign_Center)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(SensitivitySlider, SSlider)
+								.Value(CurrentSensitivityRatio)
+								.Style(&Theme.SliderStyle)
+								.OnValueChanged(this, &SFlareSettingsMenu::OnSensitivitySliderChanged)
+							]
+
+							// Sensitivity label
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SNew(SBox)
+								.WidthOverride(ValueSize)
+								[
+									SAssignNew(SensitivityLabel, STextBlock)
+									.TextStyle(&Theme.TextFont)
+									.Text(GetSensitivityLabel(MyGameSettings->InputSensitivity))
 								]
 							]
 						]
@@ -1577,7 +1627,7 @@ FText SFlareSettingsMenu::GetFOVLabel(int32 Value) const
 void SFlareSettingsMenu::OnGammaSliderChanged(float Value)
 {
 	float Step = 1 / 0.1f;
-	float NewValue = MIN_GAMMA + Value * MAX_GAMMA;
+	float NewValue = MIN_GAMMA + Value * (MAX_GAMMA - MIN_GAMMA);
 	int SteppedNewValue = FMath::RoundToInt(Step * NewValue);
 	NewValue = SteppedNewValue / Step;
 
@@ -1598,6 +1648,28 @@ void SFlareSettingsMenu::OnGammaSliderChanged(float Value)
 FText SFlareSettingsMenu::GetGammaLabel(float Value) const
 {
 	return FText::Format(LOCTEXT("GammaFormat", "{0}"), FText::AsNumber(Value));
+}
+
+void SFlareSettingsMenu::OnSensitivitySliderChanged(float Value)
+{
+	float Step = 1 / 0.1f;
+	float NewValue = MIN_SENSITIVITY + Value * (MAX_SENSITIVITY - MIN_SENSITIVITY);
+	int SteppedNewValue = FMath::RoundToInt(Step * NewValue);
+	NewValue = SteppedNewValue / Step;
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	if (MyGameSettings->InputSensitivity != NewValue)
+	{
+		FLOGV("SFlareSettingsMenu::OnSensitivitySliderChanged : Set sensitivity to %f (current is %f)", NewValue, MyGameSettings->InputSensitivity);
+		MyGameSettings->InputSensitivity = NewValue;
+		MyGameSettings->ApplySettings(false);
+		SensitivityLabel->SetText(GetSensitivityLabel(NewValue));
+	}
+}
+
+FText SFlareSettingsMenu::GetSensitivityLabel(float Value) const
+{
+	return FText::Format(LOCTEXT("SensitivityFormat", "{0}"), FText::AsNumber(Value));
 }
 
 void SFlareSettingsMenu::OnTextureQualitySliderChanged(float Value)

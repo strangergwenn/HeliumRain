@@ -1991,6 +1991,9 @@ void AFlarePlayerController::QuickSwitch()
 
 void AFlarePlayerController::MouseInputX(float Val)
 {
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	Val *= MyGameSettings->InputSensitivity;
+
 	if (MenuManager->IsUIOpen())
 	{
 		if (MenuPawn)
@@ -2012,6 +2015,9 @@ void AFlarePlayerController::MouseInputX(float Val)
 
 void AFlarePlayerController::MouseInputY(float Val)
 {
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	Val *= MyGameSettings->InputSensitivity;
+
 	if (MenuManager->IsUIOpen())
 	{
 		if (MenuPawn)
@@ -2034,6 +2040,7 @@ void AFlarePlayerController::MouseInputY(float Val)
 void AFlarePlayerController::GamepadLeftStickX(float Val)
 {
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	Val *= MyGameSettings->InputSensitivity;
 
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
@@ -2059,6 +2066,7 @@ void AFlarePlayerController::GamepadLeftStickX(float Val)
 void AFlarePlayerController::GamepadLeftStickY(float Val)
 {
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	Val *= MyGameSettings->InputSensitivity;
 
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
@@ -2084,6 +2092,7 @@ void AFlarePlayerController::GamepadLeftStickY(float Val)
 void AFlarePlayerController::GamepadRightStickX(float Val)
 {
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	Val *= MyGameSettings->InputSensitivity;
 
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
@@ -2113,6 +2122,7 @@ void AFlarePlayerController::GamepadRightStickX(float Val)
 void AFlarePlayerController::GamepadRightStickY(float Val)
 {
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	Val *= MyGameSettings->InputSensitivity;
 
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
@@ -2151,6 +2161,9 @@ void AFlarePlayerController::GamepadThrustInput(float Val)
 
 void AFlarePlayerController::JoystickMoveHorizontalInput(float Val)
 {
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	Val *= MyGameSettings->InputSensitivity;
+
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
@@ -2171,6 +2184,9 @@ void AFlarePlayerController::JoystickMoveHorizontalInput(float Val)
 
 void AFlarePlayerController::JoystickMoveVerticalInput(float Val)
 {
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	Val *= MyGameSettings->InputSensitivity;
+
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(0, -Val));
@@ -2192,6 +2208,9 @@ void AFlarePlayerController::JoystickMoveVerticalInput(float Val)
 
 void AFlarePlayerController::JoystickYawInput(float Val)
 {
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	Val *= MyGameSettings->InputSensitivity;
+
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
@@ -2208,6 +2227,9 @@ void AFlarePlayerController::JoystickYawInput(float Val)
 
 void AFlarePlayerController::JoystickPitchInput(float Val)
 {
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	Val *= MyGameSettings->InputSensitivity;
+
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(0, Val));
@@ -2327,7 +2349,7 @@ void AFlarePlayerController::WheelPressed()
 		// Flying controls
 		else
 		{
-			// Targetting
+			// Targeting
 			AFlareSpacecraft* Target = ShipPawn->GetCurrentTarget();
 			if (Target)
 			{

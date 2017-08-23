@@ -127,6 +127,10 @@ protected:
 	void OnGammaSliderChanged(float Value);
 	FText GetGammaLabel(float Value) const;
 
+	// Sensitivity
+	void OnSensitivitySliderChanged(float Value);
+	FText GetSensitivityLabel(float Value) const;
+
 	// Texture quality
 	void OnTextureQualitySliderChanged(float Value);
 	FText GetTextureQualityLabel(int32 Value) const;
@@ -216,12 +220,14 @@ protected:
 	TSharedPtr<SFlareButton>                    SupersamplingButton;
 	TSharedPtr<SSlider>                         FOVSlider;
 	TSharedPtr<SSlider>                         GammaSlider;
+	TSharedPtr<SSlider>                         SensitivitySlider;
 	TSharedPtr<SSlider>                         TextureQualitySlider;
 	TSharedPtr<SSlider>                         EffectsQualitySlider;
 	TSharedPtr<SSlider>                         AntiAliasingQualitySlider;
 	TSharedPtr<SSlider>                         PostProcessQualitySlider;
 	TSharedPtr<STextBlock>	        			FOVLabel;
 	TSharedPtr<STextBlock>	        			GammaLabel;
+	TSharedPtr<STextBlock>	        			SensitivityLabel;
 	TSharedPtr<STextBlock>	        			TextureQualityLabel;
 	TSharedPtr<STextBlock>	        			EffectsQualityLabel;
 	TSharedPtr<STextBlock>	        			AntiAliasingQualityLabel;
