@@ -1832,12 +1832,12 @@ void UFlareQuestConditionAtWar::Load(UFlareQuest* ParentQuest, UFlareCompany* Co
 
 	if (TargetCompany1 == PlayerCompany)
 	{
-		InitialLabel = FText::Format(LOCTEXT("PlayerAtWar", "Declare war to {0}"),
+		InitialLabel = FText::Format(LOCTEXT("PlayerAtWar", "Declare war on {0}"),
 								 TargetCompany2->GetCompanyName());
 	}
 	else if (TargetCompany2 == PlayerCompany)
 	{
-		InitialLabel = FText::Format(LOCTEXT("PlayerAtWar", "Declare war to {0}"),
+		InitialLabel = FText::Format(LOCTEXT("PlayerAtWar", "Declare war on {0}"),
 								 TargetCompany1->GetCompanyName());
 	}
 	else

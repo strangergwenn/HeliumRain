@@ -778,18 +778,18 @@ FText SFlareCompanyInfo::GetToggleHostilityHelpText() const
 	{
 		if (Company->GetAI()->GetBehavior()->ProposeTributeToPlayer && Company->GetTributeCost(Player->GetCompany()) < Company->GetMoney())
 		{
-			return LOCTEXT("AcceptTributeHelp", "Accept a tribute from this company and stop hostilities (you are currently at war with this company). If you declare war to this company again in the few next weeks you will gain a diplomatic malus.");
+			return LOCTEXT("AcceptTributeHelp", "Accept a tribute from this company and stop hostilities (you are currently at war with this company). If you declare war on this company again in the few next weeks you will gain a diplomatic malus.");
 		}
 		else
 		{
-			return LOCTEXT("RequestPeaceHelp", "Request peace with this company and stop hostilities (you are currently at war with this company). If you declare war to this company again in the few next weeks you will gain a diplomatic malus.");
+			return LOCTEXT("RequestPeaceHelp", "Request peace with this company and stop hostilities (you are currently at war with this company). If you declare war on this company again in the few next weeks you will gain a diplomatic malus.");
 		}
 	}
 
 	// We are at peace
 	else
 	{
-		return LOCTEXT("DeclareWarHelp", "Declare war to this company (you are currently on good terms with this company)");
+		return LOCTEXT("DeclareWarHelp", "Declare war on this company (you are currently on good terms with this company)");
 	}
 }
 

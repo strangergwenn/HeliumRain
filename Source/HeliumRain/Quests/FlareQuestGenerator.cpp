@@ -1609,7 +1609,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 		#define QUEST_STEP_TAG QUEST_TAG"War"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionWar", "Declare war to {0}"),
+		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionWar", "Declare war on {0}"),
 										  HostileCompany->GetCompanyName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "war", Description);
 
@@ -1814,7 +1814,7 @@ void UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FF
 			WarList += HostileCompany->GetCompanyName().ToString();
 		}
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionWar", "Declare war to {0}"),
+		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionWar", "Declare war on {0}"),
 										  FText::FromString(WarList));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "war", Description);
 
@@ -2023,7 +2023,7 @@ void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const
 		#define QUEST_STEP_TAG QUEST_TAG"War"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionWar", "Declare war to {0}"),
+		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionWar", "Declare war on {0}"),
 										  HostileCompany->GetCompanyName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "war", Description);
 

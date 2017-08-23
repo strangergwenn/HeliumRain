@@ -289,7 +289,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"TargetB"
-		FText Description = FText::Format(LOCTEXT("TargetBDescription", "Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}. The targets are sort by distance to your nose."),
+		FText Description = FText::Format(LOCTEXT("TargetBDescription", "Use <input-action:NextTarget> and <input-action:PreviousTarget> to select {0}. The targets are sorted by distance to your nose."),
 			UFlareGameTools::DisplaySpacecraftName(StationB));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "target-station-b", Description);
 
@@ -2578,7 +2578,7 @@ void UFlareQuestConditionTutorialGetContrat::Load(UFlareQuest* ParentQuest)
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 	Completed = false;
-	InitialLabel = LOCTEXT("TutorialGetContrat", "Travel to others sectors and accept a contract");
+	InitialLabel = LOCTEXT("TutorialGetContrat", "Travel to other sectors and accept a contract");
 }
 
 void UFlareQuestConditionTutorialGetContrat::OnEvent(FFlareBundle& Bundle)
