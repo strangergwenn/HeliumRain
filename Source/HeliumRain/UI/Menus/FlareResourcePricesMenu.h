@@ -52,7 +52,18 @@ protected:
 
 	/** On show world infos clicked */
 	void OnShowWorldInfosClicked(FFlareResourceDescription* Resource);
+	
+	/** Get the resource production info */
+	FText GetResourceProductionInfo(FFlareResourceDescription* Resource) const;
 
+	/** Get the resource consumption info */
+	FText GetResourceConsumptionInfo(FFlareResourceDescription* Resource) const;
+
+	/** Get the resource stock info */
+	FText GetResourceStockInfo(FFlareResourceDescription* Resource) const;
+
+	/** Get the resource capacity info */
+	FText GetResourceCapacityInfo(FFlareResourceDescription* Resource) const;
 
 	/** Get the resource price info */
 	FText GetResourcePriceInfo(FFlareResourceDescription* Resource) const;
@@ -63,7 +74,6 @@ protected:
 	/** Get the resource transport fee info */
 	FText GetResourceTransportFeeInfo(FFlareResourceDescription* Resource) const;
 
-	FText GetSectorPriceInfo() const;
 
 protected:
 

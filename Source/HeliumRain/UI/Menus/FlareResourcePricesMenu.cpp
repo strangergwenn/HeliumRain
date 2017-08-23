@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 #include "FlareWorldEconomyMenu.h"
 #include "../../Game/FlareGame.h"
+#include "../../Game/FlareSectorHelper.h"
 #include "../../Economy/FlareResource.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
@@ -59,18 +60,63 @@ void SFlareResourcePricesMenu::Construct(const FArguments& InArgs)
 							.Padding(FMargin(0))
 						]
 
-						// Info
+						// Production
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.8 * Theme.ContentWidth)
+							.WidthOverride(0.2 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
 								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("ResourceInfo", "Resource info"))
+								.Text(LOCTEXT("ResourceProductionColumnTitleInfo", "Production"))
+							]
+						]
+
+						// Consumption
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.2 * Theme.ContentWidth)
+							.HAlign(HAlign_Left)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.NameFont)
+								.Text(LOCTEXT("ResourceConsumptionColumnTitleInfo", "Consumption"))
+							]
+						]
+
+						// Stock
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.2 * Theme.ContentWidth)
+							.HAlign(HAlign_Left)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.NameFont)
+								.Text(LOCTEXT("ResourceStockColumnTitleInfo", "Stock"))
+							]
+						]
+
+						// Capacity
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SBox)
+							.WidthOverride(0.2 * Theme.ContentWidth)
+							.HAlign(HAlign_Left)
+							[
+								SNew(STextBlock)
+								.TextStyle(&Theme.NameFont)
+								.Text(LOCTEXT("ResourceCapacityColumnTitleInfo", "Needs"))
 							]
 						]
 
@@ -80,12 +126,12 @@ void SFlareResourcePricesMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.3 * Theme.ContentWidth)
+							.WidthOverride(0.2 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
 								.TextStyle(&Theme.NameFont)
-								.Text(this, &SFlareResourcePricesMenu::GetSectorPriceInfo)
+								.Text(LOCTEXT("PriceCapacityColumnTitleInfo", "Price"))
 							]
 						]
 
@@ -95,15 +141,14 @@ void SFlareResourcePricesMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.3 * Theme.ContentWidth)
+							.WidthOverride(0.2 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
 								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("ResourcePriceVariation", "40-day variation"))
+								.Text(LOCTEXT("ResourcePriceAveragedVariation", "Variation"))
 							]
 						]
-
 
 						// Transport fee
 						+ SHorizontalBox::Slot()
@@ -201,20 +246,67 @@ void SFlareResourcePricesMenu::Enter(UFlareSimulatedSector* Sector)
 					]
 				]
 
-				// Info
+				// Production
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
 				.VAlign(VAlign_Center)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.8 * Theme.ContentWidth)
+					.WidthOverride(0.2 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
-						.Text(Resource.Description)
-						.WrapTextAt(0.75 * Theme.ContentWidth)
+						.Text(this, &SFlareResourcePricesMenu::GetResourceProductionInfo, &Resource)
+					]
+				]
+
+				// Consumption
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.2 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareResourcePricesMenu::GetResourceConsumptionInfo, &Resource)
+					]
+				]
+
+				// Stock
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.2 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareResourcePricesMenu::GetResourceStockInfo, &Resource)
+					]
+				]
+
+				// Capacity
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SBox)
+					.WidthOverride(0.2 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareResourcePricesMenu::GetResourceCapacityInfo, &Resource)
 					]
 				]
 
@@ -225,7 +317,7 @@ void SFlareResourcePricesMenu::Enter(UFlareSimulatedSector* Sector)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.3 * Theme.ContentWidth)
+					.WidthOverride(0.2 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -242,7 +334,7 @@ void SFlareResourcePricesMenu::Enter(UFlareSimulatedSector* Sector)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.3 * Theme.ContentWidth)
+					.WidthOverride(0.2 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -332,18 +424,61 @@ void SFlareResourcePricesMenu::OnShowWorldInfosClicked(FFlareResourceDescription
 	MenuManager->OpenMenu(EFlareMenu::MENU_WorldEconomy, Data);
 }
 
-FText SFlareResourcePricesMenu::GetSectorPriceInfo() const
+FText SFlareResourcePricesMenu::GetResourceProductionInfo(FFlareResourceDescription* Resource) const
 {
-	FText Text;
-
 	if (TargetSector)
 	{
-		Text = FText::Format(LOCTEXT("ResourcePrice", "Price in {0}"), TargetSector->GetSectorName());
+		FNumberFormattingOptions Format;
+		Format.MaximumFractionalDigits = 1;
+
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(TargetSector);
+		return FText::Format(LOCTEXT("ResourceMainProductionFormat", "{0}"),
+			FText::AsNumber(Stats[Resource].Production, &Format));
 	}
 
-	return Text;
+	return FText();
 }
 
+FText SFlareResourcePricesMenu::GetResourceConsumptionInfo(FFlareResourceDescription* Resource) const
+{
+	if (TargetSector)
+	{
+		FNumberFormattingOptions Format;
+		Format.MaximumFractionalDigits = 1;
+
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(TargetSector);
+		return FText::Format(LOCTEXT("ResourceMainConsumptionFormat", "{0}"),
+			FText::AsNumber(Stats[Resource].Consumption, &Format));
+	}
+
+	return FText();
+}
+
+FText SFlareResourcePricesMenu::GetResourceStockInfo(FFlareResourceDescription* Resource) const
+{
+	if (TargetSector)
+	{
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(TargetSector);
+		return FText::Format(LOCTEXT("ResourceMainStockFormat", "{0}"),
+			FText::AsNumber(Stats[Resource].Stock));
+	}
+
+	return FText();
+}
+
+
+FText SFlareResourcePricesMenu::GetResourceCapacityInfo(FFlareResourceDescription* Resource) const
+{
+	if (TargetSector)
+	{
+
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(TargetSector);
+		return FText::Format(LOCTEXT("ResourceMainCapacityFormat", "{0}"),
+			FText::AsNumber(Stats[Resource].Capacity));
+	}
+
+	return FText();
+}
 
 FText SFlareResourcePricesMenu::GetResourcePriceInfo(FFlareResourceDescription* Resource) const
 {
@@ -368,7 +503,7 @@ FText SFlareResourcePricesMenu::GetResourcePriceVariationInfo(FFlareResourceDesc
 		FNumberFormattingOptions MoneyFormat;
 		MoneyFormat.MaximumFractionalDigits = 2;
 
-		int32 MeanDuration = 40;
+		int32 MeanDuration = 30;
 		int64 ResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
 		int64 LastResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default, MeanDuration);
 

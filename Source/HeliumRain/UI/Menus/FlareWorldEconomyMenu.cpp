@@ -46,7 +46,6 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 				+ SHorizontalBox::Slot()
 				.VAlign(VAlign_Top)
 				.HAlign(HAlign_Left)
-				.Padding(Theme.ContentPadding)
 				[
 					SNew(SVerticalBox)
 
@@ -149,13 +148,13 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 		// Content
 		+ SVerticalBox::Slot()
 		.HAlign(HAlign_Center)
-		.Padding(Theme.ContentPadding)
 		[
 			SNew(SScrollBox)
 			.Style(&Theme.ScrollBoxStyle)
 			.ScrollBarStyle(&Theme.ScrollBarStyle)
 
 			+ SScrollBox::Slot()
+			.Padding(Theme.ContentPadding)
 			[
 				SNew(SBox)
 				.WidthOverride(2 * Theme.ContentWidth)
@@ -189,7 +188,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.16 * Theme.ContentWidth)
+							.WidthOverride(0.2 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -204,7 +203,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.16 * Theme.ContentWidth)
+							.WidthOverride(0.2 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -219,7 +218,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.14 * Theme.ContentWidth)
+							.WidthOverride(0.2 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -234,7 +233,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.16 * Theme.ContentWidth)
+							.WidthOverride(0.2 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -249,7 +248,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.16 * Theme.ContentWidth)
+							.WidthOverride(0.2 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -258,34 +257,18 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 							]
 						]
 
-						// Price variation 1 day
+						// Price variation
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.19 * Theme.ContentWidth)
+							.WidthOverride(0.2 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
 								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("ResourcePriceVariation1dColumnTitleInfo", "1-day variation"))
-								.WrapTextAt(0.3 * Theme.ContentWidth)
-							]
-						]
-
-						// Price variation 40 days
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SBox)
-							.WidthOverride(0.23 * Theme.ContentWidth)
-							.HAlign(HAlign_Left)
-							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("ResourcePriceVariation40dColumnTitleInfo", "40-days variation"))
+								.Text(LOCTEXT("ResourcePriceVariationAveragedColumnTitleInfo", "Variation"))
 								.WrapTextAt(0.5 * Theme.ContentWidth)
 							]
 						]
@@ -331,6 +314,10 @@ void SFlareWorldEconomyMenu::Enter(FFlareResourceDescription* Resource, UFlareSi
 	if (TargetResource)
 	{
 		ResourceSelector->SetSelectedItem(MenuManager->GetPC()->GetGame()->GetResourceCatalog()->GetEntry(TargetResource));
+	}
+	else
+	{
+		TargetResource = &MenuManager->GetPC()->GetGame()->GetResourceCatalog()->GetResourceList()[0]->Data;
 	}
 
 	GenerateSectorList();
@@ -390,7 +377,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.16 * Theme.ContentWidth)
+					.WidthOverride(0.2 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -406,7 +393,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.16 * Theme.ContentWidth)
+					.WidthOverride(0.2 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -422,7 +409,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.14 * Theme.ContentWidth)
+					.WidthOverride(0.2 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -438,7 +425,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.16 * Theme.ContentWidth)
+					.WidthOverride(0.2 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -454,7 +441,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.16 * Theme.ContentWidth)
+					.WidthOverride(0.2 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -464,35 +451,19 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 					]
 				]
 
-				// Price variation 1 day
+				// Price variation
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
 				.VAlign(VAlign_Center)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.19 * Theme.ContentWidth)
+					.WidthOverride(0.2 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareWorldEconomyMenu::GetResourcePriceVariationInfo, Sector, TSharedPtr<int32>(new int32(1)))
-					]
-				]
-
-				// Price variation 40 days
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SBox)
-					.WidthOverride(0.23 * Theme.ContentWidth)
-					.HAlign(HAlign_Left)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareWorldEconomyMenu::GetResourcePriceVariationInfo, Sector, TSharedPtr<int32>(new int32(40)))
+						.Text(this, &SFlareWorldEconomyMenu::GetResourcePriceVariationInfo, Sector, TSharedPtr<int32>(new int32(30)))
 					]
 				]
 
@@ -571,7 +542,7 @@ FText SFlareWorldEconomyMenu::GetResourceName() const
 {
 	if (TargetResource)
 	{
-		return TargetResource->Name;
+		return FText::Format(LOCTEXT("ResourceNameFormat", "Economy status for {0}"), TargetResource->Name);
 	}
 
 	return LOCTEXT("NoResourceSelected", "No resource selected");
