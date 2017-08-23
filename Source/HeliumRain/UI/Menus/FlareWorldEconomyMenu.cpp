@@ -98,6 +98,8 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 									.OptionsSource(&MenuManager->GetPC()->GetGame()->GetResourceCatalog()->Resources)
 									.OnGenerateWidget(this, &SFlareWorldEconomyMenu::OnGenerateResourceComboLine)
 									.OnSelectionChanged(this, &SFlareWorldEconomyMenu::OnResourceComboLineSelectionChanged)
+									.HeaderWidth(5)
+									.ItemWidth(5)
 									[
 										SNew(SBox)
 										.Padding(Theme.ListContentPadding)
@@ -172,7 +174,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.3 * Theme.ContentWidth)
+							.WidthOverride(0.35 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -217,7 +219,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.16 * Theme.ContentWidth)
+							.WidthOverride(0.14 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -262,7 +264,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.2 * Theme.ContentWidth)
+							.WidthOverride(0.19 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -278,7 +280,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.25 * Theme.ContentWidth)
+							.WidthOverride(0.23 * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
 								SNew(STextBlock)
@@ -369,11 +371,11 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.30 * Theme.ContentWidth)
+					.WidthOverride(0.35 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(SFlareButton)
-						.Width(6)
+						.Width(7)
 						.Text(this, &SFlareWorldEconomyMenu::GetSectorText, Sector)
 						.Color(this, &SFlareWorldEconomyMenu::GetSectorTextColor, Sector)
 						.Icon(FFlareStyleSet::GetIcon("Travel"))
@@ -420,7 +422,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.16 * Theme.ContentWidth)
+					.WidthOverride(0.14 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -469,7 +471,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
+					.WidthOverride(0.19 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -485,7 +487,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.25 * Theme.ContentWidth)
+					.WidthOverride(0.23 * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
