@@ -199,26 +199,22 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				{
 					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits);
 					
-					// Notify if we're just resetting the ship
+					// Reset the ship
 					if (GetData().SpawnMode != EFlareSpawnMode::Travel)
 					{
-						PC->Notify(
-							LOCTEXT("ExitSector", "Exited sector"),
-							LOCTEXT("ExitSectorDescription", "Your ship went too far from the sector origin, and is now traveling back. Wait a day to arrive there, or find a new destination."),
-							"exit-sector",
-							EFlareNotification::NT_Info);
-
 						GetData().SpawnMode = EFlareSpawnMode::Travel;
 					}
 
-					if(GetParent()->GetCurrentSector()->IsTravelSector())
+					// Reload
+					if (GetParent()->GetCurrentSector()->IsTravelSector())
 					{
-						// Reload
 						FFlareMenuParameterData MenuParameters;
 						MenuParameters.Spacecraft = GetParent();
 						MenuParameters.Sector = GetParent()->GetCurrentSector();
 						PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_ReloadSector, MenuParameters);
 					}
+
+					// Travel
 					else
 					{
 						UFlareTravel* Travel = GetGame()->GetGameWorld()->StartTravel(GetParent()->GetCurrentFleet(), GetParent()->GetCurrentSector(), true);

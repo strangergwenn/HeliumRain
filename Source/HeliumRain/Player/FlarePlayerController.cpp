@@ -1433,6 +1433,22 @@ bool AFlarePlayerController::ConfirmFastForward(FSimpleDelegate OnConfirmed, FSi
 	}
 }
 
+void AFlarePlayerController::NotifyExitSector()
+{
+	GetMenuManager()->Confirm(
+		LOCTEXT("ExitSector", "GO BACK TO SECTOR ?"),
+		LOCTEXT("ExitSectorDescription", "Your ship went too far from the sector origin. Do you want to navigate back to it and wait one day ?\n You can also find a new destination here."),
+		FSimpleDelegate::CreateUObject(this, &AFlarePlayerController::OnConfirmBackToSector));
+}
+
+void AFlarePlayerController::OnConfirmBackToSector()
+{
+	if (ConfirmFastForward(FSimpleDelegate::CreateUObject(this, &AFlarePlayerController::SimulateConfirmed), FSimpleDelegate(), false))
+	{
+		SimulateConfirmed();
+	}
+}
+
 
 /*----------------------------------------------------
 	Objectives

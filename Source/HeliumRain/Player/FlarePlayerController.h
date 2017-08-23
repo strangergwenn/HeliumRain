@@ -161,6 +161,12 @@ public:
 
 	/** Check the battle state of the game before FF */
 	bool ConfirmFastForward(FSimpleDelegate OnConfirmed, FSimpleDelegate OnCanceled, bool Automatic);
+	
+	/** We went out of sector */
+	void NotifyExitSector();
+
+	/** Confirmed that we're going back */
+	void OnConfirmBackToSector();
 
 
 	/*----------------------------------------------------

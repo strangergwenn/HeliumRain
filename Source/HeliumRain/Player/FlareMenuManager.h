@@ -368,6 +368,7 @@ protected:
 	bool                                    MenuIsOpen;
 	bool                                    FadeFromBlack;
 	bool                                    SkipNextFade;
+	bool                                    NotifyExitSector;
 	float                                   FadeDuration;
 	float                                   FadeTimer;
 	TFlareMenuData                          CurrentMenu;

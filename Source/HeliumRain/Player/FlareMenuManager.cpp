@@ -55,6 +55,7 @@ AFlareMenuManager::AFlareMenuManager(const class FObjectInitializer& PCIP)
 	, MenuOperationDone(true)
 	, MenuIsOpen(false)
 	, FadeFromBlack(true)
+	, NotifyExitSector(false)
 	, FadeDuration(0.3)
 	, CurrentSpacecraftInfo(NULL)
 {
@@ -797,6 +798,15 @@ void AFlareMenuManager::Travel()
 		if (PlayerFleet == NextMenu.Value.Travel->GetFleet())
 		{
 			GetGame()->ActivateCurrentSector();
+
+			if (NextMenu.Value.Travel->GetSourceSector() == NextMenu.Value.Travel->GetDestinationSector())
+			{
+				NotifyExitSector = true;
+			}
+			else
+			{
+				NotifyExitSector = false;
+			}
 		}
 
 		// Reload sector to update it after the departure of a fleet
@@ -1013,6 +1023,13 @@ void AFlareMenuManager::OpenTradeRoute()
 void AFlareMenuManager::OpenOrbit()
 {
 	OnEnterMenu(false);
+
+	if (NotifyExitSector)
+	{
+		GetPC()->NotifyExitSector();
+		NotifyExitSector = false;
+	}
+
 	OrbitMenu->Enter();
 }
 
