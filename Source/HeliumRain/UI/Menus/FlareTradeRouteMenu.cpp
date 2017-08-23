@@ -1103,6 +1103,32 @@ TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateSectorComboLine(UFlareSimula
 		}
 	}
 
+	// Count spacecraft
+	FText ShipText, StationText;
+	int32 ShipCount = 0, StationCount = 0;
+	for (UFlareSimulatedSpacecraft* Craft : TargetSector->GetSectorStations())
+	{
+		if (Craft->GetCompany() == MenuManager->GetPC()->GetCompany())
+		{
+			StationCount++;
+		}
+	}
+	for (UFlareSimulatedSpacecraft* Craft : TargetSector->GetSectorShips())
+	{
+		if (Craft->GetCompany() == MenuManager->GetPC()->GetCompany())
+		{
+			ShipCount++;
+		}
+	}
+	if (StationCount > 0)
+	{
+		StationText = FText::Format(LOCTEXT("SectorOwnedStations", "\n\u2022 {0} owned stations"), StationCount);
+	}
+	if (ShipCount > 0)
+	{
+		ShipText = FText::Format(LOCTEXT("SectorOwnedShips", "\n\u2022 {0} owned ships"), ShipCount);
+	}
+
 	// Build layout
 	TSharedPtr<SHorizontalBox> SuggestedPurchasesBox;
 	TSharedPtr<SHorizontalBox> SuggestedSalesBox;
@@ -1115,7 +1141,8 @@ TSharedRef<SWidget> SFlareTradeRouteMenu::OnGenerateSectorComboLine(UFlareSimula
 		+ SHorizontalBox::Slot()
 		[
 			SNew(STextBlock)
-			.Text(FText::Format(LOCTEXT("SectorOrbitingFormat", "{0}\n\u2022 Orbiting {1}"), TargetSector->GetSectorName(), CelestialBody->Name))
+			.Text(FText::Format(LOCTEXT("SectorOrbitingFormat", "{0}\n\u2022 Orbiting {1} {2} {3}"),
+				TargetSector->GetSectorName(), CelestialBody->Name, StationText, ShipText))
 			.TextStyle(&Theme.TextFont)
 		]
 
