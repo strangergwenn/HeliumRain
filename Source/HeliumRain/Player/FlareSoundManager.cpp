@@ -118,7 +118,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	EnginePlayer.Sound->bAutoActivate = false;
 	EnginePlayer.Sound->bAutoDestroy = false;
 	EnginePlayer.PitchedFade = true;
-	EnginePlayer.FadeSpeed = 1.0;
+	EnginePlayer.FadeSpeed = 2.0;
 	EnginePlayer.Volume = 0;
 
 	// RCS sound
@@ -126,7 +126,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	RCSPlayer.Sound->bAutoActivate = false;
 	RCSPlayer.Sound->bAutoDestroy = false;
 	RCSPlayer.PitchedFade = true;
-	RCSPlayer.FadeSpeed = 2.0;
+	RCSPlayer.FadeSpeed = 20.0;
 	RCSPlayer.Volume = 0;
 
 	// Warning sound on targeting

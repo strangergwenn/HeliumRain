@@ -36,12 +36,13 @@ void UFlareEngine::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	// Smooth the alpha value. Half-life time : 1/8 second
-	float AverageCoeff = 8 * DeltaTime;
+	// Smooth the alpha value. Half-life time : 1/20 second
+	float AverageCoeff = 20 * DeltaTime;
 
+	// Smooth the alpha value. Half-life time : 1/5 second
 	if(this->IsA(UFlareOrbitalEngine::StaticClass()))
 	{
-		AverageCoeff = 1 * DeltaTime;
+		AverageCoeff = 5 * DeltaTime;
 	}
 
 	ExhaustAccumulator = FMath::Clamp(AverageCoeff * GetEffectiveAlpha() + (1 - AverageCoeff) * ExhaustAccumulator, 0.0f, 1.0f);
