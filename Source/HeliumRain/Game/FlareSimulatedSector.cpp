@@ -514,7 +514,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	// The sector has danger
 	if (GetSectorBattleState(Company).HasDanger)
 	{
-		OutReasons.Add(LOCTEXT("StationHasDanger", "There is ennemies in this sector"));
+		OutReasons.Add(LOCTEXT("StationHasDanger", "There are enemies in this sector"));
 		Result = false;
 	}
 
