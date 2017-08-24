@@ -1477,12 +1477,12 @@ void UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const
 		FText Description;
 		if(Sector1 == Sector2)
 		{
-			Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionLocal", "Trade {0} {1} in {2}"),
+			Description = FText::Format(LOCTEXT("TradeResourceDescriptionLocal", "Trade {0} {1} in {2}"),
 										  FText::AsNumber(Quantity), Resource->Name, Sector1->GetSectorName());
 		}
 		else
 		{
-			Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionDistant", "Trade {0} {1} from {2} to {3}"),
+			Description = FText::Format(LOCTEXT("TradeResourceDescriptionDistant", "Trade {0} {1} from {2} to {3}"),
 										  FText::AsNumber(Quantity), Resource->Name, Sector1->GetSectorName(), Sector2->GetSectorName());
 		}
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "trade", Description);
@@ -1609,7 +1609,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 		#define QUEST_STEP_TAG QUEST_TAG"War"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionWar", "Declare war on {0}"),
+		Description = FText::Format(LOCTEXT("WarDescriptionWar", "Declare war on {0}"),
 										  HostileCompany->GetCompanyName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "war", Description);
 
@@ -1814,7 +1814,7 @@ void UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FF
 			WarList += HostileCompany->GetCompanyName().ToString();
 		}
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionWar", "Declare war on {0}"),
+		Description = FText::Format(LOCTEXT("WarDescriptionWar", "Declare war on {0}"),
 										  FText::FromString(WarList));
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "war", Description);
 
@@ -1875,7 +1875,7 @@ void UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FF
 		#define QUEST_STEP_TAG QUEST_TAG"Fight"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"FightAlongsideFormat", "Fight alongside {0} in {1}"),
+		Description = FText::Format(LOCTEXT("FightAlongsideFormat", "Fight alongside {0} in {1}"),
 										  FriendlyCompany->GetCompanyName(), Sector->GetSectorName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "fight", Description);
 
@@ -2023,7 +2023,7 @@ void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const
 		#define QUEST_STEP_TAG QUEST_TAG"War"
 		FText Description;
 
-		Description = FText::Format(LOCTEXT(QUEST_STEP_TAG"DescriptionWar", "Declare war on {0}"),
+		Description = FText::Format(LOCTEXT("WarDescriptionWar", "Declare war on {0}"),
 										  HostileCompany->GetCompanyName());
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "war", Description);
 
