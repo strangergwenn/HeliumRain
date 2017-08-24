@@ -1823,10 +1823,6 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 {
 	TArray<FFlareIncomingEvent> IncomingEvents;
 	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
-
-	// List incoming threats first
-	TMap<IncomingKey, IncomingValue> IncomingMap = GetIncomingPlayerEnemy();
-
 	FText SingleShip = LOCTEXT("ShipSingle", "ship");
 	FText MultipleShips = LOCTEXT("ShipPlural", "ships");
 
@@ -1867,13 +1863,14 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 		(UnknownShipCount > 1) ? MultipleShips : SingleShip);
 	};
 
+	// List incoming threats first
+	TMap<IncomingKey, IncomingValue> IncomingMap = GetIncomingPlayerEnemy();
 	for (auto Entry : IncomingMap)
 	{
 		UFlareCompany* Company = Entry.Key.Company;
 		UFlareSimulatedSector* Sector = Entry.Key.DestinationSector;
 		int32 EnemyValue = Entry.Value.CombatValue;
 		int64 RemainingDuration = Entry.Key.RemainingDuration;
-
 
 		if (RemainingDuration <=1 || PlayerCompany->IsTechnologyUnlocked("early-warning"))
 		{
@@ -1882,8 +1879,6 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 			FText TravelPartText = FText::Format(LOCTEXT("ThreatTextTravelPart", "Traveling to {0} ({1} left)"),
 					Sector->GetSectorName(),
 					UFlareGameTools::FormatDate(RemainingDuration, 1));
-
-
 
 			if (PlayerCompany->IsTechnologyUnlocked("advanced-radar"))
 			{
@@ -1908,7 +1903,78 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 			TravelEvent.Text = TravelText;
 			TravelEvent.RemainingDuration = RemainingDuration;
 			IncomingEvents.Add(TravelEvent);
+		}
+	}
 
+	// Warn of meteorites
+	for (UFlareSimulatedSector* Sector : GetSectors())
+	{
+		if (Sector->GetMeteorites().Num())
+		{
+			bool Danger = false;
+			int32 DangerDelay = 0;
+			int32 DangerCount = 0;
+			bool PlayerTarget = false;
+
+			for (FFlareMeteoriteSave& Meteorite : Sector->GetMeteorites())
+			{
+				if (Meteorite.HasMissed || Meteorite.Damage >= Meteorite.BrokenDamage || !GetGame()->GetQuestManager()->IsInterestingMeteorite(Meteorite))
+				{
+					continue;
+				}
+
+				UFlareSimulatedSpacecraft* TargetSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(Meteorite.TargetStation);
+				if (TargetSpacecraft)
+				{
+					if (!Danger || DangerDelay > Meteorite.DaysBeforeImpact)
+					{
+						Danger = true;
+						DangerDelay = Meteorite.DaysBeforeImpact;
+						DangerCount = 1;
+						PlayerTarget = TargetSpacecraft->GetCompany() == PlayerCompany;
+					}
+					else if (DangerDelay == Meteorite.DaysBeforeImpact)
+					{
+						DangerCount++;
+					}
+				}
+			}
+
+			if (Danger)
+			{
+				FFlareIncomingEvent Event;
+				Event.RemainingDuration = DangerDelay;
+
+				FText MeteoriteText = (DangerCount > 1 ? LOCTEXT("MultipleMeteorites", "meteorites") : LOCTEXT("OneMeteorite", "meteorite"));
+
+				if (DangerDelay == 0)
+				{
+					Event.Text = FText::Format(LOCTEXT("MeteoriteNowTextFormat", "\u2022 <WarningText>{0} {1} threatening {2} now !</>"),
+						FText::AsNumber(DangerCount),
+						MeteoriteText,
+						Sector->GetSectorName());
+				}
+				else if (DangerDelay == 1 || PlayerCompany->IsTechnologyUnlocked("early-warning") || !PlayerTarget)
+				{
+					FText DelayText = (DangerDelay > 1 ? FText::Format(LOCTEXT("MeteoriteMultipleDaysFormat", "{0} days"), FText::AsNumber(DangerDelay)) : LOCTEXT("OneDay", "1 day"));
+
+					if (PlayerCompany->IsTechnologyUnlocked("advanced-radar"))
+					{
+						Event.Text = FText::Format(LOCTEXT("MeteoriteSoonTextFormat", "\u2022 <WarningText>{0} {1} threatening {2} in {3} !</>"),
+							FText::AsNumber(DangerCount),
+							MeteoriteText,
+							Sector->GetSectorName(),
+							DelayText);
+					}
+					else
+					{
+						Event.Text = FText::Format(LOCTEXT("MeteoriteSoonNoRadarTextFormat", "\u2022 <WarningText>Meteorite group threatening {0} in {1} !</>"),
+							Sector->GetSectorName(),
+							DelayText);
+					}
+				}
+				IncomingEvents.Add(Event);
+			}
 		}
 	}
 
@@ -2019,42 +2085,13 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 			}
 		}
 	}
-
-	// List of time to repair
-	for(UFlareFleet* Fleet: PlayerCompany->GetCompanyFleets())
-	{
-		int32 RepairDuration = Fleet->GetRepairDuration();
-		int32 RefillDuration = Fleet->GetRefillDuration();
-
-		if(RepairDuration > 0)
-		{
-			FFlareIncomingEvent RepairEvent;
-			RepairEvent.Text = FText::Format(LOCTEXT("RepairEventTextFormat", "\u2022 {0} being repaired ({1} left)"),
-												 Fleet->GetFleetName(), UFlareGameTools::FormatDate(RepairDuration, 2));
-			RepairEvent.RemainingDuration = RepairDuration;
-			IncomingEvents.Add(RepairEvent);
-		}
-
-		if(RefillDuration > 0)
-		{
-			FFlareIncomingEvent RefillEvent;
-			RefillEvent.Text = FText::Format(LOCTEXT("RefillEventTextFormat", "\u2022 {0} being refilled ({1} left)"),
-											 Fleet->GetFleetName(), UFlareGameTools::FormatDate(RefillDuration, 2));;
-			RefillEvent.RemainingDuration = RefillDuration;
-			IncomingEvents.Add(RefillEvent);
-		}
-
-	}
-
-
+	
 	// List of battle
-	for(UFlareSimulatedSector* Sector: GetSectors())
+	for (UFlareSimulatedSector* Sector: GetSectors())
 	{
 		FFlareSectorBattleState BattleState = Sector->GetSectorBattleState(PlayerCompany);
 		if(BattleState.InBattle)
 		{
-
-
 			if(Sector == Game->GetPC()->GetPlayerFleet()->GetCurrentSector())
 			{
 				if (BattleState.InBattle && BattleState.InFight && BattleState.InActiveFight)
@@ -2064,7 +2101,6 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 					LocalBattleEvent.Text = LOCTEXT("LocalBattleFightEventTextFormat", "\u2022 <WarningText>Battle in progress here !</>");
 					LocalBattleEvent.RemainingDuration = -1;
 					IncomingEvents.Add(LocalBattleEvent);
-
 				}
 				else
 				{
@@ -2088,81 +2124,30 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 		}
 	}
 
-	for(UFlareSimulatedSector* Sector: GetSectors())
+	// List of time to repair
+	for (UFlareFleet* Fleet : PlayerCompany->GetCompanyFleets())
 	{
-		if (Sector->GetMeteorites().Num())
+		int32 RepairDuration = Fleet->GetRepairDuration();
+		int32 RefillDuration = Fleet->GetRefillDuration();
+
+		if (RepairDuration > 0)
 		{
-			// Find nearest targeting a player station
+			FFlareIncomingEvent RepairEvent;
+			RepairEvent.Text = FText::Format(LOCTEXT("RepairEventTextFormat", "\u2022 {0} being repaired ({1} left)"),
+				Fleet->GetFleetName(), UFlareGameTools::FormatDate(RepairDuration, 2));
+			RepairEvent.RemainingDuration = RepairDuration;
+			IncomingEvents.Add(RepairEvent);
+		}
 
-
-			bool Danger = false;
-			int32 DangerDelay = 0;
-			int32 DangerCount = 0;
-			bool PlayerTarget = false;
-
-			for(FFlareMeteoriteSave& Meteorite : Sector->GetMeteorites())
-			{
-				if(Meteorite.HasMissed || Meteorite.Damage >= Meteorite.BrokenDamage || !GetGame()->GetQuestManager()->IsInterestingMeteorite(Meteorite))
-				{
-					continue;
-				}
-
-				UFlareSimulatedSpacecraft* TargetSpacecraft = GetGame()->GetGameWorld()->FindSpacecraft(Meteorite.TargetStation);
-				if(TargetSpacecraft)
-				{
-					if (!Danger || DangerDelay > Meteorite.DaysBeforeImpact)
-					{
-						Danger = true;
-						DangerDelay = Meteorite.DaysBeforeImpact;
-						DangerCount = 1;
-						PlayerTarget = TargetSpacecraft->GetCompany() == PlayerCompany;
-					}
-					else if (DangerDelay == Meteorite.DaysBeforeImpact)
-					{
-						DangerCount++;
-					}
-				}
-
-			}
-
-			if(Danger)
-			{
-				FFlareIncomingEvent Event;
-				Event.RemainingDuration = DangerDelay;
-
-				FText MeteoriteText = (DangerCount > 1 ? LOCTEXT("MultipleMeteorites","meteorites") : LOCTEXT("OneMeteorite","meteorite"));
-
-				if(DangerDelay == 0)
-				{
-					Event.Text = FText::Format(LOCTEXT("MeteoriteNowTextFormat", "\u2022 <WarningText>{0} {1} threatening {2} now !</>"),
-														FText::AsNumber(DangerCount),
-														MeteoriteText,
-														 Sector->GetSectorName());
-				}
-				else if(DangerDelay == 1 || PlayerCompany->IsTechnologyUnlocked("early-warning") || !PlayerTarget)
-				{
-					FText DelayText = (DangerDelay > 1 ? FText::Format(LOCTEXT("MeteoriteMultipleDaysFormat","{0} days"), FText::AsNumber(DangerDelay)) : LOCTEXT("OneDay", "1 day"));
-
-					if(PlayerCompany->IsTechnologyUnlocked("advanced-radar"))
-					{
-						Event.Text = FText::Format(LOCTEXT("MeteoriteSoonTextFormat", "\u2022 <WarningText>{0} {1} threatening {2} in {3} !</>"),
-														FText::AsNumber(DangerCount),
-														MeteoriteText,
-														Sector->GetSectorName(),
-														DelayText);
-					}
-					else
-					{
-						Event.Text = FText::Format(LOCTEXT("MeteoriteSoonNoRadarTextFormat", "\u2022 <WarningText>Meteorite group threatening {0} in {1} !</>"),
-														Sector->GetSectorName(),
-														DelayText);
-					}
-				}
-				IncomingEvents.Add(Event);
-			}
+		if (RefillDuration > 0)
+		{
+			FFlareIncomingEvent RefillEvent;
+			RefillEvent.Text = FText::Format(LOCTEXT("RefillEventTextFormat", "\u2022 {0} being refilled ({1} left)"),
+				Fleet->GetFleetName(), UFlareGameTools::FormatDate(RefillDuration, 2));;
+			RefillEvent.RemainingDuration = RefillDuration;
+			IncomingEvents.Add(RefillEvent);
 		}
 	}
-
 
 	// Sort list
 	IncomingEvents.Sort([](const FFlareIncomingEvent& ip1, const FFlareIncomingEvent& ip2)
