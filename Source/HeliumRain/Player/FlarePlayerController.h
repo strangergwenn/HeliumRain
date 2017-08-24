@@ -242,6 +242,9 @@ public:
 	void TogglePerformance();
 #endif
 
+	/** Waiting for a key */
+	void SetWaitingForKey(bool State);
+
 	/** Is busy */
 	void MarkAsBusy();
 
@@ -455,6 +458,7 @@ protected:
 	float                                    TimeSinceWeaponSwitch;
 	float                                    CombatZoomFOVRatio;
 
+	bool                                     WaitingForKey;
 	bool                                     RightMousePressed;
 	bool                                     HasCurrentObjective;
 	bool                                     IsBusy;

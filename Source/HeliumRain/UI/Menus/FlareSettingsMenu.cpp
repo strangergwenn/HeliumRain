@@ -1252,6 +1252,7 @@ void SFlareSettingsMenu::BuildKeyBindingPane(TArray<TSharedPtr<FSimpleBind> >& B
 				.Padding(Theme.SmallContentPadding)
 				[
 					SAssignNew(Bind->KeyWidget, SFlareKeyBind)
+					.PC(MenuManager->GetPC())
 					.Key(Bind->Key)
 					.DefaultKey(Bind->DefaultKey)
 					.OnKeyBindingChanged( this, &SFlareSettingsMenu::OnKeyBindingChanged, Bind, true)
@@ -1262,6 +1263,7 @@ void SFlareSettingsMenu::BuildKeyBindingPane(TArray<TSharedPtr<FSimpleBind> >& B
 				.Padding(Theme.SmallContentPadding)
 				[
 					SAssignNew(Bind->AltKeyWidget, SFlareKeyBind)
+					.PC(MenuManager->GetPC())
 					.Key(Bind->AltKey)
 					.DefaultKey(Bind->DefaultAltKey)
 					.OnKeyBindingChanged( this, &SFlareSettingsMenu::OnKeyBindingChanged, Bind, false)

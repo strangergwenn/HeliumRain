@@ -4,6 +4,7 @@
 #include "../../Flare.h"
 #include "../Style/FlareStyleSet.h"
 
+#include "../../Player/FlarePlayerController.h"
 
 #define LOCTEXT_NAMESPACE "FlareKeyBind"
 
@@ -15,6 +16,7 @@
 void SFlareKeyBind::Construct(const FArguments& InArgs)
 {
 	// Setup
+	PC = InArgs._PC;
 	bWaitingForKey = false;
 	DefaultKey = InArgs._DefaultKey;
 	OnKeyBindingChanged = InArgs._OnKeyBindingChanged;
@@ -104,6 +106,7 @@ FReply SFlareKeyBind::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoin
 {
 	if (bWaitingForKey && MouseEvent.GetEffectingButton() != EKeys::LeftMouseButton)
 	{
+		PC->SetWaitingForKey(false);
 		SetKey(MouseEvent.GetEffectingButton());
 		return FReply::Handled();
 	}
@@ -116,9 +119,12 @@ FReply SFlareKeyBind::OnMouseButtonDown(const FGeometry& MyGeometry, const FPoin
 		WaitingMousePos.Y = (Rect.Top + Rect.Bottom) * 0.5f;
 		FSlateApplication::Get().GetPlatformApplication().Get()->Cursor->SetPosition(WaitingMousePos.X, WaitingMousePos.Y);
 
+		// Block inputs
 		KeyText->SetText(LOCTEXT("SFlareKeyBindPressAnyKey", "Press a key..."));
 		bWaitingForKey = true;
 		FSlateApplication::Get().GetPlatformApplication().Get()->Cursor->Show(false);
+		PC->SetWaitingForKey(true);
+
 		return FReply::Handled();
 	}
 	return FReply::Unhandled();

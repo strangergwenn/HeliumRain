@@ -58,6 +58,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, HighSpeedEffect(NULL)
 	, Company(NULL)
 	, AchievementsAvailable(false)
+	, WaitingForKey(false)
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
 	, CombatZoomFOVRatio(0.4f)
@@ -1746,6 +1747,11 @@ void AFlarePlayerController::TogglePerformance()
 }
 #endif
 
+void AFlarePlayerController::SetWaitingForKey(bool State)
+{
+	WaitingForKey = State;
+}
+
 void AFlarePlayerController::ShipMenu()
 {
 	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
@@ -2156,8 +2162,11 @@ void AFlarePlayerController::GamepadRightStickY(float Val)
 	}
 	else if (MenuManager->IsMenuOpen())
 	{
-		auto& App = FSlateApplication::Get();
-		App.OnMouseWheel(Val);
+		if (!WaitingForKey)
+		{
+			auto& App = FSlateApplication::Get();
+			App.OnMouseWheel(Val);
+		}
 	}
 	else if (MenuManager->IsUIOpen())
 	{
@@ -2219,8 +2228,11 @@ void AFlarePlayerController::JoystickMoveVerticalInput(float Val)
 	}
 	else if (MenuManager->IsMenuOpen())
 	{
-		auto& App = FSlateApplication::Get();
-		App.OnMouseWheel(Val);
+		if (!WaitingForKey)
+		{
+			auto& App = FSlateApplication::Get();
+			App.OnMouseWheel(Val);
+		}
 	}
 	else if (MenuManager->IsUIOpen())
 	{

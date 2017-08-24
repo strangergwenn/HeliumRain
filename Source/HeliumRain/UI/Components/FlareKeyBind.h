@@ -16,6 +16,7 @@ public:
 		: _Key(nullptr)
 	{}
 
+	SLATE_ARGUMENT(class AFlarePlayerController*, PC)
 	SLATE_ARGUMENT(TSharedPtr<FKey>, Key)
 	SLATE_ARGUMENT(FKey, DefaultKey)
 	SLATE_EVENT(FOnKeyBindingChanged, OnKeyBindingChanged)
@@ -64,6 +65,7 @@ private:
 	TSharedPtr<STextBlock>                       KeyText;
 	FVector2D                                    WaitingMousePos;
 	bool                                         bWaitingForKey;
+	class AFlarePlayerController*                PC;
 
 };
 
