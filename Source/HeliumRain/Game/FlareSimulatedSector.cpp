@@ -507,7 +507,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	// Station technology
 	if (!Company->IsTechnologyUnlockedStation(StationDescription))
 	{
-		OutReasons.Add(LOCTEXT("StationTechnologyRequired", "You need to unlock the 'stations' technology first"));
+		OutReasons.Add(LOCTEXT("StationTechnologyRequired", "You need to unlock station technology first"));
 		Result = false;
 	}
 
