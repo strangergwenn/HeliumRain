@@ -172,7 +172,9 @@ void AFlareMeteorite::OnCollision(class AActor* Other, FVector HitLocation)
 		if (!IsBroken())
 		{
 			FVector DeltaVelocity = Spacecraft->GetLinearVelocity() - Meteorite->GetPhysicsLinearVelocity();
-			float Energy = MeteoriteData->BrokenDamage * DeltaVelocity.SizeSquared() * (Spacecraft->IsStation() ? 0.00001 : 0.00000001);
+
+			float EnergyBaseRatio = 0.00001f;
+			float Energy = EnergyBaseRatio * MeteoriteData->BrokenDamage * DeltaVelocity.SizeSquared() * (Spacecraft->IsStation() ? 0.2f : 0.0001f);
 
 			Spacecraft->GetDamageSystem()->ApplyDamage(Energy, MeteoriteData->BrokenDamage, HitLocation, EFlareDamage::DAM_Collision, NULL, FString());
 
