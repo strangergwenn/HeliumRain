@@ -201,6 +201,15 @@ public:
 	{
 		ItemArray->SetSelectedIndex(ItemIndex);
 		HeaderButton->GetContainer()->SetContent(ContentArray[ItemIndex]);
+
+		if (OnItemPickedCallback.IsBound())
+		{
+			OnItemPickedCallback.Execute(ItemIndex);
+		}
+		if (OnSelectionChanged.IsBound() && OptionsSource)
+		{
+			OnSelectionChanged.Execute((*OptionsSource)[ItemIndex], ESelectInfo::OnMouseClick);
+		}
 	}
 
 	/** Get the selected index */

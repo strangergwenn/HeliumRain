@@ -157,6 +157,7 @@ protected:
 	// Fleet list
 	TSharedPtr<SFlareDropList<UFlareFleet*>>   FleetSelector;
 	TArray<UFlareFleet*>                       FleetList;
+	FName                                      LastSelectedFleetName;
 
 	// Menu components
 	TSharedPtr<SFlareList>                     OwnedShipList;
@@ -167,7 +168,5 @@ protected:
 
 	// Station data
 	FFlareSpacecraftDescription*               StationDescription;
-
-	WorldChangeTracker                         HasWorldChanged;
 
 };

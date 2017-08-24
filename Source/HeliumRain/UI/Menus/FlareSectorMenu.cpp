@@ -20,7 +20,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 {
 	// Data
 	MenuManager = InArgs._MenuManager;
-	HasWorldChanged.Init(MenuManager->GetGame());
+	LastSelectedFleetName = NAME_None;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
@@ -467,11 +467,6 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 		}
 	}
 
-	// Unknown sector
-	else
-	{
-	}
-
 	// List setup
 	OwnedShipList->RefreshList();
 	OtherShipList->RefreshList();
@@ -480,6 +475,7 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 
 	// Fleet list
 	FleetList.Empty();
+	UFlareFleet* SelectedFleet = NULL;
 	int32 FleetCount = PC->GetCompany()->GetCompanyFleets().Num();
 	for (int32 FleetIndex = 0; FleetIndex < FleetCount; FleetIndex++)
 	{
@@ -487,10 +483,14 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 		if (Fleet && Fleet->GetShips().Num())
 		{
 			FleetList.Add(Fleet);
+			if (Fleet->Save()->Identifier == LastSelectedFleetName)
+			{
+				SelectedFleet = Fleet;
+			}
 		}
 	}
 
-	 const UFlareFleet& PlayerFleet = *PC->GetPlayerFleet();
+	const UFlareFleet& PlayerFleet = *PC->GetPlayerFleet();
 
 	FleetList.Sort([&](const UFlareFleet& left, const UFlareFleet& right)
 	{
@@ -534,8 +534,13 @@ void SFlareSectorMenu::Enter(UFlareSimulatedSector* Sector)
 		}
 	});
 
+	// Update the fleet selector
 	FleetSelector->RefreshOptions();
-	if (HasWorldChanged() || FleetSelector->GetSelectedItem() == NULL)
+	if (SelectedFleet)
+	{
+		FleetSelector->SetSelectedItem(SelectedFleet);
+	}
+	else
 	{
 		FleetSelector->SetSelectedItem(PC->GetPlayerFleet());
 	}
@@ -1220,6 +1225,10 @@ void SFlareSectorMenu::OnResourcePrices()
 
 void SFlareSectorMenu::OnFleetComboLineSelectionChanged(UFlareFleet* Item, ESelectInfo::Type SelectInfo)
 {
+	if (Item)
+	{
+		LastSelectedFleetName = Item->Save()->Identifier;
+	}
 }
 
 void SFlareSectorMenu::OnTravelHereClicked()
