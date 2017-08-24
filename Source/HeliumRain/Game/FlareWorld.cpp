@@ -14,6 +14,9 @@
 #include "FlareFleet.h"
 #include "FlareBattle.h"
 
+#include "../Quests/FlareQuest.h"
+#include "../Quests/FlareQuestCondition.h"
+
 #include "../Player/FlarePlayerController.h"
 #include "../Player/FlareMenuManager.h"
 

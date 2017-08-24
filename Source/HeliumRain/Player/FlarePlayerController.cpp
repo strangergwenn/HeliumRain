@@ -1327,6 +1327,8 @@ void AFlarePlayerController::NotifyDockingResult(bool Success, UFlareSimulatedSp
 			"docking-granted",
 			EFlareNotification::NT_Info,
 			false);
+
+		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("start-docking").PutName("target", Target->GetImmatriculation()));
 	}
 	else
 	{
@@ -1953,7 +1955,32 @@ void AFlarePlayerController::EnablePilot()
 	if (ShipPawn && !IsTyping() && !ShipPawn->GetNavigationSystem()->IsDocked() && !IsInMenu())
 	{
 		FLOG("AFlarePlayerController::EnablePilot");
-		ShipPawn->GetStateManager()->EnablePilot(true);
+
+		bool EnableRegularPilot = true;
+
+		// Try docking at target station
+		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
+		if (TargetSpacecraft && TargetSpacecraft->IsStation())
+		{
+			bool DockingConfirmed = ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft);
+			NotifyDockingResult(DockingConfirmed, TargetSpacecraft->GetParent());
+			if (DockingConfirmed)
+			{
+				EnableRegularPilot = false;
+			}
+		}
+
+		// Else use pilot
+		if (EnableRegularPilot)
+		{
+			ShipPawn->GetStateManager()->EnablePilot(true);
+			Notify(
+				LOCTEXT("AutopilotEngaged", "Autopilot engaged"),
+				LOCTEXT("AutopilotEngagedInfo", "Your ship is now flying on its own. Use any manual input to regain control."),
+				"autopilot-engaged",
+				EFlareNotification::NT_Info,
+				false);
+		}
 	}
 }
 
@@ -1963,7 +1990,6 @@ void AFlarePlayerController::DisengagePilot()
 	{
 		FLOG("AFlarePlayerController::DisengagePilot");
 		ShipPawn->GetStateManager()->EnablePilot(false);
-		//ShipPawn->GetNavigationSystem()->AbortAllCommands();
 	}
 }
 
@@ -2455,10 +2481,6 @@ void AFlarePlayerController::DockAtTargetSpacecraft()
 		{
 			bool DockingConfirmed = ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft);
 			NotifyDockingResult(DockingConfirmed, TargetSpacecraft->GetParent());
-			if (DockingConfirmed)
-			{
-				GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("start-docking").PutName("target", TargetSpacecraft->GetImmatriculation()));
-			}
 		}
 	}
 }
