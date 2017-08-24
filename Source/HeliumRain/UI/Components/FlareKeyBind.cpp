@@ -89,7 +89,10 @@ void SFlareKeyBind::SetKey(FKey NewKey, bool bCanReset, bool bNotify)
 
 FReply SFlareKeyBind::OnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
 {
-	if (bWaitingForKey && !InKeyEvent.GetKey().IsGamepadKey())
+	bool IsJoystickKey = InKeyEvent.GetKey().GetDisplayName().ToString().StartsWith("Joystick");
+	bool IsGamePadKey = InKeyEvent.GetKey().IsGamepadKey() && !IsJoystickKey;
+
+	if (bWaitingForKey && !IsGamePadKey)
 	{
 		SetKey(InKeyEvent.GetKey());
 		return FReply::Handled();
