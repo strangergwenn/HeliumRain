@@ -657,11 +657,12 @@ void SFlareSpacecraftInfo::UpdateCapabilitiesInfo()
 		if (TargetSpacecraft->IsStation())
 		{
 			float Efficiency = TargetSpacecraft->GetStationEfficiency();
-			if (Efficiency < 1)
+			int DurationMalus = FMath::RoundToInt(UFlareFactory::GetProductionMalus(Efficiency));
+			if (DurationMalus > 1)
 			{
-				int EfficiencyPercent = FMath::RoundToInt(100 * Efficiency);
+				int DurationMalus = FMath::RoundToInt(UFlareFactory::GetProductionMalus(Efficiency));
 
-				AddMessage(FText::Format(LOCTEXT("StationEfficiencyFormat", "This station was damaged and operates at {0}% efficiency"), FText::AsNumber(EfficiencyPercent)),
+				AddMessage(FText::Format(LOCTEXT("StationEfficiencyFormat", "This station was damaged and operates {0}x slower"), FText::AsNumber(DurationMalus)),
 					FFlareStyleSet::GetIcon("Damage"),
 					NULL,
 					0);

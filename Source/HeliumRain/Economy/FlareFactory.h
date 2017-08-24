@@ -249,6 +249,9 @@ public:
 
 	int64 GetProductionBalance();
 
+	/** Do the production efficiency to duration malus conversion */
+	static float GetProductionMalus(float Efficiency);
+
 	int64 GetProductionTime(const struct FFlareProductionData& Cycle);
 
 	float GetMarginRatio();

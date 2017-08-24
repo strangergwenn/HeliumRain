@@ -1315,9 +1315,14 @@ int64 UFlareFactory::GetProductionBalance()
 	return Balance;
 }
 
+float UFlareFactory::GetProductionMalus(float Efficiency)
+{
+	return (1.f + (1.f - Efficiency) * (MAX_DAMAGE_MALUS - 1.f));
+}
+
 int64 UFlareFactory::GetProductionTime(const struct FFlareProductionData& Cycle)
 {
-	float Malus = 1.f + (1.f - Parent->GetStationEfficiency()) * (MAX_DAMAGE_MALUS -1.f);
+	float Malus = GetProductionMalus(Parent->GetStationEfficiency());
 	int64 ProductionTime = FMath::FloorToInt(Cycle.ProductionTime * Malus);
 
 	if(FactoryDescription->IsTelescope())
