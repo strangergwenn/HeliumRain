@@ -2213,7 +2213,7 @@ void AFlarePlayerController::JoystickMoveHorizontalInput(float Val)
 	}
 	else if (ShipPawn)
 	{
-		ShipPawn->MoveHorizontalInput(Val);
+		ShipPawn->JoystickMoveHorizontalInput(Val);
 	}
 }
 
