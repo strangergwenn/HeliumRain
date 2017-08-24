@@ -293,6 +293,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 						.OnSelectionChanged(this, &SFlareTradeRouteMenu::OnResourceComboLineSelectionChanged)
 						.HeaderWidth(10)
 						.ItemWidth(10)
+						.MaximumHeight(250)
 						[
 							SNew(SBox)
 							.Padding(Theme.ListContentPadding)
