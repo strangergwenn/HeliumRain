@@ -1154,7 +1154,7 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 		}
 		else
 		{
-			DistanceText = LOCTEXT("PlayerShipText", "Player ship - ");
+			DistanceText = LOCTEXT("PlayerShipText", "Your ship - ");
 		}
 
 		// Class text
