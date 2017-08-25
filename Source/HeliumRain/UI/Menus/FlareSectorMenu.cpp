@@ -567,12 +567,21 @@ FText SFlareSectorMenu::GetBuildStationText() const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
+	int OwnedStationCount = 0;
+	for (UFlareSimulatedSpacecraft* Station : TargetSector->GetSectorStations())
+	{
+		if (Station->GetCompany() == PC->GetCompany())
+		{
+			OwnedStationCount++;
+		}
+	}
+
 	if (TargetSector)
 	{
 		if (PC && PC->GetCompany()->HasVisitedSector(TargetSector))
 		{
 			return FText::Format(LOCTEXT("BuildStationFormat", "Build station ({0} / {1})"),
-				FText::AsNumber(PC->GetCompany()->GetCompanyStations().Num()),
+				FText::AsNumber(OwnedStationCount),
 				FText::AsNumber(TargetSector->GetMaxStationsPerCompany()));
 		}
 		else
