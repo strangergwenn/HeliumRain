@@ -76,6 +76,7 @@ void SFlareTechnologyMenu::Construct(const FArguments& InArgs)
 						.TextStyle(&Theme.TextFont)
 						.Text(this, &SFlareTechnologyMenu::GetCompanyTechnologyInfo)
 						.DecoratorStyleSet(&FFlareStyleSet::Get())
+						.WrapTextAt(0.7 * Theme.ContentWidth)
 					]
 			
 					// Title
