@@ -660,8 +660,6 @@ void SFlareSpacecraftInfo::UpdateCapabilitiesInfo()
 			int DurationMalus = FMath::RoundToInt(UFlareFactory::GetProductionMalus(Efficiency));
 			if (DurationMalus > 1)
 			{
-				int DurationMalus = FMath::RoundToInt(UFlareFactory::GetProductionMalus(Efficiency));
-
 				AddMessage(FText::Format(LOCTEXT("StationEfficiencyFormat", "This station was damaged and operates {0}x slower"), FText::AsNumber(DurationMalus)),
 					FFlareStyleSet::GetIcon("Damage"),
 					NULL,
