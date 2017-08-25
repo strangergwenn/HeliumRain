@@ -136,18 +136,17 @@ void UFlareAIBehavior::UpdateDiplomacy()
 	//FLOGV("MaxCombatPoint %d", MaxCombatPoint);
 	//FLOGV("TotalWorldCombatPoint %d", TotalWorldCombatPoint);
 
-
-
-	// If the a company is not far from half world power, a global alliance is formed
-	if(MaxCombatPointCompany != Company &&  MaxCombatPointRatio > 0.3 && MaxCombatPoint > 500)
+	
+	// If a non-player company is not far from half world power, a global alliance is formed
+	if (MaxCombatPointCompany != Company && MaxCombatPointCompany != PlayerCompany && MaxCombatPointRatio > 0.3 && MaxCombatPoint > 500)
 	{
 		bool NewWar = false;
 
 		for (UFlareCompany* OtherCompany : OtherCompanies)
 		{
-			if(MaxCombatPointCompany == OtherCompany && Company->GetCompanyValue().ArmyCurrentCombatPoints > 0)
+			if (MaxCombatPointCompany == OtherCompany && Company->GetCompanyValue().ArmyCurrentCombatPoints > 0)
 			{
-				if(Company->GetWarState(OtherCompany) != EFlareHostility::Hostile)
+				if (Company->GetWarState(OtherCompany) != EFlareHostility::Hostile)
 				{
 					NewWar = true;
 				}
@@ -161,10 +160,12 @@ void UFlareAIBehavior::UpdateDiplomacy()
 			}
 		}
 
-		if(MaxCombatPointCompany == PlayerCompany && NewWar)
+		// Notify the player that this is happening
+		if (NewWar)
 		{
 			GetGame()->GetPC()->Notify(LOCTEXT("GlobalWar", "Global War"),
-				LOCTEXT("AIStartGlobalWar", "All the companies formed an alliance to stop your militarisation."),
+				FText::Format(LOCTEXT("AIStartGlobalWarInfo", "All companies are now allied to stop the militarization of {0}."),
+					MaxCombatPointCompany->GetCompanyName()),
 				FName("global-war"),
 				EFlareNotification::NT_Military,
 				false,
@@ -174,9 +175,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 		return;
 	}
 
-
 	// Not global war
-
 	if(Company->GetAI()->GetData()->Pacifism >= 100)
 	{
 		// Want peace
