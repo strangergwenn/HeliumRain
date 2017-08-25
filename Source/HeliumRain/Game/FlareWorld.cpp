@@ -900,7 +900,11 @@ void UFlareWorld::ProcessShipCapture()
 		if (GetGame()->GetPC()->GetCompany() == HarpoonOwner)
 		{
 			Owner->GivePlayerReputation(-10);
-			HarpoonOwner->GivePlayerReputationToOthers(-5);
+
+			if (Owner != GetGame()->GetScenarioTools()->Pirates)
+			{
+				HarpoonOwner->GivePlayerReputationToOthers(-5);
+			}
 
 
 
@@ -1038,13 +1042,20 @@ void UFlareWorld::ProcessStationCapture()
 
 		// Shame - Shame - Shame - Dingdingding
 		float Shame = 0.1 * NewShip->GetLevel();
-		Capturer->GiveShame(Shame);
-		Owner->GiveShame(-Shame);
+		if (Owner != GetGame()->GetScenarioTools()->Pirates)
+		{
+			Capturer->GiveShame(Shame);
+			Owner->GiveShame(-Shame);
+		}
 
 		if (GetGame()->GetPC()->GetCompany() == Capturer)
 		{
 			Owner->GivePlayerReputation(-40);
-			GetGame()->GetPC()->GetCompany()->GivePlayerReputationToOthers(-50);
+
+			if (Owner != GetGame()->GetScenarioTools()->Pirates)
+			{
+				GetGame()->GetPC()->GetCompany()->GivePlayerReputationToOthers(-50);
+			}
 
 
 

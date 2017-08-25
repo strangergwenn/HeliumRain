@@ -12,6 +12,7 @@
 
 #include "../../Player/FlarePlayerController.h"
 #include "../../Game/FlareGameTools.h"
+#include "../../Game/FlareScenarioTools.h"
 
 #include "FlareSimulatedSpacecraftWeaponsSystem.h"
 
@@ -414,7 +415,7 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 
 			UFlareCompany* PlayerCompany = Spacecraft->GetGame()->GetPC()->GetCompany();
 
-			if (ReputationCost != 0 && DamageSource == PlayerCompany && Spacecraft->GetCompany() != PlayerCompany)
+			if (ReputationCost != 0 && DamageSource == PlayerCompany && Spacecraft->GetCompany() != PlayerCompany && Spacecraft->GetCompany() != Spacecraft->GetGame()->GetScenarioTools()->Pirates)
 			{
 				// Being shot by enemies is pretty much expected
 				if (Spacecraft->GetCompany()->GetWarState(DamageSource) != EFlareHostility::Hostile)

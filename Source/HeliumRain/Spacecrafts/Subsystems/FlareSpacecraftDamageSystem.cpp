@@ -11,6 +11,7 @@
 #include "../FlareOrbitalEngine.h"
 #include "../FlareShell.h"
 #include "Engine/StaticMeshActor.h"
+#include "../../Game/FlareScenarioTools.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareDamageSystem Tick"), STAT_FlareDamageSystem_Tick, STATGROUP_Flare);
 
@@ -327,7 +328,10 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 
 			// Lower attacker's reputation on victim
 			Spacecraft->GetCompany()->GivePlayerReputation(ReputationCost);
-			Spacecraft->GetCompany()->GivePlayerReputationToOthers(0.5*ReputationCost);
+			if(Spacecraft->GetCompany() != Spacecraft->GetGame()->GetScenarioTools()->Pirates)
+			{
+				Spacecraft->GetCompany()->GivePlayerReputationToOthers(0.5*ReputationCost);
+			}
 
 			for(UFlareCompany* Company : PC->GetGame()->GetGameWorld()->GetCompanies())
 			{
@@ -415,7 +419,10 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 
 			// Lower attacker's reputation on victim
 			Spacecraft->GetCompany()->GivePlayerReputation(ReputationCost);
-			Spacecraft->GetCompany()->GivePlayerReputationToOthers(0.5*ReputationCost);
+			if(Spacecraft->GetCompany() != Spacecraft->GetGame()->GetScenarioTools()->Pirates)
+			{
+				Spacecraft->GetCompany()->GivePlayerReputationToOthers(0.5*ReputationCost);
+			}
 
 			for(UFlareCompany* Company : PC->GetGame()->GetGameWorld()->GetCompanies())
 			{
