@@ -167,7 +167,7 @@ void SFlareStoryMenu::Setup()
 
 	TitleList.Add(LOCTEXT("Story3Title", "2230"));
 	TextList.Add(LOCTEXT("Story3", "ICC Daedalus enters the orbit of Nema"));
-	SubTextList.Add(LOCTEXT("SubStory3", "Its moons are barren, desolated wastelands, unable to support life. \nPumping stations are built around Nema to extract the valuable gases whithin, asteroids are broken up for materials and colonists establish outposts around the moons."));
+	SubTextList.Add(LOCTEXT("SubStory3", "Its moons are barren, desolated wastelands, unable to support life. \nPumping stations are built around Nema to extract the valuable gases within, asteroids are broken up for materials and colonists establish outposts around the moons."));
 	ImageList.Add(FFlareStyleSet::GetImage("Story_Nema"));
 
 	TitleList.Add(LOCTEXT("Story4Title", "2249"));
