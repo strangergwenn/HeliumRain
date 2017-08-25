@@ -1992,7 +1992,7 @@ void AFlareHUD::FlareDrawTexture(UTexture* Texture, float ScreenX, float ScreenY
 float AFlareHUD::GetFadeAlpha(FVector2D A, FVector2D B)
 {
 	float FadePower = 2.0f;
-	float FadeDistance = 10.0f;
+	float FadeDistance = 100.0f;
 	float CenterDistance = FMath::Clamp(FadeDistance * (A - B).Size() / ViewportSize.Y, 0.0f, 1.0f);
 	return FMath::Pow(CenterDistance, FadePower);
 }
