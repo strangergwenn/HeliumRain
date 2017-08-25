@@ -77,6 +77,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 						SNew(STextBlock)
 						.Text(this, &SFlareTradeRouteMenu::GetTradeRouteName)
 						.TextStyle(&Theme.SubTitleFont)
+						.WrapTextAt(0.8 * Theme.ContentWidth)
 					]
 
 					// Status of the current fleet
@@ -191,6 +192,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 							.Text(this, &SFlareTradeRouteMenu::GetNextStepInfo)
 							.TextStyle(&Theme.TextFont)
 							.ColorAndOpacity(Theme.InfoColor)
+							.WrapTextAt(0.6 * Theme.ContentWidth)
 						]
 
 						// Skip next operation
@@ -261,6 +263,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 							.Text(this, &SFlareTradeRouteMenu::GetSelectedStepInfo)
 							.TextStyle(&Theme.TextFont)
 							.ColorAndOpacity(Theme.ObjectiveColor)
+							.WrapTextAt(0.6 * Theme.ContentWidth)
 						]
 					
 						// Resource action
@@ -652,9 +655,13 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 					// Sector info
 					+ SHorizontalBox::Slot()
 					[
-						SNew(SFlareSectorButton)
-						.Sector(Sector)
-						.PlayerCompany(MenuManager->GetGame()->GetPC()->GetCompany())
+						SNew(SBox)
+						.HeightOverride(120)
+						[
+							SNew(SFlareSectorButton)
+							.Sector(Sector)
+							.PlayerCompany(MenuManager->GetGame()->GetPC()->GetCompany())
+						]
 					]
 
 					// Arrow 2
@@ -684,17 +691,6 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 						SAssignNew(SectorOperationList, SVerticalBox)
 					]
 
-					// Operation list
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					.HAlign(HAlign_Left)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("SectorAddOperationTitle", "Add operation"))
-						.TextStyle(&Theme.NameFont)
-					]
-
 					// Add operation button
 					+ SVerticalBox::Slot()
 					.AutoHeight()
@@ -706,17 +702,6 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 						.Text(LOCTEXT("SectorAddOperation", "Add"))
 						.Icon(FFlareStyleSet::GetIcon("New"))
 						.HelpText(LOCTEXT("UnloadHelp", "Add an operation for this sector"))
-					]
-
-					// Move left / right
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					.HAlign(HAlign_Left)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("SectorMoveTitle", "Move sector in route"))
-						.TextStyle(&Theme.NameFont)
 					]
 
 					// Add operation button
@@ -775,6 +760,7 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 					.TextStyle(&Theme.NameFont)
 					.Text(OperationResume)
 					.ColorAndOpacity(this, &SFlareTradeRouteMenu::GetOperationHighlight, Operation)
+					.WrapTextAt(0.3 * Theme.ContentWidth)
 				];
 
 				SectorOperationList->AddSlot()
@@ -784,6 +770,7 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
 					.Text(this, &SFlareTradeRouteMenu::GetOperationStatusText, Operation, SectorOrders->SectorIdentifier)
+					.WrapTextAt(0.3 * Theme.ContentWidth)
 				];
 
 				// Buttons
