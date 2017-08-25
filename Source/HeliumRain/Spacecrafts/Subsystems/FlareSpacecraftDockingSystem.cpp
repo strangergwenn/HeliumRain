@@ -61,6 +61,7 @@ void UFlareSpacecraftDockingSystem::Start()
 
 			// Fill info
 			FFlareDockingInfo Info;
+			Info.Ship = NULL;
 			Info.LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(1,0,0)));
 			Info.LocalTopAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(0,1,0)));
 			Info.LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
@@ -134,6 +135,8 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(AFlareSpacecraft* S
 	// Denied, but player ship, so undock an AI ship
 	else if (Ship->IsPlayerShip())
 	{
+		BestIndex = 0;
+
 		// Look again without constraint
 		for (int32 i = 0; i < DockingSlots.Num(); i++)
 		{
@@ -149,8 +152,7 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(AFlareSpacecraft* S
 		}
 
 		// Undock previous owner
-		FCHECK(BestIndex >= 0);
-		if (DockingSlots[BestIndex].Ship && DockingSlots[BestIndex].Ship->IsValidLowLevel())
+		if ((DockingSlots[BestIndex].Granted || DockingSlots[BestIndex].Occupied) && DockingSlots[BestIndex].Ship && DockingSlots[BestIndex].Ship->IsValidLowLevel())
 		{
 			if (DockingSlots[BestIndex].Ship->GetNavigationSystem()->IsDocked())
 			{
