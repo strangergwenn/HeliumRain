@@ -46,7 +46,6 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 
 		// Content block
 		+ SVerticalBox::Slot()
-		.Padding(Theme.ContentPadding)
 		.HAlign(HAlign_Center)
 		[
 			SNew(SHorizontalBox)

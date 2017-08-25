@@ -39,8 +39,13 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 		// Save slots
 		+ SVerticalBox::Slot()
 		.AutoHeight()
+		.HAlign(HAlign_Center)
 		[
-			SAssignNew(SaveBox, SHorizontalBox)
+			SNew(SBox)
+			.WidthOverride(2 * Theme.ContentWidth)
+			[
+				SAssignNew(SaveBox, SHorizontalBox)
+			]
 		]
 	
 		// Early access warning

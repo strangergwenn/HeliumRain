@@ -25,90 +25,94 @@ void SFlareTechnologyMenu::Construct(const FArguments& InArgs)
 	
 	// Build structure
 	ChildSlot
-	.HAlign(HAlign_Fill)
+	.HAlign(HAlign_Center)
 	.VAlign(VAlign_Fill)
 	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
-		SNew(SHorizontalBox)
-
-		// Tree block
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Left)
-		.VAlign(VAlign_Top)
-		.Padding(Theme.ContentPadding)
+		SNew(SBox)
+		.WidthOverride(2 * Theme.ContentWidth)
 		[
-			SAssignNew(TechnologyTree, SScrollBox)
-			.Style(&Theme.ScrollBoxStyle)
-			.ScrollBarStyle(&Theme.ScrollBarStyle)
-		]
+			SNew(SHorizontalBox)
 
-		// Info block
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Right)
-		.VAlign(VAlign_Top)
-		.AutoWidth()
-		[
-			SNew(SBox)
-			.WidthOverride(0.75 * Theme.ContentWidth)
+			// Tree block
+			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Top)
+			.Padding(Theme.ContentPadding)
 			[
-				SNew(SVerticalBox)
-			
-				// Title
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.TitlePadding)
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("CompanyTechnologyTitle", "Company technology"))
-					.TextStyle(&Theme.SubTitleFont)
-				]
-			
-				// Company info
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SRichTextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareTechnologyMenu::GetCompanyTechnologyInfo)
-					.DecoratorStyleSet(&FFlareStyleSet::Get())
-				]
-			
-				// Title
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.TitlePadding)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.SubTitleFont)
-					.Text(this, &SFlareTechnologyMenu::GetTechnologyName)
-				]
-			
-				// Description
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(this, &SFlareTechnologyMenu::GetTechnologyDescription)
-					.WrapTextAt(0.7 * Theme.ContentWidth)
-				]
-			
-				// Button
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
+				SAssignNew(TechnologyTree, SScrollBox)
+				.Style(&Theme.ScrollBoxStyle)
+				.ScrollBarStyle(&Theme.ScrollBarStyle)
+			]
+
+			// Info block
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Top)
+			.AutoWidth()
+			[
+				SNew(SBox)
+				.WidthOverride(0.75 * Theme.ContentWidth)
 				.HAlign(HAlign_Left)
 				[
-					SNew(SFlareButton)
-					.Width(6)
-					.Icon(FFlareStyleSet::GetIcon("ResearchValue"))
-					.Text(this, &SFlareTechnologyMenu::GetTechnologyUnlockText)
-					.HelpText(this, &SFlareTechnologyMenu::GetTechnologyUnlockHintText)
-					.OnClicked(this, &SFlareTechnologyMenu::OnTechnologyUnlocked)
-					.IsDisabled(this, &SFlareTechnologyMenu::IsUnlockDisabled)
+					SNew(SVerticalBox)
+			
+					// Title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("CompanyTechnologyTitle", "Company technology"))
+						.TextStyle(&Theme.SubTitleFont)
+					]
+			
+					// Company info
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SRichTextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareTechnologyMenu::GetCompanyTechnologyInfo)
+						.DecoratorStyleSet(&FFlareStyleSet::Get())
+					]
+			
+					// Title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SubTitleFont)
+						.Text(this, &SFlareTechnologyMenu::GetTechnologyName)
+					]
+			
+					// Description
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareTechnologyMenu::GetTechnologyDescription)
+						.WrapTextAt(0.7 * Theme.ContentWidth)
+					]
+			
+					// Button
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Left)
+					[
+						SNew(SFlareButton)
+						.Width(6)
+						.Icon(FFlareStyleSet::GetIcon("ResearchValue"))
+						.Text(this, &SFlareTechnologyMenu::GetTechnologyUnlockText)
+						.HelpText(this, &SFlareTechnologyMenu::GetTechnologyUnlockHintText)
+						.OnClicked(this, &SFlareTechnologyMenu::OnTechnologyUnlocked)
+						.IsDisabled(this, &SFlareTechnologyMenu::IsUnlockDisabled)
+					]
 				]
 			]
 		]
