@@ -11,6 +11,7 @@
 
 class UFlareTradeRoute;
 struct FFlareTradeRouteSectorOperationSave;
+typedef TPair<FFlareResourceDescription*, int64> TFlareResourceDeal;
 
 class SFlareTradeRouteMenu : public SCompoundWidget
 {
@@ -62,6 +63,9 @@ protected:
 	/** Get info for the selected trade route step */
 	FText GetSelectedStepInfo() const;
 
+	/** Get info for the selected sector */
+	FText GetSelectedSectorInfo() const;
+
 	/** Get info for the next trade route step */
 	FText GetNextStepInfo() const;
 
@@ -72,8 +76,10 @@ protected:
 	FText GetOperationInfo(FFlareTradeRouteSectorOperationSave* Operation) const;
 	
 	// Sector list
-	TSharedRef<SWidget> OnGenerateSectorComboLine(UFlareSimulatedSector* Item);
-	void AddResourceDeals(TSharedPtr<SHorizontalBox> ResourcesBox, TArray<FFlareResourceDescription*> Resources, TArray<FFlareResourceDescription*> BestResources);
+	TSharedRef<SWidget> OnGenerateSectorComboLine(UFlareSimulatedSector* TargetSector);
+	TArray<TFlareResourceDeal> GetSellableResources(UFlareSimulatedSector* TargetSector) const;
+	TArray<TFlareResourceDeal> GetBuyableResources(UFlareSimulatedSector* TargetSector) const;
+	void AddResourceDeals(TSharedPtr<SHorizontalBox> ResourcesBox, TArray<TFlareResourceDeal> Resources);
 	
 	FText OnGetCurrentSectorComboLine() const;
 	
@@ -95,8 +101,11 @@ protected:
 
 	void OnOperationComboLineSelectionChanged(TSharedPtr<FText> Item, ESelectInfo::Type SelectInfo);
 
-	/** Can edit operation*/
+	/** Can edit operation */
 	EVisibility GetOperationDetailsVisibility() const;
+
+	/** Can edit trade route */
+	EVisibility GetMainVisibility() const;	
 
 	/** Add button */
 	FText GetAddSectorText() const;
@@ -153,7 +162,7 @@ protected:
 	void OnRemoveSectorClicked(UFlareSimulatedSector* Sector);
 
 	/** Edit & Delete */
-	void OnEditOperationClicked(FFlareTradeRouteSectorOperationSave* Operation);
+	void OnEditOperationClicked(FFlareTradeRouteSectorOperationSave* Operation, UFlareSimulatedSector* Sector);
 	void OnDeleteOperationClicked(FFlareTradeRouteSectorOperationSave* Operation);
 
 	/** Done editing current operation */
@@ -197,6 +206,7 @@ protected:
 	int32                                              MaxSectorsInRoute;
 	UFlareTradeRoute*                                  TargetTradeRoute;
 	FFlareTradeRouteSectorOperationSave*               SelectedOperation;
+	UFlareSimulatedSector*                             SelectedSector;
 
 	// Sector data
 	TSharedPtr<SFlareDropList<UFlareSimulatedSector*>> SectorSelector;
@@ -220,6 +230,12 @@ protected:
 	TSharedPtr<SFlareButton>                           WaitLimitButton;
 	TSharedPtr<SSlider>                                QuantityLimitSlider;
 	TSharedPtr<SSlider>                                WaitLimitSlider;
-
 	TSharedPtr<SEditableText>                          QuantityLimitText;
+
+	// Deals
+	TSharedPtr<SHorizontalBox>                         EditSuggestedPurchasesBox;
+	TSharedPtr<SHorizontalBox>                         EditSuggestedSalesBox;
+	TArray<TFlareResourceDeal>                         CurrentlyBoughtResources;
+	TArray<TFlareResourceDeal>                         CurrentlySoldResources;
+
 };
