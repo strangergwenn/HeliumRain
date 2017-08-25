@@ -61,23 +61,27 @@ void UFlareAIBehavior::Simulate()
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareAIBehavior_Simulate);
 
+	// See how the player is doing
 	TArray<UFlareCompany*> SortedCompany = Game->GetGameWorld()->GetCompanies();
 	SortedCompany.Sort(&CompanyValueComparator);
-
 	int32 PlayerCompanyIndex = SortedCompany.IndexOfByKey(GetGame()->GetPC()->GetCompany());
 	int32 PlayerArmy = GetGame()->GetPC()->GetCompany()->GetCompanyValue().ArmyCurrentCombatPoints;
 
-	if(PlayerCompanyIndex > 0 &&  Company == ST->Pirates)
+	// Pirates hate you
+	if (PlayerCompanyIndex > 0 && Company == ST->Pirates)
 	{
 		Company->GivePlayerReputation(-0.5);
 	}
 
-	if(PlayerArmy > 0 && Company != ST->AxisSupplies)
+	// Competitors hate you more if you're doing well
+	float ReputationLoss = PlayerCompanyIndex / 30.f;
+	if (PlayerArmy > 0 && Company != ST->AxisSupplies && Company->GetPlayerReputation() > ReputationLoss)
 	{
-		Company->GivePlayerReputation(-PlayerCompanyIndex/30.f);
+		Company->GivePlayerReputation(-ReputationLoss);
 	}
 
-	if(Company == ST->Pirates)
+	// Simulate the day
+	if (Company == ST->Pirates)
 	{
 		SimulatePirateBehavior();
 	}
