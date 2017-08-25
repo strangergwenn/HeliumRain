@@ -123,7 +123,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 			.Padding(Theme.SmallContentPadding)
 			[
 				SNew(SFlareButton)
-				.Text(LOCTEXT("KeyboardTab", "Keyboard"))
+				.Text(LOCTEXT("KeyboardTab", "Controls"))
 				.HelpText(LOCTEXT("KeyboardTabInfo", "Change your key bindings"))
 				.OnClicked(this, &SFlareSettingsMenu::SetCurrentTabIndex, 2)
 				.IsDisabled(this, &SFlareSettingsMenu::IsCurrentTab, 2)
@@ -2468,12 +2468,15 @@ FSimpleBind::FSimpleBind(const FText& InDisplayName)
 FSimpleBind* FSimpleBind::AddActionMapping(const FName& Mapping)
 {
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-
+	
 	bool bFound = false;
 	for (int32 i = 0; i < InputSettings->ActionMappings.Num(); i++)
 	{
 		FInputActionKeyMapping Action = InputSettings->ActionMappings[i];
-		if (Mapping == Action.ActionName && !Action.Key.IsGamepadKey())
+		bool IsJoystickKey = Action.Key.GetDisplayName().ToString().StartsWith("Joystick");
+		bool IsGamePadKey = Action.Key.IsGamepadKey() && !IsJoystickKey;
+
+		if (Mapping == Action.ActionName && !IsGamePadKey)
 		{
 			ActionMappings.Add(Action);
 
