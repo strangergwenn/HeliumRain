@@ -1383,6 +1383,9 @@ void AFlareSpacecraft::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 	PlayerInputComponent->BindAction("NextTarget", EInputEvent::IE_Released, this, &AFlareSpacecraft::NextTarget);
 	PlayerInputComponent->BindAction("PreviousTarget", EInputEvent::IE_Released, this, &AFlareSpacecraft::PreviousTarget);
+
+	PlayerInputComponent->BindAction("AlternateNextTarget", EInputEvent::IE_Released, this, &AFlareSpacecraft::AlternateNextTarget);
+	PlayerInputComponent->BindAction("AlternatePreviousTarget", EInputEvent::IE_Released, this, &AFlareSpacecraft::AlternatePreviousTarget);
 }
 
 void AFlareSpacecraft::StartFire()
@@ -1571,6 +1574,16 @@ void AFlareSpacecraft::PreviousTarget()
 	}
 
 	TimeSinceSelection = 0;
+}
+
+void AFlareSpacecraft::AlternateNextTarget()
+{
+	NextTarget();
+}
+
+void AFlareSpacecraft::AlternatePreviousTarget()
+{
+	PreviousTarget();
 }
 
 

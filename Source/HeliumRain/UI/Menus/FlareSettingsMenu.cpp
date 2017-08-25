@@ -2300,6 +2300,10 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCCW", "Roll left")))
 		->AddAxisMapping("NormalRollInput", -1.0f)
 		->AddDefaults(EKeys::E)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("NextTarget", "Next target")))
+		->AddActionMapping("AlternateNextTarget")));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("PreviousTarget", "Previous target")))
+		->AddActionMapping("AlternatePreviousTarget")));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("Quick Ship Switch", "Quick ship switch")))
 		->AddActionMapping("QuickSwitch")
 		->AddDefaults(EKeys::N)));

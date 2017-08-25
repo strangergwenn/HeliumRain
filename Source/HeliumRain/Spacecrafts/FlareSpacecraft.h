@@ -194,6 +194,10 @@ public:
 
 	virtual void PreviousTarget();
 
+	virtual void AlternateNextTarget();
+
+	virtual void AlternatePreviousTarget();
+
 
 	virtual void YawInput(float Val);
 
