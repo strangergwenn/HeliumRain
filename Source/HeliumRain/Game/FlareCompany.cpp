@@ -1327,7 +1327,7 @@ int32 UFlareCompany::GetTechnologyLevel() const
 	// 2 technologies -> Level 3
 	// 3 technologies -> Level 4
 
-	return 1 + UnlockedTechnologies.Num();
+	return FMath::Clamp(1 + UnlockedTechnologies.Num(), 1, 5);
 }
 
 int32 UFlareCompany::GetResearchAmount() const
