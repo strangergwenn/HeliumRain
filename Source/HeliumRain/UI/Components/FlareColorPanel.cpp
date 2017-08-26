@@ -147,25 +147,20 @@ void SFlareColorPanel::Setup(FFlarePlayerSave& PlayerData)
 
 void SFlareColorPanel::SetupDefault()
 {
+	const FFlareCompanyDescription* CurrentCompanyData = MenuManager->GetPC()->GetCompanyDescription();
 	AFlareGame* Game = Cast<AFlareGame>(MenuManager->GetWorld()->GetAuthGameMode());
 	UFlareCustomizationCatalog* CustomizationCatalog = Game->GetCustomizationCatalog();
 
-	FLinearColor CustomizationBasePaintColor = FLinearColor(0.147932, 0.167765, 0.185); //3
-	FLinearColor CustomizationPaintColor = FLinearColor(0.952941, 0.043137, 0.007843); //7
-	FLinearColor CustomizationOverlayColor = FLinearColor(0.894444, 0.892754, 1.0); //4
-	FLinearColor CustomizationLightColor = FLinearColor(0.0, 0.3, 1.0); //13
-	int CustomizationPatternIndex = 0;
+	BasePaintColorPicker->SetSelectedIndex(CustomizationCatalog->FindColor(CurrentCompanyData->CustomizationBasePaintColor));
+	PaintColorPicker->SetSelectedIndex(CustomizationCatalog->FindColor(CurrentCompanyData->CustomizationPaintColor));
+	OverlayColorPicker->SetSelectedIndex(CustomizationCatalog->FindColor(CurrentCompanyData->CustomizationOverlayColor));
+	LightColorPicker->SetSelectedIndex(CustomizationCatalog->FindColor(CurrentCompanyData->CustomizationLightColor));
+	PatternPicker->SetSelectedIndex(CurrentCompanyData->CustomizationPatternIndex);
 
-	BasePaintColorPicker->SetSelectedIndex(CustomizationCatalog->FindColor(CustomizationBasePaintColor));
-	PaintColorPicker->SetSelectedIndex(CustomizationCatalog->FindColor(CustomizationPaintColor));
-	OverlayColorPicker->SetSelectedIndex(CustomizationCatalog->FindColor(CustomizationOverlayColor));
-	LightColorPicker->SetSelectedIndex(CustomizationCatalog->FindColor(CustomizationLightColor));
-	PatternPicker->SetSelectedIndex(CustomizationPatternIndex);
-
-	BasePaintColorPicker->SetColor(CustomizationBasePaintColor);
-	PaintColorPicker->SetColor(CustomizationPaintColor);
-	OverlayColorPicker->SetColor(CustomizationOverlayColor);
-	LightColorPicker->SetColor(CustomizationLightColor);
+	BasePaintColorPicker->SetColor(CurrentCompanyData->CustomizationBasePaintColor);
+	PaintColorPicker->SetColor(CurrentCompanyData->CustomizationPaintColor);
+	OverlayColorPicker->SetColor(CurrentCompanyData->CustomizationOverlayColor);
+	LightColorPicker->SetColor(CurrentCompanyData->CustomizationLightColor);
 }
 
 void SFlareColorPanel::OnBasePaintColorPickedByIndex(int32 Index)
