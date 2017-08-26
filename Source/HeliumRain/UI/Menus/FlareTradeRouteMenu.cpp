@@ -1861,14 +1861,14 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 {
 	SelectedOperation = Operation;
 	SelectedSector = Sector;
-
+	
 	if (SelectedOperation && Sector)
 	{
 		FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
 		ResourceSelector->SetSelectedItem(MenuManager->GetGame()->GetResourceCatalog()->GetEntry(Resource));
 		int32 OperationTypeIndex = OperationList.Find(Operation->Type);
 		OperationSelector->SetSelectedItem(OperationNameList[OperationTypeIndex]);
-
+		
 		// Max quantity
 		if (SelectedOperation->MaxQuantity == -1)
 		{
@@ -1883,7 +1883,7 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 			{
 				int32 Value = (float) (SelectedOperation->MaxQuantity - 1) / (float) TargetTradeRoute->GetFleet()->GetFleetCapacity();
 				QuantityLimitSlider->SetValue(Value);
-				QuantityLimitText->SetText(FText::AsNumber(Value));
+				QuantityLimitText->SetText(FText::AsNumber(SelectedOperation->MaxQuantity));
 			}
 		}
 
@@ -2005,7 +2005,7 @@ void SFlareTradeRouteMenu::OnQuantityLimitChanged(float Value)
 
 void SFlareTradeRouteMenu::OnQuantityLimitEntered(const FText& TextValue)
 {
-	if (TargetTradeRoute && SelectedOperation && TextValue.ToString().IsNumeric())
+	if (TargetTradeRoute && SelectedOperation && SelectedOperation->MaxQuantity != -1 && TextValue.ToString().IsNumeric())
 	{
 		int32 ResourceMaxQuantity = 1000;
 
