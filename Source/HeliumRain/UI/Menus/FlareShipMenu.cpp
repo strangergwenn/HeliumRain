@@ -702,6 +702,9 @@ void SFlareShipMenu::UpdateShipyardList()
 		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
 		for (FFlareShipyardOrderSave& Order : TargetSpacecraft->GetOngoingProductionList())
 		{
+			FFlareSpacecraftDescription* OrderDescription = SpacecraftCatalog->Get(Order.OrderShipClass);
+			UFlareCompany* OrderCompany = MenuManager->GetGame()->GetGameWorld()->FindCompany(Order.OrderShipCompany);
+
 			ShipyardList->AddSlot()
 			.AutoHeight()
 			.HAlign(HAlign_Left)
@@ -715,8 +718,8 @@ void SFlareShipMenu::UpdateShipyardList()
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
 					.Text(FText::Format(LOCTEXT("ShipInProductionFormat", "In production : {0} for {1}"),
-						Order->TargetDescription->Name,
-						Order->OrderCompany->GetCompanyName()))
+						OrderDescription->Name,
+						OrderCompany->GetCompanyName()))
 				]
 			];
 
@@ -756,7 +759,7 @@ void SFlareShipMenu::UpdateShipyardList()
 					.Text(LOCTEXT("CancelShip", "Cancel"))
 					.HelpText(LOCTEXT("CancelShipInfo", "Remove this ship order from the production queue"))
 					.OnClicked(this, &SFlareShipMenu::OnCancelSpacecraftOrder, Index)
-					.GetVisibility(this, &SFlareShipMenu::GetCancelShipOrderVisibility, Index)
+					.Visibility(this, &SFlareShipMenu::GetCancelShipOrderVisibility, Index)
 				]
 			];
 
@@ -804,10 +807,8 @@ EVisibility SFlareShipMenu::GetCancelShipOrderVisibility(int32 Index) const
 			return EVisibility::Visible;
 		}
 	}
-	else
-	{
-		return EVisibility::Collapsed;
-	}
+
+	return EVisibility::Collapsed;
 }
 
 void SFlareShipMenu::OnOpenSpacecraftOrder(bool IsHeavy)
@@ -822,7 +823,7 @@ void SFlareShipMenu::OnCancelSpacecraftOrder(int32 Index)
 {
 	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
 	{
-		TargetSpacecraft->CancelShipyardOrder();
+		TargetSpacecraft->CancelShipyardOrder(Index);
 	}
 }
 
