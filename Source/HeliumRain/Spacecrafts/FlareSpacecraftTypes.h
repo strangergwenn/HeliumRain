@@ -315,6 +315,24 @@ struct FFlareCargoSave
 	TEnumAsByte<EFlareResourceRestriction::Type> Restriction;
 };
 
+/** Shipyard order save data */
+USTRUCT()
+struct FFlareShipyardOrderSave
+{
+	GENERATED_USTRUCT_BODY()
+	/** Order ship class for shipyards */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName OrderShipClass;
+
+	/** Order ship company owner */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName OrderShipCompany;
+
+	/** Order advance payment */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 OrderShipAdvancePayment;
+};
+
 /** Spacecraft factory save data */
 USTRUCT()
 struct FFlareFactorySave
@@ -356,18 +374,6 @@ struct FFlareFactorySave
 	/** Target ship company owner */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName TargetShipCompany;
-
-	/** Order ship class for shipyards */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName OrderShipClass;
-
-	/** Order ship company owner */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName OrderShipCompany;
-
-	/** Order advance payment */
-	UPROPERTY(EditAnywhere, Category = Save)
-	int32 OrderShipAdvancePayment;
 };
 
 /** Spacecraft save data */

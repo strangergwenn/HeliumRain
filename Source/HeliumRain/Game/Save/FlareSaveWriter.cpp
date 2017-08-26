@@ -513,9 +513,6 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveFactory(FFlareFactorySave* Data)
 	JsonObject->SetStringField("CycleCount", FormatInt32(Data->CycleCount));
 	JsonObject->SetStringField("TargetShipClass", Data->TargetShipClass.ToString());
 	JsonObject->SetStringField("TargetShipCompany", Data->TargetShipCompany.ToString());
-	JsonObject->SetStringField("OrderShipClass", Data->OrderShipClass.ToString());
-	JsonObject->SetStringField("OrderShipCompany", Data->OrderShipCompany.ToString());
-	JsonObject->SetStringField("OrderShipAdvancePayment", FormatInt32(Data->OrderShipAdvancePayment));
 
 	TArray< TSharedPtr<FJsonValue> > ResourceReserved;
 	for(int i = 0; i < Data->ResourceReserved.Num(); i++)

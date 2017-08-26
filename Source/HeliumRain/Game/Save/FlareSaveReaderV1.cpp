@@ -614,10 +614,6 @@ void UFlareSaveReaderV1::LoadFactory(const TSharedPtr<FJsonObject> Object, FFlar
 	LoadInt32(Object, "CycleCount", (int32*) &Data->CycleCount); // TODO clean after conversion
 	LoadFName(Object, "TargetShipClass", &Data->TargetShipClass);
 	LoadFName(Object, "TargetShipCompany", &Data->TargetShipCompany);
-	LoadFName(Object, "OrderShipClass", &Data->OrderShipClass);
-	LoadFName(Object, "OrderShipCompany", &Data->OrderShipCompany);
-	LoadInt32(Object, "OrderShipAdvancePayment", &Data->OrderShipAdvancePayment);
-
 
 	const TArray<TSharedPtr<FJsonValue>>* ResourceReserved;
 	if(Object->TryGetArrayField("ResourceReserved", ResourceReserved))

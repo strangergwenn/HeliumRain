@@ -41,10 +41,6 @@ public:
 
 	void Stop();
 
-	void OrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier);
-
-	void CancelOrder();
-
 	void SetInfiniteCycle(bool Mode);
 
 	void SetCycleCount(uint32 Count);
@@ -144,21 +140,6 @@ public:
 	FName GetTargetShipCompany() const
 	{
 		return FactoryData.TargetShipCompany;
-	}
-
-	FName GetOrderShipClass() const
-	{
-		return FactoryData.OrderShipClass;
-	}
-
-	FName GetOrderShipCompany() const
-	{
-		return FactoryData.OrderShipCompany;
-	}
-
-	uint32 GetOrderShipAdvancePayment() const
-	{
-		return FactoryData.OrderShipAdvancePayment;
 	}
 
 	uint32 GetProductionCost(const FFlareProductionData* Data = NULL);

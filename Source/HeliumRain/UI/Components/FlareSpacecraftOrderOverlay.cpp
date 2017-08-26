@@ -328,8 +328,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 	if (TargetShipyard)
 	{
 		FCHECK(TargetShipyard);
-		const FFlareProductionData* CycleData = &TargetShipyard->GetCycleDataForShipClass(Desc->Identifier);
-		ProductionTime = TargetShipyard->GetProductionTime(*CycleData);
+		ProductionTime = TargetShipyard->GetShipProductionTime(Desc->Identifier);
 
 		// Station
 		if (Desc->OrbitalEngineCount == 0)
@@ -359,11 +358,11 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 		// Production cost
 		if (MenuManager->GetPC()->GetCompany() == TargetShipyard->GetCompany())
 		{
-			ProductionCost = FText::Format(LOCTEXT("FactoryProductionResourcesFormat", "\u2022 {0}"), TargetShipyard->GetFactoryCycleCost(CycleData));
+			ProductionCost = FText::Format(LOCTEXT("FactoryProductionResourcesFormat", "\u2022 {0}"), TargetShipyard->GetShipCost(Desc->Identifier));
 		}
 		else
 		{
-			ProductionTime += TargetShipyard->GetRemainingProductionDuration();
+			ProductionTime += TargetShipyard->GetEstimatedQueueAndProductionDuration(Desc->Size);
 			int32 CycleProductionCost = UFlareGameTools::ComputeSpacecraftPrice(Desc->Identifier, TargetShipyard->GetCurrentSector(), true);
 			ProductionCost = FText::Format(LOCTEXT("FactoryProductionCostFormat", "\u2022 {0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(CycleProductionCost)));
 		}

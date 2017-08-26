@@ -11,7 +11,6 @@ class UFlareFleet;
 class UFlareCargoBay;
 class UFlareFactory;
 
-
 UCLASS()
 class HELIUMRAIN_API UFlareSimulatedSpacecraft : public UObject
 {
@@ -151,6 +150,37 @@ public:
 	EFlareResourcePriceContext::Type GetResourceUseType(FFlareResourceDescription* Resource);
 	void LockResources();
 
+
+	/*----------------------------------------------------
+		Shipyard
+	----------------------------------------------------*/
+
+	void ShipyardOrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier);
+
+	void CancelShipyardOrder(int32 OrderIndex);
+
+	TArray<FFlareShipyardOrderSave> GetShipyardOrderQueue();
+
+	TArray<FFlareShipyardOrderSave> GetOngoingProductionList();
+
+	FText GetNextShipyardOrderStatus();
+
+	void StartShipyardProduction();
+
+	bool CanOrder(const FFlareSpacecraftDescription* ShipDescription, UFlareCompany* OrderCompany);
+
+	const FFlareProductionData* GetCycleDataForShipClass(FName ShipIdentifier);
+
+	int32 GetShipProductionTime(FName ShipIdentifier);
+
+	int32 GetEstimatedQueueAndProductionDuration(EFlarePartSize::Type Size);
+
+	FText GetShipCost(FName ShipIdentifier);
+
+	bool IsAllowExternalOrder();
+	void SetAllowExternalOrder(bool Allow);
+
+
 protected:
 
 	void RemoveCapturePoint(FName CompanyIdentifier, int32 CapturePoint);
@@ -181,6 +211,10 @@ protected:
 
 	UPROPERTY()
 	UFlareCargoBay*                                         CargoBay;
+
+	UPROPERTY()
+	TArray<FFlareShipyardOrderSave> ShipyardOrderQueue;
+
 public:
 
     /*----------------------------------------------------

@@ -144,37 +144,6 @@ void UFlareFactory::UpdateDynamicState()
 void UFlareFactory::Start()
 {
 	FactoryData.Active = true;
-
-	// Stop other factories
-	// TODO Remove the code if it's sure
-	/*
-	TArray<UFlareFactory*>& Factories = Parent->GetFactories();
-
-	for (int32 FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
-	{
-		UFlareFactory* Factory = Factories[FactoryIndex];
-		if (Factory == this)
-		{
-			continue;
-		}
-		else
-		{
-			Factory->Pause();
-		}
-	}*/
-
-	if (FactoryData.TargetShipCompany == NAME_None && FactoryData.OrderShipCompany != NAME_None)
-	{
-		FactoryData.TargetShipClass = FactoryData.OrderShipClass;
-		FactoryData.TargetShipCompany = FactoryData.OrderShipCompany;
-		FactoryData.ProductedDuration = 0;
-
-		Parent->GetCompany()->GiveMoney(FactoryData.OrderShipAdvancePayment);
-
-		FactoryData.OrderShipCompany = NAME_None;
-		FactoryData.OrderShipClass = NAME_None;
-		FactoryData.OrderShipAdvancePayment = 0;
-	}
 }
 
 void UFlareFactory::Pause()
@@ -232,90 +201,6 @@ void UFlareFactory::ClearOutputLimit(FFlareResourceDescription* Resource)
 	}
 }
 
-void UFlareFactory::OrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier)
-{
-	if(!IsShipyard())
-	{
-		FLOGV("%s failed to order %s to %s at %s: not a shipyard",
-			  *OrderCompany->GetCompanyName().ToString(), *ShipIdentifier.ToString(),
-			  *Parent->GetCompany()->GetCompanyName().ToString(), *Parent->GetImmatriculation().ToString());
-		return;
-	}
-
-
-	if(Parent->GetCompany()->GetWarState(OrderCompany) == EFlareHostility::Hostile)
-	{
-		// Not possible to buy ship to hostile company
-		FLOGV("%s failed to order %s to %s at %s: they are at war",
-			  *OrderCompany->GetCompanyName().ToString(), *ShipIdentifier.ToString(),
-			  *Parent->GetCompany()->GetCompanyName().ToString(), *Parent->GetImmatriculation().ToString());
-		return;
-	}
-
-	if (FactoryData.OrderShipCompany != NAME_None)
-	{
-		CancelOrder();
-	}
-
-	uint32 ShipPrice = 0;
-
-	if(Parent->GetCompany() != OrderCompany)
-	{
-		ShipPrice = UFlareGameTools::ComputeSpacecraftPrice(ShipIdentifier, Parent->GetCurrentSector(), true);
-		if(!OrderCompany->TakeMoney(ShipPrice))
-		{
-			// Not enough money
-			return;
-		}
-	}
-
-	FactoryData.OrderShipClass = ShipIdentifier;
-	FactoryData.OrderShipCompany = OrderCompany->GetIdentifier();
-	FactoryData.OrderShipAdvancePayment = ShipPrice;
-
-	if (OrderCompany == Game->GetPC()->GetCompany())
-	{
-		FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(ShipIdentifier);
-
-		int32 Size = 0;
-		if (Desc)
-		{
-			Size = Desc->Size;
-		}
-
-		int32 Military = 0;
-		if(Desc && (Desc->WeaponGroups.Num()  > 0 || Desc->TurretSlots.Num()  > 0 ))
-		{
-			Military = 1;
-		}
-
-		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("order-ship").PutInt32("size", Size).PutInt32("military", Military));
-
-		Parent->GetCompany()->GivePlayerReputation(ShipPrice / 100000);
-	}
-
-}
-
-void UFlareFactory::CancelOrder()
-{
-	if(FactoryData.OrderShipCompany != NAME_None)
-	{
-		UFlareCompany* Company = GetGame()->GetGameWorld()->FindCompany(FactoryData.OrderShipCompany);
-		Company->GiveMoney(FactoryData.OrderShipAdvancePayment);
-
-
-		if(FactoryData.OrderShipCompany == Game->GetPC()->GetCompany()->GetIdentifier())
-		{
-			Parent->GetCompany()->GivePlayerReputation(-FactoryData.OrderShipAdvancePayment / 100000);
-		}
-
-	}
-
-	FactoryData.OrderShipClass = NAME_None;
-	FactoryData.OrderShipCompany = NAME_None;
-	FactoryData.OrderShipAdvancePayment = 0;
-}
-
 bool UFlareFactory::HasCostReserved()
 {
 	if (FactoryData.CostReserved < GetProductionCost())
@@ -353,7 +238,6 @@ bool UFlareFactory::HasCostReserved()
 bool UFlareFactory::HasInputMoney()
 {
 	bool AllowDepts = !IsShipyard()
-			|| (GetOrderShipCompany() != NAME_None && GetOrderShipCompany() != Parent->GetCompany()->GetIdentifier())
 			|| (GetTargetShipCompany() != NAME_None && GetTargetShipCompany() != Parent->GetCompany()->GetIdentifier());
 
 
@@ -442,7 +326,6 @@ bool UFlareFactory::HasOutputFreeSpace()
 void UFlareFactory::BeginProduction()
 {
 	bool AllowDepts = !IsShipyard()
-			|| (GetOrderShipCompany() != NAME_None && GetOrderShipCompany() != Parent->GetCompany()->GetIdentifier())
 			|| (GetTargetShipCompany() != NAME_None && GetTargetShipCompany() != Parent->GetCompany()->GetIdentifier());
 
 	if(!Parent->GetCompany()->TakeMoney(GetProductionCost(), AllowDepts))
@@ -529,15 +412,9 @@ void UFlareFactory::CancelProduction()
 
 	if (IsShipyard())
 	{
-		if(FactoryData.OrderShipCompany == NAME_None)
-		{
-			// No more ship to produce
-			FactoryData.Active = false;
-		}
-		else
-		{
-			Start();
-		}
+		// Wait next ship order
+		FactoryData.Active = false;
+		Parent->StartShipyardProduction();
 	}
 }
 
@@ -680,15 +557,8 @@ void UFlareFactory::PerformCreateShipAction(const FFlareFactoryAction* Action)
 	FactoryData.TargetShipClass = NAME_None;
 	FactoryData.TargetShipCompany = NAME_None;
 
-	if (FactoryData.OrderShipCompany == NAME_None)
-	{
-		// No more ship to produce
-		Stop();
-	}
-	else
-	{
-		Start();
-	}
+	// No more ship to produce
+	Stop();
 }
 
 // Compute a proximity score (lower is better)

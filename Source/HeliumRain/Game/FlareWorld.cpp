@@ -2041,34 +2041,6 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 					continue;
 				}
 
-				// Queue ship order
-				if (TargetFactory->GetOrderShipCompany() == CompanyIdentifier)
-				{
-					FFlareSpacecraftDescription* OrderDesc = Game->GetSpacecraftCatalog()->Get(TargetFactory->GetOrderShipClass());
-					int64 ProductionTime = TargetFactory->GetRemainingProductionDuration() + TargetFactory->GetProductionTime(OrderDesc->CycleCost);
-
-					FText ProductionText;
-					if (TargetFactory->IsActive() && TargetFactory->IsNeedProduction() && !TargetFactory->HasCostReserved() && !TargetFactory->HasInputResources())
-					{
-
-						ProductionText = FText::Format(LOCTEXT("ShipNoResourcesProdTextFormat", "\u2022 {0} ordered at {1} (missing resources)"),
-						OrderDesc->Name,
-							SectorName);
-					}
-					else
-					{
-						ProductionText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "\u2022 {0} ordered at {1} ({2} left)"),
-						OrderDesc->Name,
-						SectorName,
-						UFlareGameTools::FormatDate(ProductionTime, 2));
-					}
-
-					FFlareIncomingEvent ProductionEvent;
-					ProductionEvent.Text = ProductionText;
-					ProductionEvent.RemainingDuration = ProductionTime;
-					IncomingEvents.Add(ProductionEvent);
-				}
-
 				// Ship being built
 				else if (TargetFactory->GetTargetShipCompany() == CompanyIdentifier)
 				{

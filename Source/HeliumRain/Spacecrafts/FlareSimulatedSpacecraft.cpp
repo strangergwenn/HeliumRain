@@ -81,9 +81,6 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 					FactoryData.CycleCount = 0;
 					FactoryData.TargetShipClass = NAME_None;
 					FactoryData.TargetShipCompany = NAME_None;
-					FactoryData.OrderShipClass = NAME_None;
-					FactoryData.OrderShipCompany = NAME_None;
-					FactoryData.OrderShipAdvancePayment = 0;
 			}
 
 			UFlareFactory* Factory = NewObject<UFlareFactory>(GetGame()->GetGameWorld(), UFlareFactory::StaticClass());
@@ -124,10 +121,6 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		FactoryData.CycleCount = 0;
 		FactoryData.TargetShipClass = NAME_None;
 		FactoryData.TargetShipCompany = NAME_None;
-		FactoryData.OrderShipClass = NAME_None;
-		FactoryData.OrderShipCompany = NAME_None;
-		FactoryData.OrderShipAdvancePayment = 0;
-
 
 		Factory->Load(this, FactoryDescription, FactoryData);
 		Factories.Add(Factory);

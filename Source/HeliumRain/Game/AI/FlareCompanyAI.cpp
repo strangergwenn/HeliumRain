@@ -2566,56 +2566,36 @@ int64 UFlareCompanyAI::OrderOneShip(const FFlareSpacecraftDescription* ShipDescr
 		return 0;
 	}
 
+	int64 CompanyMoney = Company->GetMoney();
+	float CostSafetyMargin = 1.1f;
+
 	//FLOGV("OrderOneShip %s", *ShipDescription->Name.ToString());
 
 	for (int32 ShipyardIndex = 0; ShipyardIndex < Shipyards.Num(); ShipyardIndex++)
 	{
 		UFlareSimulatedSpacecraft* Shipyard =Shipyards[ShipyardIndex];
 
-		TArray<UFlareFactory*>& Factories = Shipyard->GetFactories();
-
-		for (int32 Index = 0; Index < Factories.Num(); Index++)
+		if (Shipyard->CanOrder(ShipDescription, Company))
 		{
-			UFlareFactory* Factory = Factories[Index];
+			int64 ShipPrice = UFlareGameTools::ComputeSpacecraftPrice(ShipDescription->Identifier, Shipyard->GetCurrentSector(), true);
 
-			// Can produce only if nobody as order a ship and nobody is buidling a ship
-			if (Factory->GetOrderShipCompany() == NAME_None && Factory->GetTargetShipCompany() == NAME_None)
+
+
+
+
+			if (ShipPrice * CostSafetyMargin < CompanyMoney)
 			{
-				int64 CompanyMoney = Company->GetMoney();
+				FName ShipClassToOrder = ShipDescription->Identifier;
+				FLOGV("UFlareCompanyAI::UpdateShipAcquisition : Ordering spacecraft : '%s'", *ShipClassToOrder.ToString());
+				Shipyard->ShipyardOrderShip(Company, ShipClassToOrder);
 
-				float CostSafetyMargin = 1.1f;
+				SpendBudget((ShipDescription->IsMilitary() ? EFlareBudget::Military : EFlareBudget::Trade), ShipPrice);
 
-				// Large factory
-				if (Factory->IsLargeShipyard()&& ShipDescription->Size != EFlarePartSize::L)
-				{
-					// Not compatible factory
-					continue;
-				}
-
-				// Large factory
-				if (Factory->IsSmallShipyard()&& ShipDescription->Size != EFlarePartSize::S)
-				{
-					// Not compatible factory
-					continue;
-				}
-
-				int64 ShipPrice = UFlareGameTools::ComputeSpacecraftPrice(ShipDescription->Identifier, Shipyard->GetCurrentSector(), true);
-
-				if (ShipPrice * CostSafetyMargin < CompanyMoney)
-				{
-					FName ShipClassToOrder = ShipDescription->Identifier;
-					FLOGV("UFlareCompanyAI::UpdateShipAcquisition : Ordering spacecraft : '%s'", *ShipClassToOrder.ToString());
-					Factory->OrderShip(Company, ShipClassToOrder);
-					Factory->Start();
-
-					SpendBudget((ShipDescription->IsMilitary() ? EFlareBudget::Military : EFlareBudget::Trade), ShipPrice);
-
-					return 0;
-				}
-				else
-				{
-					return ShipPrice;
-				}
+				return 0;
+			}
+			else
+			{
+				return ShipPrice;
 			}
 		}
 	}
