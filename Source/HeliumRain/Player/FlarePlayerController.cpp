@@ -102,7 +102,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 
 	// Default colors
 	CompanyData.CustomizationBasePaintColor = FLinearColor(0.147932,0.167765,0.185); //3
-	CompanyData.CustomizationPaintColor = FLinearColor(1.0,0.168576,0.01873); //8
+	CompanyData.CustomizationPaintColor = FLinearColor(0.952941, 0.043137, 0.007843); //7
 	CompanyData.CustomizationOverlayColor = FLinearColor(0.894444,0.892754,1.0); //4
 	CompanyData.CustomizationLightColor = FLinearColor(0.0,0.3,1.0); //13
 	CompanyData.CustomizationPatternIndex = 1;
