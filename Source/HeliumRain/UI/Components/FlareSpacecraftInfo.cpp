@@ -833,7 +833,7 @@ void SFlareSpacecraftInfo::OnInspect()
 		FLOGV("SFlareSpacecraftInfo::OnInspect : TargetSpacecraft=%p", TargetSpacecraft);
 		FFlareMenuParameterData Data;
 		Data.Spacecraft = TargetSpacecraft;
-		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Ship, Data);
+		PC->GetMenuManager()->OpenMenu(TargetSpacecraft->IsStation() ? EFlareMenu::MENU_Station : EFlareMenu::MENU_Ship, Data);
 	}
 }
 
@@ -946,8 +946,9 @@ void SFlareSpacecraftInfo::OnScrapConfirmed()
 
 			OnRemoved.ExecuteIfBound(TargetSpacecraft);
 			PC->GetGame()->Scrap(TargetSpacecraft->GetImmatriculation(), TargetStation->GetImmatriculation());
-			if(PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Ship ||
-					PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_ShipConfig)
+			if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Ship ||
+				PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Station ||
+				PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_ShipConfig)
 			{
 				PC->GetMenuManager()->Back();
 			}

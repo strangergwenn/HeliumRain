@@ -569,7 +569,8 @@ void AFlareMenuManager::ProcessNextMenu()
 		case EFlareMenu::MENU_Company:            InspectCompany();            break;
 		case EFlareMenu::MENU_Fleet:              OpenFleetMenu();             break;
 		case EFlareMenu::MENU_Quest:              OpenQuestMenu();             break;
-		case EFlareMenu::MENU_Ship:               InspectShip(false);          break;
+		case EFlareMenu::MENU_Ship:
+		case EFlareMenu::MENU_Station:            InspectShip(false);          break;
 		case EFlareMenu::MENU_ShipConfig:         InspectShip(true);           break;
 		case EFlareMenu::MENU_Sector:             OpenSector();                break;
 		case EFlareMenu::MENU_Trade:              OpenTrade();                 break;

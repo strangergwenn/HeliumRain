@@ -2463,7 +2463,7 @@ void AFlarePlayerController::InspectTargetSpacecraft()
 		{
 			FFlareMenuParameterData Data;
 			Data.Spacecraft = TargetSpacecraft->GetParent();
-			MenuManager->OpenMenu(EFlareMenu::MENU_Ship, Data);
+			MenuManager->OpenMenu(TargetSpacecraft->IsStation() ? EFlareMenu::MENU_Station : EFlareMenu::MENU_Ship, Data);
 		}
 	}
 }

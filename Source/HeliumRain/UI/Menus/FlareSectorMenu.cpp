@@ -1445,7 +1445,7 @@ void SFlareSectorMenu::OnBuildStationSelected(FFlareSpacecraftDescription* NewSt
 				"station-built",
 				EFlareNotification::NT_Economy,
 				false,
-				EFlareMenu::MENU_Ship,
+				EFlareMenu::MENU_Station,
 				NotificationParameters);
 		}
 	}

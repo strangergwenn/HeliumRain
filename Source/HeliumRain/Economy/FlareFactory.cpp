@@ -816,7 +816,7 @@ void UFlareFactory::PerformBuildStationAction(const FFlareFactoryAction* Action)
 			FName("station-production-complete"),
 			EFlareNotification::NT_Economy,
 			false,
-			EFlareMenu::MENU_Ship,
+			EFlareMenu::MENU_Station,
 			Data);
 
 		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("finish-station-construction")
