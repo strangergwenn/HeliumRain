@@ -46,12 +46,58 @@ public:
 
 	/** Load a ship */
 	void LoadPart(FName InternalName);
-	
-	/** Update the part list, preselect an item */
-	void UpdatePartList(FFlareSpacecraftComponentDescription* SelectItem);
+
+	/** Update shipyard */
+	void UpdateShipyard();
 
 
 protected:
+
+	/*----------------------------------------------------
+		Updates
+	----------------------------------------------------*/
+
+	/** Update the part list, preselect an item */
+	void UpdatePartList(FFlareSpacecraftComponentDescription* SelectItem);
+
+	/** Generate the factory menus */
+	void UpdateFactoryList();
+
+	/** Generate upgrade box */
+	void UpdateUpgradeBox();
+
+
+	/*----------------------------------------------------
+		Shipyards
+	----------------------------------------------------*/
+
+	/** Add the shipyard information */
+	void UpdateShipyardList();
+
+	/** Visibility of the ship-building interface */
+	EVisibility GetShipyardVisibility() const;
+
+	/** Visibility of the ship selector */
+	bool IsShipSelectorDisabled() const;
+
+	/** Visibility of the cancel ship button */
+	EVisibility GetCancelShipOrderVisibility(int32 Index) const;
+
+	/** Get the text for light ship order */
+	FText GetLightShipTextInfo() const;
+
+	/** Get the text for heavy ship order */
+	FText GetHeavyShipTextInfo() const;
+
+	/** Order a spacecraft */
+	void OnOpenSpacecraftOrder(bool IsHeavy);
+
+	/** Cancel a spacecraft */
+	void OnCancelSpacecraftOrder(int32 Index);
+
+	/** Toggle external orders */
+	void OnToggleAllowExternalOrders();
+
 
 	/*----------------------------------------------------
 		Content callbacks
@@ -101,38 +147,6 @@ protected:
 
 	/** Part list generator */
 	TSharedRef<ITableRow> GeneratePartInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
-
-	/** Generate the factory menus */
-	void UpdateFactoryList();
-
-	/** Generate upgrade box */
-	void UpdateUpgradeBox();
-
-
-	/*----------------------------------------------------
-		Shipyards
-	----------------------------------------------------*/
-
-	/** Add the shipyard information */
-	void UpdateShipyardList();
-
-	/** Visibility of the ship-building interface */
-	EVisibility GetShipyardVisibility() const;
-		
-	/** Visibility of the ship selector */
-	bool IsShipSelectorDisabled() const;
-
-	/** Visibility of the cancel ship button */
-	EVisibility GetCancelShipOrderVisibility(int32 Index) const;
-
-	/** Order a spacecraft */
-	void OnOpenSpacecraftOrder(bool IsHeavy);
-
-	/** Cancel a spacecraft */
-	void OnCancelSpacecraftOrder(int32 Index);
-
-	/** Toggle external orders */
-	void OnToggleAllowExternalOrders();
 
 
 	/*----------------------------------------------------

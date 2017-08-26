@@ -1,12 +1,16 @@
 
 #include "FlareSpacecraftOrderOverlay.h"
 #include "../../Flare.h"
+
 #include "FlareFactoryInfo.h"
+#include "../Menus/FlareShipMenu.h"
+
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Economy/FlareFactory.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareGameTools.h"
+
 #include "SBackgroundBlur.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftOrderOverlay"
@@ -594,6 +598,11 @@ void SFlareSpacecraftOrderOverlay::OnConfirmed()
 			if (TargetShipyard)
 			{
 				TargetShipyard->ShipyardOrderShip(MenuManager->GetPC()->GetCompany(), Desc->Identifier);
+
+				if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Station || MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Ship)
+				{
+					MenuManager->GetShipMenu()->UpdateShipyard();
+				}
 			}
 
 			// Sector

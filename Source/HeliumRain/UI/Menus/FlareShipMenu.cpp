@@ -105,9 +105,9 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.AutoWidth()
 					[
 						SNew(SFlareButton)
-						.Width(5)
+						.Width(7)
 						.Text(LOCTEXT("OrderLightShip", "Order light ship"))
-						.HelpText(LOCTEXT("OrderLightShipInfo", "Pick a light ship class to build, or change the current selection"))
+						.HelpText(this, &SFlareShipMenu::GetLightShipTextInfo)
 						.OnClicked(this, &SFlareShipMenu::OnOpenSpacecraftOrder, false)
 						.IsDisabled(this, &SFlareShipMenu::IsShipSelectorDisabled)
 						.Visibility(this, &SFlareShipMenu::GetShipyardVisibility)
@@ -118,10 +118,10 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.AutoWidth()
 					[
 						SNew(SFlareButton)
-						.Width(5)
+						.Width(7)
 						.Text(LOCTEXT("OrderHeavyShip", "Order heavy ship"))
-						.HelpText(LOCTEXT("OrderHeavyShipInfo", "Pick a heavy ship class to build, or change the current selection"))
-						.OnClicked(this, &SFlareShipMenu::OnOpenSpacecraftOrder, false)
+						.HelpText(this, &SFlareShipMenu::GetHeavyShipTextInfo)
+						.OnClicked(this, &SFlareShipMenu::OnOpenSpacecraftOrder, true)
 						.IsDisabled(this, &SFlareShipMenu::IsShipSelectorDisabled)
 						.Visibility(this, &SFlareShipMenu::GetShipyardVisibility)
 					]
@@ -131,7 +131,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.AutoWidth()
 					[
 						SAssignNew(AllowExternalOrdersButton, SFlareButton)
-						.Width(4)
+						.Width(7)
 						.Text(LOCTEXT("AllowExternal", "Allow external orders"))
 						.HelpText(LOCTEXT("AllowExternalInfo", "Allow other companies to order ships here"))
 						.OnClicked(this, &SFlareShipMenu::OnToggleAllowExternalOrders)
@@ -144,6 +144,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.HAlign(HAlign_Fill)
+				.Padding(Theme.ContentPadding)
 				[
 					SAssignNew(ShipyardList, SVerticalBox)
 				]
@@ -543,6 +544,16 @@ void SFlareShipMenu::LoadPart(FName InternalName)
 	}
 }
 
+void SFlareShipMenu::UpdateShipyard()
+{
+	UpdateShipyardList();
+}
+
+
+/*----------------------------------------------------
+	UI updates
+----------------------------------------------------*/
+
 void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* SelectItem)
 {
 	ShipPartPickerTitle->SetVisibility(CanEdit ? EVisibility::Visible : EVisibility::Collapsed);
@@ -708,6 +719,7 @@ void SFlareShipMenu::UpdateShipyardList()
 			ShipyardList->AddSlot()
 			.AutoHeight()
 			.HAlign(HAlign_Left)
+			.Padding(Theme.SmallContentPadding)
 			[
 				SNew(SHorizontalBox)
 
@@ -717,7 +729,7 @@ void SFlareShipMenu::UpdateShipyardList()
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(FText::Format(LOCTEXT("ShipInProductionFormat", "In production : {0} for {1}"),
+					.Text(FText::Format(LOCTEXT("ShipInProductionFormat", "\u2022 In production : {0} for {1}"),
 						OrderDescription->Name,
 						OrderCompany->GetCompanyName()))
 				]
@@ -736,6 +748,7 @@ void SFlareShipMenu::UpdateShipyardList()
 			ShipyardList->AddSlot()
 			.AutoHeight()
 			.HAlign(HAlign_Left)
+			.Padding(Theme.SmallContentPadding)
 			[
 				SNew(SHorizontalBox)
 
@@ -743,11 +756,15 @@ void SFlareShipMenu::UpdateShipyardList()
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(FText::Format(LOCTEXT("ShipInQueueFormat", "In queue : {0} for {1}"), 
-						OrderDescription->Name,
-						OrderCompany->GetCompanyName()))
+					SNew(SBox)
+					.WidthOverride(0.75 * Theme.ContentWidth)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(FText::Format(LOCTEXT("ShipInQueueFormat", "\u2022 In queue : {0} for {1}"), 
+							OrderDescription->Name,
+							OrderCompany->GetCompanyName()))
+					]
 				]
 
 				// Cancel
@@ -755,11 +772,14 @@ void SFlareShipMenu::UpdateShipyardList()
 				.AutoWidth()
 				[
 					SNew(SFlareButton)
-					.Width(5)
+					.Width(2)
 					.Text(LOCTEXT("CancelShip", "Cancel"))
 					.HelpText(LOCTEXT("CancelShipInfo", "Remove this ship order from the production queue"))
 					.OnClicked(this, &SFlareShipMenu::OnCancelSpacecraftOrder, Index)
 					.Visibility(this, &SFlareShipMenu::GetCancelShipOrderVisibility, Index)
+					.Transparent(true)
+					.Small(true)
+					.Icon(FFlareStyleSet::GetIcon("Stop"))
 				]
 			];
 
@@ -809,6 +829,30 @@ EVisibility SFlareShipMenu::GetCancelShipOrderVisibility(int32 Index) const
 	}
 
 	return EVisibility::Collapsed;
+}
+
+FText SFlareShipMenu::GetLightShipTextInfo() const
+{
+	if (IsShipSelectorDisabled())
+	{
+		return LOCTEXT("OrderShipInfoDisabled", "You already have an order in the production queue and can't add a new one");
+	}
+	else
+	{
+		return LOCTEXT("OrderLightShipInfo", "Pick a light ship class to build, or change the current selection");
+	}
+}
+
+FText SFlareShipMenu::GetHeavyShipTextInfo() const
+{
+	if (IsShipSelectorDisabled())
+	{
+		return LOCTEXT("OrderShipInfoDisabled", "You already have an order in the production queue and can't add a new one");
+	}
+	else
+	{
+		return LOCTEXT("OrderHeavyShipInfo", "Pick a heavy ship class to build, or change the current selection");
+	}
 }
 
 void SFlareShipMenu::OnOpenSpacecraftOrder(bool IsHeavy)
