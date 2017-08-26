@@ -254,7 +254,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			
 			// Detect manual docking
 			IsManualDocking = false;
-			float MaxDistance = 30000;
+			float MaxDistance = (GetSize() == EFlarePartSize::S) ? 25000 : 50000;
 			float BestDistance = MaxDistance;
 			for (int SpacecraftIndex = 0; SpacecraftIndex < GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
 			{
