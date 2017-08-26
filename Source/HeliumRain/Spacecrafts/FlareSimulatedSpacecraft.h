@@ -155,7 +155,7 @@ public:
 		Shipyard
 	----------------------------------------------------*/
 
-	void ShipyardOrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier);
+	bool ShipyardOrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier);
 
 	void CancelShipyardOrder(int32 OrderIndex);
 
@@ -165,11 +165,11 @@ public:
 
 	FText GetNextShipyardOrderStatus();
 
-	void StartShipyardProduction();
+	void UpdateShipyardProduction();
 
 	bool CanOrder(const FFlareSpacecraftDescription* ShipDescription, UFlareCompany* OrderCompany);
 
-	const FFlareProductionData* GetCycleDataForShipClass(FName ShipIdentifier);
+	const FFlareProductionData& GetCycleDataForShipClass(FName ShipIdentifier);
 
 	int32 GetShipProductionTime(FName ShipIdentifier);
 

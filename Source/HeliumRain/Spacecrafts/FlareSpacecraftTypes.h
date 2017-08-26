@@ -322,15 +322,15 @@ struct FFlareShipyardOrderSave
 	GENERATED_USTRUCT_BODY()
 	/** Order ship class for shipyards */
 	UPROPERTY(EditAnywhere, Category = Save)
-	FName OrderShipClass;
+	FName ShipClass;
 
 	/** Order ship company owner */
 	UPROPERTY(EditAnywhere, Category = Save)
-	FName OrderShipCompany;
+	FName Company;
 
 	/** Order advance payment */
 	UPROPERTY(EditAnywhere, Category = Save)
-	int32 OrderShipAdvancePayment;
+	int32 AdvancePayment;
 };
 
 /** Spacecraft factory save data */
@@ -512,6 +512,9 @@ struct FFlareSpacecraftSave
 	
 	/** Is a in sector reserve */
 	bool IsReserve;
+
+	/** Allow other company to order ships */
+	bool AllowExternalOrder;
 };
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */

@@ -414,7 +414,7 @@ void UFlareFactory::CancelProduction()
 	{
 		// Wait next ship order
 		FactoryData.Active = false;
-		Parent->StartShipyardProduction();
+		Parent->UpdateShipyardProduction();
 	}
 }
 

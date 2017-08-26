@@ -702,8 +702,8 @@ void SFlareShipMenu::UpdateShipyardList()
 		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
 		for (FFlareShipyardOrderSave& Order : TargetSpacecraft->GetOngoingProductionList())
 		{
-			FFlareSpacecraftDescription* OrderDescription = SpacecraftCatalog->Get(Order.OrderShipClass);
-			UFlareCompany* OrderCompany = MenuManager->GetGame()->GetGameWorld()->FindCompany(Order.OrderShipCompany);
+			FFlareSpacecraftDescription* OrderDescription = SpacecraftCatalog->Get(Order.ShipClass);
+			UFlareCompany* OrderCompany = MenuManager->GetGame()->GetGameWorld()->FindCompany(Order.Company);
 
 			ShipyardList->AddSlot()
 			.AutoHeight()
@@ -730,8 +730,8 @@ void SFlareShipMenu::UpdateShipyardList()
 		Index = 0;
 		for (FFlareShipyardOrderSave& Order : TargetSpacecraft->GetShipyardOrderQueue())
 		{
-			FFlareSpacecraftDescription* OrderDescription = SpacecraftCatalog->Get(Order.OrderShipClass);
-			UFlareCompany* OrderCompany = MenuManager->GetGame()->GetGameWorld()->FindCompany(Order.OrderShipCompany);
+			FFlareSpacecraftDescription* OrderDescription = SpacecraftCatalog->Get(Order.ShipClass);
+			UFlareCompany* OrderCompany = MenuManager->GetGame()->GetGameWorld()->FindCompany(Order.Company);
 
 			ShipyardList->AddSlot()
 			.AutoHeight()
@@ -786,7 +786,7 @@ bool SFlareShipMenu::IsShipSelectorDisabled() const
 	{
 		for (FFlareShipyardOrderSave& Order : TargetSpacecraft->GetShipyardOrderQueue())
 		{
-			if (Order.OrderShipCompany == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+			if (Order.Company == MenuManager->GetPC()->GetCompany()->GetIdentifier())
 			{
 				return true;
 			}
@@ -802,7 +802,7 @@ EVisibility SFlareShipMenu::GetCancelShipOrderVisibility(int32 Index) const
 	{
 		FFlareShipyardOrderSave& Order = TargetSpacecraft->GetShipyardOrderQueue()[Index];
 
-		if (Order.OrderShipCompany == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+		if (Order.Company == MenuManager->GetPC()->GetCompany()->GetIdentifier())
 		{
 			return EVisibility::Visible;
 		}

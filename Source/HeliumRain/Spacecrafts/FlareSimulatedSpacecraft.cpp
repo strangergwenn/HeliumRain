@@ -937,6 +937,163 @@ bool UFlareSimulatedSpacecraft::IsShipyard()
 	return GetFactories().Num() && GetFactories()[0]->IsShipyard();
 }
 
+
+bool UFlareSimulatedSpacecraft::ShipyardOrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier)
+{
+	FFlareSpacecraftDescription* ShipDescription = GetGame()->GetSpacecraftCatalog()->Get(ShipIdentifier);
+
+	if (!ShipDescription || !CanOrder(ShipDescription, OrderCompany))
+	{
+		return false;
+	}
+
+	uint32 ShipPrice = 0;
+
+	if(GetCompany() != OrderCompany)
+	{
+		ShipPrice = UFlareGameTools::ComputeSpacecraftPrice(ShipIdentifier, GetCurrentSector(), true);
+		if(!OrderCompany->TakeMoney(ShipPrice))
+		{
+			// Not enough money
+			return false;
+		}
+	}
+
+	FFlareShipyardOrderSave newOrder;
+	newOrder.ShipClass = ShipIdentifier;
+	newOrder.Company = OrderCompany->GetIdentifier();
+	newOrder.AdvancePayment = ShipPrice;
+
+	ShipyardOrderQueue.Add(newOrder);
+
+	UpdateShipyardProduction();
+
+	if (OrderCompany == Game->GetPC()->GetCompany())
+	{
+		FFlareSpacecraftDescription* Desc = Game->GetSpacecraftCatalog()->Get(ShipIdentifier);
+
+		int32 Size = 0;
+		if (Desc)
+		{
+			Size = Desc->Size;
+		}
+
+		int32 Military = 0;
+		if(Desc && (Desc->WeaponGroups.Num()  > 0 || Desc->TurretSlots.Num()  > 0 ))
+		{
+			Military = 1;
+		}
+
+		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("order-ship").PutInt32("size", Size).PutInt32("military", Military));
+
+		GetCompany()->GivePlayerReputation(ShipPrice / 100000);
+	}
+
+	return true;
+}
+
+void UFlareSimulatedSpacecraft::CancelShipyardOrder(int32 OrderIndex)
+{
+	if(OrderIndex < 0 || OrderIndex > ShipyardOrderQueue.Num())
+	{
+		return;
+	}
+
+	FFlareShipyardOrderSave Order = ShipyardOrderQueue[OrderIndex];
+
+	UFlareCompany* Company = GetGame()->GetGameWorld()->FindCompany(Order.Company);
+	Company->GiveMoney(Order.AdvancePayment);
+
+
+	if(Order.Company == Game->GetPC()->GetCompany()->GetIdentifier())
+	{
+		GetCompany()->GivePlayerReputation(-Order.AdvancePayment / 100000);
+	}
+
+	ShipyardOrderQueue.RemoveAt(OrderIndex);
+
+	UpdateShipyardProduction();
+}
+
+TArray<FFlareShipyardOrderSave> UFlareSimulatedSpacecraft::GetShipyardOrderQueue()
+{
+	return ShipyardOrderQueue;
+}
+
+TArray<FFlareShipyardOrderSave> UFlareSimulatedSpacecraft::GetOngoingProductionList()
+{
+	TArray<FFlareShipyardOrderSave> productionList;
+
+	for (UFlareFactory* Factory : Factories)
+	{
+		if (Factory->IsShipyard() && Factory->GetTargetShipClass() != NAME_None)
+		{
+			FFlareShipyardOrderSave production;
+			production.ShipClass = Factory->GetTargetShipClass();
+			production.Company = Factory->GetTargetShipCompany();
+
+			productionList.Add(production);
+		}
+	}
+	return productionList;
+}
+
+FText UFlareSimulatedSpacecraft::GetNextShipyardOrderStatus()
+{
+	return FText(LOCTEXT("TODO", "TODO"));
+}
+
+void UFlareSimulatedSpacecraft::UpdateShipyardProduction()
+{
+	// TODO
+}
+
+bool UFlareSimulatedSpacecraft::CanOrder(const FFlareSpacecraftDescription* ShipDescription, UFlareCompany* OrderCompany)
+{
+	if(!IsShipyard())
+	{
+		return false;
+	}
+
+	if(GetCompany()->GetWarState(OrderCompany) == EFlareHostility::Hostile)
+	{
+		// Not possible to buy ship to hostile company
+		return false;
+	}
+	return true;
+}
+
+const FFlareProductionData& UFlareSimulatedSpacecraft::GetCycleDataForShipClass(FName ShipIdentifier)
+{
+	return GetGame()->GetSpacecraftCatalog()->Get(ShipIdentifier)->CycleCost;
+}
+
+int32 UFlareSimulatedSpacecraft::GetShipProductionTime(FName ShipIdentifier)
+{
+	return GetCycleDataForShipClass(ShipIdentifier).ProductionTime;
+}
+
+int32 UFlareSimulatedSpacecraft::GetEstimatedQueueAndProductionDuration(EFlarePartSize::Type Size)
+{
+	// TODO
+	return 12;
+}
+
+FText UFlareSimulatedSpacecraft::GetShipCost(FName ShipIdentifier)
+{
+	return FText(LOCTEXT("TODO", "TODO"));
+}
+
+bool UFlareSimulatedSpacecraft::IsAllowExternalOrder()
+{
+	return SpacecraftData.AllowExternalOrder;
+}
+
+void UFlareSimulatedSpacecraft::SetAllowExternalOrder(bool Allow)
+{
+	SpacecraftData.AllowExternalOrder = Allow;
+}
+
 int64 UFlareSimulatedSpacecraft::GetUpgradeCost(FFlareSpacecraftComponentDescription* NewPart, FFlareSpacecraftComponentDescription* OldPart)
 {
 	return NewPart->Cost - OldPart->Cost;

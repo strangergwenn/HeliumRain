@@ -243,6 +243,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	ShipData.RepairStock = 0;
 	ShipData.RefillStock = 0;
 	ShipData.IsReserve = false;
+	ShipData.AllowExternalOrder = true;
 	ShipData.Level = 1;
 	ShipData.HarpoonCompany = NAME_None;
 	ShipData.DynamicComponentStateIdentifier = FName("idle");
