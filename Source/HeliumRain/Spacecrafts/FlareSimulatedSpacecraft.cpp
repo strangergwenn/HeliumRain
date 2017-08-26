@@ -1092,7 +1092,51 @@ UFlareFactory* UFlareSimulatedSpacecraft::GetCompatibleIdleShipyardFactory(FName
 
 void UFlareSimulatedSpacecraft::UpdateShipyardProduction()
 {
-	// TODO
+	TArray<int32> IndexToRemove;
+
+	int32 Index = 0;
+	for (FFlareShipyardOrderSave& Order : SpacecraftData.ShipyardOrderQueue)
+	{
+		FLOGV("Order %s for %s", *Order.ShipClass.ToString(), *Order.Company.ToString())
+
+		bool MissingResource = false;
+		const FFlareProductionData& ProductionData = GetCycleDataForShipClass(Order.ShipClass);
+
+		for (const FFlareFactoryResource& InputResource : ProductionData.InputResources)
+		{
+			if(InputResource.Quantity > GetCargoBay()->GetResourceQuantity(&InputResource.Resource->Data, GetCompany()))
+			{
+				// Missing resources, stop all
+				MissingResource = true;
+				break;
+			}
+		}
+
+		if(MissingResource)
+		{
+			FLOG("- Missing resource");
+			break;
+		}
+
+		UFlareFactory* Factory = GetCompatibleIdleShipyardFactory(Order.ShipClass);
+
+		if(Factory)
+		{
+			FLOG("- Start");
+			Factory->StartShipBuilding(Order);
+			IndexToRemove.Add(Index);
+		}
+		else
+		{
+			FLOG("- No factory");
+		}
+		Index++;
+	}
+
+	for (int i = IndexToRemove.Num()-1 ; i >= 0; --i)
+	{
+		SpacecraftData.ShipyardOrderQueue.RemoveAt(IndexToRemove[i]);
+	}
 }
 
 bool UFlareSimulatedSpacecraft::CanOrder(const FFlareSpacecraftDescription* ShipDescription, UFlareCompany* OrderCompany)

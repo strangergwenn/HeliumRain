@@ -87,6 +87,7 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 		if (Spacecraft->IsStation())
 		{
 			SectorStations.Add(Spacecraft);
+			Spacecraft->UpdateShipyardProduction();
 		}
 		else
 		{

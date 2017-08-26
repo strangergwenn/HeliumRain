@@ -645,6 +645,7 @@ void UFlareWorld::Simulate()
 		Factories[FactoryIndex]->Simulate();
 	}
 
+
 	// Peoples
 	FLOG("* Simulate > Peoples");
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)

@@ -146,6 +146,20 @@ void UFlareFactory::Start()
 	FactoryData.Active = true;
 }
 
+void UFlareFactory::StartShipBuilding(FFlareShipyardOrderSave& Order)
+{
+	if (FactoryData.TargetShipCompany == NAME_None && Order.Company != NAME_None)
+	{
+		FactoryData.TargetShipClass = Order.ShipClass;
+		FactoryData.TargetShipCompany = Order.Company;
+		FactoryData.ProductedDuration = 0;
+
+		Parent->GetCompany()->GiveMoney(Order.AdvancePayment);
+	}
+	Start();
+	TryBeginProduction();
+}
+
 void UFlareFactory::Pause()
 {
 	FactoryData.Active = false;

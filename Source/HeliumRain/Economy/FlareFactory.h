@@ -37,6 +37,8 @@ public:
 
 	void Start();
 
+	void StartShipBuilding(FFlareShipyardOrderSave& Order);
+
 	void Pause();
 
 	void Stop();
