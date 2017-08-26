@@ -123,7 +123,7 @@ protected:
 	bool IsShipSelectorDisabled() const;
 
 	/** Visibility of the cancel ship button */
-	EVisibility GetCancelShipOrderVisibility() const;
+	EVisibility GetCancelShipOrderVisibility(int32 Index) const;
 
 	/** Order a spacecraft */
 	void OnOpenSpacecraftOrder(bool IsHeavy);

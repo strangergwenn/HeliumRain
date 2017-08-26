@@ -684,9 +684,71 @@ void SFlareShipMenu::UpdateShipyardList()
 			]
 		];
 
-		// Iterate on production list
+		// Currently building
+		int32 Index = 0;
+		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
+		for (FFlareShipyardOrderSave& Order : TargetSpacecraft->GetOngoingProductionList())
+		{
+			ShipyardList->AddSlot()
+			.AutoHeight()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SHorizontalBox)
 
-		// TODO
+				// Status
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(FText::Format(LOCTEXT("ShipInProductionFormat", "In production : {0} for {1}"),
+						Order->TargetDescription->Name,
+						Order->OrderCompany->GetCompanyName()))
+				]
+			];
+
+			Index++;
+		}
+
+		// Iterate on production queue
+		Index = 0;
+		for (FFlareShipyardOrderSave& Order : TargetSpacecraft->GetShipyardOrderQueue())
+		{
+			FFlareSpacecraftDescription* OrderDescription = SpacecraftCatalog->Get(Order.OrderShipClass);
+			UFlareCompany* OrderCompany = MenuManager->GetGame()->GetGameWorld()->FindCompany(Order.OrderShipCompany);
+
+			ShipyardList->AddSlot()
+			.AutoHeight()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SHorizontalBox)
+
+				// Status
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(FText::Format(LOCTEXT("ShipInQueueFormat", "In queue : {0} for {1}"), 
+						OrderDescription->Name,
+						OrderCompany->GetCompanyName()))
+				]
+
+				// Cancel
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareButton)
+					.Width(5)
+					.Text(LOCTEXT("CancelShip", "Cancel"))
+					.HelpText(LOCTEXT("CancelShipInfo", "Remove this ship order from the production queue"))
+					.OnClicked(this, &SFlareShipMenu::OnCancelSpacecraftOrder, Index)
+					.IsDisabled(this, &SFlareShipMenu::GetCancelShipOrderVisibility, Index)
+				]
+			];
+
+			Index++;
+		}
 	}
 }
 
@@ -699,84 +761,33 @@ EVisibility SFlareShipMenu::GetShipyardVisibility() const
 
 	return EVisibility::Collapsed;
 }
-//
-//FText SFlareShipMenu::GetTargetShipClassText() const
-//{
-//	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
-//	{
-//		FName TargetShipClass = TargetFactory->GetTargetShipClass();
-//		FName OrderShipClass = TargetFactory->GetOrderShipClass();
-//
-//		// Currently building a ship
-//		if (TargetShipClass != NAME_None)
-//		{
-//			// It's one of ours
-//			if (TargetFactory->GetTargetShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
-//			{
-//				FFlareSpacecraftDescription* TargetShipDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetShipClass);
-//				return FText::Format(LOCTEXT("CurrentShipFormat", "Building {0}"), TargetShipDesc->Name);
-//			}
-//
-//			// Other company already building here
-//			else
-//			{
-//				// Already a queue
-//				if (OrderShipClass != NAME_None)
-//				{
-//					FFlareSpacecraftDescription* OrderShipDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(OrderShipClass);
-//					return FText::Format(LOCTEXT("QueuedShipFormat", "Queued order for {0} (Change)"), OrderShipDesc->Name);
-//				}
-//
-//				// New queue
-//				else
-//				{
-//					return LOCTEXT("QueueOrderNewShip", "Queue order for a new ship");
-//				}
-//			}
-//		}
-//
-//		// Idle factory
-//		else
-//		{
-//			return LOCTEXT("OrderNewShip", "Build a new ship");
-//		}
-//	}
-//	else
-//	{
-//		return FText();
-//	}
-//}
 
 bool SFlareShipMenu::IsShipSelectorDisabled() const
 {
 	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
 	{
-		// TODO
-		return false;
+		for (FFlareShipyardOrderSave& Order : TargetSpacecraft->GetShipyardOrderQueue())
+		{
+			if (Order.OrderShipCompany == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+			{
+				return true;
+			}
+		}
 	}
 
 	return false;
 }
 
-EVisibility SFlareShipMenu::GetCancelShipOrderVisibility() const
+EVisibility SFlareShipMenu::GetCancelShipOrderVisibility(int32 Index) const
 {
 	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
 	{
-		/*if (TargetFactory->GetTargetShipClass() != NAME_None && TargetFactory->GetTargetShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
-		{
-			return EVisibility::Visible;
-		}
-		else if (TargetFactory->GetOrderShipClass() != NAME_None)
-		{
-			return EVisibility::Visible;
-		}
-		else
-		{
-			return EVisibility::Collapsed;
-		}*/
+		FFlareShipyardOrderSave& Order = TargetSpacecraft->GetShipyardOrderQueue()[Index];
 
-		// TODO
-		return EVisibility::Visible;
+		if (Order.OrderShipCompany == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+		{
+			return EVisibility::Visible;
+		}
 	}
 	else
 	{
