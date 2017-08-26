@@ -1196,7 +1196,31 @@ int32 UFlareSimulatedSpacecraft::GetEstimatedQueueAndProductionDuration(EFlarePa
 
 FText UFlareSimulatedSpacecraft::GetShipCost(FName ShipIdentifier)
 {
-	return FText(LOCTEXT("TODO", "TODO"));
+	FText ProductionCostText;
+	FText CommaTextReference = LOCTEXT("Comma", " +");
+
+	const FFlareProductionData& ProductionData = GetCycleDataForShipClass(ShipIdentifier);
+
+
+	// Cycle cost in credits
+	uint32 CycleProductionCost = ProductionData.ProductionCost;
+	if (CycleProductionCost > 0)
+	{
+		ProductionCostText = FText::Format(LOCTEXT("ShipProductionCostFormat", "{0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(CycleProductionCost)));
+	}
+
+	// Cycle cost in resources
+	for (int ResourceIndex = 0; ResourceIndex < ProductionData.InputResources.Num(); ResourceIndex++)
+	{
+		FText CommaText = ProductionCostText.IsEmpty() ? FText() : CommaTextReference;
+		const FFlareFactoryResource* FactoryResource = &ProductionData.InputResources[ResourceIndex];
+		FCHECK(FactoryResource);
+
+		ProductionCostText = FText::Format(LOCTEXT("ShipProductionResourcesFormat", "{0}{1} {2} {3}"),
+			ProductionCostText, CommaText, FText::AsNumber(FactoryResource->Quantity), FactoryResource->Resource->Data.Acronym);
+	}
+
+	return ProductionCostText;
 }
 
 bool UFlareSimulatedSpacecraft::IsAllowExternalOrder()
