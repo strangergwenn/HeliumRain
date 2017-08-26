@@ -301,6 +301,10 @@ EVisibility SFlareFactoryInfo::GetStartProductionVisibility() const
 		{
 			return EVisibility::Collapsed;
 		}
+		else if (TargetFactory->IsShipyard())
+		{
+			return EVisibility::Collapsed;
+		}
 
 		return (!TargetFactory->IsActive() ? EVisibility::Visible : EVisibility::Collapsed);
 	}
@@ -315,6 +319,10 @@ EVisibility SFlareFactoryInfo::GetStopProductionVisibility() const
 	if (TargetFactory)
 	{
 		if (TargetFactory->GetParent()->GetCompany() != MenuManager->GetPC()->GetCompany())
+		{
+			return EVisibility::Collapsed;
+		}
+		else if (TargetFactory->IsShipyard())
 		{
 			return EVisibility::Collapsed;
 		}

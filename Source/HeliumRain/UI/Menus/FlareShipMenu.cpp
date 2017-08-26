@@ -743,7 +743,7 @@ void SFlareShipMenu::UpdateShipyardList()
 					.Text(LOCTEXT("CancelShip", "Cancel"))
 					.HelpText(LOCTEXT("CancelShipInfo", "Remove this ship order from the production queue"))
 					.OnClicked(this, &SFlareShipMenu::OnCancelSpacecraftOrder, Index)
-					.IsDisabled(this, &SFlareShipMenu::GetCancelShipOrderVisibility, Index)
+					.GetVisibility(this, &SFlareShipMenu::GetCancelShipOrderVisibility, Index)
 				]
 			];
 
