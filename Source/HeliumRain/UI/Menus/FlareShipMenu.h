@@ -131,6 +131,9 @@ protected:
 	/** Cancel a spacecraft */
 	void OnCancelSpacecraftOrder(int32 Index);
 
+	/** Toggle external orders */
+	void OnToggleAllowExternalOrders();
+
 
 	/*----------------------------------------------------
 		Action callbacks
@@ -209,6 +212,7 @@ protected:
 	TSharedPtr<SVerticalBox>                        ShipyardList;
 	TSharedPtr<SVerticalBox>                        FactoryList;
 	TSharedPtr<SVerticalBox>                        UpgradeBox;
+	TSharedPtr<SFlareButton>                        AllowExternalOrdersButton;
 	
 public:
 

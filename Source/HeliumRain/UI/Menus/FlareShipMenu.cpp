@@ -92,13 +92,60 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.WrapTextAt(Theme.ContentWidth)
 				]
 
+				// Shipyard actions
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SHorizontalBox)
+					
+					// Light ship
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SFlareButton)
+						.Width(5)
+						.Text(LOCTEXT("OrderLightShip", "Order light ship"))
+						.HelpText(LOCTEXT("OrderLightShipInfo", "Pick a light ship class to build, or change the current selection"))
+						.OnClicked(this, &SFlareShipMenu::OnOpenSpacecraftOrder, false)
+						.IsDisabled(this, &SFlareShipMenu::IsShipSelectorDisabled)
+						.Visibility(this, &SFlareShipMenu::GetShipyardVisibility)
+					]
+					
+					// Light ship
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SFlareButton)
+						.Width(5)
+						.Text(LOCTEXT("OrderHeavyShip", "Order heavy ship"))
+						.HelpText(LOCTEXT("OrderHeavyShipInfo", "Pick a heavy ship class to build, or change the current selection"))
+						.OnClicked(this, &SFlareShipMenu::OnOpenSpacecraftOrder, false)
+						.IsDisabled(this, &SFlareShipMenu::IsShipSelectorDisabled)
+						.Visibility(this, &SFlareShipMenu::GetShipyardVisibility)
+					]
+					
+					// Allow external
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(AllowExternalOrdersButton, SFlareButton)
+						.Width(4)
+						.Text(LOCTEXT("AllowExternal", "Allow external orders"))
+						.HelpText(LOCTEXT("AllowExternalInfo", "Allow other companies to order ships here"))
+						.OnClicked(this, &SFlareShipMenu::OnToggleAllowExternalOrders)
+						.Visibility(this, &SFlareShipMenu::GetShipyardVisibility)
+						.Toggle(true)
+					]
+				]
+
 				// Shipyard list
 				+ SVerticalBox::Slot()
 				.AutoHeight()
 				.HAlign(HAlign_Fill)
 				[
 					SAssignNew(ShipyardList, SVerticalBox)
-					.Visibility(this, &SFlareShipMenu::GetShipyardVisibility)
 				]
 
 				// Factory list
@@ -650,40 +697,6 @@ void SFlareShipMenu::UpdateShipyardList()
 
 	if (TargetSpacecraft)
 	{
-		// Add ship building buttons
-		ShipyardList->AddSlot()
-		.AutoHeight()
-		.HAlign(HAlign_Left)
-		[
-			SNew(SHorizontalBox)
-					
-			// Light ship
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(SFlareButton)
-				.Width(5)
-				.Text(LOCTEXT("OrderLightShip", "Order light ship"))
-				.HelpText(LOCTEXT("OrderLightShipInfo", "Pick a light ship class to build, or change the current selection"))
-				.OnClicked(this, &SFlareShipMenu::OnOpenSpacecraftOrder, false)
-				.IsDisabled(this, &SFlareShipMenu::IsShipSelectorDisabled)
-			]
-					
-			// Light ship
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(SFlareButton)
-				.Width(5)
-				.Text(LOCTEXT("OrderHeavyShip", "Order heavy ship"))
-				.HelpText(LOCTEXT("OrderHeavyShipInfo", "Pick a heavy ship class to build, or change the current selection"))
-				.OnClicked(this, &SFlareShipMenu::OnOpenSpacecraftOrder, false)
-				.IsDisabled(this, &SFlareShipMenu::IsShipSelectorDisabled)
-			]
-		];
-
 		// Currently building
 		int32 Index = 0;
 		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
@@ -749,6 +762,8 @@ void SFlareShipMenu::UpdateShipyardList()
 
 			Index++;
 		}
+
+		AllowExternalOrdersButton->SetActive(TargetSpacecraft->IsAllowExternalOrder());
 	}
 }
 
@@ -808,6 +823,15 @@ void SFlareShipMenu::OnCancelSpacecraftOrder(int32 Index)
 	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
 	{
 		TargetSpacecraft->CancelShipyardOrder();
+	}
+}
+
+void SFlareShipMenu::OnToggleAllowExternalOrders()
+{
+	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
+	{
+		bool NewStatus = AllowExternalOrdersButton->IsActive();
+		TargetSpacecraft->SetAllowExternalOrder(NewStatus);
 	}
 }
 
