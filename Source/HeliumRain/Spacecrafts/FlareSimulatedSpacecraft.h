@@ -212,9 +212,6 @@ protected:
 	UPROPERTY()
 	UFlareCargoBay*                                         CargoBay;
 
-	UPROPERTY()
-	TArray<FFlareShipyardOrderSave> ShipyardOrderQueue;
-
 public:
 
     /*----------------------------------------------------

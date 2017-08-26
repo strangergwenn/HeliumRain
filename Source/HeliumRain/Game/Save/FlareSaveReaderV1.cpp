@@ -267,7 +267,7 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 	LoadInt32(Object, "ResearchSpent", &Data->ResearchSpent);
 	LoadFloat(Object, "ResearchRatio", &Data->ResearchRatio);
 	LoadFloat(Object, "Shame", &Data->Shame);
-	
+
 	const TArray<TSharedPtr<FJsonValue>>* UnlockedTechnologies;
 	if (Object->TryGetArrayField("UnlockedTechnologies", UnlockedTechnologies))
 	{
@@ -379,12 +379,16 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	LoadFName(Object, "HarpoonCompany", &Data->HarpoonCompany);
 	LoadFName(Object, "AttachActorName", &Data->AttachActorName);
 
+
 	// LEGACY alpha 3
 	Data->IsTrading = false;
 	Data->IsIntercepted = false;
 	Data->RefillStock = 0;
 	Data->RepairStock = 0;
 	Data->IsReserve = false;
+
+	// LEGACY early access
+	Data->AllowExternalOrder = false;
 
 	Object->TryGetBoolField(TEXT("IsTrading"), Data->IsTrading);
 	Object->TryGetBoolField(TEXT("IsIntercepted"), Data->IsIntercepted);
@@ -404,6 +408,7 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	}
 
 	Object->TryGetBoolField(TEXT("IsReserve"), Data->IsReserve);
+	Object->TryGetBoolField(TEXT("AllowExternalOrder"), Data->AllowExternalOrder);
 
 	LoadInt32(Object, "Level", &Data->Level);
 	if (Data->Level == 0)
@@ -463,7 +468,7 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 		for (TSharedPtr<FJsonValue> Item : *FactoryStates)
 		{
 			FFlareFactorySave ChildData;
-			LoadFactory(Item->AsObject(), &ChildData);
+			LoadFactory(Item->AsObject(), &ChildData, Data);
 			Data->FactoryStates.Add(ChildData);
 		}
 	}
@@ -605,7 +610,7 @@ void UFlareSaveReaderV1::LoadCargo(const TSharedPtr<FJsonObject> Object, FFlareC
 }
 
 
-void UFlareSaveReaderV1::LoadFactory(const TSharedPtr<FJsonObject> Object, FFlareFactorySave* Data)
+void UFlareSaveReaderV1::LoadFactory(const TSharedPtr<FJsonObject> Object, FFlareFactorySave* Data, FFlareSpacecraftSave* SpacecraftData)
 {
 	Object->TryGetBoolField(TEXT("Active"), Data->Active);
 	LoadInt32(Object, "CostReserved", (int32*) &Data->CostReserved); // TODO clean after conversion
@@ -614,6 +619,16 @@ void UFlareSaveReaderV1::LoadFactory(const TSharedPtr<FJsonObject> Object, FFlar
 	LoadInt32(Object, "CycleCount", (int32*) &Data->CycleCount); // TODO clean after conversion
 	LoadFName(Object, "TargetShipClass", &Data->TargetShipClass);
 	LoadFName(Object, "TargetShipCompany", &Data->TargetShipCompany);
+
+	// Compatibility code
+	if(Object->HasField("OrderShipClass"))
+	{
+		FFlareShipyardOrderSave OrderData;
+		LoadFName(Object, "OrderShipClass", &OrderData.ShipClass);
+		LoadFName(Object, "OrderShipCompany", &OrderData.Company);
+		LoadInt32(Object, "OrderShipAdvancePayment", &OrderData.AdvancePayment);
+		SpacecraftData->ShipyardOrderQueue.Add(OrderData);
+	}
 
 	const TArray<TSharedPtr<FJsonValue>>* ResourceReserved;
 	if(Object->TryGetArrayField("ResourceReserved", ResourceReserved))

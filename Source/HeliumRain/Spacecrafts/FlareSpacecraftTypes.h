@@ -515,6 +515,9 @@ struct FFlareSpacecraftSave
 
 	/** Allow other company to order ships */
 	bool AllowExternalOrder;
+
+	/** List of ship order */
+	TArray<FFlareShipyardOrderSave> ShipyardOrderQueue;
 };
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */

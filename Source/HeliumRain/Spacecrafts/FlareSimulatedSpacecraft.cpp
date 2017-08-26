@@ -964,7 +964,7 @@ bool UFlareSimulatedSpacecraft::ShipyardOrderShip(UFlareCompany* OrderCompany, F
 	newOrder.Company = OrderCompany->GetIdentifier();
 	newOrder.AdvancePayment = ShipPrice;
 
-	ShipyardOrderQueue.Add(newOrder);
+	SpacecraftData.ShipyardOrderQueue.Add(newOrder);
 
 	UpdateShipyardProduction();
 
@@ -994,12 +994,12 @@ bool UFlareSimulatedSpacecraft::ShipyardOrderShip(UFlareCompany* OrderCompany, F
 
 void UFlareSimulatedSpacecraft::CancelShipyardOrder(int32 OrderIndex)
 {
-	if(OrderIndex < 0 || OrderIndex > ShipyardOrderQueue.Num())
+	if(OrderIndex < 0 || OrderIndex > SpacecraftData.ShipyardOrderQueue.Num())
 	{
 		return;
 	}
 
-	FFlareShipyardOrderSave Order = ShipyardOrderQueue[OrderIndex];
+	FFlareShipyardOrderSave Order = SpacecraftData.ShipyardOrderQueue[OrderIndex];
 
 	UFlareCompany* Company = GetGame()->GetGameWorld()->FindCompany(Order.Company);
 	Company->GiveMoney(Order.AdvancePayment);
@@ -1010,14 +1010,14 @@ void UFlareSimulatedSpacecraft::CancelShipyardOrder(int32 OrderIndex)
 		GetCompany()->GivePlayerReputation(-Order.AdvancePayment / 100000);
 	}
 
-	ShipyardOrderQueue.RemoveAt(OrderIndex);
+	SpacecraftData.ShipyardOrderQueue.RemoveAt(OrderIndex);
 
 	UpdateShipyardProduction();
 }
 
 TArray<FFlareShipyardOrderSave> UFlareSimulatedSpacecraft::GetShipyardOrderQueue()
 {
-	return ShipyardOrderQueue;
+	return SpacecraftData.ShipyardOrderQueue;
 }
 
 TArray<FFlareShipyardOrderSave> UFlareSimulatedSpacecraft::GetOngoingProductionList()
