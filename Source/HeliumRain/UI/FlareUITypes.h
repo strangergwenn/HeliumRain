@@ -87,6 +87,7 @@ struct FFlareMenuParameterData
 	int32                                       ScenarioIndex;
 	int32                                       PlayerEmblemIndex;
 	bool                                        PlayTutorial;
+	bool                                        SpacecraftOrderHeavy;
 };
 
 

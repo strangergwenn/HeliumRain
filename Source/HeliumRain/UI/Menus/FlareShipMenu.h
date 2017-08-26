@@ -108,6 +108,30 @@ protected:
 	/** Generate upgrade box */
 	void UpdateUpgradeBox();
 
+
+	/*----------------------------------------------------
+		Shipyards
+	----------------------------------------------------*/
+
+	/** Add the shipyard information */
+	void UpdateShipyardList();
+
+	/** Visibility of the ship-building interface */
+	EVisibility GetShipyardVisibility() const;
+		
+	/** Visibility of the ship selector */
+	bool IsShipSelectorDisabled() const;
+
+	/** Visibility of the cancel ship button */
+	EVisibility GetCancelShipOrderVisibility() const;
+
+	/** Order a spacecraft */
+	void OnOpenSpacecraftOrder(bool IsHeavy);
+
+	/** Cancel a spacecraft */
+	void OnCancelSpacecraftOrder(int32 Index);
+
+
 	/*----------------------------------------------------
 		Action callbacks
 	----------------------------------------------------*/
@@ -182,6 +206,7 @@ protected:
 	FFlareSpacecraftComponentDescription*           CurrentEquippedPartDescription;
 
 	// Factory list
+	TSharedPtr<SVerticalBox>                        ShipyardList;
 	TSharedPtr<SVerticalBox>                        FactoryList;
 	TSharedPtr<SVerticalBox>                        UpgradeBox;
 	

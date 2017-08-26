@@ -92,6 +92,15 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.WrapTextAt(Theme.ContentWidth)
 				]
 
+				// Shipyard list
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Fill)
+				[
+					SAssignNew(ShipyardList, SVerticalBox)
+					.Visibility(this, &SFlareShipMenu::GetShipyardVisibility)
+				]
+
 				// Factory list
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -287,6 +296,9 @@ void SFlareShipMenu::Enter(UFlareSimulatedSpacecraft* Target, bool IsEditable)
 	TargetSpacecraft = Target;
 	TargetSpacecraftData = Target->Save();
 	LoadTargetSpacecraft();
+
+	// Update lists
+	UpdateShipyardList();
 	UpdateFactoryList();
 	UpdateUpgradeBox();
 
@@ -340,6 +352,7 @@ void SFlareShipMenu::Exit()
 	ShipList->Reset();
 	ShipList->SetVisibility(EVisibility::Collapsed);
 
+	ShipyardList->ClearChildren();
 	FactoryList->ClearChildren();
 	UpgradeBox->ClearChildren();
 
@@ -528,6 +541,8 @@ void SFlareShipMenu::UpdatePartList(FFlareSpacecraftComponentDescription* Select
 
 void SFlareShipMenu::UpdateFactoryList()
 {
+	FactoryList->ClearChildren();
+
 	// Iterate on all factories
 	if (TargetSpacecraft)
 	{
@@ -621,6 +636,167 @@ void SFlareShipMenu::UpdateUpgradeBox()
 			.OnClicked(this, &SFlareShipMenu::OnUpgradeStationClicked)
 			.IsDisabled(this, &SFlareShipMenu::IsUpgradeStationDisabled)
 		];
+	}
+}
+
+/*----------------------------------------------------
+	Shipyards
+----------------------------------------------------*/
+
+void SFlareShipMenu::UpdateShipyardList()
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	ShipyardList->ClearChildren();
+
+	if (TargetSpacecraft)
+	{
+		// Add ship building buttons
+		ShipyardList->AddSlot()
+		.AutoHeight()
+		.HAlign(HAlign_Left)
+		[
+			SNew(SHorizontalBox)
+					
+			// Light ship
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Width(5)
+				.Text(LOCTEXT("OrderLightShip", "Order light ship"))
+				.HelpText(LOCTEXT("OrderLightShipInfo", "Pick a light ship class to build, or change the current selection"))
+				.OnClicked(this, &SFlareShipMenu::OnOpenSpacecraftOrder, false)
+				.IsDisabled(this, &SFlareShipMenu::IsShipSelectorDisabled)
+			]
+					
+			// Light ship
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Width(5)
+				.Text(LOCTEXT("OrderHeavyShip", "Order heavy ship"))
+				.HelpText(LOCTEXT("OrderHeavyShipInfo", "Pick a heavy ship class to build, or change the current selection"))
+				.OnClicked(this, &SFlareShipMenu::OnOpenSpacecraftOrder, false)
+				.IsDisabled(this, &SFlareShipMenu::IsShipSelectorDisabled)
+			]
+		];
+
+		// Iterate on production list
+
+		// TODO
+	}
+}
+
+EVisibility SFlareShipMenu::GetShipyardVisibility() const
+{
+	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
+	{
+		return EVisibility::Visible;
+	}
+
+	return EVisibility::Collapsed;
+}
+//
+//FText SFlareShipMenu::GetTargetShipClassText() const
+//{
+//	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
+//	{
+//		FName TargetShipClass = TargetFactory->GetTargetShipClass();
+//		FName OrderShipClass = TargetFactory->GetOrderShipClass();
+//
+//		// Currently building a ship
+//		if (TargetShipClass != NAME_None)
+//		{
+//			// It's one of ours
+//			if (TargetFactory->GetTargetShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+//			{
+//				FFlareSpacecraftDescription* TargetShipDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(TargetShipClass);
+//				return FText::Format(LOCTEXT("CurrentShipFormat", "Building {0}"), TargetShipDesc->Name);
+//			}
+//
+//			// Other company already building here
+//			else
+//			{
+//				// Already a queue
+//				if (OrderShipClass != NAME_None)
+//				{
+//					FFlareSpacecraftDescription* OrderShipDesc = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(OrderShipClass);
+//					return FText::Format(LOCTEXT("QueuedShipFormat", "Queued order for {0} (Change)"), OrderShipDesc->Name);
+//				}
+//
+//				// New queue
+//				else
+//				{
+//					return LOCTEXT("QueueOrderNewShip", "Queue order for a new ship");
+//				}
+//			}
+//		}
+//
+//		// Idle factory
+//		else
+//		{
+//			return LOCTEXT("OrderNewShip", "Build a new ship");
+//		}
+//	}
+//	else
+//	{
+//		return FText();
+//	}
+//}
+
+bool SFlareShipMenu::IsShipSelectorDisabled() const
+{
+	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
+	{
+		// TODO
+		return false;
+	}
+
+	return false;
+}
+
+EVisibility SFlareShipMenu::GetCancelShipOrderVisibility() const
+{
+	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
+	{
+		/*if (TargetFactory->GetTargetShipClass() != NAME_None && TargetFactory->GetTargetShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+		{
+			return EVisibility::Visible;
+		}
+		else if (TargetFactory->GetOrderShipClass() != NAME_None)
+		{
+			return EVisibility::Visible;
+		}
+		else
+		{
+			return EVisibility::Collapsed;
+		}*/
+
+		// TODO
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
+}
+
+void SFlareShipMenu::OnOpenSpacecraftOrder(bool IsHeavy)
+{
+	FFlareMenuParameterData Data;
+	Data.Spacecraft = TargetSpacecraft;
+	Data.SpacecraftOrderHeavy = IsHeavy;
+	MenuManager->OpenSpacecraftOrder(Data, FOrderDelegate());
+}
+
+void SFlareShipMenu::OnCancelSpacecraftOrder(int32 Index)
+{
+	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
+	{
+		TargetSpacecraft->CancelShipyardOrder();
 	}
 }
 

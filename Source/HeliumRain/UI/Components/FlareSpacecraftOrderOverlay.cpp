@@ -22,7 +22,7 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 	SpacecraftList.Empty();
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	TargetFactory = NULL;
+	TargetShipyard = NULL;
 	TargetSector = NULL;
 
 	// Create the layout
@@ -140,14 +140,14 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareSpacecraftOrderOverlay::Open(UFlareFactory* Factory)
+void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSpacecraft* Shipyard, bool IsHeavy)
 {
 	SetVisibility(EVisibility::Visible);
-	TargetFactory = Factory;
+	TargetShipyard = Shipyard;
 
 	// Init buildable ship list
 	SpacecraftList.Empty();
-	if (TargetFactory && TargetFactory->IsShipyard())
+	if (TargetShipyard && TargetShipyard->IsShipyard())
 	{
 		UFlareSpacecraftCatalogEntry* SelectedEntry = NULL;
 		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
@@ -160,17 +160,10 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareFactory* Factory)
 			if (!Description->IsSubstation)
 			{
 				// Filter by spacecraft size and add
-				bool LargeFactory = TargetFactory->IsLargeShipyard();
 				bool LargeSpacecraft = Description->Size >= EFlarePartSize::L;
-				if (LargeFactory == LargeSpacecraft)
+				if (IsHeavy == LargeSpacecraft)
 				{
 					SpacecraftList.AddUnique(FInterfaceContainer::New(&Entry->Data));
-				}
-
-				// Pre-selection
-				if (Description->Identifier == TargetFactory->GetTargetShipClass())
-				{
-					SelectedEntry = Entry;
 				}
 			}
 		}
@@ -221,7 +214,7 @@ void SFlareSpacecraftOrderOverlay::Close()
 	SpacecraftSelector->ClearSelection();
 
 	ConfirmText->SetText(FText());
-	TargetFactory = NULL;
+	TargetShipyard = NULL;
 	TargetSector = NULL;
 }
 
@@ -238,16 +231,15 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 
 		if (Desc)
 		{
-			// Factory
-			if (TargetFactory)
+			// Shipyard mode
+			if (TargetShipyard)
 			{
-				UFlareSimulatedSpacecraft* Parent = TargetFactory->GetParent();
 				uint32 ShipPrice;
 
 				// Get price
-				if (Parent->GetCompany() != PlayerCompany)
+				if (TargetShipyard->GetCompany() != PlayerCompany)
 				{
-					ShipPrice = UFlareGameTools::ComputeSpacecraftPrice(Desc->Identifier, Parent->GetCurrentSector(), true);
+					ShipPrice = UFlareGameTools::ComputeSpacecraftPrice(Desc->Identifier, TargetShipyard->GetCurrentSector(), true);
 				}
 				else
 				{
@@ -264,7 +256,7 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 				}
 			}
 
-			// Sector
+			// Sector mode
 			else
 			{
 				TArray<FText> Reasons;
@@ -298,7 +290,7 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 
 FText SFlareSpacecraftOrderOverlay::GetWindowTitle() const
 {
-	if (TargetFactory)
+	if (TargetShipyard)
 	{
 		return LOCTEXT("SpacecraftOrderTitle", "Order spacecraft");
 	}
@@ -333,11 +325,11 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 	int ProductionTime;
 
 	// Factory
-	if (TargetFactory)
+	if (TargetShipyard)
 	{
-		FCHECK(TargetFactory);
-		const FFlareProductionData* CycleData = &TargetFactory->GetCycleDataForShipClass(Desc->Identifier);
-		ProductionTime = TargetFactory->GetProductionTime(*CycleData);
+		FCHECK(TargetShipyard);
+		const FFlareProductionData* CycleData = &TargetShipyard->GetCycleDataForShipClass(Desc->Identifier);
+		ProductionTime = TargetShipyard->GetProductionTime(*CycleData);
 
 		// Station
 		if (Desc->OrbitalEngineCount == 0)
@@ -365,14 +357,14 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 		}
 
 		// Production cost
-		if (MenuManager->GetPC()->GetCompany() == TargetFactory->GetParent()->GetCompany())
+		if (MenuManager->GetPC()->GetCompany() == TargetShipyard->GetCompany())
 		{
-			ProductionCost = FText::Format(LOCTEXT("FactoryProductionResourcesFormat", "\u2022 {0}"), TargetFactory->GetFactoryCycleCost(CycleData));
+			ProductionCost = FText::Format(LOCTEXT("FactoryProductionResourcesFormat", "\u2022 {0}"), TargetShipyard->GetFactoryCycleCost(CycleData));
 		}
 		else
 		{
-			ProductionTime += TargetFactory->GetRemainingProductionDuration();
-			int32 CycleProductionCost = UFlareGameTools::ComputeSpacecraftPrice(Desc->Identifier, TargetFactory->GetParent()->GetCurrentSector(), true);
+			ProductionTime += TargetShipyard->GetRemainingProductionDuration();
+			int32 CycleProductionCost = UFlareGameTools::ComputeSpacecraftPrice(Desc->Identifier, TargetShipyard->GetCurrentSector(), true);
 			ProductionCost = FText::Format(LOCTEXT("FactoryProductionCostFormat", "\u2022 {0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(CycleProductionCost)));
 		}
 	}
@@ -600,24 +592,9 @@ void SFlareSpacecraftOrderOverlay::OnConfirmed()
 			FLOGV("SFlareSpacecraftOrderOverlay::OnConfirmed : picked '%s'", *Desc->Identifier.ToString());
 
 			// Factory
-			if (TargetFactory)
+			if (TargetShipyard)
 			{
-				if (TargetFactory->GetTargetShipCompany() == MenuManager->GetPC()->GetCompany()->GetIdentifier())
-				{
-					// Player ship building
-					if (TargetFactory->GetTargetShipClass() != Desc->Identifier)
-					{
-						// Replace it
-						TargetFactory->Stop();
-						TargetFactory->OrderShip(MenuManager->GetPC()->GetCompany(), Desc->Identifier);
-						TargetFactory->Start();
-					}
-				}
-				else
-				{
-					TargetFactory->OrderShip(MenuManager->GetPC()->GetCompany(), Desc->Identifier);
-					TargetFactory->Start();
-				}
+				TargetShipyard->ShipyardOrderShip(MenuManager->GetPC()->GetCompany(), Desc->Identifier);
 			}
 
 			// Sector

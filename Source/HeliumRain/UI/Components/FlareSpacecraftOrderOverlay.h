@@ -40,8 +40,8 @@ public:
 		Interaction
 	----------------------------------------------------*/
 
-	/** Show the overlay for a factory */
-	void Open(UFlareFactory* Factory);
+	/** Show the overlay for a shipyard */
+	void Open(UFlareSimulatedSpacecraft* Shipyard, bool IsHeavy);
 	
 	/** Show the overlay for a sector */
 	void Open(UFlareSimulatedSector* Sector, FOrderDelegate ConfirmationCallback);
@@ -99,7 +99,7 @@ protected:
 	FOrderDelegate                                            OnConfirmedCB;
 
 	// Spacecraft building
-	UFlareFactory*                                            TargetFactory;
+	UFlareSimulatedSpacecraft*                                TargetShipyard;
 	UFlareSimulatedSector*                                    TargetSector;
 	TArray<TSharedPtr<FInterfaceContainer>>                   SpacecraftList;
 	TSharedPtr<SListView<TSharedPtr<FInterfaceContainer>>>    SpacecraftSelector;

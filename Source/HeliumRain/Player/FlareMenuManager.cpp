@@ -306,9 +306,9 @@ void AFlareMenuManager::CloseMenu(bool HardClose)
 void AFlareMenuManager::OpenSpacecraftOrder(FFlareMenuParameterData Data, FOrderDelegate ConfirmationCallback)
 {
 	FLOG("AFlareMenuManager::OpenSpacecraftOrder");
-	if (Data.Factory)
+	if (Data.Spacecraft)
 	{
-		SpacecraftOrder->Open(Data.Factory);
+		SpacecraftOrder->Open(Data.Spacecraft, Data.SpacecraftOrderHeavy);
 	}
 	else if (Data.Sector)
 	{
