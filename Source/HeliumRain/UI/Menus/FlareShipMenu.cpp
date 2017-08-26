@@ -742,9 +742,6 @@ void SFlareShipMenu::UpdateShipyardList()
 		Index = 0;
 		for (FFlareShipyardOrderSave& Order : TargetSpacecraft->GetShipyardOrderQueue())
 		{
-			FFlareSpacecraftDescription* OrderDescription = SpacecraftCatalog->Get(Order.ShipClass);
-			UFlareCompany* OrderCompany = MenuManager->GetGame()->GetGameWorld()->FindCompany(Order.Company);
-
 			ShipyardList->AddSlot()
 			.AutoHeight()
 			.HAlign(HAlign_Left)
@@ -761,9 +758,7 @@ void SFlareShipMenu::UpdateShipyardList()
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
-						.Text(FText::Format(LOCTEXT("ShipInQueueFormat", "\u2022 In queue : {0} for {1}"), 
-							OrderDescription->Name,
-							OrderCompany->GetCompanyName()))
+						.Text(this, &SFlareShipMenu::GetShipOrderStatus, Index)
 					]
 				]
 
@@ -818,7 +813,7 @@ bool SFlareShipMenu::IsShipSelectorDisabled() const
 
 EVisibility SFlareShipMenu::GetCancelShipOrderVisibility(int32 Index) const
 {
-	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
+	if (TargetSpacecraft && TargetSpacecraft->IsShipyard() && Index < TargetSpacecraft->GetShipyardOrderQueue().Num())
 	{
 		FFlareShipyardOrderSave& Order = TargetSpacecraft->GetShipyardOrderQueue()[Index];
 
@@ -855,6 +850,44 @@ FText SFlareShipMenu::GetHeavyShipTextInfo() const
 	}
 }
 
+
+FText SFlareShipMenu::GetShipOrderStatus(int32 Index) const
+{
+	FText Reason;
+
+	if(Index >= TargetSpacecraft->GetShipyardOrderQueue().Num())
+	{
+		return FText();
+	}
+
+
+	if (TargetSpacecraft && TargetSpacecraft->IsShipyard() && Index == 0)
+	{
+		FText Status= TargetSpacecraft->GetNextShipyardOrderStatus();
+
+		Reason = FText::Format(LOCTEXT("ShipOrderStatusFormat", "\n({0})"), Status);
+	}
+
+
+	UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
+	FFlareShipyardOrderSave& Order = TargetSpacecraft->GetShipyardOrderQueue()[Index];
+
+	FFlareSpacecraftDescription* OrderDescription = SpacecraftCatalog->Get(Order.ShipClass);
+	UFlareCompany* OrderCompany = MenuManager->GetGame()->GetGameWorld()->FindCompany(Order.Company);
+
+	if(!OrderDescription)
+	{
+		return FText();
+	}
+
+
+	return FText::Format(LOCTEXT("ShipInQueueFormat", "\u2022 In queue : {0} for {1}{2}"),
+							OrderDescription->Name,
+							OrderCompany->GetCompanyName(),
+							Reason);
+
+}
+
 void SFlareShipMenu::OnOpenSpacecraftOrder(bool IsHeavy)
 {
 	FFlareMenuParameterData Data;
@@ -868,6 +901,7 @@ void SFlareShipMenu::OnCancelSpacecraftOrder(int32 Index)
 	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
 	{
 		TargetSpacecraft->CancelShipyardOrder(Index);
+		UpdateShipyard();
 	}
 }
 

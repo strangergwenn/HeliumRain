@@ -89,6 +89,9 @@ protected:
 	/** Get the text for heavy ship order */
 	FText GetHeavyShipTextInfo() const;
 
+	/** Get the status text for next order */
+	FText GetShipOrderStatus(int32 Index) const;
+
 	/** Order a spacecraft */
 	void OnOpenSpacecraftOrder(bool IsHeavy);
 

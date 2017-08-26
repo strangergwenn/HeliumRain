@@ -237,9 +237,9 @@ bool UFlareFactory::HasCostReserved()
 
 bool UFlareFactory::HasInputMoney()
 {
-	bool AllowDepts = !IsShipyard()
-			|| (GetTargetShipCompany() != NAME_None && GetTargetShipCompany() != Parent->GetCompany()->GetIdentifier());
-
+	/*bool AllowDepts = !IsShipyard()
+			|| (GetTargetShipCompany() != NAME_None && GetTargetShipCompany() != Parent->GetCompany()->GetIdentifier());*/
+	bool AllowDepts = true;
 
 	if(AllowDepts)
 	{

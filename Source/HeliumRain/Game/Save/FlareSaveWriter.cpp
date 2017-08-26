@@ -321,6 +321,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	SaveFloat(JsonObject,"RefillStock", Data->RefillStock);
 	SaveFloat(JsonObject,"RepairStock", Data->RepairStock);
 	JsonObject->SetBoolField("IsReserve", Data->IsReserve);
+	JsonObject->SetBoolField("AllowExternalOrder", Data->AllowExternalOrder);
 	JsonObject->SetObjectField("Pilot", SavePilot(&Data->Pilot));
 	JsonObject->SetObjectField("Asteroid", SaveAsteroid(&Data->AsteroidData));
 	JsonObject->SetStringField("HarpoonCompany", Data->HarpoonCompany.ToString());
@@ -354,6 +355,12 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	}
 	JsonObject->SetArrayField("FactoryStates", FactoryStates);
 
+	TArray< TSharedPtr<FJsonValue> > ShipyardOrderQueue;
+	for(int i = 0; i < Data->ShipyardOrderQueue.Num(); i++)
+	{
+		ShipyardOrderQueue.Add(MakeShareable(new FJsonValueObject(SaveShipyardOrderQueue(&Data->ShipyardOrderQueue[i]))));
+	}
+	JsonObject->SetArrayField("ShipyardOrderQueue", ShipyardOrderQueue);
 
 	TArray< TSharedPtr<FJsonValue> > SalesExcludedResources;
 	for(int i = 0; i < Data->SalesExcludedResources.Num(); i++)
@@ -498,6 +505,18 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCargo(FFlareCargoSave* Data)
 	JsonObject->SetStringField("Quantity", FormatInt32(Data->Quantity));
 	JsonObject->SetStringField("Lock", FormatEnum<EFlareResourceLock::Type>("EFlareResourceLock",Data->Lock));
 	JsonObject->SetStringField("Restriction", FormatEnum<EFlareResourceRestriction::Type>("EFlareResourceRestriction",Data->Restriction));
+
+	return JsonObject;
+}
+
+
+TSharedRef<FJsonObject> UFlareSaveWriter::SaveShipyardOrderQueue(FFlareShipyardOrderSave* Data)
+{
+	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+
+	JsonObject->SetStringField("Company", Data->Company.ToString());
+	JsonObject->SetStringField("ShipClass", Data->ShipClass.ToString());
+	JsonObject->SetStringField("AdvancePayment", FormatInt32(Data->AdvancePayment));
 
 	return JsonObject;
 }

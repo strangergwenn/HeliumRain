@@ -159,11 +159,13 @@ public:
 
 	void CancelShipyardOrder(int32 OrderIndex);
 
-	TArray<FFlareShipyardOrderSave> GetShipyardOrderQueue();
+	TArray<FFlareShipyardOrderSave>& GetShipyardOrderQueue();
 
 	TArray<FFlareShipyardOrderSave> GetOngoingProductionList();
 
 	FText GetNextShipyardOrderStatus();
+
+	UFlareFactory* GetCompatibleIdleShipyardFactory(FName ShipIdentifier);
 
 	void UpdateShipyardProduction();
 

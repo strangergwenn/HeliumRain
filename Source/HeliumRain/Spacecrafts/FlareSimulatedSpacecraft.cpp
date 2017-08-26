@@ -1015,7 +1015,7 @@ void UFlareSimulatedSpacecraft::CancelShipyardOrder(int32 OrderIndex)
 	UpdateShipyardProduction();
 }
 
-TArray<FFlareShipyardOrderSave> UFlareSimulatedSpacecraft::GetShipyardOrderQueue()
+TArray<FFlareShipyardOrderSave>& UFlareSimulatedSpacecraft::GetShipyardOrderQueue()
 {
 	return SpacecraftData.ShipyardOrderQueue;
 }
@@ -1040,7 +1040,54 @@ TArray<FFlareShipyardOrderSave> UFlareSimulatedSpacecraft::GetOngoingProductionL
 
 FText UFlareSimulatedSpacecraft::GetNextShipyardOrderStatus()
 {
-	return FText(LOCTEXT("TODO", "TODO"));
+	if(SpacecraftData.ShipyardOrderQueue.Num() == 0)
+	{
+		return FText(LOCTEXT("NextShipyardOrderStatusNone", "No ship order"));
+	}
+
+	FFlareShipyardOrderSave& NextOrder = SpacecraftData.ShipyardOrderQueue[0];
+
+	UFlareFactory* Factory = GetCompatibleIdleShipyardFactory(NextOrder.ShipClass);
+
+	if(!Factory)
+	{
+		return FText(LOCTEXT("NextShipyardOrderStatusWaitFactory", "Waiting for an available production line"));
+	}
+
+	const FFlareProductionData& ProductionData = GetCycleDataForShipClass(NextOrder.ShipClass);
+
+	FText MissingResources;
+
+	for(const FFlareFactoryResource& InputResource : ProductionData.InputResources)
+	{
+		if(InputResource.Quantity > GetCargoBay()->GetResourceQuantity(&InputResource.Resource->Data, GetCompany()))
+		{
+			// Not enought resource
+			MissingResources = FText::Format(LOCTEXT("NextShipyardOrderStatusMissingResource", "{0}{1}"),
+			MissingResources.IsEmpty() ? FText() : LOCTEXT("NextShipyardOrderStatusMissingResourceSeparator", ","),
+			InputResource.Resource->Data.Name);
+		}
+	}
+
+	return FText::Format(LOCTEXT("NextShipyardOrderStatusWaitResources", "Waiting for resources ()"), MissingResources);
+}
+
+UFlareFactory* UFlareSimulatedSpacecraft::GetCompatibleIdleShipyardFactory(FName ShipIdentifier)
+{
+	FFlareSpacecraftDescription* Desc = GetGame()->GetSpacecraftCatalog()->Get(ShipIdentifier);
+
+	for (UFlareFactory* Factory : Factories)
+	{
+		if((Factory->IsSmallShipyard() && Desc->Size == EFlarePartSize::S) ||
+			(Factory->IsLargeShipyard() && Desc->Size == EFlarePartSize::L))
+		{
+			if(!Factory->IsActive())
+			{
+				return Factory;
+			}
+		}
+	}
+	return nullptr;
 }
 
 void UFlareSimulatedSpacecraft::UpdateShipyardProduction()
@@ -1060,6 +1107,30 @@ bool UFlareSimulatedSpacecraft::CanOrder(const FFlareSpacecraftDescription* Ship
 		// Not possible to buy ship to hostile company
 		return false;
 	}
+
+	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+
+	if(OrderCompany == PlayerCompany)
+	{
+		for (FFlareShipyardOrderSave& Order : SpacecraftData.ShipyardOrderQueue)
+		{
+			if (Order.Company == PlayerCompany->GetIdentifier())
+			{
+				return false;
+			}
+		}
+	}
+	else
+	{
+		if(SpacecraftData.ShipyardOrderQueue.Num() > 0)
+		{
+			if(SpacecraftData.ShipyardOrderQueue[SpacecraftData.ShipyardOrderQueue.Num()-1].Company != PlayerCompany->GetIdentifier())
+			{
+				return false;
+			}
+		}
+	}
+
 	return true;
 }
 

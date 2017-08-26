@@ -388,7 +388,7 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	Data->IsReserve = false;
 
 	// LEGACY early access
-	Data->AllowExternalOrder = false;
+	Data->AllowExternalOrder = true;
 
 	Object->TryGetBoolField(TEXT("IsTrading"), Data->IsTrading);
 	Object->TryGetBoolField(TEXT("IsIntercepted"), Data->IsIntercepted);
@@ -470,6 +470,17 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 			FFlareFactorySave ChildData;
 			LoadFactory(Item->AsObject(), &ChildData, Data);
 			Data->FactoryStates.Add(ChildData);
+		}
+	}
+
+	const TArray<TSharedPtr<FJsonValue>>* ShipyardOrderQueue;
+	if(Object->TryGetArrayField("ShipyardOrderQueue", ShipyardOrderQueue))
+	{
+		for (TSharedPtr<FJsonValue> Item : *ShipyardOrderQueue)
+		{
+			FFlareShipyardOrderSave ChildData;
+			LoadShipyardOrder(Item->AsObject(), &ChildData);
+			Data->ShipyardOrderQueue.Add(ChildData);
 		}
 	}
 
@@ -609,6 +620,12 @@ void UFlareSaveReaderV1::LoadCargo(const TSharedPtr<FJsonObject> Object, FFlareC
 	Data->Restriction = LoadEnum<EFlareResourceRestriction::Type>(Object, "Restriction", "EFlareResourceRestriction");
 }
 
+void UFlareSaveReaderV1::LoadShipyardOrder(const TSharedPtr<FJsonObject> Object, FFlareShipyardOrderSave* Data)
+{
+	LoadFName(Object, "ShipClass", &Data->ShipClass);
+	LoadFName(Object, "Company", &Data->Company);
+	LoadInt32(Object, "AdvancePayment", &Data->AdvancePayment);
+}
 
 void UFlareSaveReaderV1::LoadFactory(const TSharedPtr<FJsonObject> Object, FFlareFactorySave* Data, FFlareSpacecraftSave* SpacecraftData)
 {
@@ -627,7 +644,15 @@ void UFlareSaveReaderV1::LoadFactory(const TSharedPtr<FJsonObject> Object, FFlar
 		LoadFName(Object, "OrderShipClass", &OrderData.ShipClass);
 		LoadFName(Object, "OrderShipCompany", &OrderData.Company);
 		LoadInt32(Object, "OrderShipAdvancePayment", &OrderData.AdvancePayment);
-		SpacecraftData->ShipyardOrderQueue.Add(OrderData);
+
+		FLOGV("Load OrderShipClass %s", *OrderData.ShipClass.ToString());
+		FLOGV("Load OrderShipCompany %s", *OrderData.Company.ToString());
+		FLOGV("Load AdvancePayment %d", OrderData.AdvancePayment);
+
+		if (OrderData.ShipClass != NAME_None)
+		{
+			SpacecraftData->ShipyardOrderQueue.Add(OrderData);
+		}
 	}
 
 	const TArray<TSharedPtr<FJsonValue>>* ResourceReserved;

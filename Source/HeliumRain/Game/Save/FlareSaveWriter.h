@@ -83,6 +83,7 @@ protected:
 	TSharedRef<FJsonObject> SaveTradeOperation(FFlareTradeRouteSectorOperationSave* Data);
 	TSharedRef<FJsonObject> SaveCargo(FFlareCargoSave* Data);
 	TSharedRef<FJsonObject> SaveFactory(FFlareFactorySave* Data);
+	TSharedRef<FJsonObject> SaveShipyardOrderQueue(FFlareShipyardOrderSave* Data);
 
 	TSharedRef<FJsonObject> SaveFleet(FFlareFleetSave* Data);
 	TSharedRef<FJsonObject> SaveTradeRoute(FFlareTradeRouteSave* Data);
