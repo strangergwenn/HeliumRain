@@ -1438,7 +1438,7 @@ void AFlarePlayerController::NotifyExitSector()
 {
 	GetMenuManager()->Confirm(
 		LOCTEXT("ExitSector", "GO BACK TO SECTOR ?"),
-		LOCTEXT("ExitSectorDescription", "Your ship went too far from the sector origin. Do you want to navigate back to it and wait one day ?\n You can also find a new destination here."),
+		LOCTEXT("ExitSectorDescription", "Your ship went too far from the sector origin. Hit confirm to navigate back to it and wait one day.\n You can also cancel the return and find a new destination here."),
 		FSimpleDelegate::CreateUObject(this, &AFlarePlayerController::OnConfirmBackToSector));
 }
 
