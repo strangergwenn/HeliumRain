@@ -855,7 +855,7 @@ FText SFlareShipMenu::GetLightShipTextInfo() const
 	}
 	else
 	{
-		return LOCTEXT("OrderLightShipInfo", "Pick a light ship class to build, or change the current selection");
+		return LOCTEXT("OrderLightShipInfo", "Pick a light ship class to build at this shipyard");
 	}
 }
 
@@ -867,7 +867,7 @@ FText SFlareShipMenu::GetHeavyShipTextInfo() const
 	}
 	else
 	{
-		return LOCTEXT("OrderHeavyShipInfo", "Pick a heavy ship class to build, or change the current selection");
+		return LOCTEXT("OrderHeavyShipInfo", "Pick a heavy ship class to build at this shipyard");
 	}
 }
 
