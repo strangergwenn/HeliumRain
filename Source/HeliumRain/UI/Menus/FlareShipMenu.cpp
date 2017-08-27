@@ -135,7 +135,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						.Text(LOCTEXT("AllowExternal", "Allow external orders"))
 						.HelpText(LOCTEXT("AllowExternalInfo", "Allow other companies to order ships here"))
 						.OnClicked(this, &SFlareShipMenu::OnToggleAllowExternalOrders)
-						.Visibility(this, &SFlareShipMenu::GetShipyardVisibility)
+						.Visibility(this, &SFlareShipMenu::GetShipyardAllowExternalOrderVisibility)
 						.Toggle(true)
 					]
 				]
@@ -794,6 +794,17 @@ EVisibility SFlareShipMenu::GetShipyardVisibility() const
 
 	return EVisibility::Collapsed;
 }
+
+EVisibility SFlareShipMenu::GetShipyardAllowExternalOrderVisibility() const
+{
+	if (TargetSpacecraft && TargetSpacecraft->IsShipyard() && TargetSpacecraft->GetCompany() == MenuManager->GetPC()->GetCompany())
+	{
+		return EVisibility::Visible;
+	}
+
+	return EVisibility::Collapsed;
+}
+
 
 bool SFlareShipMenu::IsShipSelectorDisabled() const
 {

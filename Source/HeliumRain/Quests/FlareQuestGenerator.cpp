@@ -2493,11 +2493,6 @@ bool UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 	QuestClass = UFlareQuestGeneratedMeteoriteInterception::GetClass();
 	Identifier = InitData.GetName("identifier");
 
-	if (Identifier.ToString() == TEXT("meteorite-destruction-196"))
-	{
-		FLOG("!!!!");
-	}
-
 	FLOGV("TargetStation %p", TargetStation);
 
 	if(TargetStation->IsDestroyed())

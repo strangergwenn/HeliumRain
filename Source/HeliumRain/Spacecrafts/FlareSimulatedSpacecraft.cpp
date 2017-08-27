@@ -1164,6 +1164,11 @@ bool UFlareSimulatedSpacecraft::CanOrder(const FFlareSpacecraftDescription* Ship
 		return false;
 	}
 
+	if(!IsAllowExternalOrder() && OrderCompany != GetCompany())
+	{
+		return false;
+	}
+
 	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
 
 	if(OrderCompany == PlayerCompany)

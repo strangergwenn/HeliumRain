@@ -77,6 +77,9 @@ protected:
 	/** Visibility of the ship-building interface */
 	EVisibility GetShipyardVisibility() const;
 
+	/** Visibility of the allow external order button */
+	EVisibility GetShipyardAllowExternalOrderVisibility() const;
+
 	/** Visibility of the ship selector */
 	bool IsShipSelectorDisabled() const;
 
