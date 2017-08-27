@@ -241,9 +241,9 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "pumps", Description);
 		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, false, "station-ch4-pump", Pendulum));
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, false, "station-h2-pump", Pendulum));
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, false, "station-he3-pump", Pendulum));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialHaveStation::Create(this, false, "station-ch4-pump", Pendulum));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialHaveStation::Create(this, false, "station-h2-pump", Pendulum));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialHaveStation::Create(this, false, "station-he3-pump", Pendulum));
 
 		Steps.Add(Step);
 	}

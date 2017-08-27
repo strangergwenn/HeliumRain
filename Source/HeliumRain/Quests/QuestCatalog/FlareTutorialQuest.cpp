@@ -1170,7 +1170,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 		FText Description = LOCTEXT("BuildStationDescription","Your station is now under construction. Bring the missing construction resources to finish the construction ! Other companies can sell resources directly to the station too.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "build-station", Description);
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, false));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialHaveStation::Create(this, false));
 		Steps.Add(Step);
 	}
 
@@ -1191,7 +1191,7 @@ void UFlareQuestTutorialBuildStation::Load(UFlareQuestManager* Parent)
 		FText Description = LOCTEXT("FinishUpgradeDescription","Bring missing construction resources to finish the upgrade.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "finish-upgrade", Description);
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, true));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialHaveStation::Create(this, true));
 		Steps.Add(Step);
 	}
 }
@@ -1241,7 +1241,7 @@ void UFlareQuestTutorialResearchStation::Load(UFlareQuestManager* Parent)
 		FText Description = LOCTEXT("BuildReasearchStationDescription", "You now have the technology to build research stations. Build one anywhere you'd like.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "build-research-station", Description);
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildStation::Create(this, false, "station-research"));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialHaveStation::Create(this, false, "station-research"));
 		Steps.Add(Step);
 	}
 
@@ -3523,19 +3523,19 @@ void UFlareQuestConditionTutorialStartStationConstruction::AddConditionObjective
 /*----------------------------------------------------
 Tutorial build station condition
 ----------------------------------------------------*/
-UFlareQuestConditionTutorialBuildStation::UFlareQuestConditionTutorialBuildStation(const FObjectInitializer& ObjectInitializer)
+UFlareQuestConditionTutorialHaveStation::UFlareQuestConditionTutorialHaveStation(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
-UFlareQuestConditionTutorialBuildStation* UFlareQuestConditionTutorialBuildStation::Create(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier, UFlareSimulatedSector* Sector)
+UFlareQuestConditionTutorialHaveStation* UFlareQuestConditionTutorialHaveStation::Create(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier, UFlareSimulatedSector* Sector)
 {
-	UFlareQuestConditionTutorialBuildStation* Condition = NewObject<UFlareQuestConditionTutorialBuildStation>(ParentQuest, UFlareQuestConditionTutorialBuildStation::StaticClass());
+	UFlareQuestConditionTutorialHaveStation* Condition = NewObject<UFlareQuestConditionTutorialHaveStation>(ParentQuest, UFlareQuestConditionTutorialHaveStation::StaticClass());
 	Condition->Load(ParentQuest, Upgrade, StationIdentifier, Sector);
 	return Condition;
 }
 
-void UFlareQuestConditionTutorialBuildStation::Load(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier, UFlareSimulatedSector* Sector)
+void UFlareQuestConditionTutorialHaveStation::Load(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier, UFlareSimulatedSector* Sector)
 {
 	LoadInternal(ParentQuest);
 	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
@@ -3598,29 +3598,35 @@ void UFlareQuestConditionTutorialBuildStation::Load(UFlareQuest* ParentQuest, bo
 	}
 }
 
-void UFlareQuestConditionTutorialBuildStation::OnEvent(FFlareBundle& Bundle)
+void UFlareQuestConditionTutorialHaveStation::OnEvent(FFlareBundle& Bundle)
 {
 	if (Completed)
 	{
 		return;
 	}
 
-	if (Bundle.HasTag("finish-station-construction")
-			&& Bundle.GetInt32("upgrade") == int32(TargetUpgrade)
-			&& (TargetSector == NULL || TargetSector->GetIdentifier() == Bundle.GetName("sector")))
+	UFlareCompany* PlayerCompany = GetGame()->GetPC()->GetCompany();
+	for(UFlareSimulatedSpacecraft* Station : PlayerCompany->GetCompanyStations())
 	{
-		if(TargetStationIdentifier == NAME_None || TargetStationIdentifier == Bundle.GetName("identifier"))
+		if (!Station->IsUnderConstruction() &&
+		(!TargetUpgrade || (Station->GetLevel() > 1))
+			&& (TargetSector == NULL || TargetSector->GetIdentifier() == Station->GetCurrentSector()->GetIdentifier()))
 		{
-			Completed = true;
+
+			if(TargetStationIdentifier == NAME_None || TargetStationIdentifier == Station->GetDescription()->Identifier)
+			{
+				Completed = true;
+			}
 		}
 	}
 }
-bool UFlareQuestConditionTutorialBuildStation::IsCompleted()
+
+bool UFlareQuestConditionTutorialHaveStation::IsCompleted()
 {
 	return Completed;
 }
 
-void UFlareQuestConditionTutorialBuildStation::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+void UFlareQuestConditionTutorialHaveStation::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
 	FFlarePlayerObjectiveCondition ObjectiveCondition;
 	ObjectiveCondition.InitialLabel = InitialLabel;

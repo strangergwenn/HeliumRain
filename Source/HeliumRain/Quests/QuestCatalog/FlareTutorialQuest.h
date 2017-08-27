@@ -480,14 +480,14 @@ protected:
 
 //////////////////////////////////////////////////////
 UCLASS()
-class HELIUMRAIN_API UFlareQuestConditionTutorialBuildStation : public UFlareQuestCondition
+class HELIUMRAIN_API UFlareQuestConditionTutorialHaveStation : public UFlareQuestCondition
 {
 	GENERATED_UCLASS_BODY()
 
 
 public:
 
-	static UFlareQuestConditionTutorialBuildStation* Create(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier = NAME_None, UFlareSimulatedSector* Sector = NULL);
+	static UFlareQuestConditionTutorialHaveStation* Create(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier = NAME_None, UFlareSimulatedSector* Sector = NULL);
 	void Load(UFlareQuest* ParentQuest, bool Upgrade, FName StationIdentifier, UFlareSimulatedSector* Sector);
 
 	virtual bool IsCompleted();
