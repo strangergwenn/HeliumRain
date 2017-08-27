@@ -92,9 +92,13 @@ void UFlareQuestGenerator::LoadQuests(const FFlareQuestSave& Data)
 			continue;
 		}
 
-		Quest->Load(this, QuestData.Data);
-		QuestManager->AddQuest(Quest);
-		GeneratedQuests.Add(Quest);
+		// Attempt loading
+		bool LoadSuccessful = Quest->Load(this, QuestData.Data);
+		if (LoadSuccessful)
+		{
+			QuestManager->AddQuest(Quest);
+			GeneratedQuests.Add(Quest);
+		}
 	}
 }
 
@@ -537,11 +541,13 @@ UFlareQuestGenerated::UFlareQuestGenerated(const FObjectInitializer& ObjectIniti
 {
 }
 
-void UFlareQuestGenerated::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGenerated::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	LoadInternal(Parent->GetQuestManager());
 	QuestGenerator = Parent;
 	InitData = Data;
+
+	return true;
 }
 
 void UFlareQuestGenerated::CreateGenericReward(FFlareBundle& Data, int64 QuestValue, UFlareCompany* Client)
@@ -767,7 +773,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenera
 	return Quest;
 }
 
-void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
@@ -825,6 +831,8 @@ void UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 
 	SetupQuestGiver(Station1->GetCompany(), true);
 	SetupGenericReward(Data);
+
+	return true;
 }
 
 /*----------------------------------------------------
@@ -983,7 +991,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 	return Quest;
 }
 
-void UFlareQuestGeneratedResourceSale::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGeneratedResourceSale::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
@@ -1020,6 +1028,8 @@ void UFlareQuestGeneratedResourceSale::Load(UFlareQuestGenerator* Parent, const 
 
 	SetupQuestGiver(Station->GetCompany(), true);
 	SetupGenericReward(Data);
+
+	return true;
 }
 
 /*----------------------------------------------------
@@ -1188,7 +1198,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 	return Quest;
 }
 
-void UFlareQuestGeneratedResourcePurchase::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGeneratedResourcePurchase::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
@@ -1225,6 +1235,8 @@ void UFlareQuestGeneratedResourcePurchase::Load(UFlareQuestGenerator* Parent, co
 
 	SetupQuestGiver(Station->GetCompany(), true);
 	SetupGenericReward(Data);
+
+	return true;
 }
 
 /*----------------------------------------------------
@@ -1419,7 +1431,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	return Quest;
 }
 
-void UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
@@ -1488,6 +1500,8 @@ void UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const
 
 	SetupQuestGiver(Station1->GetCompany(), true);
 	SetupGenericReward(Data);
+
+	return true;
 }
 
 /*----------------------------------------------------
@@ -1561,7 +1575,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGene
 	return Quest;
 }
 
-void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
@@ -1667,6 +1681,8 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);
+
+	return true;
 }
 
 /*----------------------------------------------------
@@ -1746,7 +1762,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedJoinAttack::Create(UFlareQuestGenerato
 	return Quest;
 }
 
-void UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
@@ -1887,6 +1903,8 @@ void UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FF
 
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);
+
+	return true;
 }
 
 
@@ -1968,7 +1986,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedSectorDefense::Create(UFlareQuestGener
 	return Quest;
 }
 
-void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
@@ -2092,6 +2110,8 @@ void UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const
 
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);
+
+	return true;
 }
 
 
@@ -2225,7 +2245,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt::Create(UFlareQuestGenerator
 	return Quest;
 }
 
-void UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
@@ -2276,6 +2296,8 @@ void UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFl
 
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);
+
+	return true;
 }
 
 /*----------------------------------------------------
@@ -2356,7 +2378,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt::Create(UFlareQuestGenera
 	return Quest;
 }
 
-void UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
@@ -2411,6 +2433,8 @@ void UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const 
 
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);
+
+	return true;
 }
 
 /*----------------------------------------------------
@@ -2456,7 +2480,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedMeteoriteInterception::Create(UFlareQu
 	return Quest;
 }
 
-void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
@@ -2469,11 +2493,16 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 	QuestClass = UFlareQuestGeneratedMeteoriteInterception::GetClass();
 	Identifier = InitData.GetName("identifier");
 
+	if (Identifier.ToString() == TEXT("meteorite-destruction-196"))
+	{
+		FLOGV("!!!!");
+	}
+
 	FLOGV("TargetStation %p", TargetStation);
 
 	if(TargetStation->IsDestroyed())
 	{
-		return;
+		return false;
 	}
 
 	QuestName = FText::Format(LOCTEXT("GeneratedMeteoriteDestructionName", "Meteorite intercept in {0}"), TargetStation->GetCurrentSector()->GetSectorName());
@@ -2558,6 +2587,8 @@ void UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 
 	SetupQuestGiver(TargetStation->GetCompany(), true);
 	SetupGenericReward(Data);
+
+	return true;
 }
 
 #undef LOCTEXT_NAMESPACE

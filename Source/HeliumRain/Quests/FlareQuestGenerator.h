@@ -103,7 +103,7 @@ class HELIUMRAIN_API UFlareQuestGenerated: public UFlareQuest
 	GENERATED_UCLASS_BODY()
 
 public:
-	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 
 	void AddGlobalFailCondition(UFlareQuestCondition* Condition);
 	void SetupQuestGiver(UFlareCompany* Company, bool AddWarCondition);
@@ -135,7 +135,7 @@ public:
 	static FName GetClass() { return "vip-transport"; }
 
 	/** Load the quest from description file */
-	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company);
 };
 
@@ -149,7 +149,7 @@ public:
 	static FName GetClass() { return "resource-sale"; }
 
 	/** Load the quest from description file */
-	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company);
 };
 
@@ -163,7 +163,7 @@ public:
 	static FName GetClass() { return "resource-purchase"; }
 
 	/** Load the quest from description file */
-	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company);
 };
 
@@ -177,7 +177,7 @@ public:
 	static FName GetClass() { return "resource-trade"; }
 
 	/** Load the quest from description file */
-	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company);
 };
 
@@ -191,7 +191,7 @@ public:
 	static FName GetClass() { return "station-defense"; }
 
 	/** Load the quest from description file */
-	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company, UFlareCompany* HostileCompany);
 };
 
@@ -205,7 +205,7 @@ public:
 	static FName GetClass() { return "join-attack"; }
 
 	/** Load the quest from description file */
-	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, int32 AttackCombatPoints, WarTarget& Target, int64 TravelDuration);
 };
 
@@ -219,7 +219,7 @@ public:
 	static FName GetClass() { return "sector-defense"; }
 
 	/** Load the quest from description file */
-	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany, int32 AttackCombatPoints, WarTarget& Target, int64 TravelDuration);
 };
 
@@ -233,7 +233,7 @@ public:
 	static FName GetClass() { return "cargo-hunt"; }
 
 	/** Load the quest from description file */
-	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany);
 };
 
@@ -247,7 +247,7 @@ public:
 	static FName GetClass() { return "military-hunt"; }
 
 	/** Load the quest from description file */
-	virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany);
 };
 
@@ -262,6 +262,6 @@ public:
 		static FName GetClass() { return "meteorite-destruction"; }
 
 		/** Load the quest from description file */
-		virtual void Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
+		virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 		static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSpacecraft* Target, float Power, int32 Count, int64 TimeBeforeImpact);
 	};
