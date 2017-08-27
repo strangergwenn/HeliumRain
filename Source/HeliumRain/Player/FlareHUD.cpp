@@ -657,7 +657,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		// Ratios
 		float AngularTarget = 2; // 2° max error
 		float LinearTarget = 1; // 2m max error
-		float DistanceTarget = (PlayerShip->GetSize() == EFlarePartSize::S) ? 250 : 7500;
+		float DistanceTarget = (PlayerShip->GetSize() == EFlarePartSize::S) ? 250 : 500;
 		float DistanceRatio = 1 - FMath::Clamp(DockParameters.DockToDockDistance / 10000, 0.0f, 1.0f); // 100m distance range
 		float RollRatio = 1 - FMath::Clamp(RollError / 30, 0.0f, 1.0f); // 30° range
 		float AngularRatio = 1 - FMath::Clamp(AngularError / 30, 0.0f, 1.0f); // 30° range

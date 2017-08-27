@@ -760,6 +760,7 @@ void SFlareShipMenu::UpdateShipyardList()
 				// Status
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
+				.VAlign(VAlign_Center)
 				[
 					SNew(SBox)
 					.WidthOverride(0.85 * Theme.ContentWidth)
