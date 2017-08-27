@@ -39,3 +39,4 @@ Plugins/JoystickPlugin/ThirdParty/SDL2/build-SDL/
 .vs/
 Scripts/system.json
 Scripts/steam.json
+Config/Localization/Game_Compile.ini
