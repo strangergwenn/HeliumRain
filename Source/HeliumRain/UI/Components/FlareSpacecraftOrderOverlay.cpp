@@ -359,6 +359,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 				FText::AsNumber(Desc->CargoBayCapacity));
 		}
 
+		ProductionTime += TargetShipyard->GetEstimatedQueueAndProductionDuration(Desc->Size, -1);
 		// Production cost
 		if (MenuManager->GetPC()->GetCompany() == TargetShipyard->GetCompany())
 		{
@@ -366,7 +367,6 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 		}
 		else
 		{
-			ProductionTime += TargetShipyard->GetEstimatedQueueAndProductionDuration(Desc->Size);
 			int32 CycleProductionCost = UFlareGameTools::ComputeSpacecraftPrice(Desc->Identifier, TargetShipyard->GetCurrentSector(), true);
 			ProductionCost = FText::Format(LOCTEXT("FactoryProductionCostFormat", "\u2022 {0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(CycleProductionCost)));
 		}

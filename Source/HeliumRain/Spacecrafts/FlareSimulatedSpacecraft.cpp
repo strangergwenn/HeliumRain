@@ -1200,10 +1200,82 @@ int32 UFlareSimulatedSpacecraft::GetShipProductionTime(FName ShipIdentifier)
 	return GetCycleDataForShipClass(ShipIdentifier).ProductionTime;
 }
 
-int32 UFlareSimulatedSpacecraft::GetEstimatedQueueAndProductionDuration(EFlarePartSize::Type Size)
+int32 UFlareSimulatedSpacecraft::GetEstimatedQueueAndProductionDuration(EFlarePartSize::Type Size, int32 OrderIndex)
 {
-	// TODO
-	return 12;
+	if(OrderIndex >= SpacecraftData.ShipyardOrderQueue.Num())
+	{
+		FLOGV("WARNING: invalid OrderIndex %d : ShipyardOrderQueue have %d elements", OrderIndex, SpacecraftData.ShipyardOrderQueue.Num());
+		return 0;
+	}
+
+	int32 Duration = 0;
+
+	TArray<int32> ShipyardSimulators;
+
+	for (UFlareFactory* Factory : Factories)
+	{
+		if((Factory->IsSmallShipyard() && Size == EFlarePartSize::S) ||
+			(Factory->IsLargeShipyard() && Size == EFlarePartSize::L))
+		{
+			if(Factory->IsActive())
+			{
+				ShipyardSimulators.Add(Factory->GetRemainingProductionDuration());
+			}
+			else
+			{
+				ShipyardSimulators.Add(0);
+			}
+		}
+	}
+
+	if(ShipyardSimulators.Num() == 0)
+	{
+		FLOG("WARNING: no shipyard simulator");
+		return 0;
+	}
+
+	if(OrderIndex < 0)
+	{
+		OrderIndex = SpacecraftData.ShipyardOrderQueue.Num();
+	}
+
+	int32 NextOrderIndex = 0;
+
+	while(true)
+	{
+		int32 MinFactoryDuration = INT32_MAX;
+		// Find the minimum duration
+		for (int32 ProductionDuration : ShipyardSimulators)
+		{
+			if(ProductionDuration < MinFactoryDuration)
+			{
+				MinFactoryDuration = ProductionDuration;
+			}
+		}
+
+		Duration += MinFactoryDuration;
+
+		// Remove this duration to shipyard
+		for (int32& ProductionDuration : ShipyardSimulators)
+		{
+			ProductionDuration -= MinFactoryDuration;
+
+			if (ProductionDuration <= 0)
+			{
+				// Try to queue
+				if(NextOrderIndex == OrderIndex)
+				{
+					// Enqueue the target, return duration
+					return  Duration;
+				}
+
+				FFlareShipyardOrderSave& Order = SpacecraftData.ShipyardOrderQueue[NextOrderIndex];
+				int32 ShipProductionDuration = GetShipProductionTime(Order.ShipClass);
+				ProductionDuration = ShipProductionDuration;
+				NextOrderIndex++;
+			}
+		}
+	}
 }
 
 FText UFlareSimulatedSpacecraft::GetShipCost(FName ShipIdentifier)
