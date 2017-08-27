@@ -1575,7 +1575,7 @@ void UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 	QuestClass = UFlareQuestGeneratedStationDefense::GetClass();
 	Identifier = InitData.GetName("identifier");
 
-	QuestName = FText::Format(LOCTEXT("GeneratedStationDefenseNameLocal","Defend {0} stations against {1}"), Sector->GetSectorName(), HostileCompany->GetCompanyName());
+	QuestName = FText::Format(LOCTEXT("GeneratedStationDefenseNameLocal","Defend stations of {0} against {1}"), Sector->GetSectorName(), HostileCompany->GetCompanyName());
 	QuestDescription = FText::Format(LOCTEXT("GeneratedStationDefenseDescriptionLocalFormat","Defend stations of {0} in {1} against {2} with at least {3} combat value."),
 								 FriendlyCompany->GetCompanyName(), Sector->GetSectorName(), HostileCompany->GetCompanyName(), FText::AsNumber(ArmyCombatPoints ));
 
