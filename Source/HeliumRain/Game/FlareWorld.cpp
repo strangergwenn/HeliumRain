@@ -640,6 +640,14 @@ void UFlareWorld::Simulate()
 
 	// Factories
 	FLOG("* Simulate > Factories");
+	for (UFlareFactory* Factory: Factories)
+	{
+		if(Factory->IsShipyard())
+		{
+			Factory->GetParent()->UpdateShipyardProduction();
+		}
+	}
+
 	for (int FactoryIndex = 0; FactoryIndex < Factories.Num(); FactoryIndex++)
 	{
 		Factories[FactoryIndex]->Simulate();
