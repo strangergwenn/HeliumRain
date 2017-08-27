@@ -373,8 +373,9 @@ float AFlareGame::GetAINerfRatio()
 		}
 		float ValueProportion = PlayerCompanyValue / MaxCompanyValue;
 
+		float InitialRatio = 0.4f;
 
-		AINerfRatio = 1.f - FMath::Clamp( 0.25f + 0.75f * ValueProportion,0.25f, 1.f);
+		AINerfRatio = FMath::Clamp((1.f - ValueProportion) * InitialRatio, 0.0f, InitialRatio);
 		AINerfRatioCacheDate = GetGameWorld()->GetDate();
 	}
 
