@@ -739,6 +739,7 @@ void SFlareShipMenu::UpdateShipyardList()
 						OrderDescription->Name,
 						OrderCompany->GetCompanyName(),
 						Duration))
+					.WrapTextAt(Theme.ContentWidth)
 				]
 			];
 
@@ -761,11 +762,12 @@ void SFlareShipMenu::UpdateShipyardList()
 				.AutoWidth()
 				[
 					SNew(SBox)
-					.WidthOverride(0.75 * Theme.ContentWidth)
+					.WidthOverride(0.85 * Theme.ContentWidth)
 					[
 						SNew(STextBlock)
 						.TextStyle(&Theme.TextFont)
 						.Text(this, &SFlareShipMenu::GetShipOrderStatus, Index)
+						.WrapTextAt(0.8 * Theme.ContentWidth)
 					]
 				]
 

@@ -183,7 +183,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 			.VAlign(VAlign_Fill)
 			[
 				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth / 2)
+				.WidthOverride(0.5 * Theme.ContentWidth)
 				[
 					SNew(SVerticalBox)
 
@@ -209,7 +209,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 							SNew(SRichTextBlock)
 							.TextStyle(&Theme.TextFont)
 							.Text(this, &SFlareOrbitalMenu::GetTravelText)
-							.WrapTextAt(Theme.ContentWidth / 2)
+							.WrapTextAt(0.45 * Theme.ContentWidth)
 							.DecoratorStyleSet(&FFlareStyleSet::Get())
 						]
 					]
