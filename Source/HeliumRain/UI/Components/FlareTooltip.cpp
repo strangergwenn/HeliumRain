@@ -95,6 +95,8 @@ void SFlareTooltip::Tick(const FGeometry& AllottedGeometry, const double InCurre
 {
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 
+	CurrentMousePos = AllottedGeometry.AbsoluteToLocal(FSlateApplication::Get().GetCursorPos());
+
 	// Hide
 	if (MenuManager->GetPC()->IsGameBusy())
 	{
@@ -172,13 +174,12 @@ FMargin SFlareTooltip::GetTooltipPosition() const
 
 	if (PC)
 	{
-		FVector2D MousePos = PC->GetMousePosition();
-		FVector2D ScreenSize = PC->GetNavHUD()->GetViewportSize();
+		FVector2D MousePos = CurrentMousePos;
 		FVector2D WidgetSize = ContentBox->GetDesiredSize();
-		float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ScreenSize.X, ScreenSize.Y));
-
-		MousePos.X = (MousePos.X > ViewportScale * ScreenSize.X - WidgetSize.X) ? MousePos.X - WidgetSize.X : MousePos.X;
-		MousePos.Y = (MousePos.Y > ViewportScale * ScreenSize.Y - WidgetSize.Y) ? MousePos.Y - WidgetSize.Y : MousePos.Y;
+		FVector2D ScreenSize = PC->GetNavHUD()->GetViewportSize();
+		
+		MousePos.X = (MousePos.X > ScreenSize.X - WidgetSize.X) ? MousePos.X - WidgetSize.X : MousePos.X;
+		MousePos.Y = (MousePos.Y > ScreenSize.Y - WidgetSize.Y) ? MousePos.Y - WidgetSize.Y : MousePos.Y;
 
 		return FMargin(MousePos.X + 30, MousePos.Y + 40, 0, 0);
 	}

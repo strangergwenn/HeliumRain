@@ -94,6 +94,7 @@ protected:
 	bool                                    TooltipVisible;
 	float                                   TooltipCurrentTime;
 	float                                   TooltipCurrentAlpha;
+	FVector2D                               CurrentMousePos;
 
 
 };
