@@ -645,10 +645,6 @@ void UFlareSaveReaderV1::LoadFactory(const TSharedPtr<FJsonObject> Object, FFlar
 		LoadFName(Object, "OrderShipCompany", &OrderData.Company);
 		LoadInt32(Object, "OrderShipAdvancePayment", &OrderData.AdvancePayment);
 
-		FLOGV("Load OrderShipClass %s", *OrderData.ShipClass.ToString());
-		FLOGV("Load OrderShipCompany %s", *OrderData.Company.ToString());
-		FLOGV("Load AdvancePayment %d", OrderData.AdvancePayment);
-
 		if (OrderData.ShipClass != NAME_None)
 		{
 			SpacecraftData->ShipyardOrderQueue.Add(OrderData);

@@ -1057,19 +1057,31 @@ FText UFlareSimulatedSpacecraft::GetNextShipyardOrderStatus()
 	const FFlareProductionData& ProductionData = GetCycleDataForShipClass(NextOrder.ShipClass);
 
 	FText MissingResources;
+	int32 MissingResourcesCount = 0;
 
 	for(const FFlareFactoryResource& InputResource : ProductionData.InputResources)
 	{
-		if(InputResource.Quantity > GetCargoBay()->GetResourceQuantity(&InputResource.Resource->Data, GetCompany()))
+		int32 AvailableQuantity = GetCargoBay()->GetResourceQuantity(&InputResource.Resource->Data, GetCompany());
+		if(InputResource.Quantity > AvailableQuantity)
 		{
 			// Not enought resource
-			MissingResources = FText::Format(LOCTEXT("NextShipyardOrderStatusMissingResource", "{0}{1}"),
-			MissingResources.IsEmpty() ? FText() : LOCTEXT("NextShipyardOrderStatusMissingResourceSeparator", ","),
+			MissingResources = FText::Format(LOCTEXT("NextShipyardOrderStatusMissingResource", "{0}{1}{2} {3}"),
+			MissingResources,
+			MissingResources.IsEmpty() ? FText() : LOCTEXT("NextShipyardOrderStatusMissingResourceSeparator", ", "),
+			FText::AsNumber(InputResource.Quantity - AvailableQuantity),
 			InputResource.Resource->Data.Name);
+			++MissingResourcesCount;
 		}
 	}
 
-	return FText::Format(LOCTEXT("NextShipyardOrderStatusWaitResources", "Waiting for resources ()"), MissingResources);
+	if(MissingResourcesCount > 0)
+	{
+		return FText::Format(LOCTEXT("NextShipyardOrderStatusWaitResources", "Waiting for resources ({0})"), MissingResources);
+	}
+	else
+	{
+		return FText::Format(LOCTEXT("NextShipyardOrderStatusUnknownCause", "Construction starting soon()"), MissingResources);
+	}
 }
 
 UFlareFactory* UFlareSimulatedSpacecraft::GetCompatibleIdleShipyardFactory(FName ShipIdentifier)
