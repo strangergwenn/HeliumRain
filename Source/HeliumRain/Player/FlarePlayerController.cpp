@@ -1965,14 +1965,17 @@ void AFlarePlayerController::EnablePilot()
 		bool EnableRegularPilot = true;
 
 		// Try docking at target station
-		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
-		if (TargetSpacecraft && TargetSpacecraft->IsStation())
+		if (GetCompany()->IsTechnologyUnlocked("auto-docking"))
 		{
-			bool DockingConfirmed = ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft);
-			NotifyDockingResult(DockingConfirmed, TargetSpacecraft->GetParent());
-			if (DockingConfirmed)
+			AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
+			if (TargetSpacecraft && TargetSpacecraft->IsStation())
 			{
-				EnableRegularPilot = false;
+				bool DockingConfirmed = ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft);
+				NotifyDockingResult(DockingConfirmed, TargetSpacecraft->GetParent());
+				if (DockingConfirmed)
+				{
+					EnableRegularPilot = false;
+				}
 			}
 		}
 

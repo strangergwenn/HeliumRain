@@ -655,11 +655,13 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		float RollError = FMath::RadiansToDegrees(FMath::Acos(RollDot));
 
 		// Ratios
-		float DangerThreshold = 0.3f;
-		float DistanceRatio = 1 - FMath::Clamp(DockParameters.DockToDockDistance / 20000, 0.0f, 1.0f); // 200m max distance
-		float RollRatio = 1 - RollError / 30; // 30° max error
-		float AngularRatio = 1 - FMath::Clamp(AngularError / 30, 0.0f, 1.0f); // 30° max error
-		float LinearRatio = 1 - FMath::Clamp(LinearError / 20, 0.0f, 1.0f); // 20m max error
+		float AngularTarget = 2; // 2° max error
+		float LinearTarget = 1; // 2m max error
+		float DistanceTarget = (PlayerShip->GetSize() == EFlarePartSize::S) ? 250 : 7500;
+		float DistanceRatio = 1 - FMath::Clamp(DockParameters.DockToDockDistance / 10000, 0.0f, 1.0f); // 100m distance range
+		float RollRatio = 1 - FMath::Clamp(RollError / 30, 0.0f, 1.0f); // 30° range
+		float AngularRatio = 1 - FMath::Clamp(AngularError / 30, 0.0f, 1.0f); // 30° range
+		float LinearRatio = 1 - FMath::Clamp(LinearError / 10, 0.0f, 1.0f); // 10m range
 
 		// Texts
 		FText DockingText = LOCTEXT("Docking", "Docking computer");
@@ -678,19 +680,19 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 		FlareDrawText(DockInfo, CurrentPos, DockingInProgress ? Theme.FriendlyColor : Theme.EnemyColor, false, false);
 		CurrentPos += InstrumentLine;
 		DrawProgressBarIconText(CurrentPos, HUDDistanceIcon, DistanceText,
-			DistanceRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
+			DockParameters.DockToDockDistance < DistanceTarget ? Theme.FriendlyColor : Theme.EnemyColor,
 			DistanceRatio, LargeProgressBarSize);
 		CurrentPos += InstrumentLine;
 		DrawProgressBarIconText(CurrentPos, HUDRCSIcon, LinearText,
-			LinearRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
+			LinearError < LinearTarget ? Theme.FriendlyColor : Theme.EnemyColor,
 			LinearRatio, LargeProgressBarSize);
 		CurrentPos += InstrumentLine;
 		DrawProgressBarIconText(CurrentPos, HUDRCSIcon, RollText,
-			RollRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
+			RollError < AngularTarget ? Theme.FriendlyColor : Theme.EnemyColor,
 			RollRatio, LargeProgressBarSize);
 		CurrentPos += InstrumentLine;
 		DrawProgressBarIconText(CurrentPos, HUDRCSIcon, AngularText,
-			AngularRatio > DangerThreshold ? Theme.FriendlyColor : Theme.EnemyColor,
+			AngularError < AngularTarget ? Theme.FriendlyColor : Theme.EnemyColor,
 			AngularRatio, LargeProgressBarSize);
 		CurrentPos += InstrumentLine;
 	}

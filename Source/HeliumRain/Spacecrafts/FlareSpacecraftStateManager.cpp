@@ -700,7 +700,14 @@ bool UFlareSpacecraftStateManager::IsUseOrbitalBoost() const
 	}
 	else
 	{
-		return true;
+		if (Spacecraft->IsPlayerShip() && Spacecraft->GetIsManualDocking())
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
 	}
 }
 

@@ -367,6 +367,11 @@ public:
 		Getters
 	----------------------------------------------------*/
 
+	bool GetIsManualDocking() const
+	{
+		return IsManualDocking;
+	}
+
 	FText GetShipStatus() const;
 
 	/** Return linear velocity in meters */
