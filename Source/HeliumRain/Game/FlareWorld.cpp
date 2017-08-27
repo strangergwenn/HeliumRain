@@ -2029,13 +2029,20 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 	for (int32 CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
 	{
 		TArray<UFlareSimulatedSpacecraft*>& CompanyStations = Companies[CompanyIndex]->GetCompanyStations();
-		for (int32 StationIndex = 0; StationIndex < CompanyStations.Num(); StationIndex++)
+		for (UFlareSimulatedSpacecraft* CompanyStation : CompanyStations)
 		{
-			for (int32 FactoryIndex = 0; FactoryIndex < CompanyStations[StationIndex]->GetFactories().Num(); FactoryIndex++)
+			if(!CompanyStation->IsShipyard())
+			{
+				continue;
+			}
+
+			FLOGV("UFlareSimulatedSpacecraft %s is shipyard", *CompanyStation->GetImmatriculation().ToString());
+
+			for (int32 FactoryIndex = 0; FactoryIndex < CompanyStation->GetFactories().Num(); FactoryIndex++)
 			{
 				// Get shipyard if existing
-				UFlareFactory* TargetFactory = CompanyStations[StationIndex]->GetFactories()[FactoryIndex];
-				FText SectorName = CompanyStations[StationIndex]->GetCurrentSector()->GetSectorName();
+				UFlareFactory* TargetFactory = CompanyStation->GetFactories()[FactoryIndex];
+				FText SectorName = CompanyStation->GetCurrentSector()->GetSectorName();
 				FName CompanyIdentifier = PlayerCompany->GetIdentifier();
 				if (!TargetFactory->IsShipyard())
 				{
@@ -2062,6 +2069,51 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 							Game->GetSpacecraftCatalog()->Get(TargetFactory->GetTargetShipClass())->Name,
 							SectorName,
 							UFlareGameTools::FormatDate(ProductionTime, 2));
+					}
+
+					FFlareIncomingEvent ProductionEvent;
+					ProductionEvent.Text = ProductionText;
+					ProductionEvent.RemainingDuration = ProductionTime;
+					IncomingEvents.Add(ProductionEvent);
+				}
+			}
+
+			TArray<FFlareShipyardOrderSave>& Orders = CompanyStation->GetShipyardOrderQueue();
+
+			FLOGV("%d Orders", Orders.Num());
+
+			for(int32 i = 0; i < Orders.Num(); i++)
+			{
+				FFlareShipyardOrderSave& Order = Orders[i];
+
+				FLOGV("Order company %s", *Order.Company.ToString());
+
+				if(Order.Company == PlayerCompany->GetIdentifier())
+				{
+
+					FLOG("player order");
+					FFlareSpacecraftDescription* OrderDesc = Game->GetSpacecraftCatalog()->Get(Order.ShipClass);
+					FText SectorName = CompanyStation->GetCurrentSector()->GetSectorName();
+					int32 ProductionTime = CompanyStation->GetShipProductionTime(Order.ShipClass) + CompanyStation->GetEstimatedQueueAndProductionDuration(Order.ShipClass, i);
+
+					FText ProductionText;
+					if (CompanyStation->IsShipyardMissingResources())
+					{
+						FLOG("IsShipyardMissingResources");
+
+						ProductionText = FText::Format(LOCTEXT("ShipNoResourcesProdTextFormat", "\u2022 {0} ordered at {1} (missing resources)"),
+						OrderDesc->Name,
+							SectorName);
+					}
+					else
+					{
+
+						FLOGV("ProductionTime %d", ProductionTime);
+
+						ProductionText = FText::Format(LOCTEXT("ShipWaitingProdTextFormat", "\u2022 {0} ordered at {1} ({2} left)"),
+						OrderDesc->Name,
+						SectorName,
+						UFlareGameTools::FormatDate(ProductionTime, 2));
 					}
 
 					FFlareIncomingEvent ProductionEvent;

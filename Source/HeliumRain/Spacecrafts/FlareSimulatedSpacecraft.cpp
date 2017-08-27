@@ -1195,6 +1195,27 @@ bool UFlareSimulatedSpacecraft::CanOrder(const FFlareSpacecraftDescription* Ship
 	return true;
 }
 
+bool UFlareSimulatedSpacecraft::IsShipyardMissingResources()
+{
+	bool MissingResource = false;
+	if(SpacecraftData.ShipyardOrderQueue.Num() > 0)
+	{
+		const FFlareProductionData& ProductionData = GetCycleDataForShipClass(SpacecraftData.ShipyardOrderQueue[0].ShipClass);
+
+		for (const FFlareFactoryResource& InputResource : ProductionData.InputResources)
+		{
+			if(InputResource.Quantity > GetCargoBay()->GetResourceQuantity(&InputResource.Resource->Data, GetCompany()))
+			{
+				// Missing resources, stop all
+				MissingResource = true;
+				break;
+			}
+		}
+	}
+
+	return MissingResource;
+}
+
 const FFlareProductionData& UFlareSimulatedSpacecraft::GetCycleDataForShipClass(FName ShipIdentifier)
 {
 	return GetGame()->GetSpacecraftCatalog()->Get(ShipIdentifier)->CycleCost;
@@ -1205,7 +1226,7 @@ int32 UFlareSimulatedSpacecraft::GetShipProductionTime(FName ShipIdentifier)
 	return GetCycleDataForShipClass(ShipIdentifier).ProductionTime;
 }
 
-int32 UFlareSimulatedSpacecraft::GetEstimatedQueueAndProductionDuration(EFlarePartSize::Type Size, int32 OrderIndex)
+int32 UFlareSimulatedSpacecraft::GetEstimatedQueueAndProductionDuration(FName ShipIdentifier, int32 OrderIndex)
 {
 	if(OrderIndex >= SpacecraftData.ShipyardOrderQueue.Num())
 	{
@@ -1213,14 +1234,16 @@ int32 UFlareSimulatedSpacecraft::GetEstimatedQueueAndProductionDuration(EFlarePa
 		return 0;
 	}
 
+	FFlareSpacecraftDescription* Desc = GetGame()->GetSpacecraftCatalog()->Get(ShipIdentifier);
+
 	int32 Duration = 0;
 
 	TArray<int32> ShipyardSimulators;
 
 	for (UFlareFactory* Factory : Factories)
 	{
-		if((Factory->IsSmallShipyard() && Size == EFlarePartSize::S) ||
-			(Factory->IsLargeShipyard() && Size == EFlarePartSize::L))
+		if((Factory->IsSmallShipyard() && Desc->Size == EFlarePartSize::S) ||
+			(Factory->IsLargeShipyard() && Desc->Size == EFlarePartSize::L))
 		{
 			if(Factory->IsActive())
 			{

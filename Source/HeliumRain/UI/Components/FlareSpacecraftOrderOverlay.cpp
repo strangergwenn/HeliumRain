@@ -359,7 +359,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 				FText::AsNumber(Desc->CargoBayCapacity));
 		}
 
-		ProductionTime += TargetShipyard->GetEstimatedQueueAndProductionDuration(Desc->Size, -1);
+		ProductionTime += TargetShipyard->GetEstimatedQueueAndProductionDuration(Desc->Identifier, -1);
 		// Production cost
 		if (MenuManager->GetPC()->GetCompany() == TargetShipyard->GetCompany())
 		{

@@ -175,7 +175,9 @@ public:
 
 	int32 GetShipProductionTime(FName ShipIdentifier);
 
-	int32 GetEstimatedQueueAndProductionDuration(EFlarePartSize::Type Size, int32 OrderIndex);
+	int32 GetEstimatedQueueAndProductionDuration(FName ShipIdentifier, int32 OrderIndex);
+
+	bool IsShipyardMissingResources();
 
 	FText GetShipCost(FName ShipIdentifier);
 
