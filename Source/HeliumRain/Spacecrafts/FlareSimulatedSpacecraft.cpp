@@ -1080,7 +1080,7 @@ FText UFlareSimulatedSpacecraft::GetNextShipyardOrderStatus()
 	}
 	else
 	{
-		return FText::Format(LOCTEXT("NextShipyardOrderStatusUnknownCause", "Construction starting soon()"), MissingResources);
+		return LOCTEXT("NextShipyardOrderStatusUnknownCause", "Construction starting soon");
 	}
 }
 
