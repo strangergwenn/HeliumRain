@@ -236,7 +236,7 @@ float UFlareQuestGenerator::ComputeQuestProbability(UFlareCompany* Company)
 
 void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 {
-	if(!IsGenerationEnabled())
+	if (!IsGenerationEnabled())
 	{
 		return;
 	}
@@ -247,52 +247,52 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 	// For each company in random order
 	while (CompaniesToProcess.Num() > 0)
 	{
-		int CompanyIndex = FMath::RandRange(0, CompaniesToProcess.Num()-1);
+		UFlareQuestGenerated* Quest = NULL;
+
+		// Get a company
+		int CompanyIndex = FMath::RandRange(0, CompaniesToProcess.Num() - 1);
 		UFlareCompany* Company = CompaniesToProcess[CompanyIndex];
 		CompaniesToProcess.Remove(Company);
-
-		if(Company == PlayerCompany)
+		if (Company == PlayerCompany)
 		{
 			continue;
 		}
 
-		//FLOGV("GenerateSectorQuest for %s", *Company->GetCompanyName().ToString());
-
-
-			// Rand
+		// No luck, no quest this time
 		if (FMath::FRand() > ComputeQuestProbability(Company))
 		{
-			// No luck, no quest this time
 			continue;
 		}
 
-		// Generate a quest
-		UFlareQuestGenerated* Quest = NULL;
+		// Generate a VIP quest
 		if (FMath::FRand() < 0.15)
 		{
-			FLOG("VIP");
 			Quest = UFlareQuestGeneratedVipTransport::Create(this, Sector, Company);
 		}
 
-		// Trade quest
-		// Try to create a trade quest,
-		// if not, try to create a Purchase quest
-		// if not, try to create a Sell quest
-		if (!Quest)
+		// Trade quests
+		if (Game->GetPC()->GetPlayerFleet()->GetFleetCapacity() > 0)
 		{
-			Quest = UFlareQuestGeneratedResourceTrade::Create(this, Sector, Company);
+			// Try to create a trade quest,
+			// if not, try to create a Purchase quest
+			// if not, try to create a Sell quest
+			if (!Quest)
+			{
+				Quest = UFlareQuestGeneratedResourceTrade::Create(this, Sector, Company);
+			}
+
+			if (!Quest)
+			{
+				Quest = UFlareQuestGeneratedResourcePurchase::Create(this, Sector, Company);
+			}
+
+			if (!Quest)
+			{
+				Quest = UFlareQuestGeneratedResourceSale::Create(this, Sector, Company);
+			}
 		}
 
-		if (!Quest)
-		{
-			Quest = UFlareQuestGeneratedResourcePurchase::Create(this, Sector, Company);
-		}
-
-		if (!Quest)
-		{
-			Quest = UFlareQuestGeneratedResourceSale::Create(this, Sector, Company);
-		}
-
+		// VIP strikes again
 		if (!Quest && (FMath::FRand() < 0.3 || QuestManager->GetVisibleQuestCount() == 0) )
 		{
 			Quest = UFlareQuestGeneratedVipTransport::Create(this, Sector, Company);
@@ -300,85 +300,62 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 
 		// Register quest
 		RegisterQuest(Quest);
-
-		CompanyValue Value = Company->GetCompanyValue();
-
+		
+		// Compute values
 		int64 TotalValue = 0;
 		int64 TotalCombatValue = 0;
-
-		for(UFlareCompany* OtherCompany : GetGame()->GetGameWorld()->GetCompanies())
+		CompanyValue Value = Company->GetCompanyValue();
+		for (UFlareCompany* OtherCompany : GetGame()->GetGameWorld()->GetCompanies())
 		{
 			const CompanyValue& OtherValue = OtherCompany->GetCompanyValue();
 			TotalValue += OtherValue.TotalValue;
 			TotalCombatValue += OtherValue.ArmyCurrentCombatPoints;
 		}
 
-
 		// Hunt quests
-		for(UFlareCompany* OtherCompany : GetGame()->GetGameWorld()->GetCompanies())
+		for (UFlareCompany* OtherCompany : GetGame()->GetGameWorld()->GetCompanies())
 		{
-			if(OtherCompany == PlayerCompany)
-			{
-				continue;
-			}
-
-			if(Company == OtherCompany)
+			if (OtherCompany == PlayerCompany || Company == OtherCompany)
 			{
 				continue;
 			}
 
 			CompanyValue OtherValue = OtherCompany->GetCompanyValue();
 
-			if(OtherValue.TotalValue > Value.TotalValue*1.1)
+			// Cargo hunt
+			if (OtherValue.TotalValue > Value.TotalValue * 1.1)
 			{
 				// 1% per day per negative reputation point
 				float ValueRatio = float(OtherValue.TotalValue) / TotalValue;
 
 				float CargoHuntQuestProbability = FMath::Clamp(ValueRatio * 0.0001f, 0.f, 1.f);
 
-
-				//FLOGV("CargoHuntQuestProbability for %s to %s: %f", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString(), CargoHuntQuestProbability);
-
-				float rand = FMath::FRand();
-
-				//FLOGV("rand %f", rand);
-
-				// Rand
-				if (rand > CargoHuntQuestProbability)
+				// No luck, no quest this time
+				if (FMath::FRand() > CargoHuntQuestProbability)
 				{
-					// No luck, no quest this time
 					continue;
 				}
 
 				RegisterQuest(UFlareQuestGeneratedCargoHunt::Create(this, Company, OtherCompany));
 			}
 
-			if(OtherValue.ArmyCurrentCombatPoints > Value.ArmyCurrentCombatPoints*1.1)
+			// Military hunt
+			if (OtherValue.ArmyCurrentCombatPoints > Value.ArmyCurrentCombatPoints*1.1)
 			{
 				float ValueRatio = float(OtherValue.ArmyCurrentCombatPoints) / TotalCombatValue;
-
-
+				
 				// 1% per day per negative reputation point
 				float MilitaryHuntQuestProbability = FMath::Clamp(ValueRatio * 0.001f, 0.f, 1.f);
-
-
-				//FLOGV("CargoHuntQuestProbability for %s to %s: %f", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString(), CargoHuntQuestProbability);
-
-				float rand = FMath::FRand();
-
-				//FLOGV("rand %f", rand);
-
-				// Rand
-				if (rand > MilitaryHuntQuestProbability)
+								
+				// No luck, no quest this time
+				if (FMath::FRand() > MilitaryHuntQuestProbability)
 				{
-					// No luck, no quest this time
 					continue;
 				}
 
 				RegisterQuest(UFlareQuestGeneratedMilitaryHunt::Create(this, Company, OtherCompany));
 			}
 		}
-
 	}
 }
 
