@@ -2051,7 +2051,7 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 
 
 	{
-		FText Description = LOCTEXT("CompanyMenuDescription","You have multiple fleets. You can see your ship's locations and fleet assignements in the company menu. Open the company menu with (<input-action:CompanyMenu>).");
+		FText Description = LOCTEXT("CompanyMenuDescription","You have multiple fleets. You can see your ship's locations and fleet assignments in the company menu. Open the company menu with (<input-action:CompanyMenu>).");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-company-menu", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Company));
@@ -3155,7 +3155,7 @@ void UFlareQuestConditionTutorialTechnologyLevel::Load(UFlareQuest* ParentQuest,
 	Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 	TargetLevel = Level;
 
-	FText InitialLabelText = LOCTEXT("PlayerTechnologyLevel", "Reach technnology level {0}");
+	FText InitialLabelText = LOCTEXT("PlayerTechnologyLevel", "Reach technology level {0}");
 	InitialLabel = FText::Format(InitialLabelText, FText::AsNumber(TargetLevel));
 }
 
@@ -3567,7 +3567,7 @@ void UFlareQuestConditionTutorialBuildStation::Load(UFlareQuest* ParentQuest, bo
 			}
 			else
 			{
-				InitialLabel = FText::Format(LOCTEXT("FinishStationConstructionUpgradeInSector", "Fishish a station upgrade in {0}"),  TargetSector->GetSectorName());
+				InitialLabel = FText::Format(LOCTEXT("FinishStationConstructionUpgradeInSector", "Finish a station upgrade in {0}"),  TargetSector->GetSectorName());
 			}
 		}
 	}

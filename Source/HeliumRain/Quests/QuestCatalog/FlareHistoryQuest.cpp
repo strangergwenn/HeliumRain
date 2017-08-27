@@ -158,7 +158,7 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"research"
-		FText Description = LOCTEXT("ResearchDescription","The data you brought back will help us understand how the Spire was built. We need you to transform this knowledge into a usable technology to build a new space elevevator.");
+		FText Description = LOCTEXT("ResearchDescription","The data you brought back will help us understand how the Spire was built. We need you to transform this knowledge into a usable technology to build a new space elevator.");
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research", Description);
 
