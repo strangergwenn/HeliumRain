@@ -1407,7 +1407,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		},
 		[](UFlareQuestCondition* Condition)
 		{
-			Condition->Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 		}));
 
 		Steps.Add(Step);
@@ -1763,7 +1763,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 		},
 		[](UFlareQuestCondition* Condition)
 		{
-			Condition->Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+			Condition->Callbacks.AddUnique(EFlareQuestCallback::QUEST_EVENT);
 		}));
 
 		Steps.Add(Step);
