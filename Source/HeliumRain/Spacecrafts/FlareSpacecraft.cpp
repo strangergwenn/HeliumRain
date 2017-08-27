@@ -301,7 +301,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 									&& (DockingParameters.DockingPhase == EFlareDockingPhase::Dockable
 									 || DockingParameters.DockingPhase == EFlareDockingPhase::FinalApproach
 									 || DockingParameters.DockingPhase == EFlareDockingPhase::Approach)
-								 && DockingParameters.DockToDockDistance < (GetSize() == EFlarePartSize::S ? 250 : 7500))
+								 && DockingParameters.DockToDockDistance < (GetSize() == EFlarePartSize::S ? 250 : 500))
 								{
 									GetNavigationSystem()->DockAt(Spacecraft);
 									PC->SetAchievementProgression("ACHIEVEMENT_MANUAL_DOCK", 1);
