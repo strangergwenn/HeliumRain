@@ -2495,7 +2495,7 @@ bool UFlareQuestGeneratedMeteoriteInterception::Load(UFlareQuestGenerator* Paren
 
 	if (Identifier.ToString() == TEXT("meteorite-destruction-196"))
 	{
-		FLOGV("!!!!");
+		FLOG("!!!!");
 	}
 
 	FLOGV("TargetStation %p", TargetStation);
