@@ -331,6 +331,10 @@ struct FFlareShipyardOrderSave
 	/** Order advance payment */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 AdvancePayment;
+
+	/** Remaining production duration (only ship in construction) */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 RemainingProductionDuration;
 };
 
 /** Spacecraft factory save data */

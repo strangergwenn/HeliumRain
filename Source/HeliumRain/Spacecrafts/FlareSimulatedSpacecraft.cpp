@@ -1031,7 +1031,7 @@ TArray<FFlareShipyardOrderSave> UFlareSimulatedSpacecraft::GetOngoingProductionL
 			FFlareShipyardOrderSave production;
 			production.ShipClass = Factory->GetTargetShipClass();
 			production.Company = Factory->GetTargetShipCompany();
-
+			production.RemainingProductionDuration = Factory->GetRemainingProductionDuration();
 			productionList.Add(production);
 		}
 	}

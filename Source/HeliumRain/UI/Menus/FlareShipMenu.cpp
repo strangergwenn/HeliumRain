@@ -716,6 +716,12 @@ void SFlareShipMenu::UpdateShipyardList()
 			FFlareSpacecraftDescription* OrderDescription = SpacecraftCatalog->Get(Order.ShipClass);
 			UFlareCompany* OrderCompany = MenuManager->GetGame()->GetGameWorld()->FindCompany(Order.Company);
 
+			FText Duration;
+			if(OrderCompany ==  MenuManager->GetPC()->GetCompany())
+			{
+				Duration = FText::Format(LOCTEXT("ShipInQueueDurationFormat"," for {0} days"), Order.RemainingProductionDuration);
+			}
+
 			ShipyardList->AddSlot()
 			.AutoHeight()
 			.HAlign(HAlign_Left)
@@ -729,9 +735,10 @@ void SFlareShipMenu::UpdateShipyardList()
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(FText::Format(LOCTEXT("ShipInProductionFormat", "\u2022 In production : {0} for {1}"),
+					.Text(FText::Format(LOCTEXT("ShipInProductionFormat", "\u2022 In production{2} : {0} for {1}"),
 						OrderDescription->Name,
-						OrderCompany->GetCompanyName()))
+						OrderCompany->GetCompanyName(),
+						Duration))
 				]
 			];
 
@@ -892,10 +899,22 @@ FText SFlareShipMenu::GetShipOrderStatus(int32 Index) const
 	}
 
 
-	return FText::Format(LOCTEXT("ShipInQueueFormat", "\u2022 In queue : {0} for {1}{2}"),
+	AFlarePlayerController* PC = MenuManager->GetPC();
+
+	FText Duration;
+	if(OrderCompany == PC->GetCompany())
+	{
+		int32 ProductionTime = TargetSpacecraft->GetShipProductionTime(Order.ShipClass) + TargetSpacecraft->GetEstimatedQueueAndProductionDuration(Order.ShipClass, Index);
+
+		Duration = FText::Format(LOCTEXT("ShipInQueueDurationFormat"," for {0} days"), ProductionTime);
+	}
+
+
+	return FText::Format(LOCTEXT("ShipInQueueFormat", "\u2022 In queue{3}: {0} for {1}{2}"),
 							OrderDescription->Name,
 							OrderCompany->GetCompanyName(),
-							Reason);
+							Reason,
+							Duration);
 
 }
 
