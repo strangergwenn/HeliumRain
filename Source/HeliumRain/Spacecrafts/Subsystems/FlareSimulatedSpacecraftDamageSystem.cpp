@@ -346,7 +346,7 @@ float UFlareSimulatedSpacecraftDamageSystem::Refill(FFlareSpacecraftComponentDes
 
 float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftComponentDescription* ComponentDescription,
 						  FFlareSpacecraftComponentSave* ComponentData,
-						  float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
+						  float Energy, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareSimulatedDamageSystem_ApplyDamage);
 
@@ -395,7 +395,7 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 		CombatLog::SpacecraftComponentDamaged(Spacecraft, ComponentData, ComponentDescription, Energy, EffectiveEnergy, DamageType, StateBeforeDamage, StateAfterDamage);
 
 		// This ship has been damaged and someone is to blame
-		if (DamageSource != NULL && DamageSource != Spacecraft->GetCompany())
+		if (DamageSource != NULL && DamageSource->GetCompany() != Spacecraft->GetCompany())
 		{
 			float ReputationCost = 0.f;
 
@@ -414,11 +414,12 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 
 
 			UFlareCompany* PlayerCompany = Spacecraft->GetGame()->GetPC()->GetCompany();
+			UFlareSimulatedSpacecraft* PlayerShip = Spacecraft->GetGame()->GetPC()->GetPlayerShip();
 
-			if (ReputationCost != 0 && DamageSource == PlayerCompany && Spacecraft->GetCompany() != PlayerCompany && Spacecraft->GetCompany() != Spacecraft->GetGame()->GetScenarioTools()->Pirates)
+			if (ReputationCost != 0 && DamageSource == PlayerShip && Spacecraft->GetCompany() != PlayerCompany && Spacecraft->GetCompany() != Spacecraft->GetGame()->GetScenarioTools()->Pirates)
 			{
 				// Being shot by enemies is pretty much expected
-				if (Spacecraft->GetCompany()->GetWarState(DamageSource) != EFlareHostility::Hostile)
+				if (Spacecraft->GetCompany()->GetWarState(DamageSource->GetCompany()) != EFlareHostility::Hostile)
 				{
 					// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
 

@@ -112,7 +112,7 @@ public:
 	/** Apply damage to this component. Return inflicted damage ratio */
 	virtual float ApplyDamage(FFlareSpacecraftComponentDescription* ComponentDescription,
 							  FFlareSpacecraftComponentSave* ComponentData,
-							  float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource);
+							  float Energy, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource);
 	
 	bool IsPowered(FFlareSpacecraftComponentSave* ComponentToPowerData) const;
 

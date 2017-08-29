@@ -575,7 +575,7 @@ bool UFlareBattle::SimulateShipWeaponAttack(UFlareSimulatedSpacecraft* Ship, FFl
 			if(FMath::FRand() < Precision)
 			{
 				// Apply bullet damage
-				SimulateBulletDamage(WeaponDescription, Target, Ship->GetCompany());
+				SimulateBulletDamage(WeaponDescription, Target, Ship);
 			}
 		}
 
@@ -589,7 +589,7 @@ bool UFlareBattle::SimulateShipWeaponAttack(UFlareSimulatedSpacecraft* Ship, FFl
 		if (FMath::FRand() < (1+UsageRatio+(Target->GetDamageSystem()->IsUncontrollable() ? 1.f:0.f)))
 		{
 			// Apply bullet damage
-			SimulateBombDamage(WeaponDescription, Target, Ship->GetCompany());
+			SimulateBombDamage(WeaponDescription, Target, Ship);
 		}
 
 		Weapon->Weapon.FiredAmmo++;
@@ -604,7 +604,7 @@ bool UFlareBattle::SimulateShipWeaponAttack(UFlareSimulatedSpacecraft* Ship, FFl
 	return true;
 }
 
-void UFlareBattle::SimulateBulletDamage(FFlareSpacecraftComponentDescription* WeaponDescription, UFlareSimulatedSpacecraft* Target, UFlareCompany* DamageSource)
+void UFlareBattle::SimulateBulletDamage(FFlareSpacecraftComponentDescription* WeaponDescription, UFlareSimulatedSpacecraft* Target, UFlareSimulatedSpacecraft* DamageSource)
 {
 	if(WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::ArmorPiercing)
 	{
@@ -629,7 +629,7 @@ void UFlareBattle::SimulateBulletDamage(FFlareSpacecraftComponentDescription* We
 	}
 }
 
-void UFlareBattle::SimulateBombDamage(FFlareSpacecraftComponentDescription* WeaponDescription, UFlareSimulatedSpacecraft* Target, UFlareCompany* DamageSource)
+void UFlareBattle::SimulateBombDamage(FFlareSpacecraftComponentDescription* WeaponDescription, UFlareSimulatedSpacecraft* Target, UFlareSimulatedSpacecraft* DamageSource)
 {
 	// Apply damage
 	ApplyDamage(Target, WeaponDescription->WeaponCharacteristics.ExplosionPower,
@@ -641,12 +641,12 @@ void UFlareBattle::SimulateBombDamage(FFlareSpacecraftComponentDescription* Weap
 		((WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::LightSalvage && Target->GetDescription()->Size == EFlarePartSize::S)
 	 || (WeaponDescription->WeaponCharacteristics.DamageType == EFlareShellDamageType::HeavySalvage && Target->GetDescription()->Size == EFlarePartSize::L)))
 	{
-		FLOGV("UFlareBattle::SimulateBombDamage : salvaging %s for %s", *Target->GetImmatriculation().ToString(), *DamageSource->GetCompanyName().ToString());
-		Target->SetHarpooned(DamageSource);
+		FLOGV("UFlareBattle::SimulateBombDamage : salvaging %s for %s", *Target->GetImmatriculation().ToString(), *DamageSource->GetCompany()->GetCompanyName().ToString());
+		Target->SetHarpooned(DamageSource->GetCompany());
 	}
 }
 
-void UFlareBattle::ApplyDamage(UFlareSimulatedSpacecraft* Target, float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
+void UFlareBattle::ApplyDamage(UFlareSimulatedSpacecraft* Target, float Energy, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource)
 {
 
 	// Find a component and apply damages
@@ -666,7 +666,7 @@ void UFlareBattle::ApplyDamage(UFlareSimulatedSpacecraft* Target, float Energy, 
 
 	FFlareSpacecraftComponentDescription* ComponentDescription = Catalog->Get(TargetComponent->ComponentIdentifier);
 
-	CombatLog::SpacecraftDamaged(Target, Energy, 0, FVector::ZeroVector, DamageType, DamageSource, "SimulatedBattle");
+	CombatLog::SpacecraftDamaged(Target, Energy, 0, FVector::ZeroVector, DamageType, DamageSource->GetCompany(), "SimulatedBattle");
 	float DamageRatio = Target->GetDamageSystem()->ApplyDamage(ComponentDescription, TargetComponent, Energy, DamageType, DamageSource);
 }
 

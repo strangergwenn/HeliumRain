@@ -414,7 +414,7 @@ public:
 	virtual float GetArmorAtLocation(FVector Location);
 
 	/** Apply damage to this component. Return inflicted damage ratio */
-	virtual float ApplyDamage(float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource);
+	virtual float ApplyDamage(float Energy, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource);
 
 	/** Return the remaining hit points ratio. 1 for no damage, 0 for destroyed */
 	virtual float GetDamageRatio() const;

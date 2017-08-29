@@ -435,7 +435,7 @@ float UFlareSpacecraftComponent::GetArmorAtLocation(FVector Location)
 	return 1;
 }
 
-float UFlareSpacecraftComponent::ApplyDamage(float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource)
+float UFlareSpacecraftComponent::ApplyDamage(float Energy, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource)
 {
 	float InflictedDamageRatio = 0;
 	if (ComponentDescription)

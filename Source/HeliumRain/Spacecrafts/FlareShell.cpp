@@ -515,7 +515,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	AFlareBomb* Bomb = Cast<AFlareBomb>(ActorToDamage);
 	if (Spacecraft)
 	{
-		DamageCause Cause(Cast<AFlareSpacecraft>(ParentWeapon->GetOwner()), DamageType);
+		DamageCause Cause(Cast<AFlareSpacecraft>(ParentWeapon->GetOwner())->GetParent(), DamageType);
 		Cause.ManualTurret = ManualTurret;
 		Spacecraft->GetDamageSystem()->SetLastDamageCause(Cause);
 		Spacecraft->GetDamageSystem()->ApplyDamage(AbsorbedEnergy, ImpactRadius, ImpactLocation, DamageType, ParentWeapon->GetSpacecraft()->GetParent(), GetName());

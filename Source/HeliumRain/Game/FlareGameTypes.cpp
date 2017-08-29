@@ -370,7 +370,7 @@ DamageCause::DamageCause(EFlareDamage::Type DamageTypeParam):
 
 }
 
-DamageCause::DamageCause(AFlareSpacecraft* SpacecraftParam, EFlareDamage::Type DamageTypeParam):
+DamageCause::DamageCause(UFlareSimulatedSpacecraft* SpacecraftParam, EFlareDamage::Type DamageTypeParam):
 	Spacecraft(SpacecraftParam),
 	Company(NULL),
 	DamageType(DamageTypeParam)

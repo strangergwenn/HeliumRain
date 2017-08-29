@@ -19,7 +19,7 @@ public:
 
 	float GetArmorAtLocation(FVector Location) override;
 
-	virtual float ApplyDamage(float Energy, EFlareDamage::Type DamageType, UFlareCompany* DamageSource) override;
+	virtual float ApplyDamage(float Energy, EFlareDamage::Type DamageType, UFlareSimulatedSpacecraft* DamageSource) override;
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 

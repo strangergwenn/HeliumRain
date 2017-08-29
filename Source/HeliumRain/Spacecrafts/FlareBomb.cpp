@@ -511,7 +511,7 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 	//DrawDebugSphere(GetWorld(), GetActorLocation(), 1000, 32, FColor::Green, true);
 
 	// Apply damage
-	HitSpacecraft->GetDamageSystem()->SetLastDamageCause(DamageCause(Cast<AFlareSpacecraft>(ParentWeapon->GetOwner()), SpacecraftHelper::GetWeaponDamageType(WeaponDescription->WeaponCharacteristics.DamageType)));
+	HitSpacecraft->GetDamageSystem()->SetLastDamageCause(DamageCause(Cast<AFlareSpacecraft>(ParentWeapon->GetOwner())->GetParent(), SpacecraftHelper::GetWeaponDamageType(WeaponDescription->WeaponCharacteristics.DamageType)));
 	HitSpacecraft->GetDamageSystem()->ApplyDamage(WeaponDescription->WeaponCharacteristics.ExplosionPower,
 		WeaponDescription->WeaponCharacteristics.AmmoDamageRadius,
 		HitLocation,

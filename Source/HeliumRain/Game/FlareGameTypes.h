@@ -509,10 +509,10 @@ struct DamageCause
 {
 	DamageCause();
 	DamageCause(EFlareDamage::Type DamageTypeParam);
-	DamageCause(AFlareSpacecraft* SpacecraftParam, EFlareDamage::Type DamageTypeParam);
+	DamageCause(UFlareSimulatedSpacecraft* SpacecraftParam, EFlareDamage::Type DamageTypeParam);
 	DamageCause(UFlareCompany* CompanyParam, EFlareDamage::Type DamageTypeParam);
 
-	AFlareSpacecraft* Spacecraft;
+	UFlareSimulatedSpacecraft* Spacecraft;
 	UFlareCompany* Company;
 	EFlareDamage::Type DamageType;
 	bool ManualTurret = false;
