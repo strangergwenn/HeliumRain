@@ -442,6 +442,10 @@ struct FFlareSpacecraftSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 DockedAt;
 
+	/** We are docked at this specific dock */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float DockedAngle;
+
 	/** Accululated heat in KJ */
 	UPROPERTY(EditAnywhere, Category = Save)
 	float Heat;

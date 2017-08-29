@@ -771,10 +771,20 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(AFlareSpacecraft* DockStation
 	FLOGV("UFlareSpacecraftNavigationSystem::ConfirmDock : '%s' is now docked", *Spacecraft->GetParent()->GetImmatriculation().ToString());
 	ClearCurrentCommand();
 
+	FFlareDockingInfo DockingPort = DockStation->GetDockingSystem()->GetDockInfo(DockId);
+	FFlareDockingParameters DockingParameters = GetDockingParameters(DockingPort, FVector::ZeroVector);
+	FVector ShipTopVector = Spacecraft->GetActorTransform().GetRotation().RotateVector(FVector(0,0,1));
+	FVector StationTopVector =  DockingParameters.StationDockTopAxis;
+	float Dot = FVector::DotProduct(ShipTopVector, StationTopVector);
+	float AngleAbs = FMath::Acos(Dot);
+	FVector CrossVector = FVector::CrossProduct(StationTopVector, ShipTopVector);
+	float OutputAngle = FMath::RadiansToDegrees(AngleAbs * FMath::Sign( FVector::DotProduct(DockingParameters.StationDockAxis, CrossVector)));
+
 	// Set as docked
 	SetStatus(EFlareShipStatus::SS_Docked);
 	Data->DockedTo = DockStation->GetImmatriculation();
 	Data->DockedAt = DockId;
+	Data->DockedAngle = OutputAngle;
 	DockStation->GetDockingSystem()->Dock(Spacecraft, DockId);
 
 	if(DockConstraint)

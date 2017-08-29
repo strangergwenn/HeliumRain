@@ -310,6 +310,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	JsonObject->SetStringField("AngularVelocity", FormatVector(Data->AngularVelocity));
 	JsonObject->SetStringField("DockedTo", Data->DockedTo.ToString());
 	JsonObject->SetStringField("DockedAt", FormatInt32(Data->DockedAt));
+	SaveFloat(JsonObject,"DockedAngle", Data->DockedAngle);
 	SaveFloat(JsonObject,"Heat", Data->Heat);
 	SaveFloat(JsonObject,"PowerOutageDelay", Data->PowerOutageDelay);
 	SaveFloat(JsonObject,"PowerOutageAcculumator", Data->PowerOutageAcculumator);

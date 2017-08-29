@@ -29,6 +29,7 @@
 #include "Engine/Canvas.h"
 #include "Components/DecalComponent.h"
 #include "EngineUtils.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Systems"), STAT_FlareSpacecraft_Systems, STATGROUP_Flare);
@@ -570,6 +571,27 @@ void AFlareSpacecraft::Redock()
 			if (Station->GetImmatriculation() == GetData().DockedTo)
 			{
 				FLOGV("AFlareSpacecraft::Redock : Found dock station '%s'", *Station->GetImmatriculation().ToString());
+
+
+				// Replace ship at docking port
+				FFlareDockingInfo DockingPort = Station->GetDockingSystem()->GetDockInfo(GetData().DockedAt);
+				FFlareDockingParameters DockingParameters = GetNavigationSystem()->GetDockingParameters(DockingPort, FVector::ZeroVector);
+
+				FTransform DockedTransform;
+				FQuat DockRotation = FQuat(UKismetMathLibrary::MakeRotFromXZ(-DockingParameters.StationDockAxis, DockingParameters.StationDockTopAxis));
+				DockedTransform.SetRotation(DockRotation);
+
+				FRotator RollRotation = FRotator::ZeroRotator;
+				RollRotation.Roll = GetData().DockedAngle;
+				DockedTransform.ConcatenateRotation(FQuat(RollRotation));
+
+
+				FVector ShipLocalDockOffset = GetActorTransform().GetRotation().Inverse().RotateVector(DockingParameters.ShipDockOffset);
+				FVector RotatedOffset = DockRotation.RotateVector(ShipLocalDockOffset);
+				FVector DockLocation = DockingParameters.StationDockLocation - RotatedOffset;
+				DockedTransform.SetTranslation(DockLocation);
+
+				SetActorTransform(DockedTransform, false, nullptr, ETeleportType::TeleportPhysics);
 				NavigationSystem->ConfirmDock(Station, GetData().DockedAt, false);
 				break;
 			}

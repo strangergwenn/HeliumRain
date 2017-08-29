@@ -389,11 +389,13 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 
 	// LEGACY early access
 	Data->AllowExternalOrder = true;
+	Data->DockedAngle = 0.f;
 
 	Object->TryGetBoolField(TEXT("IsTrading"), Data->IsTrading);
 	Object->TryGetBoolField(TEXT("IsIntercepted"), Data->IsIntercepted);
 	LoadFloat(Object, "RefillStock", &Data->RefillStock);
 	LoadFloat(Object, "RepairStock", &Data->RepairStock);
+	LoadFloat(Object, "DockedAngle", &Data->DockedAngle);
 
 	if(Data->RepairStock < 0)
 	{
