@@ -485,6 +485,7 @@ protected:
 	// Materials
 	UMaterialInstanceDynamic*               ComponentMaterial;
 	UMaterialInstanceDynamic*               EffectMaterial;
+	UMaterialInstanceDynamic*               LightMaterial;
 
 	// Component description and data
 	FFlareSpacecraftComponentDescription*   ComponentDescription;

@@ -324,6 +324,23 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 			}
 			SetMaterialByName("Exhaust", EffectMaterial);
 		}
+
+		// Additional light material
+		int LightMaterialIndex = GetMaterialIndex("Light");
+		if (LightMaterialIndex >= 0)
+		{
+			UMaterialInterface* BaseMaterial = GetMaterial(LightMaterialIndex);
+			if (BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
+			{
+				LightMaterial = Cast<UMaterialInstanceDynamic>(BaseMaterial);
+			}
+			else
+			{
+				LightMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
+			}
+			SetMaterialByName("Light", LightMaterial);
+			LightMaterial->SetScalarParameterValue("Random", FMath::RandRange(0.0f, 1.0f));
+		}
 	}
 }
 
@@ -357,6 +374,11 @@ void UFlareSpacecraftComponent::UpdateCustomization()
 					CurrentCompanyData->Emblem);
 			}
 		}
+	}
+
+	if (LightMaterial)
+	{
+		LightMaterial->SetScalarParameterValue("IsPainted", 1);
 	}
 }
 
