@@ -1164,6 +1164,8 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 
 	AlignToTargetVelocityWithThrust(DeltaSeconds);
 
+	AngularTargetVelocity = AngularTargetVelocity.GetClampedToMaxSize(0.1f);
+
 	// Exit avoidance
 	if(!PilotTargetShip || PilotTargetShip != Ship->GetGame()->GetPC()->GetShipPawn())
 	{
