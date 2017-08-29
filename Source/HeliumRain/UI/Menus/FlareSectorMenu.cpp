@@ -1420,10 +1420,10 @@ void SFlareSectorMenu::OnBuildStationSelected(FFlareSpacecraftDescription* NewSt
 			UFlareSimulatedSpacecraft* NewStation = TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
 
 			// Same sector
-			if (PlayerFleet && PlayerFleet->GetCurrentSector() == TargetSector)
+			if (PlayerFleet && PlayerFleet->GetCurrentSector() == TargetSector && MenuManager->GetPC()->GetPlayerShip())
 			{
 				FFlareMenuParameterData MenuParameters;
-				MenuParameters.Spacecraft = PlayerFleet->GetShips()[0];
+				MenuParameters.Spacecraft = MenuManager->GetPC()->GetPlayerShip();
 				MenuParameters.Sector = TargetSector;
 				MenuManager->OpenMenu(EFlareMenu::MENU_ReloadSector, MenuParameters);
 			}
