@@ -53,6 +53,15 @@ int32 UFlareCustomizationCatalog::FindColor(FLinearColor Color) const
 }
 
 
+UTexture2D* UFlareCustomizationCatalog::GetBillboard(int32 Index) const
+{
+	if (Index >= 0 && Index < Billboards.Num())
+	{
+		return Billboards[Index];
+	}
+	return NULL;
+}
+
 UTexture2D* UFlareCustomizationCatalog::GetEmblem(int32 Index) const
 {
 	if (Index >= 0 && Index < PlayerEmblems.Num())

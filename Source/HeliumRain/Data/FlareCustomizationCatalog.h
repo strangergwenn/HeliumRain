@@ -48,6 +48,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FFlareCustomizationPatternDescription> PlayerEmblems;
 
+	/** Billboard storage */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<UTexture2D*> Billboards;
+
 
 	/*----------------------------------------------------
 		Get & Set
@@ -68,11 +72,18 @@ public:
 		return PlayerEmblems.Num();
 	}
 
+	inline int32 GetBillboardCount() const
+	{
+		return Billboards.Num();
+	}
+
 	FLinearColor GetColorByIndex(int32 Index) const;
 
 	int32 FindColor(FLinearColor Color) const;
 
 	UTexture2D* GetEmblem(int32 Index) const;
+
+	UTexture2D* GetBillboard(int32 Index) const;
 
 	const FSlateBrush* GetEmblemBrush(int32 Index) const;
 

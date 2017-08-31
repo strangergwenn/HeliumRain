@@ -341,6 +341,22 @@ void UFlareSpacecraftComponent::SetupComponentMesh()
 			SetMaterialByName("Light", LightMaterial);
 			LightMaterial->SetScalarParameterValue("Random", FMath::RandRange(0.0f, 1.0f));
 		}
+
+		// Additional billboard material
+		int BillboardMaterialIndex = GetMaterialIndex("Billboard");
+		if (BillboardMaterialIndex >= 0)
+		{
+			UMaterialInterface* BaseMaterial = GetMaterial(BillboardMaterialIndex);
+			if (BaseMaterial->IsA(UMaterialInstanceDynamic::StaticClass()))
+			{
+				BillboardMaterial = Cast<UMaterialInstanceDynamic>(BaseMaterial);
+			}
+			else
+			{
+				BillboardMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, GetWorld());
+			}
+			SetMaterialByName("Billboard", BillboardMaterial);
+		}
 	}
 }
 
@@ -351,6 +367,7 @@ void UFlareSpacecraftComponent::UpdateCustomization()
 		return;
 	}
 
+	// Regular paint
 	if (ComponentMaterial)
 	{
 		if (PlayerCompany)
@@ -376,10 +393,34 @@ void UFlareSpacecraftComponent::UpdateCustomization()
 		}
 	}
 
+	// Lighting
 	if (LightMaterial)
 	{
 		LightMaterial->SetScalarParameterValue("IsPainted", 1);
 	}
+
+	// Billboards
+	if (BillboardMaterial)
+	{
+		UTexture2D* Billboard = NULL;
+
+		const FFlareCompanyDescription* Desc = Spacecraft->GetParent()->GetCompany()->GetDescription();
+		const TArray<UTexture2D*> GameBillboards = Spacecraft->GetGame()->GetCustomizationCatalog()->Billboards;
+
+		if (Desc->Billboards.Num())
+		{
+			Billboard = Desc->Billboards[FMath::RandRange(0, Desc->Billboards.Num() - 1)];
+		}
+		else if (GameBillboards.Num())
+		{
+			Billboard = GameBillboards[FMath::RandRange(0, GameBillboards.Num() - 1)];
+		}
+
+		if (Billboard)
+		{
+			BillboardMaterial->SetTextureParameterValue("Texture", Billboard);
+		}
+	}	
 }
 
 void UFlareSpacecraftComponent::CustomizeMaterial(UMaterialInstanceDynamic* Mat, AFlareGame* Game, FLinearColor BasePaint, FLinearColor Paint, FLinearColor Overlay, FLinearColor Light, int32 Pattern, UTexture2D* Emblem)

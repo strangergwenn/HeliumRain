@@ -295,6 +295,10 @@ struct FFlareCompanyDescription
 	UPROPERTY(EditAnywhere, Category = Company)
 	UTexture2D* Emblem;
 
+	/** Billboard */
+	UPROPERTY(EditAnywhere, Category = Company)
+	TArray<UTexture2D*> Billboards;
+
 	/** Base color in the customization catalog */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FLinearColor CustomizationBasePaintColor;
