@@ -1505,7 +1505,7 @@ void UFlareWorld::ProcessIncomingPlayerEnemy()
 
 			for(auto Entry: IncomingMap)
 			{
-				if (Entry.Key.RemainingDuration == 1)
+				if (Entry.Key.RemainingDuration > 1)
 				{
 					UnknownShipCount += Entry.Value.LightShipCount;
 					UnknownShipCount += Entry.Value.HeavyShipCount;
