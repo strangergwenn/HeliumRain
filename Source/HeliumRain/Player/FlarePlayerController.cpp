@@ -2349,28 +2349,31 @@ void AFlarePlayerController::WheelPressed()
 		}
 
 		// Docked controls
-		if (ShipPawn->GetNavigationSystem()->IsDocked() && !IsBattleInProgress)
+		if (ShipPawn->GetNavigationSystem()->IsDocked())
 		{
 			AFlareSpacecraft* Target = ShipPawn->GetNavigationSystem()->GetDockStation();
 
-			// Buy ship / details
-			if (Target->GetParent()->IsShipyard())
+			if (!IsBattleInProgress)
 			{
-				MouseMenu->AddWidget("Mouse_Fly", LOCTEXT("Buy ship", "Buy ship"),
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
-			}
-			else
-			{
-				FText Text = FText::Format(LOCTEXT("InspectDockedFormat", "Details for {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
-				MouseMenu->AddWidget(Target->GetParent()->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
-			}
+				// Buy ship / details
+				if (Target->GetParent()->IsShipyard())
+				{
+					MouseMenu->AddWidget("Mouse_Fly", LOCTEXT("Buy ship", "Buy ship"),
+						FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
+				}
+				else
+				{
+					FText Text = FText::Format(LOCTEXT("InspectDockedFormat", "Details for {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
+					MouseMenu->AddWidget(Target->GetParent()->IsStation() ? "Mouse_Inspect_Station" : "Mouse_Inspect_Ship", Text,
+						FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::InspectTargetSpacecraft));
+				}
 
-			// Trade if possible
-			if (ShipPawn->GetParent()->GetDescription()->CargoBayCount > 0)
-			{
-				MouseMenu->AddWidget("Trade_Button", LOCTEXT("Trade", "Trade"),
-					FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::StartTrading));
+				// Trade if possible
+				if (ShipPawn->GetParent()->GetDescription()->CargoBayCount > 0)
+				{
+					MouseMenu->AddWidget("Trade_Button", LOCTEXT("Trade", "Trade"),
+						FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::StartTrading));
+				}
 			}
 
 			// Undock
@@ -2379,7 +2382,8 @@ void AFlarePlayerController::WheelPressed()
 
 			// Upgrade if possible
 			AFlareSpacecraft* DockStation = ShipPawn->GetNavigationSystem()->GetDockStation();
-			if (ShipPawn->GetParent()->GetCurrentSector()->CanUpgrade(ShipPawn->GetParent()->GetCompany())
+			if (!IsBattleInProgress
+			 && ShipPawn->GetParent()->GetCurrentSector()->CanUpgrade(ShipPawn->GetParent()->GetCompany())
 			 && ShipPawn->GetNavigationSystem()->IsDocked() && DockStation->GetParent()->HasCapability(EFlareSpacecraftCapability::Upgrade))
 			{
 				MouseMenu->AddWidget("ShipUpgrade_Button", LOCTEXT("Upgrade", "Upgrade"),
