@@ -114,7 +114,9 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareShipPilot_Military);
 
-	if (Ship->GetNavigationSystem()->IsDocked())
+	UFlareCompany* PlayerCompany = Ship->GetGame()->GetPC()->GetCompany();
+
+	if (Ship->GetNavigationSystem()->IsDocked() && ( Ship->GetParent()->GetCompany() != PlayerCompany || Ship->GetParent()->GetCurrentSector()->GetSectorBattleState(PlayerCompany).HasDanger))
 	{
 		WantFire = false;
 		// Let's undock
