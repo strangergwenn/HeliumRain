@@ -705,7 +705,7 @@ void UFlareWorld::Simulate()
 		{
 			if(Company != Game->GetPC()->GetCompany())
 			{
-				Company->GivePlayerReputation(Game->GetPC()->GetCompany()->GetShame(), 50.f);
+				Company->GivePlayerReputation(-Game->GetPC()->GetCompany()->GetShame(), 50.f);
 			}
 		}
 	}
