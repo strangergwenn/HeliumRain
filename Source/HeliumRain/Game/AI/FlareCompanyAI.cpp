@@ -3660,6 +3660,9 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 						Variation->FactoryCapacity += Capacity * Behavior->TradingSell;
 					}
 				}
+
+				Variation->ConsumerMaxStock += Station->GetCargoBay()->GetSlotCapacity();
+
 			}
 		}
 
