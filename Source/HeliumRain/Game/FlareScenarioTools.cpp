@@ -199,6 +199,7 @@ void UFlareScenarioTools::SetupWorld()
 	PlayerCompany->DiscoverSector(BlueHeart);
 	PlayerCompany->DiscoverSector(TheSpire);
 	PlayerCompany->DiscoverSector(Outpost);
+	PlayerCompany->DiscoverSector(MinersHome);
 	PlayerCompany->DiscoverSector(NightsHome);
 
 	// Discover public sectors
