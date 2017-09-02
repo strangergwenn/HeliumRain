@@ -1350,6 +1350,20 @@ void UFlareSimulatedSpacecraft::SetAllowExternalOrder(bool Allow)
 	SpacecraftData.AllowExternalOrder = Allow;
 }
 
+const FFlareProductionData* UFlareSimulatedSpacecraft::GetNextOrderShipProductionData(EFlarePartSize::Type Size)
+{
+	for (FFlareShipyardOrderSave& Order : SpacecraftData.ShipyardOrderQueue)
+	{
+		FFlareSpacecraftDescription* Desc = GetGame()->GetSpacecraftCatalog()->Get(Order.ShipClass);
+
+		if (Desc->Size == Size)
+		{
+			return &GetCycleDataForShipClass(Order.ShipClass);
+		}
+	}
+	return NULL;
+}
+
 int64 UFlareSimulatedSpacecraft::GetUpgradeCost(FFlareSpacecraftComponentDescription* NewPart, FFlareSpacecraftComponentDescription* OldPart)
 {
 	return NewPart->Cost - OldPart->Cost;

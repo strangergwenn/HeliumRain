@@ -184,6 +184,8 @@ public:
 	bool IsAllowExternalOrder();
 	void SetAllowExternalOrder(bool Allow);
 
+	const FFlareProductionData* GetNextOrderShipProductionData(EFlarePartSize::Type Size);
+
 
 protected:
 

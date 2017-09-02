@@ -833,13 +833,41 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::
 		for (int32 FactoryIndex = 0; FactoryIndex < Spacecraft->GetFactories().Num(); FactoryIndex++)
 		{
 			UFlareFactory* Factory = Spacecraft->GetFactories()[FactoryIndex];
+
+			if(Factory->IsShipyard() && !Factory->IsActive())
+			{
+				const FFlareProductionData* ProductionData = Spacecraft->GetNextOrderShipProductionData(Factory->IsLargeShipyard()? EFlarePartSize::L : EFlarePartSize::S);
+
+				if (ProductionData)
+				{
+					for(const FFlareFactoryResource& FactoryResource : ProductionData->InputResources)
+					{
+						const FFlareResourceDescription* Resource = &FactoryResource.Resource->Data;
+						WorldHelper::FlareResourceStats *ResourceStats = &WorldStats[Resource];
+
+						int64 ProductionDuration = ProductionData->ProductionTime;
+
+						float Flow = 0;
+
+						if (ProductionDuration == 0)
+						{
+							Flow = 1;
+						}
+						else
+						{
+							Flow = (float) FactoryResource.Quantity / float(ProductionDuration);
+						}
+
+						ResourceStats->Consumption += Flow;
+					}
+				}
+
+				continue;
+			}
+
 			if ((!Factory->IsActive() || !Factory->IsNeedProduction()))
 			{
 				// No resources needed
-				continue;
-			}
-			if(Factory->IsShipyard() && Factory->GetTargetShipCompany() == NAME_None)
-			{
 				continue;
 			}
 
