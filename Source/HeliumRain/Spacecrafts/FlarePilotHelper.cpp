@@ -79,7 +79,7 @@ bool PilotHelper::FindMostDangerousCollision(AActor*& MostDangerousCandidateActo
 											 FVector& MostDangerousLocation,
 											 float& MostDangerousTimeToHit,
 											 float& MostDangerousInterceptDepth,
-											 AFlareSpacecraft* Ship, AFlareSpacecraft* SpacecraftToIgnore)
+											 AFlareSpacecraft* Ship, AFlareSpacecraft* SpacecraftToIgnore, float SpeedLimit)
 {
 	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_AnticollisionCorrection);
 
@@ -158,14 +158,14 @@ bool PilotHelper::FindMostDangerousCollision(AActor*& MostDangerousCandidateActo
 		if ((SelectedCandidate.Key->GetActorLocation() - CurrentLocation).Size() < MaxRelevanceDistance)
 		{
 			CheckRelativeDangerosity(MostDangerousCandidateActor, MostDangerousLocation, MostDangerousTimeToHit, MostDangerousInterceptDepth,
-									 SelectedCandidate.Key, CurrentLocation, CurrentSize, SelectedCandidate.Value, CurrentVelocity);
+									 SelectedCandidate.Key, CurrentLocation, CurrentSize, SelectedCandidate.Value, CurrentVelocity, SpeedLimit);
 		}
 	}
 
 	return MostDangerousCandidateActor != NULL;
 }
 
-bool PilotHelper::IsAnticollisionImminent(AFlareSpacecraft* Ship, float PreventionDuration)
+bool PilotHelper::IsAnticollisionImminent(AFlareSpacecraft* Ship, float PreventionDuration, float SpeedLimit)
 {
 	// Output data
 	AActor* MostDangerousCandidateActor;
@@ -173,7 +173,7 @@ bool PilotHelper::IsAnticollisionImminent(AFlareSpacecraft* Ship, float Preventi
 	float MostDangerousTimeToHit = PreventionDuration;
 	float MostDangerousInterseptDepth;
 
-	bool HaveCollision = FindMostDangerousCollision(MostDangerousCandidateActor, MostDangerousLocation, MostDangerousTimeToHit, MostDangerousInterseptDepth, Ship, NULL);
+	bool HaveCollision = FindMostDangerousCollision(MostDangerousCandidateActor, MostDangerousLocation, MostDangerousTimeToHit, MostDangerousInterseptDepth, Ship, NULL, SpeedLimit);
 
 	if (HaveCollision && Ship->IsLoadedAndReady() && !Ship->GetNavigationSystem()->IsAutoPilot() && !Ship->GetNavigationSystem()->IsDocked() && MostDangerousCandidateActor)
 	{
@@ -183,7 +183,7 @@ bool PilotHelper::IsAnticollisionImminent(AFlareSpacecraft* Ship, float Preventi
 	return false;
 }
 
-FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, float PreventionDuration, AFlareSpacecraft* SpacecraftToIgnore)
+FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, float PreventionDuration, AFlareSpacecraft* SpacecraftToIgnore, float SpeedLimit)
 {
 	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_AnticollisionCorrection);
 
@@ -196,7 +196,7 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 	float MostDangerousIntersectDepth;
 
 	bool HaveCollision = FindMostDangerousCollision(MostDangerousCandidateActor, MostDangerousLocation, MostDangerousTimeToHit,MostDangerousIntersectDepth,
-													Ship, SpacecraftToIgnore);
+													Ship, SpacecraftToIgnore, SpeedLimit);
 
 	if(!HaveCollision)
 	{
@@ -622,7 +622,7 @@ UFlareSpacecraftComponent* PilotHelper::GetBestTargetComponent(AFlareSpacecraft*
 	return ComponentSelection[ComponentIndex];
 }
 
-bool PilotHelper::CheckRelativeDangerosity(AActor*& MostDangerousCandidateActor, FVector& MostDangerousLocation, float& MostDangerousTimeToHit, float& MostDangerousInterseptDepth, AActor* CandidateActor, FVector CurrentLocation, float CurrentSize, FVector TargetVelocity, FVector CurrentVelocity)
+bool PilotHelper::CheckRelativeDangerosity(AActor*& MostDangerousCandidateActor, FVector& MostDangerousLocation, float& MostDangerousTimeToHit, float& MostDangerousInterseptDepth, AActor* CandidateActor, FVector CurrentLocation, float CurrentSize, FVector TargetVelocity, FVector CurrentVelocity, float SpeedLimit)
 {
 	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_CheckRelativeDangerosity);
 	//FLOGV("PilotHelper::CheckRelativeDangerosity for %s, ship size %f", *CandidateActor->GetName(), CurrentSize);
@@ -632,7 +632,12 @@ bool PilotHelper::CheckRelativeDangerosity(AActor*& MostDangerousCandidateActor,
 	FVector DeltaLocation = CandidateLocation - CurrentLocation;
 
 	// Eliminate obvious not-dangerous candidates based on velocity
-	if (DeltaVelocity.IsNearlyZero() || (FVector::DotProduct(DeltaLocation.GetUnsafeNormal(), DeltaVelocity) > -200))
+
+	//FLOGV("TargetVelocity %s", *TargetVelocity.ToString());
+	//FLOGV("CurrentVelocity %s", *CurrentVelocity.ToString());
+	//FLOGV("Vector::DotProduct(DeltaLocation.GetUnsafeNormal(), DeltaVelocity) %f", FVector::DotProduct(DeltaLocation.GetUnsafeNormal(), DeltaVelocity));
+
+	if (DeltaVelocity.IsNearlyZero() || (FVector::DotProduct(DeltaLocation.GetUnsafeNormal(), DeltaVelocity) > -SpeedLimit))
 	{
 		return false;
 	}
