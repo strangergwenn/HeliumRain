@@ -1619,6 +1619,56 @@ bool UFlareSimulatedSpacecraft::IsLastPlayerShip()
 }
 
 
+bool UFlareSimulatedSpacecraft::IsResponsible(EFlareDamage::Type DamageType)
+{
+	UFlareSimulatedSpacecraft* PlayerShip = GetGame()->GetPC()->GetPlayerShip();
+
+	if(this != PlayerShip)
+	{
+		return false;
+	}
+
+	if(PlayerShip->GetSize() == EFlarePartSize::S)
+	{
+		return true;
+	}
+	else
+	{
+		if(PlayerShip->IsActive())
+		{
+			if (PlayerShip->GetActive()->GetWeaponsSystem()->IsInFireDirector())
+			{
+				if (DamageType == EFlareDamage::DAM_Collision)
+				{
+					return false;
+				}
+				else
+				{
+					return true;
+				}
+
+			}
+			else
+			{
+				if (DamageType == EFlareDamage::DAM_Collision)
+				{
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+}
+
+
+
 const FSlateBrush* FFlareSpacecraftDescription::GetIcon(FFlareSpacecraftDescription* Characteristic)
 {
 	if (Characteristic)

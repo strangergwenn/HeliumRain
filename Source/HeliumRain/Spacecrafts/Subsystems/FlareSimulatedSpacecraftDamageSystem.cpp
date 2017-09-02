@@ -414,9 +414,10 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 
 
 			UFlareCompany* PlayerCompany = Spacecraft->GetGame()->GetPC()->GetCompany();
-			UFlareSimulatedSpacecraft* PlayerShip = Spacecraft->GetGame()->GetPC()->GetPlayerShip();
+			//UFlareSimulatedSpacecraft* PlayerShip = Spacecraft->GetGame()->GetPC()->GetPlayerShip();
 
-			if (ReputationCost != 0 && DamageSource == PlayerShip && Spacecraft->GetCompany() != PlayerCompany && Spacecraft->GetCompany() != Spacecraft->GetGame()->GetScenarioTools()->Pirates)
+
+			if (ReputationCost != 0 && DamageSource->IsResponsible(DamageType) && Spacecraft->GetCompany() != PlayerCompany && Spacecraft->GetCompany() != Spacecraft->GetGame()->GetScenarioTools()->Pirates)
 			{
 				// Being shot by enemies is pretty much expected
 				if (Spacecraft->GetCompany()->GetWarState(DamageSource->GetCompany()) != EFlareHostility::Hostile)

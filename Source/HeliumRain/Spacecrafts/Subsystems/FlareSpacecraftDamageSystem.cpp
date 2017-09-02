@@ -321,7 +321,7 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 	UFlareSimulatedSpacecraft* PlayerShip = Spacecraft->GetGame()->GetPC()->GetPlayerShip();
 
 
-	if (LastDamageCause.Spacecraft != NULL && LastDamageCause.Company != Spacecraft->GetCompany() && LastDamageCause.Spacecraft == PlayerShip)
+	if (LastDamageCause.Spacecraft != NULL && LastDamageCause.Company != Spacecraft->GetCompany() && LastDamageCause.Spacecraft->IsResponsible(LastDamageCause.DamageType))
 	{
 		// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
 		if (Spacecraft->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Hostile)

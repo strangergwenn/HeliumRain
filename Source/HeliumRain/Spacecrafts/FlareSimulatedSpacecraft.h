@@ -363,5 +363,8 @@ public:
 	int32 GetRefillDuration();
 
 	bool IsLastPlayerShip();
+
+	bool IsResponsible(EFlareDamage::Type DamageType);
+
 };
 
