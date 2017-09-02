@@ -823,7 +823,7 @@ void UFlareQuestTutorialNavigation::Load(UFlareQuestManager* Parent)
 	}
 
 	{
-		FText Description = LOCTEXT("CommandUndockDescription", "Congratulations, you are docked ! Once you are done with trading, press <input-action:Wheel> to select the undocking option.");
+		FText Description = LOCTEXT("CommandUndockDescription", "Congratulations, you are docked ! If you want, you can make docking easier by unlocking autodocking in the technology menu.\nPress <input-action:Wheel> to select the undocking option.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "command-undock", Description);
 
 
@@ -972,14 +972,14 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 		FText Description = LOCTEXT("GainResearchPointDescription","You can develop technologies to increase your capabilities and your company's performance. To develop a technology, you need research points. Companies with a high research value sometimes offer you contracts with research points as a reward. You will learn a more efficient way to get research points in the future !\nGain some research points to move forward.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "gain-research-points", Description);
 
-		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 20));
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchValue::Create(this, 25));
 		Steps.Add(Step);
 	}
 
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"OpenTechnologyMenu"
-		FText Description = LOCTEXT("OpenTechnologyMenuDescription","You have enough research points to research technology. Open the technology menu with (<input-action:TechnologyMenu>), or from the menu bar with <input-action:ToggleOverlay>.");
+		FText Description = LOCTEXT("OpenTechnologyMenuDescription","You can research new technologies with the technology menu. Open it with (<input-action:TechnologyMenu>), or from the menu bar with <input-action:ToggleOverlay> to spend your research points.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-technology-menu", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Technology));
@@ -989,7 +989,7 @@ void UFlareQuestTutorialTechnology::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"ResearchTechnology"
-		FText Description = LOCTEXT("ResearchTechnologyDescription","You can manage research in the technology menu. Select a level 1 technology and research it !\nChoose wisely, for the price of all technology is increased after each research. You may consider researching the 'Science' technology to build a research station quickly.");
+		FText Description = LOCTEXT("ResearchTechnologyDescription","You can manage research in the technology menu. Select a technology and research it !\nChoose wisely, for the price of all technology is increased after each research. You may consider researching the 'Science' technology to build a research station quickly.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "research-technology", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialResearchTechnology::Create(this, 1));

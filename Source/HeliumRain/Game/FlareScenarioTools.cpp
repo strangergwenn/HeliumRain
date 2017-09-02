@@ -156,6 +156,7 @@ void UFlareScenarioTools::GenerateFreighterScenario()
 	SetupWorld();
 
 	CreatePlayerShip(FirstLight, "ship-solen");
+	PlayerCompany->GiveResearch(20);
 }
 
 void UFlareScenarioTools::GenerateDebugScenario()
