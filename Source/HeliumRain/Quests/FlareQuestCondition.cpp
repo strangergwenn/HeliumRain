@@ -2236,9 +2236,13 @@ FText UFlareQuestConditionTimeAfterAvailableDate::GetInitialLabel()
 	int64 AvailabilityDate = Quest->GetAvailableDate();
 	int64 RemainingDuration = DurationLimit - (GetGame()->GetGameWorld()->GetDate()- AvailabilityDate);
 
-	if(RemainingDuration+1 > 0)
+	if (RemainingDuration > 0)
 	{
-		return FText::Format(LOCTEXT("TimeAfterAvailableRemainingDurationFormat", "{0} left"), UFlareGameTools::FormatDate(RemainingDuration+1, 2));
+		return FText::Format(LOCTEXT("TimeAfterAvailableRemainingDurationFormat", "{0} left"), UFlareGameTools::FormatDate(RemainingDuration, 2));
+	}
+	else if (RemainingDuration == 0)
+	{
+		return LOCTEXT("TimeAfterAvailableRemainingDurationZero", "Last day");
 	}
 	else
 	{
