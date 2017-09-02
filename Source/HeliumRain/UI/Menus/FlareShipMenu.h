@@ -80,8 +80,11 @@ protected:
 	/** Visibility of the allow external order button */
 	EVisibility GetShipyardAllowExternalOrderVisibility() const;
 
-	/** Visibility of the ship selector */
-	bool IsShipSelectorDisabled() const;
+	/** Visibility of the S ship selector */
+	bool IsShipSSelectorDisabled() const;
+
+	/** Visibility of the L ship selector */
+	bool IsShipLSelectorDisabled() const;
 
 	/** Visibility of the cancel ship button */
 	EVisibility GetCancelShipOrderVisibility(int32 Index) const;

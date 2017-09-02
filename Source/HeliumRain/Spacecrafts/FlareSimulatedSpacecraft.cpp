@@ -1177,7 +1177,12 @@ bool UFlareSimulatedSpacecraft::CanOrder(const FFlareSpacecraftDescription* Ship
 		{
 			if (Order.Company == PlayerCompany->GetIdentifier())
 			{
-				return false;
+				FFlareSpacecraftDescription* OrderShip = GetGame()->GetSpacecraftCatalog()->Get(Order.ShipClass);
+
+				if(OrderShip->Size == ShipDescription->Size)
+				{
+					return false;
+				}
 			}
 		}
 	}

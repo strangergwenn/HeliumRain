@@ -109,7 +109,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						.Text(LOCTEXT("OrderLightShip", "Order light ship"))
 						.HelpText(this, &SFlareShipMenu::GetLightShipTextInfo)
 						.OnClicked(this, &SFlareShipMenu::OnOpenSpacecraftOrder, false)
-						.IsDisabled(this, &SFlareShipMenu::IsShipSelectorDisabled)
+						.IsDisabled(this, &SFlareShipMenu::IsShipSSelectorDisabled)
 						.Visibility(this, &SFlareShipMenu::GetShipyardVisibility)
 					]
 					
@@ -122,7 +122,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 						.Text(LOCTEXT("OrderHeavyShip", "Order heavy ship"))
 						.HelpText(this, &SFlareShipMenu::GetHeavyShipTextInfo)
 						.OnClicked(this, &SFlareShipMenu::OnOpenSpacecraftOrder, true)
-						.IsDisabled(this, &SFlareShipMenu::IsShipSelectorDisabled)
+						.IsDisabled(this, &SFlareShipMenu::IsShipLSelectorDisabled)
 						.Visibility(this, &SFlareShipMenu::GetShipyardVisibility)
 					]
 					
@@ -816,7 +816,7 @@ EVisibility SFlareShipMenu::GetShipyardAllowExternalOrderVisibility() const
 }
 
 
-bool SFlareShipMenu::IsShipSelectorDisabled() const
+bool SFlareShipMenu::IsShipSSelectorDisabled() const
 {
 	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
 	{
@@ -824,7 +824,33 @@ bool SFlareShipMenu::IsShipSelectorDisabled() const
 		{
 			if (Order.Company == MenuManager->GetPC()->GetCompany()->GetIdentifier())
 			{
-				return true;
+				FFlareSpacecraftDescription* OrderShip = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(Order.ShipClass);
+
+				if(OrderShip->Size == EFlarePartSize::S)
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool SFlareShipMenu::IsShipLSelectorDisabled() const
+{
+	if (TargetSpacecraft && TargetSpacecraft->IsShipyard())
+	{
+		for (FFlareShipyardOrderSave& Order : TargetSpacecraft->GetShipyardOrderQueue())
+		{
+			if (Order.Company == MenuManager->GetPC()->GetCompany()->GetIdentifier())
+			{
+				FFlareSpacecraftDescription* OrderShip = MenuManager->GetGame()->GetSpacecraftCatalog()->Get(Order.ShipClass);
+
+				if(OrderShip->Size == EFlarePartSize::L)
+				{
+					return true;
+				}
 			}
 		}
 	}
@@ -849,7 +875,7 @@ EVisibility SFlareShipMenu::GetCancelShipOrderVisibility(int32 Index) const
 
 FText SFlareShipMenu::GetLightShipTextInfo() const
 {
-	if (IsShipSelectorDisabled())
+	if (IsShipSSelectorDisabled())
 	{
 		return LOCTEXT("OrderShipInfoDisabled", "You already have an order in the production queue and can't add a new one");
 	}
@@ -861,7 +887,7 @@ FText SFlareShipMenu::GetLightShipTextInfo() const
 
 FText SFlareShipMenu::GetHeavyShipTextInfo() const
 {
-	if (IsShipSelectorDisabled())
+	if (IsShipLSelectorDisabled())
 	{
 		return LOCTEXT("OrderShipInfoDisabled", "You already have an order in the production queue and can't add a new one");
 	}
