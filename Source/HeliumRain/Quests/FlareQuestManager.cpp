@@ -769,5 +769,56 @@ bool UFlareQuestManager::IsInterestingMeteorite(FFlareMeteoriteSave& Meteorite)
 	return false;
 }
 
+bool UFlareQuestManager::IsTradeQuestUseStation(UFlareSimulatedSpacecraft* Station)
+{
+	if(!Station)
+	{
+		return false;
+	}
+
+	FName StationId = Station->GetImmatriculation();
+
+	auto IsUseStation = [&](UFlareQuest* Quest)
+	{
+		UFlareQuestGeneratedResourceTrade* TradeQuest = Cast<UFlareQuestGeneratedResourceTrade>(Quest);
+		if(TradeQuest)
+		{
+			return TradeQuest->GetInitData()->GetName("station1") == StationId || TradeQuest->GetInitData()->GetName("station2") == StationId;
+		}
+
+		UFlareQuestGeneratedResourceSale* SaleQuest = Cast<UFlareQuestGeneratedResourceSale>(Quest);
+		if(SaleQuest)
+		{
+			return SaleQuest->GetInitData()->GetName("station") == StationId;
+		}
+
+		UFlareQuestGeneratedResourcePurchase* PurchaseQuest = Cast<UFlareQuestGeneratedResourcePurchase>(Quest);
+		if(PurchaseQuest)
+		{
+			return PurchaseQuest->GetInitData()->GetName("station") == StationId;
+		}
+		return false;
+	};
+
+	for(UFlareQuest* OngoingQuest : GetOngoingQuests())
+	{
+		if(IsUseStation(OngoingQuest))
+		{
+			return true;
+		}
+	}
+
+	for(UFlareQuest* AvailableQuest : GetAvailableQuests())
+	{
+		if(IsUseStation(AvailableQuest))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 
 #undef LOCTEXT_NAMESPACE

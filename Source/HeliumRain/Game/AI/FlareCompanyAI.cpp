@@ -865,6 +865,12 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool Technology, 
 				continue;
 			}
 
+			if (GetGame()->GetQuestManager()->IsTradeQuestUseStation(Station))
+			{
+				// Do not update stations used by quests
+				continue;
+			}
+
 			int32 StationCountForThisKind = 0;
 			for(UFlareSimulatedSpacecraft* StationCandidate : Company->GetCompanyStations())
 			{

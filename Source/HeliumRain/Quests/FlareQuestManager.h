@@ -315,4 +315,7 @@ public:
 	}
 
 	bool IsInterestingMeteorite(FFlareMeteoriteSave& Meteorite);
+
+
+	bool IsTradeQuestUseStation(UFlareSimulatedSpacecraft* Station);
 };
