@@ -1381,13 +1381,13 @@ bool UFlareSimulatedSpacecraft::CanUpgrade(EFlarePartType::Type Type)
 	switch(Type)
 	{
 		case EFlarePartType::RCS:
-			CanBeChanged = (GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS) == 1.0f);
+			CanBeChanged = (GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_RCS) >= 0.99f);
 			break;
 		case EFlarePartType::OrbitalEngine:
-			CanBeChanged = (GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) == 1.0f);
+			CanBeChanged = (GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_Propulsion) >= 0.99f);
 			break;
 		case EFlarePartType::Weapon:
-			CanBeChanged = (GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_WeaponAndAmmo) == 1.0f);
+			CanBeChanged = (GetDamageSystem()->GetSubsystemHealth(EFlareSubsystem::SYS_WeaponAndAmmo) >= 0.99f);
 			break;
 	}
 	return CanBeChanged;
