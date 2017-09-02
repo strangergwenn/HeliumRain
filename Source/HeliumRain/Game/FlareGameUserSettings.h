@@ -29,11 +29,19 @@ public:
 
 	void SetScreenPercentage(int32 NewScreenPercentage);
 
+	int32 GetMonitorCount() const;
+
+	void MoveToMonitor(int32 NewMonitorIndex);
+
 
 	/*----------------------------------------------------
 		Public data
 	----------------------------------------------------*/
 	
+	/** Screen FOV */
+	UPROPERTY(config)
+	int32                                    MonitorNumber;
+
 	/** Screen FOV */
 	UPROPERTY(config)
 	int32                                    VerticalFOV;
