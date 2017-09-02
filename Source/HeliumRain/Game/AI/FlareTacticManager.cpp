@@ -19,7 +19,14 @@ UFlareTacticManager::UFlareTacticManager(const FObjectInitializer& ObjectInitial
 
 void UFlareTacticManager::Load(UFlareCompany* ParentCompany)
 {
-	ResetShipGroup(EFlareCombatTactic::AttackMilitary);
+	if(ParentCompany->IsPlayerCompany())
+	{
+		ResetShipGroup(EFlareCombatTactic::AttackMilitary);
+	}
+	else
+	{
+		ResetShipGroup(EFlareCombatTactic::AttackAll);
+	}
 
 	Company = ParentCompany;
 }

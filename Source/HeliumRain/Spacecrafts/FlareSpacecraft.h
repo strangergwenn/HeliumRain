@@ -384,6 +384,8 @@ public:
 		return Parent;
 	}
 
+	bool IsOutsideSector() const;
+
 	inline bool IsLoadedAndReady() const
 	{
 		return LoadedAndReady;

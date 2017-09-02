@@ -1273,16 +1273,18 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 	}
 	else if (Tactic == EFlareCombatTactic::AttackMilitary)
 	{
-		TargetPreferences.IsStation = 0.1;
+		TargetPreferences.IsStation = 0.0f;
 	}
 	else if (Tactic == EFlareCombatTactic::AttackCivilians)
 	{
+		TargetPreferences.IsStation = 0.0f;
 		TargetPreferences.IsMilitary = 0.1;
 		TargetPreferences.IsNotMilitary = 1.0;
 		TargetPreferences.IsNotDangerous = 1.0;
 	}
 	else if (Tactic == EFlareCombatTactic::ProtectMe)
 	{
+		TargetPreferences.IsStation = 0.0f;
 		// Protect me is only available for player ship
 		if (Ship->GetCompany() == Ship->GetGame()->GetPC()->GetCompany())
 		{

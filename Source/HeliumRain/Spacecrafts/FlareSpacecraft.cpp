@@ -193,11 +193,11 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			// Reload the sector if player leave the limits
 			if (!HasExitedSector)
 			{
-				float Distance = GetActorLocation().Size();
-				float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
-
-				if (Distance > Limits)
+				if (IsOutsideSector())
 				{
+					float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
+					float Distance = GetActorLocation().Size();
+
 					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits);
 					
 					// Reset the ship
@@ -2040,6 +2040,14 @@ float AFlareSpacecraft::GetTimeToStop() const
 	}
 	return TimeToStopCache;
 }
+
+bool AFlareSpacecraft::IsOutsideSector() const
+{
+	float Distance = GetActorLocation().Size();
+	float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
+	return Distance > Limits;
+}
+
 
 
 #undef LOCTEXT_NAMESPACE

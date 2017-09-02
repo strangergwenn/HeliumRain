@@ -142,6 +142,11 @@ bool UFlareSimulatedSpacecraftDamageSystem::IsDisarmed() const
 		return true;
 	}
 
+	if(Spacecraft->IsActive() && Spacecraft->GetActive()->IsOutsideSector())
+	{
+		return true;
+	}
+
 	return (GetSubsystemHealth(EFlareSubsystem::SYS_WeaponAndAmmo) == 0.0f);
 }
 

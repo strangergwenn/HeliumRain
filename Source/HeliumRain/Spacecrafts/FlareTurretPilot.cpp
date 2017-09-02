@@ -377,16 +377,18 @@ AFlareSpacecraft* UFlareTurretPilot::GetNearestHostileShip(bool ReachableOnly, E
 	}
 	else if (Tactic == EFlareCombatTactic::AttackMilitary)
 	{
-		TargetPreferences.IsStation = 0.1;
+		TargetPreferences.IsStation = 0;
 	}
 	else if (Tactic == EFlareCombatTactic::AttackCivilians)
 	{
+		TargetPreferences.IsStation = 0;
 		TargetPreferences.IsMilitary = 0.1;
 		TargetPreferences.IsNotMilitary = 1.0;
 		TargetPreferences.IsNotDangerous = 1.0;
 	}
 	else if (Tactic == EFlareCombatTactic::ProtectMe)
 	{
+		TargetPreferences.IsStation = 0;
 		// Protect me is only available for player ship
 		if (Turret->GetSpacecraft()->GetParent()->GetCompany() == Turret->GetSpacecraft()->GetGame()->GetPC()->GetCompany())
 		{
@@ -444,5 +446,5 @@ FVector UFlareTurretPilot::GetTargetAimAxis() const
 
 bool UFlareTurretPilot::IsWantFire() const
 {
-	return WantFire;
+	return WantFire && !Turret->GetSpacecraft()->GetParent()->GetDamageSystem()->IsDisarmed();
 }

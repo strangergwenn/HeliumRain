@@ -72,6 +72,7 @@ namespace EFlareCombatTactic
 {
 	enum Type
 	{
+		AttackAll,
 		ProtectMe,
 		AttackMilitary,
 		AttackStations,
