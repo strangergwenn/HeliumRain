@@ -153,7 +153,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 
 	if (!IsPresentationMode() && StateManager && !Paused)
 	{
-		if(GetParent()->GetDamageSystem()->IsUncontrollable())
+		if(GetParent()->GetDamageSystem()->IsUncontrollable() && GetParent()->GetDamageSystem()->IsDisarmed())
 		{
 			TimeSinceUncontrollable += DeltaSeconds;
 		}
