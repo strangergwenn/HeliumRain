@@ -367,6 +367,9 @@ void UFlareSpacecraftComponent::UpdateCustomization()
 		return;
 	}
 
+	AFlareGame* Game = SpacecraftPawn->GetGame();
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
+
 	// Regular paint
 	if (ComponentMaterial)
 	{
@@ -376,8 +379,6 @@ void UFlareSpacecraftComponent::UpdateCustomization()
 		}
 		else
 		{
-			AFlareGame* Game = SpacecraftPawn->GetGame();
-			AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
 			const FFlareCompanyDescription* CurrentCompanyData = PC->GetCompanyDescription();
 
 			if (CurrentCompanyData)
@@ -401,24 +402,33 @@ void UFlareSpacecraftComponent::UpdateCustomization()
 
 	// Billboards
 	if (BillboardMaterial)
-	{
-		UTexture2D* Billboard = NULL;
-
-		const FFlareCompanyDescription* Desc = Spacecraft->GetParent()->GetCompany()->GetDescription();
-		const TArray<UTexture2D*> GameBillboards = Spacecraft->GetGame()->GetCustomizationCatalog()->Billboards;
-
-		if (Desc->Billboards.Num())
+	{		
+		// Player
+		if (PlayerCompany->IsPlayerCompany())
 		{
-			Billboard = Desc->Billboards[FMath::RandRange(0, Desc->Billboards.Num() - 1)];
-		}
-		else if (GameBillboards.Num())
-		{
-			Billboard = GameBillboards[FMath::RandRange(0, GameBillboards.Num() - 1)];
+			BillboardMaterial->SetTextureParameterValue("Texture", PC->GetPlayerBanner());
 		}
 
-		if (Billboard)
+		// Regular company
+		else
 		{
-			BillboardMaterial->SetTextureParameterValue("Texture", Billboard);
+			UTexture2D* Billboard = NULL;
+			const TArray<UTexture2D*> CompanyBillboards = Spacecraft->GetParent()->GetCompany()->GetDescription()->Billboards;
+			const TArray<UTexture2D*> GameBillboards = Spacecraft->GetGame()->GetCustomizationCatalog()->Billboards;
+
+			if (CompanyBillboards.Num())
+			{
+				Billboard = CompanyBillboards[FMath::RandRange(0, CompanyBillboards.Num() - 1)];
+			}
+			else if (GameBillboards.Num())
+			{
+				Billboard = GameBillboards[FMath::RandRange(0, GameBillboards.Num() - 1)];
+			}
+
+			if (Billboard)
+			{
+				BillboardMaterial->SetTextureParameterValue("Texture", Billboard);
+			}
 		}
 	}	
 }
@@ -707,5 +717,12 @@ bool UFlareSpacecraftComponent::IsComponentVisible() const
 
 FLinearColor UFlareSpacecraftComponent::NormalizeColor(FLinearColor Col)
 {
-	return FLinearColor(FVector(Col.R, Col.G, Col.B) / Col.GetLuminance());
+	if (Col.GetLuminance() < KINDA_SMALL_NUMBER)
+	{
+		return FLinearColor::White;
+	}
+	else
+	{
+		return FLinearColor(FVector(Col.R, Col.G, Col.B) / Col.GetLuminance());
+	}
 }

@@ -31,6 +31,7 @@
 #include "GameFramework/InputSettings.h"
 
 #include "Engine/PostProcessVolume.h"
+#include "Engine/Canvas.h"
 #include "EngineUtils.h"
 
 #include "OnlineSubsystem.h"
@@ -62,6 +63,8 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, TimeSinceWeaponSwitch(0)
 	, CombatZoomFOVRatio(0.4f)
 	, WaitingForKey(false)
+	, CompanyBanner(NULL)
+	, BannerFont(NULL)
 {
 	CheatClass = UFlareGameTools::StaticClass();
 		
@@ -75,6 +78,10 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	// Camera shakes
 	static ConstructorHelpers::FObjectFinder<UFlareCameraShakeCatalog> CameraShakeCatalogObj(TEXT("/Game/Gameplay/Catalog/CameraShakeCatalog"));
 	CameraShakeCatalog = CameraShakeCatalogObj.Object;
+
+	// Font
+	static ConstructorHelpers::FObjectFinder<UFont> BannerFontObj(TEXT("/Game/Slate/Fonts/StationFont.StationFont"));
+	BannerFont = BannerFontObj.Object;
 
 	// Sound data
 	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationInfoSoundObj(TEXT("/Game/Sound/Game/A_NotificationInfo"));
@@ -207,6 +214,13 @@ void AFlarePlayerController::BeginPlay()
 	// Menu manager
 	SetupMenu();
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
+
+	// Company banner
+	CompanyBanner = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), 512, 128);
+	FCHECK(CompanyBanner);
+	CompanyBanner->OnCanvasRenderTargetUpdate.AddDynamic(this, &AFlarePlayerController::DrawBanner);
+	CompanyBanner->ClearColor = FLinearColor::Black;
+	CompanyBanner->UpdateResource();
 
 	// Sound manager
 	SoundManager = NewObject<UFlareSoundManager>(this, UFlareSoundManager::StaticClass());
@@ -546,6 +560,7 @@ void AFlarePlayerController::Load(const FFlarePlayerSave& SavePlayerData)
 	// Load player emblem
 	UFlareCustomizationCatalog* CustomizationCatalog = GetGame()->GetCustomizationCatalog();
 	CompanyData.Emblem = CustomizationCatalog->GetEmblem(PlayerData.PlayerEmblemIndex);
+	CompanyBanner->UpdateResource();
 }
 
 void AFlarePlayerController::OnLoadComplete()
@@ -1481,6 +1496,55 @@ const FFlarePlayerObjectiveData* AFlarePlayerController::GetCurrentObjective() c
 	Customization
 ----------------------------------------------------*/
 
+void AFlarePlayerController::DrawBanner(UCanvas* TargetCanvas, int32 Width, int32 Height)
+{
+	if (TargetCanvas && GetCompany())
+	{
+		FText Text = FText::FromString(GetCompany()->GetShortName().ToString().ToUpper());
+		UFlareCustomizationCatalog* CustomizationCatalog = GetGame()->GetCustomizationCatalog();
+		const UTexture2D* Icon = Cast<UTexture2D>(CustomizationCatalog->GetEmblemBrush(PlayerData.PlayerEmblemIndex)->GetResourceObject());
+		
+		// Centering
+		float XL, YL;
+		TargetCanvas->TextSize(BannerFont, Text.ToString(), XL, YL);
+		float X = 0.25f * Width - 0.5f * XL;
+		float Y = 0.50f * Height - 0.5f * YL;
+		
+		// Drawing
+		FCanvasTextItem TextItem(FVector2D(X, Y), Text, BannerFont, UFlareSpacecraftComponent::NormalizeColor(CompanyData.CustomizationBasePaintColor));
+		TextItem.Scale = FVector2D(1, 1);
+		TargetCanvas->DrawItem(TextItem);
+		
+		// Top line
+		int32 LineHeight = Height / 5;
+		FVector2D Start = FVector2D(0, 0.1f * Height);
+		FVector2D End = FVector2D(Width, 0.1f * Height);
+		FCanvasLineItem TopLineItem(Start, End);
+		TopLineItem.SetColor(UFlareSpacecraftComponent::NormalizeColor(CompanyData.CustomizationLightColor));
+		TopLineItem.LineThickness = LineHeight;
+		TargetCanvas->DrawItem(TopLineItem);
+
+		// Bottom line
+		Start = FVector2D(0, 0.9f * Height);
+		End = FVector2D(Width, 0.9f * Height);
+		FCanvasLineItem BottomLineItem(Start, End);
+		BottomLineItem.SetColor(UFlareSpacecraftComponent::NormalizeColor(CompanyData.CustomizationPaintColor));
+		BottomLineItem.LineThickness = LineHeight;
+		TargetCanvas->DrawItem(BottomLineItem);
+		
+		// Icon
+		FCanvasTileItem TileItem(
+			FVector2D(0.7f * Width, 0.2f * Height), 
+			Icon->Resource,
+			FVector2D(0.6 * Height, 0.6 * Height),
+			FVector2D(0, 0),
+			FVector2D(0 + 1, 0 + 1),
+			UFlareSpacecraftComponent::NormalizeColor(CompanyData.CustomizationOverlayColor));
+		TileItem.BlendMode = FCanvas::BlendToSimpleElementBlend(EBlendMode::BLEND_Translucent);
+		TargetCanvas->DrawItem(TileItem);
+	}
+}
+
 void AFlarePlayerController::SetBasePaintColor(FLinearColor Color)
 {
 	CompanyData.CustomizationBasePaintColor = Color;
@@ -1489,6 +1553,7 @@ void AFlarePlayerController::SetBasePaintColor(FLinearColor Color)
 	{
 		Company->UpdateCompanyCustomization();
 	}
+	CompanyBanner->UpdateResource();
 }
 
 void AFlarePlayerController::SetPaintColor(FLinearColor Color)
@@ -1499,6 +1564,7 @@ void AFlarePlayerController::SetPaintColor(FLinearColor Color)
 	{
 		Company->UpdateCompanyCustomization();
 	}
+	CompanyBanner->UpdateResource();
 }
 
 void AFlarePlayerController::SetOverlayColor(FLinearColor Color)
@@ -1509,6 +1575,7 @@ void AFlarePlayerController::SetOverlayColor(FLinearColor Color)
 	{
 		Company->UpdateCompanyCustomization();
 	}
+	CompanyBanner->UpdateResource();
 }
 
 void AFlarePlayerController::SetLightColor(FLinearColor Color)
@@ -1519,6 +1586,7 @@ void AFlarePlayerController::SetLightColor(FLinearColor Color)
 	{
 		Company->UpdateCompanyCustomization();
 	}
+	CompanyBanner->UpdateResource();
 }
 
 void AFlarePlayerController::SetPatternIndex(int32 Index)
@@ -1532,6 +1600,7 @@ void AFlarePlayerController::SetPatternIndex(int32 Index)
 	{
 		Company->UpdateCompanyCustomization();
 	}
+	CompanyBanner->UpdateResource();
 }
 
 

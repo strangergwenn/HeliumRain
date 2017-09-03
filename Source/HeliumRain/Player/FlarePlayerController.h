@@ -4,6 +4,7 @@
 #include "../Game/FlareSaveGame.h"
 #include "../Game/FlareGameTypes.h"
 #include "../UI/FlareUITypes.h"
+#include "Engine/CanvasRenderTarget2D.h"
 #include "FlarePlayerController.generated.h"
 
 
@@ -189,6 +190,10 @@ public:
 	/*----------------------------------------------------
 		Customization
 	----------------------------------------------------*/
+
+	/** Draw the banner */
+	UFUNCTION()
+	void DrawBanner(UCanvas* TargetCanvas, int32 Width, int32 Height);
 
 	/** Set the color of engine exhausts */
 	void SetBasePaintColor(FLinearColor Color);
@@ -442,6 +447,14 @@ protected:
 	UPROPERTY()
 	AFlareCockpitManager*                    CockpitManager;
 
+	// Company advertisement texture
+	UPROPERTY()
+	UCanvasRenderTarget2D*                   CompanyBanner;
+
+	// Banner font
+	UPROPERTY()
+	UFont*                                   BannerFont;
+
 	/** Objective */
 	UPROPERTY()
 	FFlarePlayerObjectiveData                CurrentObjective;
@@ -510,6 +523,11 @@ public:
 	inline const FFlareCompanyDescription* GetCompanyDescription() const
 	{
 		return &CompanyData;
+	}
+
+	inline UCanvasRenderTarget2D* GetPlayerBanner() const
+	{
+		return CompanyBanner;
 	}
 
 	UFUNCTION(BlueprintCallable, Category = "Flare")
