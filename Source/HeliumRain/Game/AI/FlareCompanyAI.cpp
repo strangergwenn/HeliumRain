@@ -3483,7 +3483,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			continue;
 		}
 
-		int32 SlotCapacity = Station->GetCargoBay()->GetSlotCapacity();
+		int32 InitialSlotCapacity = Station->GetCargoBay()->GetSlotCapacity();
 
 		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
@@ -3536,7 +3536,9 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				int32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
 
-				float BaseSlotCapacity = SlotCapacity / Station->GetLevel();
+				float BaseSlotCapacity = InitialSlotCapacity / Station->GetLevel();
+
+				int32 SlotCapacity = InitialSlotCapacity;
 
 				if(!Station->IsUnderConstruction())
 				{
@@ -3600,8 +3602,8 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				// The AI don't let anything for the player : it's too hard
 				// Make the AI ignore the sector with not enought stock or to little capacity
-				float BaseSlotCapacity = SlotCapacity / Station->GetLevel();
-				Stock = FMath::Max(0, FMath::RoundToInt(Stock - BaseSlotCapacity * GetGame()->GetAINerfRatio()));
+				float BaseSlotCapacity = InitialSlotCapacity / Station->GetLevel();
+				Stock = FMath::RoundToInt(Stock - BaseSlotCapacity * GetGame()->GetAINerfRatio());
 
 
 				if (Company == Station->GetCompany())
@@ -3640,7 +3642,9 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				int32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
 				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
 
-				float BaseSlotCapacity = SlotCapacity / Station->GetLevel();
+				float BaseSlotCapacity = InitialSlotCapacity / Station->GetLevel();
+				int32 SlotCapacity = InitialSlotCapacity;
+
 				SlotCapacity -=  BaseSlotCapacity * GetGame()->GetAINerfRatio();
 
 				int32 Capacity = SlotCapacity - ResourceQuantity;
@@ -3677,7 +3681,9 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				int32 ResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
 
 				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
-				int32 Capacity = SlotCapacity - ResourceQuantity;
+				int32 Capacity = InitialSlotCapacity - ResourceQuantity;
+				int32 SlotCapacity = InitialSlotCapacity;
+
 
 				float BaseSlotCapacity = SlotCapacity / Station->GetLevel();
 				SlotCapacity -=  BaseSlotCapacity * GetGame()->GetAINerfRatio();
@@ -3703,7 +3709,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				// The AI don't let anything for the player : it's too hard
 				// Make the AI ignore the sector with not enought stock or to little capacity
-				Stock = FMath::Max(0, FMath::RoundToInt(Stock - BaseSlotCapacity * GetGame()->GetAINerfRatio()));
+				Stock = FMath::RoundToInt(Stock - BaseSlotCapacity * GetGame()->GetAINerfRatio());
 
 
 				if (Company == Station->GetCompany())
