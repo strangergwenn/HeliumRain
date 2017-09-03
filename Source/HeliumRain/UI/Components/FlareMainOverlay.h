@@ -40,7 +40,7 @@ public:
 	void SetupMenuLink(TSharedPtr<SFlareButton> Button, EFlareMenu::Type Menu);
 
 	/** Setup a button */
-	void SetupMenuLinkSmall(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text, FString Key);
+	void SetupMenuLinkSmall(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text);
 
 
 	/*----------------------------------------------------

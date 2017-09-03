@@ -217,7 +217,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	];
 
 	// Back, exit config
-	SetupMenuLinkSmall(BackButton, FFlareStyleSet::GetIcon("Back"), FText(), FString());
+	SetupMenuLinkSmall(BackButton, FFlareStyleSet::GetIcon("Back"), FText());
 	ExitButton->GetContainer()->SetHAlign(HAlign_Center);
 	ExitButton->GetContainer()->SetVAlign(VAlign_Fill);
 	ExitButton->GetContainer()->SetPadding(FMargin(0, 5));
@@ -314,7 +314,7 @@ void SFlareMainOverlay::SetupMenuLink(TSharedPtr<SFlareButton> Button, EFlareMen
 	);
 }
 
-void SFlareMainOverlay::SetupMenuLinkSmall(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text, FString Key)
+void SFlareMainOverlay::SetupMenuLinkSmall(TSharedPtr<SFlareButton> Button, const FSlateBrush* Icon, FText Text)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
@@ -347,16 +347,6 @@ void SFlareMainOverlay::SetupMenuLinkSmall(TSharedPtr<SFlareButton> Button, cons
 			SNew(STextBlock)
 			.TextStyle(&Theme.SmallFont)
 			.Text(Text)
-		]
-
-		// Shortcut
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Center)
-		[
-			SNew(STextBlock)
-			.TextStyle(&Theme.SmallFont)
-			.Text(FText::Format(LOCTEXT("ShortcutKeyFormat", "({0})"), FText::FromString(Key)))
 		]
 	);
 }
