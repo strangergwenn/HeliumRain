@@ -1400,14 +1400,16 @@ void UFlareCompany::UnlockTechnology(FName Identifier, bool FromSave, bool Force
 ----------------------------------------------------*/
 
 
-const struct CompanyValue& UFlareCompany::GetCompanyValue(UFlareSimulatedSector* SectorFilter, bool IncludeIncoming) const
+const struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* SectorFilter, bool IncludeIncoming) const
 {
+	bool globalRequest = SectorFilter == nullptr;
 
 
-	if(CompanyValueCacheValid)
+	if(CompanyValueCacheValid && globalRequest)
 	{
 		return CompanyValueCache;
 	}
+
 
 
 	// Company value is the sum of :
@@ -1415,13 +1417,14 @@ const struct CompanyValue& UFlareCompany::GetCompanyValue(UFlareSimulatedSector*
 	// - value of its spacecraft
 	// - value of the stock in these spacecraft
 	// - value of the resources used in factory
-	CompanyValueCache.MoneyValue = GetMoney();
-	CompanyValueCache.StockValue = 0;
-	CompanyValueCache.ShipsValue = 0;
-	CompanyValueCache.ArmyValue = 0;
-	CompanyValueCache.ArmyCurrentCombatPoints = 0;
-	CompanyValueCache.ArmyTotalCombatPoints = 0;
-	CompanyValueCache.StationsValue = 0;
+	CompanyValue CompanyValue;
+	CompanyValue.MoneyValue = GetMoney();
+	CompanyValue.StockValue = 0;
+	CompanyValue.ShipsValue = 0;
+	CompanyValue.ArmyValue = 0;
+	CompanyValue.ArmyCurrentCombatPoints = 0;
+	CompanyValue.ArmyTotalCombatPoints = 0;
+	CompanyValue.StationsValue = 0;
 
 	for (int SpacecraftIndex = 0; SpacecraftIndex < CompanySpacecrafts.Num(); SpacecraftIndex++)
 	{
@@ -1460,18 +1463,18 @@ const struct CompanyValue& UFlareCompany::GetCompanyValue(UFlareSimulatedSector*
 
 		if(Spacecraft->IsStation())
 		{
-			CompanyValueCache.StationsValue += SpacecraftPrice * Spacecraft->GetLevel();
+			CompanyValue.StationsValue += SpacecraftPrice * Spacecraft->GetLevel();
 		}
 		else
 		{
-			CompanyValueCache.ShipsValue += SpacecraftPrice;
+			CompanyValue.ShipsValue += SpacecraftPrice;
 		}
 
 		if(Spacecraft->IsMilitary())
 		{
-			CompanyValueCache.ArmyValue += SpacecraftPrice;
-			CompanyValueCache.ArmyTotalCombatPoints += Spacecraft->GetCombatPoints(false);
-			CompanyValueCache.ArmyCurrentCombatPoints += Spacecraft->GetCombatPoints(true);
+			CompanyValue.ArmyValue += SpacecraftPrice;
+			CompanyValue.ArmyTotalCombatPoints += Spacecraft->GetCombatPoints(false);
+			CompanyValue.ArmyCurrentCombatPoints += Spacecraft->GetCombatPoints(true);
 		}
 
 		// Value of the stock
@@ -1485,7 +1488,7 @@ const struct CompanyValue& UFlareCompany::GetCompanyValue(UFlareSimulatedSector*
 				continue;
 			}
 
-			CompanyValueCache.StockValue += ReferenceSector->GetResourcePrice(Cargo.Resource, EFlareResourcePriceContext::Default) * Cargo.Quantity;
+			CompanyValue.StockValue += ReferenceSector->GetResourcePrice(Cargo.Resource, EFlareResourcePriceContext::Default) * Cargo.Quantity;
 		}
 
 		// Value of factory stock
@@ -1501,7 +1504,7 @@ const struct CompanyValue& UFlareCompany::GetCompanyValue(UFlareSimulatedSector*
 				FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourceIdentifier);
 				if (Resource)
 				{
-					CompanyValueCache.StockValue += ReferenceSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * Quantity;
+					CompanyValue.StockValue += ReferenceSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * Quantity;
 				}
 				else
 				{
@@ -1511,12 +1514,16 @@ const struct CompanyValue& UFlareCompany::GetCompanyValue(UFlareSimulatedSector*
 		}
 	}
 
-	CompanyValueCache.SpacecraftsValue = CompanyValueCache.ShipsValue + CompanyValueCache.StationsValue;
-	CompanyValueCache.TotalValue = CompanyValueCache.MoneyValue + CompanyValueCache.StockValue + CompanyValueCache.SpacecraftsValue;
+	CompanyValue.SpacecraftsValue = CompanyValue.ShipsValue + CompanyValue.StationsValue;
+	CompanyValue.TotalValue = CompanyValue.MoneyValue + CompanyValue.StockValue + CompanyValue.SpacecraftsValue;
 
-	CompanyValueCacheValid = true;
+	if(globalRequest)
+	{
+		CompanyValueCacheValid = true;
+		CompanyValueCache = CompanyValue;
+	}
 
-	return CompanyValueCache;
+	return CompanyValue;
 }
 
 UFlareSimulatedSpacecraft* UFlareCompany::FindSpacecraft(FName ShipImmatriculation, bool Destroyed)
