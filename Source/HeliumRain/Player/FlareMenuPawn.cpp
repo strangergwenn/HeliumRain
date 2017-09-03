@@ -288,8 +288,9 @@ void AFlareMenuPawn::UpdateCustomization()
 	}
 	else
 	{
-		CurrentPartA->UpdateCustomization();
-		CurrentPartB->UpdateCustomization();
+		UFlareSpacecraftComponent* CurrentPart = SlideFromAToB ? CurrentPartB : CurrentPartA;
+
+		CurrentPart->UpdateCustomization();
 	}
 }
 
