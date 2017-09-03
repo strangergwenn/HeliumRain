@@ -561,8 +561,6 @@ void UFlareWorld::Simulate()
 			}
 			Spacecraft->Repair();
 			Spacecraft->Refill();
-
-			// Kill velocity
 			Spacecraft->Stabilize();
 		}
 	}

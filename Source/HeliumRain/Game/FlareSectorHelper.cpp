@@ -211,8 +211,9 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSim
 
 	int32 ResourcePrice = SourceSpacecraft->GetCurrentSector()->GetTransfertResourcePrice(SourceSpacecraft, DestinationSpacecraft, Resource);
 	int32 QuantityToTake = MaxQuantity;
+	bool AllowDepts = SourceSpacecraft->GetGame()->GetQuestManager()->IsTradeQuestUseStation(DestinationSpacecraft);
 
-	if (SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
+	if (SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany() && !AllowDepts)
 	{
 		// Limit transaction bay available money
 		int32 MaxAffordableQuantity = FMath::Max(0, int32(DestinationSpacecraft->GetCompany()->GetMoney() / ResourcePrice));
@@ -229,7 +230,7 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSim
 	if (GivenResources > 0 && SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
 	{
 		int64 Price = ResourcePrice * GivenResources;
-		DestinationSpacecraft->GetCompany()->TakeMoney(Price);
+		DestinationSpacecraft->GetCompany()->TakeMoney(Price, AllowDepts);
 		SourceSpacecraft->GetCompany()->GiveMoney(Price);
 
 		if(TransactionPrice )
