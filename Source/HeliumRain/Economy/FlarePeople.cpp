@@ -564,24 +564,26 @@ void UFlarePeople::KillPeople(uint32 KillCount)
 		return;
 	}
 
+
+
 	//FLOGV("Kill %u people for sector %s", KillCount, *Parent->GetSectorName().ToString());
 
 
 	float KillRatio = (float) PeopleToKill / (float)PeopleData.Population;
 	// Decrease population
-	PeopleData.Population -= KillCount;
+	PeopleData.Population -= PeopleToKill;
 
 	// Money destruction (delayed, really destroy on Pay)
-	uint32 DestroyedMoney = KillCount * MONETARY_CREATION;
+	uint32 DestroyedMoney = PeopleToKill * MONETARY_CREATION;
 	PeopleData.Dept += DestroyedMoney;
 	Game->GetGameWorld()->WorldMoneyReference -= DestroyedMoney;
 
-	DecreaseHappiness(KillCount * 100 * 2); // Death happiness malus
+	DecreaseHappiness(PeopleToKill * 100 * 2); // Death happiness malus
 
 	//Cancel dead hunger
 	PeopleData.HungerPoint = (1 - KillRatio) * PeopleData.HungerPoint;
 
-	if(PeopleToKill == 0)
+	if(PeopleData.Population == 0)
 	{
 		ResetPeople();
 	}
