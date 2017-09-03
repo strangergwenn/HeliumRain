@@ -99,6 +99,8 @@ public:
 
 	void RecoveryRepair();
 
+	void Stabilize();
+
 	void Refill();
 
 	void SetReserve(bool InReserve);

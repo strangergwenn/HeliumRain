@@ -616,6 +616,23 @@ void UFlareSimulatedSpacecraft::RecoveryRepair()
 	}
 }
 
+void UFlareSimulatedSpacecraft::Stabilize()
+{
+	if(!GetDamageSystem()->IsUncontrollable())
+	{
+		SpacecraftData.LinearVelocity = FVector::ZeroVector;
+		SpacecraftData.AngularVelocity = FVector::ZeroVector;
+
+		float Limits = UFlareSector::GetSectorLimits();
+		float Distance = SpacecraftData.Location.Size();
+
+		if(Distance > Limits)
+		{
+			float Correction = 0.8* Limits / Distance;
+			SpacecraftData.Location *= Correction;
+		}
+	}
+}
 
 void UFlareSimulatedSpacecraft::Refill()
 {
