@@ -681,6 +681,7 @@ void UFlareFactory::PerformDiscoverSectorAction(const FFlareFactoryAction* Actio
 		// Pick a sector
 		int TelescopeRange = 2;
 		int Index = FMath::RandHelper(TelescopeRange);
+		Index = FMath::Clamp(Index, 0, Candidates.Num()-1);
 		TargetSector = Candidates[Index];
 
 		// Player-owned telescope (should always be the case according to #99) or other company ?
