@@ -143,6 +143,15 @@ void UFlareFactory::UpdateDynamicState()
 
 void UFlareFactory::Start()
 {
+	if(FactoryDescription->IsTelescope())
+	{
+		if(GetTelescopeTargetList().Num() == 0)
+		{
+			NotifyNoMoreSector();
+			return;
+		}
+	}
+
 	FactoryData.Active = true;
 }
 
@@ -617,7 +626,8 @@ struct FSortByProximity
 	}
 };
 
-void UFlareFactory::PerformDiscoverSectorAction(const FFlareFactoryAction* Action)
+
+TArray<UFlareSimulatedSector*> UFlareFactory::GetTelescopeTargetList()
 {
 	UFlareCompany* Company = Parent->GetCompany();
 
@@ -630,6 +640,33 @@ void UFlareFactory::PerformDiscoverSectorAction(const FFlareFactoryAction* Actio
 			Candidates.Add(CandidateSector);
 		}
 	}
+
+	return Candidates;
+}
+
+void UFlareFactory::NotifyNoMoreSector()
+{
+
+	UFlareSimulatedSector* CurrentSector = Parent->GetCurrentSector();
+
+	FFlareMenuParameterData Data;
+		Data.Sector = CurrentSector;
+
+	Game->GetPC()->Notify(
+			LOCTEXT("NoMoreDiscovery", "All sectors found"),
+			LOCTEXT("NoMoreDiscoveryFormat", "Your astronomers have mapped the entire sky, and reached the limits of their telescopes. All sectors have been discovered."),
+			"no-more-discovery",
+			EFlareNotification::NT_Info,
+			false,
+			EFlareMenu::MENU_Sector,
+			Data);
+}
+
+void UFlareFactory::PerformDiscoverSectorAction(const FFlareFactoryAction* Action)
+{
+	UFlareCompany* Company = Parent->GetCompany();
+
+	TArray<UFlareSimulatedSector*> Candidates = GetTelescopeTargetList();
 
 	// Sort by score
 	UFlareSimulatedSector* CurrentSector = Parent->GetCurrentSector();
@@ -650,6 +687,11 @@ void UFlareFactory::PerformDiscoverSectorAction(const FFlareFactoryAction* Actio
 		if (Company == PC->GetCompany())
 		{
 			PC->DiscoverSector(TargetSector, false, true);
+
+			if(Candidates.Num() <= 1)
+			{
+				NotifyNoMoreSector();
+			}
 		}
 		else
 		{
@@ -658,6 +700,7 @@ void UFlareFactory::PerformDiscoverSectorAction(const FFlareFactoryAction* Actio
 	}
 	else
 	{
+		NotifyNoMoreSector();
 		FLOG("UFlareFactory::PerformDiscoverSectorAction : could not find a sector !");
 	}
 

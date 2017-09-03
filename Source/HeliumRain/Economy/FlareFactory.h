@@ -77,6 +77,9 @@ public:
 
 	void PerformBuildStationAction(const FFlareFactoryAction* Action);
 
+	TArray<UFlareSimulatedSector*> GetTelescopeTargetList();
+
+	void NotifyNoMoreSector();
 
 protected:
 
