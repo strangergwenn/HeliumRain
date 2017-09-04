@@ -80,7 +80,7 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 				{
 					ClearCurrentCommand();
 				}
-				LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, Spacecraft->GetPreferedAnticollisionTime());
+				LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, Spacecraft->GetPreferedAnticollisionTime(), 0.f);
 			}
 			else if (CurrentCommand.Type == EFlareCommandDataType::CDT_BrakeLocation)
 			{
@@ -761,7 +761,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 		//FLOGV("Docking Anticollision ignore=%p", AnticollisionDockStation);
 
 		// During docking, lets the others avoid me
-		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, Spacecraft->GetPreferedAnticollisionTime(), AnticollisionDockStation);
+		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, Spacecraft->GetPreferedAnticollisionTime(), AnticollisionDockStation, 0.f);
 	}
 }
 
