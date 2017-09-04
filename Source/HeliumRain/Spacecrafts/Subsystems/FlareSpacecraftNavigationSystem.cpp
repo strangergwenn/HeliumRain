@@ -80,7 +80,7 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 				{
 					ClearCurrentCommand();
 				}
-				LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, Spacecraft->GetPreferedAnticollisionTime(), 0.f);
+				LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, LinearTargetVelocity, Spacecraft->GetPreferedAnticollisionTime(), NULL, 0.f);
 			}
 			else if (CurrentCommand.Type == EFlareCommandDataType::CDT_BrakeLocation)
 			{
