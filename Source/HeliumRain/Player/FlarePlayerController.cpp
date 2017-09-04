@@ -58,13 +58,13 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, LowSpeedEffect(NULL)
 	, HighSpeedEffect(NULL)
 	, Company(NULL)
+	, CompanyBanner(NULL)
+	, BannerFont(NULL)
 	, AchievementsAvailable(false)
 	, WeaponSwitchTime(10.0f)
 	, TimeSinceWeaponSwitch(0)
 	, CombatZoomFOVRatio(0.4f)
 	, WaitingForKey(false)
-	, CompanyBanner(NULL)
-	, BannerFont(NULL)
 {
 	CheatClass = UFlareGameTools::StaticClass();
 		
