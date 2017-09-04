@@ -664,7 +664,17 @@ FVector UFlareSpacecraftStateManager::GetLinearTargetVelocity() const
 			UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 			if (MyGameSettings->UseAnticollision || Spacecraft->GetPC()->GetMenuManager()->IsUIOpen() || Spacecraft->GetWeaponsSystem()->IsInFireDirector())
 			{
-				FinalLinearVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, FinalLinearVelocity, Spacecraft->GetPreferedAnticollisionTime(), NULL, 0.f);
+				AFlareSpacecraft* SpacecraftToIgnore = NULL;
+				if(Spacecraft->GetIsManualDocking())
+				{
+					FText DockInfo;
+					AFlareSpacecraft* DockSpacecraft = NULL;
+					FFlareDockingParameters DockParameters;
+					Spacecraft->GetManualDockingProgress(DockSpacecraft, DockParameters, DockInfo);
+					SpacecraftToIgnore = DockSpacecraft;
+				}
+
+				FinalLinearVelocity = PilotHelper::AnticollisionCorrection(Spacecraft, FinalLinearVelocity, Spacecraft->GetPreferedAnticollisionTime(), SpacecraftToIgnore, 0.f);
 			}
 		}
 
