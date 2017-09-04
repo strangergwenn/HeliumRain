@@ -286,12 +286,12 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 						 && DockingParameters.DockingPhase != EFlareDockingPhase::Distant)
 						{
 							// Get distance
-							float DockDistance = (DockingParameters.StationDockLocation - DockingParameters.ShipDockLocation).Size();
-							if (DockDistance < BestDistance)
+							FVector DockVector = DockingParameters.StationDockLocation - DockingParameters.ShipDockLocation;
+							if (DockVector.Size() < BestDistance && FVector::DotProduct(DockVector, GetActorRotation().Vector()) > 0)
 							{
 								// Set parameters
 								IsManualDocking = true;
-								BestDistance = DockDistance;
+								BestDistance = DockVector.Size();
 								BestDockingPort = DockingPort;
 								ManualDockingTarget = Spacecraft;
 								ManualDockingStatus = DockingParameters;
