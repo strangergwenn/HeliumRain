@@ -30,17 +30,9 @@ struct FFlareResourceDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	FSlateBrush Icon;
 
-	/** Min resource price */
+	/** Default resource price */
 	UPROPERTY(EditAnywhere, Category = Content)
-	int64 MinPrice;
-
-	/** Min resource price */
-	UPROPERTY(EditAnywhere, Category = Content)
-	int64 MaxPrice;
-
-	/** Min resource price */
-	UPROPERTY(EditAnywhere, Category = Content)
-	int64 TransportFee;
+	int64 DefaultPrice;
 
 	/** Is consumer resource */
 	UPROPERTY(EditAnywhere, Category = Content)

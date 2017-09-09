@@ -477,8 +477,8 @@ protected:
 	UPROPERTY()
 	FFlareSectorOrbitParameters             SectorOrbitParameters;
 	const FFlareSectorDescription*          SectorDescription;
-	TMap<FFlareResourceDescription*, float> ResourcePrices;
-	TMap<FFlareResourceDescription*, FFlareFloatBuffer> LastResourcePrices;
+	//TMap<FFlareResourceDescription*, float> ResourcePrices;
+	//TMap<FFlareResourceDescription*, FFlareFloatBuffer> LastResourcePrices;
 
 public:
 
@@ -565,9 +565,9 @@ public:
 		return LightRatio;
 	}
 
-	int64 GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, int32 Age = 0);
+	//int64 GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, int32 Age = 0);
 
-	float GetPreciseResourcePrice(FFlareResourceDescription* Resource, int32 Age = 0);
+	//float GetPreciseResourcePrice(FFlareResourceDescription* Resource, int32 Age = 0);
 
 	void SwapPrices();
 

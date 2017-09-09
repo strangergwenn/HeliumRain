@@ -1502,7 +1502,7 @@ FLinearColor UFlareSimulatedSector::GetSectorFriendlynessColor(UFlareCompany* Co
 	return Color;
 }
 
-
+/*
 float UFlareSimulatedSector::GetPreciseResourcePrice(FFlareResourceDescription* Resource, int32 Age)
 {
 	if(Age == 0)
@@ -1528,8 +1528,8 @@ float UFlareSimulatedSector::GetPreciseResourcePrice(FFlareResourceDescription* 
 		return LastResourcePrices[Resource].GetValue(Age);
 	}
 
-}
-
+}*/
+/*
 void UFlareSimulatedSector::SwapPrices()
 {
 	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
@@ -1545,12 +1545,12 @@ void UFlareSimulatedSector::SwapPrices()
 
 		LastResourcePrices[Resource].Append(GetPreciseResourcePrice(Resource, 0));
 	}
-}
-
+}*/
+/*
 void UFlareSimulatedSector::SetPreciseResourcePrice(FFlareResourceDescription* Resource, float NewPrice)
 {
 	ResourcePrices[Resource] = FMath::Clamp(NewPrice, (float) Resource->MinPrice, (float) Resource->MaxPrice);
-}
+}*/
 
 
 static bool ReserveShipComparator (UFlareSimulatedSpacecraft& Ship1, UFlareSimulatedSpacecraft& Ship2)
@@ -2085,7 +2085,7 @@ float UFlareSimulatedSector::GetDefaultResourcePrice(FFlareResourceDescription* 
 {
 	return (Resource->MinPrice + Resource->MaxPrice)/2;
 }
-
+*/
 uint32 UFlareSimulatedSector::GetTransfertResourcePrice(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource)
 {
 	UFlareSimulatedSpacecraft* Station = NULL;
