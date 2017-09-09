@@ -406,33 +406,6 @@ void AFlareGame::ScrapStation(UFlareSimulatedSpacecraft* StationToScrap)
 	ActivateCurrentSector();
 }
 
-float AFlareGame::GetAINerfRatio()
-{
-	if(AINerfRatioCacheDate != GetGameWorld()->GetDate())
-	{
-		// Compute ratio
-		float PlayerCompanyValue = GetPC()->GetCompany()->GetCompanyValue().TotalValue;
-		float MaxCompanyValue = 0;
-		for(UFlareCompany* Company: GetGameWorld()->GetCompanies())
-		{
-			float CompanyValue = Company->GetCompanyValue().TotalValue;
-			if(MaxCompanyValue < CompanyValue)
-			{
-				MaxCompanyValue = CompanyValue;
-			}
-		}
-		float ValueProportion = PlayerCompanyValue / MaxCompanyValue;
-
-		float InitialRatio = 0.4f;
-
-		AINerfRatio = FMath::Clamp((1.f - ValueProportion) * InitialRatio, 0.0f, InitialRatio);
-		AINerfRatioCacheDate = GetGameWorld()->GetDate();
-	}
-
-	return AINerfRatio;
-}
-
-
 void AFlareGame::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

@@ -84,8 +84,6 @@ public:
 
 	virtual void ScrapStation(UFlareSimulatedSpacecraft* Station);
 
-	virtual float GetAINerfRatio();
-
 	/*----------------------------------------------------
 		Save slots
 	----------------------------------------------------*/
@@ -232,10 +230,6 @@ protected:
 	// Post process volume
 	UPROPERTY()
 	APostProcessVolume*                        PostProcessVolume;
-	
-
-	float                                      AINerfRatio;
-	int64                                      AINerfRatioCacheDate;
 
 	/*----------------------------------------------------
 		Catalogs
