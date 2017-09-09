@@ -379,7 +379,7 @@ void UFlareCompanyAI::UpdateTrading()
 					Request.Resource = BestDeal.Resource;
 					Request.Operation = EFlareTradeRouteOperation::LoadOrBuy;
 					Request.Client = Ship;
-					Request.CargoLimit = (GetGame()->GetAINerfRatio());
+					Request.CargoLimit = 0.f;
 					if(BestDeal.Resource == GetGame()->GetScenarioTools()->FleetSupply)
 					{
 						Request.MaxQuantity = FMath::Min(BestDeal.BuyQuantity, Ship->GetActiveCargoBay()->GetFreeSpaceForResource(BestDeal.Resource, Ship->GetCompany()));
@@ -488,7 +488,7 @@ void UFlareCompanyAI::UpdateTrading()
 				Request.Resource = BestDeal.Resource;
 				Request.Operation = EFlareTradeRouteOperation::UnloadOrSell;
 				Request.Client = Ship;
-				Request.CargoLimit = (1.f - GetGame()->GetAINerfRatio());
+				Request.CargoLimit = 1.f;
 				Request.MaxQuantity = Ship->GetActiveCargoBay()->GetResourceQuantity(BestDeal.Resource, Ship->GetCompany());
 #ifdef DEBUG_AI_TRADING
 				if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
@@ -3604,12 +3604,8 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				int32 SlotCapacity = InitialSlotCapacity;
 
-				if(!Station->IsUnderConstruction())
-				{
-					SlotCapacity -=  BaseSlotCapacity * GetGame()->GetAINerfRatio();
-				}
-
 				int32 Capacity = FMath::Min(MaxCapacity, (SlotCapacity - ResourceQuantity));
+
 				if (ResourceQuantity < SlotCapacity)
 				{
 					if (Company == Station->GetCompany())
@@ -3664,12 +3660,6 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				int32 Stock = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
 
-				// The AI don't let anything for the player : it's too hard
-				// Make the AI ignore the sector with not enought stock or to little capacity
-				float BaseSlotCapacity = InitialSlotCapacity / Station->GetLevel();
-				Stock = FMath::RoundToInt(Stock - BaseSlotCapacity * GetGame()->GetAINerfRatio());
-
-
 				if (Company == Station->GetCompany())
 				{
 					Variation->OwnedStock += Stock;
@@ -3711,8 +3701,6 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				float BaseSlotCapacity = InitialSlotCapacity / Station->GetLevel();
 				int32 SlotCapacity = InitialSlotCapacity;
 
-				SlotCapacity -=  BaseSlotCapacity * GetGame()->GetAINerfRatio();
-
 				int32 Capacity = FMath::Min(MaxCapacity, (SlotCapacity - ResourceQuantity));
 
 				// Dept are allowed for sell to customers
@@ -3751,7 +3739,6 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 
 				float BaseSlotCapacity = SlotCapacity / Station->GetLevel();
-				SlotCapacity -=  BaseSlotCapacity * GetGame()->GetAINerfRatio();
 
 				if (ResourceQuantity < SlotCapacity)
 				{
@@ -3771,10 +3758,6 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				// The owned resell its own FS
 
 				int32 Stock = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
-
-				// The AI don't let anything for the player : it's too hard
-				// Make the AI ignore the sector with not enought stock or to little capacity
-				Stock = FMath::RoundToInt(Stock - BaseSlotCapacity * GetGame()->GetAINerfRatio());
 
 
 				if (Company == Station->GetCompany())
