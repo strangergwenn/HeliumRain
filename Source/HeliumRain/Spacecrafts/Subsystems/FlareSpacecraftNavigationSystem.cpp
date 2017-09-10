@@ -438,11 +438,6 @@ FFlareDockingParameters UFlareSpacecraftNavigationSystem::GetDockingParameters(F
 	//
 	// - Docking : As soon as the ship is in the docking limits, the ship is attached to the station
 
-	if(DockStation->GetDockingSystem()->IsDockedShip(Spacecraft))
-	{
-		Params.DockingPhase = EFlareDockingPhase::Docked;
-		return Params;
-	}
 
 	// Compute ship infos
 	Params.ShipDockLocation = GetDockLocation();
@@ -506,6 +501,13 @@ FFlareDockingParameters UFlareSpacecraftNavigationSystem::GetDockingParameters(F
 		UKismetSystemLibrary::DrawDebugPoint(Spacecraft->GetWorld(), Params.StationDockLocation + StationLeftDockVector * 100, 10, FColor::Blue, 5.f);
 */
 	}
+
+	if(DockStation->GetDockingSystem()->IsDockedShip(Spacecraft))
+	{
+		Params.DockingPhase = EFlareDockingPhase::Docked;
+		return Params;
+	}
+
 
 	if (StationDockInfo.Granted && StationDockInfo.Ship != Spacecraft)
 	{
