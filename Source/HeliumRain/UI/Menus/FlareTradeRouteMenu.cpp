@@ -1627,9 +1627,11 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 			{
 
 
-				int64 TransactionResourcePrice = Sector->GetResourcePrice(Resource,
+				//TODO E2
+				int64 TransactionResourcePrice = 0;
+				/*int64 TransactionResourcePrice = Sector->GetResourcePrice(Resource,
 														  (Operation->Type == EFlareTradeRouteOperation::Sell || Operation->Type == EFlareTradeRouteOperation::UnloadOrSell ? EFlareResourcePriceContext::FactoryInput: EFlareResourcePriceContext::FactoryOutput));
-				int64 BaseResourcePrice = Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+				int64 BaseResourcePrice = Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);*/
 				int64 Fee = TransactionResourcePrice - BaseResourcePrice;
 
 				PricePart = FText::Format(LOCTEXT("TradeUnitPriceFormat", "\n{0} credits/unit ({1} {2} {3} fee)"),

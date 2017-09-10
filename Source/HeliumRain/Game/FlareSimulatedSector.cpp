@@ -2053,7 +2053,7 @@ void UFlareSimulatedSector::UpdateReserveShips()
 		}
 	}
 }
-
+/*
 int64 UFlareSimulatedSector::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, int32 Age)
 {
 	int64 DefaultPrice = FMath::RoundToInt(GetPreciseResourcePrice(Resource, Age));

@@ -201,6 +201,7 @@ public:
 
 	void ComputeProductionCargoBaySize(int32& CargoBaySlotCapacity, int32& CargoBayCount);
 
+	int64 GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, int32 Age = 0);
 
 	/*----------------------------------------------------
 		Shipyard

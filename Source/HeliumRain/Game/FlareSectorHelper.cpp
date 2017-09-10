@@ -93,16 +93,16 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		}
 		FFlareResourceUsage StationResourceUsage = Station->GetResourceUseType(Request.Resource);
 
-		if(NeedOutput && (!StationResourceUsage.HasUsage(EFlareResourcePriceContext::FactoryOutput) &&
-						  !StationResourceUsage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption)))
+		if(NeedOutput && (!StationResourceUsage.HasUsage(EFlareResourceUsageContext::FactoryOutput) &&
+						  !StationResourceUsage.HasUsage(EFlareResourceUsageContext::ConsumerConsumption)))
 		{
 			//FLOG(" need output but dont provide it");
 			continue;
 		}
 
-		if(NeedInput && (!StationResourceUsage.HasUsage(EFlareResourcePriceContext::FactoryInput) &&
-						 !StationResourceUsage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption) &&
-						 !StationResourceUsage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption)))
+		if(NeedInput && (!StationResourceUsage.HasUsage(EFlareResourceUsageContext::FactoryInput) &&
+						 !StationResourceUsage.HasUsage(EFlareResourceUsageContext::ConsumerConsumption) &&
+						 !StationResourceUsage.HasUsage(EFlareResourceUsageContext::MaintenanceConsumption)))
 		{
 			//FLOG(" need input but dont provide it");
 			continue;
@@ -879,12 +879,12 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::
 
 			FFlareResourceUsage Usage = Spacecraft->GetResourceUseType(Cargo.Resource);
 
-			if(Usage.HasUsage(EFlareResourcePriceContext::FactoryInput) || Usage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption) || Usage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption))
+			if(Usage.HasUsage(EFlareResourceUsageContext::FactoryInput) || Usage.HasUsage(EFlareResourceUsageContext::ConsumerConsumption) || Usage.HasUsage(EFlareResourceUsageContext::MaintenanceConsumption))
 			{
 				ResourceStats->Capacity += Spacecraft->GetActiveCargoBay()->GetSlotCapacity() - Cargo.Quantity;
 			}
 
-			if(Usage.HasUsage(EFlareResourcePriceContext::FactoryOutput) || Usage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption))
+			if(Usage.HasUsage(EFlareResourceUsageContext::FactoryOutput) || Usage.HasUsage(EFlareResourceUsageContext::MaintenanceConsumption))
 			{
 				ResourceStats->Stock += Cargo.Quantity;
 			}

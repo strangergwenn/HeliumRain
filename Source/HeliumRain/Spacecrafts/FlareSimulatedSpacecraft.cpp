@@ -482,7 +482,7 @@ FFlareResourceUsage UFlareSimulatedSpacecraft::GetResourceUseType(FFlareResource
 	// Check we're and station
 	if (!IsStation())
 	{
-		Usage.AddUsage(EFlareResourcePriceContext::Default);
+		Usage.AddUsage(EFlareResourceUsageContext::Default);
 		return Usage;
 	}
 
@@ -496,7 +496,7 @@ FFlareResourceUsage UFlareSimulatedSpacecraft::GetResourceUseType(FFlareResource
 			const FFlareFactoryResource* FactoryResource = &Factory->GetCycleData().InputResources[ResourceIndex];
 			if (&FactoryResource->Resource->Data == Resource)
 			{
-				Usage.AddUsage(EFlareResourcePriceContext::FactoryInput);
+				Usage.AddUsage(EFlareResourceUsageContext::FactoryInput);
 				break;
 			}
 		}
@@ -507,7 +507,7 @@ FFlareResourceUsage UFlareSimulatedSpacecraft::GetResourceUseType(FFlareResource
 			const FFlareFactoryResource* FactoryResource = &Factory->GetCycleData().OutputResources[ResourceIndex];
 			if (&FactoryResource->Resource->Data == Resource)
 			{
-				Usage.AddUsage(EFlareResourcePriceContext::FactoryOutput);
+				Usage.AddUsage(EFlareResourceUsageContext::FactoryOutput);
 				break;
 			}
 		}
@@ -516,13 +516,13 @@ FFlareResourceUsage UFlareSimulatedSpacecraft::GetResourceUseType(FFlareResource
 	// Customer resource ?
 	if (HasCapability(EFlareSpacecraftCapability::Consumer) && Resource->IsConsumerResource)
 	{
-		Usage.AddUsage(EFlareResourcePriceContext::ConsumerConsumption);
+		Usage.AddUsage(EFlareResourceUsageContext::ConsumerConsumption);
 	}
 
 	// Maintenance resource ?
 	if (HasCapability(EFlareSpacecraftCapability::Maintenance) && Resource->IsMaintenanceResource)
 	{
-		Usage.AddUsage(EFlareResourcePriceContext::MaintenanceConsumption);
+		Usage.AddUsage(EFlareResourceUsageContext::MaintenanceConsumption);
 	}
 
 	return Usage;
