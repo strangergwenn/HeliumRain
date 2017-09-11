@@ -548,7 +548,7 @@ void UFlareSector::PlaceSpacecraft(AFlareSpacecraft* Spacecraft, FVector Locatio
 	do 
 	{
 		Location += FMath::VRand() * RandomLocationRadius;
-		float Size = Spacecraft->GetMeshScale();
+		float Size = (Spacecraft->IsStation() ? 80000 : Spacecraft->GetMeshScale());
 		float NearestDistance;
 
 		// Check if location is secure
