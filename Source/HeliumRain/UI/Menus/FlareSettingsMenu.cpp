@@ -2054,25 +2054,28 @@ void  SFlareSettingsMenu::ApplyNewBinding(TSharedPtr<FSimpleBind> BindingThatCha
 
 		auto EraseIfNeeded = [&KeyToErase, &BindingThatChanged](TSharedPtr<FSimpleBind> Bind)
 		{
-			if((*(Bind->Key) == KeyToErase) && &(*BindingThatChanged) != &(*Bind))
+			if (!Bind->bHeader && &(*BindingThatChanged) != &(*Bind))
 			{
-				Bind->KeyWidget->SetKey(FKey(), true, false);
-				Bind->WriteBind();
-			}
+				if (*(Bind->Key) == KeyToErase && Bind->KeyWidget.IsValid())
+				{
+					Bind->KeyWidget->SetKey(FKey(), true, false);
+					Bind->WriteBind();
+				}
 
-			if((*(Bind->AltKey) == KeyToErase) && &(*BindingThatChanged) != &(*Bind))
-			{
-				Bind->AltKeyWidget->SetKey(FKey(), true, false);
-				Bind->WriteBind();
+				if (*(Bind->AltKey) == KeyToErase && Bind->AltKeyWidget.IsValid())
+				{
+					Bind->AltKeyWidget->SetKey(FKey(), true, false);
+					Bind->WriteBind();
+				}
 			}
 		};
 
-		for(TSharedPtr<FSimpleBind> Bind : Binds)
+		for (TSharedPtr<FSimpleBind> Bind : Binds)
 		{
 			EraseIfNeeded(Bind);
 		}
 
-		for(TSharedPtr<FSimpleBind> Bind : Binds2)
+		for (TSharedPtr<FSimpleBind> Bind : Binds2)
 		{
 			EraseIfNeeded(Bind);
 		}
