@@ -1321,6 +1321,7 @@ bool UFlareCompany::IsTechnologyUnlockedStation(const FFlareSpacecraftDescriptio
 	}
 	else if(Identifier == "station-tokamak" ||
 			Identifier == "station-hub" ||
+			Identifier == "station-complex" ||
 			Identifier == "station-foundry")
 	{
 		return IsTechnologyUnlocked("advanced-stations");

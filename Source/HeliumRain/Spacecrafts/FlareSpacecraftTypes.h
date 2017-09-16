@@ -847,6 +847,14 @@ struct FFlareSpacecraftDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool IsSubstation;
 
+	/** Can this station be added to station complexes */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool CanBeBuiltInComplex;
+
+	/** Is this station restricted to a central slot in station complexes */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool IsRestrictedInComplex;
+
 
 	int32 GetCapacity() const;
 
