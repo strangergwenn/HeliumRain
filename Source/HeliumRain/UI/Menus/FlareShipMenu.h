@@ -68,6 +68,20 @@ protected:
 
 
 	/*----------------------------------------------------
+		Complex
+	----------------------------------------------------*/
+
+	/** Generate complex box */
+	void UpdateComplexList();
+
+	/** Build a station */
+	void OnBuildStationClicked(FName ConnectorName);
+
+	/** Station selected */
+	void OnBuildStationSelected(FFlareSpacecraftDescription* NewStationDescription);
+
+
+	/*----------------------------------------------------
 		Shipyards
 	----------------------------------------------------*/
 
@@ -242,7 +256,8 @@ protected:
 	int32                                           ShipPartIndex;
 	FFlareSpacecraftComponentDescription*           CurrentEquippedPartDescription;
 
-	// Factory list
+	// List
+	TSharedPtr<SVerticalBox>                        ComplexList;
 	TSharedPtr<SVerticalBox>                        ShipyardList;
 	TSharedPtr<SVerticalBox>                        FactoryList;
 	TSharedPtr<SVerticalBox>                        UpgradeBox;

@@ -961,6 +961,17 @@ bool UFlareSimulatedSpacecraft::IsShipyard()
 	return GetFactories().Num() && GetFactories()[0]->IsShipyard();
 }
 
+bool UFlareSimulatedSpacecraft::IsComplex() const
+{
+	if (GetDescription()->Identifier == "station-complex")
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 bool UFlareSimulatedSpacecraft::ShipyardOrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier)
 {

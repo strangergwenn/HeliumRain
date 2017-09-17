@@ -142,6 +142,8 @@ public:
 
 	bool IsShipyard();
 
+	bool IsComplex() const;
+
 
 	/*----------------------------------------------------
 		Resources

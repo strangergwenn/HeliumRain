@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 
 #include "../FlareStationDock.h"
+#include "../FlareStationConnector.h"
 #include "../FlareSpacecraft.h"
 #include "../../Game/FlareGame.h"
 #include "../../Quests/FlareQuestManager.h"
@@ -48,16 +49,17 @@ void UFlareSpacecraftDockingSystem::Start()
 	TArray<UActorComponent*> ActorComponents;
 	Spacecraft->GetComponents(ActorComponents);
 
-	// Fill all dock slots
 	for (TArray<UActorComponent*>::TIterator ComponentIt(ActorComponents); ComponentIt; ++ComponentIt)
 	{
-		UFlareStationDock* Component = Cast<UFlareStationDock>(*ComponentIt);
-		if (Component)
+		FVector DockLocation;
+		FRotator DockRotation;
+		UFlareStationDock* DockComponent = Cast<UFlareStationDock>(*ComponentIt);
+		UFlareStationConnector* ConnectorComponent = Cast<UFlareStationConnector>(*ComponentIt);
+
+		// Fill dock slots
+		if (DockComponent)
 		{
-			// Get data
-			FVector DockLocation;
-			FRotator DockRotation;
-			Component->GetSocketWorldLocationAndRotation(FName("dock"), DockLocation, DockRotation);
+			DockComponent->GetSocketWorldLocationAndRotation(FName("dock"), DockLocation, DockRotation);
 
 			// Fill info
 			FFlareDockingInfo Info;
@@ -66,13 +68,37 @@ void UFlareSpacecraftDockingSystem::Start()
 			Info.LocalTopAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(0,1,0)));
 			Info.LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
 			Info.DockId = Count;
-			Info.DockSize = Component->DockSize;
+			Info.DockSize = DockComponent->DockSize;
 			Info.Station = Spacecraft;
 			Info.Granted = false;
 			Info.Occupied = false;
 
 			// Push this slot
 			DockingSlots.Add(Info);
+			Count++;
+		}
+
+		// Fill connector slots
+		Count = 0;
+		if (ConnectorComponent)
+		{
+			ConnectorComponent->GetSocketWorldLocationAndRotation(FName("dock"), DockLocation, DockRotation);
+
+			// Fill info
+			FFlareDockingInfo Info;
+			Info.Ship = NULL;
+			Info.LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(1, 0, 0)));
+			Info.LocalTopAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(0, 1, 0)));
+			Info.LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
+			Info.DockId = Count;
+			Info.DockSize = EFlarePartSize::L;
+			Info.Station = Spacecraft;
+			Info.Granted = false;
+			Info.Occupied = false;
+			Info.Name = ConnectorComponent->SlotIdentifier;
+
+			// Push this slot
+			ConnectorSlots.Add(Info);
 			Count++;
 		}
 	}
@@ -261,7 +287,6 @@ bool UFlareSpacecraftDockingSystem::IsGrantedShip(AFlareSpacecraft* ShipCanditat
 	return false;
 }
 
-
 bool UFlareSpacecraftDockingSystem::IsDockedShip(AFlareSpacecraft* ShipCanditate) const
 {
 	for (int32 i = 0; i < DockingSlots.Num(); i++)
@@ -273,6 +298,16 @@ bool UFlareSpacecraftDockingSystem::IsDockedShip(AFlareSpacecraft* ShipCanditate
 	}
 
 	return false;
+}
+
+
+/*----------------------------------------------------
+	Station complex API
+----------------------------------------------------*/
+
+TArray<FFlareDockingInfo> UFlareSpacecraftDockingSystem::GetStationConnectors() const
+{
+	return ConnectorSlots;
 }
 
 

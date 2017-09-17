@@ -143,6 +143,14 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.WrapTextAt(Theme.ContentWidth)
 				]
 
+				// Station complex
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				[
+					SAssignNew(ComplexList, SVerticalBox)
+				]
+
 				// Shipyard actions
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -397,6 +405,7 @@ void SFlareShipMenu::Enter(UFlareSimulatedSpacecraft* Target, bool IsEditable)
 	LoadTargetSpacecraft();
 
 	// Update lists
+	UpdateComplexList();
 	UpdateShipyardList();
 	UpdateFactoryList();
 	UpdateUpgradeBox();
@@ -752,6 +761,96 @@ void SFlareShipMenu::UpdateUpgradeBox()
 			.OnClicked(this, &SFlareShipMenu::OnUpgradeStationClicked)
 			.IsDisabled(this, &SFlareShipMenu::IsUpgradeStationDisabled)
 		];
+	}
+}
+
+
+/*----------------------------------------------------
+	Complex UI
+----------------------------------------------------*/
+
+void SFlareShipMenu::UpdateComplexList()
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	ComplexList->ClearChildren();
+
+	if (TargetSpacecraft && TargetSpacecraft->IsComplex())
+	{
+		// TODO #1035 : debugging code to work with active stations
+		//	not okay ! has to use simulated spacecraft
+		if (TargetSpacecraft->IsActive())
+		{
+			for (FFlareDockingInfo& Connector : TargetSpacecraft->GetActive()->GetDockingSystem()->GetStationConnectors())
+			{			
+				ComplexList->AddSlot()
+				.AutoHeight()
+				[
+					SNew(SFlareButton)
+					.Text(LOCTEXT("AddComplexStation", "Add station"))
+					.OnClicked(this, &SFlareShipMenu::OnBuildStationClicked, Connector.Name)
+				];
+			}
+
+		}
+
+		// TODO #1035 : handle UI
+		//	draw complex diagram
+		//	list existing stations
+		//	link OnBuildStationClicked for build buttons
+		//	allow scrapping
+
+	}
+}
+
+void SFlareShipMenu::OnBuildStationClicked(FName ConnectorName)
+{
+	FFlareMenuParameterData Data;
+	Data.Spacecraft = TargetSpacecraft;
+	Data.ComplexConnectorName = ConnectorName;
+	MenuManager->OpenSpacecraftOrder(Data, FOrderDelegate::CreateSP(this, &SFlareShipMenu::OnBuildStationSelected));
+}
+
+void SFlareShipMenu::OnBuildStationSelected(FFlareSpacecraftDescription* StationDescription)
+{
+	if (StationDescription && TargetSpacecraft)
+	{
+		// Can we build ?
+		TArray<FText> Reasons;
+		FString ResourcesString;
+		UFlareFleet* PlayerFleet = MenuManager->GetPC()->GetPlayerFleet();
+		UFlareSimulatedSector* TargetSector = TargetSpacecraft->GetCurrentSector();
+		UFlareSimulatedSpacecraft* NewStation = TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
+
+		// TODO #1035 : 
+		//	mark the station as complex station
+		//	handle docking
+
+		// Handle menus
+		if (PlayerFleet && PlayerFleet->GetCurrentSector() == TargetSector && MenuManager->GetPC()->GetPlayerShip())
+		{
+			FFlareMenuParameterData MenuParameters;
+			MenuParameters.Spacecraft = MenuManager->GetPC()->GetPlayerShip();
+			MenuParameters.Sector = TargetSector;
+			MenuManager->OpenMenu(EFlareMenu::MENU_ReloadSector, MenuParameters);
+		}
+		else
+		{
+			FFlareMenuParameterData MenuParameters;
+			MenuParameters.Sector = TargetSector;
+			MenuManager->OpenMenu(EFlareMenu::MENU_Sector, MenuParameters);
+		}
+
+		// Notify
+		FFlareMenuParameterData NotificationParameters;
+		NotificationParameters.Spacecraft = NewStation;
+		MenuManager->GetPC()->Notify(
+			LOCTEXT("ComplexStationBuilt", "Complex expanded"),
+			LOCTEXT("ComplexStationBuiltInfo", "A new station element has been added to your complex."),
+			"complex-station-built",
+			EFlareNotification::NT_Economy,
+			false,
+			EFlareMenu::MENU_Station,
+			NotificationParameters);
 	}
 }
 
