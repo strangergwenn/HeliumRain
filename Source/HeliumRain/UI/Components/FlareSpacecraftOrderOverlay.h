@@ -40,6 +40,9 @@ public:
 		Interaction
 	----------------------------------------------------*/
 
+	/** Show the overlay for a station complex */
+	void Open(UFlareSimulatedSpacecraft* Complex, FName ConnectorName, FOrderDelegate ConfirmationCallback);
+
 	/** Show the overlay for a shipyard */
 	void Open(UFlareSimulatedSpacecraft* Shipyard, bool IsHeavy);
 	
@@ -99,6 +102,7 @@ protected:
 	FOrderDelegate                                            OnConfirmedCB;
 
 	// Spacecraft building
+	UFlareSimulatedSpacecraft*                                TargetComplex;
 	UFlareSimulatedSpacecraft*                                TargetShipyard;
 	UFlareSimulatedSector*                                    TargetSector;
 	TArray<TSharedPtr<FInterfaceContainer>>                   SpacecraftList;

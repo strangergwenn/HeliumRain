@@ -71,6 +71,9 @@ struct FFlareMenuParameterData
 		, Resource(NULL)
 		, ScenarioIndex(0)
 		, PlayerEmblemIndex(0)
+		, PlayTutorial(false)
+		, SpacecraftOrderHeavy(false)
+		, ComplexConnectorName(NAME_None)
 	{}
 
 	class UFlareCompany*                        Company;
@@ -88,6 +91,7 @@ struct FFlareMenuParameterData
 	int32                                       PlayerEmblemIndex;
 	bool                                        PlayTutorial;
 	bool                                        SpacecraftOrderHeavy;
+	FName                                       ComplexConnectorName;
 };
 
 

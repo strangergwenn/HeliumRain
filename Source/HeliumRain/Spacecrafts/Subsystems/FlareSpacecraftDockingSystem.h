@@ -15,6 +15,7 @@ struct FFlareDockingInfo
 	EFlarePartSize::Type      DockSize;
 	AFlareSpacecraft*         Station;
 	AFlareSpacecraft*         Ship;
+	FName                     Name;
 
 	FVector                   LocalAxis;
 	FVector                   LocalTopAxis;
@@ -25,6 +26,7 @@ struct FFlareDockingInfo
 		, Occupied(false)
 		, DockId(-1)
 		, Station(NULL)
+		, Name(NAME_None)
 	{}
 };
 
@@ -53,7 +55,7 @@ public:
 public:
 
 	/*----------------------------------------------------
-		System API
+		Docking API
 	----------------------------------------------------*/
 
 	/** Get the list of docked ships */
@@ -81,6 +83,15 @@ public:
 
 	virtual bool IsDockedShip(AFlareSpacecraft* ShipCanditate) const;
 
+
+	/*----------------------------------------------------
+		Station complex API
+	----------------------------------------------------*/
+
+	/** Get available connectors */
+	TArray<FFlareDockingInfo> GetStationConnectors() const;
+
+
 protected:
 
 	/*----------------------------------------------------
@@ -94,6 +105,7 @@ protected:
 	TArray<UActorComponent*>                        Components;
 
 	// Dock data
-	TArray <FFlareDockingInfo>       DockingSlots;
+	TArray<FFlareDockingInfo>                       DockingSlots;
+	TArray<FFlareDockingInfo>                       ConnectorSlots;
 
 };

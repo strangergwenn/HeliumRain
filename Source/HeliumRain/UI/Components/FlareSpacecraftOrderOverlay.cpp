@@ -26,6 +26,7 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 	SpacecraftList.Empty();
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	TargetComplex = NULL;
 	TargetShipyard = NULL;
 	TargetSector = NULL;
 
@@ -144,12 +145,45 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
+void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSpacecraft* Complex, FName ConnectorName, FOrderDelegate ConfirmationCallback)
+{
+	SetVisibility(EVisibility::Visible);
+	TargetSector = Complex->GetCurrentSector();
+	TargetComplex = Complex;
+	OnConfirmedCB = ConfirmationCallback;
+	bool IsSlotSpecial = ConnectorName.ToString().Contains(TEXT("special"));
+
+	// Init station list
+	SpacecraftList.Empty();
+	if (TargetSector)
+	{
+		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
+
+		for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->StationCatalog.Num(); SpacecraftIndex++)
+		{
+			// Candidate have to be not a substation, compatible with complex, not restricted / built on special, and available in tech
+			FFlareSpacecraftDescription* Description = &SpacecraftCatalog->StationCatalog[SpacecraftIndex]->Data;
+			if (!Description->IsSubstation
+			 && Description->CanBeBuiltInComplex
+			 && (!Description->IsRestrictedInComplex || IsSlotSpecial)
+			 && MenuManager->GetPC()->GetCompany()->IsTechnologyUnlockedStation(Description))
+			{
+				UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->StationCatalog[SpacecraftIndex];
+				SpacecraftList.AddUnique(FInterfaceContainer::New(&Entry->Data));
+			}
+		}
+	}
+
+	SpacecraftSelector->RequestListRefresh();
+	ConfirmText->SetText(FText());
+}
+
 void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSpacecraft* Shipyard, bool IsHeavy)
 {
 	SetVisibility(EVisibility::Visible);
 	TargetShipyard = Shipyard;
 
-	// Init buildable ship list
+	// Init ship list
 	SpacecraftList.Empty();
 	if (TargetShipyard && TargetShipyard->IsShipyard())
 	{
@@ -183,7 +217,7 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSector* Sector, FOrderDel
 	TargetSector = Sector;
 	OnConfirmedCB = ConfirmationCallback;
 
-	// Init buildable station list
+	// Init station list
 	SpacecraftList.Empty();
 	if (TargetSector)
 	{
@@ -218,6 +252,7 @@ void SFlareSpacecraftOrderOverlay::Close()
 	SpacecraftSelector->ClearSelection();
 
 	ConfirmText->SetText(FText());
+	TargetComplex = NULL;
 	TargetShipyard = NULL;
 	TargetSector = NULL;
 }
@@ -294,7 +329,11 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 
 FText SFlareSpacecraftOrderOverlay::GetWindowTitle() const
 {
-	if (TargetShipyard)
+	if (TargetComplex)
+	{
+		return LOCTEXT("BuildComplexStationTitle", "Build complex station");
+	}
+	else if (TargetShipyard)
 	{
 		return LOCTEXT("SpacecraftOrderTitle", "Order spacecraft");
 	}
