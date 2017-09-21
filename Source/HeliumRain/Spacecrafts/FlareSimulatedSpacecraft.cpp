@@ -18,6 +18,7 @@
 #include "../Data/FlareSpacecraftCatalog.h"
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
 
+#include "Subsystems/FlareSpacecraftDockingSystem.h"
 #include "Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 #include "Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
 
@@ -57,12 +58,13 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	WeaponsSystem = NewObject<UFlareSimulatedSpacecraftWeaponsSystem>(this, UFlareSimulatedSpacecraftWeaponsSystem::StaticClass());
 	WeaponsSystem->Initialize(this, &SpacecraftData);
 
+	// Initialize factories
 	Game->GetGameWorld()->ClearFactories(this);
 	Factories.Empty();
 
-	if(!IsUnderConstruction())
+	// Load factories
+	if (!IsUnderConstruction())
 	{
-		// Load factories
 		for (int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
 		{
 			FFlareFactorySave FactoryData;
@@ -74,13 +76,13 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 			}
 			else
 			{
-					FactoryData.Active = FactoryDescription->AutoStart;
-					FactoryData.CostReserved = 0;
-					FactoryData.ProductedDuration = 0;
-					FactoryData.InfiniteCycle = true;
-					FactoryData.CycleCount = 0;
-					FactoryData.TargetShipClass = NAME_None;
-					FactoryData.TargetShipCompany = NAME_None;
+				FactoryData.Active = FactoryDescription->AutoStart;
+				FactoryData.CostReserved = 0;
+				FactoryData.ProductedDuration = 0;
+				FactoryData.InfiniteCycle = true;
+				FactoryData.CycleCount = 0;
+				FactoryData.TargetShipClass = NAME_None;
+				FactoryData.TargetShipCompany = NAME_None;
 			}
 
 			UFlareFactory* Factory = NewObject<UFlareFactory>(GetGame()->GetGameWorld(), UFlareFactory::StaticClass());
@@ -92,6 +94,8 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 			}
 		}
 	}
+
+	// Station is under construction
 	else
 	{
 		UFlareFactory* Factory = NewObject<UFlareFactory>(GetGame()->GetGameWorld(), UFlareFactory::StaticClass());
@@ -137,7 +141,43 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	// Lock resources
 	LockResources();
 
-	if(ActiveSpacecraft)
+	// Setup station connectors
+	int32 DockIndex = 0;
+	ConnectorSlots.Empty();
+	for (FName ConnectorName : SpacecraftDescription->StationConnectorNames)
+	{
+		FFlareDockingInfo StationConnection;
+		StationConnection.Name = ConnectorName;
+		StationConnection.Occupied = false;
+		StationConnection.Granted = false;
+		StationConnection.ConnectedStationName = NAME_None;
+		StationConnection.DockId = DockIndex;
+		StationConnection.Ship = NULL;
+		StationConnection.Station = NULL;
+		StationConnection.DockSize = EFlarePartSize::L;
+
+		ConnectorSlots.Add(StationConnection);
+		DockIndex++;
+	}
+	
+	// Load connected stations
+	for (const FFlareConnectionSave& ConnectedStation : Data.ConnectedStations)
+	{
+		auto FindByName = [=](const FFlareDockingInfo& Slot)
+		{
+			return Slot.Name == ConnectedStation.ConnectorName;
+		};
+
+		FFlareDockingInfo* StationConnection = ConnectorSlots.FindByPredicate(FindByName);
+		StationConnection->ConnectedStationName = ConnectedStation.StationIdentifier;
+		StationConnection->Occupied = false;
+		StationConnection->Granted = true;
+
+		// TODO #1035 : dock connected stations after everyone has spawned
+	}
+
+	// Load active spacecraft if it exists
+	if (ActiveSpacecraft)
 	{
 		ActiveSpacecraft->Load(this);
 		ActiveSpacecraft->Redock();
@@ -158,6 +198,8 @@ FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
 	{
 		GetActive()->Save();
 	}
+
+	// TODO #1035 : save complex stations
 
 	return &SpacecraftData;
 }
@@ -961,6 +1003,11 @@ bool UFlareSimulatedSpacecraft::IsShipyard()
 	return GetFactories().Num() && GetFactories()[0]->IsShipyard();
 }
 
+
+/*----------------------------------------------------
+	Complexes
+----------------------------------------------------*/
+
 bool UFlareSimulatedSpacecraft::IsComplex() const
 {
 	if (GetDescription()->Identifier == "station-complex")
@@ -972,6 +1019,22 @@ bool UFlareSimulatedSpacecraft::IsComplex() const
 		return false;
 	}
 }
+
+bool UFlareSimulatedSpacecraft::IsComplexElement() const
+{
+	// TODO #1035 : return true if this station is atatched to someone
+	return false;
+}
+
+TArray<FFlareDockingInfo> UFlareSimulatedSpacecraft::GetStationConnectors() const
+{
+	return ConnectorSlots;
+}
+
+
+/*----------------------------------------------------
+	Shipyards
+----------------------------------------------------*/
 
 bool UFlareSimulatedSpacecraft::ShipyardOrderShip(UFlareCompany* OrderCompany, FName ShipIdentifier)
 {

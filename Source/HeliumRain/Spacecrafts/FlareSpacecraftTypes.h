@@ -315,6 +315,21 @@ struct FFlareCargoSave
 	TEnumAsByte<EFlareResourceRestriction::Type> Restriction;
 };
 
+/** Station connection */
+USTRUCT()
+struct FFlareConnectionSave
+{
+	GENERATED_USTRUCT_BODY()
+
+	/** Name of the connector */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName ConnectorName;
+
+	/** Identifier of the target station */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName StationIdentifier;
+};
+
 /** Shipyard order save data */
 USTRUCT()
 struct FFlareShipyardOrderSave
@@ -526,6 +541,9 @@ struct FFlareSpacecraftSave
 
 	/** List of ship order */
 	TArray<FFlareShipyardOrderSave> ShipyardOrderQueue;
+
+	/** List of connected stations */
+	TArray<FFlareConnectionSave> ConnectedStations;
 };
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */
@@ -854,7 +872,10 @@ struct FFlareSpacecraftDescription
 	/** Is this station restricted to a central slot in station complexes */
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool IsRestrictedInComplex;
-
+	
+	/** List of station connectors */
+	UPROPERTY(EditAnywhere, Category = Content)
+	TArray<FName> StationConnectorNames;
 
 	int32 GetCapacity() const;
 
