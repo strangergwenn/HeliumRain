@@ -78,28 +78,26 @@ void UFlareSpacecraftDockingSystem::Start()
 			Count++;
 		}
 
-		// Fill connector slots
-		Count = 0;
+		// Fill connector data to the parent 
 		if (ConnectorComponent)
 		{
+			auto FindByName = [=](const FFlareDockingInfo& Slot)
+			{
+				return Slot.Name == ConnectorComponent->SlotIdentifier;
+			};
+			
+			// Fetch connector data
 			ConnectorComponent->GetSocketWorldLocationAndRotation(FName("dock"), DockLocation, DockRotation);
-
+			FFlareDockingInfo* StationConnection = Spacecraft->GetParent()->GetStationConnectors().FindByPredicate(FindByName);
+			FCHECK(StationConnection);
+			
 			// Fill info
-			FFlareDockingInfo Info;
-			Info.Ship = NULL;
-			Info.LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(1, 0, 0)));
-			Info.LocalTopAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(0, 1, 0)));
-			Info.LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
-			Info.DockId = Count;
-			Info.DockSize = EFlarePartSize::L;
-			Info.Station = Spacecraft;
-			Info.Granted = false;
-			Info.Occupied = false;
-			Info.Name = ConnectorComponent->SlotIdentifier;
-
-			// Push this slot
-			ConnectorSlots.Add(Info);
-			Count++;
+			StationConnection->Ship = NULL;
+			StationConnection->Station = Spacecraft;
+			StationConnection->LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(1, 0, 0)));
+			StationConnection->LocalTopAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(0, 1, 0)));
+			StationConnection->LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
+			StationConnection->Occupied = true;
 		}
 	}
 }
@@ -298,16 +296,6 @@ bool UFlareSpacecraftDockingSystem::IsDockedShip(AFlareSpacecraft* ShipCanditate
 	}
 
 	return false;
-}
-
-
-/*----------------------------------------------------
-	Station complex API
-----------------------------------------------------*/
-
-TArray<FFlareDockingInfo> UFlareSpacecraftDockingSystem::GetStationConnectors() const
-{
-	return ConnectorSlots;
 }
 
 

@@ -16,6 +16,7 @@ struct FFlareDockingInfo
 	AFlareSpacecraft*         Station;
 	AFlareSpacecraft*         Ship;
 	FName                     Name;
+	FName                     ConnectedStationName;
 
 	FVector                   LocalAxis;
 	FVector                   LocalTopAxis;
@@ -84,14 +85,6 @@ public:
 	virtual bool IsDockedShip(AFlareSpacecraft* ShipCanditate) const;
 
 
-	/*----------------------------------------------------
-		Station complex API
-	----------------------------------------------------*/
-
-	/** Get available connectors */
-	TArray<FFlareDockingInfo> GetStationConnectors() const;
-
-
 protected:
 
 	/*----------------------------------------------------
@@ -106,6 +99,5 @@ protected:
 
 	// Dock data
 	TArray<FFlareDockingInfo>                       DockingSlots;
-	TArray<FFlareDockingInfo>                       ConnectorSlots;
 
 };

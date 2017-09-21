@@ -776,12 +776,26 @@ void SFlareShipMenu::UpdateComplexList()
 
 	if (TargetSpacecraft && TargetSpacecraft->IsComplex())
 	{
-		// TODO #1035 : debugging code to work with active stations
-		//	not okay ! has to use simulated spacecraft
-		if (TargetSpacecraft->IsActive())
+		for (FFlareDockingInfo& Connector : TargetSpacecraft->GetStationConnectors())
 		{
-			for (FFlareDockingInfo& Connector : TargetSpacecraft->GetActive()->GetDockingSystem()->GetStationConnectors())
-			{			
+			// Existing element
+			if (Connector.Granted)
+			{
+				UFlareSimulatedSpacecraft* ComplexElement = TargetSpacecraft->GetGame()->GetGameWorld()->FindSpacecraft(Connector.ConnectedStationName);
+				FCHECK(ComplexElement);
+
+				ComplexList->AddSlot()
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(LOCTEXT("AddComplexStationDebug", "Existing element")) // TODO #1035 use name
+				];
+			}
+
+			// New element
+			else
+			{
 				ComplexList->AddSlot()
 				.AutoHeight()
 				[
@@ -790,7 +804,6 @@ void SFlareShipMenu::UpdateComplexList()
 					.OnClicked(this, &SFlareShipMenu::OnBuildStationClicked, Connector.Name)
 				];
 			}
-
 		}
 
 		// TODO #1035 : handle UI
@@ -798,7 +811,6 @@ void SFlareShipMenu::UpdateComplexList()
 		//	list existing stations
 		//	link OnBuildStationClicked for build buttons
 		//	allow scrapping
-
 	}
 }
 
@@ -821,9 +833,7 @@ void SFlareShipMenu::OnBuildStationSelected(FFlareSpacecraftDescription* Station
 		UFlareSimulatedSector* TargetSector = TargetSpacecraft->GetCurrentSector();
 		UFlareSimulatedSpacecraft* NewStation = TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
 
-		// TODO #1035 : 
-		//	mark the station as complex station
-		//	handle docking
+		// TODO #1035 : add NewStation to TargetSpacecraft in the save (ConnectedStations array) ; if active, dock it too
 
 		// Handle menus
 		if (PlayerFleet && PlayerFleet->GetCurrentSector() == TargetSector && MenuManager->GetPC()->GetPlayerShip())
