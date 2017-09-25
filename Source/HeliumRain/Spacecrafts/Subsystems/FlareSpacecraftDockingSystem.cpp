@@ -45,7 +45,8 @@ void UFlareSpacecraftDockingSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft
 void UFlareSpacecraftDockingSystem::Start()
 {
 	// Dock data
-	int32 Count = 0;
+	int32 DockCount = 0;
+	int32 ConnectorCount = 0;
 	TArray<UActorComponent*> ActorComponents;
 	Spacecraft->GetComponents(ActorComponents);
 
@@ -67,7 +68,7 @@ void UFlareSpacecraftDockingSystem::Start()
 			Info.LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(1,0,0)));
 			Info.LocalTopAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(0,1,0)));
 			Info.LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
-			Info.DockId = Count;
+			Info.DockId = DockCount;
 			Info.DockSize = DockComponent->DockSize;
 			Info.Station = Spacecraft;
 			Info.Granted = false;
@@ -75,29 +76,37 @@ void UFlareSpacecraftDockingSystem::Start()
 
 			// Push this slot
 			DockingSlots.Add(Info);
-			Count++;
+			DockCount++;
 		}
 
-		// Fill connector data to the parent 
-		if (ConnectorComponent && ConnectorComponent->SlotIdentifier != NAME_None)
+		// Fill connector data to the parent
+		if (ConnectorComponent)
 		{
-			auto FindByName = [=](const FFlareDockingInfo& Slot)
-			{
-				return Slot.Name == ConnectorComponent->SlotIdentifier;
-			};
+			FCHECK(ConnectorCount < Spacecraft->GetDescription()->StationConnectorCount);
+			FCHECK(ConnectorCount < Spacecraft->GetParent()->GetStationConnectors().Num());
 			
 			// Fetch connector data
-			ConnectorComponent->GetSocketWorldLocationAndRotation(FName("dock"), DockLocation, DockRotation);
-			FFlareDockingInfo* StationConnection = Spacecraft->GetParent()->GetStationConnectors().FindByPredicate(FindByName);
-			FCHECK(StationConnection);
+			FFlareDockingInfo* StationConnection = Spacecraft->GetParent()->GetStationConnector(ConnectorComponent->SlotIdentifier);
+			FCHECK(StationConnection != NULL);
 			
 			// Fill info
-			StationConnection->Ship = NULL;
-			StationConnection->Station = Spacecraft;
-			StationConnection->LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(1, 0, 0)));
-			StationConnection->LocalTopAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(0, 1, 0)));
-			StationConnection->LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
-			StationConnection->Occupied = true;
+			if (StationConnection)
+			{
+				ConnectorComponent->GetSocketWorldLocationAndRotation(FName("dock"), DockLocation, DockRotation);
+
+				StationConnection->Ship = NULL;
+				StationConnection->Station = Spacecraft;
+				StationConnection->LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(1, 0, 0)));
+				StationConnection->LocalTopAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(0, 1, 0)));
+				StationConnection->LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
+				StationConnection->Occupied = true;
+			}
+			else
+			{
+				FLOGV("UFlareSpacecraftDockingSystem::Start : couldn't find station connector '%s' in parent", *ConnectorComponent->SlotIdentifier.ToString());
+			}
+
+			ConnectorCount++;
 		}
 	}
 }

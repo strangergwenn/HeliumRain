@@ -26,8 +26,14 @@ struct FFlareDockingInfo
 		: Granted(false)
 		, Occupied(false)
 		, DockId(-1)
+		, DockSize(EFlarePartSize::L)
 		, Station(NULL)
+		, Ship(NULL)
 		, Name(NAME_None)
+		, ConnectedStationName(NAME_None)
+		, LocalAxis(FVector::ZeroVector)
+		, LocalTopAxis(FVector::ZeroVector)
+		, LocalLocation(FVector::ZeroVector)
 	{}
 };
 
