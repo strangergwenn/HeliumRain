@@ -532,6 +532,14 @@ struct FFlareSpacecraftSave
 	/** Actor to attach to */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FName AttachActorName;
+
+	/** Station complex to attach to */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName AttachComplexStationName;
+
+	/** Station complex dock to attach to */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName AttachComplexConnectorName;
 	
 	/** Is a in sector reserve */
 	bool IsReserve;

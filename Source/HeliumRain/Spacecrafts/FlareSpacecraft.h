@@ -127,8 +127,11 @@ public:
 	/** Set asteroid data from an asteroid save */
 	void SetAsteroidData(FFlareAsteroidSave* Data);
 
-	/** Try to attach to the parent */
+	/** Try to attach to the parent world object */
 	void TryAttachParentActor();
+
+	/** Try to attach to the parent complex station */
+	void TryAttachParentComplex();
 
 	/** Apply the current asteroid data */
 	void ApplyAsteroidData();

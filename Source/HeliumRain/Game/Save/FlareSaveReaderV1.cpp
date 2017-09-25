@@ -495,6 +495,17 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 		}
 	}
 
+	const TArray<TSharedPtr<FJsonValue>>* ConnectedStations;
+	if (Object->TryGetArrayField("ConnectedStations", ConnectedStations))
+	{
+		for (TSharedPtr<FJsonValue> Item : *ConnectedStations)
+		{
+			FFlareConnectionSave ChildData;
+			LoadStationConnection(Item->AsObject(), &ChildData);
+			Data->ConnectedStations.Add(ChildData);
+		}
+	}
+
 	LoadFNameArray(Object, "SalesExcludedResources", &Data->SalesExcludedResources);
 
 
@@ -594,6 +605,12 @@ void UFlareSaveReaderV1::LoadSpacecraftComponent(const TSharedPtr<FJsonObject> O
 	}
 }
 
+
+void UFlareSaveReaderV1::LoadStationConnection(const TSharedPtr<FJsonObject> Object, FFlareConnectionSave* Data)
+{
+	LoadFName(Object, "ConnectorName", &Data->ConnectorName);
+	LoadFName(Object, "StationIdentifier", &Data->StationIdentifier);
+}
 
 void UFlareSaveReaderV1::LoadSpacecraftComponentTurret(const TSharedPtr<FJsonObject> Object, FFlareSpacecraftComponentTurretSave* Data)
 {

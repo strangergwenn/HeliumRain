@@ -460,6 +460,7 @@ void SFlareShipMenu::Exit()
 	ShipList->Reset();
 	ShipList->SetVisibility(EVisibility::Collapsed);
 
+	ComplexList->ClearChildren();
 	ShipyardList->ClearChildren();
 	FactoryList->ClearChildren();
 	UpgradeBox->ClearChildren();
@@ -467,6 +468,9 @@ void SFlareShipMenu::Exit()
 	TargetSpacecraft = NULL;
 	RCSDescription = NULL;
 	EngineDescription = NULL;
+
+	SelectedComplexStation = NAME_None;
+	SelectedComplexConnector = NAME_None;
 
 	SetEnabled(false);
 	SetVisibility(EVisibility::Collapsed);
@@ -772,13 +776,17 @@ void SFlareShipMenu::UpdateUpgradeBox()
 void SFlareShipMenu::UpdateComplexList()
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	// Reset
 	ComplexList->ClearChildren();
+	SelectedComplexStation = NAME_None;
+	SelectedComplexConnector = NAME_None;
 
 	if (TargetSpacecraft && TargetSpacecraft->IsComplex())
 	{
 		for (FFlareDockingInfo& Connector : TargetSpacecraft->GetStationConnectors())
 		{
-			// Existing element
+			// Existing element - Granted in this context means a station is there (Occupied means active)
 			if (Connector.Granted)
 			{
 				UFlareSimulatedSpacecraft* ComplexElement = TargetSpacecraft->GetGame()->GetGameWorld()->FindSpacecraft(Connector.ConnectedStationName);
@@ -789,11 +797,11 @@ void SFlareShipMenu::UpdateComplexList()
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(LOCTEXT("AddComplexStationDebug", "Existing element")) // TODO #1035 use name
+					.Text(LOCTEXT("AddComplexStationDebug", "Existing element")) // TODO #1035 use station name
 				];
 			}
 
-			// New element
+			// New element can be added here
 			else
 			{
 				ComplexList->AddSlot()
@@ -806,16 +814,15 @@ void SFlareShipMenu::UpdateComplexList()
 			}
 		}
 
-		// TODO #1035 : handle UI
-		//	draw complex diagram
-		//	list existing stations
-		//	link OnBuildStationClicked for build buttons
-		//	allow scrapping
+		// TODO #1035 : draw complex diagram
 	}
 }
 
 void SFlareShipMenu::OnBuildStationClicked(FName ConnectorName)
 {
+	SelectedComplexStation = TargetSpacecraft->GetImmatriculation();
+	SelectedComplexConnector = ConnectorName;
+
 	FFlareMenuParameterData Data;
 	Data.Spacecraft = TargetSpacecraft;
 	Data.ComplexConnectorName = ConnectorName;
@@ -831,10 +838,13 @@ void SFlareShipMenu::OnBuildStationSelected(FFlareSpacecraftDescription* Station
 		FString ResourcesString;
 		UFlareFleet* PlayerFleet = MenuManager->GetPC()->GetPlayerFleet();
 		UFlareSimulatedSector* TargetSector = TargetSpacecraft->GetCurrentSector();
+
+		// Build !
+		FFlareStationSpawnParameters SpawnParameters;
+		SpawnParameters.AttachComplexStationName = SelectedComplexStation;
+		SpawnParameters.AttachComplexConnectorName = SelectedComplexConnector;
 		UFlareSimulatedSpacecraft* NewStation = TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
-
-		// TODO #1035 : add NewStation to TargetSpacecraft in the save (ConnectedStations array) ; if active, dock it too
-
+		
 		// Handle menus
 		if (PlayerFleet && PlayerFleet->GetCurrentSector() == TargetSector && MenuManager->GetPC()->GetPlayerShip())
 		{
@@ -861,6 +871,9 @@ void SFlareShipMenu::OnBuildStationSelected(FFlareSpacecraftDescription* Station
 			false,
 			EFlareMenu::MENU_Station,
 			NotificationParameters);
+
+		SelectedComplexStation = NAME_None;
+		SelectedComplexConnector = NAME_None;
 	}
 }
 

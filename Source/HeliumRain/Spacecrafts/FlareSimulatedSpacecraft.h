@@ -76,6 +76,9 @@ public:
 	/** Set parent object name */
 	void SetActorAttachment(FName ActorName);
 
+	/** Set parent station name and connector */
+	void SetComplexStationAttachment(FName StationName, FName ConnectorName);
+
 	void SetDynamicComponentState(FName Identifier, float Progress = 0.f);
 
 	void Upgrade();
@@ -151,10 +154,13 @@ public:
 	bool IsComplex() const;
 
 	/** Is this station part of a complex, and not a standalone station */
-	bool IsComplexElement() const;
+	bool IsComplexElement();
 
 	/** Get available connectors */
 	TArray<struct FFlareDockingInfo> GetStationConnectors() const;
+
+	/** Add an element to this complex */
+	void RegisterComplexElement(FFlareConnectionSave ConnectionData);
 
 
 	/*----------------------------------------------------

@@ -79,7 +79,7 @@ void UFlareSpacecraftDockingSystem::Start()
 		}
 
 		// Fill connector data to the parent 
-		if (ConnectorComponent)
+		if (ConnectorComponent && ConnectorComponent->SlotIdentifier != NAME_None)
 		{
 			auto FindByName = [=](const FFlareDockingInfo& Slot)
 			{

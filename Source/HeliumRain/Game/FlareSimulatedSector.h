@@ -328,11 +328,19 @@ struct FFlareStationSpawnParameters
 	UPROPERTY(EditAnywhere, Category = Content)
 	FName AttachActorName;
 
+	UPROPERTY(EditAnywhere, Category = Content)
+	FName AttachComplexStationName;
+
+	UPROPERTY(EditAnywhere, Category = Content)
+	FName AttachComplexConnectorName;
+
 	FFlareStationSpawnParameters()
 	{
 		Location = FVector::ZeroVector;
 		Rotation = FRotator::ZeroRotator;
 		AttachActorName = NAME_None;
+		AttachComplexStationName = NAME_None;
+		AttachComplexConnectorName = NAME_None;
 	}
 };
 
@@ -366,7 +374,8 @@ public:
     ----------------------------------------------------*/
 
     /** Create a station in the level  for a specific company */
-	UFlareSimulatedSpacecraft* CreateStation(FName StationClass, UFlareCompany* Company, bool UnderConstruction, FFlareStationSpawnParameters SpawnParameters = FFlareStationSpawnParameters());
+	UFlareSimulatedSpacecraft* CreateStation(FName StationClass, UFlareCompany* Company, bool UnderConstruction,
+		FFlareStationSpawnParameters SpawnParameters = FFlareStationSpawnParameters());
 
     /** Create a ship in the level  for a specific company */
 	UFlareSimulatedSpacecraft* CreateSpacecraft(FName ShipClass, UFlareCompany* Company, FVector TargetPosition);
@@ -394,7 +403,9 @@ public:
 	/** Check whether we can build a station, understand why if not */
 	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReason, bool IgnoreCost = false);
 
-	UFlareSimulatedSpacecraft* BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company);
+	/** Build a station on this sector */
+	UFlareSimulatedSpacecraft* BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company,
+		FFlareStationSpawnParameters SpawnParameters = FFlareStationSpawnParameters());
 
 	bool CanUpgrade(UFlareCompany* Company);
 
@@ -402,10 +413,10 @@ public:
 
 	bool UpgradeStation(UFlareSimulatedSpacecraft* Station);
 
-
+	// Attaching
 	void AttachStationToAsteroid(UFlareSimulatedSpacecraft* Spacecraft);
-
 	void AttachStationToActor(UFlareSimulatedSpacecraft* Spacecraft, FName AttachActorName);
+	void AttachStationToComplexStation(UFlareSimulatedSpacecraft* Spacecraft, FName AttachStationName, FName AttachConnectorName);
 
 	void SimulatePriceVariation();
 

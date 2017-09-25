@@ -176,20 +176,28 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationCla
 		bool SafeSpawn = (SpawnParameters.AttachActorName != NAME_None);
 		Station = CreateSpacecraft(Desc, Company, SpawnParameters.Location, SpawnParameters.Rotation, NULL, SafeSpawn, UnderConstruction);
 
-		// Needs an esteroid ? 
+		// Attach to asteroid
 		if (Station && Desc->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
 		{
 			AttachStationToAsteroid(Station);
 		}
 
-		// Substation
+		// Attach to world as substation
 		if (Station && Desc->IsSubstation)
 		{
 			FCHECK(SpawnParameters.AttachActorName != NAME_None);
 			AttachStationToActor(Station, SpawnParameters.AttachActorName);
 		}
 
-		if(UnderConstruction && Company == GetGame()->GetPC()->GetCompany())
+		// Attach to station complex as station element
+		if (Station && SpawnParameters.AttachComplexStationName != NAME_None)
+		{
+			FCHECK(SpawnParameters.AttachComplexConnectorName != NAME_None);
+			AttachStationToComplexStation(Station, SpawnParameters.AttachComplexStationName, SpawnParameters.AttachComplexConnectorName);
+		}
+
+		// Under construction
+		if (UnderConstruction && Company == GetGame()->GetPC()->GetCompany())
 		{
 			Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("start-station-construction").PutInt32("upgrade", 0));
 		}
@@ -596,7 +604,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	return Result;
 }
 
-UFlareSimulatedSpacecraft* UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company)
+UFlareSimulatedSpacecraft* UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company,	FFlareStationSpawnParameters SpawnParameters)
 {
 	TArray<FText> Reasons;
 	if (!CanBuildStation(StationDescription, Company, Reasons))
@@ -618,7 +626,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::BuildStation(FFlareSpacecraftD
 
 	GetPeople()->Pay(ProductionCost);
 
-	return CreateStation(StationDescription->Identifier, Company, true);
+	return CreateStation(StationDescription->Identifier, Company, true, SpawnParameters);
 }
 
 bool UFlareSimulatedSector::CanUpgradeStation(UFlareSimulatedSpacecraft* Station, TArray<FText>& OutReasons)
@@ -705,6 +713,22 @@ void UFlareSimulatedSector::AttachStationToAsteroid(UFlareSimulatedSpacecraft* S
 	{
 		FLOG("UFlareSimulatedSector::AttachStationToAsteroid : Failed to use asteroid !");
 	}
+}
+
+void UFlareSimulatedSector::AttachStationToComplexStation(UFlareSimulatedSpacecraft* Spacecraft, FName AttachStationName, FName AttachConnectorName)
+{
+	UFlareSimulatedSpacecraft* Complex = GetGame()->GetGameWorld()->FindSpacecraft(AttachStationName);
+	FCHECK(AttachConnectorName != NAME_None);
+	FCHECK(Complex != NULL);
+
+	// Setup connection with the parent
+	FFlareConnectionSave ConnectionData;
+	ConnectionData.ConnectorName = AttachConnectorName;
+	ConnectionData.StationIdentifier = Spacecraft->GetImmatriculation();
+	Complex->RegisterComplexElement(ConnectionData);
+	
+	// Setup connection with the guest
+	Spacecraft->SetComplexStationAttachment(AttachStationName, AttachConnectorName);
 }
 
 void UFlareSimulatedSector::AttachStationToActor(UFlareSimulatedSpacecraft* Spacecraft, FName AttachActorName)
