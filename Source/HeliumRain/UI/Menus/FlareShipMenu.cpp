@@ -843,7 +843,7 @@ void SFlareShipMenu::OnBuildStationSelected(FFlareSpacecraftDescription* Station
 		FFlareStationSpawnParameters SpawnParameters;
 		SpawnParameters.AttachComplexStationName = SelectedComplexStation;
 		SpawnParameters.AttachComplexConnectorName = SelectedComplexConnector;
-		UFlareSimulatedSpacecraft* NewStation = TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany());
+		UFlareSimulatedSpacecraft* NewStation = TargetSector->BuildStation(StationDescription, MenuManager->GetPC()->GetCompany(), SpawnParameters);
 		
 		// Handle menus
 		if (PlayerFleet && PlayerFleet->GetCurrentSector() == TargetSector && MenuManager->GetPC()->GetPlayerShip())

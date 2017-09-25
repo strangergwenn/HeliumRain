@@ -206,6 +206,19 @@ FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
 		GetActive()->Save();
 	}
 
+	// Save connected stations
+	GetData().ConnectedStations.Empty();
+	for (FFlareDockingInfo& StationConnection : ConnectorSlots)
+	{
+		if (StationConnection.Granted)
+		{
+			FFlareConnectionSave Data;
+			Data.ConnectorName = StationConnection.Name;
+			Data.StationIdentifier = StationConnection.ConnectedStationName;
+			GetData().ConnectedStations.Add(Data);
+		}
+	}
+
 	return &SpacecraftData;
 }
 
@@ -1054,7 +1067,15 @@ FFlareDockingInfo* UFlareSimulatedSpacecraft::GetStationConnector(FName Name)
 
 void UFlareSimulatedSpacecraft::RegisterComplexElement(FFlareConnectionSave ConnectionData)
 {
-	GetData().ConnectedStations.Add(ConnectionData);
+	for (FFlareDockingInfo& StationConnection : ConnectorSlots)
+	{
+		if (StationConnection.Name == ConnectionData.ConnectorName)
+		{
+			StationConnection.ConnectedStationName = ConnectionData.StationIdentifier;
+			StationConnection.Occupied = false;
+			StationConnection.Granted = true;
+		}
+	}
 }
 
 
