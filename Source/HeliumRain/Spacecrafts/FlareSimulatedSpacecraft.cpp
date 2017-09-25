@@ -160,7 +160,7 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		DockIndex++;
 	}
 	
-	// Load connected stations
+	// Load connected stations for use in simulated contexts
 	for (const FFlareConnectionSave& ConnectedStation : Data.ConnectedStations)
 	{
 		auto FindByName = [=](const FFlareDockingInfo& Slot)
@@ -172,8 +172,6 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		StationConnection->ConnectedStationName = ConnectedStation.StationIdentifier;
 		StationConnection->Occupied = false;
 		StationConnection->Granted = true;
-
-		// TODO #1035 : dock connected stations after everyone has spawned
 	}
 
 	// Load active spacecraft if it exists
@@ -194,23 +192,19 @@ FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
 
 	SpacecraftData.Cargo = *CargoBay->Save();
 
-	if(IsActive())
+	if (IsActive())
 	{
 		GetActive()->Save();
 	}
 
-	// TODO #1035 : save complex stations
-
 	return &SpacecraftData;
 }
-
 
 UFlareCompany* UFlareSimulatedSpacecraft::GetCompany() const
 {
 	// TODO Cache
 	return Game->GetGameWorld()->FindCompany(SpacecraftData.CompanyIdentifier);
 }
-
 
 EFlarePartSize::Type UFlareSimulatedSpacecraft::GetSize()
 {
@@ -476,6 +470,15 @@ void UFlareSimulatedSpacecraft::SetAsteroidData(FFlareAsteroidSave* Data)
 	SpacecraftData.AsteroidData.Scale = Data->Scale;
 	SpacecraftData.Location = Data->Location;
 	SpacecraftData.Rotation = Data->Rotation;
+}
+
+void UFlareSimulatedSpacecraft::SetComplexStationAttachment(FName StationName, FName ConnectorName)
+{
+	FLOGV("UFlareSimulatedSpacecraft::SetComplexStationAttachment : %s will attach to %s at %s",
+		*GetImmatriculation().ToString(), *StationName.ToString(), *ConnectorName.ToString());
+
+	SpacecraftData.AttachComplexStationName = StationName;
+	SpacecraftData.AttachComplexConnectorName = ConnectorName;
 }
 
 void UFlareSimulatedSpacecraft::SetActorAttachment(FName ActorName)
@@ -1020,15 +1023,19 @@ bool UFlareSimulatedSpacecraft::IsComplex() const
 	}
 }
 
-bool UFlareSimulatedSpacecraft::IsComplexElement() const
+bool UFlareSimulatedSpacecraft::IsComplexElement()
 {
-	// TODO #1035 : return true if this station is atatched to someone
-	return false;
+	return (GetData().AttachComplexStationName != NAME_None);
 }
 
 TArray<FFlareDockingInfo> UFlareSimulatedSpacecraft::GetStationConnectors() const
 {
 	return ConnectorSlots;
+}
+
+void UFlareSimulatedSpacecraft::RegisterComplexElement(FFlareConnectionSave ConnectionData)
+{
+	GetData().ConnectedStations.Add(ConnectionData);
 }
 
 

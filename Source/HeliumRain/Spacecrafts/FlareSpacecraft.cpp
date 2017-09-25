@@ -151,6 +151,13 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 		TryAttachParentActor();
 	}
 
+	// Attach to parent complex station, if any
+	if (GetData().AttachComplexStationName != NAME_None && !AttachedToParentActor)
+	{
+		TryAttachParentComplex();
+	}
+
+	// Main tick
 	if (!IsPresentationMode() && StateManager && !Paused)
 	{
 		if(GetParent()->GetDamageSystem()->IsUncontrollable() && GetParent()->GetDamageSystem()->IsDisarmed())
@@ -993,6 +1000,43 @@ void AFlareSpacecraft::SetAsteroidData(FFlareAsteroidSave* Data)
 	SetActorRotation(Data->Rotation);
 }
 
+void AFlareSpacecraft::TryAttachParentComplex()
+{
+	// Find station
+	AFlareSpacecraft* AttachStation = NULL;
+	for (TActorIterator<AFlareSpacecraft> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		if ((*ActorItr)->GetName() == GetData().AttachComplexStationName.ToString())
+		{
+			AttachStation = *ActorItr;
+			break;
+		}
+	}
+
+	// Attach to station
+	if (AttachStation)
+	{
+		for (FFlareDockingInfo& Connector : AttachStation->GetParent()->GetStationConnectors())
+		{
+			if (Connector.Name == GetData().AttachComplexConnectorName)
+			{
+				FCHECK(Connector.Granted);
+				FCHECK(Connector.ConnectedStationName == GetImmatriculation());
+				FFlareDockingInfo& StationBaseConnector = GetParent()->GetStationConnectors().Last();
+				
+				// TODO #1035 : Move at correct location using Connector (other dock) and StationBaseConnector (this dock)
+				
+				// Attach
+				Airframe->SetSimulatePhysics(true);
+				Airframe->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				AttachToActor(AttachStation, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+				AttachedToParentActor = true;
+			}
+		}
+
+	}
+}
+
 void AFlareSpacecraft::TryAttachParentActor()
 {
 	// Find actor
@@ -1006,13 +1050,9 @@ void AFlareSpacecraft::TryAttachParentActor()
 		}
 	}
 
-	// Atrach the actor
+	// Attach to actor
 	if (AttachActor)
 	{
-		//FLOGV("AFlareSpacecraft::TryAttachParentActor : '%s' found valid actor target '%s'",
-		//	*GetImmatriculation().ToString(),
-		//	*GetData().AttachActorName.ToString());
-
 		Airframe->SetSimulatePhysics(true);
 		Airframe->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		AttachToActor(AttachActor, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));

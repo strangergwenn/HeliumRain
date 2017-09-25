@@ -378,6 +378,12 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	}
 	JsonObject->SetArrayField("SalesExcludedResources", SalesExcludedResources);
 
+	TArray< TSharedPtr<FJsonValue> > ConnectedStations;
+	for (int i = 0; i < Data->ConnectedStations.Num(); i++)
+	{
+		ConnectedStations.Add(MakeShareable(new FJsonValueObject(SaveStationConnection(&Data->ConnectedStations[i]))));
+	}
+	JsonObject->SetArrayField("ConnectedStations", ConnectedStations);
 
 	TArray<FName> CapturePointCompanies;
 	Data->CapturePoints.GetKeys(CapturePointCompanies);
@@ -526,6 +532,16 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveShipyardOrderQueue(FFlareShipyardO
 	JsonObject->SetStringField("Company", Data->Company.ToString());
 	JsonObject->SetStringField("ShipClass", Data->ShipClass.ToString());
 	JsonObject->SetStringField("AdvancePayment", FormatInt32(Data->AdvancePayment));
+
+	return JsonObject;
+}
+
+TSharedRef<FJsonObject> UFlareSaveWriter::SaveStationConnection(FFlareConnectionSave* Data)
+{
+	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+
+	JsonObject->SetStringField("ConnectorName", Data->ConnectorName.ToString());
+	JsonObject->SetStringField("StationIdentifier", Data->StationIdentifier.ToString());
 
 	return JsonObject;
 }
