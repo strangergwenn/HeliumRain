@@ -142,10 +142,21 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	LockResources();
 
 	// Setup station connectors
-	int32 DockIndex = 0;
 	ConnectorSlots.Empty();
-	for (FName ConnectorName : SpacecraftDescription->StationConnectorNames)
+	for (int32 DockIndex = 0; DockIndex < SpacecraftDescription->StationConnectorCount; DockIndex++)
 	{
+		// Look for the slot name. Unnamed slots are fine if there is only one (most stations are in that case).
+		FName ConnectorName = NAME_None;
+		if (DockIndex < SpacecraftDescription->StationConnectorNames.Num())
+		{
+			ConnectorName = SpacecraftDescription->StationConnectorNames[DockIndex];
+		}
+		else
+		{
+			FCHECK(SpacecraftDescription->StationConnectorCount == 1);
+		}
+
+		// Setup the data
 		FFlareDockingInfo StationConnection;
 		StationConnection.Name = ConnectorName;
 		StationConnection.Occupied = false;
@@ -155,9 +166,7 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		StationConnection.Ship = NULL;
 		StationConnection.Station = NULL;
 		StationConnection.DockSize = EFlarePartSize::L;
-
 		ConnectorSlots.Add(StationConnection);
-		DockIndex++;
 	}
 	
 	// Load connected stations for use in simulated contexts
@@ -1031,6 +1040,16 @@ bool UFlareSimulatedSpacecraft::IsComplexElement()
 TArray<FFlareDockingInfo> UFlareSimulatedSpacecraft::GetStationConnectors() const
 {
 	return ConnectorSlots;
+}
+
+FFlareDockingInfo* UFlareSimulatedSpacecraft::GetStationConnector(FName Name)
+{
+	auto FindByName = [=](const FFlareDockingInfo& Slot)
+	{
+		return Slot.Name == Name;
+	};
+
+	return ConnectorSlots.FindByPredicate(FindByName);
 }
 
 void UFlareSimulatedSpacecraft::RegisterComplexElement(FFlareConnectionSave ConnectionData)

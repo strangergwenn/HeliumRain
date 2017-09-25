@@ -159,6 +159,9 @@ public:
 	/** Get available connectors */
 	TArray<struct FFlareDockingInfo> GetStationConnectors() const;
 
+	/** Get a specific connector */
+	struct FFlareDockingInfo* GetStationConnector(FName Name);
+
 	/** Add an element to this complex */
 	void RegisterComplexElement(FFlareConnectionSave ConnectionData);
 

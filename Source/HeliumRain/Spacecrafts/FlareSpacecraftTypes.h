@@ -884,6 +884,10 @@ struct FFlareSpacecraftDescription
 	/** List of station connectors */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FName> StationConnectorNames;
+	
+	/** Number of station connectors */
+	UPROPERTY(EditAnywhere, Category = Content)
+	int32 StationConnectorCount;
 
 	int32 GetCapacity() const;
 
