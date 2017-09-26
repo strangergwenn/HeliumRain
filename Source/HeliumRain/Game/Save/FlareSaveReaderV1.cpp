@@ -387,6 +387,8 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	LoadFloat(Object, "DynamicComponentStateProgress", &Data->DynamicComponentStateProgress);
 	LoadFName(Object, "HarpoonCompany", &Data->HarpoonCompany);
 	LoadFName(Object, "AttachActorName", &Data->AttachActorName);
+	LoadFName(Object, "AttachComplexStationName", &Data->AttachComplexStationName);
+	LoadFName(Object, "AttachComplexConnectorName", &Data->AttachComplexConnectorName);
 
 
 	// LEGACY alpha 3
