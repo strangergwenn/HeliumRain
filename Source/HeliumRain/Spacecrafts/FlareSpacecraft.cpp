@@ -1006,7 +1006,7 @@ void AFlareSpacecraft::TryAttachParentComplex()
 	AFlareSpacecraft* AttachStation = NULL;
 	for (TActorIterator<AFlareSpacecraft> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
-		if ((*ActorItr)->GetName() == GetData().AttachComplexStationName.ToString())
+		if ((*ActorItr)->GetImmatriculation() == GetData().AttachComplexStationName)
 		{
 			AttachStation = *ActorItr;
 			break;
@@ -1016,16 +1016,33 @@ void AFlareSpacecraft::TryAttachParentComplex()
 	// Attach to station
 	if (AttachStation)
 	{
-		for (FFlareDockingInfo& Connector : AttachStation->GetParent()->GetStationConnectors())
+		for (FFlareDockingInfo& MasterConnector : AttachStation->GetParent()->GetStationConnectors())
 		{
-			if (Connector.Name == GetData().AttachComplexConnectorName)
+			if (MasterConnector.Name == GetData().AttachComplexConnectorName)
 			{
-				FCHECK(Connector.Granted);
-				FCHECK(Connector.ConnectedStationName == GetImmatriculation());
-				FFlareDockingInfo& StationBaseConnector = GetParent()->GetStationConnectors().Last();
-				
-				// TODO #1035 : Move at correct location using Connector (other dock) and StationBaseConnector (this dock)
-				
+				FCHECK(MasterConnector.Granted);
+				FCHECK(MasterConnector.ConnectedStationName == GetImmatriculation());
+				FFlareDockingInfo& SlaveConnector = GetParent()->GetStationConnectors().Last();
+
+				FVector MasterDockLocation =  AttachStation->Airframe->GetComponentTransform().TransformPosition(MasterConnector.LocalLocation);
+				FVector SlaveDockLocation =  Airframe->GetComponentTransform().TransformPosition(SlaveConnector.LocalLocation);
+
+				FVector SlaveDockOffset = SlaveDockLocation - GetActorLocation();
+
+				FVector MasterDockAxis = AttachStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(MasterConnector.LocalAxis).GetUnsafeNormal();
+				FVector MasterDockTopAxis = AttachStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(MasterConnector.LocalTopAxis).GetUnsafeNormal();
+
+				FTransform DockedTransform;
+				FQuat DockRotation = FQuat(UKismetMathLibrary::MakeRotFromXZ(-MasterDockAxis, MasterDockTopAxis));
+				DockedTransform.SetRotation(DockRotation);
+
+				FVector ShipLocalDockOffset = GetActorTransform().GetRotation().Inverse().RotateVector(SlaveDockOffset);
+				FVector RotatedOffset = DockRotation.RotateVector(ShipLocalDockOffset);
+				FVector DockLocation = MasterDockLocation - RotatedOffset;
+				DockedTransform.SetTranslation(DockLocation);
+
+				SetActorTransform(DockedTransform, false, nullptr, ETeleportType::TeleportPhysics);
+
 				// Attach
 				Airframe->SetSimulatePhysics(true);
 				Airframe->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);

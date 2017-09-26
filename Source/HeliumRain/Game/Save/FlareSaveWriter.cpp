@@ -335,6 +335,8 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	JsonObject->SetObjectField("Asteroid", SaveAsteroid(&Data->AsteroidData));
 	JsonObject->SetStringField("HarpoonCompany", Data->HarpoonCompany.ToString());
 	JsonObject->SetStringField("AttachActorName", Data->AttachActorName.ToString());
+	JsonObject->SetStringField("AttachComplexStationName", Data->AttachComplexStationName.ToString());
+	JsonObject->SetStringField("AttachComplexConnectorName", Data->AttachComplexConnectorName.ToString());
 
 	TArray< TSharedPtr<FJsonValue> > Components;
 	for(int i = 0; i < Data->Components.Num(); i++)
