@@ -1035,8 +1035,15 @@ void AFlareSpacecraft::TryAttachParentComplex()
 				FVector MasterDockAxis = AttachStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(MasterConnector.LocalAxis).GetUnsafeNormal();
 				FVector MasterDockTopAxis = AttachStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(MasterConnector.LocalTopAxis).GetUnsafeNormal();
 
+				FVector SlaveDockAxis = AttachStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(SlaveConnector.LocalAxis).GetUnsafeNormal();
+				FVector SlaveDockTopAxis = AttachStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(SlaveConnector.LocalTopAxis).GetUnsafeNormal();
+
 				FTransform DockedTransform;
-				FQuat DockRotation = FQuat(UKismetMathLibrary::MakeRotFromXZ(-MasterDockAxis, MasterDockTopAxis));
+				FQuat MasterDockRotation = FQuat(UKismetMathLibrary::MakeRotFromXZ(-MasterDockAxis, MasterDockTopAxis));
+				FQuat SlaveDockRotation = FQuat(UKismetMathLibrary::MakeRotFromXZ(SlaveDockAxis, SlaveDockTopAxis));
+
+				FQuat DockRotation = MasterDockRotation * SlaveDockRotation.Inverse();
+
 				DockedTransform.SetRotation(DockRotation);
 
 				FVector ShipLocalDockOffset = GetActorTransform().GetRotation().Inverse().RotateVector(SlaveDockOffset);
