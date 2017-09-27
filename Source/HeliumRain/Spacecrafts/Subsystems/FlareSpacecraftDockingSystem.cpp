@@ -96,7 +96,7 @@ void UFlareSpacecraftDockingSystem::Start()
 
 				StationConnection->Ship = NULL;
 				StationConnection->Station = Spacecraft;
-				StationConnection->LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(1, 0, 0)));
+				StationConnection->LocalAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(0, 0, 1)));
 				StationConnection->LocalTopAxis = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(DockRotation.RotateVector(FVector(0, 1, 0)));
 				StationConnection->LocalLocation = Spacecraft->Airframe->GetComponentToWorld().Inverse().TransformPosition(DockLocation);
 				StationConnection->Occupied = true;
