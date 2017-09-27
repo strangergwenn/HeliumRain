@@ -1018,7 +1018,8 @@ void AFlareSpacecraft::TryAttachParentComplex()
 	{
 		for (FFlareDockingInfo& MasterConnector : AttachStation->GetParent()->GetStationConnectors())
 		{
-			FFlareDockingInfo& SlaveConnector = GetParent()->GetStationConnectors().Last();
+			FCHECK(GetParent()->GetStationConnectors().Num() > 0);
+			FFlareDockingInfo& SlaveConnector = GetParent()->GetStationConnectors()[0];
 
 			// "Occupied" is set to true when the dock is ready
 			if (MasterConnector.Name == GetData().AttachComplexConnectorName && MasterConnector.Occupied && SlaveConnector.Occupied)
