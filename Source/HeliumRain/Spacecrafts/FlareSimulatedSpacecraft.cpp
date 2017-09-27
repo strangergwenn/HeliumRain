@@ -1050,7 +1050,7 @@ bool UFlareSimulatedSpacecraft::IsComplexElement()
 	return (GetData().AttachComplexStationName != NAME_None);
 }
 
-TArray<FFlareDockingInfo> UFlareSimulatedSpacecraft::GetStationConnectors() const
+TArray<FFlareDockingInfo>& UFlareSimulatedSpacecraft::GetStationConnectors()
 {
 	return ConnectorSlots;
 }

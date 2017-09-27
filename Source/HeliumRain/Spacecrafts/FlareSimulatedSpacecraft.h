@@ -157,7 +157,7 @@ public:
 	bool IsComplexElement();
 
 	/** Get available connectors */
-	TArray<struct FFlareDockingInfo> GetStationConnectors() const;
+	TArray<struct FFlareDockingInfo>& GetStationConnectors();
 
 	/** Get a specific connector */
 	struct FFlareDockingInfo* GetStationConnector(FName Name);
