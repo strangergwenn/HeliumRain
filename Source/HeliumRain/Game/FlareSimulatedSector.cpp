@@ -27,6 +27,7 @@ DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorFriendlyness"), STAT_FlareSector_G
 DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorBattleState"), STAT_FlareSector_GetSectorBattleState, STATGROUP_Flare);
 
 #define FLEET_SUPPLY_CONSUMPTION_STATS 50
+#define AI_MAX_STATION_PER_SECTOR 30
 
 #define LOCTEXT_NAMESPACE "FlareSimulatedSector"
 
@@ -521,17 +522,25 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	}
 
 	// Too many stations
-	if (Company->GetCompanyStations().Num() >= GetMaxStationsPerCompany()/2 && !Company->IsTechnologyUnlocked("dense-sectors"))
+	int32 StationCount = GetSectorCompanyStationCount(Company);
+
+	if (StationCount >= GetMaxStationsPerCompany()/2 && !Company->IsTechnologyUnlocked("dense-sectors"))
 	{
 		OutReasons.Add(LOCTEXT("BuildNeedDenseSectors", "You have too many stations. Unlock 'dense sectors' technology to build more stations"));
 		Result = false;
 	}
 
-
 	// Too many stations
-	if (Company->GetCompanyStations().Num() >= GetMaxStationsPerCompany())
+	if (StationCount >= GetMaxStationsPerCompany())
 	{
 		OutReasons.Add(LOCTEXT("BuildTooManyStations", "You have too many stations"));
+		Result = false;
+	}
+
+	// Too many stations
+	if (!Company->IsPlayerCompany() && GetSectorStations().Num() > AI_MAX_STATION_PER_SECTOR)
+	{
+		OutReasons.Add(LOCTEXT("AIBuildTooManyStations", "AI can not build too much stations"));
 		Result = false;
 	}
 
@@ -979,23 +988,25 @@ FText UFlareSimulatedSector::GetSectorBalanceText(bool ActiveOnly)
 	return FText::FromString(PlayerShipsText.ToString() + HostileShipsText.ToString() + NeutralShipsText.ToString());
 }
 
-int64 UFlareSimulatedSector::GetStationConstructionFee(int64 BasePrice, UFlareCompany* Company)
+int32 UFlareSimulatedSector::GetSectorCompanyStationCount(UFlareCompany* Company) const
 {
 	int32 CompanyStationCountInSector = 0;
-	int32 OtherCompanyStationCountInSector = 0;
+
 	for(UFlareSimulatedSpacecraft* Station : SectorStations)
 	{
 		if(Station->GetCompany() == Company)
 		{
 			++CompanyStationCountInSector;
 		}
-		else
-		{
-			++OtherCompanyStationCountInSector;
-		}
 	}
 
-	return BasePrice * (Company->GetCompanyStations().Num() + 1) *  (CompanyStationCountInSector + 1) * (1 + 0.1 * FMath::Sqrt(OtherCompanyStationCountInSector));
+	return CompanyStationCountInSector;
+
+}
+
+int64 UFlareSimulatedSector::GetStationConstructionFee(int64 BasePrice, UFlareCompany* Company)
+{
+	return BasePrice;
 }
 
 uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareResourceDescription* Resource, bool IncludeShips, bool AllowTrade)

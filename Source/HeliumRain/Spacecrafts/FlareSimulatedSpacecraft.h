@@ -327,7 +327,7 @@ public:
 
 	int64 GetStationUpgradeFee() const
 	{
-		return SpacecraftData.Level * SpacecraftDescription->CycleCost.ProductionCost;
+		return SpacecraftDescription->CycleCost.ProductionCost;
 	}
 
 	inline bool HasCapability(EFlareSpacecraftCapability::Type Capability) const

@@ -518,8 +518,10 @@ public:
 
 	int32 GetMaxStationsPerCompany()
 	{
-		return 40;
+		return 10;
 	}
+
+	int32 GetSectorCompanyStationCount(UFlareCompany* Company) const;
 
 	bool IsTravelSector()
 	{
