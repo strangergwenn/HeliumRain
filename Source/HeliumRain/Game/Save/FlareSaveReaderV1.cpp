@@ -277,6 +277,15 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 		}
 	}
 
+	const TArray<TSharedPtr<FJsonValue>>* CaptureOrders;
+	if (Object->TryGetArrayField("CaptureOrders", CaptureOrders))
+	{
+		for (TSharedPtr<FJsonValue> Item : *CaptureOrders)
+		{
+			Data->CaptureOrders.Add(FName(*Item->AsString()));
+		}
+	}
+
 	const TSharedPtr< FJsonObject >* AI;
 	if(Object->TryGetObjectField(TEXT("AI"), AI))
 	{

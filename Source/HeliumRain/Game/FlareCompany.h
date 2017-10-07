@@ -138,6 +138,10 @@ public:
 
 	void GiveShame(float ShameGain);
 
+	void StartCapture(UFlareSimulatedSpacecraft* Station);
+	void StopCapture(UFlareSimulatedSpacecraft* Station);
+	bool CanStartCapture(UFlareSimulatedSpacecraft* Station);
+
 	/*----------------------------------------------------
 		Customization
 	----------------------------------------------------*/
@@ -448,5 +452,9 @@ public:
 	int32 GetWarCount(UFlareCompany* ExcludeCompany) const;
 
 	bool IsPlayerCompany() const;
+
+	bool WantCapture(UFlareSimulatedSpacecraft const* Station) const;
+
+	int32 GetCaptureOrderCountInSector(UFlareSimulatedSector const* Sector) const;
 
 };

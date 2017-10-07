@@ -567,22 +567,16 @@ FText SFlareSectorMenu::GetBuildStationText() const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	int OwnedStationCount = 0;
-	for (UFlareSimulatedSpacecraft* Station : TargetSector->GetSectorStations())
-	{
-		if (Station->GetCompany() == PC->GetCompany())
-		{
-			OwnedStationCount++;
-		}
-	}
-
 	if (TargetSector)
 	{
 		if (PC && PC->GetCompany()->HasVisitedSector(TargetSector))
 		{
+			int32 OwnedStationCount = TargetSector->GetSectorCompanyStationCount(PC->GetCompany(), true);
+			int32 MaxStationCount = PC->GetCompany()->IsTechnologyUnlocked("dense-sectors") ? TargetSector->GetMaxStationsPerCompany() : TargetSector->GetMaxStationsPerCompany() / 2;
+
 			return FText::Format(LOCTEXT("BuildStationFormat", "Build station ({0} / {1})"),
 				FText::AsNumber(OwnedStationCount),
-				FText::AsNumber(TargetSector->GetMaxStationsPerCompany()));
+				FText::AsNumber(MaxStationCount));
 		}
 		else
 		{
@@ -599,6 +593,10 @@ FText SFlareSectorMenu::GetBuildStationHelpText() const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
+	int32 OwnedStationCount = TargetSector->GetSectorCompanyStationCount(PC->GetCompany(), true);
+	int32 MaxStationCount = PC->GetCompany()->IsTechnologyUnlocked("dense-sectors") ? TargetSector->GetMaxStationsPerCompany() : TargetSector->GetMaxStationsPerCompany() / 2;
+
+
 	if (!PC || !TargetSector)
 	{
 		return FText();
@@ -611,9 +609,16 @@ FText SFlareSectorMenu::GetBuildStationHelpText() const
 	{
 		return LOCTEXT("CantBuildStationUnknownInfo", "Can't build stations in unknown sectors");
 	}
-	else if (PC->GetCompany()->GetCompanyStations().Num() >= TargetSector->GetMaxStationsPerCompany())
+	else if (OwnedStationCount >= MaxStationCount)
 	{
-		return LOCTEXT("CantBuildStationMaxInfo", "This sector is already full");
+		if (PC->GetCompany()->IsTechnologyUnlocked("dense-sectors"))
+		{
+			return LOCTEXT("CantBuildStationMaxInfo", "This sector is already full");
+		}
+		else
+		{
+			return LOCTEXT("CantBuildStationNeedDenseInfo", "You need the dense sector technology to build more stations in this sector.");
+		}
 	}
 	else
 	{
@@ -625,11 +630,15 @@ bool SFlareSectorMenu::IsBuildStationDisabled() const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
+	int32 OwnedStationCount = TargetSector->GetSectorCompanyStationCount(PC->GetCompany(), true);
+	int32 MaxStationCount = PC->GetCompany()->IsTechnologyUnlocked("dense-sectors") ? TargetSector->GetMaxStationsPerCompany() : TargetSector->GetMaxStationsPerCompany() / 2;
+
+
 	if (!PC->GetCompany()->HasStationTechnologyUnlocked())
 	{
 		return true;
 	}
-	else if (TargetSector && PC->GetCompany()->HasVisitedSector(TargetSector) && PC->GetCompany()->GetCompanyStations().Num() < TargetSector->GetMaxStationsPerCompany())
+	else if (TargetSector && PC->GetCompany()->HasVisitedSector(TargetSector) && OwnedStationCount < MaxStationCount)
 	{
 		return false;
 	}

@@ -272,6 +272,10 @@ struct FFlareCompanySave
 	/** Research inflation ratio*/
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 ResearchSpent;
+
+	/** List of capture target */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FName> CaptureOrders;
 };
 
 /** Catalog data */

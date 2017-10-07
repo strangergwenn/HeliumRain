@@ -694,7 +694,7 @@ bool SFlareSpacecraftInfo::UpdateCaptureList()
 		for (int32 CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
 		{
 			UFlareCompany* Company = Companies[CompanyIndex];
-			if (TargetSpacecraft->GetCapturePoint(Company) > 0)
+			if (TargetSpacecraft->GetCapturePoint(Company) > 0 || Company->WantCapture(TargetSpacecraft))
 			{
 				FText CaptureInfo = FText::Format(LOCTEXT("CaptureFormat", "Capture in progress by {0} ({1})"),
 					Company->GetCompanyName(),

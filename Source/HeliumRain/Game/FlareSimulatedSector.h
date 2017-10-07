@@ -496,6 +496,11 @@ public:
         return SectorStations;
     }
 
+	inline TArray<UFlareSimulatedSpacecraft*> const& GetSectorStations() const
+	{
+		return SectorStations;
+	}
+
     inline TArray<UFlareSimulatedSpacecraft*>& GetSectorShips()
     {
         return SectorShips;
@@ -521,7 +526,7 @@ public:
 		return 10;
 	}
 
-	int32 GetSectorCompanyStationCount(UFlareCompany* Company) const;
+	int32 GetSectorCompanyStationCount(UFlareCompany* Company, bool IncludeCapture) const;
 
 	bool IsTravelSector()
 	{

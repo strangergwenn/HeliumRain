@@ -1344,7 +1344,7 @@ TArray<WarTarget> UFlareCompanyAI::GenerateWarTargetList(AIWarContext& WarContex
 
 			// Retreat
 			TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(WarContext, Target.Sector);
-			if (MovableShips.Num() > 0)
+			if (MovableShips.Num() > 0 && Target.EnemyArmyCombatPoints > 0)
 			{
 				// Find nearest sector without danger with available FS and travel there
 				UFlareSimulatedSector* RetreatSector = FindNearestSectorWithFS(WarContext, Target.Sector);
@@ -1460,17 +1460,29 @@ TArray<DefenseSector> UFlareCompanyAI::GenerateDefenseSectorList(AIWarContext& W
 
 		Target.CapturingStation = false;
 		TArray<UFlareSimulatedSpacecraft*>& Stations =  Sector->GetSectorStations();
-		for (UFlareSimulatedSpacecraft* Station : Stations)
+
+
+		if(Company->GetCaptureOrderCountInSector(Sector) > 0)
 		{
-			// Capturing station
-			if (WarContext.Enemies.Contains(Station->GetCompany()))
+			Target.CapturingStation = true;
+		}
+		else
+		{
+			for (UFlareSimulatedSpacecraft* Station : Stations)
 			{
-				Target.CapturingStation = true;
-				break;
+				// Capturing station
+				if (WarContext.Enemies.Contains(Station->GetCompany()) && Company->CanStartCapture(Station))
+				{
+					Target.CapturingStation = true;
+					break;
+				}
 			}
+
 		}
 
-		if (Target.CombatPoints > 0)
+
+
+		if (Target.CombatPoints > 0 || Target.PrisonersKeeper != nullptr)
 		{
 			DefenseSectorList.Add(Target);
 		}
@@ -1821,6 +1833,12 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 		// Capturing station, don't move
 		if (Sector.CapturingStation)
 		{
+			// Start capture
+			for(UFlareSimulatedSpacecraft* Station: Sector.Sector->GetSectorStations())
+			{
+				Company->StartCapture(Station);
+			}
+
 #ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
 			FLOGV("army at %s won't move to defend: capturing station",
 				*Sector.Sector->GetSectorName().ToString());

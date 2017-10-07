@@ -616,6 +616,8 @@ void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 {
 	FLOGV("UFlareCompany::DestroySpacecraft : Remove %s from company %s", *Spacecraft->GetImmatriculation().ToString(), *GetCompanyName().ToString());
 
+	Spacecraft->ResetCapture();
+
 	CompanySpacecrafts.Remove(Spacecraft);
 	CompanyStations.Remove(Spacecraft);
 	CompanyShips.Remove(Spacecraft);
@@ -1117,6 +1119,51 @@ void UFlareCompany::GiveShame(float ShameGain)
 	CompanyData.Shame += ShameGain;
 }
 
+void UFlareCompany::StartCapture(UFlareSimulatedSpacecraft* Station)
+{
+	if(!CanStartCapture(Station))
+	{
+		return;
+	}
+
+	CompanyData.CaptureOrders.AddUnique(Station->GetImmatriculation());
+}
+
+void UFlareCompany::StopCapture(UFlareSimulatedSpacecraft* Station)
+{
+
+	CompanyData.CaptureOrders.Remove(Station->GetImmatriculation());
+}
+
+bool UFlareCompany::CanStartCapture(UFlareSimulatedSpacecraft* Station)
+{
+
+	if(CompanyData.CaptureOrders.Contains(Station->GetImmatriculation()))
+	{
+		return false;
+	}
+
+	int32 StationCount = Station->GetCurrentSector()->GetSectorCompanyStationCount(this, true);
+	int32 MaxStationCount = IsTechnologyUnlocked("dense-sectors") ? Station->GetCurrentSector()->GetMaxStationsPerCompany() : Station->GetCurrentSector()->GetMaxStationsPerCompany() / 2;
+
+	if(StationCount >= MaxStationCount)
+	{
+
+		return false;
+	}
+
+	if ((GetWarState(Station->GetCompany()) != EFlareHostility::Hostile)
+		|| !Station->GetCurrentSector()->GetSectorBattleState(this).BattleWon)
+	{
+		// Friend don't capture and not winner don't capture
+		return false;
+	}
+
+
+	return true;
+
+}
+
 /*----------------------------------------------------
 	Customization
 ----------------------------------------------------*/
@@ -1583,6 +1630,25 @@ FText UFlareCompany::GetPlayerHostilityText() const
 bool UFlareCompany::IsPlayerCompany() const
 {
 	return this == Game->GetPC()->GetCompany();
+}
+
+bool UFlareCompany::WantCapture(UFlareSimulatedSpacecraft const* Station) const
+{
+	return CompanyData.CaptureOrders.Contains(Station->GetImmatriculation());
+}
+
+int32 UFlareCompany::GetCaptureOrderCountInSector(UFlareSimulatedSector const* Sector) const
+{
+	int32 Orders = 0;
+
+	for(UFlareSimulatedSpacecraft const* Station: Sector->GetSectorStations())
+	{
+		if(WantCapture(Station))
+		{
+			++Orders;
+		}
+	}
+	return Orders;
 }
 
 #undef LOCTEXT_NAMESPACE

@@ -522,7 +522,7 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	}
 
 	// Too many stations
-	int32 StationCount = GetSectorCompanyStationCount(Company);
+	int32 StationCount = GetSectorCompanyStationCount(Company, true);
 
 	if (StationCount >= GetMaxStationsPerCompany()/2 && !Company->IsTechnologyUnlocked("dense-sectors"))
 	{
@@ -988,7 +988,7 @@ FText UFlareSimulatedSector::GetSectorBalanceText(bool ActiveOnly)
 	return FText::FromString(PlayerShipsText.ToString() + HostileShipsText.ToString() + NeutralShipsText.ToString());
 }
 
-int32 UFlareSimulatedSector::GetSectorCompanyStationCount(UFlareCompany* Company) const
+int32 UFlareSimulatedSector::GetSectorCompanyStationCount(UFlareCompany* Company, bool IncludeCapture) const
 {
 	int32 CompanyStationCountInSector = 0;
 
@@ -999,6 +999,8 @@ int32 UFlareSimulatedSector::GetSectorCompanyStationCount(UFlareCompany* Company
 			++CompanyStationCountInSector;
 		}
 	}
+
+	CompanyStationCountInSector += Company->GetCaptureOrderCountInSector(this);
 
 	return CompanyStationCountInSector;
 

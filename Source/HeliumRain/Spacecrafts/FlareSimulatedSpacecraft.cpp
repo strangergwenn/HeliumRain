@@ -745,6 +745,8 @@ void UFlareSimulatedSpacecraft::ResetCapture(UFlareCompany* Company)
 	{
 		FName CompanyIdentifier = Company->GetIdentifier();
 		RemoveCapturePoint(CompanyIdentifier, ResetSpeedPoint);
+
+		Company->StopCapture(this);
 	}
 	else
 	{
@@ -754,6 +756,11 @@ void UFlareSimulatedSpacecraft::ResetCapture(UFlareCompany* Company)
 		for(int CompanyIndex = 0; CompanyIndex < CapturingCompany.Num(); CompanyIndex++)
 		{
 			RemoveCapturePoint(CapturingCompany[CompanyIndex], ResetSpeedPoint);
+		}
+
+		for(UFlareCompany* CompanyCandidate: Game->GetGameWorld()->GetCompanies())
+		{
+			CompanyCandidate->StopCapture(this);
 		}
 	}
 }

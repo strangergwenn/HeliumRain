@@ -996,6 +996,11 @@ void UFlareWorld::ProcessStationCapture()
 			{
 				UFlareCompany* Company = Companies[CompanyIndex];
 
+				if (!Company->WantCapture(Spacecraft))
+				{
+					continue;
+				}
+
 				if ((Company->GetWarState(Spacecraft->GetCompany()) != EFlareHostility::Hostile)
 					|| Sector->GetSectorBattleState(Company).HasDanger)
 				{

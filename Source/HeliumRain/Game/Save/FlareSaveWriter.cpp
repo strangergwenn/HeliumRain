@@ -237,6 +237,14 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompany(FFlareCompanySave* Data)
 	}
 	JsonObject->SetArrayField("UnlockedTechnologies", UnlockedTechnologies);
 
+	TArray< TSharedPtr<FJsonValue> > CaptureOrders;
+	for (int i = 0; i < Data->CaptureOrders.Num(); i++)
+	{
+		CaptureOrders.Add(MakeShareable(new FJsonValueString(Data->CaptureOrders[i].ToString())));
+	}
+	JsonObject->SetArrayField("CaptureOrders", CaptureOrders);
+
+
 	TArray< TSharedPtr<FJsonValue> > HostileCompanies;
 	for(int i = 0; i < Data->HostileCompanies.Num(); i++)
 	{
