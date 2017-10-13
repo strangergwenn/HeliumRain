@@ -81,6 +81,9 @@ public:
 	/** Can we target the current spacecraft ? */
 	bool IsTargetDisabled() const;
 
+	/** Can we capture the current spacecraft ? */
+	bool IsCaptureDisabled() const;
+
 	/** Can we target the current spacecraft ? Hint text */
 	FText GetTargetButtonHint() const;
 
@@ -110,6 +113,9 @@ public:
 
 	/** Scrap this spacecraft */
 	void OnScrapConfirmed();
+
+	/** Capture this spacecraft */
+	void OnCapture();
 	
 
 	/*----------------------------------------------------

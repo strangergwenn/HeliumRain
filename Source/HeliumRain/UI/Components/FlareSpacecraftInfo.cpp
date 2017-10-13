@@ -686,9 +686,38 @@ void SFlareSpacecraftInfo::UpdateCapabilitiesInfo()
 bool SFlareSpacecraftInfo::UpdateCaptureList()
 {
 	bool CaptureInProgress = false;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel() && TargetSpacecraft->IsStation())
 	{
+		// Player can capture
+		if (PC->GetCompany()->CanStartCapture(TargetSpacecraft) && !PC->GetCompany()->WantCapture(TargetSpacecraft))
+		{
+			int32 OwnedStationCount = TargetSpacecraft->GetCurrentSector()->GetSectorCompanyStationCount(PC->GetCompany(), true);
+			int32 MaxStationCount = PC->GetCompany()->IsTechnologyUnlocked("dense-sectors") ?
+				TargetSpacecraft->GetCurrentSector()->GetMaxStationsPerCompany() :
+				TargetSpacecraft->GetCurrentSector()->GetMaxStationsPerCompany() / 2;
+
+			FText CaptureText = FText::Format(LOCTEXT("CaptureFormat", "Start capturing this station ({0} / {1})"),
+				FText::AsNumber(OwnedStationCount),
+				MaxStationCount);
+
+			// Show button
+			MessageBox->AddSlot()
+			.AutoHeight()
+			.Padding(Theme.SmallContentPadding)
+			.HAlign(HAlign_Left)
+			[
+				SNew(SFlareButton)
+					.Text(CaptureText)
+					.HelpText(LOCTEXT("CaptureInfo", "Capturing a station requires control of the sector for a few days"))
+					.OnClicked(this, &SFlareSpacecraftInfo::OnCapture)
+					.IsDisabled(this, &SFlareSpacecraftInfo::IsCaptureDisabled)
+					.Icon(FFlareStyleSet::GetIcon("Capture"))
+					.Width(14.8)
+			];
+		}
+
 		// Find all companies that could capture this
 		TArray<UFlareCompany*> Companies = PC->GetGame()->GetGameWorld()->GetCompanies();
 		for (int32 CompanyIndex = 0; CompanyIndex < Companies.Num(); CompanyIndex++)
@@ -804,6 +833,11 @@ bool SFlareSpacecraftInfo::IsTargetDisabled() const
 	{
 		return false;
 	}
+}
+
+bool SFlareSpacecraftInfo::IsCaptureDisabled() const
+{
+	return false;
 }
 
 FText SFlareSpacecraftInfo::GetTargetButtonHint() const
@@ -962,6 +996,18 @@ void SFlareSpacecraftInfo::OnScrapConfirmed()
 		{
 			FLOG("SFlareSpacecraftInfo::OnScrap : couldn't find a valid station here !");
 		}
+	}
+}
+
+void SFlareSpacecraftInfo::OnCapture()
+{
+	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
+	{
+		PC->GetCompany()->StartCapture(TargetSpacecraft);
+
+		MessageBox->ClearChildren();
+		UpdateCaptureList();
+		UpdateCapabilitiesInfo();
 	}
 }
 
