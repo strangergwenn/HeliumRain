@@ -44,7 +44,7 @@ struct FFlareSaveSlotInfo
 	FSlateBrush                EmblemBrush;
 
 	int32                      CompanyShipCount;
-	int32                      CompanyValue;
+	int64                      CompanyValue;
 	FText                      CompanyName;
 	FName                      UUID;
 };
