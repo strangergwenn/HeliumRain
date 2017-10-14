@@ -1054,7 +1054,9 @@ FText SFlareSpacecraftInfo::GetDescription() const
 	{
 		if(TargetSpacecraft && TargetSpacecraft->IsStation())
 		{
-			return FText::Format(LOCTEXT("DescriptionStationFormat", "(Lv {0})"), FText::AsNumber(TargetSpacecraft->GetLevel()));
+			return FText::Format(LOCTEXT("DescriptionStationSectorFormat", "(Lv {0}, {1})"),
+				FText::AsNumber(TargetSpacecraft->GetLevel()),
+				TargetSpacecraft->GetCurrentSector()->GetSectorName());
 		}
 		else
 		{
