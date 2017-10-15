@@ -26,6 +26,14 @@ class SFlareCompanyMenu : public SCompoundWidget
 public:
 
 	/*----------------------------------------------------
+		Callbacks
+	----------------------------------------------------*/
+
+	/** Can we validate new details */
+	bool IsRenameDisabled() const;
+
+
+	/*----------------------------------------------------
 		Interaction
 	----------------------------------------------------*/
 
@@ -41,6 +49,11 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+	/** Confirm details */
+	void OnRename();
+
+	/** Emblem picked */
+	void OnEmblemPicked(int32 Index);
 		
 
 protected:
@@ -60,6 +73,8 @@ protected:
 	TSharedPtr<SFlareList>                   ShipList;
 	TSharedPtr<SFlareCompanyInfo>            CompanyInfo;
 	TSharedPtr<SFlareTradeRouteInfo>         TradeRouteInfo;
+	TSharedPtr<SEditableText>                CompanyName;
+	TSharedPtr<SFlareDropList<int32>>        EmblemPicker;
 
 
 };

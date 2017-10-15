@@ -25,6 +25,8 @@ class SFlareDropList : public SCompoundWidget
 		: _OptionsSource()
 		, _OnSelectionChanged()
 		, _OnGenerateWidget()
+		, _OnItemPicked()
+		, _OnColorPicked()
 		, _LineSize(1)
 		, _HeaderWidth(3)
 		, _HeaderHeight(1)

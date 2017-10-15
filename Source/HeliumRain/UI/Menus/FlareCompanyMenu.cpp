@@ -1,11 +1,16 @@
 
 #include "FlareCompanyMenu.h"
 #include "../../Flare.h"
+
 #include "../Components/FlarePartInfo.h"
 #include "../Components/FlareCompanyInfo.h"
+
 #include "../../Data/FlareSpacecraftComponentsCatalog.h"
+#include "../../Data/FlareCustomizationCatalog.h"
+
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareCompany.h"
+
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlarePlayerController.h"
@@ -43,6 +48,26 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 			.Style(&Theme.ScrollBoxStyle)
 			.ScrollBarStyle(&Theme.ScrollBarStyle)
 
+			+ SScrollBox::Slot()
+			.Padding(Theme.TitlePadding)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.SubTitleFont)
+				.Text(LOCTEXT("CompanyInfoTitle", "Company"))
+			]
+
+			// Company info
+			+ SScrollBox::Slot()
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(SBox)
+				.WidthOverride(0.8 * Theme.ContentWidth)
+				[
+					SAssignNew(CompanyInfo, SFlareCompanyInfo)
+					.Player(PC)
+				]
+			]
+
 			// TR info
 			+ SScrollBox::Slot()
 			[
@@ -64,22 +89,66 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 			]
 		]
 
-		// Color box
+		// Company customization
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Right)
 		[
 			SNew(SVerticalBox)
 
-			// Company info
+			+ SVerticalBox::Slot()
+			.Padding(Theme.TitlePadding)
+			.AutoHeight()
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.SubTitleFont)
+				.Text(LOCTEXT("CompanyEditTitle", "Company appearance"))
+			]
+
+			// Company name
 			+ SVerticalBox::Slot()
 			.Padding(Theme.ContentPadding)
 			.AutoHeight()
+			.HAlign(HAlign_Fill)
 			[
-				SNew(SBox)
-				.WidthOverride(0.8 * Theme.ContentWidth)
+				SNew(SHorizontalBox)
+
+				+ SHorizontalBox::Slot()
+				.VAlign(VAlign_Center)
+				.AutoWidth()
 				[
-					SAssignNew(CompanyInfo, SFlareCompanyInfo)
-					.Player(PC)
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(LOCTEXT("EditCompanyName", "Company name"))
+				]
+
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Right)
+				[
+					SNew(SBox)
+					.WidthOverride(0.4 * Theme.ContentWidth)
+					[
+						SNew(SBorder)
+						.BorderImage(&Theme.BackgroundBrush)
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(CompanyName, SEditableText)
+							.AllowContextMenu(false)
+							.Style(&Theme.TextInputStyle)
+						]
+					]
+				]
+			
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.HAlign(HAlign_Right)
+				[
+					SNew(SFlareButton)
+					.Text(LOCTEXT("Rename", "Rename"))
+					.HelpText(LOCTEXT("RenameInfo", "Rename this company"))
+					.Icon(FFlareStyleSet::GetIcon("OK"))
+					.OnClicked(this, &SFlareCompanyMenu::OnRename)
+					.IsDisabled(this, &SFlareCompanyMenu::IsRenameDisabled)
+					.Width(4)
 				]
 			]
 
@@ -91,8 +160,48 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 				SAssignNew(ColorBox, SFlareColorPanel)
 				.MenuManager(MenuManager)
 			]
+				
+			// Emblem
+			+ SVerticalBox::Slot()
+			.Padding(Theme.ContentPadding)
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Top)
+			[
+				SAssignNew(EmblemPicker, SFlareDropList<int32>)
+				.LineSize(1)
+				.HeaderWidth(3)
+				.HeaderHeight(3)
+				.ItemWidth(3)
+				.ItemHeight(2.7)
+				.ShowColorWheel(false)
+				.MaximumHeight(600)
+				.OnItemPicked(this, &SFlareCompanyMenu::OnEmblemPicked)
+			]
 		]
 	];
+}
+
+
+/*----------------------------------------------------
+	Callbacks
+----------------------------------------------------*/
+
+bool SFlareCompanyMenu::IsRenameDisabled() const
+{
+	FString CompanyNameData = CompanyName->GetText().ToString();
+
+	if (CompanyNameData.Len() > 25)
+	{
+		return true;
+	}
+	if (CompanyNameData == Company->GetCompanyName().ToString())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 
@@ -115,8 +224,10 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	Company = Target;
 	SetVisibility(EVisibility::Visible);
 	CompanyInfo->SetCompany(Company);
+	CompanyName->SetText(Company->GetCompanyName());
 	TradeRouteInfo->UpdateTradeRouteList();
 
+	// Player specific
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC && Target)
 	{
@@ -125,6 +236,14 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 		FFlareCompanyDescription Unused;
 		PC->Save(Data, Unused);
 		ColorBox->Setup(Data);
+
+		// Emblems
+		UFlareCustomizationCatalog* CustomizationCatalog = MenuManager->GetGame()->GetCustomizationCatalog();
+		for (int i = 0; i < CustomizationCatalog->GetEmblemCount(); i++)
+		{
+			EmblemPicker->AddItem(SNew(SImage).Image(CustomizationCatalog->GetEmblemBrush(i)));
+		}
+		EmblemPicker->SetSelectedIndex(PC->GetPlayerData()->PlayerEmblemIndex);
 
 		// Menu
 		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -30));
@@ -169,10 +288,31 @@ void SFlareCompanyMenu::Exit()
 	ShipList->Reset();
 	ShipList->SetVisibility(EVisibility::Collapsed);
 
+	EmblemPicker->ClearItems();
 	TradeRouteInfo->Clear();
 
 	Company = NULL;
 	SetVisibility(EVisibility::Collapsed);
+}
+
+void SFlareCompanyMenu::OnRename()
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	FFlareCompanyDescription CompanyDescription = *PC->GetCompanyDescription();
+	CompanyDescription.Name = CompanyName->GetText();
+	PC->SetCompanyDescription(CompanyDescription);
+}
+
+void SFlareCompanyMenu::OnEmblemPicked(int32 Index)
+{
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	UFlareCustomizationCatalog* CustomizationCatalog = MenuManager->GetGame()->GetCustomizationCatalog();
+
+	FFlareCompanyDescription CompanyDescription = *PC->GetCompanyDescription();
+	CompanyDescription.Emblem = CustomizationCatalog->GetEmblem(Index);
+	PC->SetCompanyDescription(CompanyDescription);
+	PC->GetPlayerData()->PlayerEmblemIndex = EmblemPicker->GetSelectedIndex();
+	PC->OnLoadComplete();
 }
 
 
