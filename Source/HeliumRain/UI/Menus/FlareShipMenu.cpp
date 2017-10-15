@@ -847,13 +847,19 @@ void SFlareShipMenu::UpdateComplexList()
 				{
 					UFlareSimulatedSpacecraft* ComplexElement = TargetSpacecraft->GetGame()->GetGameWorld()->FindSpacecraft(Connector.ConnectedStationName);
 					FCHECK(ComplexElement);
+					FFlareSpacecraftDescription* ComplexElementDesc = ComplexElement->GetDescription();
+					FCHECK(ComplexElementDesc);
+
+					// TODO : enable scrapping of stations
 
 					ComplexList->AddSlot()
 						.AutoHeight()
 						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.TextFont)
-							.Text(LOCTEXT("AddComplexStationDebug", "Existing element")) // TODO #1035 use station name
+							SNew(SFlareButton)
+							.Text(ComplexElementDesc->Name)
+							.HelpText(ComplexElementDesc->Description)
+							.IsDisabled(true)
+							.Width(6)
 						];
 				}
 
@@ -864,8 +870,10 @@ void SFlareShipMenu::UpdateComplexList()
 						.AutoHeight()
 						[
 							SNew(SFlareButton)
-							.Text(LOCTEXT("AddComplexStation", "Add station"))
+							.Text(LOCTEXT("AddComplexStation", "Add station element"))
+							.HelpText(LOCTEXT("AddComplexStationInfo", "Build a new station element on this complex"))
 							.OnClicked(this, &SFlareShipMenu::OnBuildStationClicked, Connector.Name)
+							.Width(6)
 						];
 				}
 			}
