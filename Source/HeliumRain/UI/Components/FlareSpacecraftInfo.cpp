@@ -327,7 +327,6 @@ void SFlareSpacecraftInfo::SetSpacecraft(UFlareSimulatedSpacecraft* Target)
 	{
 		// Setup basic info
 		CompanyFlag->SetCompany(TargetSpacecraft->GetCompany());
-		TargetName = UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft);
 		FFlareSpacecraftSave* SaveData = TargetSpacecraft->Save();
 		if (SaveData)
 		{
@@ -1018,7 +1017,7 @@ void SFlareSpacecraftInfo::OnCapture()
 
 FText SFlareSpacecraftInfo::GetName() const
 {
-	return TargetName;
+	return UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft);
 }
 
 FSlateColor SFlareSpacecraftInfo::GetTextColor() const

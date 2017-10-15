@@ -111,6 +111,12 @@ protected:
 	/*----------------------------------------------------
 		Content callbacks
 	----------------------------------------------------*/
+	
+	/** Ship name */
+	FText GetShipName() const;
+
+	/** Can we validate new details */
+	bool IsRenameDisabled() const;
 
 	/** Title icon callback */
 	const FSlateBrush* GetTitleIcon() const;
@@ -162,6 +168,9 @@ protected:
 		Action callbacks
 	----------------------------------------------------*/
 
+	/** Confirm details */
+	void OnRename();
+
 	/** Show engines */
 	void ShowEngines();
 
@@ -202,6 +211,8 @@ protected:
 	TSharedPtr<SFlareList>                          ShipList;
 	TSharedPtr<SVerticalBox>                        ShipCustomizationBox;
 	TSharedPtr<SHorizontalBox>                      WeaponButtonBox;
+	TSharedPtr<SHorizontalBox>                      RenameBox;
+	TSharedPtr<SEditableText>                       ShipName;
 
 	// Spacecraft data
 	UFlareSimulatedSpacecraft*                      TargetSpacecraft;

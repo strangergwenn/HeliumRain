@@ -173,7 +173,6 @@ protected:
 	// Target data	
 	UFlareSimulatedSpacecraft*        TargetSpacecraft;
 	FFlareSpacecraftDescription*      TargetSpacecraftDesc;
-	FText                             TargetName;
 	FFlareObjectRemoved               OnRemoved;
 
 	// Slate data (buttons)

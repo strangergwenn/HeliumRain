@@ -73,6 +73,57 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 					.OwnerWidget(this)
 				]
 
+				// Ship rename
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SAssignNew(RenameBox, SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					.VAlign(VAlign_Top)
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(LOCTEXT("RenameShipInfo", "Ship name"))
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					[
+						SNew(SBox)
+						.WidthOverride(0.3 * Theme.ContentWidth)
+						[
+							SNew(SBorder)
+							.BorderImage(&Theme.BackgroundBrush)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(ShipName, SEditableText)
+								.AllowContextMenu(false)
+								.Style(&Theme.TextInputStyle)
+							]
+						]
+					]
+			
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					[
+						SNew(SFlareButton)
+						.Text(LOCTEXT("Rename", "Rename"))
+						.HelpText(LOCTEXT("RenameInfo", "Rename this ship"))
+						.Icon(FFlareStyleSet::GetIcon("OK"))
+						.OnClicked(this, &SFlareShipMenu::OnRename)
+						.IsDisabled(this, &SFlareShipMenu::IsRenameDisabled)
+						.Width(4)
+					]
+				]
+
 				// Object class
 				+ SVerticalBox::Slot()
 				.AutoHeight()
@@ -429,6 +480,14 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		ShipCustomizationBox->SetVisibility(EVisibility::Visible);
 		ShipList->SetVisibility(CanEdit ? EVisibility::Collapsed : EVisibility::Visible);
 
+		// Renaming
+		bool CanRename = TargetSpacecraft->GetCompany()->IsPlayerCompany() && !TargetSpacecraft->IsStation() && !CanEdit;
+		RenameBox->SetVisibility(CanRename ? EVisibility::Visible : EVisibility::Collapsed);
+		if (CanRename)
+		{
+			ShipName->SetText(TargetSpacecraft->GetNickName());
+		}
+
 		// Get the description data
 		UFlareSpacecraftComponentsCatalog* Catalog = PC->GetGame()->GetShipPartsCatalog();
 		const FFlareSpacecraftDescription* ShipDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(TargetSpacecraftData->Identifier);
@@ -436,8 +495,7 @@ void SFlareShipMenu::LoadTargetSpacecraft()
 		{
 			// Name
 			FText Prefix = TargetSpacecraft->IsStation() ? LOCTEXT("Station", "Station") : LOCTEXT("Ship", "Ship");
-			FText Immatriculation = UFlareGameTools::DisplaySpacecraftName(TargetSpacecraft);
-			ObjectName->SetText(FText::Format(LOCTEXT("ObjectNameFormat", "{0} : {1}"), Prefix, Immatriculation));
+			ObjectName->SetText(TargetSpacecraft->IsStation() ? LOCTEXT("Station", "Station") : LOCTEXT("Ship", "Ship"));
 			ObjectClassName->SetText(ShipDesc->Name);
 
 			// Description
@@ -978,6 +1036,29 @@ void SFlareShipMenu::OnToggleAllowExternalOrders()
 	Content callbacks
 ----------------------------------------------------*/
 
+FText SFlareShipMenu::GetShipName() const
+{
+	return TargetSpacecraft->GetNickName();
+}
+
+bool SFlareShipMenu::IsRenameDisabled() const
+{
+	FString ShipNameData = ShipName->GetText().ToString();
+
+	if (ShipNameData.Len() > 15)
+	{
+		return true;
+	}
+	if (ShipNameData == TargetSpacecraft->GetNickName().ToString())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 const FSlateBrush* SFlareShipMenu::GetTitleIcon() const
 {
 	if (TargetSpacecraft && TargetSpacecraft->IsStation())
@@ -1211,6 +1292,13 @@ bool SFlareShipMenu::IsUpgradeStationDisabled() const
 	Action callbacks
 ----------------------------------------------------*/
 
+void SFlareShipMenu::OnRename()
+{
+	TargetSpacecraft->SetNickName(ShipName->GetText());
+	MenuManager->GetPC()->OnLoadComplete();
+	MenuManager->GetPC()->GetMenuPawn()->UpdateCustomization();
+}
+
 void SFlareShipMenu::ShowRCSs()
 {
 	PartListData.Empty();
@@ -1311,10 +1399,11 @@ void SFlareShipMenu::OnPartPicked(TSharedPtr<FInterfaceContainer> Item, ESelectI
 {
 	int32 Index = PartListData.Find(Item->PartDescription);
 	AFlarePlayerController* PC = MenuManager->GetPC();
-
+	
 	if (PC && Item->PartDescription && Index != CurrentPartIndex)
 	{
 		AFlareMenuPawn* Viewer = PC->GetMenuPawn();
+		RenameBox->SetVisibility(EVisibility::Collapsed);
 
 		// Ensure this part can be changed
 		bool CanBeChanged = TargetSpacecraft->CanUpgrade(Item->PartDescription->Type);

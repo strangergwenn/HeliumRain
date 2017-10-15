@@ -188,6 +188,11 @@ public:
 
 	const FFlareProductionData* GetNextOrderShipProductionData(EFlarePartSize::Type Size);
 
+	void SetNickName(FText NewName)
+	{
+		SpacecraftData.NickName = NewName;
+	}
+
 
 protected:
 
