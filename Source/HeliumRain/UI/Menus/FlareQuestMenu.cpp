@@ -36,7 +36,6 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 		// Content block
 		+ SVerticalBox::Slot()
 		.VAlign(VAlign_Top)
-		.Padding(Theme.ContentPadding)
 		[
 			SNew(SHorizontalBox)
 
@@ -49,9 +48,10 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 				.ScrollBarStyle(&Theme.ScrollBarStyle)
 
 				+ SScrollBox::Slot()
+				.HAlign(HAlign_Left)
 				[
 					SNew(SBox)
-					.WidthOverride(Theme.ContentWidth)
+					.WidthOverride(1.1 * Theme.ContentWidth)
 					[
 						SNew(SVerticalBox)
 
@@ -84,12 +84,10 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 						.AutoHeight()
 						[
 							SNew(SBox)
-							.HAlign(HAlign_Left)
-							.WidthOverride(0.8 * Theme.ContentWidth)
+							.WidthOverride(1 * Theme.ContentWidth)
 							.Padding(FMargin(20, 0, 0, 0))
 							[
 								SNew(SBorder)
-								.HAlign(HAlign_Left)
 								.BorderImage(&Theme.NearInvisibleBrush)
 								.Padding(Theme.SmallContentPadding)
 								.Visibility(this, &SFlareQuestMenu::GetNoMilitaryWarningVisibility)
@@ -97,7 +95,7 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 									SNew(STextBlock)
 									.TextStyle(&Theme.TextFont)
 									.Text(LOCTEXT("NoMilitaryInfo", "Military contracts will be offered once you own a fighting force."))
-									.WrapTextAt(0.85 * Theme.ContentWidth)
+									.WrapTextAt(0.95 * Theme.ContentWidth)
 								]
 							]
 						]
@@ -139,7 +137,7 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 				+ SScrollBox::Slot()
 				[
 					SNew(SBox)
-					.WidthOverride(Theme.ContentWidth)
+					.WidthOverride(1.1 * Theme.ContentWidth)
 					[
 						SAssignNew(QuestDetails, SVerticalBox)
 					]
@@ -444,7 +442,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.WrapTextAt(0.75 * Theme.ContentWidth)
+					.WrapTextAt(1 * Theme.ContentWidth)
 					.Text(SelectedQuest->GetQuestDescription())
 				]
 
@@ -532,7 +530,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				.Padding(Theme.SmallContentPadding)
 				[
 					SNew(STextBlock)
-					.WrapTextAt(0.9 * Theme.ContentWidth)
+					.WrapTextAt(1 * Theme.ContentWidth)
 					.TextStyle(&Theme.TextFont)
 					.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStep)
 					.Visibility(this, &SFlareQuestMenu::GetQuestStepDescriptionVisibility, QuestStep)
@@ -553,7 +551,7 @@ void SFlareQuestMenu::FillQuestDetails()
 					.Padding(Theme.SmallContentPadding)
 					[
 						SNew(STextBlock)
-						.WrapTextAt(0.9 * Theme.ContentWidth)
+						.WrapTextAt(1 * Theme.ContentWidth)
 						.TextStyle(&Theme.NameFont)
 						.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStep)
 					];
@@ -565,7 +563,7 @@ void SFlareQuestMenu::FillQuestDetails()
 					[
 						SNew(SFlareObjectiveInfo)
 						.PC(MenuManager->GetPC())
-						.Width(0.9 * Theme.ContentWidth)
+						.Width(1 * Theme.ContentWidth)
 						.ConditionsOnly(true)
 						.QuestStep(QuestStep)
 					];
@@ -580,7 +578,7 @@ void SFlareQuestMenu::FillQuestDetails()
 					.Padding(Theme.SmallContentPadding)
 					[
 						SNew(STextBlock)
-						.WrapTextAt(0.9 * Theme.ContentWidth)
+						.WrapTextAt(1 * Theme.ContentWidth)
 						.TextStyle(&Theme.NameFont)
 						.Text(StepConditionsText)
 					];
@@ -591,7 +589,7 @@ void SFlareQuestMenu::FillQuestDetails()
 					.Padding(Theme.SmallContentPadding)
 					[
 						SNew(STextBlock)
-						.WrapTextAt(0.9 * Theme.ContentWidth)
+						.WrapTextAt(1 * Theme.ContentWidth)
 						.TextStyle(&Theme.TextFont)
 						.Text(this, &SFlareQuestMenu::GetQuestStepDescription, QuestStep)
 					];
@@ -654,7 +652,7 @@ void SFlareQuestMenu::FillQuestDetails()
 			.Padding(Theme.ContentPadding)
 			[
 				SNew(STextBlock)
-				.WrapTextAt(0.9 * Theme.ContentWidth)
+				.WrapTextAt(1 * Theme.ContentWidth)
 				.TextStyle(&Theme.TextFont)
 				.Text(LOCTEXT("FailureDetails", "This contract will be considered failed if one of the following conditions is met."))
 			];
@@ -664,7 +662,7 @@ void SFlareQuestMenu::FillQuestDetails()
 			.Padding(Theme.ContentPadding)
 			[
 				SNew(STextBlock)
-				.WrapTextAt(0.9 * Theme.ContentWidth)
+				.WrapTextAt(1 * Theme.ContentWidth)
 				.TextStyle(&Theme.TextFont)
 				.Text(SelectedQuest->GetQuestFailure())
 			];
@@ -709,7 +707,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.WrapTextAt(0.4 * Theme.ContentWidth)
+					.WrapTextAt(0.5 * Theme.ContentWidth)
 					.TextStyle(&Theme.TextFont)
 					.Text(SelectedQuest->GetQuestReward())
 				]
@@ -748,7 +746,7 @@ void SFlareQuestMenu::FillQuestDetails()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
-					.WrapTextAt(0.4 * Theme.ContentWidth)
+					.WrapTextAt(0.5 * Theme.ContentWidth)
 					.TextStyle(&Theme.TextFont)
 					.Text(SelectedQuest->GetQuestPenalty())
 				]
@@ -761,9 +759,25 @@ void SFlareQuestMenu::FillQuestDetails()
 	{
 		QuestDetails->AddSlot()
 		[
-			SNew(STextBlock)
-			.TextStyle(&Theme.TextFont)
-			.Text(LOCTEXT("NoSelectedQuest", "No contract selected."))
+			SNew(SVerticalBox)
+
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.TitlePadding)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.SubTitleFont)
+				.Text(LOCTEXT("NoSelectedQuestTitle", "Contract details"))
+			]
+
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.TextFont)
+				.Text(LOCTEXT("NoSelectedQuest", "No contract selected."))
+			]
 		];
 	}
 

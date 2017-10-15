@@ -30,7 +30,7 @@ void SFlareTechnologyMenu::Construct(const FArguments& InArgs)
 	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
 		SNew(SBox)
-		.WidthOverride(2 * Theme.ContentWidth)
+		.WidthOverride(2.2 * Theme.ContentWidth)
 		[
 			SNew(SHorizontalBox)
 
@@ -38,11 +38,29 @@ void SFlareTechnologyMenu::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Top)
-			.Padding(Theme.ContentPadding)
 			[
-				SAssignNew(TechnologyTree, SScrollBox)
-				.Style(&Theme.ScrollBoxStyle)
-				.ScrollBarStyle(&Theme.ScrollBarStyle)
+			
+				SNew(SVerticalBox)
+			
+				// Title
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("AvailableTechnologyTitle", "Available technologies"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				// Data
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SAssignNew(TechnologyTree, SScrollBox)
+					.Style(&Theme.ScrollBoxStyle)
+					.ScrollBarStyle(&Theme.ScrollBarStyle)
+				]
 			]
 
 			// Info block

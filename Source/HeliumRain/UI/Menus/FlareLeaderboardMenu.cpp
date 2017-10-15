@@ -44,6 +44,14 @@ void SFlareLeaderboardMenu::Construct(const FArguments& InArgs)
 				SNew(SVerticalBox)
 
 				+ SVerticalBox::Slot()
+				.Padding(Theme.TitlePadding)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("LeaderboardTitle", "Leading companies"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				+ SVerticalBox::Slot()
 				.AutoHeight()
 				[
 					SNew(SBox)

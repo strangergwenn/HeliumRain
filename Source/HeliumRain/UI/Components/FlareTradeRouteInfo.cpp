@@ -44,7 +44,7 @@ void SFlareTradeRouteInfo::Construct(const FArguments& InArgs)
 			// New trade route button
 			+ SVerticalBox::Slot()
 			.AutoHeight()
-			.Padding(Theme.SmallContentPadding)
+			.Padding(Theme.ContentPadding)
 			.HAlign(HAlign_Left)
 			[
 				SNew(SFlareButton)

@@ -40,7 +40,6 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 		
 		// Planetarium
 		+ SVerticalBox::Slot()
-		.Padding(Theme.ContentPadding)
 		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Fill)
 		[

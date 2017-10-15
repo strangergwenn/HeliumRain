@@ -54,108 +54,117 @@ void SFlareFleetMenu::Construct(const FArguments& InArgs)
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Right)
 			[
-				SNew(SVerticalBox)
-				
-				// Fleet details
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.TitlePadding)
+				SNew(SScrollBox)
+				.Style(&Theme.ScrollBoxStyle)
+				.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+				+ SScrollBox::Slot()
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.SubTitleFont)
-					.Text(LOCTEXT("ManageFleet", "Fleet details"))
-					.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-				]
-		
-				// Fleet tools
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SHorizontalBox)
+					SNew(SVerticalBox)
 
-					// Name field
-					+ SHorizontalBox::Slot()
-					.HAlign(HAlign_Fill)
-					.VAlign(VAlign_Center)
-					.Padding(Theme.SmallContentPadding)
-					[
-						SAssignNew(EditFleetName, SEditableText)
-						.AllowContextMenu(false)
-						.Style(&Theme.TextInputStyle)
-						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-					]
-
-					// Confirm name
-					+ SHorizontalBox::Slot()
-					.HAlign(HAlign_Right)
-					.Padding(Theme.SmallContentPadding)
-					.AutoWidth()
-					[
-						SNew(SFlareButton)
-						.Width(4)
-						.Icon(FFlareStyleSet::GetIcon("OK"))
-						.Text(LOCTEXT("Rename", "Rename"))
-						.HelpText(this, &SFlareFleetMenu::GetRenameHintText)
-						.OnClicked(this, &SFlareFleetMenu::OnRenameFleet)
-						.IsDisabled(this, &SFlareFleetMenu::IsRenameDisabled)
-						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-					]
-
-					// Finish
-					+ SHorizontalBox::Slot()
-					.HAlign(HAlign_Right)
-					.Padding(Theme.SmallContentPadding)
-					.AutoWidth()
-					[
-						SNew(SFlareButton)
-						.Width(4)
-						.Icon(FFlareStyleSet::GetIcon("Stop"))
-						.Text(LOCTEXT("DoneEditing", "Back"))
-						.HelpText(LOCTEXT("DoneEditingInfo", "Finish editing this fleet"))
-						.OnClicked(this, &SFlareFleetMenu::OnEditFinished)
-						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-					]
-				]
-
-				// Color box
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SOverlay)
-
-					+ SOverlay::Slot()
-					.Padding(FMargin(4.0f, 0.0f))
-					[
-						SNew(SComplexGradient)
-						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-						.GradientColors(HueGradientColors)
-						.Orientation(Orient_Vertical)
-					]
-
-					+ SOverlay::Slot()
-					[
-						SNew(SSlider)
-						.IndentHandle(false)
-						.Orientation(Orient_Horizontal)
-						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
-						.SliderBarColor(FLinearColor::Transparent)
-						.Value(this, &SFlareFleetMenu::GetColorSpinBoxValue)
-						.OnValueChanged(this, &SFlareFleetMenu::OnColorSpinBoxValueChanged)
-					]
-				]
-
-				// Fleet list
-				+ SVerticalBox::Slot()
-				[
-					SNew(SScrollBox)
-					.Style(&Theme.ScrollBoxStyle)
-					.ScrollBarStyle(&Theme.ScrollBarStyle)
-
-					+ SScrollBox::Slot()
+					// Fleet list
+					+ SVerticalBox::Slot()
 					[
 						SAssignNew(FleetList, SFlareList)
+						.MenuManager(MenuManager)
+						.OnItemSelected(this, &SFlareFleetMenu::OnFleetSelected)
+					]
+				
+					// Fleet details
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.VAlign(VAlign_Top)
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SubTitleFont)
+						.Text(LOCTEXT("ManageFleet", "Fleet details"))
+						.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+					]
+		
+					// Fleet tools
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SHorizontalBox)
+
+						// Name field
+						+ SHorizontalBox::Slot()
+						.HAlign(HAlign_Fill)
+						.VAlign(VAlign_Center)
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(EditFleetName, SEditableText)
+							.AllowContextMenu(false)
+							.Style(&Theme.TextInputStyle)
+							.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+						]
+
+						// Confirm name
+						+ SHorizontalBox::Slot()
+						.HAlign(HAlign_Right)
+						.Padding(Theme.SmallContentPadding)
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Width(4)
+							.Icon(FFlareStyleSet::GetIcon("OK"))
+							.Text(LOCTEXT("Rename", "Rename"))
+							.HelpText(this, &SFlareFleetMenu::GetRenameHintText)
+							.OnClicked(this, &SFlareFleetMenu::OnRenameFleet)
+							.IsDisabled(this, &SFlareFleetMenu::IsRenameDisabled)
+							.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+						]
+
+						// Finish
+						+ SHorizontalBox::Slot()
+						.HAlign(HAlign_Right)
+						.Padding(Theme.SmallContentPadding)
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Width(4)
+							.Icon(FFlareStyleSet::GetIcon("Stop"))
+							.Text(LOCTEXT("DoneEditing", "Back"))
+							.HelpText(LOCTEXT("DoneEditingInfo", "Finish editing this fleet"))
+							.OnClicked(this, &SFlareFleetMenu::OnEditFinished)
+							.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+						]
+					]
+
+					// Color box
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SOverlay)
+
+						+ SOverlay::Slot()
+						.Padding(FMargin(4.0f, 0.0f))
+						[
+							SNew(SComplexGradient)
+							.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+							.GradientColors(HueGradientColors)
+							.Orientation(Orient_Vertical)
+						]
+
+						+ SOverlay::Slot()
+						[
+							SNew(SSlider)
+							.IndentHandle(false)
+							.Orientation(Orient_Horizontal)
+							.Visibility(this, &SFlareFleetMenu::GetEditVisibility)
+							.SliderBarColor(FLinearColor::Transparent)
+							.Value(this, &SFlareFleetMenu::GetColorSpinBoxValue)
+							.OnValueChanged(this, &SFlareFleetMenu::OnColorSpinBoxValueChanged)
+						]
+					]
+
+					// Fleet list 2
+					+ SVerticalBox::Slot()
+					[
+						SAssignNew(OtherFleetList, SFlareList)
 						.MenuManager(MenuManager)
 						.OnItemSelected(this, &SFlareFleetMenu::OnFleetSelected)
 					]
@@ -261,12 +270,17 @@ void SFlareFleetMenu::Enter(UFlareFleet* TargetFleet)
 	ShipToRemove = NULL;
 	FleetToEdit = TargetFleet;
 
+	FleetList->SetTitle(LOCTEXT("AllFleetsListTitle", "Fleets"));
+	OtherFleetList->SetTitle(LOCTEXT("OtherFleetsListTitle", "Other fleets"));
+
 	// We are in edit mode
 	if (FleetToEdit)
 	{
-		FleetList->SetTitle(LOCTEXT("OtherFleetsListTitle", "Other fleets"));
 		ShipList->SetUseCompactDisplay(true);
 		EditFleetName->SetText(FleetToEdit->GetFleetName());
+
+		UpdateFleetList(OtherFleetList);
+		FleetList->SetVisibility(EVisibility::Collapsed);
 
 		MenuManager->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("fleet-edited").PutName("fleet", FleetToEdit->GetIdentifier()));
 	}
@@ -274,13 +288,13 @@ void SFlareFleetMenu::Enter(UFlareFleet* TargetFleet)
 	// We are in preview mode
 	else
 	{
-		FleetList->SetTitle(LOCTEXT("AllFleetsListTitle", "Fleets"));
 		ShipList->SetUseCompactDisplay(false);
+
+		UpdateFleetList(FleetList);
+		OtherFleetList->SetVisibility(EVisibility::Collapsed);
 	}
 
-
 	UpdateShipList(FleetToEdit);
-	UpdateFleetList();
 }
 
 void SFlareFleetMenu::Exit()
@@ -297,9 +311,10 @@ void SFlareFleetMenu::Exit()
 	SetVisibility(EVisibility::Collapsed);
 }
 
-void SFlareFleetMenu::UpdateFleetList()
+void SFlareFleetMenu::UpdateFleetList(TSharedPtr<SFlareList>& List)
 {
-	FleetList->Reset();
+	List->Reset();
+	List->SetVisibility(EVisibility::Visible);
 
 	int32 FleetCount = MenuManager->GetPC()->GetCompany()->GetCompanyFleets().Num();
 	FLOGV("SFlareFleetMenu::UpdateFleetList : found %d fleets", FleetCount);
@@ -309,11 +324,11 @@ void SFlareFleetMenu::UpdateFleetList()
 		UFlareFleet* Fleet = MenuManager->GetPC()->GetCompany()->GetCompanyFleets()[FleetIndex];
 		if (Fleet && Fleet->GetShips().Num() && Fleet != FleetToEdit)
 		{
-			FleetList->AddFleet(Fleet);
+			List->AddFleet(Fleet);
 		}
 	}
 
-	FleetList->RefreshList();
+	List->RefreshList();
 }
 
 void SFlareFleetMenu::UpdateShipList(UFlareFleet* Fleet)
@@ -519,7 +534,7 @@ void SFlareFleetMenu::OnAddToFleet()
 	FleetToEdit->Merge(FleetToAdd);
 
 	UpdateShipList(FleetToEdit);
-	UpdateFleetList();
+	UpdateFleetList(OtherFleetList);
 	FleetToAdd = NULL;
 	ShipToRemove = NULL;
 }
@@ -533,7 +548,7 @@ void SFlareFleetMenu::OnRemoveFromFleet()
 	FleetToEdit->RemoveShip(ShipToRemove);
 
 	UpdateShipList(FleetToEdit);
-	UpdateFleetList();
+	UpdateFleetList(OtherFleetList);
 	FleetToAdd = NULL;
 	ShipToRemove = NULL;
 }

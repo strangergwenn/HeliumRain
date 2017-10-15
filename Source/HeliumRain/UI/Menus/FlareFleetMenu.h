@@ -39,7 +39,7 @@ public:
 	void Exit();
 
 	/** Update the fleet list */
-	void UpdateFleetList();
+	void UpdateFleetList(TSharedPtr<SFlareList>& List);
 
 	/** Update the ship list */
 	void UpdateShipList(UFlareFleet* Fleet);
@@ -120,6 +120,7 @@ protected:
 	// Menu components
 	TSharedPtr<SFlareList>                          ShipList;
 	TSharedPtr<SFlareList>                          FleetList;
+	TSharedPtr<SFlareList>                          OtherFleetList;
 	TSharedPtr<SEditableText>                       EditFleetName;
 	
 
