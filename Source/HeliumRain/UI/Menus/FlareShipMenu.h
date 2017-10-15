@@ -262,6 +262,7 @@ protected:
 	TSharedPtr<SVerticalBox>                        FactoryList;
 	TSharedPtr<SVerticalBox>                        UpgradeBox;
 	TSharedPtr<SFlareButton>                        AllowExternalOrdersButton;
+	TSharedPtr<SImage>                              ComplexLayout;
 
 	// Complex data
 	FName                                           SelectedComplexStation;
