@@ -148,7 +148,22 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 				.Padding(Theme.ContentPadding)
 				.AutoHeight()
 				[
-					SAssignNew(ComplexList, SVerticalBox)
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					.VAlign(VAlign_Top)
+					[
+						SAssignNew(ComplexLayout, SImage)
+						.Image(FFlareStyleSet::GetImage("Complex"))
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(ComplexList, SVerticalBox)
+					]
 				]
 
 				// Shipyard actions
@@ -784,37 +799,81 @@ void SFlareShipMenu::UpdateComplexList()
 
 	if (TargetSpacecraft && TargetSpacecraft->IsComplex())
 	{
-		for (FFlareDockingInfo& Connector : TargetSpacecraft->GetStationConnectors())
+		// Complex is under construction, can't build
+		if (TargetSpacecraft->IsUnderConstruction())
 		{
-			// Existing element - Granted in this context means a station is there (Occupied means active)
-			if (Connector.Granted)
-			{
-				UFlareSimulatedSpacecraft* ComplexElement = TargetSpacecraft->GetGame()->GetGameWorld()->FindSpacecraft(Connector.ConnectedStationName);
-				FCHECK(ComplexElement);
-
-				ComplexList->AddSlot()
+			ComplexList->AddSlot()
+				.Padding(Theme.SmallContentPadding)
 				.AutoHeight()
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(LOCTEXT("AddComplexStationDebug", "Existing element")) // TODO #1035 use station name
-				];
-			}
+					SNew(SBorder)
+					.BorderImage(&Theme.NearInvisibleBrush)
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SHorizontalBox)
 
-			// New element can be added here
-			else
-			{
-				ComplexList->AddSlot()
-				.AutoHeight()
-				[
-					SNew(SFlareButton)
-					.Text(LOCTEXT("AddComplexStation", "Add station"))
-					.OnClicked(this, &SFlareShipMenu::OnBuildStationClicked, Connector.Name)
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(SImage)
+							.Image(FFlareStyleSet::GetIcon("Build"))
+						]
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.WrapTextAt(Theme.ContentWidth)
+							.Text(LOCTEXT("AddComplexConstruction", "Complete construction of this station to enable building more station elements"))
+						]
+					]
 				];
-			}
+
+			ComplexLayout->SetVisibility(EVisibility::Collapsed);
 		}
 
-		// TODO #1035 : draw complex diagram
+		// Complex is ready
+		else
+		{
+			ComplexLayout->SetVisibility(EVisibility::Visible);
+
+			for (FFlareDockingInfo& Connector : TargetSpacecraft->GetStationConnectors())
+			{
+				// Existing element - Granted in this context means a station is there (Occupied means active)
+				if (Connector.Granted)
+				{
+					UFlareSimulatedSpacecraft* ComplexElement = TargetSpacecraft->GetGame()->GetGameWorld()->FindSpacecraft(Connector.ConnectedStationName);
+					FCHECK(ComplexElement);
+
+					ComplexList->AddSlot()
+						.AutoHeight()
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(LOCTEXT("AddComplexStationDebug", "Existing element")) // TODO #1035 use station name
+						];
+				}
+
+				// New element can be added here
+				else
+				{
+					ComplexList->AddSlot()
+						.AutoHeight()
+						[
+							SNew(SFlareButton)
+							.Text(LOCTEXT("AddComplexStation", "Add station"))
+							.OnClicked(this, &SFlareShipMenu::OnBuildStationClicked, Connector.Name)
+						];
+				}
+			}
+		}
+	}
+	else
+	{
+		ComplexLayout->SetVisibility(EVisibility::Collapsed);
 	}
 }
 
