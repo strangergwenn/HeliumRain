@@ -114,5 +114,5 @@ void UFlareSaveGameSystem::PushSaveData(UFlareSaveGame* SaveData)
 
 FString UFlareSaveGameSystem::GetSaveGamePath(const FString SaveName)
 {
-	return FString::Printf(TEXT("%s/SaveGames/%s.json"), *FPaths::GameSavedDir(), *SaveName);
+	return FString::Printf(TEXT("%s/SaveGames/%s.json"), *FPaths::ProjectSavedDir(), *SaveName);
 }

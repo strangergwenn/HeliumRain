@@ -18,7 +18,8 @@ public class HeliumRain : ModuleRules
                 "RHI",
                 "RenderCore",
                 "Json",
-                "JsonUtilities"
+                "JsonUtilities",
+                "ApexDestruction"
             }
         );
 
@@ -32,6 +33,8 @@ public class HeliumRain : ModuleRules
             }
         );
 
+        PublicIncludePaths.Add("ApexDestruction/Source/ApexDestruction/Public");
+        
         PrivateDependencyModuleNames.Add("OnlineSubsystem");
         DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
     }

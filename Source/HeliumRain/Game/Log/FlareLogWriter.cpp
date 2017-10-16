@@ -143,7 +143,7 @@ void FFlareLogWriter::CloseLogFiles()
 
 IFileHandle* FFlareLogWriter::InitLogFile(FString BaseName)
 {
-	FString FileName = FString::Printf(TEXT("%s/SaveGames/%s-%s.log"), *FPaths::GameSavedDir(), *BaseName, *GameUUID.ToString());
+	FString FileName = FString::Printf(TEXT("%s/SaveGames/%s-%s.log"), *FPaths::ProjectSavedDir(), *BaseName, *GameUUID.ToString());
 
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
 

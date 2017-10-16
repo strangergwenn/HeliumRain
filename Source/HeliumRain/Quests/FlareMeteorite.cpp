@@ -2,9 +2,12 @@
 #include "FlareMeteorite.h"
 #include "../Flare.h"
 #include "../Game/FlareGame.h"
+#include "../Game/FlareGameTools.h"
 #include "../Data/FlareMeteoriteCatalog.h"
-#include "Components/DestructibleComponent.h"
 #include "../Player/FlarePlayerController.h"
+
+#include "DestructibleMesh.h"
+#include "DestructibleComponent.h"
 
 #define LOCTEXT_NAMESPACE "FlareMeteorite"
 
@@ -50,7 +53,7 @@ void AFlareMeteorite::Load(FFlareMeteoriteSave* Data, UFlareSector* ParentSector
 	MeteoriteData = Data;
 	SetupMeteoriteMesh();
 	Meteorite->SetPhysicsLinearVelocity(Data->LinearVelocity);
-	Meteorite->SetPhysicsAngularVelocity(Data->AngularVelocity);
+	Meteorite->SetPhysicsAngularVelocityInDegrees(Data->AngularVelocity);
 	LifeTime = 0.f;
 }
 
@@ -62,7 +65,7 @@ FFlareMeteoriteSave* AFlareMeteorite::Save()
 	if (!Paused)
 	{
 		MeteoriteData->LinearVelocity = Meteorite->GetPhysicsLinearVelocity();
-		MeteoriteData->AngularVelocity = Meteorite->GetPhysicsAngularVelocity();
+		MeteoriteData->AngularVelocity = Meteorite->GetPhysicsAngularVelocityInDegrees();
 	}
 
 	return MeteoriteData;
@@ -226,7 +229,7 @@ void AFlareMeteorite::SetPause(bool Pause)
 	if (!Pause)
 	{
 		Meteorite->SetPhysicsLinearVelocity(MeteoriteData->LinearVelocity);
-		Meteorite->SetPhysicsAngularVelocity(MeteoriteData->AngularVelocity);
+		Meteorite->SetPhysicsAngularVelocityInDegrees(MeteoriteData->AngularVelocity);
 	}
 }
 
