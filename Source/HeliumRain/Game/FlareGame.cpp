@@ -41,6 +41,7 @@
 #include "Log/FlareLogWriter.h"
 
 #include "Engine/PostProcessVolume.h"
+#include "Engine.h"
 
 #define LOCTEXT_NAMESPACE "FlareGame"
 
@@ -582,11 +583,11 @@ bool AFlareGame::DeleteSaveSlot(int32 Index)
 	if (DoesSaveSlotExist(Index))
 	{
 		const FFlareSaveSlotInfo& SaveSlotInfo = GetSaveSlotInfo(Index);
-		FString FileName1 = FString::Printf(TEXT("%s/SaveGames/Combat-%s.log"), *FPaths::GameSavedDir(), *SaveSlotInfo.UUID.ToString());
+		FString FileName1 = FString::Printf(TEXT("%s/SaveGames/Combat-%s.log"), *FPaths::ProjectSavedDir(), *SaveSlotInfo.UUID.ToString());
 		FLOGV("Delete %s", *FileName1);
 
 		IFileManager::Get().Delete(*FileName1, true);
-		FString FileName2 = FString::Printf(TEXT("%s/SaveGames/Game-%s.log"), *FPaths::GameSavedDir(), *SaveSlotInfo.UUID.ToString());
+		FString FileName2 = FString::Printf(TEXT("%s/SaveGames/Game-%s.log"), *FPaths::ProjectSavedDir(), *SaveSlotInfo.UUID.ToString());
 		FLOGV("Delete %s", *FileName2);
 		IFileManager::Get().Delete(*FileName2, true);
 	}
@@ -903,7 +904,7 @@ void AFlareGame::UnloadGame()
 	FCHECK(ActorCount == 0);
 
 	// Force GC
-	GetWorld()->ForceGarbageCollection(true);
+	GEngine->ForceGarbageCollection(true);
 }
 
 void AFlareGame::Clean()

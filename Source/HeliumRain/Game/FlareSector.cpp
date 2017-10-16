@@ -227,7 +227,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 					ParentSpacecraft->GetData().Location.X, ParentSpacecraft->GetData().Location.Y, ParentSpacecraft->GetData().Location.Z);
 				*/
 				RootComponent->SetPhysicsLinearVelocity(ParentSpacecraft->GetData().LinearVelocity, false);
-				RootComponent->SetPhysicsAngularVelocity(ParentSpacecraft->GetData().AngularVelocity, false);
+				RootComponent->SetPhysicsAngularVelocityInDegrees(ParentSpacecraft->GetData().AngularVelocity, false);
 				break;
 
 			// First spawn
@@ -242,7 +242,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 				}
 
 				RootComponent->SetPhysicsLinearVelocity(FVector::ZeroVector, false);
-				RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
+				RootComponent->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector, false);
 				break;
 
 			// Incoming in sector
@@ -322,7 +322,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 				}
 
 				RootComponent->SetPhysicsLinearVelocity(CenterDirection * SpawnVelocity, false);
-				RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
+				RootComponent->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector, false);
 			}
 			break;
 			case EFlareSpawnMode::Exit:
@@ -341,7 +341,7 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 				Spacecraft->SetActorRotation(CenterDirection.Rotation());
 
 				RootComponent->SetPhysicsLinearVelocity(CenterDirection * SpawnVelocity, false);
-				RootComponent->SetPhysicsAngularVelocity(FVector::ZeroVector, false);
+				RootComponent->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector, false);
 
 			}
 			break;
@@ -419,7 +419,7 @@ AFlareBomb* UFlareSector::LoadBomb(const FFlareBombSave& BombData)
                 UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(Bomb->GetRootComponent());
 
                 RootComponent->SetPhysicsLinearVelocity(BombData.LinearVelocity, false);
-                RootComponent->SetPhysicsAngularVelocity(BombData.AngularVelocity, false);
+                RootComponent->SetPhysicsAngularVelocityInDegrees(BombData.AngularVelocity, false);
 
 				SectorBombs.Add(Bomb);
             }

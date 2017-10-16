@@ -5,6 +5,7 @@
 #include "../Player/FlarePlayerController.h"
 
 #include "EngineUtils.h"
+#include "Engine.h"
 
 
 /*----------------------------------------------------
@@ -112,7 +113,7 @@ int32 UFlareGameUserSettings::GetMonitorCount() const
 	if (GEngine && GEngine->GameViewport)
 	{
 		FDisplayMetrics Display;
-		FDisplayMetrics::GetDisplayMetrics(Display);
+		FSlateApplication::Get().GetDisplayMetrics(Display);
 		return Display.MonitorInfo.Num();
 	}
 
@@ -124,7 +125,7 @@ void UFlareGameUserSettings::MoveToMonitor(int32 NewMonitorIndex)
 	if (GEngine && GEngine->GameViewport)
 	{
 		FDisplayMetrics Display;
-		FDisplayMetrics::GetDisplayMetrics(Display);
+		FSlateApplication::Get().GetDisplayMetrics(Display);
 
 		// Found it
 		if (NewMonitorIndex >= 0 && NewMonitorIndex < Display.MonitorInfo.Num())

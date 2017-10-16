@@ -2,7 +2,6 @@
 
 #include "../Flare.h"
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
-#include "PhysicsEngine/DestructibleActor.h"
 #include "FlareMeteorite.generated.h"
 
 class UFlareSimulatedSpacecraft;
@@ -51,7 +50,7 @@ public:
 
 	// Mesh
 	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
-	UDestructibleComponent*                       Meteorite;
+	class UDestructibleComponent*                 Meteorite;
 
 
 protected:

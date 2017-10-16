@@ -72,7 +72,7 @@ void AFlareAsteroid::Load(const FFlareAsteroidSave& Data)
 
 	SetupAsteroidMesh(Game, Asteroid, Data, Game->GetActiveSector()->GetSimulatedSector()->GetDescription()->IsIcy);
 	Asteroid->SetPhysicsLinearVelocity(Data.LinearVelocity);
-	Asteroid->SetPhysicsAngularVelocity(Data.AngularVelocity);
+	Asteroid->SetPhysicsAngularVelocityInDegrees(Data.AngularVelocity);
 }
 
 void AFlareAsteroid::SetupAsteroidMesh(AFlareGame* Game, UStaticMeshComponent* Component, const FFlareAsteroidSave& Data, bool IsIcy)
@@ -117,7 +117,7 @@ FFlareAsteroidSave* AFlareAsteroid::Save()
 	if (!Paused)
 	{
 		AsteroidData.LinearVelocity = Asteroid->GetPhysicsLinearVelocity();
-		AsteroidData.AngularVelocity = Asteroid->GetPhysicsAngularVelocity();
+		AsteroidData.AngularVelocity = Asteroid->GetPhysicsAngularVelocityInDegrees();
 	}
 	
 	return &AsteroidData;
@@ -144,7 +144,7 @@ void AFlareAsteroid::SetPause(bool Pause)
 	if (!Pause)
 	{
 		Asteroid->SetPhysicsLinearVelocity(AsteroidData.LinearVelocity);
-		Asteroid->SetPhysicsAngularVelocity(AsteroidData.AngularVelocity);
+		Asteroid->SetPhysicsAngularVelocityInDegrees(AsteroidData.AngularVelocity);
 	}
 }
 

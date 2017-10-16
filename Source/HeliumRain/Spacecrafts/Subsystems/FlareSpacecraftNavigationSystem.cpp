@@ -447,7 +447,7 @@ FFlareDockingParameters UFlareSpacecraftNavigationSystem::GetDockingParameters(F
 	// Compute station infos
 	Params.StationDockLocation =  DockStation->Airframe->GetComponentTransform().TransformPosition(StationDockInfo.LocalLocation);
 	Params.StationDockAxis = DockStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(StationDockInfo.LocalAxis).GetUnsafeNormal();
-	Params.StationAngularVelocity = DockStation->Airframe->GetPhysicsAngularVelocity();
+	Params.StationAngularVelocity = DockStation->Airframe->GetPhysicsAngularVelocityInDegrees();
 	Params.StationDockTopAxis = DockStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(StationDockInfo.LocalTopAxis).GetUnsafeNormal();
 
 
@@ -522,7 +522,7 @@ FFlareDockingParameters UFlareSpacecraftNavigationSystem::GetDockingParameters(F
 	//FVector ShipDockAxis = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1, 0, 0)); // Ship docking port are always at front
 	//FVector ShipDockLocation = GetDockLocation();
 
-	FVector ShipAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+	FVector ShipAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocityInDegrees();
 
 	FVector StationCOM = DockStation->Airframe->GetBodyInstance()->GetCOMPosition();
 	//FVector StationDockAxis = DockStation->Airframe->GetComponentToWorld().GetRotation().RotateVector(StationDockInfo.LocalAxis);
@@ -1123,7 +1123,7 @@ void UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(float DeltaSeco
 	FVector TargetAxis = Command.RotationTarget;
 	FVector LocalShipAxis = Command.LocalShipAxis;
 
-	FVector AngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+	FVector AngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocityInDegrees();
 	FVector WorldShipAxis = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalShipAxis);
 
 	WorldShipAxis.Normalize();
@@ -1181,7 +1181,7 @@ void UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(float DeltaSeco
 	// Under this angle we consider the variation negligible, and ensure null delta + null speed
 	if (angle < AngularDeadAngle && DeltaVelocity.Size() < AngularDeadAngle)
 	{
-		Spacecraft->Airframe->SetPhysicsAngularVelocity(FVector::ZeroVector, false); // TODO remove
+		Spacecraft->Airframe->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector, false); // TODO remove
 		ClearCurrentCommand();
 		RelativeResultSpeed = FVector::ZeroVector;
 	}
@@ -1195,7 +1195,7 @@ FVector UFlareSpacecraftNavigationSystem::GetAngularVelocityToAlignAxis(FVector 
 
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
 
-	FVector AngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+	FVector AngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocityInDegrees();
 	FVector WorldShipAxis = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalShipAxis);
 
 	WorldShipAxis.Normalize();
@@ -1249,12 +1249,12 @@ FVector UFlareSpacecraftNavigationSystem::GetAngularVelocityToAlignAxis(FVector 
 void UFlareSpacecraftNavigationSystem::UpdateAngularBraking(float DeltaSeconds)
 {
 	AngularTargetVelocity = FVector::ZeroVector;
-	FVector AngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+	FVector AngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocityInDegrees();
 	// Null speed detection
 	if (AngularVelocity.Size() < NegligibleSpeedRatio * AngularMaxVelocity)
 	{
 		AngularTargetVelocity = FVector::ZeroVector;
-		Spacecraft->Airframe->SetPhysicsAngularVelocity(FVector::ZeroVector, false); // TODO remove
+		Spacecraft->Airframe->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector, false); // TODO remove
 		ClearCurrentCommand();
 	}
 }
@@ -1339,7 +1339,7 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 	}
 
 	// Angular physics
-	FVector DeltaAngularV = AngularTargetVelocity - Spacecraft->Airframe->GetPhysicsAngularVelocity();
+	FVector DeltaAngularV = AngularTargetVelocity - Spacecraft->Airframe->GetPhysicsAngularVelocityInDegrees();
 	FVector DeltaAngularVAxis = DeltaAngularV;
 	DeltaAngularVAxis.Normalize();
 
@@ -1355,7 +1355,7 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 			FVector DamagedSimpleAcceleration = SimpleAcceleration * DamageRatio;
 			FVector ClampedSimplifiedAcceleration = DamagedSimpleAcceleration.GetClampedToMaxSize(DeltaAngularV.Size() / DeltaSeconds);
 
-			Spacecraft->Airframe->SetPhysicsAngularVelocity(ClampedSimplifiedAcceleration  * DeltaSeconds, true);
+			Spacecraft->Airframe->SetPhysicsAngularVelocityInDegrees(ClampedSimplifiedAcceleration  * DeltaSeconds, true);
 		}
 	}
 

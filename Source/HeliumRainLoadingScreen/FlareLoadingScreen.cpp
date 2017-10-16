@@ -82,7 +82,7 @@ public:
 				[
 					SNew(STextBlock)
 					.Text(LOCTEXT("LoadingTitle", "HELIUM RAIN"))
-					.Font(FSlateFontInfo(FPaths::GameContentDir() / TEXT("Slate/Fonts/Lato700.ttf"), 72))
+					.Font(FSlateFontInfo(FPaths::ProjectContentDir() / TEXT("Slate/Fonts/Lato700.ttf"), 72))
 				]
 
 				// Throbber

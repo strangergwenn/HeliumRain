@@ -1062,7 +1062,7 @@ float UFlareQuestConditionMinRotationVelocity::GetVelocityInAxis()
 	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
 	if (Spacecraft)
 	{
-		FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+		FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocityInDegrees();
 		FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
 		return FVector::DotProduct(LocalAngularVelocity, LocalAxis);
 	}
@@ -1109,7 +1109,7 @@ float UFlareQuestConditionMaxRotationVelocity::GetVelocityInAxis()
 	AFlareSpacecraft* Spacecraft = GetPC()->GetShipPawn();
 	if (Spacecraft)
 	{
-		FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocity();
+		FVector WorldAngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocityInDegrees();
 		FVector LocalAngularVelocity = Spacecraft->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(WorldAngularVelocity);
 		return FVector::DotProduct(LocalAngularVelocity, LocalAxis);
 	}

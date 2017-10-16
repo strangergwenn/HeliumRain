@@ -1580,7 +1580,7 @@ FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FV
 {
 	TArray<UActorComponent*> Engines = Ship->GetComponentsByClass(UFlareEngine::StaticClass());
 
-	FVector AngularVelocity = Ship->Airframe->GetPhysicsAngularVelocity();
+	FVector AngularVelocity = Ship->Airframe->GetPhysicsAngularVelocityInDegrees();
 	FVector WorldShipAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalShipAxis);
 
 	WorldShipAxis.Normalize();

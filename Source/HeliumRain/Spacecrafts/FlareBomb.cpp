@@ -14,7 +14,7 @@
 #include "FlareShell.h"
 
 #include "Components/DecalComponent.h"
-#include "Components/DestructibleComponent.h"
+#include "DestructibleComponent.h"
 
 #define LOCTEXT_NAMESPACE "FlareBomb"
 
@@ -120,7 +120,7 @@ void AFlareBomb::OnLaunched(AFlareSpacecraft* Target)
 
 	// Spin to stabilize
 	FVector FrontVector = BombComp-> GetComponentTransform().TransformVector(FVector(1, 0, 0));
-	BombComp->SetPhysicsAngularVelocity(FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropAngularVelocity);
+	BombComp->SetPhysicsAngularVelocityInDegrees(FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropAngularVelocity);
 	BombComp->SetPhysicsLinearVelocity(ParentWeapon->GetSpacecraft()->Airframe->GetPhysicsLinearVelocity() + FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropLinearVelocity * 100);
 
 	BombData.DropParentDistance = GetParentDistance();
@@ -288,14 +288,14 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		//BombComp->SetRelativeRotation(FRotator(FQuat::FastLerp(BombComp->RelativeRotation.Quaternion(), BombVelocityDirection.Rotation().Quaternion(), DeltaSeconds)));
 
 		// Angular physics
-		FVector DeltaAngularV = AngularVelocityTarget - BombComp->GetPhysicsAngularVelocity();
+		FVector DeltaAngularV = AngularVelocityTarget - BombComp->GetPhysicsAngularVelocityInDegrees();
 
 		if (!DeltaAngularV.IsNearlyZero())
 		{
 			FVector	DeltaAngularVAxis = DeltaAngularV.GetUnsafeNormal();
 			FVector Acceleration = DeltaAngularVAxis * WeaponDescription->WeaponCharacteristics.BombCharacteristics.AngularAcceleration * DeltaSeconds;
 			FVector ClampedAcceleration = Acceleration.GetClampedToMaxSize(DeltaAngularV.Size());
-			BombComp->SetPhysicsAngularVelocity(ClampedAcceleration, true);
+			BombComp->SetPhysicsAngularVelocityInDegrees(ClampedAcceleration, true);
 		}
 
 
@@ -333,7 +333,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 
 FVector AFlareBomb::GetAngularVelocityToAlignAxis(FVector TargetAxis, float AngularAcceleration, float DeltaSeconds) const
 {
-	FVector AngularVelocity = BombComp->GetPhysicsAngularVelocity();
+	FVector AngularVelocity = BombComp->GetPhysicsAngularVelocityInDegrees();
 	FVector WorldBombAxis = BombComp->GetComponentToWorld().GetRotation().RotateVector(FVector::ForwardVector);
 
 	WorldBombAxis.Normalize();
@@ -601,7 +601,7 @@ FFlareBombSave* AFlareBomb::Save()
 	if (!Paused)
 	{
 		BombData.LinearVelocity = BombComp->GetPhysicsLinearVelocity();
-		BombData.AngularVelocity = BombComp->GetPhysicsAngularVelocity();
+		BombData.AngularVelocity = BombComp->GetPhysicsAngularVelocityInDegrees();
 	}
 
 	// TODO Investigate on NULL ParentWeapon
@@ -643,7 +643,7 @@ void AFlareBomb::SetPause(bool Pause)
 	if (!Pause)
 	{
 		BombComp->SetPhysicsLinearVelocity(BombData.LinearVelocity);
-		BombComp->SetPhysicsAngularVelocity(BombData.AngularVelocity);
+		BombComp->SetPhysicsAngularVelocityInDegrees(BombData.AngularVelocity);
 		if (!BombData.Dropped && ParentWeapon)
 		{
 			AttachToActor(ParentWeapon->GetSpacecraft(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true), NAME_None);

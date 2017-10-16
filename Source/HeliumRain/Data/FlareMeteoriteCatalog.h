@@ -2,7 +2,6 @@
 
 #include "../Flare.h"
 #include "Engine/DataAsset.h"
-#include "Engine/DestructibleMesh.h"
 #include "FlareMeteoriteCatalog.generated.h"
 
 
@@ -19,10 +18,10 @@ public:
 	
 	/** Meteorite data */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UDestructibleMesh*> RockMeteorites;
+	TArray<class UDestructibleMesh*> RockMeteorites;
 	
 	/** Meteorite data */
 	UPROPERTY(EditAnywhere, Category = Content)
-	TArray<UDestructibleMesh*> MetalMeteorites;
+	TArray<class UDestructibleMesh*> MetalMeteorites;
 
 };
