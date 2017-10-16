@@ -30,362 +30,369 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Fill)
 	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
-		SNew(SVerticalBox)
-
-		// UI container
-		+ SVerticalBox::Slot()
-		.HAlign(HAlign_Center)
-		[
-			SNew(SVerticalBox)
-
-			// Header
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SNew(SHorizontalBox)
+		SNew(SHorizontalBox)
 				
-				// Info
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
+		// Info panel
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Top)
+		[
+			SNew(SBox)
+			.WidthOverride(0.7 * Theme.ContentWidth)
+			[
+				SNew(SVerticalBox)
+
+				// Sector name
+				+ SVerticalBox::Slot()
+				.Padding(Theme.TitlePadding)
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareSectorMenu::GetSectorName)
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				// Sector description
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareSectorMenu::GetSectorDescription)
+					.TextStyle(&Theme.TextFont)
+					.WrapTextAt(Theme.ContentWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right)
+				]
+				
+				// Sector location
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareSectorMenu::GetSectorLocation)
+					.TextStyle(&Theme.TextFont)
+					.WrapTextAt(Theme.ContentWidth)
+				]
+
+				// Combat value
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(SHorizontalBox)					
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("CombatValue"))
+						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareSectorMenu::GetFullCombatValue)
+						.TextStyle(&Theme.TextFont)
+						.WrapTextAt(10 * Theme.ButtonWidth)
+						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("SectorFullCombatValue", " total combat value"))
+						.TextStyle(&Theme.TextFont)
+						.WrapTextAt(10 * Theme.ButtonWidth)
+						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+					]
+				]
+
+				// Combat value 2
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.VAlign(VAlign_Center)
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("CombatValue"))
+						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareSectorMenu::GetOwnCombatValue)
+						.TextStyle(&Theme.TextFont)
+						.WrapTextAt(10 * Theme.ButtonWidth)
+						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("SectorOwnCombatValue", " owned, "))
+						.TextStyle(&Theme.TextFont)
+						.WrapTextAt(10 * Theme.ButtonWidth)
+						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("CombatValue"))
+						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareSectorMenu::GetHostileCombatValue)
+						.TextStyle(&Theme.TextFont)
+						.WrapTextAt(10 * Theme.ButtonWidth)
+						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("SectorHostileCombatValue", " hostile"))
+						.TextStyle(&Theme.TextFont)
+						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
+					]
+				]
+
+				// Travel title
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
 				.HAlign(HAlign_Left)
 				.VAlign(VAlign_Top)
 				[
-					SNew(SBox)
-					.WidthOverride(Theme.ContentWidth)
-					[
-						SNew(SVerticalBox)
-
-						// Sector name
-						+ SVerticalBox::Slot()
-						.Padding(Theme.TitlePadding)
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareSectorMenu::GetSectorName)
-							.TextStyle(&Theme.SubTitleFont)
-						]
-
-						// Sector description
-						+ SVerticalBox::Slot()
-						.Padding(Theme.ContentPadding)
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(this, &SFlareSectorMenu::GetSectorDescription)
-							.TextStyle(&Theme.TextFont)
-							.WrapTextAt(Theme.ContentWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right)
-						]
+					SNew(STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(LOCTEXT("TravelTitle", "Travel"))
+				]
 				
-						// Sector location
-						+ SVerticalBox::Slot()
-						.Padding(Theme.ContentPadding)
-						.AutoHeight()
+				// Travel
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				.Padding(Theme.ContentPadding)
+				[					
+					SNew(SVerticalBox)
+
+					// Fleet list
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SBox)
+						.WidthOverride(10 * Theme.ButtonWidth)
 						[
-							SNew(STextBlock)
-							.Text(this, &SFlareSectorMenu::GetSectorLocation)
-							.TextStyle(&Theme.TextFont)
-							.WrapTextAt(Theme.ContentWidth)
-						]
-
-						// Combat value
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.VAlign(VAlign_Center)
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SHorizontalBox)
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.VAlign(VAlign_Center)
-							[
-								SNew(SImage)
-								.Image(FFlareStyleSet::GetIcon("CombatValue"))
-								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
-							]
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(Theme.SmallContentPadding)
-							[
-								SNew(STextBlock)
-								.Text(this, &SFlareSectorMenu::GetOwnCombatValue)
-								.TextStyle(&Theme.TextFont)
-								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
-							]
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.VAlign(VAlign_Center)
-							[
-								SNew(STextBlock)
-								.Text(LOCTEXT("SectorOwnCombatValue", " owned combat value here, "))
-								.TextStyle(&Theme.TextFont)
-								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
-							]
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.VAlign(VAlign_Center)
-							[
-								SNew(SImage)
-								.Image(FFlareStyleSet::GetIcon("CombatValue"))
-								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
-							]
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(Theme.SmallContentPadding)
-							[
-								SNew(STextBlock)
-								.Text(this, &SFlareSectorMenu::GetHostileCombatValue)
-								.TextStyle(&Theme.TextFont)
-								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
-							]
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.VAlign(VAlign_Center)
-							[
-								SNew(STextBlock)
-								.Text(LOCTEXT("SectorHostileCombatValue", " hostile, "))
-								.TextStyle(&Theme.TextFont)
-								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
-							]
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.VAlign(VAlign_Center)
-							[
-								SNew(SImage)
-								.Image(FFlareStyleSet::GetIcon("CombatValue"))
-								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
-							]
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.Padding(Theme.SmallContentPadding)
-							[
-								SNew(STextBlock)
-								.Text(this, &SFlareSectorMenu::GetFullCombatValue)
-								.TextStyle(&Theme.TextFont)
-								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
-							]
-
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.VAlign(VAlign_Center)
-							[
-								SNew(STextBlock)
-								.Text(LOCTEXT("SectorFullCombatValue", " total"))
-								.TextStyle(&Theme.TextFont)
-								.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
-							]
-						]
-
-						// Tools line 1
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.HAlign(HAlign_Left)
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(SHorizontalBox)
-
-							// Fleet list
-							+ SHorizontalBox::Slot()
+							SAssignNew(FleetSelector, SFlareDropList<UFlareFleet*>)
+							.OptionsSource(&FleetList)
+							.OnGenerateWidget(this, &SFlareSectorMenu::OnGenerateFleetComboLine)
+							.OnSelectionChanged(this, &SFlareSectorMenu::OnFleetComboLineSelectionChanged)
+							.HeaderWidth(10)
+							.ItemWidth(10)
 							[
 								SNew(SBox)
-								.WidthOverride(10 * Theme.ButtonWidth)
+								.Padding(Theme.ListContentPadding)
 								[
-									SAssignNew(FleetSelector, SFlareDropList<UFlareFleet*>)
-									.OptionsSource(&FleetList)
-									.OnGenerateWidget(this, &SFlareSectorMenu::OnGenerateFleetComboLine)
-									.OnSelectionChanged(this, &SFlareSectorMenu::OnFleetComboLineSelectionChanged)
-									.HeaderWidth(10)
-									.ItemWidth(10)
-									[
-										SNew(SBox)
-										.Padding(Theme.ListContentPadding)
-										[
-											SNew(STextBlock)
-											.Text(this, &SFlareSectorMenu::OnGetCurrentFleetComboLine)
-											.TextStyle(&Theme.TextFont)
-										]
-									]
+									SNew(STextBlock)
+									.Text(this, &SFlareSectorMenu::OnGetCurrentFleetComboLine)
+									.TextStyle(&Theme.TextFont)
 								]
-							]
-
-							// Button
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							.HAlign(HAlign_Right)
-							.VAlign(VAlign_Top)
-							[
-								SNew(SFlareButton)
-								.Width(6)
-								.Text(this, &SFlareSectorMenu::GetTravelText)
-								.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the selected ship or fleet"))
-								.Icon(FFlareStyleSet::GetIcon("Travel"))
-								.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
-								.IsDisabled(this, &SFlareSectorMenu::IsTravelDisabled)
 							]
 						]
 					]
+
+					// Button
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Right)
+					.VAlign(VAlign_Top)
+					[
+						SNew(SFlareButton)
+						.Width(10)
+						.Text(this, &SFlareSectorMenu::GetTravelText)
+						.HelpText(LOCTEXT("TravelInfo", "Start travelling to this sector with the selected ship or fleet"))
+						.Icon(FFlareStyleSet::GetIcon("Travel"))
+						.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
+						.IsDisabled(this, &SFlareSectorMenu::IsTravelDisabled)
+					]
 				]
-				
-				// Station construction
-				+ SHorizontalBox::Slot()
+
+				// Helper title
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
 				.HAlign(HAlign_Left)
 				.VAlign(VAlign_Top)
 				[
-					SNew(SBox)
-					.WidthOverride(Theme.ContentWidth)
-					[
-						SNew(SVerticalBox)
-
-						// Helper title
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.Padding(Theme.TitlePadding)
-						.HAlign(HAlign_Left)
-						.VAlign(VAlign_Top)
-						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.SubTitleFont)
-							.Text(LOCTEXT("Actions", "Sector tools"))
-						]
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.HAlign(HAlign_Left)
-						[
-							SNew(SHorizontalBox)
-
-							// Show prices
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							[
-								SNew(SFlareButton)
-								.Width(6)
-								.Text(LOCTEXT("ResourcePrices", "Local prices"))
-								.HelpText(LOCTEXT("ResourcePricesInfo", "See the price and use of resources in this sector"))
-								.Icon(FFlareStyleSet::GetIcon("Travel"))
-								.OnClicked(this, &SFlareSectorMenu::OnResourcePrices)
-								.IsDisabled(this, &SFlareSectorMenu::IsResourcePricesDisabled)
-							]
-
-							// Build station button
-							+ SHorizontalBox::Slot()
-							.AutoWidth()
-							[
-								SNew(SFlareButton)
-								.Width(6)
-								.Text(this, &SFlareSectorMenu::GetBuildStationText)
-								.HelpText(this, &SFlareSectorMenu::GetBuildStationHelpText)
-								.Icon(FFlareStyleSet::GetIcon("Build"))
-								.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
-								.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
-							]
-						]
-
-						// Refill fleets
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.HAlign(HAlign_Left)
-						[
-							SNew(SFlareButton)
-							.Width(12)
-							.Text(this, &SFlareSectorMenu::GetRefillText)
-							.HelpText(LOCTEXT("RefillInfo", "Refill all fleets in this sector so that they have the necessary fuel, ammo and resources to fight."))
-							.Icon(FFlareStyleSet::GetIcon("Tank"))
-							.OnClicked(this, &SFlareSectorMenu::OnRefillClicked)
-							.IsDisabled(this, &SFlareSectorMenu::IsRefillDisabled)
-						]
-
-						// Repair fleets
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.HAlign(HAlign_Left)
-						[
-							SNew(SFlareButton)
-							.Width(12)
-							.Text(this, &SFlareSectorMenu::GetRepairText)
-							.HelpText(LOCTEXT("RepairInfo", "Repair all fleets in this sector."))
-							.Icon(FFlareStyleSet::GetIcon("Repair"))
-							.OnClicked(this, &SFlareSectorMenu::OnRepairClicked)
-							.IsDisabled(this, &SFlareSectorMenu::IsRepairDisabled)
-						]
-					]
-				]
-			]
-
-			// Sector description
-			+ SVerticalBox::Slot()
-			.Padding(Theme.ContentPadding)
-			.HAlign(HAlign_Center)
-			.AutoHeight()
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("UnkwownSector", "Visit this sector to discover its contents."))
-				.TextStyle(&Theme.TextFont)
-				.Visibility(this, &SFlareSectorMenu::GetUnknownSectorVisibility)
-			]
-
-			// Content block
-			+ SVerticalBox::Slot()
-			.VAlign(VAlign_Top)
-			[
-				SNew(SHorizontalBox)
-
-				// Owned
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Right)
-				[
-					SNew(SScrollBox)
-					.Style(&Theme.ScrollBoxStyle)
-					.ScrollBarStyle(&Theme.ScrollBarStyle)
-					.Visibility(this, &SFlareSectorMenu::GetVisitedListVisibility)
-
-					+ SScrollBox::Slot()
-					[
-						SAssignNew(OwnedShipList, SFlareList)
-						.MenuManager(MenuManager)
-						.Title(LOCTEXT("OwnedSpacecraftsSector", "Owned spacecraft in sector"))
-					]
-
-					+ SScrollBox::Slot()
-					[
-						SAssignNew(OwnedReserveShipList, SFlareList)
-						.MenuManager(MenuManager)
-						.Title(LOCTEXT("OwnedSpacecraftsReserve", "Owned spacecraft in reserve"))
-						.Visibility(this, &SFlareSectorMenu::GetOwnedReserveVisibility)
-					]
+					SNew(STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(LOCTEXT("Actions", "Sector tools"))
 				]
 
-				// Others
-				+ SHorizontalBox::Slot()
+				// Helpers
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				.HAlign(HAlign_Left)
+				.Padding(Theme.ContentPadding)
 				[
-					SNew(SScrollBox)
-					.Style(&Theme.ScrollBoxStyle)
-					.ScrollBarStyle(&Theme.ScrollBarStyle)
-					.Visibility(this, &SFlareSectorMenu::GetVisitedListVisibility)
+					SNew(SVerticalBox)
 
-					+ SScrollBox::Slot()
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					.Padding(Theme.SmallContentPadding)
 					[
-						SAssignNew(OtherShipList, SFlareList)
-						.MenuManager(MenuManager)
-						.Title(LOCTEXT("OtherSpacecraftsSector", "Other spacecraft in sector"))
+						SNew(SHorizontalBox)
+
+						// Show prices
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Width(5)
+							.Text(LOCTEXT("ResourcePrices", "Local prices"))
+							.HelpText(LOCTEXT("ResourcePricesInfo", "See the price and use of resources in this sector"))
+							.Icon(FFlareStyleSet::GetIcon("Travel"))
+							.OnClicked(this, &SFlareSectorMenu::OnResourcePrices)
+							.IsDisabled(this, &SFlareSectorMenu::IsResourcePricesDisabled)
+						]
+
+						// Build station button
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Width(5)
+							.Text(this, &SFlareSectorMenu::GetBuildStationText)
+							.HelpText(this, &SFlareSectorMenu::GetBuildStationHelpText)
+							.Icon(FFlareStyleSet::GetIcon("Build"))
+							.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
+							.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
+						]
+					]
+				
+					// Refill fleets
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareButton)
+						.Width(10)
+						.Text(this, &SFlareSectorMenu::GetRefillText)
+						.HelpText(LOCTEXT("RefillInfo", "Refill all fleets in this sector so that they have the necessary fuel, ammo and resources to fight."))
+						.Icon(FFlareStyleSet::GetIcon("Tank"))
+						.OnClicked(this, &SFlareSectorMenu::OnRefillClicked)
+						.IsDisabled(this, &SFlareSectorMenu::IsRefillDisabled)
 					]
 
-					+ SScrollBox::Slot()
+					// Repair fleets
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					.Padding(Theme.SmallContentPadding)
 					[
-						SAssignNew(OtherReserveShipList, SFlareList)
-						.MenuManager(MenuManager)
-						.Title(LOCTEXT("OtherSpacecraftsReserve", "Other spacecraft in reserve"))
-						.Visibility(this, &SFlareSectorMenu::GetOtherReserveVisibility)
+						SNew(SFlareButton)
+						.Width(10)
+						.Text(this, &SFlareSectorMenu::GetRepairText)
+						.HelpText(LOCTEXT("RepairInfo", "Repair all fleets in this sector."))
+						.Icon(FFlareStyleSet::GetIcon("Repair"))
+						.OnClicked(this, &SFlareSectorMenu::OnRepairClicked)
+						.IsDisabled(this, &SFlareSectorMenu::IsRepairDisabled)
 					]
 				]
+
+				// Sector description
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("UnkwownSector", "Visit this sector to discover its contents."))
+					.TextStyle(&Theme.NameFont)
+					.WrapTextAt(10 * Theme.ButtonWidth)
+					.Visibility(this, &SFlareSectorMenu::GetUnknownSectorVisibility)
+				]
+			]
+		]
+
+		// Owned ships
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Center)
+		.AutoWidth()
+		[
+			SNew(SScrollBox)
+			.Style(&Theme.ScrollBoxStyle)
+			.ScrollBarStyle(&Theme.ScrollBarStyle)
+			.Visibility(this, &SFlareSectorMenu::GetVisitedListVisibility)
+
+			+ SScrollBox::Slot()
+			[
+				SAssignNew(OwnedShipList, SFlareList)
+				.MenuManager(MenuManager)
+				.Title(LOCTEXT("OwnedSpacecraftsSector", "Owned spacecraft in sector"))
+			]
+
+			+ SScrollBox::Slot()
+			[
+				SAssignNew(OwnedReserveShipList, SFlareList)
+				.MenuManager(MenuManager)
+				.Title(LOCTEXT("OwnedSpacecraftsReserve", "Owned spacecraft in reserve"))
+				.Visibility(this, &SFlareSectorMenu::GetOwnedReserveVisibility)
+			]
+		]
+
+		// Others
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Left)
+		.AutoWidth()
+		[
+			SNew(SScrollBox)
+			.Style(&Theme.ScrollBoxStyle)
+			.ScrollBarStyle(&Theme.ScrollBarStyle)
+			.Visibility(this, &SFlareSectorMenu::GetVisitedListVisibility)
+			
+			+ SScrollBox::Slot()
+			[
+				SAssignNew(OtherShipList, SFlareList)
+				.MenuManager(MenuManager)
+				.Title(LOCTEXT("OtherSpacecraftsSector", "Other spacecraft in sector"))
+			]
+
+			+ SScrollBox::Slot()
+			[
+				SAssignNew(OtherReserveShipList, SFlareList)
+				.MenuManager(MenuManager)
+				.Title(LOCTEXT("OtherSpacecraftsReserve", "Other spacecraft in reserve"))
+				.Visibility(this, &SFlareSectorMenu::GetOtherReserveVisibility)
 			]
 		]
 	];
@@ -1124,11 +1131,11 @@ FText SFlareSectorMenu::GetSectorLocation() const
 			// Spacer
 			if (AttributeString.Len())
 			{
-				AttributeString = "- " + AttributeString;
+				AttributeString = FText::Format(LOCTEXT("AttributeLineFormat", "\n\u2022 {0}"), FText::FromString(AttributeString)).ToString();
 			}
 
 			// Add orbital parameters
-			Result = FText::Format(LOCTEXT("SectorLocation",  "Orbiting {0} at {1} km - {2} {3}"),
+			Result = FText::Format(LOCTEXT("SectorLocation",  "\u2022 Orbiting {0} at {1} km \n\u2022 {2} {3}"),
 				Body->Name,
 				FText::AsNumber(TargetSector->GetOrbitParameters()->Altitude),
 				LightRatioString,
@@ -1137,12 +1144,12 @@ FText SFlareSectorMenu::GetSectorLocation() const
 			// Add people
 			if (TargetSector->GetPeople()->GetPopulation())
 			{
-				Result = FText::Format(LOCTEXT("SectorPopulation", "{0} - Population of {1}"),
+				Result = FText::Format(LOCTEXT("SectorPopulation", "{0} \n\u2022 Population of {1}"),
 					Result, FText::AsNumber(TargetSector->GetPeople()->GetPopulation()));
 			}
 			else
 			{
-				Result = FText::Format(LOCTEXT("SectorPopulationEmpty", "{0} - No population"),
+				Result = FText::Format(LOCTEXT("SectorPopulationEmpty", "{0} \n\u2022 No population"),
 					Result);
 			}
 		}

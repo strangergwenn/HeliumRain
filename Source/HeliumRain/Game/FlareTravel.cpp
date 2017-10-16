@@ -55,7 +55,7 @@ void UFlareTravel::Load(const FFlareTravelSave& Data)
 
 
 	SectorDescription.Name = LOCTEXT("TravelSectorName", "Traveling ...");
-	SectorDescription.Description = LOCTEXT("TravelSectorDescription", "Travel local sector");
+	SectorDescription.Description = LOCTEXT("TravelSectorDescription", "Travel sector");
 	SectorDescription.Identifier=Fleet->GetIdentifier();
 	SectorDescription.Phase = 0;
 	SectorDescription.IsIcy = false;
