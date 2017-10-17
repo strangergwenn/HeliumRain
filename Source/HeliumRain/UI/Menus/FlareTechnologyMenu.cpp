@@ -34,38 +34,9 @@ void SFlareTechnologyMenu::Construct(const FArguments& InArgs)
 		[
 			SNew(SHorizontalBox)
 
-			// Tree block
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Left)
-			.VAlign(VAlign_Top)
-			[
-			
-				SNew(SVerticalBox)
-			
-				// Title
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.TitlePadding)
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("AvailableTechnologyTitle", "Available technologies"))
-					.TextStyle(&Theme.SubTitleFont)
-				]
-
-				// Data
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SAssignNew(TechnologyTree, SScrollBox)
-					.Style(&Theme.ScrollBoxStyle)
-					.ScrollBarStyle(&Theme.ScrollBarStyle)
-				]
-			]
-
 			// Info block
 			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
+			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Top)
 			.AutoWidth()
 			[
@@ -132,6 +103,34 @@ void SFlareTechnologyMenu::Construct(const FArguments& InArgs)
 						.OnClicked(this, &SFlareTechnologyMenu::OnTechnologyUnlocked)
 						.IsDisabled(this, &SFlareTechnologyMenu::IsUnlockDisabled)
 					]
+				]
+			]
+
+			// Tree block
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Top)
+			[			
+				SNew(SVerticalBox)
+			
+				// Title
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				[
+					SNew(STextBlock)
+					.Text(LOCTEXT("AvailableTechnologyTitle", "Available technologies"))
+					.TextStyle(&Theme.SubTitleFont)
+				]
+
+				// Data
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SAssignNew(TechnologyTree, SScrollBox)
+					.Style(&Theme.ScrollBoxStyle)
+					.ScrollBarStyle(&Theme.ScrollBarStyle)
 				]
 			]
 		]
