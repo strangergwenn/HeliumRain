@@ -359,11 +359,23 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 {
 	// Setup the planetary map
 	Map->SetPlanetImage(&Body->CelestialBodyPicture);
-	Map->SetRadius(Body->CelestialBodyRadiusOnMap);
+	Map->SetRadius(Body->CelestialBodyRadiusOnMap, 50);
 	Map->ClearChildren();
+
+	// Find minimal altitude
+	int32 MinimalAltitude = 1000000;
+	for (UFlareSimulatedSector* Sector : MenuManager->GetGame()->GetGameWorld()->GetSectors())
+	{
+		if (Sector->GetOrbitParameters()->Altitude < MinimalAltitude
+		 && Sector->GetOrbitParameters()->CelestialBodyIdentifier == Body->CelestialBodyIdentifier)
+		{
+			MinimalAltitude = Sector->GetOrbitParameters()->Altitude;
+		}
+	}
 
 	// Add the name
 	Map->AddSlot()
+	.Altitude(MinimalAltitude)
 	[
 		SNew(STextBlock)
 		.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
@@ -386,6 +398,7 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 		TSharedPtr<int32> IndexPtr(new int32(MenuManager->GetPC()->GetCompany()->GetKnownSectors().Find(Sector)));
 
 		Map->AddSlot()
+		.Altitude(Sector->GetOrbitParameters()->Altitude)
 		[
 			SNew(SFlareSectorButton)
 			.Sector(Sector)

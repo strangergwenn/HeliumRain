@@ -26,6 +26,8 @@ public:
 
 		TAttribute<float> MaxSize;
 
+		TAttribute<float> OrbitAltitude;
+
 	public:
 
 		/** Default values for a slot */
@@ -36,6 +38,7 @@ public:
 			, VAlignment(VAlign_Fill)
 			, SlotPadding(FMargin(0))
 			, MaxSize(0.0f)
+			, OrbitAltitude(0)
 		{ }
 
 		FSlot& AutoWidth()
@@ -47,6 +50,12 @@ public:
 		FSlot& MaxWidth(const TAttribute< float >& InMaxWidth)
 		{
 			MaxSize = InMaxWidth;
+			return *this;
+		}
+
+		FSlot& Altitude(float InAltitude)
+		{
+			OrbitAltitude = InAltitude;
 			return *this;
 		}
 
@@ -97,12 +106,6 @@ public:
 			OutVarToInit = this;
 			return *this;
 		}
-		/*
-		FSlot& operator[](TSharedRef<SWidget> InWidget)
-		{
-		SFlarePlanetaryBox::FSlot::operator[](InWidget);
-		return *this;
-		}*/
 	};
 
 public:
@@ -137,9 +140,10 @@ public:
 	}
 
 	/** Set the radius */
-	void SetRadius(int NewRadius)
+	void SetRadius(int NewRadius, int NewRadiusIncrement)
 	{
 		Radius = NewRadius;
+		RadiusIncrement = NewRadiusIncrement;
 	}
 
 	/** Create a slot */
@@ -183,6 +187,9 @@ public:
 
 	virtual void OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const override;
 
+	virtual int32 OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyClippingRect,
+		FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
+
 	virtual FVector2D ComputeDesiredSize(float) const override;
 
 	virtual FChildren* GetChildren() override;
@@ -196,6 +203,9 @@ protected:
 
 	/** Radius of the planetary system */
 	int32                                      Radius;
+
+	/** Radius increment of the planetary system */
+	int32                                      RadiusIncrement;
 
 	/** SLate brush to use for the planet image */
 	const FSlateBrush*                         PlanetImage;
