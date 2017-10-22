@@ -38,22 +38,18 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 	[
 		SNew(SVerticalBox)
 		
-		// Planetarium
 		+ SVerticalBox::Slot()
-		.HAlign(HAlign_Fill)
-		.VAlign(VAlign_Fill)
+		.AutoHeight()
 		[
 			SNew(SHorizontalBox)
 
-			// Left column
 			+ SHorizontalBox::Slot()
-			.AutoWidth()
 			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Top)
+			.HAlign(HAlign_Left)
 			[
 				SNew(SVerticalBox)
 
-				// Trade routes title
+				// World status title
 				+ SVerticalBox::Slot()
 				.Padding(Theme.TitlePadding)
 				.AutoHeight()
@@ -63,76 +59,113 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					.TextStyle(&Theme.SubTitleFont)
 				]
 
+				// World status
 				+ SVerticalBox::Slot()
-				.AutoHeight()
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Top)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
 					.Text(this, &SFlareOrbitalMenu::GetDateText)
 				]
+			]
 
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SHorizontalBox)
+			// Skip day
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Top)
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(SFlareButton)
+				.Width(3.5)
+				.Text(FText::Format(LOCTEXT("FastForwardSingleFormat", "Skip day ({0})"),
+					FText::FromString(AFlareMenuManager::GetKeyNameFromActionName("Simulate"))))
+				.Icon(FFlareStyleSet::GetIcon("Load_Small"))
+				.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
+				.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
+				.HelpText(LOCTEXT("FastForwardOneDayInfo", "Wait for one day - Travels, production, building will be accelerated"))
+			]
 
-					// Fast forward
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.HAlign(HAlign_Left)
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(SFlareButton)
-						.Width(3.5)
-						.Text(FText::Format(LOCTEXT("FastForwardSingleFormat", "Skip day ({0})"),
-							FText::FromString(AFlareMenuManager::GetKeyNameFromActionName("Simulate"))))
-						.Icon(FFlareStyleSet::GetIcon("Load_Small"))
-						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardClicked)
-						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
-						.HelpText(LOCTEXT("FastForwardOneDayInfo", "Wait for one day - Travels, production, building will be accelerated"))
-					]
-
-					// Fast forward
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.HAlign(HAlign_Left)
-					.Padding(Theme.SmallContentPadding)
-					[
-						SAssignNew(FastForwardAuto, SFlareButton)
-						.Width(4.5)
-						.Toggle(true)
-						.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
-						.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
-						.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardAutomaticClicked)
-						.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
-						.HelpText(LOCTEXT("FastForwardInfo", "Wait for the next event - Travels, production, building will be accelerated"))
-					]
-
-					// World economy
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.HAlign(HAlign_Left)
-					.Padding(Theme.SmallContentPadding)
-					[
-						SNew(SFlareButton)
-						.Width(3.5)
-						.Text(LOCTEXT("WorldEconomy", "Economy"))
-						.HelpText(LOCTEXT("WorldEconomyInfo", "See global prices, usage and variation for all resources"))
-						.Icon(FFlareStyleSet::GetIcon("Sector_Small"))
-						.OnClicked(this, &SFlareOrbitalMenu::OnWorldEconomyClicked)
-					]
-				]
+			// Fast forward
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Right)
+			.VAlign(VAlign_Top)
+			.Padding(Theme.SmallContentPadding)
+			[
+				SAssignNew(FastForwardAuto, SFlareButton)
+				.Width(4.5)
+				.Toggle(true)
+				.Text(this, &SFlareOrbitalMenu::GetFastForwardText)
+				.Icon(this, &SFlareOrbitalMenu::GetFastForwardIcon)
+				.OnClicked(this, &SFlareOrbitalMenu::OnFastForwardAutomaticClicked)
+				.IsDisabled(this, &SFlareOrbitalMenu::IsFastForwardDisabled)
+				.HelpText(LOCTEXT("FastForwardInfo", "Wait for the next event - Travels, production, building will be accelerated"))
+			]
+		]
+		
+		// Planetarium body
+		+ SVerticalBox::Slot()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Fill)
+		[
+			SNew(SHorizontalBox)
 			
-				// Nema
-				+ SVerticalBox::Slot()
+			// Action column 
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Fill)
+			[
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
 				[
-					SAssignNew(NemaBox, SFlarePlanetaryBox)
+					SNew(SVerticalBox)
+
+					// Travel list
+					+ SVerticalBox::Slot()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SScrollBox)
+						.Style(&Theme.ScrollBoxStyle)
+						.ScrollBarStyle(&Theme.ScrollBarStyle)
+						+ SScrollBox::Slot()
+						[
+							SNew(SRichTextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(this, &SFlareOrbitalMenu::GetTravelText)
+							.WrapTextAt(0.7 * Theme.ContentWidth)
+							.DecoratorStyleSet(&FFlareStyleSet::Get())
+						]
+					]
+
+					// Trade route list
+					+ SVerticalBox::Slot()
+					.HAlign(HAlign_Left)
+					[
+						SNew(SScrollBox)
+						.Style(&Theme.ScrollBoxStyle)
+						.ScrollBarStyle(&Theme.ScrollBarStyle)
+						+ SScrollBox::Slot()
+						[
+							SAssignNew(TradeRouteInfo, SFlareTradeRouteInfo)
+							.MenuManager(MenuManager)
+						]
+					]
 				]
 			]
 
-			// Central column 1
+			// Nema
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Top)
+			[
+				SAssignNew(NemaBox, SFlarePlanetaryBox)
+			]
+
+			// Moons 1
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
@@ -154,7 +187,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				]
 			]
 			
-			// Central column 2
+			// Moons 2
 			+ SHorizontalBox::Slot()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
@@ -173,59 +206,6 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				.VAlign(VAlign_Fill)
 				[
 					SAssignNew(AdenaBox, SFlarePlanetaryBox)
-				]
-			]
-			
-			// Right column 
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Fill)
-			[
-				SNew(SBox)
-				.WidthOverride(0.5 * Theme.ContentWidth)
-				[
-					SNew(SVerticalBox)
-
-					// Travel list title
-					+ SVerticalBox::Slot()
-					.Padding(Theme.TitlePadding)
-					.AutoHeight()
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("IncomingEvents", "Incoming Events"))
-						.TextStyle(&Theme.SubTitleFont)
-					]
-
-					// Travel list
-					+ SVerticalBox::Slot()
-					.Padding(Theme.TitlePadding)
-					[
-						SNew(SScrollBox)
-						.Style(&Theme.ScrollBoxStyle)
-						.ScrollBarStyle(&Theme.ScrollBarStyle)
-						+ SScrollBox::Slot()
-						[
-							SNew(SRichTextBlock)
-							.TextStyle(&Theme.TextFont)
-							.Text(this, &SFlareOrbitalMenu::GetTravelText)
-							.WrapTextAt(0.45 * Theme.ContentWidth)
-							.DecoratorStyleSet(&FFlareStyleSet::Get())
-						]
-					]
-
-					// Trade route list
-					+ SVerticalBox::Slot()
-					.Padding(Theme.TitlePadding)
-					[
-						SNew(SScrollBox)
-						.Style(&Theme.ScrollBoxStyle)
-						.ScrollBarStyle(&Theme.ScrollBarStyle)
-						+ SScrollBox::Slot()
-						[
-							SAssignNew(TradeRouteInfo, SFlareTradeRouteInfo)
-							.MenuManager(MenuManager)
-						]
-					]
 				]
 			]
 		]
@@ -359,23 +339,23 @@ void SFlareOrbitalMenu::UpdateMapForBody(TSharedPtr<SFlarePlanetaryBox> Map, con
 {
 	// Setup the planetary map
 	Map->SetPlanetImage(&Body->CelestialBodyPicture);
-	Map->SetRadius(Body->CelestialBodyRadiusOnMap, 50);
+	Map->SetRadius(Body->CelestialBodyRadiusOnMap, 90);
 	Map->ClearChildren();
 
-	// Find minimal altitude
-	int32 MinimalAltitude = 1000000;
+	// Find highest altitude
+	int32 MaxAltitude = 0;
 	for (UFlareSimulatedSector* Sector : MenuManager->GetGame()->GetGameWorld()->GetSectors())
 	{
-		if (Sector->GetOrbitParameters()->Altitude < MinimalAltitude
+		if (Sector->GetOrbitParameters()->Altitude > MaxAltitude
 		 && Sector->GetOrbitParameters()->CelestialBodyIdentifier == Body->CelestialBodyIdentifier)
 		{
-			MinimalAltitude = Sector->GetOrbitParameters()->Altitude;
+			MaxAltitude = Sector->GetOrbitParameters()->Altitude;
 		}
 	}
 
 	// Add the name
 	Map->AddSlot()
-	.Altitude(MinimalAltitude)
+	.Altitude(MaxAltitude)
 	[
 		SNew(STextBlock)
 		.TextStyle(&FFlareStyleSet::GetDefaultTheme().SubTitleFont)
@@ -512,7 +492,7 @@ FText SFlareOrbitalMenu::GetDateText() const
 		{
 			int64 Credits = PlayerCompany->GetMoney();
 			FText DateText = UFlareGameTools::GetDisplayDate(GameWorld->GetDate());
-			return FText::Format(LOCTEXT("DateCreditsInfoFormat", "Company date : {0} - {1} credits"), DateText, FText::AsNumber(UFlareGameTools::DisplayMoney(Credits)));
+			return FText::Format(LOCTEXT("DateCreditsInfoFormat", "Date : {0} - {1} credits"), DateText, FText::AsNumber(UFlareGameTools::DisplayMoney(Credits)));
 		}
 	}
 
@@ -628,11 +608,6 @@ void SFlareOrbitalMenu::OnFastForwardConfirmed(bool Automatic)
 void SFlareOrbitalMenu::OnFastForwardCanceled()
 {
 	FastForwardAuto->SetActive(false);
-}
-
-void SFlareOrbitalMenu::OnWorldEconomyClicked()
-{
-	MenuManager->OpenMenu(EFlareMenu::MENU_WorldEconomy);
 }
 
 

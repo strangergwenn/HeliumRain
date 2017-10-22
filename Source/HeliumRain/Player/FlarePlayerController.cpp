@@ -1633,6 +1633,7 @@ void AFlarePlayerController::SetupInputComponent()
 	InputComponent->BindAction("ShipMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::ShipMenu);
 	InputComponent->BindAction("SectorMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::SectorMenu);
 	InputComponent->BindAction("OrbitMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::OrbitMenu);
+	InputComponent->BindAction("EconomyMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::EconomyMenu);
 	InputComponent->BindAction("LeaderboardMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::LeaderboardMenu);
 	InputComponent->BindAction("CompanyMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::CompanyMenu);
 	InputComponent->BindAction("FleetMenu", EInputEvent::IE_Released, this, &AFlarePlayerController::FleetMenu);
@@ -1845,6 +1846,15 @@ void AFlarePlayerController::OrbitMenu()
 	{
 		FLOG("AFlarePlayerController::OrbitMenu");
 		MenuManager->ToggleMenu(EFlareMenu::MENU_Orbit);
+	}
+}
+
+void AFlarePlayerController::EconomyMenu()
+{
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
+	{
+		FLOG("AFlarePlayerController::EconomyMenu");
+		MenuManager->ToggleMenu(EFlareMenu::MENU_WorldEconomy);
 	}
 }
 

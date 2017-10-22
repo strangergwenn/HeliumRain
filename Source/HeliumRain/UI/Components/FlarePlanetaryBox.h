@@ -183,7 +183,9 @@ public:
 	{
 		return this->Children.Num();
 	}
-	
+
+	/** Get a map of altitudes and number of children */
+	TMap<float, int32> GetAltitudeStats() const;
 
 	virtual void OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const override;
 

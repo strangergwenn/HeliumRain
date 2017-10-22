@@ -1236,7 +1236,7 @@ FString AFlareMenuManager::GetKeyNameFromActionName(FName ActionName)
 		}
 	}
 
-	return LOCTEXT("NoKey", "No Key").ToString();
+	return LOCTEXT("NoKey", "").ToString();
 }
 
 bool AFlareMenuManager::IsUIOpen() const

@@ -64,36 +64,80 @@ void SFlarePlanetaryBox::ClearChildren()
 	Drawing
 ----------------------------------------------------*/
 
+TMap<float, int32> SFlarePlanetaryBox::GetAltitudeStats() const
+{
+	TMap<float, int32> AltitudeStats;
+
+	for (int32 ChildIndex = 1; ChildIndex < Children.Num(); ChildIndex++)
+	{
+		float Altitude = Children[ChildIndex].OrbitAltitude.Get();
+		if (AltitudeStats.Find(Altitude) != NULL)
+		{
+			AltitudeStats[Altitude] = AltitudeStats[Altitude] + 1;
+		}
+		else
+		{
+			AltitudeStats.Add(Altitude, 1);
+		}
+	}
+
+	AltitudeStats.KeySort([](float k1, float k2)
+	{
+		return (k1 < k2);
+	});
+
+	return AltitudeStats;
+}
+
 void SFlarePlanetaryBox::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	for (int32 ChildIndex = 0; ChildIndex < Children.Num(); ++ChildIndex)
+	// Iterate on orbits
+	int OrbitIndex = 0;
+	TMap<float, int> AltitudeStats = GetAltitudeStats();
+	for (TPair<float, int> AltitudeData : AltitudeStats)
 	{
-		// Get all required data
-		const SFlarePlanetaryBox::FSlot& CurChild = Children[ChildIndex];
-		const EVisibility ChildVisibility = CurChild.GetWidget()->GetVisibility();
-		FVector2D WidgetSize = CurChild.GetWidget()->GetDesiredSize();
-		FVector2D Offset = FVector2D::ZeroVector;
-
 		// Child with index 0 is the main body, index 1 is probably the name but we don't care, others are sectors
-		if (ChildIndex > 0)
+		int ValidChildIndex = 0;
+		for (int32 ChildIndex = 1; ChildIndex < Children.Num(); ChildIndex++)
 		{
+			const SFlarePlanetaryBox::FSlot& CurChild = Children[ChildIndex];
+			if (CurChild.OrbitAltitude.Get() != AltitudeData.Key)
+			{
+				continue;
+			}
+
+			// Get data
 			float X, Y;
-			float Angle = (360 / (Children.Num() - 1)) * (ChildIndex - 1) - 90;
-			FMath::PolarToCartesian(Radius, FMath::DegreesToRadians(Angle), X, Y);
-			Offset = FVector2D(X, Y);
-			WidgetSize = FVector2D(CurChild.GetWidget()->GetDesiredSize().X, Theme.SectorButtonHeight);
-		}
+			float Angle = (360 / AltitudeData.Value) * ValidChildIndex - 90;
+			float AltitudeRadius = Radius + RadiusIncrement * (OrbitIndex - AltitudeStats.Num() / 2);
+
+			// Convert coordinates
+			FMath::PolarToCartesian(AltitudeRadius, FMath::DegreesToRadians(Angle), X, Y);
+			FVector2D Offset = FVector2D(X, Y);
+			FVector2D WidgetSize = FVector2D(CurChild.GetWidget()->GetDesiredSize().X, Theme.SectorButtonHeight);
 			
-		// Arrange the child
-		FVector2D Location = (AllottedGeometry.GetLocalSize() - WidgetSize) / 2 + Offset;
-		ArrangedChildren.AddWidget(ChildVisibility, AllottedGeometry.MakeChild(
-			CurChild.GetWidget(),
-			Location,
-			CurChild.GetWidget()->GetDesiredSize()
-		));
+			// Arrange the child
+			FVector2D Location = (AllottedGeometry.GetLocalSize() - WidgetSize) / 2 + Offset;
+			ArrangedChildren.AddWidget(CurChild.GetWidget()->GetVisibility(), AllottedGeometry.MakeChild(
+				CurChild.GetWidget(),
+				Location,
+				CurChild.GetWidget()->GetDesiredSize()
+			));
+
+			ValidChildIndex++;
+		}
+		OrbitIndex++;
 	}
+
+	// Draw planet
+	const SFlarePlanetaryBox::FSlot& MainChild = Children[0];
+	ArrangedChildren.AddWidget(MainChild.GetWidget()->GetVisibility(), AllottedGeometry.MakeChild(
+		MainChild.GetWidget(),
+		(AllottedGeometry.GetLocalSize() - MainChild.GetWidget()->GetDesiredSize()) / 2,
+		MainChild.GetWidget()->GetDesiredSize()
+	));
 }
 
 struct SFlareOrbitSegment
@@ -138,69 +182,77 @@ int32 SFlarePlanetaryBox::OnPaint(
 	bool bParentEnabled) const
 {
 	// Parameters
-	float ExclusionHalfAngleTitle = 20;
-	float ExclusionHalfAngleNormal = 10;
+	float ExclusionHalfAngleTitle = 25;
+	float ExclusionHalfAngleNormal = 15;
 	FLinearColor Color = FLinearColor::White;
 	Color.A = 0.15f;
 
-	// Get all altitudes
-	TArray<float> Altitudes;
-	for (int32 ChildIndex = 1; ChildIndex < Children.Num(); ChildIndex++)
+	// Iterate on orbits
+	int OrbitIndex = 0;
+	TMap<float, int> AltitudeStats = GetAltitudeStats();
+	for (TPair<float, int> AltitudeData : AltitudeStats)
 	{
-		Altitudes.AddUnique(Children[ChildIndex].OrbitAltitude.Get());
-	}
+		TArray<SFlareOrbitSegment> Segments;
+		float AltitudeRadius = Radius + RadiusIncrement * (OrbitIndex - AltitudeStats.Num() / 2);
 
-	// Generate exclusion segments (segments where no orbit is drawn) and draw between them
-	TArray<SFlareOrbitSegment> Segments;
-	for (int32 ChildIndex = 1; ChildIndex < Children.Num(); ChildIndex++)
-	{
-		float Angle = (360 / (Children.Num() - 1)) * (ChildIndex - 1) - 90;
-		float ExclusionHalfAngle = (ChildIndex == 1) ? ExclusionHalfAngleTitle : ExclusionHalfAngleNormal;
-		Segments.Add(GenerateExclusionSegment(Radius, Angle, ExclusionHalfAngle));
-	}
-
-	// Fill missing segments to get circle-looking ellipses
-	if (Segments.Num() == 0)
-	{
-		Segments.Add(GenerateExclusionSegment(Radius, 270));
-	}
-	if (Segments.Num() == 1)
-	{
-		Segments.Add(GenerateExclusionSegment(Radius, 90));
-	}
-	if (Segments.Num() <= 2)
-	{
-		Segments.Insert(GenerateExclusionSegment(Radius, 0), 1);
-		Segments.Add(GenerateExclusionSegment(Radius, 180));
-	}
-
-	// Draw orbit segments between excluded segments
-	for (int32 CurrentIndex = 0; CurrentIndex < Segments.Num(); CurrentIndex++)
-	{
-		int NextIndex = (CurrentIndex + 1) % Segments.Num();
-		FVector2D CircleCenter = AllottedGeometry.GetLocalSize() / 2;
-
-		// Generate tangent length from angle delta
-		float ArcDelta = Segments[NextIndex].CenterAngle - Segments[CurrentIndex].CenterAngle;
-		float ExclusionDelta = Segments[CurrentIndex].ExclusionHalfAngle + Segments[NextIndex].ExclusionHalfAngle;
-		float ArcLength = (PI / 2) * (ArcDelta - ExclusionDelta) / 90;
-		if (CurrentIndex == Segments.Num() - 1)
+		// Generate exclusion segments (segments where no orbit is drawn) and draw between them
+		int ValidChildIndex = 0;
+		for (int32 ChildIndex = 1; ChildIndex < Children.Num(); ChildIndex++)
 		{
-			ArcLength += 2 * PI;
+			float Angle = (360 / AltitudeData.Value) * ValidChildIndex - 90;
+			float ExclusionHalfAngle = (ChildIndex == 1) ? ExclusionHalfAngleTitle : ExclusionHalfAngleNormal;
+
+			if (Children[ChildIndex].OrbitAltitude.Get() == AltitudeData.Key)
+			{
+				Segments.Add(GenerateExclusionSegment(AltitudeRadius, Angle, ExclusionHalfAngle));
+				ValidChildIndex++;
+			}
+		}
+		OrbitIndex++;
+
+		// Fill missing segments to get circle-looking ellipses
+		if (Segments.Num() == 0)
+		{
+			Segments.Add(GenerateExclusionSegment(AltitudeRadius, 270));
+		}
+		if (Segments.Num() == 1)
+		{
+			Segments.Add(GenerateExclusionSegment(AltitudeRadius, 90));
+		}
+		if (Segments.Num() <= 2)
+		{
+			Segments.Insert(GenerateExclusionSegment(AltitudeRadius, 0), 1);
+			Segments.Add(GenerateExclusionSegment(AltitudeRadius, 180));
 		}
 
-		// Draw
-		FSlateDrawElement::MakeSpline(
-			OutDrawElements,
-			LayerId,
-			AllottedGeometry.ToPaintGeometry(),
-			CircleCenter + Segments[CurrentIndex].End,
-			ArcLength * Segments[CurrentIndex].EndTangent,
-			CircleCenter + Segments[NextIndex].Start,
-			ArcLength * Segments[NextIndex].StartTangent,
-			1,
-			ESlateDrawEffect::None,
-			Color);
+		// Draw orbit segments between excluded segments
+		for (int32 CurrentIndex = 0; CurrentIndex < Segments.Num(); CurrentIndex++)
+		{
+			int NextIndex = (CurrentIndex + 1) % Segments.Num();
+			FVector2D CircleCenter = AllottedGeometry.GetLocalSize() / 2;
+
+			// Generate tangent length from angle delta
+			float ArcDelta = Segments[NextIndex].CenterAngle - Segments[CurrentIndex].CenterAngle;
+			float ExclusionDelta = Segments[CurrentIndex].ExclusionHalfAngle + Segments[NextIndex].ExclusionHalfAngle;
+			float ArcLength = (PI / 2) * (ArcDelta - ExclusionDelta) / 90;
+			if (CurrentIndex == Segments.Num() - 1)
+			{
+				ArcLength += 2 * PI;
+			}
+
+			// Draw
+			FSlateDrawElement::MakeSpline(
+				OutDrawElements,
+				LayerId,
+				AllottedGeometry.ToPaintGeometry(),
+				CircleCenter + Segments[CurrentIndex].End,
+				ArcLength * Segments[CurrentIndex].EndTangent,
+				CircleCenter + Segments[NextIndex].Start,
+				ArcLength * Segments[NextIndex].StartTangent,
+				1,
+				ESlateDrawEffect::None,
+				Color);
+		}
 	}
 
 	return SPanel::OnPaint(Args, AllottedGeometry, MyClippingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
@@ -208,6 +260,16 @@ int32 SFlarePlanetaryBox::OnPaint(
 
 FVector2D SFlarePlanetaryBox::ComputeDesiredSize(float) const
 {
-	return FVector2D(2.6 * Radius, 2.8 * Radius);
+	TMap<float, int> AltitudeStats = GetAltitudeStats();
+
+	// Small hack to make Nema less humongous
+	int AltitudeCount = GetAltitudeStats().Num();
+	if (AltitudeCount > 1)
+	{
+		AltitudeCount -= 1;
+	}
+
+	float AltitudeRadius = Radius + RadiusIncrement * AltitudeCount;
+	return FVector2D(2.5 * Radius, 2.5 * AltitudeRadius);
 }
 

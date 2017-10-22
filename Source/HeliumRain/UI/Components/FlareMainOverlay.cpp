@@ -148,6 +148,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 	AddMenuLink(EFlareMenu::MENU_Ship);
 	AddMenuLink(EFlareMenu::MENU_Sector);
 	AddMenuLink(EFlareMenu::MENU_Orbit);
+	AddMenuLink(EFlareMenu::MENU_WorldEconomy);
 	AddMenuLink(EFlareMenu::MENU_Company);
 	AddMenuLink(EFlareMenu::MENU_Fleet);
 	AddMenuLink(EFlareMenu::MENU_Leaderboard);
@@ -535,7 +536,15 @@ const FSlateBrush* SFlareMainOverlay::GetCloseIcon() const
 
 FText SFlareMainOverlay::GetMenuKey(EFlareMenu::Type Menu) const
 {
-	return FText::Format(LOCTEXT("MenuKeyFormat", "<{0}>"), FText::FromString(AFlareMenuManager::GetMenuKey(Menu)));
+	FString Key = AFlareMenuManager::GetMenuKey(Menu);
+	if (Key.Len())
+	{
+		return FText::Format(LOCTEXT("MenuKeyFormat", "<{0}>"), FText::FromString(Key));
+	}
+	else
+	{
+		return FText();
+	}
 }
 
 FText SFlareMainOverlay::GetCurrentMenuName() const

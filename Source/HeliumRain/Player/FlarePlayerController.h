@@ -257,6 +257,7 @@ public:
 	void ShipMenu();
 	void SectorMenu();
 	void OrbitMenu();
+	void EconomyMenu();
 	void LeaderboardMenu();
 	void CompanyMenu();
 	void FleetMenu();

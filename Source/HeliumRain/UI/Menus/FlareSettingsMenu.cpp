@@ -2397,6 +2397,8 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open orbital map", "Open orbital map")))
 		->AddActionMapping("OrbitMenu")
 		->AddDefaults(EKeys::F3)));
+	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open economy menu", "Open economy menu")))
+		->AddActionMapping("EconomyMenu")));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open company menu", "Open company menu")))
 		->AddActionMapping("CompanyMenu")
 		->AddDefaults(EKeys::F4)));
