@@ -96,7 +96,7 @@ void SFlareTradeRouteInfo::UpdateTradeRouteList()
 		TradeRouteList->AddSlot()
 		.AutoHeight()
 		.HAlign(HAlign_Right)
-		.Padding(Theme.SmallContentPadding)
+		.Padding(Theme.ContentPadding)
 		[
 			SNew(SVerticalBox)
 
