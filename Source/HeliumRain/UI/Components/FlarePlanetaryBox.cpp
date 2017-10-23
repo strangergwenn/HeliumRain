@@ -270,6 +270,6 @@ FVector2D SFlarePlanetaryBox::ComputeDesiredSize(float) const
 	}
 
 	float AltitudeRadius = Radius + RadiusIncrement * AltitudeCount;
-	return FVector2D(2.5 * Radius, 2.5 * AltitudeRadius);
+	return FVector2D(2.8 * Radius, 2.8 * AltitudeRadius);
 }
 

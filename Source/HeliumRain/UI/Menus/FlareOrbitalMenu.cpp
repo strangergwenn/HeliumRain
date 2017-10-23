@@ -211,15 +211,6 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
-				// Nema
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.HAlign(HAlign_Fill)
-				.VAlign(VAlign_Top)
-				[
-					SAssignNew(NemaBox, SFlarePlanetaryBox)
-				]
-
 				// Moons 1
 				+ SHorizontalBox::Slot()
 				.HAlign(HAlign_Fill)
@@ -240,6 +231,15 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					[
 						SAssignNew(HelaBox, SFlarePlanetaryBox)
 					]
+				]
+
+				// Nema
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Top)
+				[
+					SAssignNew(NemaBox, SFlarePlanetaryBox)
 				]
 			
 				// Moons 2
