@@ -28,6 +28,8 @@ public:
 
 		TAttribute<float> OrbitAltitude;
 
+		TAttribute<float> OrbitalPhase;
+
 	public:
 
 		/** Default values for a slot */
@@ -39,6 +41,7 @@ public:
 			, SlotPadding(FMargin(0))
 			, MaxSize(0.0f)
 			, OrbitAltitude(0)
+			, OrbitalPhase(0)
 		{ }
 
 		FSlot& AutoWidth()
@@ -56,6 +59,12 @@ public:
 		FSlot& Altitude(float InAltitude)
 		{
 			OrbitAltitude = InAltitude;
+			return *this;
+		}
+
+		FSlot& Phase(float InPhase)
+		{
+			OrbitalPhase = InPhase;
 			return *this;
 		}
 

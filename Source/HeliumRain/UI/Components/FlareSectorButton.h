@@ -49,6 +49,9 @@ protected:
 	virtual void OnMouseLeave(const FPointerEvent& MouseEvent) override;
 
 	/** Get the text to display */
+	FText GetSectorTitle() const;
+
+	/** Get the text to display */
 	FText GetSectorText() const;
 
 	/** Brush callback */

@@ -116,7 +116,7 @@ void SFlarePlanetaryBox::OnArrangeChildren(const FGeometry& AllottedGeometry, FA
 			// Convert coordinates
 			FMath::PolarToCartesian(AltitudeRadius, FMath::DegreesToRadians(Angle), X, Y);
 			FVector2D Offset = FVector2D(X, Y);
-			FVector2D WidgetSize = FVector2D(CurChild.GetWidget()->GetDesiredSize().X, Theme.SectorButtonHeight);
+			FVector2D WidgetSize = FVector2D(CurChild.GetWidget()->GetDesiredSize().X, CurChild.GetWidget()->GetDesiredSize().Y);
 			
 			// Arrange the child
 			FVector2D Location = (AllottedGeometry.GetLocalSize() - WidgetSize) / 2 + Offset;
@@ -185,7 +185,7 @@ int32 SFlarePlanetaryBox::OnPaint(
 	float ExclusionHalfAngleTitle = 25;
 	float ExclusionHalfAngleNormal = 15;
 	FLinearColor Color = FLinearColor::White;
-	Color.A = 0.15f;
+	Color.A = 0.3f;
 
 	// Iterate on orbits
 	int OrbitIndex = 0;
@@ -250,7 +250,7 @@ int32 SFlarePlanetaryBox::OnPaint(
 				CircleCenter + Segments[NextIndex].Start,
 				ArcLength * Segments[NextIndex].StartTangent,
 				1,
-				ESlateDrawEffect::None,
+				ESlateDrawEffect::NoPixelSnapping,
 				Color);
 		}
 	}

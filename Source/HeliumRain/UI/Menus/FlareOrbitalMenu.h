@@ -9,6 +9,17 @@
 class AFlareMenuManager;
 
 
+UENUM()
+namespace EFlareOrbitalMode
+{
+	enum Type
+	{
+		Stations,
+		Ships,
+		Battles
+	};
+}
+
 class SFlareOrbitalMenu : public SCompoundWidget
 {
 	/*----------------------------------------------------
@@ -46,6 +57,12 @@ public:
 	/** A notification was received, stop */
 	void RequestStopFastForward();
 
+	/** Get the display mode */
+	EFlareOrbitalMode::Type GetDisplayMode() const;
+
+	/** Is this mode the current one */
+	bool IsCurrentDisplayMode(EFlareOrbitalMode::Type Mode) const;
+
 	virtual void Tick( const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime ) override;
 
 
@@ -65,7 +82,7 @@ protected:
 	/*----------------------------------------------------
 		Content callbacks
 	----------------------------------------------------*/
-		
+
 	/** Get the text for the fast-forward feature */
 	FText GetFastForwardText() const;
 
@@ -91,7 +108,10 @@ protected:
 	/*----------------------------------------------------
 		Action callbacks
 	----------------------------------------------------*/
-		
+
+	/** Set the display mode */
+	void SetDisplayMode(EFlareOrbitalMode::Type Mode);
+
 	/** Open a sector */
 	void OnOpenSector(TSharedPtr<int32> Index);
 	
@@ -123,6 +143,8 @@ protected:
 	bool                                        FastForwardStopRequested;
 	float                                       FastForwardPeriod;
 	float                                       TimeSinceFastForward;
+
+	TEnumAsByte<EFlareOrbitalMode::Type>        DisplayMode;
 
 	// Components
 	TSharedPtr<SFlarePlanetaryBox>              NemaBox;

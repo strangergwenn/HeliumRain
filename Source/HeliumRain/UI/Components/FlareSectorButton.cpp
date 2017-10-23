@@ -8,6 +8,8 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
+#include "../Menus/FlareOrbitalMenu.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareSectorButton"
 
@@ -20,6 +22,8 @@ void SFlareSectorButton::Construct(const FArguments& InArgs)
 {
 	// Setup
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FLinearColor Color = FLinearColor::White;
+	Color.A = 0.85f;
 
 	// Arguments
 	OnClicked = InArgs._OnClicked;
@@ -30,50 +34,69 @@ void SFlareSectorButton::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Top)
 	.HAlign(HAlign_Center)
 	[
-		SNew(SVerticalBox)
-
-		// Container
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Center)
+		SNew(SBorder)
+		.BorderImage(FFlareStyleSet::GetIcon("LargeButtonBackground"))
+		.BorderBackgroundColor(Color)
+		.Padding(FMargin(25))
 		[
-			// Image box
-			SNew(SBox)
-			.WidthOverride(Theme.SectorButtonWidth)
-			.HeightOverride(Theme.SectorButtonHeight)
+			SNew(SVerticalBox)
+
+			// Button text 1
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.SectorButtonTextPadding)
 			[
-				// Button (behaviour only, no display)
-				SNew(SButton)
-				.OnClicked(this, &SFlareSectorButton::OnButtonClicked)
-				.ContentPadding(FMargin(0))
-				.ButtonStyle(FCoreStyle::Get(), "NoBorder")
+				SAssignNew(TextBlock, STextBlock)
+				.Text(this, &SFlareSectorButton::GetSectorTitle)
+				.WrapTextAt(3 * Theme.SectorButtonWidth)
+				.TextStyle(&Theme.TextFont)
+				.Justification(ETextJustify::Center)
+				.ShadowColorAndOpacity(this, &SFlareSectorButton::GetShadowColor)
+			]
+
+			// Container
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Center)
+			[
+				// Image box
+				SNew(SBox)
+				.WidthOverride(Theme.SectorButtonWidth)
+				.HeightOverride(Theme.SectorButtonHeight)
 				[
-					// Background
-					SNew(SBorder)
-					.Padding(Theme.SectorButtonPadding)
-					.BorderImage(&Theme.SectorButtonBorder)
-					.BorderBackgroundColor(this, &SFlareSectorButton::GetBorderColor)
+					// Button (behavior only, no display)
+					SNew(SButton)
+					.OnClicked(this, &SFlareSectorButton::OnButtonClicked)
+					.ContentPadding(FMargin(0))
+					.ButtonStyle(FCoreStyle::Get(), "NoBorder")
 					[
-						// Icon
-						SNew(SImage)
-						.Image(this, &SFlareSectorButton::GetBackgroundBrush)
-						.ColorAndOpacity(this, &SFlareSectorButton::GetMainColor)
+						// Background
+						SNew(SBorder)
+						.Padding(Theme.SectorButtonPadding)
+						.BorderImage(&Theme.SectorButtonBorder)
+						.BorderBackgroundColor(this, &SFlareSectorButton::GetBorderColor)
+						[
+							// Icon
+							SNew(SImage)
+							.Image(this, &SFlareSectorButton::GetBackgroundBrush)
+							.ColorAndOpacity(this, &SFlareSectorButton::GetMainColor)
+						]
 					]
 				]
 			]
-		]
 
-		// Button text
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.Padding(Theme.SectorButtonTextPadding)
-		[
-			SAssignNew(TextBlock, STextBlock)
-			.Text(this, &SFlareSectorButton::GetSectorText)
-			.WrapTextAt(3 * Theme.SectorButtonWidth)
-			.TextStyle(&Theme.SmallFont)
-			.Justification(ETextJustify::Center)
-			.ShadowColorAndOpacity(this, &SFlareSectorButton::GetShadowColor)
+			// Button text 2
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.SectorButtonTextPadding)
+			[
+				SAssignNew(TextBlock, STextBlock)
+				.Text(this, &SFlareSectorButton::GetSectorText)
+				.WrapTextAt(3 * Theme.SectorButtonWidth)
+				.TextStyle(&Theme.SmallFont)
+				.Justification(ETextJustify::Center)
+				.ShadowColorAndOpacity(this, &SFlareSectorButton::GetShadowColor)
+			]
 		]
 	];
 }
@@ -107,39 +130,52 @@ void SFlareSectorButton::OnMouseLeave(const FPointerEvent& MouseEvent)
 	}
 }
 
-FText SFlareSectorButton::GetSectorText() const
+FText SFlareSectorButton::GetSectorTitle() const
 {
-	FText SectorText;
-	FText BattleStatusText;
-	
 	if (Sector)
 	{
-		FText SectorTitle = Sector->GetSectorName();
-		FText ShipText;
-		FText StationText;
-
-		if (PlayerCompany->HasVisitedSector(Sector))
-		{
-			if (Sector->GetSectorStations().Num() > 0)
-			{
-				StationText = Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", "{0} station") : LOCTEXT("Stations", "{0} stations");
-				StationText = FText::Format(StationText, FText::AsNumber(Sector->GetSectorStations().Num()));
-			}
-
-			if (Sector->GetSectorShips().Num() > 0)
-			{
-				FText CommaText = (Sector->GetSectorStations().Num() > 0) ? LOCTEXT("Return", "\n") : FText();
-				ShipText = Sector->GetSectorShips().Num() == 1 ? LOCTEXT("Ship", "{0} {1} ship") : LOCTEXT("Ships", "{0} {1} ships");
-				ShipText = FText::Format(ShipText, CommaText, FText::AsNumber(Sector->GetSectorShips().Num()));
-			}
-
-			BattleStatusText = Sector->GetSectorBattleStateText(PlayerCompany);
-		}
-
-		SectorText = FText::Format(LOCTEXT("SectorTextFormat", "{0}\n{1}{2}\n{3}"), SectorTitle, StationText, ShipText, BattleStatusText);
+		return Sector->GetSectorName();
 	}
 
-	return SectorText;
+	return FText();
+}
+
+FText SFlareSectorButton::GetSectorText() const
+{
+	// Get display mode
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+	EFlareOrbitalMode::Type DisplayMode = EFlareOrbitalMode::Stations;
+	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Orbit)
+	{
+		DisplayMode = MenuManager->GetOrbitMenu()->GetDisplayMode();
+	}
+
+	// If the sector is known, display it
+	if (Sector && PlayerCompany->HasVisitedSector(Sector))
+	{
+		FText SectorText;
+
+		if (DisplayMode == EFlareOrbitalMode::Stations && Sector->GetSectorStations().Num() > 0)
+		{
+			SectorText = Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", "{0} station") : LOCTEXT("Stations", "{0} stations");
+			SectorText = FText::Format(SectorText, FText::AsNumber(Sector->GetSectorStations().Num()));
+		}
+
+		else if (DisplayMode == EFlareOrbitalMode::Ships && Sector->GetSectorShips().Num() > 0)
+		{
+			SectorText = Sector->GetSectorShips().Num() == 1 ? LOCTEXT("Ship", "{0} ship") : LOCTEXT("Ships", "{0} ships");
+			SectorText = FText::Format(SectorText, FText::AsNumber(Sector->GetSectorShips().Num()));
+		}
+
+		else if (DisplayMode == EFlareOrbitalMode::Battles)
+		{
+			SectorText = Sector->GetSectorBattleStateText(PlayerCompany);
+		}
+
+		return SectorText;
+	}
+
+	return FText();
 }
 
 const FSlateBrush* SFlareSectorButton::GetBackgroundBrush() const
