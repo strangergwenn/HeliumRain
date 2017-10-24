@@ -55,6 +55,7 @@ void SFlarePlanetaryBox::ClearChildren()
 		AddSlot()
 			[
 				SNew(SImage).Image(PlanetImage)
+				.Visibility(EVisibility::HitTestInvisible)
 			];
 	}
 }
