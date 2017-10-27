@@ -306,7 +306,7 @@ void AFlareMenuPawn::SetSlideDirection(bool GoUp)
 
 void AFlareMenuPawn::UseLightBackground()
 {
-	UpdateBackgroundColor(0.95, 0.05);
+	UpdateBackgroundColor(0.85, 0.05);
 }
 
 void AFlareMenuPawn::UseDarkBackground()
