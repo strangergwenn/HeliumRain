@@ -71,7 +71,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SImage)
 						.Image(&Theme.InvertedBrush)
-						.ColorAndOpacity(Theme.EnemyColor)
+						.ColorAndOpacity(Theme.ObjectiveColor)
 					]
 				]
 
@@ -84,10 +84,26 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 					.BorderImage(this, &SFlareMainMenu::GetBackgroundBrush)
 					.Padding(Theme.ContentPadding)
 					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("EarlyAccess", "Helium Rain is in early access ! We're looking for your feedback to fix bugs and improve the game.\nPlease report issues or feature requests at dev.helium-rain.com. We'll track discussions on Steam Community too !"))
-						.TextStyle(&Theme.NameFont)
-						.Justification(ETextJustify::Center)
+						SNew(SVerticalBox)
+												
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("EarlyAccessTitle", "Tell us what you think !"))
+							.TextStyle(&Theme.SubTitleFont)
+							.Justification(ETextJustify::Center)
+						]
+
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						[
+							SNew(STextBlock)
+							.WrapTextAt(1.5 * Theme.ContentWidth)
+							.Text(LOCTEXT("EarlyAccess", "Helium Rain is in early access and will get better with your feedback. Tell us what you like or dislike ! \nYou can report issues on the Steam discussions, or directly to us at dev.helium-rain.com. We promise we'll listen. \nThank you !"))
+							.TextStyle(&Theme.NameFont)
+							.Justification(ETextJustify::Center)
+						]
 					]
 				]
 
@@ -100,7 +116,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SImage)
 						.Image(&Theme.InvertedBrush)
-						.ColorAndOpacity(Theme.EnemyColor)
+						.ColorAndOpacity(Theme.ObjectiveColor)
 					]
 				]
 			]
