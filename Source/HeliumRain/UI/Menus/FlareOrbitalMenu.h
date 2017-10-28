@@ -14,6 +14,7 @@ namespace EFlareOrbitalMode
 {
 	enum Type
 	{
+		Fleets,
 		Stations,
 		Ships,
 		Battles

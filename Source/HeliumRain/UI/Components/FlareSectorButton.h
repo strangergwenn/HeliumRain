@@ -35,6 +35,8 @@ public:
 	/** Create the widget */
 	void Construct(const FArguments& InArgs);
 
+	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+
 
 protected:
 
@@ -47,6 +49,12 @@ protected:
 
 	/** Mouse left (tooltip) */
 	virtual void OnMouseLeave(const FPointerEvent& MouseEvent) override;
+
+	/** Should we display fleets */
+	bool ShouldDisplayFleets() const;
+
+	/** Get the visibility of text */
+	EVisibility GetBottomTextVisibility() const;
 
 	/** Get the text to display */
 	FText GetSectorTitle() const;
@@ -83,6 +91,7 @@ protected:
 
 	// Slate data
 	TSharedPtr<STextBlock>         TextBlock;
+	TSharedPtr<SHorizontalBox>     FleetBox;
 
 
 };

@@ -2,6 +2,10 @@
 #include "FlareSectorButton.h"
 #include "../../Flare.h"
 
+#include "../../Game/FlareGame.h"
+#include "../../Game/FlareGameTools.h"
+#include "../../Game/FlareWorld.h"
+#include "../../Game/FlareTravel.h"
 #include "../../Game/FlareCompany.h"
 #include "../../Game/FlareSimulatedSector.h"
 
@@ -41,7 +45,7 @@ void SFlareSectorButton::Construct(const FArguments& InArgs)
 		[
 			SNew(SVerticalBox)
 
-			// Button text 1
+			// Upper line
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.Padding(Theme.SectorButtonTextPadding)
@@ -54,7 +58,7 @@ void SFlareSectorButton::Construct(const FArguments& InArgs)
 				.ShadowColorAndOpacity(this, &SFlareSectorButton::GetShadowColor)
 			]
 
-			// Container
+			// Main
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.HAlign(HAlign_Center)
@@ -85,22 +89,115 @@ void SFlareSectorButton::Construct(const FArguments& InArgs)
 				]
 			]
 
-			// Button text 2
+			// Lower line
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			.Padding(Theme.SectorButtonTextPadding)
 			[
-				SAssignNew(TextBlock, STextBlock)
-				.Text(this, &SFlareSectorButton::GetSectorText)
-				.WrapTextAt(3 * Theme.SectorButtonWidth)
-				.TextStyle(&Theme.SmallFont)
-				.Justification(ETextJustify::Center)
-				.ShadowColorAndOpacity(this, &SFlareSectorButton::GetShadowColor)
+				SNew(SVerticalBox)
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Center)
+				[
+					SAssignNew(FleetBox, SHorizontalBox)
+				]
+
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SAssignNew(TextBlock, STextBlock)
+					.Text(this, &SFlareSectorButton::GetSectorText)
+					.WrapTextAt(3 * Theme.SectorButtonWidth)
+					.TextStyle(&Theme.SmallFont)
+					.Justification(ETextJustify::Center)
+					.ShadowColorAndOpacity(this, &SFlareSectorButton::GetShadowColor)
+					.Visibility(this, &SFlareSectorButton::GetBottomTextVisibility)
+				]
 			]
 		]
 	];
 }
 
+void SFlareSectorButton::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
+{
+	// Tick parent
+	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	// Get display mode
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+	EFlareOrbitalMode::Type DisplayMode = EFlareOrbitalMode::Stations;
+	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Orbit)
+	{
+		DisplayMode = MenuManager->GetOrbitMenu()->GetDisplayMode();
+	}
+
+	// Draw fleet info
+	FleetBox->ClearChildren();
+	if (Sector && DisplayMode == EFlareOrbitalMode::Fleets)
+	{
+		// Get local fleets
+		for (UFlareFleet* Fleet : Sector->GetSectorFleets())
+		{
+			if (Fleet->GetFleetCompany()->IsPlayerCompany())
+			{
+				FLinearColor FleetColor = Fleet->GetFleetColor();
+
+				FleetBox->AddSlot()
+				.AutoWidth()
+				[
+					SNew(SVerticalBox)
+
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Center)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("Fleet_Small"))
+						.ColorAndOpacity(FleetColor)
+					]
+				];
+			}
+		}
+
+		// Get incoming fleets
+		for (UFlareTravel* Travel : MenuManager->GetGame()->GetGameWorld()->GetTravels())
+		{
+			if (Travel->GetFleet()->GetFleetCompany()->IsPlayerCompany() && Sector == Travel->GetDestinationSector())
+			{
+				FLinearColor FleetColor = Travel->GetFleet()->GetFleetColor();
+				FText DateText = UFlareGameTools::FormatDate(Travel->GetRemainingTravelDuration(), 1);
+				FleetColor.A = 0.5f;
+
+				FleetBox->AddSlot()
+				.AutoWidth()
+				[
+					SNew(SVerticalBox)
+
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Center)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("Fleet_Small"))
+						.ColorAndOpacity(FleetColor)
+					]
+
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(STextBlock)
+						.Text(DateText)
+						.TextStyle(&Theme.SmallFont)
+					]
+				];
+			}
+		}
+
+		SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
+	}
+}
 
 /*----------------------------------------------------
 	Callbacks
@@ -113,9 +210,35 @@ void SFlareSectorButton::OnMouseEnter(const FGeometry& MyGeometry, const FPointe
 	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
 	if (MenuManager && Sector)
 	{
-		FText Status = Sector->GetSectorFriendlynessText(PlayerCompany);
-		FText SectorNameText = FText::Format(LOCTEXT("SectorNameFormat", "{0} ({1})"), Sector->GetSectorName(), Status);
-		MenuManager->ShowTooltip(this, SectorNameText, Sector->GetSectorDescription());
+		FText SectorStatus = Sector->GetSectorFriendlynessText(PlayerCompany);
+		FText SectorNameText = FText::Format(LOCTEXT("SectorNameFormat", "{0} ({1})"), Sector->GetSectorName(), SectorStatus);
+		FText SectorInfoText = Sector->GetSectorDescription();
+
+		// Get local fleets
+		for (UFlareFleet* Fleet : Sector->GetSectorFleets())
+		{
+			if (Fleet->GetFleetCompany()->IsPlayerCompany())
+			{
+				SectorInfoText = FText::Format(LOCTEXT("SectorInfoFleetLocalFormat", "{0}\n\u2022 Your fleet {1} is here."),
+					SectorInfoText,
+					Fleet->GetFleetName());
+			}
+		}
+
+		// Get incoming fleets
+		for (UFlareTravel* Travel : MenuManager->GetGame()->GetGameWorld()->GetTravels())
+		{
+			if (Travel->GetFleet()->GetFleetCompany()->IsPlayerCompany() && Sector == Travel->GetDestinationSector())
+			{
+				FText DateText = UFlareGameTools::FormatDate(Travel->GetRemainingTravelDuration(), 1);
+				SectorInfoText = FText::Format(LOCTEXT("SectorInfoFleetTravelFormat", "{0}\n\u2022 Your fleet {1} will arrive in {2}."),
+					SectorInfoText,
+					Travel->GetFleet()->GetFleetName(),
+					DateText);
+			}
+		}
+
+		MenuManager->ShowTooltip(this, SectorNameText, SectorInfoText);
 	}
 }
 
@@ -127,6 +250,37 @@ void SFlareSectorButton::OnMouseLeave(const FPointerEvent& MouseEvent)
 	if (MenuManager)
 	{
 		MenuManager->HideTooltip(this);
+	}
+}
+
+bool SFlareSectorButton::ShouldDisplayFleets() const
+{
+	AFlareMenuManager* MenuManager = AFlareMenuManager::GetSingleton();
+	EFlareOrbitalMode::Type DisplayMode = EFlareOrbitalMode::Stations;
+	if (MenuManager->GetCurrentMenu() == EFlareMenu::MENU_Orbit)
+	{
+		DisplayMode = MenuManager->GetOrbitMenu()->GetDisplayMode();
+	}
+
+	if (DisplayMode == EFlareOrbitalMode::Fleets)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+EVisibility SFlareSectorButton::GetBottomTextVisibility() const
+{
+	if (ShouldDisplayFleets())
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
 	}
 }
 
@@ -155,7 +309,11 @@ FText SFlareSectorButton::GetSectorText() const
 	{
 		FText SectorText;
 
-		if (DisplayMode == EFlareOrbitalMode::Stations && Sector->GetSectorStations().Num() > 0)
+		if (DisplayMode == EFlareOrbitalMode::Fleets)
+		{
+		}
+
+		else if (DisplayMode == EFlareOrbitalMode::Stations && Sector->GetSectorStations().Num() > 0)
 		{
 			SectorText = Sector->GetSectorStations().Num() == 1 ? LOCTEXT("Station", "{0} station") : LOCTEXT("Stations", "{0} stations");
 			SectorText = FText::Format(SectorText, FText::AsNumber(Sector->GetSectorStations().Num()));

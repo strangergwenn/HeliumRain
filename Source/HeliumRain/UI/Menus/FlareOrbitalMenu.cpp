@@ -97,6 +97,17 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					[
 						SNew(SFlareButton)
 						.Width(3)
+						.Text(LOCTEXT("DisplayModeFleets", "Fleets"))
+						.HelpText(LOCTEXT("DisplayModeFleetsInfo", "Display fleets on the map"))
+						.OnClicked(this, &SFlareOrbitalMenu::SetDisplayMode, EFlareOrbitalMode::Fleets)
+						.IsDisabled(this, &SFlareOrbitalMenu::IsCurrentDisplayMode, EFlareOrbitalMode::Fleets)
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SFlareButton)
+						.Width(3)
 						.Text(LOCTEXT("DisplayModeStations", "Stations"))
 						.HelpText(LOCTEXT("DisplayModeStationsInfo", "Display stations on the map"))
 						.OnClicked(this, &SFlareOrbitalMenu::SetDisplayMode, EFlareOrbitalMode::Stations)
@@ -285,7 +296,7 @@ void SFlareOrbitalMenu::Enter()
 	
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-	DisplayMode = EFlareOrbitalMode::Stations;
+	DisplayMode = EFlareOrbitalMode::Fleets;
 
 	// Update stuff
 	StopFastForward();
