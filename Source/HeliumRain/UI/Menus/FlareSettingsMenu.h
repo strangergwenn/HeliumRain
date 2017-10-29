@@ -118,6 +118,8 @@ protected:
 	TSharedRef<SWidget> OnGenerateJoystickComboLine(TSharedPtr<FKey> Item, FName AxisName);
 	void OnJoystickComboLineSelectionChanged(TSharedPtr<FKey> KeyItem, ESelectInfo::Type SelectInfo, FName AxisName);
 	void OnInvertAxisClicked(FName AxisName);
+	void OnUnbindAxisClicked(FName AxisName);
+	bool IsAxisControlsDisabled(FName AxisName) const;
 
 	// FOV
 	void OnFOVSliderChanged(float Value);

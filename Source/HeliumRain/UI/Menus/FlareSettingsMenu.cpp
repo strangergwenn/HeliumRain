@@ -1287,7 +1287,7 @@ TSharedRef<SWidget> SFlareSettingsMenu::BuildJoystickBindingBox()
 	.HAlign(HAlign_Left)
 	[
 		SNew(SBox)
-		.WidthOverride(Theme.ContentWidth)
+		.WidthOverride(1.5 * Theme.ContentWidth)
 		.HAlign(HAlign_Fill)
 		[
 			SAssignNew(JoystickBindingsBox, SVerticalBox)
@@ -1343,12 +1343,12 @@ void SFlareSettingsMenu::BuildJoystickBinding(FText AxisDisplayName, FName AxisN
 			.OnSelectionChanged(this, &SFlareSettingsMenu::OnJoystickComboLineSelectionChanged, AxisName)
 			.ComboBoxStyle(&Theme.ComboBoxStyle)
 			.ForegroundColor(FLinearColor::White)
-				[
-					SNew(STextBlock)
-					.Text(this, &SFlareSettingsMenu::OnGetCurrentJoystickKeyName, AxisName)
-					.TextStyle(&Theme.TextFont)
-				]
+			[
+				SNew(STextBlock)
+				.Text(this, &SFlareSettingsMenu::OnGetCurrentJoystickKeyName, AxisName)
+				.TextStyle(&Theme.TextFont)
 			]
+		]
 
 		// Inversion switch
 		+ SHorizontalBox::Slot()
@@ -1357,10 +1357,25 @@ void SFlareSettingsMenu::BuildJoystickBinding(FText AxisDisplayName, FName AxisN
 		.Padding(Theme.SmallContentPadding)
 		[
 			SNew(SFlareButton)
-			.Width(2)
+			.Width(3)
 			.Text(LOCTEXT("InvertAxisDirection", "Invert"))
 			.HelpText(LOCTEXT("InvertAxisDirectionInfo", "Toggle the axis inversion to reverse the joystick axis."))
 			.OnClicked(this, &SFlareSettingsMenu::OnInvertAxisClicked, AxisName)
+			.IsDisabled(this, &SFlareSettingsMenu::IsAxisControlsDisabled, AxisName)
+		]
+
+		// Unbind
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Right)
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(SFlareButton)
+			.Width(3)
+			.Text(LOCTEXT("UnbindAxis", "Unbind"))
+			.HelpText(LOCTEXT("UnbindAxisInfo", "Remove this control binding."))
+			.OnClicked(this, &SFlareSettingsMenu::OnUnbindAxisClicked, AxisName)
+			.IsDisabled(this, &SFlareSettingsMenu::IsAxisControlsDisabled, AxisName)
 		]
 	];
 }
@@ -2018,6 +2033,33 @@ void SFlareSettingsMenu::OnInvertAxisClicked(FName AxisName)
 	}
 
 	InputSettings->SaveKeyMappings();
+}
+
+void SFlareSettingsMenu::OnUnbindAxisClicked(FName AxisName)
+{
+	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+	for (int i = 0; i < InputSettings->AxisMappings.Num(); i++)
+	{
+		if (InputSettings->AxisMappings[i].AxisName == AxisName && i != InputSettings->AxisMappings.Num() - 1)
+		{
+			FInputAxisKeyMapping Bind = InputSettings->AxisMappings[i];
+			InputSettings->RemoveAxisMapping(Bind);
+		}
+	}
+}
+
+bool SFlareSettingsMenu::IsAxisControlsDisabled(FName AxisName) const
+{
+	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
+	for (int i = 0; i < InputSettings->AxisMappings.Num(); i++)
+	{
+		if (InputSettings->AxisMappings[i].AxisName == AxisName && i != InputSettings->AxisMappings.Num() - 1)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 void SFlareSettingsMenu::OnRotationDeadZoneSliderChanged(float Value)
