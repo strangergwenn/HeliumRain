@@ -700,7 +700,7 @@ void UFlareWorld::Simulate()
 
 	FLOG("* Simulate > Reputation");
 	// Reputation stabilization
-	if(Game->GetPC()->GetCompany()->GetGame() > 0)
+	if(Game->GetPC()->GetCompany()->GetGame() != nullptr)
 	{
 		for (UFlareCompany* Company : Companies)
 		{
