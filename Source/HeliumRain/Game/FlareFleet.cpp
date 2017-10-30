@@ -154,7 +154,7 @@ int32 UFlareFleet::GetTransportCapacity()
 			continue;
 		}
 
-		CompanyCapacity += Ship->GetCargoBay()->GetCapacity();
+		CompanyCapacity += Ship->GetActiveCargoBay()->GetCapacity();
 	}
 
 	return CompanyCapacity;
@@ -242,7 +242,7 @@ int32 UFlareFleet::GetFleetCapacity() const
 
 	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
 	{
-		FreeCargoSpace += FleetShips[ShipIndex]->GetCargoBay()->GetCapacity();
+		FreeCargoSpace += FleetShips[ShipIndex]->GetActiveCargoBay()->GetCapacity();
 	}
 	return FreeCargoSpace;
 }
@@ -253,7 +253,7 @@ int32 UFlareFleet::GetFleetFreeCargoSpace() const
 
 	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
 	{
-		FreeCargoSpace += FleetShips[ShipIndex]->GetCargoBay()->GetFreeCargoSpace();
+		FreeCargoSpace += FleetShips[ShipIndex]->GetActiveCargoBay()->GetFreeCargoSpace();
 	}
 	return FreeCargoSpace;
 }

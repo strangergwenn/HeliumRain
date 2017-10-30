@@ -305,6 +305,17 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 		}
 	}
 
+	const TArray<TSharedPtr<FJsonValue>>* ChildStations;
+	if(Object->TryGetArrayField("ChildStations", ChildStations))
+	{
+		for (TSharedPtr<FJsonValue> Item : *ChildStations)
+		{
+			FFlareSpacecraftSave ChildData;
+			LoadSpacecraft(Item->AsObject(), &ChildData);
+			Data->ChildStationData.Add(ChildData);
+		}
+	}
+
 	const TArray<TSharedPtr<FJsonValue>>* Stations;
 	if(Object->TryGetArrayField("Stations", Stations))
 	{
@@ -452,26 +463,53 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 		}
 	}
 
+	const TArray<TSharedPtr<FJsonValue>>* ConstructionCargoBay;
+	if(Object->TryGetArrayField("ConstructionCargoBay", ConstructionCargoBay))
+	{
+		for (TSharedPtr<FJsonValue> Item : *ConstructionCargoBay)
+		{
+			FFlareCargoSave ChildData;
+			LoadCargo(Item->AsObject(), &ChildData);
+			Data->ConstructionCargoBay.Add(ChildData);
+		}
+	}
 
+	const TArray<TSharedPtr<FJsonValue>>* ProductionCargoBay;
+	if(Object->TryGetArrayField("ProductionCargoBay", ProductionCargoBay))
+	{
+		for (TSharedPtr<FJsonValue> Item : *ProductionCargoBay)
+		{
+			FFlareCargoSave ChildData;
+			LoadCargo(Item->AsObject(), &ChildData);
+			Data->ProductionCargoBay.Add(ChildData);
+		}
+	}
+
+	// Compatibity code
 	const TArray<TSharedPtr<FJsonValue>>* Cargo;
 	if(Object->TryGetArrayField("Cargo", Cargo))
 	{
+		TArray<FFlareCargoSave> targetCargoBay = Data->IsUnderConstruction ? Data->ConstructionCargoBay : Data->ProductionCargoBay;
+
 		for (TSharedPtr<FJsonValue> Item : *Cargo)
 		{
 			FFlareCargoSave ChildData;
 			LoadCargo(Item->AsObject(), &ChildData);
-			Data->Cargo.Add(ChildData);
+			targetCargoBay.Add(ChildData);
 		}
 	}
 
+	// Compatibity code
 	const TArray<TSharedPtr<FJsonValue>>* CargoBackup;
 	if(Object->TryGetArrayField("CargoBackup", CargoBackup))
 	{
+		TArray<FFlareCargoSave> targetCargoBay = Data->IsUnderConstruction ? Data->ProductionCargoBay : Data->ConstructionCargoBay;
+
 		for (TSharedPtr<FJsonValue> Item : *CargoBackup)
 		{
 			FFlareCargoSave ChildData;
 			LoadCargo(Item->AsObject(), &ChildData);
-			Data->CargoBackup.Add(ChildData);
+			targetCargoBay.Add(ChildData);
 		}
 	}
 

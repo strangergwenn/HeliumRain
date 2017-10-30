@@ -154,7 +154,7 @@ public:
 	bool IsComplex() const;
 
 	/** Is this station part of a complex, and not a standalone station */
-	bool IsComplexElement();
+	bool IsComplexElement() const;
 
 	/** Get available connectors */
 	TArray<struct FFlareDockingInfo>& GetStationConnectors();
@@ -165,6 +165,11 @@ public:
 	/** Add an element to this complex */
 	void RegisterComplexElement(FFlareConnectionSave ConnectionData);
 
+	UFlareSimulatedSpacecraft* GetComplexMaster() const;
+
+	TArray<UFlareSimulatedSpacecraft*> const& GetComplexChildren() const;
+
+	void RegisterComplexMaster(UFlareSimulatedSpacecraft* master);
 
 	/*----------------------------------------------------
 		Resources
@@ -229,6 +234,7 @@ protected:
 	FFlareSpacecraftSave          SpacecraftData;
 	FFlareSpacecraftDescription*  SpacecraftDescription;
 
+	UFlareCompany*				  Company;
 	AFlareGame*                   Game;
 
 	AFlareSpacecraft*             ActiveSpacecraft;
@@ -246,10 +252,15 @@ protected:
 	TArray<UFlareFactory*>                                  Factories;
 
 	UPROPERTY()
-	UFlareCargoBay*                                         CargoBay;
+	UFlareCargoBay*                                         ProductionCargoBay;
+
+	UPROPERTY()
+	UFlareCargoBay*                                         ConstructionCargoBay;
 
 	TArray<struct FFlareDockingInfo>                        ConnectorSlots;
 
+	UFlareSimulatedSpacecraft*								ComplexMaster;
+	TArray<UFlareSimulatedSpacecraft*>						ComplexChildren;
 
 public:
 
@@ -273,6 +284,11 @@ public:
 	}
 
 	inline FFlareSpacecraftSave& GetData()
+	{
+		return SpacecraftData;
+	}
+
+	inline FFlareSpacecraftSave const& GetDataConst() const
 	{
 		return SpacecraftData;
 	}
@@ -305,10 +321,17 @@ public:
 		return SpacecraftDescription;
 	}
 
-	inline UFlareCargoBay* GetCargoBay() const
+	inline UFlareCargoBay* GetProductionCargoBay() const
 	{
-		return CargoBay;
+		return ProductionCargoBay;
 	}
+
+	inline UFlareCargoBay* GetConstructionCargoBay() const
+	{
+		return ConstructionCargoBay;
+	}
+
+	UFlareCargoBay* GetActiveCargoBay() const;
 
 	inline TArray<UFlareFactory*>& GetFactories()
 	{
@@ -383,10 +406,7 @@ public:
 		return SpacecraftData.IsDestroyed;
 	}
 
-	bool IsUnderConstruction()
-	{
-		return SpacecraftData.IsUnderConstruction;
-	}
+	bool IsUnderConstruction() const;
 
 	bool IsPlayerShip();
 

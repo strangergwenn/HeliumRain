@@ -207,6 +207,9 @@ struct FFlareCompanySave
 	TArray<FFlareSpacecraftSave> ShipData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
+	TArray<FFlareSpacecraftSave> ChildStationData;
+
+	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareSpacecraftSave> StationData;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)

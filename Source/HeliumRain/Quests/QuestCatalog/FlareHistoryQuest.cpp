@@ -706,7 +706,7 @@ int32 UFlareQuestBringResource::GetResourceCount()
 			continue;
 		}
 
-		ResourceCount += Ship->GetCargoBay()->GetResourceQuantity(Resource, PlayerCompany);
+		ResourceCount += Ship->GetActiveCargoBay()->GetResourceQuantity(Resource, PlayerCompany);
 	}
 
 	return ResourceCount;

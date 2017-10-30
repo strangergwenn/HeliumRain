@@ -274,7 +274,7 @@ bool UFlareFactory::HasInputResources()
 	for (int32 ResourceIndex = 0 ; ResourceIndex < GetCycleData().InputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &GetCycleData().InputResources[ResourceIndex];
-		if (!Parent->GetCargoBay()->HasResources(&Resource->Resource->Data, Resource->Quantity, Parent->GetCompany()))
+		if (!Parent->GetActiveCargoBay()->HasResources(&Resource->Resource->Data, Resource->Quantity, Parent->GetCompany()))
 		{
 			return false;
 		}
@@ -284,9 +284,7 @@ bool UFlareFactory::HasInputResources()
 
 bool UFlareFactory::HasOutputFreeSpace()
 {
-	//TArray<FFlareCargo>& CargoBay = Parent->GetCargoBay();
-	UFlareCargoBay* CargoBay = Parent->GetCargoBay();
-
+	UFlareCargoBay* CargoBay = Parent->GetActiveCargoBay();
 
 	TArray<FFlareFactoryResource> OutputResources = GetLimitedOutputResources();
 
@@ -384,7 +382,7 @@ void UFlareFactory::BeginProduction()
 			continue;
 		}
 
-		if (Parent->GetCargoBay()->TakeResources(&Resource->Resource->Data, ResourceToTake, Parent->GetCompany()) < Resource->Quantity)
+		if (Parent->GetActiveCargoBay()->TakeResources(&Resource->Resource->Data, ResourceToTake, Parent->GetCompany()) < Resource->Quantity)
 		{
 			FLOGV("Fail to take %d resource '%s' to %s", Resource->Quantity, *Resource->Resource->Data.Name.ToString(), *Parent->GetImmatriculation().ToString());
 		}
@@ -415,7 +413,7 @@ void UFlareFactory::CancelProduction()
 	{
 		FFlareResourceDescription*Resource = Game->GetResourceCatalog()->Get(FactoryData.ResourceReserved[ReservedResourceIndex].ResourceIdentifier);
 
-		int32 GivenQuantity = Parent->GetCargoBay()->GiveResources(Resource, FactoryData.ResourceReserved[ReservedResourceIndex].Quantity, Parent->GetCompany());
+		int32 GivenQuantity = Parent->GetActiveCargoBay()->GiveResources(Resource, FactoryData.ResourceReserved[ReservedResourceIndex].Quantity, Parent->GetCompany());
 
 		if (GivenQuantity >= FactoryData.ResourceReserved[ReservedResourceIndex].Quantity)
 		{
@@ -473,7 +471,7 @@ void UFlareFactory::DoProduction()
 	for (int32 ResourceIndex = 0 ; ResourceIndex < OutputResources.Num() ; ResourceIndex++)
 	{
 		const FFlareFactoryResource* Resource = &OutputResources[ResourceIndex];
-		if (Parent->GetCargoBay()->GiveResources(&Resource->Resource->Data, Resource->Quantity, Parent->GetCompany()) < Resource->Quantity)
+		if (Parent->GetActiveCargoBay()->GiveResources(&Resource->Resource->Data, Resource->Quantity, Parent->GetCompany()) < Resource->Quantity)
 		{
 			FLOGV("Fail to give %d resource '%s' to %s", Resource->Quantity, *Resource->Resource->Data.Name.ToString(), *Parent->GetImmatriculation().ToString());
 		}
@@ -831,7 +829,7 @@ int64 UFlareFactory::GetRemainingProductionDuration()
 
 TArray<FFlareFactoryResource> UFlareFactory::GetLimitedOutputResources()
 {
-	UFlareCargoBay* CargoBay = Parent->GetCargoBay();
+	UFlareCargoBay* CargoBay = Parent->GetActiveCargoBay();
 	TArray<FFlareFactoryResource> OutputResources = GetCycleData().OutputResources;
 	for (int32 CargoLimitIndex = 0 ; CargoLimitIndex < FactoryData.OutputCargoLimit.Num() ; CargoLimitIndex++)
 	{

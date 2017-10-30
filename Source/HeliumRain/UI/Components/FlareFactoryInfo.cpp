@@ -185,7 +185,7 @@ void SFlareFactoryInfo::UpdateFactoryLimits()
 			{
 				ProductionCycleStatusText = FText::Format(LOCTEXT("ResourceLimitFormat", "{0} output limited to {1}"),
 					Resource->Acronym,
-					FText::AsNumber(TargetFactory->GetOutputLimit(Resource) * SimulatedSpacecraft->GetCargoBay()->GetSlotCapacity()));
+					FText::AsNumber(TargetFactory->GetOutputLimit(Resource) * SimulatedSpacecraft->GetActiveCargoBay()->GetSlotCapacity()));
 			}
 		}
 		else

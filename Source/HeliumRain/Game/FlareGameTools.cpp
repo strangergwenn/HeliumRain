@@ -1330,7 +1330,7 @@ void UFlareGameTools::PrintCargoBay(FName ShipImmatriculation)
 		FLOGV("AFlareGame::PrintCargoBay failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
 		return;
 	}
-	UFlareCargoBay* CargoBay = Ship->GetCargoBay();
+	UFlareCargoBay* CargoBay = Ship->GetActiveCargoBay();
 
 	FLOGV("Cargo bay for '%s' : ", *ShipImmatriculation.ToString());
 	for (int32 CargoIndex = 0; CargoIndex < CargoBay->GetSlotCount(); CargoIndex++)
@@ -1361,7 +1361,7 @@ void UFlareGameTools::GiveResources(FName ShipImmatriculation, FName ResourceIde
 		FLOGV("AFlareGame::GiveResources failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
 		return;
 	}
-	Ship->GetCargoBay()->GiveResources(Resource, Quantity, Ship->GetCompany());
+	Ship->GetActiveCargoBay()->GiveResources(Resource, Quantity, Ship->GetCompany());
 }
 
 void UFlareGameTools::TakeResources(FName ShipImmatriculation, FName ResourceIdentifier, uint32 Quantity)
@@ -1391,7 +1391,7 @@ void UFlareGameTools::TakeResources(FName ShipImmatriculation, FName ResourceIde
 		FLOGV("AFlareGame::TakeResources failed: no Ship with immatriculation '%s'", *ShipImmatriculation.ToString());
 		return;
 	}
-	Ship->GetCargoBay()->TakeResources(Resource, Quantity, Ship->GetCompany());
+	Ship->GetActiveCargoBay()->TakeResources(Resource, Quantity, Ship->GetCompany());
 }
 
 void UFlareGameTools::TakeMoney(FName CompanyShortName, int64 Amount)

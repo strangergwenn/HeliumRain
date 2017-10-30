@@ -628,7 +628,7 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			{
 				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.InputResources[ResourceIndex];
 				float StartRatio = FMath::FRandRange(0.25,0.75);
-				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity() * StartRatio, Company);
+				Station->GetActiveCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetActiveCargoBay()->GetSlotCapacity() * StartRatio, Company);
 			}
 
 			// Give output resources
@@ -636,7 +636,7 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			{
 				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.OutputResources[ResourceIndex];
 				float StartRatio = FMath::FRandRange(0.25,0.75);
-				Station->GetCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetCargoBay()->GetSlotCapacity() * StartRatio, Company);
+				Station->GetActiveCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetActiveCargoBay()->GetSlotCapacity() * StartRatio, Company);
 			}
 		}
 		
@@ -647,7 +647,7 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			{
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
 				float StartRatio = FMath::FRandRange(0.25,0.75);
-				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity() * StartRatio, Company);
+				Station->GetActiveCargoBay()->GiveResources(Resource, Station->GetActiveCargoBay()->GetSlotCapacity() * StartRatio, Company);
 			}
 		}
 
@@ -658,7 +658,7 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 			{
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
 				float StartRatio = FMath::FRandRange(0.25,0.75);
-				Station->GetCargoBay()->GiveResources(Resource, Station->GetCargoBay()->GetSlotCapacity() * StartRatio, Company);
+				Station->GetActiveCargoBay()->GiveResources(Resource, Station->GetActiveCargoBay()->GetSlotCapacity() * StartRatio, Company);
 			}
 		}
 

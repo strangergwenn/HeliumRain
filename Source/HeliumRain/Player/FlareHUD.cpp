@@ -806,7 +806,7 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 	// Unarmed version
 	else
 	{
-		UFlareCargoBay* CargoBay = PlayerShip->GetParent()->GetCargoBay();
+		UFlareCargoBay* CargoBay = PlayerShip->GetParent()->GetActiveCargoBay();
 		FCHECK(CargoBay);
 
 		// Title

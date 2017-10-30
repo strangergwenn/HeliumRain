@@ -387,8 +387,8 @@ uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource,
 				continue;
 			}
 
-			uint32 StationFreeSpace = Station->GetCargoBay()->GetFreeSpaceForResource(Resource, Company);
-			uint32 StationResourceQuantity = Station->GetCargoBay()->GetResourceQuantity(Resource, Company);
+			uint32 StationFreeSpace = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, Company);
+			uint32 StationResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
 
 			if (StationFreeSpace == 0 && StationResourceQuantity == 0)
 			{
@@ -409,7 +409,7 @@ uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource,
 			break;
 		}
 
-		uint32 TakenQuantity = BestStation->GetCargoBay()->TakeResources(Resource, RemainingQuantity, NULL);
+		uint32 TakenQuantity = BestStation->GetActiveCargoBay()->TakeResources(Resource, RemainingQuantity, NULL);
 		RemainingQuantity -= TakenQuantity;
 		uint32 Price = (uint32) (ResourcePrice) * TakenQuantity;
 		PeopleData.Money -= Price;

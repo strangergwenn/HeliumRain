@@ -876,7 +876,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 
 		// Check if have too much stock there is another distant station
 
-		for (FFlareCargo& Slot : CandidateStation->GetCargoBay()->GetSlots())
+		for (FFlareCargo& Slot : CandidateStation->GetActiveCargoBay()->GetSlots())
 		{
 			if (Slot.Lock != EFlareResourceLock::Output)
 			{
@@ -884,7 +884,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 				continue;
 			}
 
-			if (Slot.Quantity <= CandidateStation->GetCargoBay()->GetSlotCapacity() * 0.5f)
+			if (Slot.Quantity <= CandidateStation->GetActiveCargoBay()->GetSlotCapacity() * 0.5f)
 			{
 				// Not enought resources
 				continue;
@@ -923,7 +923,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 	int32 BestResourceQuantity = 0;
 	FFlareResourceDescription* BestResource = NULL;
 
-	for (FFlareCargo& Slot : Station->GetCargoBay()->GetSlots())
+	for (FFlareCargo& Slot : Station->GetActiveCargoBay()->GetSlots())
 	{
 		if (Slot.Lock != EFlareResourceLock::Output)
 		{
@@ -932,7 +932,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 		}
 
 
-		int32 ExcessResourceQuantity = Slot.Quantity - Station->GetCargoBay()->GetSlotCapacity() * 0.5f;
+		int32 ExcessResourceQuantity = Slot.Quantity - Station->GetActiveCargoBay()->GetSlotCapacity() * 0.5f;
 
 		if (ExcessResourceQuantity <= 0)
 		{
@@ -955,7 +955,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 		if (ExcessResourceQuantity > BestResourceExcessQuantity)
 		{
 			BestResourceExcessQuantity = ExcessResourceQuantity;
-			BestResourceQuantity = FMath::Min(Slot.Quantity, int32(Station->GetCargoBay()->GetSlotCapacity() * 0.5f));
+			BestResourceQuantity = FMath::Min(Slot.Quantity, int32(Station->GetActiveCargoBay()->GetSlotCapacity() * 0.5f));
 			BestResource = Slot.Resource;
 		}
 	}
@@ -1074,7 +1074,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 
 		// Check if have too low stock there is another distant station
 
-		for (FFlareCargo& Slot : CandidateStation->GetCargoBay()->GetSlots())
+		for (FFlareCargo& Slot : CandidateStation->GetActiveCargoBay()->GetSlots())
 		{
 			if (Slot.Lock != EFlareResourceLock::Input)
 			{
@@ -1082,7 +1082,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 				continue;
 			}
 
-			if (Slot.Quantity >= CandidateStation->GetCargoBay()->GetSlotCapacity() * 0.5)
+			if (Slot.Quantity >= CandidateStation->GetActiveCargoBay()->GetSlotCapacity() * 0.5)
 			{
 				// Enought resources
 				continue;
@@ -1122,7 +1122,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 	int32 BestResourceQuantity = 0;
 	FFlareResourceDescription* BestResource = NULL;
 
-	for (FFlareCargo& Slot : Station->GetCargoBay()->GetSlots())
+	for (FFlareCargo& Slot : Station->GetActiveCargoBay()->GetSlots())
 	{
 		if (Slot.Lock != EFlareResourceLock::Input)
 		{
@@ -1131,7 +1131,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 		}
 
 
-		int32 MissingResourceQuantity = Station->GetCargoBay()->GetSlotCapacity() * 0.5 - Slot.Quantity;
+		int32 MissingResourceQuantity = Station->GetActiveCargoBay()->GetSlotCapacity() * 0.5 - Slot.Quantity;
 
 		if (MissingResourceQuantity <= 0)
 		{
@@ -1154,7 +1154,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 		if (MissingResourceQuantity > BestResourceQuantity)
 		{
 			BestResourceMissingQuantity = MissingResourceQuantity;
-			BestResourceQuantity = FMath::Min(Station->GetCargoBay()->GetSlotCapacity() - Slot.Quantity, int32(Station->GetCargoBay()->GetSlotCapacity() * 0.5));
+			BestResourceQuantity = FMath::Min(Station->GetActiveCargoBay()->GetSlotCapacity() - Slot.Quantity, int32(Station->GetActiveCargoBay()->GetSlotCapacity() * 0.5));
 			BestResource = Slot.Resource;
 		}
 
@@ -1284,7 +1284,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 
 		// Check if have too much stock there is another distant station
 
-		for (FFlareCargo& Slot : CandidateStation->GetCargoBay()->GetSlots())
+		for (FFlareCargo& Slot : CandidateStation->GetActiveCargoBay()->GetSlots())
 		{
 			if (Slot.Lock != EFlareResourceLock::Output)
 			{
@@ -1292,7 +1292,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 				continue;
 			}
 
-			int32 AvailableResourceQuantity = Slot.Quantity - CandidateStation->GetCargoBay()->GetSlotCapacity() * 0.5;
+			int32 AvailableResourceQuantity = Slot.Quantity - CandidateStation->GetActiveCargoBay()->GetSlotCapacity() * 0.5;
 
 			if (AvailableResourceQuantity <= 0)
 			{
@@ -1332,7 +1332,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 				continue;
 			}
 
-			for (FFlareCargo& Slot : CandidateStation->GetCargoBay()->GetSlots())
+			for (FFlareCargo& Slot : CandidateStation->GetActiveCargoBay()->GetSlots())
 			{
 				if (Slot.Lock != EFlareResourceLock::Input)
 				{
@@ -1340,7 +1340,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 					continue;
 				}
 
-				int32 MissingResourceQuantity = CandidateStation->GetCargoBay()->GetSlotCapacity() * 0.5 - Slot.Quantity;
+				int32 MissingResourceQuantity = CandidateStation->GetActiveCargoBay()->GetSlotCapacity() * 0.5 - Slot.Quantity;
 
 				if (MissingResourceQuantity <= 0)
 				{
@@ -1392,8 +1392,8 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	}
 	Station1 = BestStationToBuyPerResource[BestResource];
 	Station2 = BestStationToSellPerResource[BestResource];
-	int32 BestBuyResourceQuantity = FMath::Min(Station1->GetCargoBay()->GetResourceQuantity(BestResource, PlayerCompany), int32(Station1->GetCargoBay()->GetSlotCapacity() * 0.5));
-	int32 BestSellResourceQuantity = FMath::Min(Station2->GetCargoBay()->GetSlotCapacity() - Station2->GetCargoBay()->GetResourceQuantity(BestResource, PlayerCompany), int32(Station2->GetCargoBay()->GetSlotCapacity() * 0.5));
+	int32 BestBuyResourceQuantity = FMath::Min(Station1->GetActiveCargoBay()->GetResourceQuantity(BestResource, PlayerCompany), int32(Station1->GetActiveCargoBay()->GetSlotCapacity() * 0.5));
+	int32 BestSellResourceQuantity = FMath::Min(Station2->GetActiveCargoBay()->GetSlotCapacity() - Station2->GetActiveCargoBay()->GetResourceQuantity(BestResource, PlayerCompany), int32(Station2->GetActiveCargoBay()->GetSlotCapacity() * 0.5));
 
 	int32 BestResourceQuantity = FMath::Min(BestBuyResourceQuantity, BestSellResourceQuantity);
 	int32 MaxPlayerTransportCapacity = FMath::Max(100, PlayerCompany->GetTransportCapacity());
