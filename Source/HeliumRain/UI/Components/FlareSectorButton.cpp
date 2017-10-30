@@ -276,11 +276,11 @@ EVisibility SFlareSectorButton::GetBottomTextVisibility() const
 {
 	if (ShouldDisplayFleets())
 	{
-		return EVisibility::Visible;
+		return EVisibility::Collapsed;
 	}
 	else
 	{
-		return EVisibility::Collapsed;
+		return EVisibility::Visible;
 	}
 }
 
