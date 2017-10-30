@@ -477,13 +477,13 @@ struct FFlareSpacecraftSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FFlareShipPilotSave Pilot;
 
-	/** Cargo bay content */
+	/** Production Cargo bay content */
 	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FFlareCargoSave> Cargo;
+	TArray<FFlareCargoSave> ProductionCargoBay;
 
-	/** Cargo bay content backup for construction*/
+	/** Construction Cargo bay content */
 	UPROPERTY(EditAnywhere, Category = Save)
-	TArray<FFlareCargoSave> CargoBackup;
+	TArray<FFlareCargoSave> ConstructionCargoBay;
 
 	/** Factory states */
 	UPROPERTY(EditAnywhere, Category = Save)

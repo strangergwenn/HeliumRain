@@ -76,6 +76,12 @@ void UFlareCompany::Load(const FFlareCompanySave& Data)
 		LoadSpacecraft(CompanyData.ShipData[i]);
 	}
 
+	// Load childstations
+	for (int i = 0 ; i < CompanyData.ChildStationData.Num(); i++)
+	{
+		LoadSpacecraft(CompanyData.ChildStationData[i]);
+	}
+
 	// Load stations
 	for (int i = 0 ; i < CompanyData.StationData.Num(); i++)
 	{
@@ -144,6 +150,7 @@ FFlareCompanySave* UFlareCompany::Save()
 	CompanyData.Fleets.Empty();
 	CompanyData.TradeRoutes.Empty();
 	CompanyData.ShipData.Empty();
+	CompanyData.ChildStationData.Empty();
 	CompanyData.StationData.Empty();
 	CompanyData.DestroyedSpacecraftData.Empty();
 	CompanyData.SectorsKnowledge.Empty();
@@ -162,6 +169,11 @@ FFlareCompanySave* UFlareCompany::Save()
 	for (int i = 0 ; i < CompanyShips.Num(); i++)
 	{
 		CompanyData.ShipData.Add(*CompanyShips[i]->Save());
+	}
+
+	for (int i = 0 ; i < CompanyChildStations.Num(); i++)
+	{
+		CompanyData.ChildStationData.Add(*CompanyChildStations[i]->Save());
 	}
 
 	for (int i = 0 ; i < CompanyStations.Num(); i++)
@@ -594,7 +606,14 @@ UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftS
 		{
 			if (Spacecraft->IsStation())
 			{
-				CompanyStations.AddUnique((Spacecraft));
+				if(Spacecraft->IsComplexElement())
+				{
+					CompanyChildStations.AddUnique((Spacecraft));
+				}
+				else
+				{
+					CompanyStations.AddUnique((Spacecraft));
+				}
 			}
 			else
 			{
@@ -620,6 +639,7 @@ void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 
 	CompanySpacecrafts.Remove(Spacecraft);
 	CompanyStations.Remove(Spacecraft);
+	CompanyChildStations.Remove(Spacecraft);
 	CompanyShips.Remove(Spacecraft);
 	if (Spacecraft->GetCurrentFleet())
 	{
@@ -972,7 +992,7 @@ int32 UFlareCompany::GetTransportCapacity()
 			continue;
 		}
 
-		CompanyCapacity += Ship->GetCargoBay()->GetCapacity();
+		CompanyCapacity += Ship->GetActiveCargoBay()->GetCapacity();
 	}
 
 	return CompanyCapacity;
@@ -1526,7 +1546,7 @@ const struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* 
 		}
 
 		// Value of the stock
-		TArray<FFlareCargo>& CargoBaySlots = Spacecraft->GetCargoBay()->GetSlots();
+		TArray<FFlareCargo>& CargoBaySlots = Spacecraft->GetActiveCargoBay()->GetSlots();
 		for (int CargoIndex = 0; CargoIndex < CargoBaySlots.Num(); CargoIndex++)
 		{
 			FFlareCargo& Cargo = CargoBaySlots[CargoIndex];
@@ -1650,6 +1670,18 @@ int32 UFlareCompany::GetCaptureOrderCountInSector(UFlareSimulatedSector const* S
 		}
 	}
 	return Orders;
+}
+
+UFlareSimulatedSpacecraft* UFlareCompany::FindChildStation(FName StationImmatriculation)
+{
+	for (UFlareSimulatedSpacecraft* Spacecraft : CompanySpacecrafts)
+	{
+		if (Spacecraft->GetImmatriculation() == StationImmatriculation)
+		{
+			return Spacecraft;
+		}
+	}
+	return nullptr;
 }
 
 #undef LOCTEXT_NAMESPACE

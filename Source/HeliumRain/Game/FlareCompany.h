@@ -210,6 +210,9 @@ protected:
 	TArray<UFlareSimulatedSpacecraft*>      CompanyStations;
 
 	UPROPERTY()
+	TArray<UFlareSimulatedSpacecraft*>      CompanyChildStations;
+
+	UPROPERTY()
 	TArray<UFlareSimulatedSpacecraft*>      CompanyShips;
 
 	UPROPERTY()
@@ -456,5 +459,7 @@ public:
 	bool WantCapture(UFlareSimulatedSpacecraft const* Station) const;
 
 	int32 GetCaptureOrderCountInSector(UFlareSimulatedSector const* Sector) const;
+
+	UFlareSimulatedSpacecraft* FindChildStation(FName StationImmatriculation);
 
 };

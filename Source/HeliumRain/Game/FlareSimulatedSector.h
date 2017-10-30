@@ -449,6 +449,7 @@ protected:
     // Gameplay data
 	FFlareSectorSave                        SectorData;
     TArray<UFlareSimulatedSpacecraft*>      SectorStations;
+	TArray<UFlareSimulatedSpacecraft*>      SectorChildStations;
 	TArray<UFlareSimulatedSpacecraft*>      SectorShips;
 	TArray<UFlareSimulatedSpacecraft*>      SectorSpacecrafts;
 

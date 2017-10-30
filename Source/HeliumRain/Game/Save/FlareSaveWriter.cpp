@@ -259,6 +259,13 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompany(FFlareCompanySave* Data)
 	}
 	JsonObject->SetArrayField("Ships", Ships);
 
+	TArray< TSharedPtr<FJsonValue> > ChildStations;
+	for(int i = 0; i < Data->ChildStationData.Num(); i++)
+	{
+		ChildStations.Add(MakeShareable(new FJsonValueObject(SaveSpacecraft(&Data->ChildStationData[i]))));
+	}
+	JsonObject->SetArrayField("ChildStations", ChildStations);
+
 	TArray< TSharedPtr<FJsonValue> > Stations;
 	for(int i = 0; i < Data->StationData.Num(); i++)
 	{
@@ -345,19 +352,19 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	}
 	JsonObject->SetArrayField("Components", Components);
 
-	TArray< TSharedPtr<FJsonValue> > Cargo;
-	for(int i = 0; i < Data->Cargo.Num(); i++)
+	TArray< TSharedPtr<FJsonValue> > ConstructionCargoBay;
+	for(int i = 0; i < Data->ConstructionCargoBay.Num(); i++)
 	{
-		Cargo.Add(MakeShareable(new FJsonValueObject(SaveCargo(&Data->Cargo[i]))));
+		ConstructionCargoBay.Add(MakeShareable(new FJsonValueObject(SaveCargo(&Data->ConstructionCargoBay[i]))));
 	}
-	JsonObject->SetArrayField("Cargo", Cargo);
+	JsonObject->SetArrayField("ConstructionCargoBay", ConstructionCargoBay);
 
-	TArray< TSharedPtr<FJsonValue> > CargoBackup;
-	for(int i = 0; i < Data->CargoBackup.Num(); i++)
+	TArray< TSharedPtr<FJsonValue> > ProductionCargoBay;
+	for(int i = 0; i < Data->ProductionCargoBay.Num(); i++)
 	{
-		CargoBackup.Add(MakeShareable(new FJsonValueObject(SaveCargo(&Data->CargoBackup[i]))));
+		ProductionCargoBay.Add(MakeShareable(new FJsonValueObject(SaveCargo(&Data->ProductionCargoBay[i]))));
 	}
-	JsonObject->SetArrayField("CargoBackup", CargoBackup);
+	JsonObject->SetArrayField("ProductionCargoBay", ProductionCargoBay);
 
 	TArray< TSharedPtr<FJsonValue> > FactoryStates;
 	for(int i = 0; i < Data->FactoryStates.Num(); i++)

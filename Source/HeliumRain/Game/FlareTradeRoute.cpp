@@ -240,7 +240,7 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 		UFlareSimulatedSpacecraft* Ship = RouteShips[ShipIndex];
 
 		// Keep trading ship as they will be usefull later
-		int32 FreeSpace = Ship->GetCargoBay()->GetFreeSpaceForResource(Resource, Ship->GetCompany());
+		int32 FreeSpace = Ship->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, Ship->GetCompany());
 		if (FreeSpace > 0)
 		{
 			FleetFreeSpace += FreeSpace;
@@ -273,7 +273,7 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 		}
 
 		Request.Client = Ship;
-		Request.MaxQuantity = Ship->GetCargoBay()->GetFreeSpaceForResource(Resource, Ship->GetCompany());
+		Request.MaxQuantity = Ship->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, Ship->GetCompany());
 		if (Operation->MaxQuantity !=-1)
 		{
 			Request.MaxQuantity = FMath::Min(Request.MaxQuantity, GetOperationRemainingQuantity(Operation));
@@ -349,7 +349,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 		UFlareSimulatedSpacecraft* Ship = RouteShips[ShipIndex];
 
 		// Keep trading ship as they will be usefull later
-		int32 Quantity = Ship->GetCargoBay()->GetResourceQuantity(Resource, Ship->GetCompany());
+		int32 Quantity = Ship->GetActiveCargoBay()->GetResourceQuantity(Resource, Ship->GetCompany());
 		if (Quantity > 0)
 		{
 			FleetQuantity += Quantity;
@@ -383,7 +383,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 		}
 
 		Request.Client = Ship;
-		Request.MaxQuantity = Ship->GetCargoBay()->GetResourceQuantity(Resource, Ship->GetCompany());
+		Request.MaxQuantity = Ship->GetActiveCargoBay()->GetResourceQuantity(Resource, Ship->GetCompany());
 		if (Operation->MaxQuantity !=-1)
 		{
 			Request.MaxQuantity = FMath::Min(Request.MaxQuantity, GetOperationRemainingQuantity(Operation));

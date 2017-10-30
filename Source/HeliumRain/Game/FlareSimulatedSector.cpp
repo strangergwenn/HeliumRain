@@ -60,6 +60,7 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 	SectorOrbitParameters = OrbitParameters;
 	SectorShips.Empty();
 	SectorStations.Empty();
+	SectorChildStations.Empty();
 	SectorSpacecrafts.Empty();
 	SectorFleets.Empty();
 
@@ -87,7 +88,14 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 
 		if (Spacecraft->IsStation())
 		{
-			SectorStations.Add(Spacecraft);
+			if(Spacecraft->IsComplexElement())
+			{
+				SectorChildStations.Add(Spacecraft);
+			}
+			else
+			{
+				SectorStations.Add(Spacecraft);
+			}
 			Spacecraft->UpdateShipyardProduction();
 		}
 		else
@@ -371,7 +379,8 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 		ShipData.Location = CapturedSpacecraft->Location;
 		ShipData.Rotation = CapturedSpacecraft->Rotation;
 		ShipData.Components = CapturedSpacecraft->Components;
-		ShipData.Cargo = CapturedSpacecraft->Cargo;
+		ShipData.ConstructionCargoBay = CapturedSpacecraft->ConstructionCargoBay;
+		ShipData.ProductionCargoBay = CapturedSpacecraft->ProductionCargoBay;
 		ShipData.FactoryStates = CapturedSpacecraft->FactoryStates;
 		ShipData.AsteroidData = CapturedSpacecraft->AsteroidData;
 		ShipData.DynamicComponentStateIdentifier = CapturedSpacecraft->DynamicComponentStateIdentifier;
@@ -380,14 +389,20 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 		ShipData.SpawnMode = CapturedSpacecraft->SpawnMode;
 		ShipData.AttachActorName = CapturedSpacecraft->AttachActorName;
 		ShipData.IsUnderConstruction = CapturedSpacecraft->IsUnderConstruction;
-		ShipData.CargoBackup = CapturedSpacecraft->CargoBackup;
 	}
 
 	// Create the ship
 	Spacecraft = Company->LoadSpacecraft(ShipData);
 	if (Spacecraft->IsStation())
 	{
-		SectorStations.Add(Spacecraft);
+		if(Spacecraft->IsComplexElement())
+		{
+			SectorChildStations.Add(Spacecraft);
+		}
+		else
+		{
+			SectorStations.Add(Spacecraft);
+		}
 	}
 	else
 	{
@@ -484,6 +499,7 @@ void UFlareSimulatedSector::RetireFleet(UFlareFleet* Fleet)
 int UFlareSimulatedSector::RemoveSpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 {
 	SectorStations.Remove(Spacecraft);
+	SectorChildStations.Remove(Spacecraft);
 	SectorShips.Remove(Spacecraft);
 	return SectorSpacecrafts.Remove(Spacecraft);
 }
@@ -772,13 +788,13 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[CountIndex];
 
-		if(Station->GetCargoBay()->HasRestrictions())
+		if(Station->GetActiveCargoBay()->HasRestrictions())
 		{
 			// Not allow station with slot restriction to impact the price
 			continue;
 		}
 
-		float StockRatio = FMath::Clamp((float) Station->GetCargoBay()->GetResourceQuantity(Resource, NULL) / (float) Station->GetCargoBay()->GetSlotCapacity(), 0.f, 1.f);
+		float StockRatio = FMath::Clamp((float) Station->GetActiveCargoBay()->GetResourceQuantity(Resource, NULL) / (float) Station->GetActiveCargoBay()->GetSlotCapacity(), 0.f, 1.f);
 
 		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
@@ -933,7 +949,7 @@ bool UFlareSimulatedSector::WantSell(FFlareResourceDescription* Resource, UFlare
 {
 	for (UFlareSimulatedSpacecraft* Station : GetSectorStations())
 	{
-		if (Station->GetCargoBay()->WantSell(Resource, Client, true))
+		if (Station->GetActiveCargoBay()->WantSell(Resource, Client, true))
 		{
 			return true;
 		}
@@ -945,7 +961,7 @@ bool UFlareSimulatedSector::WantBuy(FFlareResourceDescription* Resource, UFlareC
 {
 	for (UFlareSimulatedSpacecraft* Station : GetSectorStations())
 	{
-		if (Station->GetCargoBay()->WantBuy(Resource, Client))
+		if (Station->GetActiveCargoBay()->WantBuy(Resource, Client))
 		{
 			return true;
 		}
@@ -1055,7 +1071,7 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 			continue;
 		}
 
-		ResourceCount += Station->GetCargoBay()->GetResourceQuantity(Resource, NULL);
+		ResourceCount += Station->GetActiveCargoBay()->GetResourceQuantity(Resource, NULL);
 	}
 
 	return ResourceCount;
@@ -1533,9 +1549,9 @@ static bool ReserveShipComparator (UFlareSimulatedSpacecraft& Ship1, UFlareSimul
 
 
 	// Priority to full ships
-	if(Ship1.GetCargoBay()->GetUsedCargoSpace() != Ship2.GetCargoBay()->GetUsedCargoSpace())
+	if(Ship1.GetActiveCargoBay()->GetUsedCargoSpace() != Ship2.GetActiveCargoBay()->GetUsedCargoSpace())
 	{
-		return Ship1.GetCargoBay()->GetUsedCargoSpace() > Ship2.GetCargoBay()->GetUsedCargoSpace();
+		return Ship1.GetActiveCargoBay()->GetUsedCargoSpace() > Ship2.GetActiveCargoBay()->GetUsedCargoSpace();
 	}
 
 	return FMath::RandBool();
