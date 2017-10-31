@@ -361,6 +361,14 @@ AFlareSpacecraft* UFlareSector::LoadSpacecraft(UFlareSimulatedSpacecraft* Parent
 		FLOG("UFlareSector::LoadSpacecraft : failed to create AFlareSpacecraft");
 	}
 
+	if (ParentSpacecraft->IsComplex())
+	{
+		for(UFlareSimulatedSpacecraft* Child: ParentSpacecraft->GetComplexChildren())
+		{
+			LoadSpacecraft(Child);
+		}
+	}
+
 	return Spacecraft;
 }
 

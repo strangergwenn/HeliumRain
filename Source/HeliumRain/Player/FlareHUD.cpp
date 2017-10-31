@@ -1725,7 +1725,7 @@ FVector2D AFlareHUD::DrawHUDDesignatorHint(FVector2D Position, float DesignatorI
 		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDContractIcon, Color);
 	}
 
-	if (TargetSpacecraft->IsStation() && TargetSpacecraft->GetParent()->IsUnderConstruction())
+	if (TargetSpacecraft->IsStation() && TargetSpacecraft->GetParent()->IsUnderConstruction(true))
 	{
 		Position = DrawHUDDesignatorStatusIcon(Position, DesignatorIconSize, HUDConstructionIcon, Color);
 	}

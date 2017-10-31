@@ -102,7 +102,10 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 		{
 			SectorShips.Add(Spacecraft);
 		}
-		SectorSpacecrafts.Add(Spacecraft);
+		if(!Spacecraft->IsComplexElement())
+		{
+			SectorSpacecrafts.Add(Spacecraft);
+		}
 		Spacecraft->SetCurrentSector(this);
 	}
 
@@ -182,7 +185,8 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationCla
 	if (Desc)
 	{
 		bool SafeSpawn = (SpawnParameters.AttachActorName != NAME_None);
-		Station = CreateSpacecraft(Desc, Company, SpawnParameters.Location, SpawnParameters.Rotation, NULL, SafeSpawn, UnderConstruction);
+		bool IsChildStation = (SpawnParameters.AttachComplexStationName != NAME_None);
+		Station = CreateSpacecraft(Desc, Company, SpawnParameters.Location, SpawnParameters.Rotation, NULL, SafeSpawn, UnderConstruction, SpawnParameters.AttachComplexStationName);
 
 		// Attach to asteroid
 		if (Station && Desc->BuildConstraint.Contains(EFlareBuildConstraint::FreeAsteroid))
@@ -198,7 +202,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateStation(FName StationCla
 		}
 
 		// Attach to station complex as station element
-		if (Station && SpawnParameters.AttachComplexStationName != NAME_None)
+		if (Station && IsChildStation)
 		{
 			FCHECK(SpawnParameters.AttachComplexConnectorName != NAME_None);
 			AttachStationToComplexStation(Station, SpawnParameters.AttachComplexStationName, SpawnParameters.AttachComplexConnectorName);
@@ -236,7 +240,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FName ShipCla
 }
 
 UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecraftDescription* ShipDescription, UFlareCompany* Company, FVector TargetPosition, FRotator TargetRotation,
-	FFlareSpacecraftSave* CapturedSpacecraft, bool SafeSpawnAtLocation, bool UnderConstruction)
+	FFlareSpacecraftSave* CapturedSpacecraft, bool SafeSpawnAtLocation, bool UnderConstruction, FName AttachComplexStationName)
 {
 	UFlareSimulatedSpacecraft* Spacecraft = NULL;
 
@@ -265,6 +269,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	ShipData.Level = 1;
 	ShipData.HarpoonCompany = NAME_None;
 	ShipData.DynamicComponentStateIdentifier = FName("idle");
+	ShipData.AttachComplexStationName = AttachComplexStationName;
 
 	FName RCSIdentifier;
 	FName OrbitalEngineIdentifier;
@@ -408,7 +413,10 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	{
 		SectorShips.Add(Spacecraft);
 	}
-	SectorSpacecrafts.Add(Spacecraft);
+	if(!Spacecraft->IsComplexElement())
+	{
+		SectorSpacecrafts.Add(Spacecraft);
+	}
 
 	Spacecraft->SetCurrentSector(this);
 
@@ -745,6 +753,8 @@ void UFlareSimulatedSector::AttachStationToComplexStation(UFlareSimulatedSpacecr
 	
 	// Setup connection with the guest
 	Spacecraft->SetComplexStationAttachment(AttachStationName, AttachConnectorName);
+	Complex->Save();
+	Complex->Load(Complex->GetData());
 }
 
 void UFlareSimulatedSector::AttachStationToActor(UFlareSimulatedSpacecraft* Spacecraft, FName AttachActorName)

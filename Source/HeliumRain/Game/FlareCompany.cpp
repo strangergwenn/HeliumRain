@@ -620,7 +620,10 @@ UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftS
 				CompanyShips.AddUnique((Spacecraft));
 			}
 
-			CompanySpacecrafts.AddUnique((Spacecraft));
+			if(!Spacecraft->IsComplexElement())
+			{
+				CompanySpacecrafts.AddUnique((Spacecraft));
+			}
 		}
 	}
 	else
@@ -1546,7 +1549,8 @@ const struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* 
 		}
 
 		// Value of the stock
-		TArray<FFlareCargo>& CargoBaySlots = Spacecraft->GetActiveCargoBay()->GetSlots();
+		{
+		TArray<FFlareCargo>& CargoBaySlots = Spacecraft->GetProductionCargoBay()->GetSlots();
 		for (int CargoIndex = 0; CargoIndex < CargoBaySlots.Num(); CargoIndex++)
 		{
 			FFlareCargo& Cargo = CargoBaySlots[CargoIndex];
@@ -1557,6 +1561,22 @@ const struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* 
 			}
 
 			CompanyValue.StockValue += ReferenceSector->GetResourcePrice(Cargo.Resource, EFlareResourcePriceContext::Default) * Cargo.Quantity;
+		}
+		}
+
+		{
+		TArray<FFlareCargo>& CargoBaySlots = Spacecraft->GetConstructionCargoBay()->GetSlots();
+		for (int CargoIndex = 0; CargoIndex < CargoBaySlots.Num(); CargoIndex++)
+		{
+			FFlareCargo& Cargo = CargoBaySlots[CargoIndex];
+
+			if (!Cargo.Resource)
+			{
+				continue;
+			}
+
+			CompanyValue.StockValue += ReferenceSector->GetResourcePrice(Cargo.Resource, EFlareResourcePriceContext::Default) * Cargo.Quantity;
+		}
 		}
 
 		// Value of factory stock
@@ -1674,7 +1694,7 @@ int32 UFlareCompany::GetCaptureOrderCountInSector(UFlareSimulatedSector const* S
 
 UFlareSimulatedSpacecraft* UFlareCompany::FindChildStation(FName StationImmatriculation)
 {
-	for (UFlareSimulatedSpacecraft* Spacecraft : CompanySpacecrafts)
+	for (UFlareSimulatedSpacecraft* Spacecraft : CompanyChildStations)
 	{
 		if (Spacecraft->GetImmatriculation() == StationImmatriculation)
 		{

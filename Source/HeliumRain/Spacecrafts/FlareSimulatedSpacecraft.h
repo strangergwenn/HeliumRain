@@ -333,10 +333,7 @@ public:
 
 	UFlareCargoBay* GetActiveCargoBay() const;
 
-	inline TArray<UFlareFactory*>& GetFactories()
-	{
-		return Factories;
-	}
+	TArray<UFlareFactory*>& GetFactories();
 
 	inline FVector GetSpawnLocation() const
 	{
@@ -406,7 +403,7 @@ public:
 		return SpacecraftData.IsDestroyed;
 	}
 
-	bool IsUnderConstruction() const;
+	bool IsUnderConstruction(bool local = false) const;
 
 	bool IsPlayerShip();
 
