@@ -50,7 +50,6 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	SpacecraftData = Data;
 
 	ComplexChildren.Empty();
-	ComplexMaster = nullptr;
 
 	// Load spacecraft description
 	SpacecraftDescription = Game->GetSpacecraftCatalog()->Get(Data.Identifier);
@@ -94,30 +93,92 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	Game->GetGameWorld()->ClearFactories(this);
 	Factories.Empty();
 
-	// Load factories
-	if (!Data.IsUnderConstruction)
+	if(IsComplex() && !Data.IsUnderConstruction)
 	{
-		for (int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
+		if(IsUnderConstruction())
 		{
-			FFlareFactorySave FactoryData;
-			FFlareFactoryDescription* FactoryDescription = &SpacecraftDescription->Factories[FactoryIndex]->Data;
-
-			if (FactoryIndex < SpacecraftData.FactoryStates.Num())
+			for(UFlareSimulatedSpacecraft* Child:  ComplexChildren)
 			{
-				FactoryData = SpacecraftData.FactoryStates[FactoryIndex];
+				if(Child->IsUnderConstruction())
+				{
+					Factories.Append(Child->GetFactories());
+				}
 			}
-			else
+		}
+		else
+		{
+			for(UFlareSimulatedSpacecraft* Child:  ComplexChildren)
 			{
-				FactoryData.Active = FactoryDescription->AutoStart;
-				FactoryData.CostReserved = 0;
-				FactoryData.ProductedDuration = 0;
-				FactoryData.InfiniteCycle = true;
-				FactoryData.CycleCount = 0;
-				FactoryData.TargetShipClass = NAME_None;
-				FactoryData.TargetShipCompany = NAME_None;
+				Factories.Append(Child->GetFactories());
 			}
+		}
+	}
+	else
+	{
+		// Load factories
+		if (!Data.IsUnderConstruction)
+		{
+			for (int FactoryIndex = 0; FactoryIndex < SpacecraftDescription->Factories.Num(); FactoryIndex++)
+			{
+				FFlareFactorySave FactoryData;
+				FFlareFactoryDescription* FactoryDescription = &SpacecraftDescription->Factories[FactoryIndex]->Data;
 
+				if (FactoryIndex < SpacecraftData.FactoryStates.Num())
+				{
+					FactoryData = SpacecraftData.FactoryStates[FactoryIndex];
+				}
+				else
+				{
+					FactoryData.Active = FactoryDescription->AutoStart;
+					FactoryData.CostReserved = 0;
+					FactoryData.ProductedDuration = 0;
+					FactoryData.InfiniteCycle = true;
+					FactoryData.CycleCount = 0;
+					FactoryData.TargetShipClass = NAME_None;
+					FactoryData.TargetShipCompany = NAME_None;
+				}
+
+				UFlareFactory* Factory = NewObject<UFlareFactory>(GetGame()->GetGameWorld(), UFlareFactory::StaticClass());
+				Factory->Load(this, FactoryDescription, FactoryData);
+				Factories.Add(Factory);
+				if (!IsDestroyed())
+				{
+					Game->GetGameWorld()->AddFactory(Factory);
+				}
+			}
+		}
+
+		// Station is under construction
+		else
+		{
 			UFlareFactory* Factory = NewObject<UFlareFactory>(GetGame()->GetGameWorld(), UFlareFactory::StaticClass());
+
+			FFlareFactoryDescription* FactoryDescription = &Factory->ConstructionFactoryDescription;
+			FactoryDescription->AutoStart = true;
+			FactoryDescription->Name = LOCTEXT("Constructionfactory", "Station under constuction");
+			FactoryDescription->Description = LOCTEXT("ConstructionfactoryDescription", "Bring construction resources");
+			FactoryDescription->Identifier = FName(*(FString("construction-") + SpacecraftDescription->Identifier.ToString()));
+
+			FFlareFactoryAction OutputAction;
+			OutputAction.Action = EFlareFactoryAction::BuildStation;
+			OutputAction.Identifier = "build-station";
+			OutputAction.Quantity = 1;
+			FactoryDescription->OutputActions.Add(OutputAction);
+			FactoryDescription->CycleCost.ProductionCost = 0;
+			FactoryDescription->CycleCost.ProductionTime = 0;
+			FactoryDescription->CycleCost.InputResources.Append(SpacecraftDescription->CycleCost.InputResources);
+			FactoryDescription->VisibleStates = true;
+
+			// Create construction factory
+			FFlareFactorySave FactoryData;
+			FactoryData.Active = FactoryDescription->AutoStart;
+			FactoryData.CostReserved = 0;
+			FactoryData.ProductedDuration = 0;
+			FactoryData.InfiniteCycle = true;
+			FactoryData.CycleCount = 0;
+			FactoryData.TargetShipClass = NAME_None;
+			FactoryData.TargetShipCompany = NAME_None;
+
 			Factory->Load(this, FactoryDescription, FactoryData);
 			Factories.Add(Factory);
 			if (!IsDestroyed())
@@ -126,46 +187,6 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 			}
 		}
 	}
-
-	// Station is under construction
-	else
-	{
-		UFlareFactory* Factory = NewObject<UFlareFactory>(GetGame()->GetGameWorld(), UFlareFactory::StaticClass());
-
-		FFlareFactoryDescription* FactoryDescription = &Factory->ConstructionFactoryDescription;
-		FactoryDescription->AutoStart = true;
-		FactoryDescription->Name = LOCTEXT("Constructionfactory", "Station under constuction");
-		FactoryDescription->Description = LOCTEXT("ConstructionfactoryDescription", "Bring construction resources");
-		FactoryDescription->Identifier = FName(*(FString("construction-") + SpacecraftDescription->Identifier.ToString()));
-
-		FFlareFactoryAction OutputAction;
-		OutputAction.Action = EFlareFactoryAction::BuildStation;
-		OutputAction.Identifier = "build-station";
-		OutputAction.Quantity = 1;
-		FactoryDescription->OutputActions.Add(OutputAction);
-		FactoryDescription->CycleCost.ProductionCost = 0;
-		FactoryDescription->CycleCost.ProductionTime = 0;
-		FactoryDescription->CycleCost.InputResources.Append(SpacecraftDescription->CycleCost.InputResources);
-		FactoryDescription->VisibleStates = true;
-
-		// Create construction factory
-		FFlareFactorySave FactoryData;
-		FactoryData.Active = FactoryDescription->AutoStart;
-		FactoryData.CostReserved = 0;
-		FactoryData.ProductedDuration = 0;
-		FactoryData.InfiniteCycle = true;
-		FactoryData.CycleCount = 0;
-		FactoryData.TargetShipClass = NAME_None;
-		FactoryData.TargetShipCompany = NAME_None;
-
-		Factory->Load(this, FactoryDescription, FactoryData);
-		Factories.Add(Factory);
-		if (!IsDestroyed())
-		{
-			Game->GetGameWorld()->AddFactory(Factory);
-		}
-	}
-
 
 
 	// Cargo bay init
@@ -1100,6 +1121,7 @@ bool UFlareSimulatedSpacecraft::IsComplexElement() const
 
 void UFlareSimulatedSpacecraft::RegisterComplexMaster(UFlareSimulatedSpacecraft* master)
 {
+	FLOGV("RegisterComplexMaster %p to %p", master, this)
 	ComplexMaster = master;
 }
 
@@ -1596,6 +1618,11 @@ EFlareHostility::Type UFlareSimulatedSpacecraft::GetPlayerWarState() const
 	return GetCompany()->GetPlayerWarState();
 }
 
+TArray<UFlareFactory*>& UFlareSimulatedSpacecraft::GetFactories()
+{
+	return Factories;
+}
+
 UFlareCargoBay* UFlareSimulatedSpacecraft::GetActiveCargoBay() const
 {
 	if(IsComplexElement())
@@ -1704,21 +1731,24 @@ int32 UFlareSimulatedSpacecraft::GetCombatPoints(bool ReduceByDamage)
 	return SpacecraftCombatPoints;
 }
 
-bool UFlareSimulatedSpacecraft::IsUnderConstruction() const
+bool UFlareSimulatedSpacecraft::IsUnderConstruction(bool local)  const
 {
-	if(IsComplex())
+	if(!local)
 	{
-		for(UFlareSimulatedSpacecraft* child : GetComplexChildren())
+		if(IsComplex())
 		{
-			if(child->GetData().IsUnderConstruction)
+			for(UFlareSimulatedSpacecraft* child : GetComplexChildren())
 			{
-				return true;
+				if(child->GetData().IsUnderConstruction)
+				{
+					return true;
+				}
 			}
 		}
-	}
-	else if(IsComplexElement())
-	{
-		return GetComplexMaster()->IsUnderConstruction();
+		else if(IsComplexElement())
+		{
+			return GetComplexMaster()->IsUnderConstruction();
+		}
 	}
 
 	return SpacecraftData.IsUnderConstruction;
