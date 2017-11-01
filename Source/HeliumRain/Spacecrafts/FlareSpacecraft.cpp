@@ -614,6 +614,7 @@ void AFlareSpacecraft::Redock()
 	}
 }
 
+__attribute__ ((optnone))
 float AFlareSpacecraft::GetSpacecraftMass() const
 {
 	float Mass = GetDescription()->Mass;

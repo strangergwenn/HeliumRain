@@ -845,7 +845,7 @@ void SFlareShipMenu::UpdateComplexList()
 				// Existing element - Granted in this context means a station is there (Occupied means active)
 				if (Connector.Granted)
 				{
-					UFlareSimulatedSpacecraft* ComplexElement = TargetSpacecraft->GetGame()->GetGameWorld()->FindSpacecraft(Connector.ConnectedStationName);
+					UFlareSimulatedSpacecraft* ComplexElement = TargetSpacecraft->GetCompany()->FindChildStation(Connector.ConnectedStationName);
 					FCHECK(ComplexElement);
 					FFlareSpacecraftDescription* ComplexElementDesc = ComplexElement->GetDescription();
 					FCHECK(ComplexElementDesc);

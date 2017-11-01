@@ -20,29 +20,25 @@ UFlareCargoBay::UFlareCargoBay(const FObjectInitializer& ObjectInitializer)
 {
 }
 
-void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FFlareCargoSave>& Data)
+void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FFlareCargoSave>& Data, int32 minCargoBayCount, int32 minCargoBaySlotCapacity)
 {
 	Parent = ParentSpacecraft;
 	Game = Parent->GetGame();
 
-	if (Parent->IsUnderConstruction())
-	{
-		UFlareFactory* Factory = Parent->GetFactories()[0];
-		CargoBayBaseCapacity = 0;
-		for(const FFlareFactoryResource& Resource: Factory->GetCycleData().InputResources)
-		{
-			if(Resource.Quantity > CargoBayBaseCapacity)
-			{
-				CargoBayBaseCapacity = Resource.Quantity;
-			}
-		}
+	CargoBayCount = minCargoBayCount;
+	CargoBaySlotCapacity = minCargoBaySlotCapacity;
 
-		CargoBayCount = Factory->GetCycleData().InputResources.Num();
-	}
-	else
+	if(Data.Num() > CargoBayCount)
 	{
-		CargoBayCount = Parent->GetDescription()->CargoBayCount;
-		CargoBayBaseCapacity = Parent->GetDescription()->CargoBayCapacity;
+		CargoBayCount = Data.Num();
+	}
+
+	for(FFlareCargoSave const& Cargo: Data)
+	{
+		if(Cargo.Quantity > CargoBaySlotCapacity)
+		{
+			CargoBaySlotCapacity = Cargo.Quantity;
+		}
 	}
 
 	// Initialize cargo bay
@@ -332,7 +328,7 @@ int32 UFlareCargoBay::GiveResources(FFlareResourceDescription* Resource, int32 Q
 
 int32 UFlareCargoBay::GetSlotCapacity() const
 {
-	return CargoBayBaseCapacity * (Parent->IsUnderConstruction() ? 1 : Parent->GetLevel());
+	return CargoBaySlotCapacity;
 }
 
 int32 UFlareCargoBay::GetCapacity() const
