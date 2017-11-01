@@ -388,4 +388,19 @@ DamageCause::DamageCause(UFlareCompany* CompanyParam, EFlareDamage::Type DamageT
 {
 }
 
+bool FFlareResourceUsage::HasAnyUsage() const
+{
+	return Usages.Num() > 0;
+}
+
+bool FFlareResourceUsage::HasUsage(EFlareResourcePriceContext::Type Usage) const
+{
+	return Usages.Contains(Usage);
+}
+
+void FFlareResourceUsage::AddUsage(EFlareResourcePriceContext::Type Usage)
+{
+	Usages.AddUnique(Usage);
+}
+
 #undef LOCTEXT_NAMESPACE

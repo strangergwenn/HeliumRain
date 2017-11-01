@@ -180,7 +180,7 @@ public:
 
 	bool CanTradeWith(UFlareSimulatedSpacecraft* OtherSpacecraft, FText& Reason);
 
-	EFlareResourcePriceContext::Type GetResourceUseType(FFlareResourceDescription* Resource);
+	FFlareResourceUsage GetResourceUseType(FFlareResourceDescription* Resource);
 	void LockResources();
 
 	void ComputeConstructionCargoBaySize(int32& CargoBaySlotCapacity, int32& CargoBayCount);

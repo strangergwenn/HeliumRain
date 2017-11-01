@@ -470,12 +470,15 @@ bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpa
 	return true;
 }
 
-EFlareResourcePriceContext::Type UFlareSimulatedSpacecraft::GetResourceUseType(FFlareResourceDescription* Resource)
+FFlareResourceUsage UFlareSimulatedSpacecraft::GetResourceUseType(FFlareResourceDescription* Resource)
 {
+	FFlareResourceUsage Usage;
+
 	// Check we're and station
 	if (!IsStation())
 	{
-		return EFlareResourcePriceContext::Default;
+		Usage.AddUsage(EFlareResourcePriceContext::Default);
+		return Usage;
 	}
 
 	// Parse factories
@@ -488,7 +491,8 @@ EFlareResourcePriceContext::Type UFlareSimulatedSpacecraft::GetResourceUseType(F
 			const FFlareFactoryResource* FactoryResource = &Factory->GetCycleData().InputResources[ResourceIndex];
 			if (&FactoryResource->Resource->Data == Resource)
 			{
-				return EFlareResourcePriceContext::FactoryInput;
+				Usage.AddUsage(EFlareResourcePriceContext::FactoryInput);
+				break;
 			}
 		}
 
@@ -498,24 +502,25 @@ EFlareResourcePriceContext::Type UFlareSimulatedSpacecraft::GetResourceUseType(F
 			const FFlareFactoryResource* FactoryResource = &Factory->GetCycleData().OutputResources[ResourceIndex];
 			if (&FactoryResource->Resource->Data == Resource)
 			{
-				return EFlareResourcePriceContext::FactoryOutput;
+				Usage.AddUsage(EFlareResourcePriceContext::FactoryOutput);
+				break;
 			}
 		}
 	}
 
 	// Customer resource ?
-	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Consumer) && Resource->IsConsumerResource)
+	if (HasCapability(EFlareSpacecraftCapability::Consumer) && Resource->IsConsumerResource)
 	{
-		return EFlareResourcePriceContext::ConsumerConsumption;
+		Usage.AddUsage(EFlareResourcePriceContext::ConsumerConsumption);
 	}
 
 	// Maintenance resource ?
-	if (SpacecraftDescription->Capabilities.Contains(EFlareSpacecraftCapability::Maintenance) && Resource->IsMaintenanceResource)
+	if (HasCapability(EFlareSpacecraftCapability::Maintenance) && Resource->IsMaintenanceResource)
 	{
-		return EFlareResourcePriceContext::MaintenanceConsumption;
+		Usage.AddUsage(EFlareResourcePriceContext::MaintenanceConsumption);
 	}
 
-	return EFlareResourcePriceContext::Default;
+	return Usage;
 }
 
 void UFlareSimulatedSpacecraft::LockResources()

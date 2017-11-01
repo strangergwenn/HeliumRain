@@ -66,6 +66,19 @@ namespace EFlareResourcePriceContext
 	};
 }
 
+
+struct FFlareResourceUsage
+{
+public:
+	bool HasAnyUsage() const;
+
+	bool HasUsage(EFlareResourcePriceContext::Type Usage) const;
+
+	void AddUsage(EFlareResourcePriceContext::Type Usage);
+private:
+	TArray<EFlareResourcePriceContext::Type> Usages;
+};
+
 /** Combat tactics */
 UENUM()
 namespace EFlareCombatTactic
