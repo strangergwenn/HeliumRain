@@ -168,11 +168,8 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(AFlareSpacecraft* S
 			float DockDistance = 0;
 			if(CheckDockingSlot(Slot, DockDistance, OnlyFreeSlot))
 			{
-				FLOGV("CheckDockingSlots %d", Slot.DockId);
 				if(BestDockingSlot == nullptr || DockDistance < BestDistance)
 				{
-					FLOGV("CheckDockingSlots %d is new best", Slot.DockId);
-
 					BestDockingSlot = &Slot;
 					BestDistance = DockDistance;
 				}
@@ -182,7 +179,6 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(AFlareSpacecraft* S
 
 	auto FindBestDockingSlot = [this, &CheckDockingSlots](bool OnlyFreeSlot)
 	{
-		FLOGV("FindBestDockingSlot %d", OnlyFreeSlot);
 		FFlareDockingInfo* BestDockingSlot = nullptr;
 		float BestDistance = 0;
 

@@ -770,7 +770,7 @@ void UFlareSpacecraftNavigationSystem::DockingAutopilot(AFlareSpacecraft* DockSt
 
 void UFlareSpacecraftNavigationSystem::ConfirmDock(AFlareSpacecraft* DockStation, int32 DockId, bool TellUser)
 {
-	FLOGV("UFlareSpacecraftNavigationSystem::ConfirmDock : '%s' is now docked", *Spacecraft->GetParent()->GetImmatriculation().ToString());
+	FLOGV("UFlareSpacecraftNavigationSystem::ConfirmDock : '%s' is now docked to %s", *Spacecraft->GetParent()->GetImmatriculation().ToString(), *DockStation->GetParent()->GetImmatriculation().ToString());
 	ClearCurrentCommand();
 
 	FFlareDockingInfo DockingPort = DockStation->GetDockingSystem()->GetDockInfo(DockId);
@@ -817,7 +817,22 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(AFlareSpacecraft* DockStation
 	DockConstraint->SetWorldLocation(Spacecraft->GetActorLocation());
 	DockConstraint->AttachToComponent(Spacecraft->GetRootComponent(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, false), NAME_None);
 
-	DockConstraint->SetConstrainedComponents(Spacecraft->Airframe, NAME_None, DockStation->Airframe,NAME_None);
+	AFlareSpacecraft* AttachStation = DockStation;
+
+	if (DockStation->GetData().AttachComplexStationName != NAME_None)
+	{
+
+		for (AFlareSpacecraft* StationCandidate: Spacecraft->GetGame()->GetActiveSector()->GetSpacecrafts())
+		{
+			if (StationCandidate->GetImmatriculation() == DockStation->GetData().AttachComplexStationName)
+			{
+				AttachStation = StationCandidate;
+				break;
+			}
+		}
+	}
+
+	DockConstraint->SetConstrainedComponents(Spacecraft->Airframe, NAME_None, AttachStation->Airframe,NAME_None);
 
 	// Cut engines
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
