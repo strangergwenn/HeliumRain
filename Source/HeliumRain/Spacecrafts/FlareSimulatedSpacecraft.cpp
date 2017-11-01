@@ -99,7 +99,7 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		{
 			for(UFlareSimulatedSpacecraft* Child:  ComplexChildren)
 			{
-				if(Child->IsUnderConstruction())
+				if(Child->IsUnderConstruction(true))
 				{
 					Factories.Append(Child->GetFactories());
 				}
@@ -192,11 +192,19 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	// Cargo bay init
 	if(SpacecraftData.AttachComplexStationName == NAME_None)
 	{
+		int32 ProductionCargoBaySlotCapacity = 0;
+		int32 ProductionCargoBayCount = 0;
+		ComputeProductionCargoBaySize(ProductionCargoBaySlotCapacity, ProductionCargoBayCount);
+
+		int32 ConstructionCargoBaySlotCapacity = 0;
+		int32 ConstructionCargoBayCount = 0;
+		ComputeConstructionCargoBaySize(ConstructionCargoBaySlotCapacity, ConstructionCargoBayCount);
+
 		ProductionCargoBay = NewObject<UFlareCargoBay>(this, UFlareCargoBay::StaticClass());
-		ProductionCargoBay->Load(this, SpacecraftData.ProductionCargoBay);
+		ProductionCargoBay->Load(this, SpacecraftData.ProductionCargoBay, ProductionCargoBayCount, ProductionCargoBaySlotCapacity);
 
 		ConstructionCargoBay = NewObject<UFlareCargoBay>(this, UFlareCargoBay::StaticClass());
-		ConstructionCargoBay->Load(this, SpacecraftData.ConstructionCargoBay);
+		ConstructionCargoBay->Load(this, SpacecraftData.ConstructionCargoBay, ConstructionCargoBayCount, ConstructionCargoBaySlotCapacity);
 
 		// Lock resources
 		LockResources();
@@ -257,6 +265,12 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		ActiveSpacecraft->Load(this);
 		ActiveSpacecraft->Redock();
 	}
+}
+
+void UFlareSimulatedSpacecraft::Reload()
+{
+	Save();
+	Load(SpacecraftData);
 }
 
 FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
@@ -393,6 +407,14 @@ void UFlareSimulatedSpacecraft::SetCurrentSector(UFlareSimulatedSector* Sector)
 	{
 		GetCompany()->VisitSector(Sector);
 	}
+
+	if(IsComplex())
+	{
+		for(UFlareSimulatedSpacecraft* Child : GetComplexChildren())
+		{
+			Child->SetCurrentSector(Sector);
+		}
+	}
 }
 
 
@@ -500,28 +522,51 @@ void UFlareSimulatedSpacecraft::LockResources()
 {
 	GetActiveCargoBay()->UnlockAll();
 
+	TMap<FFlareResourceDescription*, EFlareResourceLock::Type> LockMap;
+
+	auto AddLockInMap = [&LockMap](FFlareResourceDescription* Resource, EFlareResourceLock::Type LockType)
+	{
+		if(LockMap.Contains(Resource))
+		{
+			EFlareResourceLock::Type OldLockType = LockMap[Resource];
+			if(OldLockType != LockType)
+			{
+				LockMap[Resource] = EFlareResourceLock::Trade;
+			}
+		}
+		else
+		{
+			LockMap.Add(Resource, LockType);
+		}
+	};
 
 	if (Factories.Num() > 0)
 	{
-		UFlareFactory* Factory = Factories[0];
-
-		for (int32 ResourceIndex = 0 ; ResourceIndex < Factory->GetCycleData().InputResources.Num() ; ResourceIndex++)
+		for (UFlareFactory* Factory : Factories)
 		{
-			const FFlareFactoryResource* Resource = &Factory->GetCycleData().InputResources[ResourceIndex];
-
-			if (!GetActiveCargoBay()->LockSlot(&Resource->Resource->Data, EFlareResourceLock::Input, false))
+			for (int32 ResourceIndex = 0 ; ResourceIndex < Factory->GetCycleData().InputResources.Num() ; ResourceIndex++)
 			{
-				FLOGV("Fail to lock a slot of %s in %s", *(&Resource->Resource->Data)->Name.ToString(), *GetImmatriculation().ToString());
+				const FFlareFactoryResource* Resource = &Factory->GetCycleData().InputResources[ResourceIndex];
+
+				AddLockInMap(&Resource->Resource->Data, EFlareResourceLock::Input);
+
+				/*if (!GetActiveCargoBay()->LockSlot(&Resource->Resource->Data, EFlareResourceLock::Input, false))
+				{
+					FLOGV("Fail to lock a slot of %s in %s", *(&Resource->Resource->Data)->Name.ToString(), *GetImmatriculation().ToString());
+				}*/
 			}
-		}
 
-		for (int32 ResourceIndex = 0 ; ResourceIndex < Factory->GetCycleData().OutputResources.Num() ; ResourceIndex++)
-		{
-			const FFlareFactoryResource* Resource = &Factory->GetCycleData().OutputResources[ResourceIndex];
-
-			if (!GetActiveCargoBay()->LockSlot(&Resource->Resource->Data, EFlareResourceLock::Output, false))
+			for (int32 ResourceIndex = 0 ; ResourceIndex < Factory->GetCycleData().OutputResources.Num() ; ResourceIndex++)
 			{
-				FLOGV("Fail to lock a slot of %s in %s", *(&Resource->Resource->Data)->Name.ToString(), *GetImmatriculation().ToString());
+				const FFlareFactoryResource* Resource = &Factory->GetCycleData().OutputResources[ResourceIndex];
+
+				AddLockInMap(&Resource->Resource->Data, EFlareResourceLock::Output);
+
+
+				/*if (!GetActiveCargoBay()->LockSlot(&Resource->Resource->Data, EFlareResourceLock::Output, false))
+				{
+					FLOGV("Fail to lock a slot of %s in %s", *(&Resource->Resource->Data)->Name.ToString(), *GetImmatriculation().ToString());
+				}*/
 			}
 		}
 	}
@@ -534,10 +579,13 @@ void UFlareSimulatedSpacecraft::LockResources()
 			for (int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
 			{
 				FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
-				if (!GetActiveCargoBay()->LockSlot(Resource, EFlareResourceLock::Input, false))
+				AddLockInMap(Resource, EFlareResourceLock::Input);
+
+
+				/*if (!GetActiveCargoBay()->LockSlot(Resource, EFlareResourceLock::Input, false))
 				{
 					FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
-				}
+				}*/
 			}
 		}
 
@@ -547,12 +595,77 @@ void UFlareSimulatedSpacecraft::LockResources()
 			{
 				FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
 
-				if (!GetActiveCargoBay()->LockSlot(Resource, EFlareResourceLock::Trade, false))
+				AddLockInMap(Resource, EFlareResourceLock::Trade);
+
+				/*if (!GetActiveCargoBay()->LockSlot(Resource, EFlareResourceLock::Trade, false))
 				{
 					FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
+				}*/
+			}
+		}
+	}
+
+	for(auto Entry : LockMap)
+	{
+		if (!GetActiveCargoBay()->LockSlot(Entry.Key, Entry.Value, false))
+		{
+			FLOGV("Fail to lock a slot of %s in %s", *Entry.Key->Name.ToString(), *GetImmatriculation().ToString());
+		}
+	}
+}
+
+void UFlareSimulatedSpacecraft::ComputeConstructionCargoBaySize(int32& CargoBaySlotCapacity, int32& CargoBayCount)
+{
+	if(IsUnderConstruction())
+	{
+		UFlareFactory* Factory = GetFactories()[0];
+		CargoBaySlotCapacity = 0;
+		for(const FFlareFactoryResource& Resource: Factory->GetCycleData().InputResources)
+		{
+			if(Resource.Quantity > CargoBaySlotCapacity)
+			{
+				CargoBaySlotCapacity = Resource.Quantity;
+			}
+		}
+
+		CargoBayCount = Factory->GetCycleData().InputResources.Num();
+	}
+	else
+	{
+		CargoBayCount = 0;
+		CargoBaySlotCapacity = 0;
+	}
+}
+
+void UFlareSimulatedSpacecraft::ComputeProductionCargoBaySize(int32& CargoBaySlotCapacity, int32& CargoBayCount)
+{
+	if(!IsUnderConstruction())
+	{
+		if(IsComplex())
+		{
+			UFlareResourceCatalog* Catalog = GetGame()->GetResourceCatalog();
+			CargoBayCount = Catalog->GetResourceList().Num();
+			CargoBaySlotCapacity = 0;
+
+			for(UFlareSimulatedSpacecraft* Child : GetComplexChildren())
+			{
+				int32 LocalCapacity = Child->GetDescription()->CargoBayCapacity * Child->GetLevel();
+				if(LocalCapacity > CargoBaySlotCapacity)
+				{
+					CargoBaySlotCapacity = LocalCapacity;
 				}
 			}
 		}
+		else
+		{
+			CargoBayCount = GetDescription()->CargoBayCount;
+			CargoBaySlotCapacity = GetDescription()->CargoBayCapacity * GetLevel();
+		}
+	}
+	else
+	{
+		CargoBayCount = 0;
+		CargoBaySlotCapacity = 0;
 	}
 }
 
@@ -595,11 +708,16 @@ void UFlareSimulatedSpacecraft::Upgrade()
 	SpacecraftData.Level++;
 	SpacecraftData.IsUnderConstruction = true;
 
-	Load(SpacecraftData);
+	Reload();
 
 	if(GetCompany() == Game->GetPC()->GetCompany())
 	{
 		Game->GetQuestManager()->OnEvent(FFlareBundle().PutTag("start-station-construction").PutInt32("upgrade", 1));
+	}
+
+	if(IsComplexElement())
+	{
+		GetComplexMaster()->Reload();
 	}
 
 	FLOGV("UFlareSimulatedSpacecraft::Upgrade %s to level %d done", *GetImmatriculation().ToString(), SpacecraftData.Level);
@@ -1044,7 +1162,8 @@ void UFlareSimulatedSpacecraft::FinishConstruction()
 	}
 
 	SpacecraftData.IsUnderConstruction = false;
-	Load(SpacecraftData);
+
+	Reload();
 	if (IsShipyard())
 	{
 		for (UFlareFactory* Factory : Factories)
@@ -1052,7 +1171,14 @@ void UFlareSimulatedSpacecraft::FinishConstruction()
 			Factory->Stop();
 		}
 	}
+
+	if(IsComplexElement())
+	{
+		GetComplexMaster()->Reload();
+	}
 }
+
+
 
 void UFlareSimulatedSpacecraft::OrderRepairStock(float FS)
 {
@@ -1613,6 +1739,25 @@ bool UFlareSimulatedSpacecraft::CanUpgrade(EFlarePartType::Type Type)
 	return CanBeChanged;
 }
 
+bool UFlareSimulatedSpacecraft::HasCapability(EFlareSpacecraftCapability::Type Capability) const
+{
+	if(IsComplex())
+	{
+		for(UFlareSimulatedSpacecraft* Child : GetComplexChildren())
+		{
+			if(Child->HasCapability(Capability))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	else
+	{
+		return GetDescription()->Capabilities.Contains(Capability);
+	}
+}
+
 EFlareHostility::Type UFlareSimulatedSpacecraft::GetPlayerWarState() const
 {
 	return GetCompany()->GetPlayerWarState();
@@ -1737,9 +1882,9 @@ bool UFlareSimulatedSpacecraft::IsUnderConstruction(bool local)  const
 	{
 		if(IsComplex())
 		{
-			for(UFlareSimulatedSpacecraft* child : GetComplexChildren())
+			for(UFlareSimulatedSpacecraft* Child : GetComplexChildren())
 			{
-				if(child->GetData().IsUnderConstruction)
+				if(Child->IsUnderConstruction(true))
 				{
 					return true;
 				}

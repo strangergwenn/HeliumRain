@@ -23,7 +23,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Load the factory from a save file */
-	virtual void Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FFlareCargoSave>& Data);
+	virtual void Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FFlareCargoSave>& Data, int32 minCargoBayCount, int32 minCargoBaySlotCapacity);
 
 	/** Save the factory to a save file */
 	virtual TArray<FFlareCargoSave>* Save();
@@ -64,7 +64,7 @@ protected:
 
 	// Cache
 	int32								       CargoBayCount;
-	int32								       CargoBayBaseCapacity;
+	int32								       CargoBaySlotCapacity;
 	AFlareGame*                                Game;
 
 

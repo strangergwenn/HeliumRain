@@ -25,6 +25,9 @@ public:
 	/** Load the ship from a save file */
 	virtual void Load(const FFlareSpacecraftSave& Data);
 
+	/** Reload */
+	void Reload();
+
 	/** Save the ship to a save file */
 	virtual FFlareSpacecraftSave* Save();
 
@@ -179,6 +182,10 @@ public:
 
 	EFlareResourcePriceContext::Type GetResourceUseType(FFlareResourceDescription* Resource);
 	void LockResources();
+
+	void ComputeConstructionCargoBaySize(int32& CargoBaySlotCapacity, int32& CargoBayCount);
+
+	void ComputeProductionCargoBaySize(int32& CargoBaySlotCapacity, int32& CargoBayCount);
 
 
 	/*----------------------------------------------------
@@ -381,10 +388,7 @@ public:
 		return SpacecraftDescription->CycleCost.ProductionCost;
 	}
 
-	inline bool HasCapability(EFlareSpacecraftCapability::Type Capability) const
-	{
-		return GetDescription()->Capabilities.Contains(Capability);
-	}
+	bool HasCapability(EFlareSpacecraftCapability::Type Capability) const;
 
 	EFlareHostility::Type GetPlayerWarState() const;
 
