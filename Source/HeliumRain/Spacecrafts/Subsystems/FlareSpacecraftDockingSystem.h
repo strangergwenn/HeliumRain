@@ -90,6 +90,10 @@ public:
 
 	virtual bool IsDockedShip(AFlareSpacecraft* ShipCanditate) const;
 
+	TArray<FFlareDockingInfo>& GetDockingSlots()
+	{
+		return DockingSlots;
+	}
 
 protected:
 

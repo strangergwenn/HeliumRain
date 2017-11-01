@@ -125,9 +125,6 @@ bool UFlareSpacecraftDockingSystem::HasCompatibleDock(AFlareSpacecraft* Ship) co
 
 FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(AFlareSpacecraft* Ship, FVector PreferredLocation)
 {
-	int32 BestIndex = -1;
-	float BestDistance = 0;
-
 	// Player docking data
 	FText PlayerDockInfo;
 	AFlareSpacecraft* PlayerDockSpacecraft;
@@ -148,68 +145,121 @@ FFlareDockingInfo UFlareSpacecraftDockingSystem::RequestDock(AFlareSpacecraft* S
 		}
 	}
 
-	// Looking for nearest available slot
-	for (int32 i = 0; i < DockingSlots.Num(); i++)
+	auto CheckDockingSlot = [&Ship, &PreferredLocation](FFlareDockingInfo const& Slot, float& DockDistance, bool OnlyFreeSlot)
 	{
-		if (!DockingSlots[i].Granted && DockingSlots[i].DockSize == Ship->GetSize())
+		if(OnlyFreeSlot && Slot.Granted)
 		{
-			float DockDistance = (Spacecraft->Airframe->GetComponentToWorld().TransformPosition(DockingSlots[i].LocalLocation) - PreferredLocation).Size();
-			if (BestIndex < 0 || DockDistance < BestDistance)
-			{
-				BestDistance = DockDistance;
-				BestIndex = i;
-			}
+			return false;
 		}
-	}
 
-	// Granted
-	if (BestIndex >= 0)
-	{
-		DockingSlots[BestIndex].Granted = true;
-		DockingSlots[BestIndex].Ship = Ship;
-		return DockingSlots[BestIndex];
-	}
-
-	// Denied, but player ship, so undock an AI ship
-	else if (Ship->IsPlayerShip())
-	{
-		BestIndex = 0;
-
-		// Look again without constraint
-		for (int32 i = 0; i < DockingSlots.Num(); i++)
+		if (Slot.DockSize == Ship->GetSize())
 		{
-			if (DockingSlots[i].DockSize == Ship->GetSize())
+			DockDistance = (Slot.Station->Airframe->GetComponentToWorld().TransformPosition(Slot.LocalLocation) - PreferredLocation).Size();
+			return true;
+		}
+
+		return false;
+	};
+
+	auto CheckDockingSlots = [&CheckDockingSlot](FFlareDockingInfo*& BestDockingSlot, float& BestDistance, TArray<FFlareDockingInfo>& Slots, bool OnlyFreeSlot)
+	{
+		for(FFlareDockingInfo& Slot : Slots)
+		{
+			float DockDistance = 0;
+			if(CheckDockingSlot(Slot, DockDistance, OnlyFreeSlot))
 			{
-				float DockDistance = (Spacecraft->Airframe->GetComponentToWorld().TransformPosition(DockingSlots[i].LocalLocation) - PreferredLocation).Size();
-				if (BestIndex < 0 || DockDistance < BestDistance)
+				FLOGV("CheckDockingSlots %d", Slot.DockId);
+				if(BestDockingSlot == nullptr || DockDistance < BestDistance)
 				{
+					FLOGV("CheckDockingSlots %d is new best", Slot.DockId);
+
+					BestDockingSlot = &Slot;
 					BestDistance = DockDistance;
-					BestIndex = i;
 				}
 			}
 		}
+	};
 
-		// Undock previous owner
-		if ((DockingSlots[BestIndex].Granted || DockingSlots[BestIndex].Occupied) && DockingSlots[BestIndex].Ship && DockingSlots[BestIndex].Ship->IsValidLowLevel())
+	auto FindBestDockingSlot = [this, &CheckDockingSlots](bool OnlyFreeSlot)
+	{
+		FLOGV("FindBestDockingSlot %d", OnlyFreeSlot);
+		FFlareDockingInfo* BestDockingSlot = nullptr;
+		float BestDistance = 0;
+
+		CheckDockingSlots(BestDockingSlot, BestDistance, DockingSlots, OnlyFreeSlot);
+
+		if(Spacecraft->GetParent()->IsComplex())
 		{
-			if (DockingSlots[BestIndex].Ship->GetNavigationSystem()->IsDocked())
+			for (FFlareDockingInfo& MasterConnector : Spacecraft->GetParent()->GetStationConnectors())
 			{
-				DockingSlots[BestIndex].Ship->GetNavigationSystem()->Undock();
+				if(MasterConnector.Occupied)
+				{
+					AFlareSpacecraft* ChildStation = NULL;
+					for(AFlareSpacecraft* StationCandidate : Spacecraft->GetGame()->GetActiveSector()->GetSpacecrafts())
+					{
+						if (StationCandidate->GetImmatriculation() == MasterConnector.ConnectedStationName)
+						{
+							ChildStation = StationCandidate;
+							break;
+						}
+					}
+
+					if(ChildStation)
+					{
+						CheckDockingSlots(BestDockingSlot, BestDistance, ChildStation->GetDockingSystem()->GetDockingSlots(), OnlyFreeSlot);
+					}
+				}
 			}
-			else
-			{
-				DockingSlots[BestIndex].Ship->GetNavigationSystem()->AbortAllCommands();
-			}
+
 		}
 
-		// Grant dock
-		DockingSlots[BestIndex].Granted = true;
-		DockingSlots[BestIndex].Ship = Ship;
-		return DockingSlots[BestIndex];
+		return BestDockingSlot;
+	};
+
+
+	// Looking for nearest available slot
+	FFlareDockingInfo* BestDockingSlot = FindBestDockingSlot(true);
+
+	auto GrantSlot = [](FFlareDockingInfo* Slot, AFlareSpacecraft* Ship)
+	{
+		Slot->Granted = true;
+		Slot->Ship = Ship;
+	};
+
+
+	if(BestDockingSlot)
+	{
+		// Granted
+		GrantSlot(BestDockingSlot, Ship);
+		return *BestDockingSlot;
+	}
+	// Denied, but player ship, so undock an AI ship
+	else if (Ship->IsPlayerShip())
+	{
+		BestDockingSlot = FindBestDockingSlot(false);
+
+		if(BestDockingSlot)
+		{
+			// Undock previous owner
+			if ((BestDockingSlot->Granted || BestDockingSlot->Occupied) && BestDockingSlot->Ship && BestDockingSlot->Ship->IsValidLowLevel())
+			{
+				if (BestDockingSlot->Ship->GetNavigationSystem()->IsDocked())
+				{
+					BestDockingSlot->Ship->GetNavigationSystem()->Undock();
+				}
+				else
+				{
+					BestDockingSlot->Ship->GetNavigationSystem()->AbortAllCommands();
+				}
+			}
+
+			// Grant dock
+			GrantSlot(BestDockingSlot, Ship);
+			return *BestDockingSlot;
+		}
 	}
 
 	// Denied
-	else
 	{
 		FFlareDockingInfo Info;
 		Info.Granted = false;
