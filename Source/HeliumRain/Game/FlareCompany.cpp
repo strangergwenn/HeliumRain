@@ -1036,11 +1036,11 @@ bool UFlareCompany::HasKnowResourceInput(FFlareResourceDescription* Resource)
 	{
 		for(UFlareSimulatedSpacecraft* Station : Sector->GetSectorStations())
 		{
-			EFlareResourcePriceContext::Type StationResourceUsage = Station->GetResourceUseType(Resource);
+			FFlareResourceUsage StationResourceUsage = Station->GetResourceUseType(Resource);
 
-			if(StationResourceUsage != EFlareResourcePriceContext::FactoryInput &&
-				StationResourceUsage != EFlareResourcePriceContext::ConsumerConsumption &&
-				StationResourceUsage != EFlareResourcePriceContext::MaintenanceConsumption)
+			if(StationResourceUsage.HasUsage(EFlareResourcePriceContext::FactoryInput) &&
+				StationResourceUsage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption) &&
+				StationResourceUsage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption))
 			{
 				continue;
 			}
@@ -1062,9 +1062,9 @@ bool UFlareCompany::HasKnowResourceOutput(FFlareResourceDescription* Resource)
 	{
 		for(UFlareSimulatedSpacecraft* Station : Sector->GetSectorStations())
 		{
-			EFlareResourcePriceContext::Type StationResourceUsage = Station->GetResourceUseType(Resource);
+			FFlareResourceUsage StationResourceUsage = Station->GetResourceUseType(Resource);
 
-			if(StationResourceUsage != EFlareResourcePriceContext::FactoryOutput)
+			if(StationResourceUsage.HasUsage(EFlareResourcePriceContext::FactoryOutput))
 			{
 				continue;
 			}

@@ -18,6 +18,7 @@
 
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../Quests/FlareQuestGenerator.h"
+#include "FlareSectorHelper.h"
 
 #include <ctime>
 
@@ -1966,15 +1967,16 @@ uint32 UFlareSimulatedSector::GetTransfertResourcePrice(UFlareSimulatedSpacecraf
 	}
 
 	// Get context
-	EFlareResourcePriceContext::Type ResourceUsage = Station->GetResourceUseType(Resource);
-	if (Station == DestinationSpacecraft && (ResourceUsage == EFlareResourcePriceContext::ConsumerConsumption ||
-			ResourceUsage == EFlareResourcePriceContext::MaintenanceConsumption))
-	{
-		ResourceUsage = EFlareResourcePriceContext::FactoryInput;
-	}
+	FFlareResourceUsage ResourceUsage = Station->GetResourceUseType(Resource);
 
-	// Get the usage and price
-	return GetResourcePrice(Resource, ResourceUsage);
+	if (Station == DestinationSpacecraft)
+	{
+		 return SectorHelper::GetSellResourcePrice(this,Resource, ResourceUsage);
+	}
+	else
+	{
+		return SectorHelper::GetBuyResourcePrice(this,Resource, ResourceUsage);
+	}
 }
 
 bool UFlareSimulatedSector::CanUpgrade(UFlareCompany* Company)
