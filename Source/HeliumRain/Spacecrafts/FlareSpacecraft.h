@@ -399,6 +399,10 @@ public:
 		return Parent->GetDescription();
 	}
 
+	bool IsComplexElement() const;
+
+	AFlareSpacecraft* GetComplex() const;
+
 	inline UFlareCompany* GetCompany()
 	{
 		return Parent->GetCompany();
@@ -420,6 +424,11 @@ public:
 	}
 
 	inline FFlareSpacecraftSave& GetData()
+	{
+		return Parent->GetData();
+	}
+
+	inline FFlareSpacecraftSave const& GetConstData() const
 	{
 		return Parent->GetData();
 	}

@@ -152,7 +152,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 	}
 
 	// Attach to parent complex station, if any
-	if (GetData().AttachComplexStationName != NAME_None && !AttachedToParentActor)
+	if (IsComplexElement() && !AttachedToParentActor)
 	{
 		TryAttachParentComplex();
 	}
@@ -1003,15 +1003,7 @@ void AFlareSpacecraft::SetAsteroidData(FFlareAsteroidSave* Data)
 void AFlareSpacecraft::TryAttachParentComplex()
 {
 	// Find station
-	AFlareSpacecraft* AttachStation = NULL;
-	for (TActorIterator<AFlareSpacecraft> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-	{
-		if ((*ActorItr)->GetImmatriculation() == GetData().AttachComplexStationName)
-		{
-			AttachStation = *ActorItr;
-			break;
-		}
-	}
+	AFlareSpacecraft* AttachStation = GetComplex();
 
 	// Attach to station
 	if (AttachStation)
@@ -2112,6 +2104,22 @@ bool AFlareSpacecraft::IsOutsideSector() const
 	return Distance > Limits;
 }
 
+AFlareSpacecraft* AFlareSpacecraft::GetComplex() const
+{
+	for (AFlareSpacecraft* StationCandidate: GetGame()->GetActiveSector()->GetSpacecrafts())
+	{
+		if (StationCandidate->GetImmatriculation() == GetConstData().AttachComplexStationName)
+		{
+			return StationCandidate;
+		}
+	}
+	return nullptr;
+}
+
+bool AFlareSpacecraft::IsComplexElement() const
+{
+	return GetConstData().AttachComplexStationName != NAME_None;
+}
 
 
 #undef LOCTEXT_NAMESPACE

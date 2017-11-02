@@ -819,17 +819,9 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(AFlareSpacecraft* DockStation
 
 	AFlareSpacecraft* AttachStation = DockStation;
 
-	if (DockStation->GetData().AttachComplexStationName != NAME_None)
+	if (DockStation->IsComplexElement())
 	{
-
-		for (AFlareSpacecraft* StationCandidate: Spacecraft->GetGame()->GetActiveSector()->GetSpacecrafts())
-		{
-			if (StationCandidate->GetImmatriculation() == DockStation->GetData().AttachComplexStationName)
-			{
-				AttachStation = StationCandidate;
-				break;
-			}
-		}
+		AttachStation = DockStation->GetComplex();
 	}
 
 	DockConstraint->SetConstrainedComponents(Spacecraft->Airframe, NAME_None, AttachStation->Airframe,NAME_None);
