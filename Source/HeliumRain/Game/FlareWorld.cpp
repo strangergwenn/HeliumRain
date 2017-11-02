@@ -1048,10 +1048,27 @@ void UFlareWorld::ProcessStationCapture()
 		FFlareSpacecraftSave Data = Spacecraft->GetData();
 		FFlareSpacecraftDescription* ShipDescription = Spacecraft->GetDescription();
 
+		TArray<TPair<FFlareSpacecraftDescription*, FFlareSpacecraftSave>> ChildStructure;
+
+		if(Spacecraft->IsComplex())
+		{
+			for(UFlareSimulatedSpacecraft* Child: Spacecraft->GetComplexChildren())
+			{
+				ChildStructure.Add(TPair<FFlareSpacecraftDescription*, FFlareSpacecraftSave>(Child->GetDescription(), Child->GetData()));
+			}
+		}
 
 
 		Spacecraft->GetCompany()->DestroySpacecraft(Spacecraft);
 		UFlareSimulatedSpacecraft* NewShip = Sector->CreateSpacecraft(ShipDescription, Capturer, SpawnLocation, SpawnRotation, &Data);
+
+		for(TPair<FFlareSpacecraftDescription*, FFlareSpacecraftSave>& Pair : ChildStructure)
+		{
+			UFlareSimulatedSpacecraft* NewChildStation = Sector->CreateSpacecraft(Pair.Key, Capturer, SpawnLocation, SpawnRotation, &Pair.Value, false, false, NewShip->GetImmatriculation());
+
+			Sector->AttachStationToComplexStation(NewChildStation, NewShip->GetImmatriculation(), Pair.Value.AttachComplexConnectorName);
+		}
+
 
 		GetGame()->GetQuestManager()->OnSpacecraftCaptured(Spacecraft, NewShip);
 

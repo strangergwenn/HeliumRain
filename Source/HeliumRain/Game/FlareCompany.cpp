@@ -638,6 +638,15 @@ void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 {
 	FLOGV("UFlareCompany::DestroySpacecraft : Remove %s from company %s", *Spacecraft->GetImmatriculation().ToString(), *GetCompanyName().ToString());
 
+	// Destroy child first
+	if(Spacecraft->IsComplex())
+	{
+		for(UFlareSimulatedSpacecraft* Child: Spacecraft->GetComplexChildren())
+		{
+			DestroySpacecraft(Child);
+		}
+	}
+
 	Spacecraft->ResetCapture();
 
 	CompanySpacecrafts.Remove(Spacecraft);
