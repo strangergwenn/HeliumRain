@@ -510,6 +510,12 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 		return;
 	}
 
+	if (Spacecraft->GetParent()->IsComplexElement())
+	{
+		Spacecraft->GetComplex()->GetDamageSystem()->OnCollision(Other, HitLocation, NormalImpulse);
+		return;
+	}
+
 	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
 
 	// Ignore debris
@@ -680,6 +686,13 @@ void UFlareSpacecraftDamageSystem::ApplyDamage(float Energy, float Radius, FVect
 
 	//FLOGV("Apply %f damages to %s with radius %f at %s", Energy, *(Spacecraft->GetImmatriculation().ToString()), Radius, *Location.ToString());
 	//DrawDebugSphere(Spacecraft->GetWorld(), Location, Radius * 100, 12, FColor::Red, true);
+
+
+	if (Spacecraft->GetParent()->IsComplexElement())
+	{
+		Spacecraft->GetComplex()->GetDamageSystem()->ApplyDamage(Energy, Radius, Location, DamageType, DamageSource, DamageCauser);
+		return;
+	}
 
 	// Signal the player he's hit something
 	AFlarePlayerController* PC = Spacecraft->GetGame()->GetPC();
