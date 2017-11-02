@@ -1819,6 +1819,15 @@ bool UFlareSimulatedSpacecraft::IsBeingCaptured() const
 int32 UFlareSimulatedSpacecraft::GetCapturePointThreshold() const
 {
 	int32 BaseCapturePoint = SpacecraftData.Level * SpacecraftDescription->CapturePointThreshold;
+
+	if(IsComplex())
+	{
+		for(UFlareSimulatedSpacecraft* Child: GetComplexChildren())
+		{
+			BaseCapturePoint += Child->GetCapturePointThreshold();
+		}
+	}
+
 	float DamageRatio = GetDamageSystem()->GetGlobalDamageRatio();
 	float CaptureRatio = CAPTURE_THRESOLD_MIN;
 
@@ -1835,6 +1844,11 @@ int32 UFlareSimulatedSpacecraft::GetCapturePointThreshold() const
 
 float UFlareSimulatedSpacecraft::GetStationEfficiency()
 {
+	if(IsComplexElement())
+	{
+		return GetComplexMaster()->GetStationEfficiency();
+	}
+
 	// if Damage ratio == 1 ,  efficiency == 1
 	// if Damage ratio == STATION_DAMAGE_THRESOLD , efficiency = 0
 	float DamageRatio = GetDamageSystem()->GetGlobalHealth();
