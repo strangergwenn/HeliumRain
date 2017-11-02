@@ -474,7 +474,17 @@ float UFlareSimulatedSpacecraftDamageSystem::GetTemperature() const
 
 float UFlareSimulatedSpacecraftDamageSystem::GetMaxHitPoints(FFlareSpacecraftComponentDescription* ComponentDescription) const
 {
-	return Spacecraft->GetLevel() * ComponentDescription->HitPoints;
+	float MaxHitPoint = Spacecraft->GetLevel() * ComponentDescription->HitPoints;
+
+	if(Spacecraft->IsComplex())
+	{
+		for(UFlareSimulatedSpacecraft* Child: Spacecraft->GetComplexChildren())
+		{
+			MaxHitPoint += Child->GetDamageSystem()->GetMaxHitPoints(ComponentDescription);
+		}
+	}
+
+	return MaxHitPoint;
 }
 
 
