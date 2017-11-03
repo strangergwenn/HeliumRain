@@ -1191,7 +1191,7 @@ void AFlareHUD::DrawHUDInternal()
 	for (int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex ++)
 	{
 		AFlareSpacecraft* Spacecraft = ActiveSector->GetSpacecrafts()[SpacecraftIndex];
-		if (Spacecraft != PlayerShip)
+		if (Spacecraft != PlayerShip && !Spacecraft->IsComplexElement())
 		{
 			// Draw designators
 			bool ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
