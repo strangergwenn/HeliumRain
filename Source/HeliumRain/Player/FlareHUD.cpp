@@ -1054,7 +1054,7 @@ void AFlareHUD::UpdateContextMenu(AFlareSpacecraft* PlayerShip)
 		for (int SpacecraftIndex = 0; SpacecraftIndex < ActiveSector->GetSpacecrafts().Num(); SpacecraftIndex++)
 		{
 			AFlareSpacecraft* Spacecraft = ActiveSector->GetSpacecrafts()[SpacecraftIndex];
-			if (Spacecraft->IsValidLowLevel() && Spacecraft != PlayerShip)
+			if (Spacecraft->IsValidLowLevel() && Spacecraft != PlayerShip && !Spacecraft->IsComplexElement())
 			{
 				// Calculation data
 				FVector2D ScreenPosition;
