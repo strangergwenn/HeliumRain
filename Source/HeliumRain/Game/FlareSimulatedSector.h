@@ -401,7 +401,8 @@ public:
 	void SetSectorOrbitParameters(const FFlareSectorOrbitParameters& OrbitParameters);
 
 	/** Check whether we can build a station, understand why if not */
-	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReason, bool IgnoreCost = false);
+	bool CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReason,
+		bool IgnoreCost = false, bool InComplex = false, bool InComplexSpecial = false);
 
 	/** Build a station on this sector */
 	UFlareSimulatedSpacecraft* BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company,

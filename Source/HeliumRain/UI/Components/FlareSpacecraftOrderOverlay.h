@@ -100,6 +100,7 @@ protected:
 	UPROPERTY()
 	TWeakObjectPtr<class AFlareMenuManager>                   MenuManager;
 	FOrderDelegate                                            OnConfirmedCB;
+	bool                                                      IsComplexSlotSpecial;
 
 	// Spacecraft building
 	UFlareSimulatedSpacecraft*                                TargetComplex;
