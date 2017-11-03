@@ -151,7 +151,7 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSpacecraft* Complex, FNam
 	TargetSector = Complex->GetCurrentSector();
 	TargetComplex = Complex;
 	OnConfirmedCB = ConfirmationCallback;
-	bool IsSlotSpecial = ConnectorName.ToString().Contains(TEXT("special"));
+	IsComplexSlotSpecial = (TargetComplex != NULL) && ConnectorName.ToString().Contains(TEXT("special"));
 
 	// Init station list
 	SpacecraftList.Empty();
@@ -161,12 +161,9 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSpacecraft* Complex, FNam
 
 		for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->StationCatalog.Num(); SpacecraftIndex++)
 		{
-			// Candidate have to be not a substation, compatible with complex, not restricted / built on special, and available in tech
+			// Candidate have to be not a substation and available in tech
 			FFlareSpacecraftDescription* Description = &SpacecraftCatalog->StationCatalog[SpacecraftIndex]->Data;
-			if (!Description->IsSubstation
-			 && Description->CanBeBuiltInComplex
-			 && (!Description->IsRestrictedInComplex || IsSlotSpecial)
-			 && MenuManager->GetPC()->GetCompany()->IsTechnologyUnlockedStation(Description))
+			if (!Description->IsSubstation && MenuManager->GetPC()->GetCompany()->IsTechnologyUnlockedStation(Description))
 			{
 				UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->StationCatalog[SpacecraftIndex];
 				SpacecraftList.AddUnique(FInterfaceContainer::New(&Entry->Data));
@@ -255,6 +252,7 @@ void SFlareSpacecraftOrderOverlay::Close()
 	TargetComplex = NULL;
 	TargetShipyard = NULL;
 	TargetSector = NULL;
+	IsComplexSlotSpecial = false;
 }
 
 void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
@@ -299,7 +297,7 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 			else
 			{
 				TArray<FText> Reasons;
-				CanBuild = TargetSector->CanBuildStation(Desc, PlayerCompany, Reasons);
+				CanBuild = TargetSector->CanBuildStation(Desc, PlayerCompany, Reasons, false, (TargetComplex != NULL), IsComplexSlotSpecial);
 
 				// Show reason
 				if (!CanBuild)
@@ -471,6 +469,22 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 				ConstraintString += ", ";
 			}
 			ConstraintString += LOCTEXT("IcyNeeded", "an icy sector").ToString();
+		}
+		if (Desc->BuildConstraint.Contains(EFlareBuildConstraint::NoComplex))
+		{
+			if (ConstraintString.Len())
+			{
+				ConstraintString += ", ";
+			}
+			ConstraintString += LOCTEXT("NoComplexNeeded", "regular sector building").ToString();
+		}
+		if (Desc->BuildConstraint.Contains(EFlareBuildConstraint::SpecialSlotInComplex))
+		{
+			if (ConstraintString.Len())
+			{
+				ConstraintString += ", ";
+			}
+			ConstraintString += LOCTEXT("SpecialComplexNeeded", "a central complex slot").ToString();
 		}
 		if (ConstraintString.Len())
 		{

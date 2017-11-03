@@ -615,7 +615,9 @@ namespace EFlareBuildConstraint
 		SunExposure,
 		HideOnIce,
 		HideOnNoIce,
-		GeostationaryOrbit
+		GeostationaryOrbit,
+		SpecialSlotInComplex,
+		NoComplex
 	};
 }
 
@@ -872,14 +874,6 @@ struct FFlareSpacecraftDescription
 	/** Is this a fixed station attached to world geometry */
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool IsSubstation;
-
-	/** Can this station be added to station complexes */
-	UPROPERTY(EditAnywhere, Category = Content)
-	bool CanBeBuiltInComplex;
-
-	/** Is this station restricted to a central slot in station complexes */
-	UPROPERTY(EditAnywhere, Category = Content)
-	bool IsRestrictedInComplex;
 	
 	/** List of station connectors */
 	UPROPERTY(EditAnywhere, Category = Content)

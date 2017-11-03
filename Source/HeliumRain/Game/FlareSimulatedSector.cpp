@@ -529,7 +529,8 @@ FText UFlareSimulatedSector::GetSectorDescription() const
 	return SectorDescription->Description;
 }
 
-bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReasons, bool IgnoreCost)
+bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company, TArray<FText>& OutReasons,
+	bool IgnoreCost, bool InComplex, bool InComplexSpecial)
 {
 	bool Result = true;
 
@@ -612,18 +613,33 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 		Result = false;
 	}
 
-	if(IgnoreCost)
+	if (InComplex)
 	{
-		return Result;
+		// No complex
+		if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::NoComplex))
+		{
+			OutReasons.Add(LOCTEXT("BuildRequiresNoComplex", "This station can't be built at a complex"));
+			Result = false;
+		}
+
+		// Requires special complex slot
+		else if (StationDescription->BuildConstraint.Contains(EFlareBuildConstraint::SpecialSlotInComplex) && !InComplexSpecial)
+		{
+			OutReasons.Add(LOCTEXT("BuildRequiresSpecialComplexSlot", "This station can only be built at the center of complexes"));
+			Result = false;
+		}
 	}
 
-	// Check money cost
-	if (Company->GetMoney() < GetStationConstructionFee(StationDescription->CycleCost.ProductionCost, Company))
+	if (!IgnoreCost)
 	{
-		OutReasons.Add(FText::Format(LOCTEXT("BuildRequiresMoney", "Not enough credits ({0} / {1})"),
-			FText::AsNumber(UFlareGameTools::DisplayMoney(Company->GetMoney())),
-			FText::AsNumber(UFlareGameTools::DisplayMoney(GetStationConstructionFee(StationDescription->CycleCost.ProductionCost, Company)))));
-		Result = false;
+		// Check money cost
+		if (Company->GetMoney() < GetStationConstructionFee(StationDescription->CycleCost.ProductionCost, Company))
+		{
+			OutReasons.Add(FText::Format(LOCTEXT("BuildRequiresMoney", "Not enough credits ({0} / {1})"),
+				FText::AsNumber(UFlareGameTools::DisplayMoney(Company->GetMoney())),
+				FText::AsNumber(UFlareGameTools::DisplayMoney(GetStationConstructionFee(StationDescription->CycleCost.ProductionCost, Company)))));
+			Result = false;
+		}
 	}
 
 	return Result;
