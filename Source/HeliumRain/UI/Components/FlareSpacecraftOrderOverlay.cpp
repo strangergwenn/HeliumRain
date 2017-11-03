@@ -151,7 +151,7 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSpacecraft* Complex, FNam
 	TargetSector = Complex->GetCurrentSector();
 	TargetComplex = Complex;
 	OnConfirmedCB = ConfirmationCallback;
-	IsComplexSlotSpecial = (TargetComplex != NULL) && ConnectorName.ToString().Contains(TEXT("special"));
+	IsComplexSlotSpecial = (TargetComplex != NULL) && UFlareSimulatedSpacecraft::IsSpecialComplexSlot(ConnectorName);
 
 	// Init station list
 	SpacecraftList.Empty();
@@ -329,7 +329,7 @@ FText SFlareSpacecraftOrderOverlay::GetWindowTitle() const
 {
 	if (TargetComplex)
 	{
-		return LOCTEXT("BuildComplexStationTitle", "Build complex station");
+		return LOCTEXT("BuildComplexStationTitle", "Add complex element");
 	}
 	else if (TargetShipyard)
 	{

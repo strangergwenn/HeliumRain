@@ -75,11 +75,11 @@ protected:
 	void UpdateComplexList();
 
 	/** Build a station */
-	void OnBuildStationClicked(FName ConnectorName);
+	void OnBuildElementClicked(FName ConnectorName);
 
 	/** Station selected */
 	void OnBuildStationSelected(FFlareSpacecraftDescription* NewStationDescription);
-
+	
 
 	/*----------------------------------------------------
 		Shipyards
@@ -177,6 +177,9 @@ protected:
 	/** Part list generator */
 	TSharedRef<ITableRow> GeneratePartInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
 
+	/** Get upgrade info */
+	static FText GetUpgradeInfo(UFlareSimulatedSpacecraft* Spacecraft);
+
 
 	/*----------------------------------------------------
 		Action callbacks
@@ -203,9 +206,10 @@ protected:
 	/** Cancelled a part */
 	void OnPartCancelled();
 
-	void OnUpgradeStationClicked();
+	void OnUpgradeStationClicked(UFlareSimulatedSpacecraft* Spacecraft);
 
 	bool IsUpgradeStationDisabled() const;
+
 
 protected:
 
