@@ -174,6 +174,10 @@ public:
 
 	void RegisterComplexMaster(UFlareSimulatedSpacecraft* master);
 
+	/** Is this slot usable for special complex elements ? */
+	static bool IsSpecialComplexSlot(FName ConnectorName);
+
+
 	/*----------------------------------------------------
 		Resources
 	----------------------------------------------------*/

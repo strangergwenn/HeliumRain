@@ -1256,6 +1256,11 @@ void UFlareSimulatedSpacecraft::RegisterComplexMaster(UFlareSimulatedSpacecraft*
 	ComplexMaster = master;
 }
 
+bool UFlareSimulatedSpacecraft::IsSpecialComplexSlot(FName ConnectorName)
+{
+	return ConnectorName.ToString().Contains(TEXT("special"));
+}
+
 TArray<FFlareDockingInfo>& UFlareSimulatedSpacecraft::GetStationConnectors()
 {
 	return ConnectorSlots;

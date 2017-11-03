@@ -161,6 +161,7 @@ void SFlareShipMenu::Construct(const FArguments& InArgs)
 
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
+					.HAlign(HAlign_Left)
 					[
 						SAssignNew(ComplexList, SVerticalBox)
 					]
@@ -751,21 +752,7 @@ void SFlareShipMenu::UpdateUpgradeBox()
 			.Text(LOCTEXT("CurrentLevelInfo", "Levels act as a multiplier to all station characteristics - a level 2 station acts like two level 1 stations."))
 		];
 
-		// Add resources
-		FString ResourcesString;
-		for (int ResourceIndex = 0; ResourceIndex < TargetSpacecraft->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
-		{
-			FFlareFactoryResource* FactoryResource = &TargetSpacecraft->GetDescription()->CycleCost.InputResources[ResourceIndex];
-			ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
-		}
-
-		// Final text
-		FText ProductionCost = FText::Format(LOCTEXT("UpgradeCostFormat", "Upgrade to level {0} ({1} credits{2})"),
-			FText::AsNumber(TargetSpacecraft->GetLevel() + 1),
-			FText::AsNumber(UFlareGameTools::DisplayMoney(TargetSpacecraft->GetStationUpgradeFee())),
-			FText::FromString(ResourcesString));
-
-		// TODO increase stock inc cargo bay with level
+		UFlareSimulatedSpacecraft* KeepMenuTarget = NULL;
 		
 		// Upgrade button
 		UpgradeBox->AddSlot()
@@ -775,9 +762,9 @@ void SFlareShipMenu::UpdateUpgradeBox()
 		[
 			SNew(SFlareButton)
 			.Width(12)
-			.Text(ProductionCost)
+			.Text(GetUpgradeInfo(TargetSpacecraft))
 			.Icon(FFlareStyleSet::GetIcon("Travel"))
-			.OnClicked(this, &SFlareShipMenu::OnUpgradeStationClicked)
+			.OnClicked(this, &SFlareShipMenu::OnUpgradeStationClicked, KeepMenuTarget)
 			.IsDisabled(this, &SFlareShipMenu::IsUpgradeStationDisabled)
 		];
 	}
@@ -803,34 +790,34 @@ void SFlareShipMenu::UpdateComplexList()
 		if (TargetSpacecraft->IsUnderConstruction())
 		{
 			ComplexList->AddSlot()
+			.Padding(Theme.SmallContentPadding)
+			.AutoHeight()
+			[
+				SNew(SBorder)
+				.BorderImage(&Theme.NearInvisibleBrush)
 				.Padding(Theme.SmallContentPadding)
-				.AutoHeight()
 				[
-					SNew(SBorder)
-					.BorderImage(&Theme.NearInvisibleBrush)
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
 					.Padding(Theme.SmallContentPadding)
 					[
-						SNew(SHorizontalBox)
-
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(SImage)
-							.Image(FFlareStyleSet::GetIcon("Build"))
-						]
-
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.TextFont)
-							.WrapTextAt(Theme.ContentWidth)
-							.Text(LOCTEXT("AddComplexConstruction", "Complete construction of this station to enable building more station elements"))
-						]
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("Build"))
 					]
-				];
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.WrapTextAt(Theme.ContentWidth)
+						.Text(LOCTEXT("AddComplexConstruction", "Complete construction of this station to enable building more station elements"))
+					]
+				]
+			];
 
 			ComplexLayout->SetVisibility(EVisibility::Collapsed);
 		}
@@ -840,6 +827,7 @@ void SFlareShipMenu::UpdateComplexList()
 		{
 			ComplexLayout->SetVisibility(EVisibility::Visible);
 
+			int32 ConnectorNumber = 1;
 			for (FFlareDockingInfo& Connector : TargetSpacecraft->GetStationConnectors())
 			{
 				// Existing element - Granted in this context means a station is there (Occupied means active)
@@ -849,33 +837,80 @@ void SFlareShipMenu::UpdateComplexList()
 					FCHECK(ComplexElement);
 					FFlareSpacecraftDescription* ComplexElementDesc = ComplexElement->GetDescription();
 					FCHECK(ComplexElementDesc);
-
-					// TODO : enable scrapping of stations
-
+					
+					// Add structure of the station info
+					TSharedPtr<SHorizontalBox> Box;
 					ComplexList->AddSlot()
-						.AutoHeight()
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					[
+						SAssignNew(Box, SHorizontalBox)
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
 						[
 							SNew(SFlareButton)
-							.Text(ComplexElementDesc->Name)
+							.Text(FText::Format(LOCTEXT("UpgradeComplexFormat", "Lv {0} {1}"), FText::AsNumber(ComplexElement->GetLevel()), ComplexElementDesc->Name))
 							.HelpText(ComplexElementDesc->Description)
 							.IsDisabled(true)
 							.Width(6)
+						]
+					];
+
+					// Add leveling info
+					if (ComplexElement->GetLevel() >= ComplexElement->GetDescription()->MaxLevel)
+					{
+						Box->AddSlot()
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Text(LOCTEXT("MaxLevelInfo", "This station has reached the maximum level."))
+							.IsDisabled(true)
+							.Width(12)
 						];
+					}
+					else
+					{
+						Box->AddSlot()
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Text(GetUpgradeInfo(ComplexElement))
+							.HelpText(LOCTEXT("UpgradeComplexStationInfo", "Upgrade this station element"))
+							.OnClicked(this, &SFlareShipMenu::OnUpgradeStationClicked, ComplexElement)
+							.Width(12)
+						];
+					}
+
+					// TODO #971 : enable scrapping of stations
 				}
 
 				// New element can be added here
 				else
 				{
+					FText NewSlotSpecialText;
+					if (UFlareSimulatedSpacecraft::IsSpecialComplexSlot(Connector.Name))
+					{
+						NewSlotSpecialText = LOCTEXT("AddComplexStationSpecial", "(Central slot)");
+					}
+
+					FText NewSlotText = FText::Format(LOCTEXT("AddComplexStationFormat", "({0}) Add a new station element to the complex {1}"),
+						FText::AsNumber(ConnectorNumber),
+						NewSlotSpecialText);
+
 					ComplexList->AddSlot()
-						.AutoHeight()
-						[
-							SNew(SFlareButton)
-							.Text(LOCTEXT("AddComplexStation", "Add station element"))
-							.HelpText(LOCTEXT("AddComplexStationInfo", "Build a new station element on this complex"))
-							.OnClicked(this, &SFlareShipMenu::OnBuildStationClicked, Connector.Name)
-							.Width(6)
-						];
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					[
+						SNew(SFlareButton)
+						.Text(NewSlotText)
+						.HelpText(LOCTEXT("AddComplexStationInfo", "Build a new station element on this complex"))
+						.OnClicked(this, &SFlareShipMenu::OnBuildElementClicked, Connector.Name)
+						.Width(18)
+					];
 				}
+
+				ConnectorNumber++;
 			}
 		}
 	}
@@ -885,7 +920,7 @@ void SFlareShipMenu::UpdateComplexList()
 	}
 }
 
-void SFlareShipMenu::OnBuildStationClicked(FName ConnectorName)
+void SFlareShipMenu::OnBuildElementClicked(FName ConnectorName)
 {
 	SelectedComplexStation = TargetSpacecraft->GetImmatriculation();
 	SelectedComplexConnector = ConnectorName;
@@ -943,6 +978,7 @@ void SFlareShipMenu::OnBuildStationSelected(FFlareSpacecraftDescription* Station
 		SelectedComplexConnector = NAME_None;
 	}
 }
+
 
 /*----------------------------------------------------
 	Shipyards
@@ -1444,12 +1480,36 @@ TSharedRef<ITableRow> SFlareShipMenu::GeneratePartInfo(TSharedPtr<FInterfaceCont
 	return res;
 }
 
-void SFlareShipMenu::OnUpgradeStationClicked()
+FText SFlareShipMenu::GetUpgradeInfo(UFlareSimulatedSpacecraft* Spacecraft)
 {
-	if (TargetSpacecraft)
+	// Add resources
+	FString ResourcesString;
+	for (int ResourceIndex = 0; ResourceIndex < Spacecraft->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
 	{
-		UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
-		if (Sector)
+		FFlareFactoryResource* FactoryResource = &Spacecraft->GetDescription()->CycleCost.InputResources[ResourceIndex];
+		ResourcesString += FString::Printf(TEXT(", %u %s"), FactoryResource->Quantity, *FactoryResource->Resource->Data.Name.ToString()); // FString needed here
+	}
+
+	// Final text
+	FText ProductionCost = FText::Format(LOCTEXT("UpgradeCostFormat", "Upgrade to level {0} ({1} credits{2})"),
+		FText::AsNumber(Spacecraft->GetLevel() + 1),
+		FText::AsNumber(UFlareGameTools::DisplayMoney(Spacecraft->GetStationUpgradeFee())),
+		FText::FromString(ResourcesString));
+
+	return ProductionCost;
+}
+
+void SFlareShipMenu::OnUpgradeStationClicked(UFlareSimulatedSpacecraft* Spacecraft)
+{
+	UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
+	if (Sector)
+	{
+		if (Spacecraft)
+		{
+			Sector->UpgradeStation(Spacecraft);
+			MenuManager->Reload();
+		}
+		else if (TargetSpacecraft)
 		{
 			Sector->UpgradeStation(TargetSpacecraft);
 			FFlareMenuParameterData Data;
