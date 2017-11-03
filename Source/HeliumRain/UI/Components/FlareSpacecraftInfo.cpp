@@ -173,13 +173,22 @@ void SFlareSpacecraftInfo::Construct(const FArguments& InArgs)
 						SAssignNew(MessageBox, SVerticalBox)
 					]
 
-					// Cargo bay block
+					// Cargo bay block 1
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(Theme.SmallContentPadding)
 					.HAlign(HAlign_Left)
 					[
-						SAssignNew(CargoBay, SHorizontalBox)
+						SAssignNew(CargoBay1, SHorizontalBox)
+					]
+
+					// Cargo bay block 2
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.SmallContentPadding)
+					.HAlign(HAlign_Left)
+					[
+						SAssignNew(CargoBay2, SHorizontalBox)
 					]
 				]
 
@@ -334,13 +343,15 @@ void SFlareSpacecraftInfo::SetSpacecraft(UFlareSimulatedSpacecraft* Target)
 		}
 
 		// Fill the cargo bay
-		CargoBay->ClearChildren();
+		CargoBay1->ClearChildren();
+		CargoBay2->ClearChildren();
 		UFlareCompany* Company = TargetSpacecraft->GetCompany();
 		if (Company->GetPlayerWarState() != EFlareHostility::Hostile)
 		{
 			for (int32 CargoIndex = 0; CargoIndex < TargetSpacecraft->GetActiveCargoBay()->GetSlotCount() ; CargoIndex++)
 			{
-				CargoBay->AddSlot()
+				TSharedPtr<SHorizontalBox> Bay = (CargoIndex < 8) ? CargoBay1 : CargoBay2;
+				Bay->AddSlot()
 				[
 					SNew(SFlareCargoInfo)
 					.Spacecraft(TargetSpacecraft)
@@ -397,7 +408,8 @@ void SFlareSpacecraftInfo::Show()
 
 	if (Minimized)
 	{
-		CargoBay->SetVisibility(EVisibility::Collapsed);
+		CargoBay1->SetVisibility(EVisibility::Collapsed);
+		CargoBay2->SetVisibility(EVisibility::Collapsed);
 
 		InspectButton->SetVisibility(EVisibility::Collapsed);
 		TargetButton->SetVisibility(EVisibility::Collapsed);
@@ -455,7 +467,8 @@ void SFlareSpacecraftInfo::Show()
 		FLOGV("SFlareSpacecraftInfo::Show : CanDock = %d CanUpgrade = %d CanTrade = %d CanScrap = %d", CanDock, CanUpgrade, CanTrade, CanScrap);
 
 		// Button states : hide stuff that can never make sense (flying stations etc), disable other states after that
-		CargoBay->SetVisibility(CargoBay->NumSlots() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
+		CargoBay1->SetVisibility(CargoBay1->NumSlots() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
+		CargoBay2->SetVisibility(CargoBay2->NumSlots() > 0 ? EVisibility::Visible : EVisibility::Collapsed);
 		
 		// Buttons
 		InspectButton->SetVisibility(NoInspect ?           EVisibility::Collapsed : EVisibility::Visible);
@@ -558,7 +571,8 @@ void SFlareSpacecraftInfo::Show()
 
 	if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Trade)
 	{
-		CargoBay->SetVisibility(EVisibility::Visible);
+		CargoBay1->SetVisibility(EVisibility::Visible);
+		CargoBay2->SetVisibility(EVisibility::Visible);
 	}
 
 	PC->GetMenuManager()->RegisterSpacecraftInfo(this);
