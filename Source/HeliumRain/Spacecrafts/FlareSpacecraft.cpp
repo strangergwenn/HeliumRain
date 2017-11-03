@@ -383,6 +383,11 @@ TArray<FFlareScreenTarget>& AFlareSpacecraft::GetCurrentTargets()
 			continue;
 		}
 
+		if(Spacecraft->IsComplexElement())
+		{
+			continue;
+		}
+
 		if(!Spacecraft->GetParent()->GetDamageSystem()->IsAlive())
 		{
 			continue;
