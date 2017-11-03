@@ -193,6 +193,7 @@ protected:
 	TSharedPtr<SWidget>               OwnerWidget;
 	TSharedPtr<SFlareShipStatus>      ShipStatus;
 	TSharedPtr<SFlareCompanyFlag>     CompanyFlag;
-	TSharedPtr<SHorizontalBox>        CargoBay;
+	TSharedPtr<SHorizontalBox>        CargoBay1;
+	TSharedPtr<SHorizontalBox>        CargoBay2;
 
 };
