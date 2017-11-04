@@ -216,6 +216,11 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 	}
 
 
+	if(!IsComplexElement() && IsUnderConstruction())
+	{
+		AutoFillConstructionCargoBay();
+	}
+
 
 	// Setup station connectors
 	ConnectorSlots.Empty();
@@ -1228,6 +1233,22 @@ bool UFlareSimulatedSpacecraft::IsShipyard()
 	return GetFactories().Num() && GetFactories()[0]->IsShipyard();
 }
 
+void UFlareSimulatedSpacecraft::AutoFillConstructionCargoBay()
+{
+	UFlareCargoBay* Construction = GetConstructionCargoBay();
+	UFlareCargoBay* Production = GetProductionCargoBay();
+
+
+	for(FFlareCargo& Slot : Construction->GetSlots())
+	{
+		if(Slot.Lock == EFlareResourceLock::Input)
+		{
+			int32 MissingQuantity = Construction->GetFreeSpaceForResource(Slot.Resource, nullptr);
+			int32 TakenQuantity = Production->TakeResources(Slot.Resource, MissingQuantity, nullptr);
+			Construction->GiveResources(Slot.Resource, TakenQuantity, nullptr);
+		}
+	}
+}
 
 /*----------------------------------------------------
 	Complexes
