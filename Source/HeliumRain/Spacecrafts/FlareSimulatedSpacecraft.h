@@ -150,6 +150,10 @@ public:
 
 	void AutoFillConstructionCargoBay();
 
+	bool CanScrapStation() const;
+
+	TMap<FFlareResourceDescription*, int32> ComputeScrapResources() const;
+
 
 	/*----------------------------------------------------
 		Complexes
@@ -169,6 +173,9 @@ public:
 
 	/** Add an element to this complex */
 	void RegisterComplexElement(FFlareConnectionSave ConnectionData);
+
+	/** Remove an element from this complex */
+	void UnregisterComplexElement(UFlareSimulatedSpacecraft* Element);
 
 	UFlareSimulatedSpacecraft* GetComplexMaster() const;
 

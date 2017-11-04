@@ -441,6 +441,8 @@ public:
 	void GenerateMeteorites();
 	void GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* TargetStation, float PowerRatio);
 
+	TMap<FFlareResourceDescription*, int32> DistributeResources(TMap<FFlareResourceDescription*, int32> Resources, UFlareCompany* TargetCompany, bool DryRun);
+
 protected:
 
     /*----------------------------------------------------

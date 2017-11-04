@@ -447,7 +447,7 @@ void SFlareSpacecraftInfo::Show()
 		bool CanUpgradeDocked = ActiveTargetSpacecraft && DockedStation && DockedStation->GetParent()->HasCapability(EFlareSpacecraftCapability::Upgrade);
 		bool CanUpgrade = !TargetSpacecraft->IsStation() && (CanUpgradeDistant || CanUpgradeDocked);
 		bool CanTrade =    IsCargo && (IsDocked || IsOutsidePlayerFleet);
-		bool CanScrapStation = TargetSpacecraft->IsStation() && true; // TODO #971 : check here if station can be scrapped (is empty complex, etc) and replace 'true'
+		bool CanScrapStation = TargetSpacecraft->IsStation() && TargetSpacecraft->CanScrapStation();
 		bool CanScrap =    OwnedAndNotSelf && (CanUpgrade || CanScrapStation);
 		
 		// Is a battle in progress ?
@@ -562,7 +562,7 @@ void SFlareSpacecraftInfo::Show()
 		{
 			if (TargetSpacecraft->IsStation())
 			{
-				ScrapButton->SetHelpText(LOCTEXT("CantScrapStationInfo", "Scrapping requires ...")); // TODO #971 : why can't we scrap this station ?
+				ScrapButton->SetHelpText(LOCTEXT("CantScrapStationInfo", "Scrap all complex child stations before scrapping this station"));
 			}
 			else
 			{
@@ -993,9 +993,9 @@ void SFlareSpacecraftInfo::OnScrapConfirmed()
 		FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping '%s'", *TargetSpacecraft->GetImmatriculation().ToString());
 
 		// Scrapping a station
-		if (TargetSpacecraft->IsStation())
+		if (TargetSpacecraft->IsStation() && TargetSpacecraft->CanScrapStation())
 		{
-			// TODO #971 : scrap
+			PC->GetGame()->ScrapStation(TargetSpacecraft);
 		}
 
 		// Scrapping a ship

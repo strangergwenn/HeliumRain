@@ -1801,6 +1801,83 @@ void UFlareSimulatedSector::GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* Ta
 
 }
 
+TMap<FFlareResourceDescription*, int32> UFlareSimulatedSector::DistributeResources(TMap<FFlareResourceDescription*, int32> Resources, UFlareCompany* TargetCompany, bool DryRun)
+{
+
+	struct Transaction
+	{
+		Transaction(UFlareSimulatedSpacecraft* InputSpacecraft, FFlareResourceDescription* InputResource, int32 InputQuantity) :
+			Spacecraft(InputSpacecraft),
+			Resource(InputResource),
+			Quantity(InputQuantity){}
+
+		UFlareSimulatedSpacecraft* Spacecraft;
+		FFlareResourceDescription* Resource;
+		int32 Quantity;
+	};
+
+	TArray<Transaction> Transactions;
+
+	auto FillSpacecraft = [&Resources, &Transactions](UFlareSimulatedSpacecraft* Spacecraft)
+	{
+		TArray<FFlareResourceDescription*> ResourcesToDrop;
+		for(auto Resource : Resources)
+		{
+			int32 GivenQuantity = Spacecraft->GetActiveCargoBay()->GiveResources(Resource.Key, Resource.Value, nullptr);
+
+			Transactions.Add(Transaction(Spacecraft, Resource.Key, GivenQuantity));
+			Resource.Value -= GivenQuantity;
+			if(Resource.Value == 0)
+			{
+				ResourcesToDrop.Add(Resource.Key);
+			}
+		}
+
+		for(FFlareResourceDescription* Resource : ResourcesToDrop)
+		{
+			Resources.Remove(Resource);
+		}
+	};
+
+	for(UFlareSimulatedSpacecraft* Station : GetSectorStations())
+	{
+		if(Station->GetCompany() != TargetCompany)
+		{
+			continue;
+		}
+
+		FillSpacecraft(Station);
+	}
+
+	for(UFlareSimulatedSpacecraft* Ship : GetSectorShips())
+	{
+		if(Ship->GetCompany() != TargetCompany)
+		{
+			continue;
+		}
+
+		if(Ship->GetCurrentTradeRoute() != nullptr)
+		{
+			continue;
+		}
+
+			// Not in trade route
+
+		FillSpacecraft(Ship);
+	}
+
+
+	if(DryRun)
+	{
+		for(Transaction TransactionRef : Transactions)
+		{
+			TransactionRef.Spacecraft->GetActiveCargoBay()->TakeResources(TransactionRef.Resource, TransactionRef.Quantity, nullptr);
+		}
+	}
+
+	return Resources;
+}
+
 void UFlareSimulatedSector::UpdateFleetSupplyConsumptionStats()
 {
 	SectorData.FleetSupplyConsumptionStats.Append(SectorData.DailyFleetSupplyConsumption);

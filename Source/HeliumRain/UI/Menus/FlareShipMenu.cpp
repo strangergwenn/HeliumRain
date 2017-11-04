@@ -882,8 +882,6 @@ void SFlareShipMenu::UpdateComplexList()
 						];
 					}
 
-					// TODO #971 : can we always scrap ? If yes, remove this, if no, add if() here 
-
 					// Add scrap button
 					Box->AddSlot()
 					.AutoWidth()
@@ -1012,17 +1010,50 @@ void SFlareShipMenu::OnUpgradeStationClicked(UFlareSimulatedSpacecraft* Spacecra
 
 void SFlareShipMenu::OnScrapComplexElement(UFlareSimulatedSpacecraft* Spacecraft)
 {
-	// TODO #971 : show which resources the player gets, and tell him if he needs cargos
-	// Should probably have a getter for the text, since this is also done in SFlareSpacecraftInfo::OnScrap
+	TMap<FFlareResourceDescription*, int32> ScrapResources = Spacecraft->ComputeScrapResources();
+	TMap<FFlareResourceDescription*, int32> NotDistributedScrapResources = Spacecraft->GetCurrentSector()->DistributeResources(ScrapResources, Spacecraft->GetCompany(), true);
+
+	auto GenerateResourceList = [](TMap<FFlareResourceDescription*, int32>& Resources)
+	{
+		bool First = true;
+		FText Text;
+		for(auto Resource: Resources)
+		{
+			if(First)
+			{
+				First = false;
+				Text = FText::Format(LOCTEXT("FirstResource", "{0} {1}"), Resource.Value, Resource.Key->Name);
+			}
+			else
+			{
+				Text = FText::Format(LOCTEXT("NotFirstResource", "{0},{1} {2}"), Text, Resource.Value, Resource.Key->Name);
+			}
+		}
+
+		return Text;
+
+	};
+
+	FText GainText = GenerateResourceList(ScrapResources);
+	FText LossesText;
+
+	if(NotDistributedScrapResources.Num() > 0)
+	{
+		LossesText = FText::Format(LOCTEXT("LooseOnScrap", "\nWARNING: There is not enought space in your stations and ships in the sector to store all the resources.\n You will lose {0}."),
+					  GenerateResourceList(NotDistributedScrapResources));
+	}
+
 
 	MenuManager->Confirm(LOCTEXT("AreYouSure", "ARE YOU SURE ?"),
-		LOCTEXT("ConfirmScrap", "Do you really want to break up this station for its resources ?"),
+		FText::Format(LOCTEXT("ConfirmScrap", "Do you really want to break up this station for its resources ?\nScrap will give {0}{1}"),
+					  GainText,
+					  LossesText),
 		FSimpleDelegate::CreateSP(this, &SFlareShipMenu::OnScrapConfirmed, Spacecraft));
 }
 
 void SFlareShipMenu::OnScrapConfirmed(UFlareSimulatedSpacecraft* Spacecraft)
 {
-	// TODO #971 : scrap
+	MenuManager->GetGame()->ScrapStation(Spacecraft);
 }
 
 

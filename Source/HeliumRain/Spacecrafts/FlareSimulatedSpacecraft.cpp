@@ -1250,6 +1250,68 @@ void UFlareSimulatedSpacecraft::AutoFillConstructionCargoBay()
 	}
 }
 
+bool UFlareSimulatedSpacecraft::CanScrapStation() const
+{
+	if(IsComplex() && GetComplexChildren().Num() > 0)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+TMap<FFlareResourceDescription*, int32> UFlareSimulatedSpacecraft::ComputeScrapResources() const
+{
+	TMap<FFlareResourceDescription*, int32> ScrapResources;
+
+	auto AddToMap = [&ScrapResources](FFlareResourceDescription* Resource, int32 Quantity)
+	{
+		if(ScrapResources.Contains(Resource))
+		{
+			ScrapResources[Resource] += Quantity;
+		}
+		else
+		{
+			ScrapResources.Add(Resource, Quantity);
+		}
+	};
+
+	auto AddBayContent = [&AddToMap](UFlareCargoBay* Bay)
+	{
+		for(FFlareCargo& Slot : Bay->GetSlots())
+		{
+			if(Slot.Quantity > 0)
+			{
+				AddToMap(Slot.Resource, Slot.Quantity);
+			}
+		}
+	};
+
+	if(!IsComplexElement())
+	{
+		AddBayContent(GetProductionCargoBay());
+	}
+
+	if(IsUnderConstruction(true))
+	{
+		AddBayContent(GetConstructionCargoBay());
+	}
+
+
+	int32 ApplicableLevel = IsUnderConstruction(true) ? GetLevel() - 1 : GetLevel();
+
+	if (ApplicableLevel > 0)
+	{
+		for(FFlareFactoryResource& Resource : GetDescription()->CycleCost.InputResources)
+		{
+			AddToMap(&Resource.Resource->Data, Resource.Quantity * ApplicableLevel);
+		}
+	}
+
+	return ScrapResources;
+}
+
+
 /*----------------------------------------------------
 	Complexes
 ----------------------------------------------------*/
@@ -1310,6 +1372,18 @@ void UFlareSimulatedSpacecraft::RegisterComplexElement(FFlareConnectionSave Conn
 	}
 }
 
+void UFlareSimulatedSpacecraft::UnregisterComplexElement(UFlareSimulatedSpacecraft* Element)
+{
+	for (FFlareDockingInfo& StationConnection : ConnectorSlots)
+	{
+		if (StationConnection.ConnectedStationName == Element->GetImmatriculation())
+		{
+			StationConnection.ConnectedStationName = NAME_None;
+			StationConnection.Occupied = false;
+			StationConnection.Granted = false;
+		}
+	}
+}
 
 /*----------------------------------------------------
 	Shipyards

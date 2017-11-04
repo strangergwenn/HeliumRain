@@ -356,6 +356,48 @@ void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatricula
 	ActivateCurrentSector();
 }
 
+void AFlareGame::ScrapStation(UFlareSimulatedSpacecraft* StationToScrap)
+{
+	if(!StationToScrap)
+	{
+		FLOG("Station scrap failed: station to scrap not found");
+		return;
+	}
+
+	if(!StationToScrap->CanScrapStation())
+	{
+		FLOG("Station scrap failed: station cannot be to scrapped");
+		return;
+	}
+
+	DeactivateSector();
+
+
+	UFlareSimulatedSector* CurrentSector = StationToScrap->GetCurrentSector();
+	TMap<FFlareResourceDescription*, int32> ScrapResources = StationToScrap->ComputeScrapResources();
+
+	CurrentSector->DistributeResources(ScrapResources, StationToScrap->GetCompany(), false);
+
+
+	FLOG("Station scrap success");
+
+
+	GetPC()->Notify(LOCTEXT("StationOwnScrap", "Station scrap complete"),
+		FText::Format(LOCTEXT("StationOwnScrapFormat", "Your station {0} has been scrapped !"), UFlareGameTools::DisplaySpacecraftName(StationToScrap)),
+		FName("station-own-scraped"),
+		EFlareNotification::NT_Economy);
+
+	if(StationToScrap->IsComplexElement())
+	{
+		StationToScrap->GetComplexMaster()->UnregisterComplexElement(StationToScrap);
+		StationToScrap->GetComplexMaster()->Reload();
+	}
+
+	StationToScrap->GetCompany()->DestroySpacecraft(StationToScrap);
+
+	ActivateCurrentSector();
+}
+
 float AFlareGame::GetAINerfRatio()
 {
 	if(AINerfRatioCacheDate != GetGameWorld()->GetDate())

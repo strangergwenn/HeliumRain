@@ -81,6 +81,8 @@ public:
 
 	virtual void Scrap(FName ShipImmatriculation, FName TargetStationImmatriculation);
 
+	virtual void ScrapStation(UFlareSimulatedSpacecraft* Station);
+
 	virtual float GetAINerfRatio();
 
 	/*----------------------------------------------------
