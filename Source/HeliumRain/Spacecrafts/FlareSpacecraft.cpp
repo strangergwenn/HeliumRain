@@ -255,6 +255,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			
 			// Detect manual docking
 			IsManualDocking = false;
+			IsAutoDocking = false;
 			float MaxDistance = (GetSize() == EFlarePartSize::S) ? 25000 : 50000;
 			float BestDistance = MaxDistance;
 			for (int SpacecraftIndex = 0; SpacecraftIndex < GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
@@ -269,19 +270,26 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 				 && Spacecraft->IsStation()
 				 && Spacecraft->GetParent()->GetDamageSystem()->IsAlive()
 				 && Spacecraft->GetDockingSystem()->GetDockCount() > 0
-				 && !GetStateManager()->IsExternalCamera()
-				 && GetNavigationSystem()->IsManualPilot()
 				 && GetWeaponsSystem()->GetActiveWeaponGroupIndex() < 0)
 				{
 					// Select closest dock
 					FFlareDockingInfo BestDockingPort;
 					for (int32 DockingPortIndex = 0; DockingPortIndex < Spacecraft->GetDockingSystem()->GetDockCount(); DockingPortIndex++)
 					{
+						float AutoDockDistance = (GetSize() == EFlarePartSize::S ? 250 : 500);
 						FFlareDockingInfo DockingPort = Spacecraft->GetDockingSystem()->GetDockInfo(DockingPortIndex);
 						FFlareDockingParameters DockingParameters = GetNavigationSystem()->GetDockingParameters(DockingPort, CameraLocation);
+
+						// When under this distance, we're going to be docking
+						if (DockingPort.DockSize == GetSize() && DockingParameters.DockToDockDistance < 2 * AutoDockDistance)
+						{
+							IsAutoDocking = true;
+						}
 						
 						// Check if we should draw it
 						if (DockingPort.DockSize == GetSize()
+						 && GetNavigationSystem()->IsManualPilot()
+						 && !GetStateManager()->IsExternalCamera()
 						 && DockingParameters.DockingPhase != EFlareDockingPhase::Docked
 						 && DockingParameters.DockingPhase != EFlareDockingPhase::Distant)
 						{
@@ -302,7 +310,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 									&& (DockingParameters.DockingPhase == EFlareDockingPhase::Dockable
 									 || DockingParameters.DockingPhase == EFlareDockingPhase::FinalApproach
 									 || DockingParameters.DockingPhase == EFlareDockingPhase::Approach)
-								 && DockingParameters.DockToDockDistance < (GetSize() == EFlarePartSize::S ? 250 : 500))
+								 && DockingParameters.DockToDockDistance < AutoDockDistance)
 								{
 									GetNavigationSystem()->DockAt(Spacecraft);
 									PC->SetAchievementProgression("ACHIEVEMENT_MANUAL_DOCK", 1);

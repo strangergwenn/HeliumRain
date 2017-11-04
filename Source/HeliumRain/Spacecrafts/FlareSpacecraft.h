@@ -330,6 +330,7 @@ protected:
 	
 	// Docking info
 	bool                                           IsManualDocking;
+	bool                                           IsAutoDocking;
 	FFlareDockingParameters                        ManualDockingStatus;
 	FFlareDockingInfo                              ManualDockingInfo;
 	AFlareSpacecraft*                              ManualDockingTarget;
@@ -370,6 +371,11 @@ public:
 	bool GetIsManualDocking() const
 	{
 		return IsManualDocking;
+	}
+
+	bool GetIsAutoDocking() const
+	{
+		return IsAutoDocking;
 	}
 
 	FText GetShipStatus() const;

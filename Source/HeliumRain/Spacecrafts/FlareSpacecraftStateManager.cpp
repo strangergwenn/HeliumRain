@@ -186,7 +186,10 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 		}
 	}
 
-	if (!IsPiloted && PlayerManualVelocityCommandActive && !Spacecraft->GetNavigationSystem()->IsDocked())
+	// Abort pilot if we're doing manual inputs, except while docking
+	if (!IsPiloted && PlayerManualVelocityCommandActive
+	 && !Spacecraft->GetNavigationSystem()->IsDocked()
+	 && !Spacecraft->GetIsAutoDocking())
 	{
 		Spacecraft->GetNavigationSystem()->AbortAllCommands();
 	}
