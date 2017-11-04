@@ -5,6 +5,20 @@
 #include "FlareGameUserSettings.generated.h"
 
 
+
+/** Damage Type */
+UENUM()
+namespace EFlareGamepadLayout
+{
+	enum Type
+	{
+		GL_Default,
+		GL_TurnWithLeftStick,
+		GL_LeftHanded
+	};
+}
+
+
 UCLASS()
 class HELIUMRAIN_API UFlareGameUserSettings : public UGameUserSettings
 {
@@ -77,10 +91,10 @@ public:
 	/** Whether to pause the game in menus */
 	UPROPERTY(Config)
 	bool                                     PauseGameInMenus;
-
-	/** Whether to use the alternate gamepad inputs */
+	
+	/** Gamepad layout profile */
 	UPROPERTY(Config)
-	bool                                     TurnWithLeftStick;
+	int                                      GamepadProfileLayout;
 
 	/** Whether to restrict thrust to forward */
 	UPROPERTY(Config)
@@ -113,4 +127,9 @@ public:
 	/** Master volume */
 	UPROPERTY(Config)
 	int32                                    MasterVolume;
+
+
+	/** Legacy */
+	UPROPERTY(Config)
+	bool                                     TurnWithLeftStick;
 };

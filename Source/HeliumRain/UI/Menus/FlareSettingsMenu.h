@@ -117,9 +117,16 @@ protected:
 	FText OnGetCurrentJoystickKeyName(FName AxisName) const;
 	TSharedRef<SWidget> OnGenerateJoystickComboLine(TSharedPtr<FKey> Item, FName AxisName);
 	void OnJoystickComboLineSelectionChanged(TSharedPtr<FKey> KeyItem, ESelectInfo::Type SelectInfo, FName AxisName);
+
+	// Joystick actions
 	void OnInvertAxisClicked(FName AxisName);
 	void OnUnbindAxisClicked(FName AxisName);
 	bool IsAxisControlsDisabled(FName AxisName) const;
+
+	// Gamepad profile list
+	FText OnGetCurrentGamepadComboLine() const;
+	TSharedRef<SWidget> OnGenerateGamepadComboLine(TSharedPtr<FText> Item);
+	void OnGamepadComboLineSelectionChanged(TSharedPtr<FText> KeyItem, ESelectInfo::Type SelectInfo);
 
 	// FOV
 	void OnFOVSliderChanged(float Value);
@@ -170,7 +177,6 @@ protected:
 	void OnInvertYToggle();
 	void OnAnticollisionToggle();
 	void OnCockpitToggle();
-	void OnTurnWithLeftStickToggle();
 	void OnForwardOnlyThrustToggle();
 	
 	// Dead zone sliders
@@ -190,6 +196,9 @@ protected:
 
 	/** Get all resolutions */
 	void FillResolutionList();
+
+	/** Get all resolutions */
+	void FillGameGamepadList();
 
 	/** Update resolutions */
 	void UpdateResolutionList(FIntPoint Resolution);
@@ -251,7 +260,6 @@ protected:
 	TSharedPtr<STextBlock>	        			MasterVolumeLabel;
 	
 	// Controls
-	TSharedPtr<SFlareButton>                    TurnWithLeftStickButton;
 	TSharedPtr<SFlareButton>                    ForwardOnlyThrustButton;
 	TSharedPtr<SVerticalBox>                    ControlListLeft;
 	TSharedPtr<SVerticalBox>                    ControlListRight;
@@ -266,7 +274,11 @@ protected:
 	TArray<TSharedPtr<FScreenResolutionRHI>>                ResolutionList;
 
 	// Culture data
-	TSharedPtr<SFlareDropList<TSharedPtr<FString>>> CultureSelector;
-	TArray<TSharedPtr<FString>>							CultureList;
+	TSharedPtr<SFlareDropList<TSharedPtr<FString>>>  CultureSelector;
+	TArray<TSharedPtr<FString>>						 CultureList;
+
+	// Gamepad data
+	TSharedPtr<SFlareDropList<TSharedPtr<FText>>>    GamepadSelector;
+	TArray<TSharedPtr<FText>>					     GamepadList;
 
 };

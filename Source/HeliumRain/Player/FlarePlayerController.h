@@ -130,6 +130,9 @@ public:
 	/** Setup the cockpit */
 	void SetupCockpit();
 
+	/** Setup the gamepad */
+	void SetupGamepad();
+
 	/** Spawn the menu pawn and prepare the UI */
 	void SetupMenu();
 	

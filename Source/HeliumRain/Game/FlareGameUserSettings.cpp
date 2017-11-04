@@ -36,7 +36,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	MaxShipsInSector = 30;
 
 	// Input
-	TurnWithLeftStick = false;
+	GamepadProfileLayout = EFlareGamepadLayout::GL_Default;
 	ForwardOnlyThrust = false;
 	RotationDeadZone = 0.0f;
 	TranslationDeadZone = 0.0f;
@@ -63,6 +63,10 @@ void UFlareGameUserSettings::EnsureConsistency()
 	if (InputSensitivity < KINDA_SMALL_NUMBER)
 	{
 		InputSensitivity = 1.0f;
+	}
+	if (TurnWithLeftStick)
+	{
+		GamepadProfileLayout = EFlareGamepadLayout::GL_TurnWithLeftStick;
 	}
 
 	ApplySettings(false);

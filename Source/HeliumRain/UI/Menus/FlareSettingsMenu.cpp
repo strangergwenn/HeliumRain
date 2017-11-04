@@ -912,27 +912,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("GamepadSettingsHint", "GAMEPAD"))
 					.TextStyle(&Theme.NameFont)
 				]
-
-				// Gamepad options
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				.HAlign(HAlign_Left)
-				[
-					SNew(SHorizontalBox)
-							
-					// Alternate input
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.SmallContentPadding)
-					[
-						SAssignNew(TurnWithLeftStickButton, SFlareButton)
-						.Text(LOCTEXT("TurnWithLeftStick", "Turn with left stick"))
-						.HelpText(LOCTEXT("TurnWithLeftStickInfo", "Use the left thumbstick to turn and the tight thumbstick to move"))
-						.Toggle(true)
-						.OnClicked(this, &SFlareSettingsMenu::OnTurnWithLeftStickToggle)
-					]
-				]
 			
 				// Gamepad
 				+ SVerticalBox::Slot()
@@ -942,6 +921,43 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SImage)
 					.Image(this, &SFlareSettingsMenu::GetGamepadDrawing)
+				]
+
+				// Gamepad options
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				.HAlign(HAlign_Left)
+				[
+					SNew(SHorizontalBox)
+
+					// Profile selector
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SHorizontalBox)
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(GamepadSelector, SFlareDropList<TSharedPtr<FText>>)
+							.OptionsSource(&GamepadList)
+							.OnGenerateWidget(this, &SFlareSettingsMenu::OnGenerateGamepadComboLine)
+							.OnSelectionChanged(this, &SFlareSettingsMenu::OnGamepadComboLineSelectionChanged)
+							.HeaderWidth(10.1)
+							.ItemWidth(10.1)
+							[
+								SNew(SBox)
+								.Padding(Theme.ListContentPadding)
+								[
+									SNew(STextBlock)
+									.Text(this, &SFlareSettingsMenu::OnGetCurrentGamepadComboLine)
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+						]
+					]
 				]
 
 				// Joystick
@@ -1103,7 +1119,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	];
 
 	// Default settings
-	TurnWithLeftStickButton->SetActive(MyGameSettings->TurnWithLeftStick);
 	ForwardOnlyThrustButton->SetActive(MyGameSettings->ForwardOnlyThrust);
 	VSyncButton->SetActive(MyGameSettings->IsVSyncEnabled());
 	MotionBlurButton->SetActive(MyGameSettings->UseMotionBlur);
@@ -1424,6 +1439,9 @@ void SFlareSettingsMenu::Enter()
 	// Get a list of resolutions
 	FillResolutionList();
 
+	// Fill gamepad profile list
+	FillGameGamepadList();
+
 	// Set list of cultures to the current one
 	CultureSelector->RefreshOptions();
 	FString CurrentCultureString = FInternationalization::Get().GetCurrentCulture().Get().GetName();
@@ -1589,6 +1607,33 @@ void SFlareSettingsMenu::OnJoystickComboLineSelectionChanged(TSharedPtr<FKey> Ke
 		InputSettings->AddAxisMapping(Bind);
 		InputSettings->SaveKeyMappings();
 	}
+}
+
+FText SFlareSettingsMenu::OnGetCurrentGamepadComboLine() const
+{
+	return FText::FromString(GamepadList[GamepadSelector->GetSelectedIndex()]->ToString());
+}
+
+TSharedRef<SWidget> SFlareSettingsMenu::OnGenerateGamepadComboLine(TSharedPtr<FText> Item)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	FText Content = FText::FromString(Item->ToString());
+
+	return SNew(STextBlock)
+		.Text(Content)
+		.TextStyle(&Theme.TextFont);
+}
+
+void SFlareSettingsMenu::OnGamepadComboLineSelectionChanged(TSharedPtr<FText> KeyItem, ESelectInfo::Type SelectInfo)
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+
+	int32 Index = GamepadList.Find(KeyItem);
+	MyGameSettings->GamepadProfileLayout = Index != INDEX_NONE ? Index : EFlareGamepadLayout::GL_Default;
+	MyGameSettings->ApplySettings(false);
+
+	MenuManager->GetPC()->SetupGamepad();
 }
 
 
@@ -1975,15 +2020,6 @@ void SFlareSettingsMenu::OnCockpitToggle()
 #endif
 }
 
-void SFlareSettingsMenu::OnTurnWithLeftStickToggle()
-{
-	bool New = TurnWithLeftStickButton->IsActive();
-
-	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	MyGameSettings->TurnWithLeftStick = New;
-	MyGameSettings->ApplySettings(false);
-}
-
 void SFlareSettingsMenu::OnForwardOnlyThrustToggle()
 {
 	bool New = ForwardOnlyThrustButton->IsActive();
@@ -2005,13 +2041,21 @@ void SFlareSettingsMenu::OnAnticollisionToggle()
 const FSlateBrush* SFlareSettingsMenu::GetGamepadDrawing() const
 {
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
-	if (MyGameSettings->TurnWithLeftStick)
+
+	switch (MyGameSettings->GamepadProfileLayout)
 	{
-		return FFlareStyleSet::GetImage("Pad_TurnWithLeft");
-	}
-	else
-	{
-		return FFlareStyleSet::GetImage("Pad");
+		case EFlareGamepadLayout::GL_TurnWithLeftStick:
+			return FFlareStyleSet::GetImage("Pad_TurnWithLeft");
+			break;
+
+		case EFlareGamepadLayout::GL_LeftHanded:
+			return FFlareStyleSet::GetImage("Pad_LeftHanded");
+			break;
+
+		default:
+		case EFlareGamepadLayout::GL_Default:
+			return FFlareStyleSet::GetImage("Pad");
+			break;
 	}
 }
 
@@ -2315,6 +2359,19 @@ void SFlareSettingsMenu::UpdateResolution(bool CanAdaptResolution)
 		MyGameSettings->SaveConfig();
 		GEngine->SaveConfig();
 	}
+}
+
+void SFlareSettingsMenu::FillGameGamepadList()
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+
+	GamepadList.Empty();
+	GamepadList.Add(MakeShareable(new FText(LOCTEXT("GamepadDefault", "Default layout"))));
+	GamepadList.Add(MakeShareable(new FText(LOCTEXT("GamepadTurnLeft", "Turn with left stick"))));
+	GamepadList.Add(MakeShareable(new FText(LOCTEXT("GamepadLeftHanded", "Left-handed"))));
+
+	GamepadSelector->RefreshOptions();
+	GamepadSelector->SetSelectedIndex(MyGameSettings->GamepadProfileLayout);
 }
 
 void SFlareSettingsMenu::CreateBinds()
