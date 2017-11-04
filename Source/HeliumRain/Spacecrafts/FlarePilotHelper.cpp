@@ -79,7 +79,7 @@ bool PilotHelper::FindMostDangerousCollision(AActor*& MostDangerousCandidateActo
 											 FVector& MostDangerousLocation,
 											 float& MostDangerousTimeToHit,
 											 float& MostDangerousInterceptDepth,
-											 AFlareSpacecraft* Ship, AFlareSpacecraft* SpacecraftToIgnore, float SpeedLimit)
+											 AFlareSpacecraft* Ship, AnticollisionIgnoreConfig IgnoreConfig, float SpeedLimit)
 {
 	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_AnticollisionCorrection);
 
@@ -93,7 +93,8 @@ bool PilotHelper::FindMostDangerousCollision(AActor*& MostDangerousCandidateActo
 	for (auto SpacecraftCandidate : ActiveSector->GetSpacecrafts())
 	{
 		if (SpacecraftCandidate != Ship
-		 && SpacecraftCandidate != SpacecraftToIgnore
+		 && SpacecraftCandidate != IgnoreConfig.SpacecraftToIgnore
+		 && !(IgnoreConfig.IgnoreAllStations && SpacecraftCandidate->IsStation())
 		 && !Ship->GetDockingSystem()->IsGrantedShip(SpacecraftCandidate)
 		 && !Ship->GetDockingSystem()->IsDockedShip(SpacecraftCandidate)
 		 && !(Ship->GetSize() == EFlarePartSize::L
@@ -173,7 +174,7 @@ bool PilotHelper::IsAnticollisionImminent(AFlareSpacecraft* Ship, float Preventi
 	float MostDangerousTimeToHit = PreventionDuration;
 	float MostDangerousInterseptDepth;
 
-	bool HaveCollision = FindMostDangerousCollision(MostDangerousCandidateActor, MostDangerousLocation, MostDangerousTimeToHit, MostDangerousInterseptDepth, Ship, NULL, SpeedLimit);
+	bool HaveCollision = FindMostDangerousCollision(MostDangerousCandidateActor, MostDangerousLocation, MostDangerousTimeToHit, MostDangerousInterseptDepth, Ship, AnticollisionIgnoreConfig(), SpeedLimit);
 
 	if (HaveCollision && Ship->IsLoadedAndReady() && !Ship->GetNavigationSystem()->IsAutoPilot() && !Ship->GetNavigationSystem()->IsDocked() && MostDangerousCandidateActor)
 	{
@@ -183,7 +184,7 @@ bool PilotHelper::IsAnticollisionImminent(AFlareSpacecraft* Ship, float Preventi
 	return false;
 }
 
-FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, float PreventionDuration, AFlareSpacecraft* SpacecraftToIgnore, float SpeedLimit)
+FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, float PreventionDuration, AnticollisionIgnoreConfig IgnoreConfig, float SpeedLimit)
 {
 	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_AnticollisionCorrection);
 
@@ -196,7 +197,7 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 	float MostDangerousIntersectDepth;
 
 	bool HaveCollision = FindMostDangerousCollision(MostDangerousCandidateActor, MostDangerousLocation, MostDangerousTimeToHit,MostDangerousIntersectDepth,
-													Ship, SpacecraftToIgnore, SpeedLimit);
+													Ship, IgnoreConfig, SpeedLimit);
 
 	if(!HaveCollision)
 	{
