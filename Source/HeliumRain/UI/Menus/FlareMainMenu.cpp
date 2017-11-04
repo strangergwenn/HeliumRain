@@ -351,7 +351,7 @@ FText SFlareMainMenu::GetText(int32 Index) const
 
 const FSlateBrush* SFlareMainMenu::GetSaveIcon(int32 Index) const
 {
-	return (Game->DoesSaveSlotExist(Index) ? &(Game->GetSaveSlotInfo(Index).EmblemBrush) : FFlareStyleSet::GetIcon("Help"));
+	return (Game->DoesSaveSlotExist(Index) ? &(Game->GetSaveSlotInfo(Index).EmblemBrush) : FFlareStyleSet::GetIcon("NewGame"));
 }
 
 EVisibility SFlareMainMenu::GetDeleteButtonVisibility(int32 Index) const
