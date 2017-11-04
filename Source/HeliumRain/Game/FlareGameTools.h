@@ -194,6 +194,10 @@ public:
 	UFUNCTION(exec)
 	UFlareSimulatedSpacecraft* CreateStationInCompanyAttachedInSector(FName StationClass, FName CompanyShortName, FName SectorIdentifier, bool UnderConstruction);
 
+	/** Create a child station */
+	UFUNCTION(exec)
+	UFlareSimulatedSpacecraft* CreateChildStation(FName StationClass, FName ComplexName, int32 ConnectorId, bool UnderConstruction);
+
 	UFUNCTION(exec)
 	void PrintSectorList();
 
