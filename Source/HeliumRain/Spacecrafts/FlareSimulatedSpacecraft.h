@@ -148,6 +148,8 @@ public:
 
 	bool IsShipyard();
 
+	void AutoFillConstructionCargoBay();
+
 
 	/*----------------------------------------------------
 		Complexes
