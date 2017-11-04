@@ -592,6 +592,12 @@ void AFlareSpacecraft::Redock()
 			{
 				FLOGV("AFlareSpacecraft::Redock : Found dock station '%s'", *Station->GetImmatriculation().ToString());
 
+				if(Station->GetDockingSystem()->GetDockCount() <= GetData().DockedAt)
+				{
+					FLOGV("WARNING !!! AFlareSpacecraft::Redock : invalid port index %d (%d docking port in station)", GetData().DockedAt, Station->GetDockingSystem()->GetDockCount());
+					break;
+				}
+
 
 				// Replace ship at docking port
 				FFlareDockingInfo DockingPort = Station->GetDockingSystem()->GetDockInfo(GetData().DockedAt);
