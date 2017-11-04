@@ -79,6 +79,12 @@ protected:
 
 	/** Station selected */
 	void OnBuildStationSelected(FFlareSpacecraftDescription* NewStationDescription);
+
+	/** Scrap station */
+	void OnScrapComplexElement(UFlareSimulatedSpacecraft* Spacecraft);
+
+	/** Scrap station */
+	void OnScrapConfirmed(UFlareSimulatedSpacecraft* Spacecraft);
 	
 
 	/*----------------------------------------------------
@@ -180,6 +186,8 @@ protected:
 	/** Get upgrade info */
 	static FText GetUpgradeInfo(UFlareSimulatedSpacecraft* Spacecraft);
 
+	bool IsUpgradeStationDisabled() const;
+
 
 	/*----------------------------------------------------
 		Action callbacks
@@ -206,9 +214,8 @@ protected:
 	/** Cancelled a part */
 	void OnPartCancelled();
 
+	/** Upgrade station */
 	void OnUpgradeStationClicked(UFlareSimulatedSpacecraft* Spacecraft);
-
-	bool IsUpgradeStationDisabled() const;
 
 
 protected:

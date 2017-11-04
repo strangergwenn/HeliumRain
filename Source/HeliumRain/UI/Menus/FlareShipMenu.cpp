@@ -866,7 +866,7 @@ void SFlareShipMenu::UpdateComplexList()
 							SNew(SFlareButton)
 							.Text(LOCTEXT("MaxLevelInfo", "This station has reached the maximum level."))
 							.IsDisabled(true)
-							.Width(12)
+							.Width(10)
 						];
 					}
 					else
@@ -878,11 +878,22 @@ void SFlareShipMenu::UpdateComplexList()
 							.Text(GetUpgradeInfo(ComplexElement))
 							.HelpText(LOCTEXT("UpgradeComplexStationInfo", "Upgrade this station element"))
 							.OnClicked(this, &SFlareShipMenu::OnUpgradeStationClicked, ComplexElement)
-							.Width(12)
+							.Width(10)
 						];
 					}
 
-					// TODO #971 : enable scrapping of stations
+					// TODO #971 : can we always scrap ? If yes, remove this, if no, add if() here 
+
+					// Add scrap button
+					Box->AddSlot()
+					.AutoWidth()
+					[
+						SNew(SFlareButton)
+						.Text(LOCTEXT("Scrap", "Scrap"))
+						.HelpText(LOCTEXT("UpgradeComplexStationInfo", "Scrap this station element"))
+						.OnClicked(this, &SFlareShipMenu::OnScrapComplexElement, ComplexElement)
+						.Width(2)
+					];
 				}
 
 				// New element can be added here
@@ -977,6 +988,41 @@ void SFlareShipMenu::OnBuildStationSelected(FFlareSpacecraftDescription* Station
 		SelectedComplexStation = NAME_None;
 		SelectedComplexConnector = NAME_None;
 	}
+}
+
+void SFlareShipMenu::OnUpgradeStationClicked(UFlareSimulatedSpacecraft* Spacecraft)
+{
+	UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
+	if (Sector)
+	{
+		if (Spacecraft)
+		{
+			Sector->UpgradeStation(Spacecraft);
+			MenuManager->Reload();
+		}
+		else if (TargetSpacecraft)
+		{
+			Sector->UpgradeStation(TargetSpacecraft);
+			FFlareMenuParameterData Data;
+			Data.Spacecraft = TargetSpacecraft;
+			MenuManager->OpenMenu(EFlareMenu::MENU_Station, Data);
+		}
+	}
+}
+
+void SFlareShipMenu::OnScrapComplexElement(UFlareSimulatedSpacecraft* Spacecraft)
+{
+	// TODO #971 : show which resources the player gets, and tell him if he needs cargos
+	// Should probably have a getter for the text, since this is also done in SFlareSpacecraftInfo::OnScrap
+
+	MenuManager->Confirm(LOCTEXT("AreYouSure", "ARE YOU SURE ?"),
+		LOCTEXT("ConfirmScrap", "Do you really want to break up this station for its resources ?"),
+		FSimpleDelegate::CreateSP(this, &SFlareShipMenu::OnScrapConfirmed, Spacecraft));
+}
+
+void SFlareShipMenu::OnScrapConfirmed(UFlareSimulatedSpacecraft* Spacecraft)
+{
+	// TODO #971 : scrap
 }
 
 
@@ -1497,26 +1543,6 @@ FText SFlareShipMenu::GetUpgradeInfo(UFlareSimulatedSpacecraft* Spacecraft)
 		FText::FromString(ResourcesString));
 
 	return ProductionCost;
-}
-
-void SFlareShipMenu::OnUpgradeStationClicked(UFlareSimulatedSpacecraft* Spacecraft)
-{
-	UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
-	if (Sector)
-	{
-		if (Spacecraft)
-		{
-			Sector->UpgradeStation(Spacecraft);
-			MenuManager->Reload();
-		}
-		else if (TargetSpacecraft)
-		{
-			Sector->UpgradeStation(TargetSpacecraft);
-			FFlareMenuParameterData Data;
-			Data.Spacecraft = TargetSpacecraft;
-			MenuManager->OpenMenu(EFlareMenu::MENU_Station, Data);
-		}
-	}
 }
 
 bool SFlareShipMenu::IsUpgradeStationDisabled() const

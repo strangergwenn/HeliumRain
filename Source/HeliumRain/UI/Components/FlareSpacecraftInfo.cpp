@@ -445,9 +445,10 @@ void SFlareSpacecraftInfo::Show()
 		bool CanDock =     !IsDocked && IsFriendly && ActiveTargetSpacecraft && ActiveTargetSpacecraft->GetDockingSystem()->HasCompatibleDock(PlayerShip->GetActive());
 		bool CanUpgradeDistant = IsOutsidePlayerFleet && TargetSpacecraft->GetCurrentSector()->CanUpgrade(TargetSpacecraft->GetCompany());
 		bool CanUpgradeDocked = ActiveTargetSpacecraft && DockedStation && DockedStation->GetParent()->HasCapability(EFlareSpacecraftCapability::Upgrade);
-		bool CanUpgrade =  CanUpgradeDistant || CanUpgradeDocked;
+		bool CanUpgrade = !TargetSpacecraft->IsStation() && (CanUpgradeDistant || CanUpgradeDocked);
 		bool CanTrade =    IsCargo && (IsDocked || IsOutsidePlayerFleet);
-		bool CanScrap =    CanUpgrade && OwnedAndNotSelf;
+		bool CanScrapStation = TargetSpacecraft->IsStation() && true; // TODO #971 : check here if station can be scrapped (is empty complex, etc) and replace 'true'
+		bool CanScrap =    OwnedAndNotSelf && (CanUpgrade || CanScrapStation);
 		
 		// Is a battle in progress ?
 		if (TargetSpacecraft->GetCurrentSector())
@@ -478,7 +479,7 @@ void SFlareSpacecraftInfo::Show()
 		TradeButton->SetVisibility(Owned && IsCargo ?                            EVisibility::Visible : EVisibility::Collapsed);
 		DockButton->SetVisibility(CanDock ?                                      EVisibility::Visible : EVisibility::Collapsed);
 		UndockButton->SetVisibility(Owned && IsDocked && !IsOutsidePlayerFleet ? EVisibility::Visible : EVisibility::Collapsed);
-		ScrapButton->SetVisibility(Owned && !IsStation ?                         EVisibility::Visible : EVisibility::Collapsed);
+		ScrapButton->SetVisibility(Owned ?                                       EVisibility::Visible : EVisibility::Collapsed);
 		
 		// Flyable ships : disable when not flyable
 		FText Reason;
@@ -559,7 +560,14 @@ void SFlareSpacecraftInfo::Show()
 		}
 		else
 		{
-			ScrapButton->SetHelpText(LOCTEXT("CantScrapInfo", "Scrapping requires to be docked in a peaceful sector, or outside the player fleet"));
+			if (TargetSpacecraft->IsStation())
+			{
+				ScrapButton->SetHelpText(LOCTEXT("CantScrapStationInfo", "Scrapping requires ...")); // TODO #971 : why can't we scrap this station ?
+			}
+			else
+			{
+				ScrapButton->SetHelpText(LOCTEXT("CantScrapInfo", "Scrapping requires to be docked in a peaceful sector, or outside the player fleet"));
+			}
 			ScrapButton->SetDisabled(true);
 		}
 	}
@@ -958,9 +966,24 @@ void SFlareSpacecraftInfo::OnUndock()
 
 void SFlareSpacecraftInfo::OnScrap()
 {
-	PC->GetMenuManager()->Confirm(LOCTEXT("AreYouSure", "ARE YOU SURE ?"),
-		LOCTEXT("ConfirmScrap", "Do you really want to break up this spacecraft for credits ?"),
-		FSimpleDelegate::CreateSP(this, &SFlareSpacecraftInfo::OnScrapConfirmed));
+	// Scrapping a station
+	if (TargetSpacecraft->IsStation())
+	{
+		// TODO #971 : show which resources the player gets, and tell him if he needs cargos
+		// Should probably have a getter for the text, since this is also done in SFlareShipMenu::OnScrapComplexElement
+
+		PC->GetMenuManager()->Confirm(LOCTEXT("AreYouSure", "ARE YOU SURE ?"),
+			LOCTEXT("ConfirmScrap", "Do you really want to break up this station for its resources ?"),
+			FSimpleDelegate::CreateSP(this, &SFlareSpacecraftInfo::OnScrapConfirmed));
+	}
+
+	// Scrapping a ship
+	else
+	{
+		PC->GetMenuManager()->Confirm(LOCTEXT("AreYouSure", "ARE YOU SURE ?"),
+			LOCTEXT("ConfirmScrap", "Do you really want to break up this spacecraft for credits ?"),
+			FSimpleDelegate::CreateSP(this, &SFlareSpacecraftInfo::OnScrapConfirmed));
+	}
 }
 
 void SFlareSpacecraftInfo::OnScrapConfirmed()
@@ -968,46 +991,57 @@ void SFlareSpacecraftInfo::OnScrapConfirmed()
 	if (PC && TargetSpacecraft && TargetSpacecraft->IsValidLowLevel())
 	{
 		FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping '%s'", *TargetSpacecraft->GetImmatriculation().ToString());
-		UFlareSimulatedSpacecraft* TargetStation = NULL;
-		TArray<UFlareSimulatedSpacecraft*> SectorStations = TargetSpacecraft->GetCurrentSector()->GetSectorStations();
 
-		// Find a suitable station
-		for (int Index = 0; Index < SectorStations.Num(); Index++)
+		// Scrapping a station
+		if (TargetSpacecraft->IsStation())
 		{
-			if (SectorStations[Index]->GetCompany() == PC->GetCompany())
-			{
-				TargetStation = SectorStations[Index];
-				FLOGV("SFlareSpacecraftInfo::OnScrap : found player station '%s'", *TargetStation->GetImmatriculation().ToString());
-				break;
-			}
-			else if (TargetStation == NULL)
-			{
-				TargetStation = SectorStations[Index];
-			}
+			// TODO #971 : scrap
 		}
 
-		// Scrap
-		if (TargetStation)
+		// Scrapping a ship
+		else
 		{
-			FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping at '%s'", *TargetStation->GetImmatriculation().ToString());
+			UFlareSimulatedSpacecraft* TargetStation = NULL;
+			TArray<UFlareSimulatedSpacecraft*> SectorStations = TargetSpacecraft->GetCurrentSector()->GetSectorStations();
 
-			OnRemoved.ExecuteIfBound(TargetSpacecraft);
-			PC->GetGame()->Scrap(TargetSpacecraft->GetImmatriculation(), TargetStation->GetImmatriculation());
-			if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Ship ||
-				PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Station ||
-				PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_ShipConfig)
+			// Find a suitable station
+			for (int Index = 0; Index < SectorStations.Num(); Index++)
 			{
-				PC->GetMenuManager()->Back();
+				if (SectorStations[Index]->GetCompany() == PC->GetCompany())
+				{
+					TargetStation = SectorStations[Index];
+					FLOGV("SFlareSpacecraftInfo::OnScrap : found player station '%s'", *TargetStation->GetImmatriculation().ToString());
+					break;
+				}
+				else if (TargetStation == NULL)
+				{
+					TargetStation = SectorStations[Index];
+				}
+			}
+
+			// Scrap
+			if (TargetStation)
+			{
+				FLOGV("SFlareSpacecraftInfo::OnScrap : scrapping at '%s'", *TargetStation->GetImmatriculation().ToString());
+
+				OnRemoved.ExecuteIfBound(TargetSpacecraft);
+				PC->GetGame()->Scrap(TargetSpacecraft->GetImmatriculation(), TargetStation->GetImmatriculation());
+				if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Ship ||
+					PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Station ||
+					PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_ShipConfig)
+				{
+					PC->GetMenuManager()->Back();
+				}
+				else
+				{
+					PC->GetMenuManager()->Reload();
+				}
+
 			}
 			else
 			{
-				PC->GetMenuManager()->Reload();
+				FLOG("SFlareSpacecraftInfo::OnScrap : couldn't find a valid station here !");
 			}
-
-		}
-		else
-		{
-			FLOG("SFlareSpacecraftInfo::OnScrap : couldn't find a valid station here !");
 		}
 	}
 }
