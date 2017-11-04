@@ -1171,6 +1171,56 @@ UFlareSimulatedSpacecraft* UFlareGameTools::CreateStationInCompanyAttachedInSect
 	return NewStation;
 }
 
+
+UFlareSimulatedSpacecraft* UFlareGameTools::CreateChildStation(FName StationClass, FName ComplexName, int32 ConnectorId, bool UnderConstruction)
+{
+	bool IsActiveSector = GetActiveSector() != nullptr;
+
+
+	UFlareSimulatedSpacecraft* Complex = GetGameWorld()->FindSpacecraft(ComplexName);
+	if (!Complex)
+	{
+		FLOGV("UFlareSector::CreateChildStation failed : No complex named '%s'", *ComplexName.ToString());
+		return NULL;
+	}
+
+	if(!Complex->IsComplex())
+	{
+		FLOGV("UFlareSector::CreateChildStation failed : '%s' is not a complex", *ComplexName.ToString());
+		return NULL;
+	}
+
+	if(ConnectorId >= Complex->GetStationConnectors().Num())
+	{
+		FLOGV("UFlareSector::CreateChildStation failed : '%d' is not a valid complex connector index", ConnectorId);
+		return NULL;
+	}
+
+	FFlareDockingInfo& Connector = Complex->GetStationConnectors()[ConnectorId];
+
+	if (Connector.Granted)
+	{
+		FLOGV("UFlareSector::CreateChildStation failed : connector '%d' is already granted", ConnectorId);
+		return NULL;
+	}
+
+	if(IsActiveSector)
+	{
+		GetGame()->DeactivateSector();
+	}
+
+	FFlareStationSpawnParameters SpawnParameters;
+	SpawnParameters.AttachComplexStationName = Complex->GetImmatriculation();
+	SpawnParameters.AttachComplexConnectorName = Connector.Name;
+	UFlareSimulatedSpacecraft* NewStation = Complex->GetCurrentSector()->CreateStation(StationClass, Complex->GetCompany(), UnderConstruction, SpawnParameters);
+	if(IsActiveSector)
+	{
+		GetGame()->ActivateCurrentSector();
+	}
+
+	return NewStation;
+}
+
 void UFlareGameTools::PrintSectorList()
 {
 	if (!GetGameWorld())
