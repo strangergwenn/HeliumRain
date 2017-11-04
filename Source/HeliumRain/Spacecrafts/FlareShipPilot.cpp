@@ -345,7 +345,7 @@ void UFlareShipPilot::CargoPilot(float DeltaSeconds)
 	//FLOGV("%s LinearTargetVelocity before anticollision = %s",  *Ship->GetImmatriculation().ToString(), *LinearTargetVelocity.ToString());
 
 	// Anticollision
-	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, Ship->GetPreferedAnticollisionTime(), PilotHelper::AnticollisionIgnoreConfig(), PILOT_ANTICOLLISION_SPEED);
+	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, Ship->GetPreferedAnticollisionTime(), PilotHelper::AnticollisionConfig(), PILOT_ANTICOLLISION_SPEED);
 
 	//FLOGV("%s Location = %s Velocity = %s LinearTargetVelocity = %s",  *Ship->GetImmatriculation().ToString(), * Ship->GetActorLocation().ToString(), *Ship->GetLinearVelocity().ToString(), *LinearTargetVelocity.ToString());
 }
@@ -729,7 +729,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	}
 
 	// Anticollision
-	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, Ship->GetPreferedAnticollisionTime(), PilotHelper::AnticollisionIgnoreConfig(), PILOT_ANTICOLLISION_SPEED);
+	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, Ship->GetPreferedAnticollisionTime(), PilotHelper::AnticollisionConfig(), PILOT_ANTICOLLISION_SPEED);
 
 
 	if (ClearTarget)
@@ -917,7 +917,7 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 	// Anticollision
 	if (Anticollision)
 	{
-		PilotHelper::AnticollisionIgnoreConfig IgnoreConfig;
+		PilotHelper::AnticollisionConfig IgnoreConfig;
 		IgnoreConfig.SpacecraftToIgnore = PilotTargetShip;
 		LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, Ship->GetPreferedAnticollisionTime(), IgnoreConfig, PILOT_ANTICOLLISION_SPEED);
 	}
@@ -993,7 +993,7 @@ void UFlareShipPilot::MissilePilot(float DeltaSeconds)
 	}
 
 	// Anticollision
-	PilotHelper::AnticollisionIgnoreConfig IgnoreConfig;
+	PilotHelper::AnticollisionConfig IgnoreConfig;
 	IgnoreConfig.SpacecraftToIgnore = PilotTargetShip;
 	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, Ship->GetPreferedAnticollisionTime(), IgnoreConfig, PILOT_ANTICOLLISION_SPEED);
 }
@@ -1123,7 +1123,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 	AlignToTargetVelocityWithThrust(DeltaSeconds);
 
 	// Anticollision
-	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, Ship->GetPreferedAnticollisionTime(), PilotHelper::AnticollisionIgnoreConfig(), PILOT_ANTICOLLISION_SPEED);
+	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, Ship->GetPreferedAnticollisionTime(), PilotHelper::AnticollisionConfig(), PILOT_ANTICOLLISION_SPEED);
 
     //FLOGV("%s Leader ship LinearTargetVelocity=%s", *LinearTargetVelocity.ToString());
 }
@@ -1179,7 +1179,7 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 	}
 
 	// Anticollision
-	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, Ship->GetPreferedAnticollisionTime(), PilotHelper::AnticollisionIgnoreConfig(), PILOT_ANTICOLLISION_SPEED);
+	LinearTargetVelocity = PilotHelper::AnticollisionCorrection(Ship, LinearTargetVelocity, Ship->GetPreferedAnticollisionTime(), PilotHelper::AnticollisionConfig(), PILOT_ANTICOLLISION_SPEED);
 
 	FVector FrontAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(FVector(1,0,0));
 

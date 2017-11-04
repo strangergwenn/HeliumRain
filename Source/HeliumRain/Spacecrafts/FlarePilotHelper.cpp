@@ -79,7 +79,7 @@ bool PilotHelper::FindMostDangerousCollision(AActor*& MostDangerousCandidateActo
 											 FVector& MostDangerousLocation,
 											 float& MostDangerousTimeToHit,
 											 float& MostDangerousInterceptDepth,
-											 AFlareSpacecraft* Ship, AnticollisionIgnoreConfig IgnoreConfig, float SpeedLimit)
+											 AFlareSpacecraft* Ship, AnticollisionConfig IgnoreConfig, float SpeedLimit)
 {
 	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_AnticollisionCorrection);
 
@@ -174,7 +174,7 @@ bool PilotHelper::IsAnticollisionImminent(AFlareSpacecraft* Ship, float Preventi
 	float MostDangerousTimeToHit = PreventionDuration;
 	float MostDangerousInterseptDepth;
 
-	bool HaveCollision = FindMostDangerousCollision(MostDangerousCandidateActor, MostDangerousLocation, MostDangerousTimeToHit, MostDangerousInterseptDepth, Ship, AnticollisionIgnoreConfig(), SpeedLimit);
+	bool HaveCollision = FindMostDangerousCollision(MostDangerousCandidateActor, MostDangerousLocation, MostDangerousTimeToHit, MostDangerousInterseptDepth, Ship, AnticollisionConfig(), SpeedLimit);
 
 	if (HaveCollision && Ship->IsLoadedAndReady() && !Ship->GetNavigationSystem()->IsAutoPilot() && !Ship->GetNavigationSystem()->IsDocked() && MostDangerousCandidateActor)
 	{
@@ -184,7 +184,7 @@ bool PilotHelper::IsAnticollisionImminent(AFlareSpacecraft* Ship, float Preventi
 	return false;
 }
 
-FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, float PreventionDuration, AnticollisionIgnoreConfig IgnoreConfig, float SpeedLimit)
+FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector InitialVelocity, float PreventionDuration, AnticollisionConfig Config, float SpeedLimit)
 {
 	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_AnticollisionCorrection);
 
@@ -197,7 +197,7 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 	float MostDangerousIntersectDepth;
 
 	bool HaveCollision = FindMostDangerousCollision(MostDangerousCandidateActor, MostDangerousLocation, MostDangerousTimeToHit,MostDangerousIntersectDepth,
-													Ship, IgnoreConfig, SpeedLimit);
+													Ship, Config, SpeedLimit);
 
 	if(!HaveCollision)
 	{
@@ -243,27 +243,40 @@ FVector PilotHelper::AnticollisionCorrection(AFlareSpacecraft* Ship, FVector Ini
 			//FLOGV("InitialVelocity=%s", *InitialVelocity.ToString());
 			//FLOGV("InitialVelocity.GetUnsafeNormal()=%s", *InitialVelocity.GetUnsafeNormal().ToString());
 
-
-			if(InitialVelocity.IsNearlyZero())
+			if(Config.SpeedCorrectionOnly)
 			{
-				return AvoidanceAxis * Alpha  * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 100;
+				return InitialVelocity * (1.f - Alpha);
 			}
 			else
 			{
-				FVector Temp = InitialVelocity.GetUnsafeNormal() * (1.f - Alpha) + Alpha * AvoidanceAxis;
-				Temp *= InitialVelocity.Size();
-				//UKismetSystemLibrary::DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Temp * 10, FColor::Magenta, true);
-				return Temp;
+				if(InitialVelocity.IsNearlyZero())
+				{
+					return AvoidanceAxis * Alpha  * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 100;
+				}
+				else
+				{
+					FVector Temp = InitialVelocity.GetUnsafeNormal() * (1.f - Alpha) + Alpha * AvoidanceAxis;
+					Temp *= InitialVelocity.Size();
+					//UKismetSystemLibrary::DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Temp * 10, FColor::Magenta, true);
+					return Temp;
+				}
 			}
 
 
 		}
 		else
 		{
-			FVector Temp = (CurrentLocation - MostDangerousLocation).GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
+			if(Config.SpeedCorrectionOnly)
+			{
+				return FVector::ZeroVector;
+			}
+			else
+			{
+				FVector Temp = (CurrentLocation - MostDangerousLocation).GetUnsafeNormal() * Ship->GetNavigationSystem()->GetLinearMaxVelocity();
 
-			//UKismetSystemLibrary::DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Temp * 10, FColor::Red, true);
-			return Temp;
+				//UKismetSystemLibrary::DrawDebugLine(Ship->GetWorld(), CurrentLocation, CurrentLocation + Temp * 10, FColor::Red, true);
+				return Temp;
+			}
 		}
 	}
 
