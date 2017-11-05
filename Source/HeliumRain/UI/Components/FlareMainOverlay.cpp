@@ -87,7 +87,7 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 							[
 								SNew(SBox)
 								.HAlign(HAlign_Fill)
-								.WidthOverride(0.625 * Theme.ContentWidth)
+								.WidthOverride(0.8 * Theme.ContentWidth)
 								[
 									SNew(SHorizontalBox)
 
