@@ -236,7 +236,7 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 	}
 	else if (Cargo->Lock == EFlareResourceLock::Trade)
 	{
-		LockText = FText::Format(LOCTEXT("InputCargoFormat", "(Trade)\n"), Cargo->Resource->Acronym);
+		LockText = FText::Format(LOCTEXT("TradeCargoFormat", "(Trade)\n"), Cargo->Resource->Acronym);
 	}
 	
 	// Format the current capacity info

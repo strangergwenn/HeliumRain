@@ -746,7 +746,7 @@ bool SFlareSpacecraftInfo::UpdateCaptureList()
 			UFlareCompany* Company = Companies[CompanyIndex];
 			if (TargetSpacecraft->GetCapturePoint(Company) > 0 || Company->WantCapture(TargetSpacecraft))
 			{
-				FText CaptureInfo = FText::Format(LOCTEXT("CaptureFormat", "Capture in progress by {0} ({1})"),
+				FText CaptureInfo = FText::Format(LOCTEXT("CaptureInfoFormat", "Capture in progress by {0} ({1})"),
 					Company->GetCompanyName(),
 					Company->GetPlayerHostilityText());
 
@@ -1008,7 +1008,7 @@ void SFlareSpacecraftInfo::OnScrap()
 			}
 
 			PC->GetMenuManager()->Confirm(LOCTEXT("AreYouSure", "ARE YOU SURE ?"),
-									  FText::Format(LOCTEXT("ConfirmScrap", "Do you really want to break up this station for its resources ?\nYou will get {0}{1}"),
+									  FText::Format(LOCTEXT("ConfirmScrapInfo", "Do you really want to break up this station for its resources ?\nYou will get {0}{1}"),
 													GainText,
 													LossesText),
 			FSimpleDelegate::CreateSP(this, &SFlareSpacecraftInfo::OnScrapConfirmed));

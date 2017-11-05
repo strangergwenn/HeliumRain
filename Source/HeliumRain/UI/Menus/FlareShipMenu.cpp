@@ -889,7 +889,7 @@ void SFlareShipMenu::UpdateComplexList()
 					[
 						SNew(SFlareButton)
 						.Text(LOCTEXT("Scrap", "Scrap"))
-						.HelpText(LOCTEXT("UpgradeComplexStationInfo", "Scrap this station element"))
+						.HelpText(LOCTEXT("ScrapComplexStationInfo", "Scrap this station element"))
 						.OnClicked(this, &SFlareShipMenu::OnScrapComplexElement, ComplexElement)
 						.Width(2)
 					];
