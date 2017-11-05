@@ -376,7 +376,7 @@ void AFlareGame::ScrapStation(UFlareSimulatedSpacecraft* StationToScrap)
 	UFlareSimulatedSector* CurrentSector = StationToScrap->GetCurrentSector();
 	TMap<FFlareResourceDescription*, int32> ScrapResources = StationToScrap->ComputeScrapResources();
 
-	CurrentSector->DistributeResources(ScrapResources, StationToScrap->GetCompany(), false);
+	CurrentSector->DistributeResources(ScrapResources, StationToScrap, StationToScrap->GetCompany(), false);
 
 
 	FLOG("Station scrap success");

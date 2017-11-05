@@ -1011,7 +1011,7 @@ void SFlareShipMenu::OnUpgradeStationClicked(UFlareSimulatedSpacecraft* Spacecra
 void SFlareShipMenu::OnScrapComplexElement(UFlareSimulatedSpacecraft* Spacecraft)
 {
 	TMap<FFlareResourceDescription*, int32> ScrapResources = Spacecraft->ComputeScrapResources();
-	TMap<FFlareResourceDescription*, int32> NotDistributedScrapResources = Spacecraft->GetCurrentSector()->DistributeResources(ScrapResources, Spacecraft->GetCompany(), true);
+	TMap<FFlareResourceDescription*, int32> NotDistributedScrapResources = Spacecraft->GetCurrentSector()->DistributeResources(ScrapResources, Spacecraft, Spacecraft->GetCompany(), true);
 
 	auto GenerateResourceList = [](TMap<FFlareResourceDescription*, int32>& Resources)
 	{
@@ -1026,7 +1026,7 @@ void SFlareShipMenu::OnScrapComplexElement(UFlareSimulatedSpacecraft* Spacecraft
 			}
 			else
 			{
-				Text = FText::Format(LOCTEXT("NotFirstResource", "{0},{1} {2}"), Text, Resource.Value, Resource.Key->Name);
+				Text = FText::Format(LOCTEXT("NotFirstResource", "{0}, {1} {2}"), Text, Resource.Value, Resource.Key->Name);
 			}
 		}
 
@@ -1054,6 +1054,7 @@ void SFlareShipMenu::OnScrapComplexElement(UFlareSimulatedSpacecraft* Spacecraft
 void SFlareShipMenu::OnScrapConfirmed(UFlareSimulatedSpacecraft* Spacecraft)
 {
 	MenuManager->GetGame()->ScrapStation(Spacecraft);
+	MenuManager->Reload();
 }
 
 

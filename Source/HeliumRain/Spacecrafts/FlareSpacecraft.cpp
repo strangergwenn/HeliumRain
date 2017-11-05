@@ -174,8 +174,11 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			SCOPE_CYCLE_COUNTER(STAT_FlareSpacecraft_Systems);
 			StateManager->Tick(DeltaSeconds);
 			DockingSystem->TickSystem(DeltaSeconds);
-			NavigationSystem->TickSystem(DeltaSeconds);
-			WeaponsSystem->TickSystem(DeltaSeconds);
+			if(!IsStation())
+			{
+				NavigationSystem->TickSystem(DeltaSeconds);
+				WeaponsSystem->TickSystem(DeltaSeconds);
+			}
 			DamageSystem->TickSystem(DeltaSeconds);
 		}
 

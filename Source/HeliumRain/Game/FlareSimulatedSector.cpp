@@ -1801,7 +1801,7 @@ void UFlareSimulatedSector::GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* Ta
 
 }
 
-TMap<FFlareResourceDescription*, int32> UFlareSimulatedSector::DistributeResources(TMap<FFlareResourceDescription*, int32> Resources, UFlareCompany* TargetCompany, bool DryRun)
+TMap<FFlareResourceDescription*, int32> UFlareSimulatedSector::DistributeResources(TMap<FFlareResourceDescription*, int32> Resources, UFlareSimulatedSpacecraft* Source, UFlareCompany* TargetCompany, bool DryRun)
 {
 
 	struct Transaction
@@ -1846,12 +1846,23 @@ TMap<FFlareResourceDescription*, int32> UFlareSimulatedSector::DistributeResourc
 			continue;
 		}
 
+		if(Station == Source)
+		{
+			continue;
+		}
+
+
 		FillSpacecraft(Station);
 	}
 
 	for(UFlareSimulatedSpacecraft* Ship : GetSectorShips())
 	{
 		if(Ship->GetCompany() != TargetCompany)
+		{
+			continue;
+		}
+
+		if(Ship == Source)
 		{
 			continue;
 		}

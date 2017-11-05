@@ -969,11 +969,48 @@ void SFlareSpacecraftInfo::OnScrap()
 	// Scrapping a station
 	if (TargetSpacecraft->IsStation())
 	{
-		// TODO #971 : show which resources the player gets, and tell him if he needs cargos
-		// Should probably have a getter for the text, since this is also done in SFlareShipMenu::OnScrapComplexElement
+			TMap<FFlareResourceDescription*, int32> ScrapResources = TargetSpacecraft->ComputeScrapResources();
+			TMap<FFlareResourceDescription*, int32> NotDistributedScrapResources = TargetSpacecraft->GetCurrentSector()->DistributeResources(ScrapResources, TargetSpacecraft, TargetSpacecraft->GetCompany(), true);
 
-		PC->GetMenuManager()->Confirm(LOCTEXT("AreYouSure", "ARE YOU SURE ?"),
-			LOCTEXT("ConfirmScrap", "Do you really want to break up this station for its resources ?"),
+			auto GenerateResourceList = [](TMap<FFlareResourceDescription*, int32>& Resources)
+			{
+				if(Resources.Num() == 0)
+				{
+					return LOCTEXT("NoResource", "nothing");
+				}
+
+				bool First = true;
+				FText Text;
+				for(auto Resource: Resources)
+				{
+					if(First)
+					{
+						First = false;
+						Text = FText::Format(LOCTEXT("FirstResource", "{0} {1}"), Resource.Value, Resource.Key->Name);
+					}
+					else
+					{
+						Text = FText::Format(LOCTEXT("NotFirstResource", "{0}, {1} {2}"), Text, Resource.Value, Resource.Key->Name);
+					}
+				}
+
+				return Text;
+
+			};
+
+			FText GainText = GenerateResourceList(ScrapResources);
+			FText LossesText;
+
+			if(NotDistributedScrapResources.Num() > 0)
+			{
+				LossesText = FText::Format(LOCTEXT("LooseOnScrap", "\nWARNING: There is not enought space in your stations and ships in the sector to store all the resources.\n You will lose {0}."),
+							  GenerateResourceList(NotDistributedScrapResources));
+			}
+
+			PC->GetMenuManager()->Confirm(LOCTEXT("AreYouSure", "ARE YOU SURE ?"),
+									  FText::Format(LOCTEXT("ConfirmScrap", "Do you really want to break up this station for its resources ?\nScrap will give {0}{1}"),
+													GainText,
+													LossesText),
 			FSimpleDelegate::CreateSP(this, &SFlareSpacecraftInfo::OnScrapConfirmed));
 	}
 
@@ -996,6 +1033,16 @@ void SFlareSpacecraftInfo::OnScrapConfirmed()
 		if (TargetSpacecraft->IsStation() && TargetSpacecraft->CanScrapStation())
 		{
 			PC->GetGame()->ScrapStation(TargetSpacecraft);
+			if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Ship ||
+				PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Station ||
+				PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_ShipConfig)
+			{
+				PC->GetMenuManager()->Back();
+			}
+			else
+			{
+				PC->GetMenuManager()->Reload();
+			}
 		}
 
 		// Scrapping a ship
