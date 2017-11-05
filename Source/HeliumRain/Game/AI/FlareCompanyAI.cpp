@@ -836,6 +836,23 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool Technology, 
 				continue;
 			}
 
+
+			int32 UpdatableStationCountForThisKind = 0;
+			for(UFlareSimulatedSpacecraft* StationCandidate : Company->GetCompanyStations())
+			{
+				if(StationDescription == StationCandidate->GetDescription() && StationCandidate->GetLevel() < StationDescription->MaxLevel)
+				{
+					UpdatableStationCountForThisKind++;
+				}
+			}
+
+			if(UpdatableStationCountForThisKind >= 2)
+			{
+				// Prefer update if possible
+				continue;
+			}
+
+
 			//FLOGV("> Analyse build %s in %s", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString());
 
 			// Count factories for the company, compute rentability in each sector for each station
@@ -872,14 +889,24 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool Technology, 
 			}
 
 			int32 StationCountForThisKind = 0;
+			int32 StationWithLowerLevelInSectorForThisKind = 0;
 			for(UFlareSimulatedSpacecraft* StationCandidate : Company->GetCompanyStations())
 			{
 				if(Station->GetDescription() == StationCandidate->GetDescription())
 				{
 					StationCountForThisKind++;
+
+					if(StationCandidate->GetLevel() < Station->GetLevel())
+					{
+						StationWithLowerLevelInSectorForThisKind++;
+					}
 				}
 			}
 
+			if(StationWithLowerLevelInSectorForThisKind > 0)
+			{
+				continue;
+			}
 
 			if (StationCountForThisKind < 2)
 			{
