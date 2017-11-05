@@ -91,9 +91,7 @@ protected:
 	FText GetResourcePriceVariationInfo(UFlareSimulatedSector* Sector, TSharedPtr<int32> MeanDuration) const;
 
 	TSharedRef<SWidget> OnGenerateResourceComboLine(UFlareResourceCatalogEntry* Item);
-
 	void OnResourceComboLineSelectionChanged(UFlareResourceCatalogEntry* Item, ESelectInfo::Type SelectInfo);
-
 	FText OnGetCurrentResourceComboLine() const;
 
 	void OnOpenSector(UFlareSimulatedSector* Sector);

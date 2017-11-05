@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
+#include "../Components/FlareDropList.h"
 
 
 class AFlareMenuManager;
@@ -41,12 +42,16 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+	void GenerateResourceList();
+
 
 protected:
 
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
+
+	FText GetSectorName() const;
 
 	FSlateColor GetPriceColor(FFlareResourceDescription* Resource) const;
 
@@ -74,6 +79,10 @@ protected:
 	/** Get the resource transport fee info */
 	FText GetResourceTransportFeeInfo(FFlareResourceDescription* Resource) const;
 
+	TSharedRef<SWidget> OnGenerateSectorComboLine(UFlareSimulatedSector* Sector);
+	void OnSectorComboLineSelectionChanged(UFlareSimulatedSector* Sector, ESelectInfo::Type SelectInfo);
+	FText OnGetCurrentSectorComboLine() const;
+
 
 protected:
 
@@ -84,8 +93,10 @@ protected:
 	// Target data
 	TWeakObjectPtr<class AFlareMenuManager>         MenuManager;
 	UFlareSimulatedSector*                          TargetSector;
+	TArray<UFlareSimulatedSector*>                  KnownSectors;
 
 	// Slate data
 	TSharedPtr<SVerticalBox>                        ResourcePriceList;
+	TSharedPtr<SFlareDropList<UFlareSimulatedSector*>> SectorSelector;
 
 };

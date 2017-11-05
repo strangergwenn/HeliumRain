@@ -46,6 +46,43 @@ void SFlareResourcePricesMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SVerticalBox)
 
+					// Sector name
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareResourcePricesMenu::GetSectorName)
+						.TextStyle(&Theme.SubTitleFont)
+					]
+
+					// Sector picker
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						SNew(SBox)
+						.WidthOverride(Theme.ContentWidth / 2)
+						.Padding(FMargin(0))
+						.HAlign(HAlign_Left)
+						[
+							SAssignNew(SectorSelector, SFlareDropList<UFlareSimulatedSector*>)
+							.OptionsSource(&KnownSectors)
+							.OnGenerateWidget(this, &SFlareResourcePricesMenu::OnGenerateSectorComboLine)
+							.OnSelectionChanged(this, &SFlareResourcePricesMenu::OnSectorComboLineSelectionChanged)
+							.HeaderWidth(5)
+							.ItemWidth(5)
+							[
+								SNew(SBox)
+								.Padding(Theme.ListContentPadding)
+								[
+									SNew(STextBlock)
+									.Text(this, &SFlareResourcePricesMenu::OnGetCurrentSectorComboLine)
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+						]
+					]
+
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					[
@@ -206,7 +243,15 @@ void SFlareResourcePricesMenu::Enter(UFlareSimulatedSector* Sector)
 	SetVisibility(EVisibility::Visible);
 
 	TargetSector = Sector;
+	KnownSectors = MenuManager->GetPC()->GetCompany()->GetKnownSectors();
+	SectorSelector->RefreshOptions();
+	SectorSelector->SetSelectedItem(TargetSector);
 
+	GenerateResourceList();
+}
+
+void SFlareResourcePricesMenu::GenerateResourceList()
+{
 	// Resource prices
 	ResourcePriceList->ClearChildren();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -391,6 +436,16 @@ void SFlareResourcePricesMenu::Exit()
 	Callbacks
 ----------------------------------------------------*/
 
+FText SFlareResourcePricesMenu::GetSectorName() const
+{
+	if (TargetSector)
+	{
+		return FText::Format(LOCTEXT("SectorNameFormat", "Economy status for {0}"), TargetSector->GetSectorName());
+	}
+
+	return LOCTEXT("NoSectorSelected", "No sector selected");
+}
+
 FSlateColor SFlareResourcePricesMenu::GetPriceColor(FFlareResourceDescription* Resource) const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -539,6 +594,42 @@ FText SFlareResourcePricesMenu::GetResourceTransportFeeInfo(FFlareResourceDescri
 	}
 
 	return FText();
+}
+
+TSharedRef<SWidget> SFlareResourcePricesMenu::OnGenerateSectorComboLine(UFlareSimulatedSector* Sector)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
+		.Text(Sector->GetSectorName())
+		.TextStyle(&Theme.TextFont)
+	];
+}
+
+void SFlareResourcePricesMenu::OnSectorComboLineSelectionChanged(UFlareSimulatedSector* Sector, ESelectInfo::Type SelectInfo)
+{
+	TargetSector = Sector;
+	GenerateResourceList();
+}
+
+FText SFlareResourcePricesMenu::OnGetCurrentSectorComboLine() const
+{
+	UFlareSimulatedSector* Sector = SectorSelector->GetSelectedItem();
+	if (Sector)
+	{
+		return Sector->GetSectorName();
+	}
+	else if (TargetSector)
+	{
+		return TargetSector->GetSectorName();
+	}
+	else
+	{
+		return LOCTEXT("SelectSector", "Select a sector");
+	}
 }
 
 #undef LOCTEXT_NAMESPACE
