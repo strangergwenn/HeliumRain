@@ -843,6 +843,7 @@ void SFlareShipMenu::UpdateComplexList()
 					ComplexList->AddSlot()
 					.AutoHeight()
 					.HAlign(HAlign_Left)
+					.Padding(Theme.SmallContentPadding)
 					[
 						SAssignNew(Box, SHorizontalBox)
 
@@ -910,6 +911,7 @@ void SFlareShipMenu::UpdateComplexList()
 					ComplexList->AddSlot()
 					.AutoHeight()
 					.HAlign(HAlign_Left)
+					.Padding(Theme.SmallContentPadding)
 					[
 						SNew(SFlareButton)
 						.Text(NewSlotText)
@@ -1039,13 +1041,13 @@ void SFlareShipMenu::OnScrapComplexElement(UFlareSimulatedSpacecraft* Spacecraft
 
 	if(NotDistributedScrapResources.Num() > 0)
 	{
-		LossesText = FText::Format(LOCTEXT("LooseOnScrap", "\nWARNING: There is not enought space in your stations and ships in the sector to store all the resources.\n You will lose {0}."),
+		LossesText = FText::Format(LOCTEXT("LooseOnScrap", "\nThere is not enough space in your local stations and ships to store all resources.\n You will loose {0}."),
 					  GenerateResourceList(NotDistributedScrapResources));
 	}
 
 
 	MenuManager->Confirm(LOCTEXT("AreYouSure", "ARE YOU SURE ?"),
-		FText::Format(LOCTEXT("ConfirmScrap", "Do you really want to break up this station for its resources ?\nScrap will give {0}{1}"),
+		FText::Format(LOCTEXT("ConfirmScrap", "Do you really want to break up this station for its resources ?\nYou will get {0}{1}"),
 					  GainText,
 					  LossesText),
 		FSimpleDelegate::CreateSP(this, &SFlareShipMenu::OnScrapConfirmed, Spacecraft));
