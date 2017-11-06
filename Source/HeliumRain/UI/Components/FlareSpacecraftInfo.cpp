@@ -1342,13 +1342,13 @@ FText SFlareSpacecraftInfo::GetSpacecraftInfo() const
 				}
 			}
 
-			// Ship : show fleet info - GetSpacecraftInfoAdditional() will feed the rest
+			// Ship : show fleet info - GetSpacecraftInfoAdditional() will feed the rest (no end spacing because margins)
 			else
 			{
 				UFlareFleet* Fleet = TargetSpacecraft->GetCurrentFleet();
 				if (Fleet)
 				{
-					return FText::Format(LOCTEXT("SpacecraftInfoFormat", "{0}{1} - "), DistanceText, Fleet->GetStatusInfo());
+					return FText::Format(LOCTEXT("SpacecraftInfoFormat", "{0}{1} -"), DistanceText, Fleet->GetStatusInfo());
 				}
 				return FText();
 			}
