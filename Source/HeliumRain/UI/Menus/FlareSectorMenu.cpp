@@ -24,6 +24,8 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
+	int32 PanelWidth = 0.7 * Theme.ContentWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right;
+
 	// Build structure
 	ChildSlot
 	.HAlign(HAlign_Fill)
@@ -60,7 +62,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					SNew(STextBlock)
 					.Text(this, &SFlareSectorMenu::GetSectorDescription)
 					.TextStyle(&Theme.TextFont)
-					.WrapTextAt(Theme.ContentWidth - Theme.ContentPadding.Left - Theme.ContentPadding.Right)
+					.WrapTextAt(PanelWidth)
 				]
 				
 				// Sector location
@@ -71,7 +73,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					SNew(STextBlock)
 					.Text(this, &SFlareSectorMenu::GetSectorLocation)
 					.TextStyle(&Theme.TextFont)
-					.WrapTextAt(Theme.ContentWidth)
+					.WrapTextAt(PanelWidth)
 				]
 
 				// Combat value
@@ -98,7 +100,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						SNew(STextBlock)
 						.Text(this, &SFlareSectorMenu::GetFullCombatValue)
 						.TextStyle(&Theme.TextFont)
-						.WrapTextAt(10 * Theme.ButtonWidth)
+						.WrapTextAt(PanelWidth / 2)
 						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
 					]
 
@@ -109,7 +111,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						SNew(STextBlock)
 						.Text(LOCTEXT("SectorFullCombatValue", " total combat value"))
 						.TextStyle(&Theme.TextFont)
-						.WrapTextAt(10 * Theme.ButtonWidth)
+						.WrapTextAt(PanelWidth / 2)
 						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
 					]
 				]
@@ -138,7 +140,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						SNew(STextBlock)
 						.Text(this, &SFlareSectorMenu::GetOwnCombatValue)
 						.TextStyle(&Theme.TextFont)
-						.WrapTextAt(10 * Theme.ButtonWidth)
+						.WrapTextAt(PanelWidth / 2)
 						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
 					]
 
@@ -149,7 +151,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						SNew(STextBlock)
 						.Text(LOCTEXT("SectorOwnCombatValue", " owned, "))
 						.TextStyle(&Theme.TextFont)
-						.WrapTextAt(10 * Theme.ButtonWidth)
 						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
 					]
 
@@ -169,7 +170,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						SNew(STextBlock)
 						.Text(this, &SFlareSectorMenu::GetHostileCombatValue)
 						.TextStyle(&Theme.TextFont)
-						.WrapTextAt(10 * Theme.ButtonWidth)
+						.WrapTextAt(PanelWidth / 2)
 						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
 					]
 
