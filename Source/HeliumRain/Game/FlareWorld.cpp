@@ -2038,7 +2038,7 @@ TArray<FFlareIncomingEvent> UFlareWorld::GetIncomingEvents()
 				TravelText = FText::Format(LOCTEXT("TravelTextTradeRouteFormat", "\u2022 {0} ({1}{2})\n    {3}"),
 					Travel->GetFleet()->GetFleetName(),
 					Travel->GetFleet()->GetCurrentTradeRoute()->GetTradeRouteName(),
-					(Travel->GetFleet()->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (paused)") : FText()),
+					(Travel->GetFleet()->GetCurrentTradeRoute()->IsPaused() ? UFlareGameTools::AddLeadingSpace(LOCTEXT("FleetTradeRoutePausedFormat", "(paused)")) : FText()),
 					Travel->GetFleet()->GetStatusInfo());
 			}
 			else

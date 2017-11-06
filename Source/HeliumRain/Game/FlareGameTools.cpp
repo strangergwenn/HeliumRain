@@ -1835,7 +1835,7 @@ FText UFlareGameTools::FormatTime(int64 Time, int Deep)
 
 		if (Deep > 0 && RemainingSeconds > 0)
 		{
-			MinutesString = FText::Format(LOCTEXT("FormatMinuteConcat2", " {0} {1}"), MinutesString, FormatTime(RemainingSeconds, Deep - 1));
+			MinutesString = UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("FormatMinuteConcat2", "{0} {1}"), MinutesString, FormatTime(RemainingSeconds, Deep - 1)));
 		}
 
 		return MinutesString;
@@ -1857,7 +1857,7 @@ FText UFlareGameTools::FormatTime(int64 Time, int Deep)
 
 		if (Deep > 0 && RemainingMinutes > 0)
 		{
-			HoursString = FText::Format(LOCTEXT("FormatHourConcat2", " {0} {1}"), HoursString, FormatTime(RemainingSeconds, Deep - 1));
+			HoursString = UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("FormatHourConcat2", "{0} {1}"), HoursString, FormatTime(RemainingSeconds, Deep - 1)));
 		}
 
 		return HoursString;
@@ -1879,7 +1879,7 @@ FText UFlareGameTools::FormatTime(int64 Time, int Deep)
 
 		if (Deep > 0 && RemainingHours > 0)
 		{
-			DaysString = FText::Format(LOCTEXT("FormatDayConcat2", " {0} {1}"), DaysString, FormatTime(RemainingSeconds, Deep - 1));
+			DaysString = UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("FormatDayConcat2", "{0} {1}"), DaysString, FormatTime(RemainingSeconds, Deep - 1)));
 		}
 
 		return DaysString;
@@ -1901,7 +1901,7 @@ FText UFlareGameTools::FormatTime(int64 Time, int Deep)
 
 		if (Deep > 0 && RemainingDays > 0)
 		{
-			YearsString = FText::Format(LOCTEXT("FormatYearConcat2", " {0} {1}"), YearsString, FormatTime(RemainingSeconds, Deep - 1));
+			YearsString = UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("FormatYearConcat2", "{0} {1}"), YearsString, FormatTime(RemainingSeconds, Deep - 1)));
 		}
 
 		return YearsString;
@@ -1936,11 +1936,23 @@ FText UFlareGameTools::FormatDate(int64 Days, int Deep)
 
 		if (Deep > 0 && RemainingDays > 0)
 		{
-			YearsString = FText::Format(LOCTEXT("FormatDateYearConcat2", " {0} {1}"), YearsString, FormatDate(RemainingDays, Deep - 1));
+			YearsString = UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("FormatDateYearConcat2", "{0} {1}"), YearsString, FormatDate(RemainingDays, Deep - 1)));
 		}
 
 		return YearsString;
 	}
+}
+
+FText UFlareGameTools::AddLeadingSpace(FText Text, int Count)
+{
+	FString SpaceString = "";
+
+	for (int Index = 0; Index < Count; Index++)
+	{
+		SpaceString += " ";
+	}
+
+	return FText::Format(LOCTEXT("LeadingSpaceFormat", "{0}{1}"), FText::FromString(SpaceString), Text);
 }
 
 FText UFlareGameTools::GetDisplayDate(int64 Days)

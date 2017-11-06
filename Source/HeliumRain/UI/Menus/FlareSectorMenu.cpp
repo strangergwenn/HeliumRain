@@ -109,7 +109,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("SectorFullCombatValue", " total combat value"))
+						.Text(UFlareGameTools::AddLeadingSpace(LOCTEXT("SectorFullCombatValue", "total combat value")))
 						.TextStyle(&Theme.TextFont)
 						.WrapTextAt(PanelWidth / 2)
 						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
@@ -149,7 +149,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("SectorOwnCombatValue", " owned, "))
+						.Text(UFlareGameTools::AddLeadingSpace(LOCTEXT("SectorOwnCombatValue", "owned, ")))
 						.TextStyle(&Theme.TextFont)
 						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
 					]
@@ -179,7 +179,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					.VAlign(VAlign_Center)
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("SectorHostileCombatValue", " hostile"))
+						.Text(UFlareGameTools::AddLeadingSpace(LOCTEXT("SectorHostileCombatValue", "hostile")))
 						.TextStyle(&Theme.TextFont)
 						.Visibility(this, &SFlareSectorMenu::GetCombatValueVisibility)
 					]
@@ -670,7 +670,7 @@ TSharedRef<SWidget> SFlareSectorMenu::OnGenerateFleetComboLine(UFlareFleet* Item
 		Name = FText::Format(LOCTEXT("FleetTradeRouteFormat", "{0} ({1}{2})"),
 			Item->GetFleetName(),
 			Item->GetCurrentTradeRoute()->GetTradeRouteName(),
-			(Item->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " - Paused") : FText()));
+			(Item->GetCurrentTradeRoute()->IsPaused() ? UFlareGameTools::AddLeadingSpace(LOCTEXT("FleetTradeRoutePausedFormat", "- Paused")) : FText()));
 	}
 	else
 	{
@@ -700,7 +700,7 @@ FText SFlareSectorMenu::OnGetCurrentFleetComboLine() const
 			return FText::Format(LOCTEXT("FleetTradeRouteFormat", "{0} ({1}{2})"),
 				SelectedFleet->GetFleetName(),
 				SelectedFleet->GetCurrentTradeRoute()->GetTradeRouteName(),
-				(SelectedFleet->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " - Paused") : FText()));
+				(SelectedFleet->GetCurrentTradeRoute()->IsPaused() ? UFlareGameTools::AddLeadingSpace(LOCTEXT("FleetTradeRoutePausedFormat", "- Paused")) : FText()));
 		}
 		else
 		{
@@ -858,7 +858,7 @@ FText SFlareSectorMenu::GetRefillText() const
 
 		if (UsedOwnedFs > 0 && UsedNotOwnedFsCost > 0)
 		{
-			CostSeparatorText = LOCTEXT("CostSeparatorText", " + ");
+			CostSeparatorText = UFlareGameTools::AddLeadingSpace(LOCTEXT("CostSeparatorText", "+ "));
 		}
 
 		FText CostText = FText::Format(LOCTEXT("RefillCostFormat", "{0}{1}{2}"), OwnedCostText, CostSeparatorText, NotOwnedCostText);
@@ -940,7 +940,7 @@ FText SFlareSectorMenu::GetRepairText() const
 
 		if (UsedOwnedFs > 0 && UsedNotOwnedFsCost > 0)
 		{
-			CostSeparatorText = LOCTEXT("CostSeparatorText", " + ");
+			CostSeparatorText = UFlareGameTools::AddLeadingSpace(LOCTEXT("CostSeparatorText", "+ "));
 		}
 
 		FText CostText = FText::Format(LOCTEXT("RepairCostFormat", "{0}{1}{2}"), OwnedCostText, CostSeparatorText, NotOwnedCostText);
@@ -1321,7 +1321,7 @@ void SFlareSectorMenu::OnTravelHereClicked()
 			{
 				if(useOr)
 				{
-					InterceptedTravelText = LOCTEXT("OrInterceptedTravelText", " or intercepted");
+					InterceptedTravelText = UFlareGameTools::AddLeadingSpace(LOCTEXT("OrInterceptedTravelText", "or intercepted"));
 				}
 				else
 				{
@@ -1334,7 +1334,7 @@ void SFlareSectorMenu::OnTravelHereClicked()
 			{
 				if(useOr)
 				{
-					TooDamagedTravelText = LOCTEXT("OrTooDamagedToTravel", " or too damaged to travel");
+					TooDamagedTravelText = UFlareGameTools::AddLeadingSpace(LOCTEXT("OrTooDamagedToTravel", "or too damaged to travel"));
 				}
 				else
 				{

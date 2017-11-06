@@ -600,11 +600,11 @@ FText SFlareTradeMenu::GetResourcePriceInfo(FFlareResourceDescription* Resource)
 		{
 			float Variation = (((float) ResourcePrice) / ((float) LastResourcePrice) - 1);
 
-			VariationText = FText::Format(LOCTEXT("ResourceVariationFormat", " ({0}{1}%)"),
+			VariationText = UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("ResourceVariationFormat", "({0}{1}%)"),
 							(Variation > 0 ?
 								 FText::FText(LOCTEXT("ResourceVariationFormatSignPlus","+")) :
 								 FText::FText(LOCTEXT("ResourceVariationFormatSignMinus","-"))),
-						  FText::AsNumber(FMath::Abs(Variation) * 100.0f, &MoneyFormat));
+						  FText::AsNumber(FMath::Abs(Variation) * 100.0f, &MoneyFormat)));
 		}
 
 		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "{0} credits{2} - Transport fee : {1} credits "),

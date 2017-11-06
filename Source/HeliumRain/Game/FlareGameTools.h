@@ -293,6 +293,8 @@ public:
 
 	static FText FormatDate(int64 Date, int Deep);
 
+	static FText AddLeadingSpace(FText Text, int Count = 1);
+
 	static FText GetDisplayDate(int64 Days);
 
 	/** Get the cost of a spacecraft */

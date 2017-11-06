@@ -1765,7 +1765,7 @@ int32 UFlareSimulatedSpacecraft::GetEstimatedQueueAndProductionDuration(FName Sh
 FText UFlareSimulatedSpacecraft::GetShipCost(FName ShipIdentifier)
 {
 	FText ProductionCostText;
-	FText CommaTextReference = LOCTEXT("Comma", " +");
+	FText CommaTextReference = UFlareGameTools::AddLeadingSpace(LOCTEXT("Comma", "+"));
 
 	const FFlareProductionData& ProductionData = GetCycleDataForShipClass(ShipIdentifier);
 

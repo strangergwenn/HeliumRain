@@ -90,7 +90,7 @@ void SFlareTradeRouteInfo::UpdateTradeRouteList()
 
 		FText TradeRouteName = FText::Format(LOCTEXT("TradeRouteNameFormat", "{0}{1}"),
 			TradeRoute->GetTradeRouteName(),
-			(TradeRoute->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (Paused)") : FText()));
+			(TradeRoute->IsPaused() ? UFlareGameTools::AddLeadingSpace(LOCTEXT("FleetTradeRoutePausedFormat", "(Paused)")) : FText()));
 		
 		// Add line
 		TradeRouteList->AddSlot()
@@ -165,15 +165,17 @@ FText SFlareTradeRouteInfo::GetDetailText(UFlareTradeRoute* TradeRoute) const
 	// Format result
 	if (CreditsGain > 0)
 	{
-		return FText::Format(LOCTEXT("TradeRouteDetailsGain", "   <TradeText>{0} credits per day, {1}% OK</>"),
+		return UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("TradeRouteDetailsGain", "<TradeText>{0} credits per day, {1}% OK</>"),
 			FText::AsNumber(CreditsGain),
-			FText::AsNumber(SuccessPercentage));
+			FText::AsNumber(SuccessPercentage)),
+			3);
 	}
 	else
 	{
-		return FText::Format(LOCTEXT("TradeRouteDetailsLoss", "  <WarningText>{0} credits per day</>, {1}% OK"),
+		return UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("TradeRouteDetailsLoss", "<WarningText>{0} credits per day</>, {1}% OK"),
 			FText::AsNumber(CreditsGain),
-			FText::AsNumber(SuccessPercentage));
+			FText::AsNumber(SuccessPercentage)),
+			3);
 	}
 }
 

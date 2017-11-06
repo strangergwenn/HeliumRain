@@ -336,7 +336,7 @@ FText SFlareHUDMenu::GetInfoText() const
 			ModeText = ActivePlayerShip->GetWeaponsSystem()->GetWeaponModeInfo();
 			if (ActivePlayerShip->GetNavigationSystem()->IsAutoPilot())
 			{
-				AutopilotText = LOCTEXT("AUTOPILOT", " (Autopilot)");
+				AutopilotText = UFlareGameTools::AddLeadingSpace(LOCTEXT("AUTOPILOT", "(Autopilot)"));
 			}
 		}
 		

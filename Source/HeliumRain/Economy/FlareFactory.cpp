@@ -979,7 +979,7 @@ uint32 UFlareFactory::GetOutputResourceQuantity(FFlareResourceDescription* Resou
 FText UFlareFactory::GetFactoryCycleCost(const FFlareProductionData* Data)
 {
 	FText ProductionCostText;
-	FText CommaTextReference = LOCTEXT("Comma", " +");
+	FText CommaTextReference = UFlareGameTools::AddLeadingSpace(LOCTEXT("Comma", "+"));
 
 	// Cycle cost in credits
 	uint32 CycleProductionCost = GetProductionCost(Data);
@@ -1004,7 +1004,7 @@ FText UFlareFactory::GetFactoryCycleCost(const FFlareProductionData* Data)
 
 FText UFlareFactory::GetFactoryCycleInfo()
 {
-	FText CommaTextReference = LOCTEXT("Comma", " +");
+	FText CommaTextReference = UFlareGameTools::AddLeadingSpace(LOCTEXT("Comma", "+"));
 	FText ProductionOutputText;
 
 	// No ship class selected

@@ -365,9 +365,9 @@ FText SFlareFleetInfo::GetDescription() const
 		FText FleetAssignedText;
 		if (TargetFleet->GetCurrentTradeRoute())
 		{
-			FleetAssignedText = FText::Format(LOCTEXT("FleetAssignedFormat", " - {0}{1}"),
+			FleetAssignedText = UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("FleetAssignedFormat", "- {0}{1}"),
 				TargetFleet->GetCurrentTradeRoute()->GetTradeRouteName(),
-				(TargetFleet->GetCurrentTradeRoute()->IsPaused() ? LOCTEXT("FleetTradeRoutePausedFormat", " (Paused)") : FText()));
+				(TargetFleet->GetCurrentTradeRoute()->IsPaused() ? UFlareGameTools::AddLeadingSpace(LOCTEXT("FleetTradeRoutePausedFormat", "(Paused)")) : FText())));
 		}
 
 		FText FleetDescriptionText = FText::Format(LOCTEXT("FleetFormat", "{0} ({1} / {2}){3}"),

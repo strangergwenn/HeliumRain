@@ -105,7 +105,7 @@ void SFlareList::Construct(const FArguments& InArgs)
 				.AutoHeight()
 				[
 					SNew(STextBlock)
-					.Text(LOCTEXT("NothingSpaced", "   No objects.\n\n"))
+					.Text(UFlareGameTools::AddLeadingSpace(LOCTEXT("NothingSpaced", "No objects.\n\n"), 3))
 					.TextStyle(&FFlareStyleSet::GetDefaultTheme().TextFont)
 					.Visibility(this, &SFlareList::GetNoObjectsVisibility)
 				]
