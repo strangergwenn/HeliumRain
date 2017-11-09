@@ -489,7 +489,7 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	const TArray<TSharedPtr<FJsonValue>>* Cargo;
 	if(Object->TryGetArrayField("Cargo", Cargo))
 	{
-		TArray<FFlareCargoSave> targetCargoBay = Data->IsUnderConstruction ? Data->ConstructionCargoBay : Data->ProductionCargoBay;
+		TArray<FFlareCargoSave>& targetCargoBay = Data->IsUnderConstruction ? Data->ConstructionCargoBay : Data->ProductionCargoBay;
 
 		for (TSharedPtr<FJsonValue> Item : *Cargo)
 		{
@@ -503,7 +503,7 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 	const TArray<TSharedPtr<FJsonValue>>* CargoBackup;
 	if(Object->TryGetArrayField("CargoBackup", CargoBackup))
 	{
-		TArray<FFlareCargoSave> targetCargoBay = Data->IsUnderConstruction ? Data->ProductionCargoBay : Data->ConstructionCargoBay;
+		TArray<FFlareCargoSave>& targetCargoBay = Data->IsUnderConstruction ? Data->ProductionCargoBay : Data->ConstructionCargoBay;
 
 		for (TSharedPtr<FJsonValue> Item : *CargoBackup)
 		{
