@@ -53,7 +53,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
 		SNew(SBox)
-		.WidthOverride(2.2 * Theme.ContentWidth)
+		.WidthOverride(2.4 * Theme.ContentWidth)
 		[
 			SNew(SVerticalBox)
 
