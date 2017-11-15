@@ -1230,7 +1230,14 @@ bool UFlareSimulatedSpacecraft::NeedRefill()
 
 bool UFlareSimulatedSpacecraft::IsShipyard()
 {
-	return GetFactories().Num() && GetFactories()[0]->IsShipyard();
+	for (UFlareFactory* Factory : GetFactories())
+	{
+		if (Factory->IsShipyard())
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void UFlareSimulatedSpacecraft::AutoFillConstructionCargoBay()
