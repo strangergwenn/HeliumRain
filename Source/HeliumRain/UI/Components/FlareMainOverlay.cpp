@@ -257,7 +257,7 @@ void SFlareMainOverlay::AddMenuLink(EFlareMenu::Type Menu)
 		.Height(TitleButtonHeight)
 		.Transparent(true)
 		.OnClicked(this, &SFlareMainOverlay::OnOpenMenu, Menu)
-		.Visibility(this, &SFlareMainOverlay::GetGameButtonVisibility)
+		.Visibility(this, &SFlareMainOverlay::GetGameButtonVisibility, Menu)
 		.IsDisabled(this, &SFlareMainOverlay::IsGameButtonDisabled, Menu)
 	];
 
@@ -440,9 +440,15 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 	OverlayFadeAlpha = FMath::Clamp(OverlayFadeAlpha, 0.0f, 1.0f);
 }
 
-EVisibility SFlareMainOverlay::GetGameButtonVisibility() const
+EVisibility SFlareMainOverlay::GetGameButtonVisibility(EFlareMenu::Type Menu) const
 {
-	if (MenuManager->GetPC()->GetShipPawn())
+	if (MenuManager->GetGame()->IsSkirmish()
+		&& Menu != EFlareMenu::MENU_Ship
+		&& Menu != EFlareMenu::MENU_Sector)
+	{
+		return EVisibility::Hidden;
+	}
+	else if (MenuManager->GetPC()->GetShipPawn())
 	{
 		return EVisibility::Visible;
 	}

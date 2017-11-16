@@ -64,7 +64,7 @@ public:
 	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 	
 	/** Are the main buttons visible */
-	EVisibility GetGameButtonVisibility() const;
+	EVisibility GetGameButtonVisibility(EFlareMenu::Type Menu) const;
 
 	/** Is this disabled */
 	bool IsGameButtonDisabled(EFlareMenu::Type Menu) const;

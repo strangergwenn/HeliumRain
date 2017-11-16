@@ -408,6 +408,11 @@ public:
 		return TechnologyCatalog;
 	}
 
+	inline bool IsSkirmish() const
+	{
+		return true;
+	}
+
 	inline bool IsLoadedOrCreated() const
 	{
 		return LoadedOrCreated;

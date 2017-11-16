@@ -1817,8 +1817,9 @@ void AFlarePlayerController::MarkAsBusy()
 
 void AFlarePlayerController::Simulate()
 {
-	if (GetGame()->IsLoadedOrCreated() && !GetNavHUD()->IsWheelMenuOpen() && !IsTyping())
-	if (GetGame()->IsLoadedOrCreated() && !MenuManager->IsSwitchingMenu() && !GetNavHUD()->IsWheelMenuOpen() && !IsTyping())
+	if (!GetGame()->IsSkirmish()
+	 && GetGame()->IsLoadedOrCreated() && !GetNavHUD()->IsWheelMenuOpen() && !IsTyping()
+	 && GetGame()->IsLoadedOrCreated() && !MenuManager->IsSwitchingMenu() && !GetNavHUD()->IsWheelMenuOpen() && !IsTyping())
 	{
 		FLOG("AFlarePlayerController::Simulate");
 		bool CanGoAhead = ConfirmFastForward(FSimpleDelegate::CreateUObject(this, &AFlarePlayerController::SimulateConfirmed), FSimpleDelegate(), false);
@@ -1888,7 +1889,7 @@ void AFlarePlayerController::SectorMenu()
 
 void AFlarePlayerController::OrbitMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
+	if (GetGame()->IsLoadedOrCreated() && !GetGame()->IsSkirmish() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::OrbitMenu");
 		MenuManager->ToggleMenu(EFlareMenu::MENU_Orbit);
@@ -1897,7 +1898,7 @@ void AFlarePlayerController::OrbitMenu()
 
 void AFlarePlayerController::EconomyMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
+	if (GetGame()->IsLoadedOrCreated() && !GetGame()->IsSkirmish() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::EconomyMenu");
 		MenuManager->ToggleMenu(EFlareMenu::MENU_WorldEconomy);
@@ -1906,7 +1907,7 @@ void AFlarePlayerController::EconomyMenu()
 
 void AFlarePlayerController::LeaderboardMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
+	if (GetGame()->IsLoadedOrCreated() && !GetGame()->IsSkirmish() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::LeaderboardMenu");
 		MenuManager->ToggleMenu(EFlareMenu::MENU_Leaderboard);
@@ -1915,7 +1916,7 @@ void AFlarePlayerController::LeaderboardMenu()
 
 void AFlarePlayerController::CompanyMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
+	if (GetGame()->IsLoadedOrCreated() && !GetGame()->IsSkirmish() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::CompanyMenu");
 		MenuManager->ToggleMenu(EFlareMenu::MENU_Company);
@@ -1924,7 +1925,7 @@ void AFlarePlayerController::CompanyMenu()
 
 void AFlarePlayerController::FleetMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
+	if (GetGame()->IsLoadedOrCreated() && !GetGame()->IsSkirmish() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::FleetMenu");
 		MenuManager->ToggleMenu(EFlareMenu::MENU_Fleet);
@@ -1933,7 +1934,7 @@ void AFlarePlayerController::FleetMenu()
 
 void AFlarePlayerController::TechnologyMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
+	if (GetGame()->IsLoadedOrCreated() && !GetGame()->IsSkirmish() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::TechnologyMenu");
 		MenuManager->ToggleMenu(EFlareMenu::MENU_Technology);
@@ -1942,7 +1943,7 @@ void AFlarePlayerController::TechnologyMenu()
 
 void AFlarePlayerController::QuestMenu()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && !MenuManager->IsFading())
+	if (GetGame()->IsLoadedOrCreated() && !GetGame()->IsSkirmish() && !IsTyping() && !MenuManager->IsFading())
 	{
 		FLOG("AFlarePlayerController::QuestMenu");
 		MenuManager->ToggleMenu(EFlareMenu::MENU_Quest);
