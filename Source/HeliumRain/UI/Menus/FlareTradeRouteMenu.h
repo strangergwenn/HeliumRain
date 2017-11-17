@@ -44,6 +44,10 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+	void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+
+	void RequestGenerateSectorList();
+
 	void GenerateSectorList();
 
 	void GenerateFleetList();
@@ -207,6 +211,7 @@ protected:
 	UFlareTradeRoute*                                  TargetTradeRoute;
 	FFlareTradeRouteSectorOperationSave*               SelectedOperation;
 	UFlareSimulatedSector*                             SelectedSector;
+	bool                                               ShouldGenerateSectorList;
 
 	// Sector data
 	TSharedPtr<SFlareDropList<UFlareSimulatedSector*>> SectorSelector;

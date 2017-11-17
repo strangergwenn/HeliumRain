@@ -32,6 +32,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	TArray<UFlareResourceCatalogEntry*> ResourceList = PC->GetGame()->GetResourceCatalog()->Resources;
 	MaxSectorsInRoute = 4;
+	ShouldGenerateSectorList = false;
 
 	OperationList.Add(EFlareTradeRouteOperation::Load);
 	OperationNameList.Add(MakeShareable(new FText(LOCTEXT("OpLoad", "Load"))));
@@ -674,6 +675,7 @@ void SFlareTradeRouteMenu::Enter(UFlareTradeRoute* TradeRoute)
 	TargetTradeRoute = TradeRoute;
 	SelectedOperation = NULL;
 	SelectedSector = NULL;
+	ShouldGenerateSectorList = false;
 	EditRouteName->SetText(GetTradeRouteName());
 	GenerateSectorList();
 	GenerateFleetList();
@@ -685,10 +687,27 @@ void SFlareTradeRouteMenu::Exit()
 	TargetTradeRoute = NULL;
 	SelectedOperation = NULL;
 	SelectedSector = NULL;
+	ShouldGenerateSectorList = false;
 	TradeSectorList->ClearChildren();
 	TradeFleetList->ClearChildren();
 
 	SetVisibility(EVisibility::Collapsed);
+}
+
+void SFlareTradeRouteMenu::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
+{
+	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
+
+	if (ShouldGenerateSectorList)
+	{
+		GenerateSectorList();
+		ShouldGenerateSectorList = false;
+	}
+}
+
+void SFlareTradeRouteMenu::RequestGenerateSectorList()
+{
+	ShouldGenerateSectorList = true;
 }
 
 void SFlareTradeRouteMenu::GenerateSectorList()
@@ -1774,20 +1793,20 @@ void SFlareTradeRouteMenu::OnAddSectorClicked()
 	{
 		TargetTradeRoute->AddSector(Item);
 		OnAddOperationClicked(Item);
-		GenerateSectorList();
+		RequestGenerateSectorList();
 	}
 }
 
 void SFlareTradeRouteMenu::OnMoveLeft(UFlareSimulatedSector* Sector)
 {
 	TargetTradeRoute->MoveSectorUp(Sector);
-	GenerateSectorList();
+	RequestGenerateSectorList();
 }
 
 void SFlareTradeRouteMenu::OnMoveRight(UFlareSimulatedSector* Sector)
 {
 	TargetTradeRoute->MoveSectorDown(Sector);
-	GenerateSectorList();
+	RequestGenerateSectorList();
 }
 
 bool SFlareTradeRouteMenu::IsMoveLeftDisabled(UFlareSimulatedSector* Sector) const
@@ -1805,7 +1824,7 @@ void SFlareTradeRouteMenu::OnResourceComboLineSelectionChanged(UFlareResourceCat
 	if (SelectedOperation)
 	{
 		SelectedOperation->ResourceIdentifier = Item->Data.Identifier;
-		GenerateSectorList();
+		RequestGenerateSectorList();
 	}
 }
 
@@ -1822,7 +1841,7 @@ void SFlareTradeRouteMenu::OnOperationComboLineSelectionChanged(TSharedPtr<FText
 
 		EFlareTradeRouteOperation::Type OperationType = OperationList[OperationIndex];
 		SelectedOperation->Type = OperationType;
-		GenerateSectorList();
+		RequestGenerateSectorList();
 	}
 }
 
@@ -1832,7 +1851,7 @@ void SFlareTradeRouteMenu::OnRemoveSectorClicked(UFlareSimulatedSector* Sector)
 	{
 		TargetTradeRoute->RemoveSector(Sector);
 		OnDoneClicked();
-		GenerateSectorList();
+		RequestGenerateSectorList();
 	}
 }
 
@@ -1853,7 +1872,7 @@ void SFlareTradeRouteMenu::OnAddOperationClicked(UFlareSimulatedSector* Sector)
 		FFlareTradeRouteSectorOperationSave* Operation = TargetTradeRoute->AddSectorOperation(SectorIndex, OperationType, &Resource->Data);
 
 		OnEditOperationClicked(Operation, Sector);
-		GenerateSectorList();
+		RequestGenerateSectorList();
 	}
 }
 
@@ -1939,7 +1958,7 @@ void SFlareTradeRouteMenu::OnDeleteOperationClicked(FFlareTradeRouteSectorOperat
 	if (Operation && TargetTradeRoute)
 	{
 		TargetTradeRoute->DeleteOperation(Operation);
-		GenerateSectorList();
+		RequestGenerateSectorList();
 	}
 }
 
@@ -1948,7 +1967,7 @@ void SFlareTradeRouteMenu::OnOperationUpClicked()
 	if (SelectedOperation && TargetTradeRoute)
 	{
 		SelectedOperation = TargetTradeRoute->MoveOperationUp(SelectedOperation);
-		GenerateSectorList();
+		RequestGenerateSectorList();
 	}
 }
 
@@ -1957,7 +1976,7 @@ void SFlareTradeRouteMenu::OnOperationDownClicked()
 	if (SelectedOperation && TargetTradeRoute)
 	{
 		SelectedOperation = TargetTradeRoute->MoveOperationDown(SelectedOperation);
-		GenerateSectorList();
+		RequestGenerateSectorList();
 	}
 }
 
