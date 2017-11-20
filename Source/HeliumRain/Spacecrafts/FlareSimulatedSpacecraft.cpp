@@ -1250,7 +1250,7 @@ void UFlareSimulatedSpacecraft::AutoFillConstructionCargoBay()
 	{
 		if(Slot.Lock == EFlareResourceLock::Input)
 		{
-			int32 MissingQuantity = Construction->GetFreeSpaceForResource(Slot.Resource, nullptr);
+			int32 MissingQuantity = Construction->GetFreeSpaceForResource(Slot.Resource, nullptr, true);
 			int32 TakenQuantity = Production->TakeResources(Slot.Resource, MissingQuantity, nullptr);
 			Construction->GiveResources(Slot.Resource, TakenQuantity, nullptr);
 		}

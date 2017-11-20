@@ -28,16 +28,51 @@ void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FF
 	CargoBayCount = minCargoBayCount;
 	CargoBaySlotCapacity = minCargoBaySlotCapacity;
 
-	if(Data.Num() > CargoBayCount)
-	{
-		CargoBayCount = Data.Num();
-	}
+
+
+
+	int32 UsedBay = 0;
 
 	for(FFlareCargoSave const& Cargo: Data)
 	{
+		if(Cargo.Quantity > 0 || Cargo.Lock != EFlareResourceLock::NoLock)
+		{
+			++UsedBay;
+		}
+
 		if(Cargo.Quantity > CargoBaySlotCapacity)
 		{
 			CargoBaySlotCapacity = Cargo.Quantity;
+		}
+	}
+
+
+	if(UsedBay > CargoBayCount)
+	{
+		CargoBayCount = UsedBay;
+	}
+
+	TArray<int32> UsedIndexes;
+
+	if(Data.Num() > CargoBayCount)
+	{
+		int32 Index = 0;
+		for(FFlareCargoSave const& Cargo: Data)
+		{
+			if(Cargo.Quantity > 0 || Cargo.Lock != EFlareResourceLock::NoLock)
+			{
+				UsedIndexes.Push(Index);
+			}
+			++Index;
+		}
+	}
+	else
+	{
+		int32 Index = 0;
+		for(FFlareCargoSave const& Cargo: Data)
+		{
+			UsedIndexes.Push(Index);
+			++Index;
 		}
 	}
 
@@ -52,21 +87,10 @@ void UFlareCargoBay::Load(UFlareSimulatedSpacecraft* ParentSpacecraft, TArray<FF
 		Cargo.Restriction = EFlareResourceRestriction::Everybody;
 		Cargo.ManualLock= false;
 
-		//TODO: remove this hack here to handle cargo bay size change for solen from 1x100 to 2x50
-		if(CargoIndex > 0 && Data.Num() > CargoIndex-1)
-		{
-			int32 MissingQuantity = Data[CargoIndex-1].Quantity -CargoBay[CargoIndex-1].Quantity;
-			if(MissingQuantity)
-			{
-				Cargo.Quantity = MissingQuantity;
-				Cargo.Resource = CargoBay[CargoIndex-1].Resource;
-			}
-		}
-
-		if (CargoIndex < (int32)Data.Num())
+		if (CargoIndex < UsedIndexes.Num())
 		{
 			// Existing save
-			FFlareCargoSave* CargoSave = &Data[CargoIndex];
+			FFlareCargoSave* CargoSave = &Data[UsedIndexes[CargoIndex]];
 			Cargo.Restriction = CargoSave->Restriction;
 
 			if (CargoSave->Quantity > 0)
@@ -388,7 +412,7 @@ int32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource, U
 	return Quantity;
 }
 
-int32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resource, UFlareCompany* Client) const
+int32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resource, UFlareCompany* Client, bool LockOnly) const
 {
 	int32 Quantity = 0;
 
@@ -397,6 +421,11 @@ int32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resourc
 		const FFlareCargo& Cargo = CargoBay[CargoIndex];
 
 		if(!CheckRestriction(&Cargo, Client))
+		{
+			continue;
+		}
+
+		if(LockOnly && Cargo.Lock == EFlareResourceLock::NoLock)
 		{
 			continue;
 		}

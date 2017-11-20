@@ -88,7 +88,7 @@ public:
 	int32 GetResourceQuantity(FFlareResourceDescription* Resource, UFlareCompany* Client) const;
 
 	/* If client is not null, restriction are used*/
-	int32 GetFreeSpaceForResource(FFlareResourceDescription* Resource, UFlareCompany* Client) const;
+	int32 GetFreeSpaceForResource(FFlareResourceDescription* Resource, UFlareCompany* Client, bool LockOnly = false) const;
 
 	bool HasRestrictions() const;
 
