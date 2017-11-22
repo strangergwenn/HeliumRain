@@ -3580,6 +3580,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				}
 
 				int32 ResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
+				int32 MaxCapacity = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, Company);
 
 				float BaseSlotCapacity = InitialSlotCapacity / Station->GetLevel();
 
@@ -3590,7 +3591,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					SlotCapacity -=  BaseSlotCapacity * GetGame()->GetAINerfRatio();
 				}
 
-				int32 Capacity = SlotCapacity - ResourceQuantity;
+				int32 Capacity = FMath::Min(MaxCapacity, (SlotCapacity - ResourceQuantity));
 				if (ResourceQuantity < SlotCapacity)
 				{
 					if (Company == Station->GetCompany())
@@ -3685,6 +3686,8 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
 				int32 ResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
+				int32 MaxCapacity = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, Company);
+
 				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
 
 				float BaseSlotCapacity = InitialSlotCapacity / Station->GetLevel();
@@ -3692,9 +3695,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 
 				SlotCapacity -=  BaseSlotCapacity * GetGame()->GetAINerfRatio();
 
-				int32 Capacity = SlotCapacity - ResourceQuantity;
-
-
+				int32 Capacity = FMath::Min(MaxCapacity, (SlotCapacity - ResourceQuantity));
 
 				// Dept are allowed for sell to customers
 				if (ResourceQuantity < SlotCapacity)
@@ -3724,9 +3725,10 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
 				int32 ResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
+				int32 MaxCapacity = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, Company);
 
 				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
-				int32 Capacity = InitialSlotCapacity - ResourceQuantity;
+				int32 Capacity = FMath::Min(MaxCapacity, (InitialSlotCapacity - ResourceQuantity));
 				int32 SlotCapacity = InitialSlotCapacity;
 
 

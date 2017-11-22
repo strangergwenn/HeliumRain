@@ -18,7 +18,7 @@
 
 UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Request)
 {
-	FLOGV("FindTradeStation of %s for %s  (%d)", *Request.Resource->Acronym.ToString(), *Request.Client->GetImmatriculation().ToString(), (Request.Operation + 0));
+	//FLOGV("FindTradeStation of %s for %s  (%d)", *Request.Resource->Acronym.ToString(), *Request.Client->GetImmatriculation().ToString(), (Request.Operation + 0));
 
 	if(!Request.Client || !Request.Client->GetCurrentSector())
 	{
@@ -82,13 +82,13 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 	for (int32 StationIndex = 0; StationIndex < SectorStations.Num(); StationIndex++)
 	{
 		UFlareSimulatedSpacecraft* Station = SectorStations[StationIndex];
-		FLOGV("   Check trade for %s", *Station->GetImmatriculation().ToString());
+		//FLOGV("   Check trade for %s", *Station->GetImmatriculation().ToString());
 
 
 		FText Unused;
 		if(!Request.Client->CanTradeWith(Station, Unused))
 		{
-			FLOG(" cannot trade with");
+			//FLOG(" cannot trade with");
 			continue;
 		}
 		FFlareResourceUsage StationResourceUsage = Station->GetResourceUseType(Request.Resource);
@@ -96,7 +96,7 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		if(NeedOutput && (!StationResourceUsage.HasUsage(EFlareResourcePriceContext::FactoryOutput) &&
 						  !StationResourceUsage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption)))
 		{
-			FLOG(" need output but dont provide it");
+			//FLOG(" need output but dont provide it");
 			continue;
 		}
 
@@ -104,7 +104,7 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 						 !StationResourceUsage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption) &&
 						 !StationResourceUsage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption)))
 		{
-			FLOG(" need input but dont provide it");
+			//FLOG(" need input but dont provide it");
 			continue;
 		}
 
@@ -113,7 +113,7 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 
 		if (StationFreeSpace == 0 && StationResourceQuantity == 0)
 		{
-			FLOG(" need quantity or resource");
+			//FLOG(" need quantity or resource");
 			continue;
 		}
 
@@ -199,7 +199,7 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		}
 	}
 
-	FLOGV("FindTradeStation result %p", BestStation);
+	//FLOGV("FindTradeStation result %p", BestStation);
 
 	return BestStation;
 }
