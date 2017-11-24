@@ -24,7 +24,7 @@
 AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	: Super(PCIP)
 	, PlayerShip(NULL)
-	, CockpitLightingIntensity(5)
+	, CockpitLightingIntensity(2.5)
 	, CockpitHealthLightTimer(0)
 	, CockpitHealthLightPeriod(1.58)
 	, CockpitTargetLightTimer(0)
