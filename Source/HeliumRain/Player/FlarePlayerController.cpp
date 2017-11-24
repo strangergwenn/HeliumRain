@@ -1998,7 +1998,7 @@ void AFlarePlayerController::TradeMenu()
 
 void AFlarePlayerController::SpacecraftKey1()
 {
-	if (IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
 	{
 		MenuManager->SpacecraftInfoHotkey(1);
 	}
@@ -2010,7 +2010,7 @@ void AFlarePlayerController::SpacecraftKey1()
 
 void AFlarePlayerController::SpacecraftKey2()
 {
-	if (IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
 	{
 		MenuManager->SpacecraftInfoHotkey(2);
 	}
@@ -2022,7 +2022,7 @@ void AFlarePlayerController::SpacecraftKey2()
 
 void AFlarePlayerController::SpacecraftKey3()
 {
-	if (IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
 	{
 		MenuManager->SpacecraftInfoHotkey(3);
 	}
@@ -2034,7 +2034,7 @@ void AFlarePlayerController::SpacecraftKey3()
 
 void AFlarePlayerController::SpacecraftKey4()
 {
-	if (IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
 	{
 		MenuManager->SpacecraftInfoHotkey(3);
 	}
@@ -2046,7 +2046,7 @@ void AFlarePlayerController::SpacecraftKey4()
 
 void AFlarePlayerController::SpacecraftKey5()
 {
-	if (IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
 	{
 		MenuManager->SpacecraftInfoHotkey(5);
 	}
@@ -2054,7 +2054,7 @@ void AFlarePlayerController::SpacecraftKey5()
 
 void AFlarePlayerController::SpacecraftKey6()
 {
-	if (IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
 	{
 		MenuManager->SpacecraftInfoHotkey(6);
 	}
@@ -2062,7 +2062,7 @@ void AFlarePlayerController::SpacecraftKey6()
 
 void AFlarePlayerController::SpacecraftKey7()
 {
-	if (IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
 	{
 		MenuManager->SpacecraftInfoHotkey(7);
 	}
