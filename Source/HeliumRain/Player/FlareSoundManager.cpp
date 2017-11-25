@@ -126,7 +126,7 @@ UFlareSoundManager::UFlareSoundManager(const class FObjectInitializer& PCIP)
 	RCSPlayer.Sound->bAutoActivate = false;
 	RCSPlayer.Sound->bAutoDestroy = false;
 	RCSPlayer.PitchedFade = true;
-	RCSPlayer.FadeSpeed = 20.0;
+	RCSPlayer.FadeSpeed = 5.0;
 	RCSPlayer.Volume = 0;
 
 	// Warning sound on targeting
@@ -416,20 +416,23 @@ void UFlareSoundManager::UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDel
 
 	if (NewVolume != Player.Volume)
 	{
-		if (NewVolume == 0)
-		{
-			Player.Sound->Stop();
-		}
-		else if (Player.Volume == 0)
+		if (Player.Volume == 0 && NewVolume != 0)
 		{
 			Player.Sound->Play();
 		}
 		else
 		{
 			Player.Sound->SetVolumeMultiplier(NewVolume);
-			Player.Sound->SetPitchMultiplier(Player.PitchedFade ? 0.5f + 0.5f * NewVolume : 1.0f);
+			if (Player.PitchedFade)
+			{
+				Player.Sound->SetPitchMultiplier(0.5f + 0.5f * NewVolume);
+			}
 		}
 		Player.Volume = NewVolume;
+	}
+	else if (Player.Volume == 0)
+	{
+		Player.Sound->Stop();
 	}
 }
 
