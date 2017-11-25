@@ -133,12 +133,15 @@ void SFlarePlanetaryBox::OnArrangeChildren(const FGeometry& AllottedGeometry, FA
 	}
 
 	// Draw planet
-	const SFlarePlanetaryBox::FSlot& MainChild = Children[0];
-	ArrangedChildren.AddWidget(MainChild.GetWidget()->GetVisibility(), AllottedGeometry.MakeChild(
-		MainChild.GetWidget(),
-		(AllottedGeometry.GetLocalSize() - MainChild.GetWidget()->GetDesiredSize()) / 2,
-		MainChild.GetWidget()->GetDesiredSize()
-	));
+	if (Children.Num())
+	{
+		const SFlarePlanetaryBox::FSlot& MainChild = Children[0];
+		ArrangedChildren.AddWidget(MainChild.GetWidget()->GetVisibility(), AllottedGeometry.MakeChild(
+			MainChild.GetWidget(),
+			(AllottedGeometry.GetLocalSize() - MainChild.GetWidget()->GetDesiredSize()) / 2,
+			MainChild.GetWidget()->GetDesiredSize()
+		));
+	}
 }
 
 struct SFlareOrbitSegment
