@@ -47,6 +47,10 @@ namespace EFlareMenu
 		MENU_WorldEconomy,
 		MENU_Technology,
 
+		// Skirmish mode
+		MENU_SkirmishSetup,
+		MENU_SkirmishScore,
+
 		// Support menus
 		MENU_Settings,
 		MENU_Credits,

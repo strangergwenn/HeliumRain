@@ -27,6 +27,8 @@
 #include "../UI/Menus/FlareWorldEconomyMenu.h"
 #include "../UI/Menus/FlareTechnologyMenu.h"
 #include "../UI/Menus/FlareGameOverMenu.h"
+#include "../UI/Menus/FlareSkirmishSetupMenu.h"
+#include "../UI/Menus/FlareSkirmishScoreMenu.h"
 
 #include "../Game/FlareGame.h"
 #include "../Game/FlareGameTools.h"
@@ -87,6 +89,8 @@ void AFlareMenuManager::SetupMenu()
 		SAssignNew(GameOverMenu, SFlareGameOverMenu).MenuManager(this);
 		SAssignNew(CreditsMenu, SFlareCreditsMenu).MenuManager(this);
 		SAssignNew(EULAMenu, SFlareEULAMenu).MenuManager(this);
+		SAssignNew(SkirmishSetupMenu, SFlareSkirmishSetupMenu).MenuManager(this);
+		SAssignNew(SkirmishScoreMenu, SFlareSkirmishScoreMenu).MenuManager(this);
 
 		// Create overlays
 		SAssignNew(MainOverlay, SFlareMainOverlay).MenuManager(this);
@@ -124,6 +128,8 @@ void AFlareMenuManager::SetupMenu()
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(GameOverMenu.ToSharedRef()),       50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(CreditsMenu.ToSharedRef()),        50);
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(EULAMenu.ToSharedRef()),           50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SkirmishSetupMenu.ToSharedRef()),  50);
+		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(SkirmishScoreMenu.ToSharedRef()),  50);
 
 		// Register special menus
 		GEngine->GameViewport->AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(MainOverlay.ToSharedRef()),        60);
@@ -153,6 +159,8 @@ void AFlareMenuManager::SetupMenu()
 		GameOverMenu->Setup();
 		CreditsMenu->Setup();
 		EULAMenu->Setup();
+		SkirmishSetupMenu->Setup();
+		SkirmishScoreMenu->Setup();
 
 		// Init
 		CurrentMenu.Key = EFlareMenu::MENU_None;
@@ -515,6 +523,8 @@ void AFlareMenuManager::ResetMenu()
 	GameOverMenu->Exit();
 	CreditsMenu->Exit();
 	EULAMenu->Exit();
+	SkirmishSetupMenu->Exit();
+	SkirmishScoreMenu->Exit();
 
 	Tooltip->HideTooltipForce();
 
@@ -587,6 +597,8 @@ void AFlareMenuManager::ProcessNextMenu()
 		case EFlareMenu::MENU_Technology:         OpenTechnology();            break;
 		case EFlareMenu::MENU_Credits:            OpenCredits();               break;
 		case EFlareMenu::MENU_EULA:               OpenEULA();                  break;
+		case EFlareMenu::MENU_SkirmishSetup:      OpenSkirmishSetup();         break;
+		case EFlareMenu::MENU_SkirmishScore:      OpenSkirmishScore();         break;
 
 		case EFlareMenu::MENU_Quit:               PC->ConsoleCommand("quit");  break;
 
@@ -1073,6 +1085,18 @@ void AFlareMenuManager::OpenEULA()
 {
 	OnEnterMenu(false, false, false);
 	EULAMenu->Enter();
+}
+
+void AFlareMenuManager::OpenSkirmishSetup()
+{
+	OnEnterMenu(false, false, false);
+	SkirmishSetupMenu->Enter();
+}
+
+void AFlareMenuManager::OpenSkirmishScore()
+{
+	OnEnterMenu(false, false, false);
+	SkirmishScoreMenu->Enter();
 }
 
 void AFlareMenuManager::ExitMenu()

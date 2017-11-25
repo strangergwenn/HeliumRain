@@ -35,16 +35,65 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
 		SNew(SVerticalBox)
-		
-		// Save slots
+
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.HAlign(HAlign_Center)
 		[
 			SNew(SBox)
-			.WidthOverride(2 * Theme.ContentWidth)
+			.WidthOverride(1.75 * Theme.ContentWidth)
+			.HAlign(HAlign_Fill)
 			[
-				SAssignNew(SaveBox, SHorizontalBox)
+				SNew(SVerticalBox)
+
+				// Save slot title
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TitleFont)
+					.Text(LOCTEXT("SaveSlotTitle", "Sandbox mode"))
+				]
+		
+				// Save slots
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Fill)
+				[
+					SAssignNew(SaveBox, SHorizontalBox)
+				]
+
+				// Spacer
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+
+				// Skirmish title
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TitleFont)
+					.Text(LOCTEXT("SkirmishTitle", "Skirmish mode"))
+				]
+
+				// Skirmish button
+				+ SVerticalBox::Slot()
+				.HAlign(HAlign_Left)
+				.VAlign(VAlign_Center)
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(SFlareButton)
+					.Text(LOCTEXT("NewSkirmish", "New skirmish"))
+					.HelpText(LOCTEXT("NewSkirmishInfo", "Start fighting right away in a quick engagement"))
+					.Icon(FFlareStyleSet::GetIcon("New"))
+					.OnClicked(this, &SFlareMainMenu::OnOpenSkirmish)
+					.Width(5)
+					.Height(1)
+				]
 			]
 		]
 	
@@ -214,76 +263,96 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 	{
 		TSharedPtr<int32> IndexPtr(new int32(Index));
 
-		SaveBox->AddSlot()
-		.HAlign(HAlign_Center)
+		// Define alignment
+		EHorizontalAlignment SlotAlignment;
+		if (Index == 1)
+		{
+			SlotAlignment = HAlign_Left;
+		}
+		else if (Index == Game->GetSaveSlotCount())
+		{
+			SlotAlignment = HAlign_Right;
+		}
+		else
+		{
+			SlotAlignment = HAlign_Fill;
+		}
+
+		// Add slot
+		SHorizontalBox::FSlot& Slot = SaveBox->AddSlot()
+		.HAlign(SlotAlignment)
 		.VAlign(VAlign_Top)
 		[
-			SNew(SVerticalBox)
-
-			// Slot N°
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.TitlePadding)
+			SNew(SBox)
+			.HAlign(HAlign_Center)
 			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TitleFont)
-				.Text(FText::Format(LOCTEXT("NumberFormat", "{0}/"), FText::AsNumber(Index)))
-			]
+				SNew(SVerticalBox)
 
-			// Company emblem
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.Padding(Theme.ContentPadding)
-			[
-				SNew(SHorizontalBox)
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Center)
+				// Slot N°
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.TitlePadding)
 				[
-					SNew(SImage)
-					.Image(this, &SFlareMainMenu::GetSaveIcon, Index)
+					SNew(STextBlock)
+					.TextStyle(&Theme.TitleFont)
+					.Text(FText::Format(LOCTEXT("NumberFormat", "{0}/"), FText::AsNumber(Index)))
 				]
-			]
 
-			// Description
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.TextFont)
-				.Text(this, &SFlareMainMenu::GetText, Index)
-			]
+				// Company emblem
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Center)
+					[
+						SNew(SImage)
+						.Image(this, &SFlareMainMenu::GetSaveIcon, Index)
+					]
+				]
 
-			// Launch
-			+ SVerticalBox::Slot()
-			.HAlign(HAlign_Left)
-			.VAlign(VAlign_Center)
-			.AutoHeight()
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(SFlareButton)
-				.Text(this, &SFlareMainMenu::GetButtonText, Index)
-				.HelpText(LOCTEXT("StartGameInfo", "Start playing"))
-				.Icon(this, &SFlareMainMenu::GetButtonIcon, Index)
-				.OnClicked(this, &SFlareMainMenu::OnOpenSlot, IndexPtr)
-				.Width(5)
-				.Height(1)
-			]
+				// Description
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(this, &SFlareMainMenu::GetText, Index)
+				]
 
-			// Delete
-			+ SVerticalBox::Slot()
-			.HAlign(HAlign_Left)
-			.VAlign(VAlign_Center)
-			.AutoHeight()
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(SFlareButton)
-				.Text(LOCTEXT("Delete", "Delete game"))
-				.HelpText(LOCTEXT("DeleteInfo", "Delete this game, forever, without backup !"))
-				.Icon(FFlareStyleSet::GetIcon("Delete"))
-				.OnClicked(this, &SFlareMainMenu::OnDeleteSlot, IndexPtr)
-				.Width(5)
-				.Height(1)
-				.Visibility(this, &SFlareMainMenu::GetDeleteButtonVisibility, Index)
+				// Launch
+				+ SVerticalBox::Slot()
+				.HAlign(HAlign_Left)
+				.VAlign(VAlign_Center)
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(SFlareButton)
+					.Text(this, &SFlareMainMenu::GetButtonText, Index)
+					.HelpText(LOCTEXT("StartGameInfo", "Start playing"))
+					.Icon(this, &SFlareMainMenu::GetButtonIcon, Index)
+					.OnClicked(this, &SFlareMainMenu::OnOpenSlot, IndexPtr)
+					.Width(5)
+					.Height(1)
+				]
+
+				// Delete
+				+ SVerticalBox::Slot()
+				.HAlign(HAlign_Left)
+				.VAlign(VAlign_Center)
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(SFlareButton)
+					.Text(LOCTEXT("Delete", "Delete game"))
+					.HelpText(LOCTEXT("DeleteInfo", "Delete this game, forever, without backup !"))
+					.Icon(FFlareStyleSet::GetIcon("Delete"))
+					.OnClicked(this, &SFlareMainMenu::OnDeleteSlot, IndexPtr)
+					.Width(5)
+					.Height(1)
+					.Visibility(this, &SFlareMainMenu::GetDeleteButtonVisibility, Index)
+				]
 			]
 		];
 	}
@@ -402,6 +471,11 @@ void SFlareMainMenu::OnDeleteSlotConfirmed()
 		Game->ReadAllSaveSlots();
 		SaveSlotToDelete = -1;
 	}
+}
+
+void SFlareMainMenu::OnOpenSkirmish()
+{
+	MenuManager->OpenMenu(EFlareMenu::MENU_SkirmishSetup);
 }
 
 void SFlareMainMenu::OnOpenCredits()

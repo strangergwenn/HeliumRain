@@ -72,6 +72,9 @@ protected:
 
 	/** Delete a game */
 	void OnDeleteSlotConfirmed();
+
+	/*** Start a skirmish */
+	void OnOpenSkirmish();
 	
 	/*** Open credits */
 	void OnOpenCredits();

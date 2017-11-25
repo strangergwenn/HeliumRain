@@ -38,6 +38,8 @@ class SFlareResourcePricesMenu;
 class SFlareWorldEconomyMenu;
 class SFlareGameOverMenu;
 class SFlareTechnologyMenu;
+class SFlareSkirmishSetupMenu;
+class SFlareSkirmishScoreMenu;
 
 // Gameplay classes
 class AFlarePlayerController;
@@ -237,6 +239,12 @@ protected:
 	/** Go to the game's EULA */
 	void OpenEULA();
 
+	/** Go to the new skirmish menu */
+	void OpenSkirmishSetup();
+
+	/** Go to the skirmish end-game score menu */
+	void OpenSkirmishScore();
+
 	/** Exit the menu */
 	void ExitMenu();
 
@@ -405,6 +413,8 @@ protected:
 	TSharedPtr<SFlareWorldEconomyMenu>      WorldEconomyMenu;
 	TSharedPtr<SFlareTechnologyMenu>        TechnologyMenu;
 	TSharedPtr<SFlareGameOverMenu>          GameOverMenu;
+	TSharedPtr<SFlareSkirmishSetupMenu>     SkirmishSetupMenu;
+	TSharedPtr<SFlareSkirmishScoreMenu>     SkirmishScoreMenu;
 	
 
 };
