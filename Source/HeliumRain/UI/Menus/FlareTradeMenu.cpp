@@ -335,7 +335,7 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 		{
 			UFlareSimulatedSpacecraft* StationCandidate = ParentSector->GetSectorStations()[SpacecraftIndex];
 			if (StationCandidate && StationCandidate != LeftSpacecraft && StationCandidate != RightSpacecraft
-			 && StationCandidate->GetDescription()->CargoBayCount > 0
+			 && StationCandidate->GetActiveCargoBay()->GetSlotCount() > 0
 			 && StationCandidate->GetCompany()->GetPlayerWarState() != EFlareHostility::Hostile)
 			{
 				ShipList->AddShip(StationCandidate);
@@ -348,7 +348,7 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 			// Don't allow trade with other
 			UFlareSimulatedSpacecraft* ShipCandidate = ParentSector->GetSectorShips()[SpacecraftIndex];
 			if (ShipCandidate && ShipCandidate != LeftSpacecraft && ShipCandidate != RightSpacecraft
-			 && ShipCandidate->GetDescription()->CargoBayCount > 0
+			 && ShipCandidate->GetActiveCargoBay()->GetSlotCount() > 0
 			 && ShipCandidate->GetDamageSystem()->IsAlive()
 			 && ShipCandidate->GetCompany() == MenuManager->GetPC()->GetCompany())
 			{

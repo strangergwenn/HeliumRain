@@ -344,7 +344,7 @@ EVisibility SFlareFactoryInfo::GetIncreaseOutputLimitVisibility(FFlareResourceDe
 			return EVisibility::Hidden;
 		}
 
-		uint32 MaxOutput = TargetFactory->GetParent()->GetDescription()->CargoBayCount;
+		uint32 MaxOutput = TargetFactory->GetParent()->GetActiveCargoBay()->GetSlotCount();
 		return (TargetFactory->HasOutputLimit(Resource) && TargetFactory->GetOutputLimit(Resource) < MaxOutput ? EVisibility::Visible : EVisibility::Hidden);
 	}
 	else
@@ -394,7 +394,7 @@ void SFlareFactoryInfo::OnStopProduction()
 void SFlareFactoryInfo::OnDecreaseOutputLimit(FFlareResourceDescription* Resource)
 {
 	FCHECK(TargetFactory);
-	uint32 MaxOutput = TargetFactory->GetParent()->GetDescription()->CargoBayCount;
+	uint32 MaxOutput = TargetFactory->GetParent()->GetActiveCargoBay()->GetSlotCount();
 
 	if (!TargetFactory->HasOutputLimit(Resource))
 	{
@@ -410,7 +410,7 @@ void SFlareFactoryInfo::OnDecreaseOutputLimit(FFlareResourceDescription* Resourc
 void SFlareFactoryInfo::OnIncreaseOutputLimit(FFlareResourceDescription* Resource)
 {
 	FCHECK(TargetFactory);
-	uint32 MaxOutput = TargetFactory->GetParent()->GetDescription()->CargoBayCount;
+	uint32 MaxOutput = TargetFactory->GetParent()->GetActiveCargoBay()->GetSlotCount();
 
 	if (TargetFactory->GetOutputLimit(Resource) + 1 >= MaxOutput)
 	{
