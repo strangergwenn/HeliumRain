@@ -172,7 +172,17 @@ void SFlareList::RefreshList()
 					}
 					else
 					{
-						return (PtrA->FleetPtr->GetShips().Num() > PtrB->FleetPtr->GetShips().Num());
+						int32 ValueA = PtrA->FleetPtr->GetCombatPoints(true);
+						int32 ValueB = PtrB->FleetPtr->GetCombatPoints(true);
+
+						if (ValueA != ValueB)
+						{
+							return ValueA > ValueB;
+						}
+						else
+						{
+							return PtrA->FleetPtr->GetFleetName().ToString().Compare(PtrB->FleetPtr->GetFleetName().ToString()) < 0;
+						}
 					}
 				}
 				else
