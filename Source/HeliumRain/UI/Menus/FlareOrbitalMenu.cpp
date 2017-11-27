@@ -201,7 +201,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 								SNew(SRichTextBlock)
 								.TextStyle(&Theme.TextFont)
 								.Text(this, &SFlareOrbitalMenu::GetTravelText)
-								.WrapTextAt(0.7 * Theme.ContentWidth)
+								.WrapTextAt(0.5 * Theme.ContentWidth)
 								.DecoratorStyleSet(&FFlareStyleSet::Get())
 							]
 						]
@@ -256,23 +256,28 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				// Moons 2
 				+ SHorizontalBox::Slot()
 				.HAlign(HAlign_Fill)
-				.VAlign(VAlign_Fill)
+				.VAlign(VAlign_Top)
 				[
 					SNew(SVerticalBox)
 
 					+ SVerticalBox::Slot()
 					.HAlign(HAlign_Fill)
-					.VAlign(VAlign_Fill)
+					.VAlign(VAlign_Top)
+					.Padding(FMargin(0, 100, 0, 50))
 					[
 						SAssignNew(AstaBox, SFlarePlanetaryBox)
 					]
 
 					+ SVerticalBox::Slot()
 					.HAlign(HAlign_Fill)
-					.VAlign(VAlign_Fill)
+					.VAlign(VAlign_Top)
 					[
 						SAssignNew(AdenaBox, SFlarePlanetaryBox)
 					]
+
+					+ SVerticalBox::Slot()
+					.HAlign(HAlign_Fill)
+					.VAlign(VAlign_Fill)
 				]
 			]
 		]
