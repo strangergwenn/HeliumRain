@@ -93,6 +93,20 @@ void SFlareList::Construct(const FArguments& InArgs)
 					.Toggle(true)
 					.Width(2)
 				]
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SAssignNew(GroupFleetsButton, SFlareButton)
+					.Text(LOCTEXT("GroupFleets", "Fleets"))
+					.HelpText(LOCTEXT("GroupFleetsInfo", "Group vessels by fleet"))
+					.OnClicked(this, &SFlareList::OnToggleShowFlags)
+					.Visibility(this, &SFlareList::GetShipFiltersVisibility)
+					.Small(true)
+					.Transparent(true)
+					.Toggle(true)
+					.Width(2)
+				]
 			]
 	
 			// Box
@@ -128,6 +142,7 @@ void SFlareList::Construct(const FArguments& InArgs)
 	ShowStationsButton->SetActive(true);
 	ShowMilitaryButton->SetActive(true);
 	ShowFreightersButton->SetActive(true);
+	GroupFleetsButton->SetActive(false);
 }
 
 
@@ -266,6 +281,7 @@ void SFlareList::RefreshList()
 
 	// Apply filters
 	FilteredObjectList.Empty();
+	TArray<UFlareFleet*> FilteredFleets;
 	for (auto Object : ObjectList)
 	{
 		// Ships have three filters
@@ -278,7 +294,21 @@ void SFlareList::RefreshList()
 			 || (IsMilitary && ShowMilitaryButton->IsActive())
 			 || (!IsStation && !IsMilitary && ShowFreightersButton->IsActive()))
 			{
-				FilteredObjectList.Add(Object);
+				UFlareFleet* ObjectFleet = Object->SpacecraftPtr->GetCurrentFleet();
+
+				// Create a new fleet pointer if we're grouping by fleets
+				if (GroupFleetsButton->IsActive() && !IsStation)
+				{
+					if (FilteredFleets.Find(ObjectFleet) == INDEX_NONE)
+					{
+						FilteredFleets.AddUnique(ObjectFleet);
+						FilteredObjectList.AddUnique(FInterfaceContainer::New(ObjectFleet));
+					}
+				}
+				else
+				{
+					FilteredObjectList.Add(Object);
+				}
 			}
 		}
 

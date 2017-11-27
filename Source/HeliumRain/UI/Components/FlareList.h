@@ -110,6 +110,7 @@ protected:
 	TSharedPtr<SFlareButton>                                     ShowStationsButton;
 	TSharedPtr<SFlareButton>                                     ShowMilitaryButton;
 	TSharedPtr<SFlareButton>                                     ShowFreightersButton;
+	TSharedPtr<SFlareButton>                                     GroupFleetsButton;
 
 	// State data
 	FFlareListItemSelected                                       OnItemSelected;
