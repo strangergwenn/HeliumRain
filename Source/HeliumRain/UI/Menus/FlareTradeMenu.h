@@ -39,7 +39,8 @@ public:
 	void Enter(UFlareSimulatedSector* ParentSector, UFlareSimulatedSpacecraft* LeftSpacecraft, UFlareSimulatedSpacecraft* RightSpacecraft);
 
 	/** Fill a content pane with the trading information for Target spacecraft to deal with Other */
-	void FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft, UFlareSimulatedSpacecraft* OtherSpacecraft, TSharedPtr<SHorizontalBox> TargetBlock);
+	void FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft, UFlareSimulatedSpacecraft* OtherSpacecraft,
+		TSharedPtr<SHorizontalBox> CargoBay1, TSharedPtr<SHorizontalBox> CargoBay2);
 
 	/** Exit this menu */
 	void Exit();
@@ -130,8 +131,10 @@ protected:
 
 	// Menu components
 	TSharedPtr<SFlareList>                          ShipList;
-	TSharedPtr<SHorizontalBox>                      LeftCargoBay;
-	TSharedPtr<SHorizontalBox>                      RightCargoBay;
+	TSharedPtr<SHorizontalBox>                      LeftCargoBay1;
+	TSharedPtr<SHorizontalBox>                      LeftCargoBay2;
+	TSharedPtr<SHorizontalBox>                      RightCargoBay1;
+	TSharedPtr<SHorizontalBox>                      RightCargoBay2;
 	TSharedPtr<SSlider>                             QuantitySlider;
 	TSharedPtr<SEditableText>                       QuantityText;
 	TSharedPtr<SFlareConfirmationBox>               PriceBox;

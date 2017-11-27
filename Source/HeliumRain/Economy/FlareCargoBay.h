@@ -10,6 +10,11 @@ class AFlareGame;
 class UFlareCompany;
 class UFlareSimulatedSpacecraft;
 
+struct FSortableCargoInfo
+{
+	FFlareCargo*    Cargo;
+	int32           CargoInitialIndex;
+};
 
 UCLASS()
 class HELIUMRAIN_API UFlareCargoBay : public UObject
@@ -113,4 +118,8 @@ public:
 	bool WantBuy(FFlareResourceDescription* Resource, UFlareCompany* Client) const;
 
 	bool CheckRestriction(const FFlareCargo* Cargo, UFlareCompany* Client) const;
+
+	static bool SortBySlotType(const FSortableCargoInfo& A, const FSortableCargoInfo& B);
+
 };
+

@@ -342,20 +342,35 @@ void SFlareSpacecraftInfo::SetSpacecraft(UFlareSimulatedSpacecraft* Target)
 			TargetSpacecraftDesc = PC->GetGame()->GetSpacecraftCatalog()->Get(SaveData->Identifier);
 		}
 
-		// Fill the cargo bay
+		// Prepare cargo bay
 		CargoBay1->ClearChildren();
 		CargoBay2->ClearChildren();
 		UFlareCompany* Company = TargetSpacecraft->GetCompany();
+		TArray<FSortableCargoInfo> SortedCargoBay;
+
+		// Fill the cargo bay
 		if (Company->GetPlayerWarState() != EFlareHostility::Hostile)
 		{
+			// Get slots
 			for (int32 CargoIndex = 0; CargoIndex < TargetSpacecraft->GetActiveCargoBay()->GetSlotCount() ; CargoIndex++)
+			{
+				FFlareCargo* Cargo = TargetSpacecraft->GetActiveCargoBay()->GetSlot(CargoIndex);
+				FSortableCargoInfo CargoInfo;
+				CargoInfo.Cargo = Cargo;
+				CargoInfo.CargoInitialIndex = CargoIndex;
+				SortedCargoBay.Add(CargoInfo);
+			}
+
+			// Sort and fill
+			SortedCargoBay.Sort(UFlareCargoBay::SortBySlotType);
+			for (int32 CargoIndex = 0; CargoIndex < SortedCargoBay.Num(); CargoIndex++)
 			{
 				TSharedPtr<SHorizontalBox> Bay = (CargoIndex < 8) ? CargoBay1 : CargoBay2;
 				Bay->AddSlot()
 				[
 					SNew(SFlareCargoInfo)
 					.Spacecraft(TargetSpacecraft)
-					.CargoIndex(CargoIndex)
+					.CargoIndex(SortedCargoBay[CargoIndex].CargoInitialIndex)
 				];
 			}
 		}

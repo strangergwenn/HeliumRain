@@ -606,3 +606,8 @@ bool UFlareCargoBay::CheckRestriction(const FFlareCargo* Cargo, UFlareCompany* C
 	}
 	return true;
 }
+
+bool UFlareCargoBay::SortBySlotType(const FSortableCargoInfo& A, const FSortableCargoInfo& B)
+{
+	return A.Cargo->Lock > B.Cargo->Lock;
+}

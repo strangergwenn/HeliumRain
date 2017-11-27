@@ -75,13 +75,22 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 							.Text(this, &SFlareTradeMenu::GetLeftSpacecraftName)
 						]
 
-						// Current ship's cargo
+						// Current ship's cargo 1
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.Padding(Theme.ContentPadding)
+						.Padding(Theme.SmallContentPadding)
 						.HAlign(HAlign_Left)
 						[
-							SAssignNew(LeftCargoBay, SHorizontalBox)
+							SAssignNew(LeftCargoBay1, SHorizontalBox)
+						]
+
+						// Current ship's cargo 2
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.SmallContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SAssignNew(LeftCargoBay2, SHorizontalBox)
 						]
 
 						// Help text
@@ -138,7 +147,6 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 						// Ship's cargo
 						+ SVerticalBox::Slot()
 						.AutoHeight()
-						.Padding(Theme.ContentPadding)
 						.HAlign(HAlign_Fill)
 						[
 							SNew(SHorizontalBox)
@@ -146,13 +154,33 @@ void SFlareTradeMenu::Construct(const FArguments& InArgs)
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
 							[
-								SAssignNew(RightCargoBay, SHorizontalBox)
-								.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
+								SNew(SVerticalBox)
+
+								// Current ship's cargo 1
+								+ SVerticalBox::Slot()
+								.Padding(Theme.SmallContentPadding)
+								.AutoHeight()
+								.HAlign(HAlign_Left)
+								[
+									SAssignNew(RightCargoBay1, SHorizontalBox)
+									.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
+								]
+
+								// Current ship's cargo 2
+								+ SVerticalBox::Slot()
+								.Padding(Theme.SmallContentPadding)
+								.AutoHeight()
+								.HAlign(HAlign_Left)
+								[
+									SAssignNew(RightCargoBay2, SHorizontalBox)
+									.Visibility(this, &SFlareTradeMenu::GetTradingVisibility)
+								]
 							]
 
 							+ SHorizontalBox::Slot()
 							.HAlign(HAlign_Right)
 							.VAlign(VAlign_Center)
+							.Padding(Theme.SmallContentPadding)
 							[
 								SNew(SFlareButton)
 								.Text(LOCTEXT("BackToSelection", "Change target"))
@@ -359,8 +387,8 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 
 	// Setup widgets
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
-	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
+	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay1, LeftCargoBay2);
+	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay1, RightCargoBay2);
 	ShipList->RefreshList();
 
 	// Show selector if still needed
@@ -374,24 +402,43 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 	}
 }
 
-void SFlareTradeMenu::FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft, UFlareSimulatedSpacecraft* OtherSpacecraft, TSharedPtr<SHorizontalBox> CargoBay)
+void SFlareTradeMenu::FillTradeBlock(UFlareSimulatedSpacecraft* TargetSpacecraft, UFlareSimulatedSpacecraft* OtherSpacecraft,
+	TSharedPtr<SHorizontalBox> CargoBay1, TSharedPtr<SHorizontalBox> CargoBay2)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	CargoBay->ClearChildren();
+	
+	// Prepare cargo bay
+	CargoBay1->ClearChildren();
+	CargoBay2->ClearChildren();
+	TArray<FSortableCargoInfo> SortedCargoBay;
 
 	// Both spacecrafts are set
 	if (TargetSpacecraft)
 	{
-		UFlareCargoBay* SpacecraftCargoBay = TargetSpacecraft->GetActiveCargoBay();
-		for (int32 CargoIndex = 0; CargoIndex < SpacecraftCargoBay->GetSlotCount(); CargoIndex++)
+		// Get slots
+		for (int32 CargoIndex = 0; CargoIndex < TargetSpacecraft->GetActiveCargoBay()->GetSlotCount(); CargoIndex++)
 		{
-			FFlareCargo* Cargo = SpacecraftCargoBay->GetSlot(CargoIndex);
-			CargoBay->AddSlot()
+			FFlareCargo* Cargo = TargetSpacecraft->GetActiveCargoBay()->GetSlot(CargoIndex);
+			FSortableCargoInfo CargoInfo;
+			CargoInfo.Cargo = Cargo;
+			CargoInfo.CargoInitialIndex = CargoIndex;
+			SortedCargoBay.Add(CargoInfo);
+		}
+
+		// Sort and fill
+		SortedCargoBay.Sort(UFlareCargoBay::SortBySlotType);
+		for (int32 CargoIndex = 0; CargoIndex < SortedCargoBay.Num(); CargoIndex++)
+		{
+			TSharedPtr<SHorizontalBox> Bay = (CargoIndex < 8) ? CargoBay1 : CargoBay2;
+			Bay->AddSlot()
 			[
 				SNew(SFlareCargoInfo)
 				.Spacecraft(TargetSpacecraft)
-				.CargoIndex(CargoIndex)
-				.OnClicked(this, &SFlareTradeMenu::OnTransferResources, TargetSpacecraft, OtherSpacecraft, Cargo->Resource)
+				.CargoIndex(SortedCargoBay[CargoIndex].CargoInitialIndex)
+				.OnClicked(this, &SFlareTradeMenu::OnTransferResources,
+					TargetSpacecraft,
+					OtherSpacecraft,
+					SortedCargoBay[CargoIndex].Cargo->Resource)
 			];
 		}
 	}
@@ -404,8 +451,10 @@ void SFlareTradeMenu::Exit()
 	// Reset cargo
 	TargetLeftSpacecraft = NULL;
 	TargetRightSpacecraft = NULL;
-	LeftCargoBay->ClearChildren();
-	RightCargoBay->ClearChildren();
+	LeftCargoBay1->ClearChildren();
+	LeftCargoBay2->ClearChildren();
+	RightCargoBay1->ClearChildren();
+	RightCargoBay2->ClearChildren();
 
 	// Reset transaction data
 	TransactionDestinationSpacecraft = NULL;
@@ -634,8 +683,8 @@ void SFlareTradeMenu::OnSpacecraftSelected(TSharedPtr<FInterfaceContainer> Space
 
 		// Reset menus
 		PriceBox->Hide();
-		FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
-		FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
+		FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay1, RightCargoBay2);
+		FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay1, LeftCargoBay2);
 		ShipList->SetVisibility(EVisibility::Collapsed);
 	}
 }
@@ -740,8 +789,8 @@ void SFlareTradeMenu::OnConfirmTransaction()
 
 	// Reset menus
 	PriceBox->Hide();
-	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
-	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
+	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay1, RightCargoBay2);
+	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay1, LeftCargoBay2);
 	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->InfoSound);
 }
 
@@ -755,8 +804,8 @@ void SFlareTradeMenu::OnCancelTransaction()
 
 	// Reset menus
 	PriceBox->Hide();
-	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay);
-	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay);
+	FillTradeBlock(TargetRightSpacecraft, TargetLeftSpacecraft, RightCargoBay1, RightCargoBay2);
+	FillTradeBlock(TargetLeftSpacecraft, TargetRightSpacecraft, LeftCargoBay1, LeftCargoBay2);
 	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
 }
 
@@ -772,7 +821,8 @@ void SFlareTradeMenu::OnBackToSelection()
 
 	// Reset menus
 	PriceBox->Hide();
-	RightCargoBay->ClearChildren();
+	RightCargoBay1->ClearChildren();
+	RightCargoBay2->ClearChildren();
 	ShipList->ClearSelection();
 	ShipList->SetVisibility(EVisibility::Visible);
 }
