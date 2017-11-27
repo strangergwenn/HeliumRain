@@ -87,10 +87,6 @@ void SFlareTradeRouteInfo::UpdateTradeRouteList()
 	for (int RouteIndex = 0; RouteIndex < TradeRoutes.Num(); RouteIndex++)
 	{
 		UFlareTradeRoute* TradeRoute = TradeRoutes[RouteIndex];
-
-		FText TradeRouteName = FText::Format(LOCTEXT("TradeRouteNameFormat", "{0}{1}"),
-			TradeRoute->GetTradeRouteName(),
-			(TradeRoute->IsPaused() ? UFlareGameTools::AddLeadingSpace(LOCTEXT("FleetTradeRoutePausedFormat", "(Paused)")) : FText()));
 		
 		// Add line
 		TradeRouteList->AddSlot()
@@ -111,10 +107,23 @@ void SFlareTradeRouteInfo::UpdateTradeRouteList()
 				.AutoWidth()
 				[
 					SNew(SFlareButton)
-					.Width(7)
-					.Text(TradeRouteName)
+					.Width(6)
+					.Text(this, &SFlareTradeRouteInfo::GetTradeRouteName, TradeRoute)
 					.HelpText(FText(LOCTEXT("InspectHelp", "Edit this trade route")))
 					.OnClicked(this, &SFlareTradeRouteInfo::OnInspectTradeRouteClicked, TradeRoute)
+				]
+
+				// Pause
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareButton)
+					.Transparent(true)
+					.Text(FText())
+					.HelpText(LOCTEXT("PauseTradeRouteHelp", "Pause or restart this trade route"))
+					.Icon(this, &SFlareTradeRouteInfo::GetTogglePauseTradeRouteIcon, TradeRoute)
+					.OnClicked(this, &SFlareTradeRouteInfo::OnTogglePauseTradeRoute, TradeRoute)
+					.Width(1)
 				]
 
 				// Remove
@@ -224,6 +233,30 @@ void SFlareTradeRouteInfo::OnDeleteTradeRouteConfirmed(UFlareTradeRoute* TradeRo
 	FCHECK(TradeRoute);
 	TradeRoute->Dissolve();
 	UpdateTradeRouteList();
+}
+
+FText SFlareTradeRouteInfo::GetTradeRouteName(UFlareTradeRoute* TradeRoute) const
+{
+	return FText::Format(LOCTEXT("TradeRouteNameFormat", "{0}{1}"),
+		TradeRoute->GetTradeRouteName(),
+		(TradeRoute->IsPaused() ? UFlareGameTools::AddLeadingSpace(LOCTEXT("FleetTradeRoutePausedFormat", "(Paused)")) : FText()));
+}
+
+const FSlateBrush* SFlareTradeRouteInfo::GetTogglePauseTradeRouteIcon(UFlareTradeRoute* TradeRoute) const
+{
+	if (TradeRoute->IsPaused())
+	{
+		return FFlareStyleSet::GetIcon("Load");
+	}
+	else
+	{
+		return FFlareStyleSet::GetIcon("Pause");
+	}
+}
+
+void SFlareTradeRouteInfo::OnTogglePauseTradeRoute(UFlareTradeRoute* TradeRoute)
+{
+	TradeRoute->SetPaused(!TradeRoute->IsPaused());
 }
 
 

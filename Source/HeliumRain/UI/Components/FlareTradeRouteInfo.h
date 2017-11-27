@@ -54,6 +54,15 @@ public:
 
 	/** Delete trade route (confirmed) */
 	void OnDeleteTradeRouteConfirmed(UFlareTradeRoute* TradeRoute);
+
+	/** Get the trade route name */
+	FText GetTradeRouteName(UFlareTradeRoute* TradeRoute) const;
+
+	/** Get the pause icon */
+	const FSlateBrush* GetTogglePauseTradeRouteIcon(UFlareTradeRoute* TradeRoute) const;
+
+	/** Toggle pause */
+	void OnTogglePauseTradeRoute(UFlareTradeRoute* TradeRoute);
 		
 
 protected:
