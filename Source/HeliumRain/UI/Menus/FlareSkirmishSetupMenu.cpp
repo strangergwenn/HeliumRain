@@ -1,9 +1,13 @@
 
 #include "FlareSkirmishSetupMenu.h"
 #include "../../Flare.h"
+
 #include "../Components/FlareButton.h"
+
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
+#include "../../Game/FlareSkirmishManager.h"
+
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
@@ -86,6 +90,8 @@ void SFlareSkirmishSetupMenu::Enter()
 	FLOG("SFlareSkirmishSetupMenu::Enter");
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
+
+	MenuManager->GetGame()->GetSkirmishManager()->StartSetup();
 }
 
 void SFlareSkirmishSetupMenu::Exit()
@@ -101,10 +107,16 @@ void SFlareSkirmishSetupMenu::Exit()
 
 void SFlareSkirmishSetupMenu::OnStartSkirmish()
 {
+	MenuManager->GetGame()->GetSkirmishManager()->StartPlay();
+
+	// TODO : use skirmish manager to build a data object that's passed to create game
+	//MenuManager->OpenMenu(EFlareMenu::MENU_CreateGame);
 }
 
 void SFlareSkirmishSetupMenu::OnMainMenu()
 {
+	MenuManager->GetGame()->GetSkirmishManager()->EndSkirmish();
+
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 }
 

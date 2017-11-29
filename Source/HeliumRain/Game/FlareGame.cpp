@@ -9,6 +9,7 @@
 #include "FlarePlanetarium.h"
 #include "FlareGameTools.h"
 #include "FlareScenarioTools.h"
+#include "FlareSkirmishManager.h"
 
 #include "Save/FlareSaveGameSystem.h"
 
@@ -154,6 +155,9 @@ void AFlareGame::StartPlay()
 
 	// Spawn debris field system
 	DebrisFieldSystem = NewObject<UFlareDebrisField>(this, UFlareDebrisField::StaticClass());
+
+	// Spawn skirmish manager
+	SkirmishManager = NewObject<UFlareSkirmishManager>(this, UFlareSkirmishManager::StaticClass());
 }
 
 void AFlareGame::PostLogin(APlayerController* Player)
@@ -610,11 +614,11 @@ bool AFlareGame::DeleteSaveSlot(int32 Index)
 	Save
 ----------------------------------------------------*/
 
-void AFlareGame::CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription CompanyData, int32 ScenarioIndex, int32 PlayerEmblemIndex, bool PlayTutorial)
+void AFlareGame::CreateGame(FFlareCompanyDescription CompanyData, int32 ScenarioIndex, int32 PlayerEmblemIndex, bool PlayTutorial)
 {
-	PlayerController = PC;
+	PlayerController = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	Clean();
-	PC->Clean();
+	PlayerController->Clean();
 
 	// Create the new world
 	World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
@@ -629,7 +633,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription
 	}
 
 	// Setup the player company
-	PC->SetCompanyDescription(CompanyData);
+	PlayerController->SetCompanyDescription(CompanyData);
 
 	// Player company
 	FFlarePlayerSave PlayerData;
@@ -640,7 +644,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription
 	PlayerData.PlayerEmblemIndex = PlayerEmblemIndex;
 	PlayerData.QuestData.PlayTutorial = PlayTutorial;
 	PlayerData.QuestData.NextGeneratedQuestIndex = 0;
-	PC->SetCompany(PlayerCompany);
+	PlayerController->SetCompany(PlayerCompany);
 	
 	// Create world tools
 	ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
@@ -664,7 +668,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription
 	}
 
 	// Load
-	PC->Load(PlayerData);
+	PlayerController->Load(PlayerData);
 
 	// Init the quest manager
 	QuestManager = NewObject<UFlareQuestManager>(this, UFlareQuestManager::StaticClass());
@@ -672,7 +676,7 @@ void AFlareGame::CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription
 
 	// End loading
 	LoadedOrCreated = true;
-	PC->OnLoadComplete();
+	PlayerController->OnLoadComplete();
 	FFlareLogWriter::InitWriter(PlayerData.UUID);
 }
 
@@ -1398,6 +1402,11 @@ const int32 AFlareGame::GetCompanyCatalogCount() const
 FText AFlareGame::GetBuildDate() const
 {
 	return FText::FromString(__DATE__);
+}
+
+bool AFlareGame::IsSkirmish() const
+{
+	return SkirmishManager->IsPlaying();
 }
 
 #undef LOCTEXT_NAMESPACE

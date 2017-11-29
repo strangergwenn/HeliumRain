@@ -672,7 +672,7 @@ bool AFlareMenuManager::CreateGame()
 	// Create
 	if (NextMenu.Value.ScenarioIndex >= 0)
 	{
-		PC->GetGame()->CreateGame(PC, *NextMenu.Value.CompanyDescription, NextMenu.Value.ScenarioIndex, NextMenu.Value.PlayerEmblemIndex, NextMenu.Value.PlayTutorial);
+		PC->GetGame()->CreateGame(*NextMenu.Value.CompanyDescription, NextMenu.Value.ScenarioIndex, NextMenu.Value.PlayerEmblemIndex, NextMenu.Value.PlayTutorial);
 		PC->GetGame()->ActivateCurrentSector();
 
 		NextMenu.Value.ScenarioIndex = -1;

@@ -1,9 +1,12 @@
 
 #include "FlareSkirmishScoreMenu.h"
 #include "../../Flare.h"
+
 #include "../Components/FlareButton.h"
+
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
+
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"

@@ -21,6 +21,7 @@ class UFlareResourceCatalog;
 class UFlareTechnologyCatalog;
 class UFlareOrbitalMap;
 
+class UFlareSkirmishManager;
 class UFlarePlanetarium;
 class UFlareSector;
 class UFlareSaveGame;
@@ -118,8 +119,8 @@ public:
 		Save
 	----------------------------------------------------*/
 
-	/** Create a new game from scratch */
-	virtual void CreateGame(AFlarePlayerController* PC, FFlareCompanyDescription CompanyData, int32 ScenarioIndex, int32 PlayerEmblemIndex, bool PlayTutorial);
+	/** Create a new sandbox game */
+	virtual void CreateGame(FFlareCompanyDescription CompanyData, int32 ScenarioIndex, int32 PlayerEmblemIndex, bool PlayTutorial);
 
 	/** Create a company */
 	UFlareCompany* CreateCompany(int32 CatalogIdentifier);
@@ -190,6 +191,10 @@ protected:
 	/** Quest manager*/
 	UPROPERTY()
 	UFlareQuestManager*                        QuestManager;
+
+	/** Skirmish manager*/
+	UPROPERTY()
+	UFlareSkirmishManager*                     SkirmishManager;
 
 	/** Active sector */
 	UPROPERTY()
@@ -353,6 +358,8 @@ public:
 	
 	const int32 GetCompanyCatalogCount() const;
 
+	bool IsSkirmish() const;
+
 	inline UFlareSpacecraftCatalog* GetSpacecraftCatalog() const
 	{
 		return SpacecraftCatalog;
@@ -408,9 +415,9 @@ public:
 		return TechnologyCatalog;
 	}
 
-	inline bool IsSkirmish() const
+	UFlareSkirmishManager* GetSkirmishManager() const
 	{
-		return true;
+		return SkirmishManager;
 	}
 
 	inline bool IsLoadedOrCreated() const
