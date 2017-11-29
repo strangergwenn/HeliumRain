@@ -39,8 +39,8 @@ void SFlareStoryMenu::Construct(const FArguments& InArgs)
 
 	// Build structure
 	ChildSlot
-	.HAlign(HAlign_Center)
-	.VAlign(VAlign_Center)
+	.HAlign(HAlign_Fill)
+	.VAlign(VAlign_Fill)
 	[
 		SNew(SBorder)
 		.BorderImage(FFlareStyleSet::GetImage("Black"))
@@ -48,8 +48,10 @@ void SFlareStoryMenu::Construct(const FArguments& InArgs)
 			SNew(SVerticalBox)
 
 			+ SVerticalBox::Slot()
+
+			+ SVerticalBox::Slot()
 			.AutoHeight()
-			.HAlign(HAlign_Fill)
+			.HAlign(HAlign_Center)
 			.VAlign(VAlign_Fill)
 			[
 				SNew(SBox)
@@ -137,6 +139,8 @@ void SFlareStoryMenu::Construct(const FArguments& InArgs)
 					]
 				]
 			]
+
+			+ SVerticalBox::Slot()
 		]
 	];
 
