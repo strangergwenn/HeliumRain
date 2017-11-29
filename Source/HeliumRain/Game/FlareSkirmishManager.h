@@ -5,6 +5,7 @@
 
 
 class AFlareGame;
+struct FFlareSpacecraftDescription;
 
 
 /** Skirmish phase state */
@@ -19,6 +20,24 @@ namespace EFlareSkirmishPhase
 		End
 	};
 }
+
+/** Skirmish belligerent */
+USTRUCT()
+struct FFlareSkirmishPlayer
+{
+	GENERATED_USTRUCT_BODY()
+
+	// Fleet building
+	uint32                                           AllowedValue;
+	TArray<FFlareSpacecraftDescription*>             OrderedSpacecrafts;
+
+	// Defaults
+	FFlareSkirmishPlayer()
+		: AllowedValue(0)
+	{
+		OrderedSpacecrafts.Empty();
+	}
+};
 
 
 /** Skirmish managing class */
@@ -41,8 +60,14 @@ public:
 	/** End the game */
 	void EndSkirmish();
 	
+	/** Set the combat value allowed */
+	void SetAllowedValue(bool ForPlayer, uint32 Budget);
+
+	/** Get the current combat value */
+	inline uint32 GetCurrentCombatValue(bool ForPlayer) const;
+
 	/** Add a ship */
-	void AddShip(FFlareSpacecraftDescription*, bool ForPlayer);
+	void AddShip(bool ForPlayer, FFlareSpacecraftDescription* Desc);
 
 	/** Are we playing skirmish */
 	bool IsPlaying() const;
@@ -53,6 +78,10 @@ protected:
 	UPROPERTY()
 	TEnumAsByte<EFlareSkirmishPhase::Type>           CurrentPhase;
 
+	FFlareSkirmishPlayer                             Player;
+	FFlareSkirmishPlayer                             Enemy;
+
+
 
 public:
 
@@ -62,5 +91,9 @@ public:
 
 	AFlareGame* GetGame() const;
 
+	inline uint32 GetAllowedCombatValue(bool ForPlayer) const
+	{
+		return ForPlayer ? Player.AllowedValue : Enemy.AllowedValue;
+	}
 
 };

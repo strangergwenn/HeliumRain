@@ -10,6 +10,7 @@
 #include "../../Economy/FlareFactory.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareGameTools.h"
+#include "../../Game/FlareSkirmishManager.h"
 
 #include "SBackgroundBlur.h"
 
@@ -29,6 +30,7 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 	TargetComplex = NULL;
 	TargetShipyard = NULL;
 	TargetSector = NULL;
+	TargetSkirmish = NULL;
 
 	// Create the layout
 	ChildSlot
@@ -235,6 +237,34 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSector* Sector, FOrderDel
 	ConfirmText->SetText(FText());
 }
 
+void SFlareSpacecraftOrderOverlay::Open(UFlareSkirmishManager* Skirmish, bool ForPlayer, FOrderDelegate ConfirmationCallback)
+{
+	SetVisibility(EVisibility::Visible);
+	TargetSkirmish = Skirmish;
+	OnConfirmedCB = ConfirmationCallback;
+	OrderForPlayer = ForPlayer;
+
+	// Init ship list
+	SpacecraftList.Empty();
+	if (TargetSkirmish)
+	{
+		UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
+
+		for (int SpacecraftIndex = 0; SpacecraftIndex < SpacecraftCatalog->ShipCatalog.Num(); SpacecraftIndex++)
+		{
+			FFlareSpacecraftDescription* Description = &SpacecraftCatalog->ShipCatalog[SpacecraftIndex]->Data;
+			if (!Description->IsSubstation && Description->IsMilitary())
+			{
+				UFlareSpacecraftCatalogEntry* Entry = SpacecraftCatalog->ShipCatalog[SpacecraftIndex];
+				SpacecraftList.AddUnique(FInterfaceContainer::New(&Entry->Data));
+			}
+		}
+	}
+
+	SpacecraftSelector->RequestListRefresh();
+	ConfirmText->SetText(FText());
+}
+
 bool SFlareSpacecraftOrderOverlay::IsOpen() const
 {
 	return (GetVisibility() == EVisibility::Visible);
@@ -252,6 +282,7 @@ void SFlareSpacecraftOrderOverlay::Close()
 	TargetComplex = NULL;
 	TargetShipyard = NULL;
 	TargetSector = NULL;
+	TargetSkirmish = NULL;
 	IsComplexSlotSpecial = false;
 }
 
@@ -293,7 +324,24 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 				}
 			}
 
-			// Sector mode
+			// Skirmish mode
+			else if (TargetSkirmish)
+			{
+				uint32 CombatValue = Desc->CombatPoints;
+				uint32 CurrentValue = TargetSkirmish->GetCurrentCombatValue(OrderForPlayer);
+				uint32 AllowedValue = TargetSkirmish->GetAllowedCombatValue(OrderForPlayer);
+				CanBuild = CurrentValue + CombatValue <= AllowedValue;
+
+				// Show reason
+				if (!CanBuild)
+				{
+					ConfirmText->SetText(FText::Format(LOCTEXT("CannotAddShip", "Exceeds allowed combat value ({0} / {1})"),
+						FText::AsNumber(CurrentValue + CombatValue),
+						FText::AsNumber(AllowedValue)));
+				}
+			}
+
+			// Sector mode (stations, complex stations)
 			else
 			{
 				TArray<FText> Reasons;
@@ -335,6 +383,10 @@ FText SFlareSpacecraftOrderOverlay::GetWindowTitle() const
 	{
 		return LOCTEXT("SpacecraftOrderTitle", "Order spacecraft");
 	}
+	else if (TargetSkirmish)
+	{
+		return LOCTEXT("AddSkirmishTitle", "Add spacecraft");
+	}
 	else if (TargetSector)
 	{
 		return LOCTEXT("BuildStationTitle", "Build station");
@@ -347,8 +399,23 @@ FText SFlareSpacecraftOrderOverlay::GetWindowTitle() const
 
 FText SFlareSpacecraftOrderOverlay::GetWalletText() const
 {
-	if (MenuManager->GetPC())
+	if (TargetSkirmish)
 	{
+		if (OrderForPlayer)
+		{
+			return FText::Format(LOCTEXT("SkirmishCurrentPlayerWallet", "You have {0} combat value available."),
+				FText::AsNumber(TargetSkirmish->GetAllowedCombatValue(true)));
+		}
+		else
+		{
+			return FText::Format(LOCTEXT("SkirmishCurrentEnemyWallet", "Your enemy has {0} combat value available."),
+				FText::AsNumber(TargetSkirmish->GetAllowedCombatValue(false)));
+		}
+	}
+	else if (MenuManager->GetPC())
+	{
+		FCHECK(MenuManager->GetPC()->GetCompany());
+
 		return FText::Format(LOCTEXT("CompanyCurrentWallet", "You have {0} credits available."),
 			FText::AsNumber(MenuManager->GetPC()->GetCompany()->GetMoney() / 100));
 	}
@@ -363,13 +430,35 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 	FFlareSpacecraftDescription* Desc = Item->SpacecraftDescriptionPtr;
 	FText SpacecraftInfoText;
 	FText ProductionCost;
-	int ProductionTime;
+	int ProductionTime = 0;
 
-	// Factory
-	if (TargetShipyard)
+	// Ship-building
+	if (TargetShipyard || TargetSkirmish)
 	{
-		FCHECK(TargetShipyard);
-		ProductionTime = TargetShipyard->GetShipProductionTime(Desc->Identifier);
+		// Regular ship-buying (no skirmish)
+		if (TargetShipyard)
+		{
+			// Production time
+			ProductionTime = TargetShipyard->GetShipProductionTime(Desc->Identifier);
+			ProductionTime += TargetShipyard->GetEstimatedQueueAndProductionDuration(Desc->Identifier, -1);
+
+			// Production cost
+			if (MenuManager->GetPC()->GetCompany() == TargetShipyard->GetCompany())
+			{
+				ProductionCost = FText::Format(LOCTEXT("FactoryProductionResourcesFormat", "\u2022 {0}"), TargetShipyard->GetShipCost(Desc->Identifier));
+			}
+			else
+			{
+				int32 CycleProductionCost = UFlareGameTools::ComputeSpacecraftPrice(Desc->Identifier, TargetShipyard->GetCurrentSector(), true);
+				ProductionCost = FText::Format(LOCTEXT("FactoryProductionCostFormat", "\u2022 {0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(CycleProductionCost)));
+			}
+		}
+
+		// Skirmish
+		else
+		{
+			ProductionCost = FText::Format(LOCTEXT("SkirmishCombatCost", "\u2022 {0}"), FText::AsNumber(Desc->CombatPoints));
+		}
 
 		// Station
 		if (Desc->OrbitalEngineCount == 0)
@@ -378,16 +467,16 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 				FText::AsNumber(Desc->Factories.Num()));
 		}
 
-		// Ship
+		// Ship description
 		else if (Desc->TurretSlots.Num())
 		{
-			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponTurretFormat", "(Military ship, {0} turrets)"),
-				FText::AsNumber(Desc->TurretSlots.Num()));
+			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponTurretFormat", "(Military ship, {0} turrets, {1} combat value)"),
+				FText::AsNumber(Desc->TurretSlots.Num()), FText::AsNumber(Desc->CombatPoints));
 		}
 		else if (Desc->GunSlots.Num())
 		{
-			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponGunFormat", "(Military ship, {0} gun slots)"),
-				FText::AsNumber(Desc->GunSlots.Num()));
+			SpacecraftInfoText = FText::Format(LOCTEXT("FactoryWeaponGunFormat", "(Military ship, {0} gun slots, {1} combat value)"),
+				FText::AsNumber(Desc->GunSlots.Num()), FText::AsNumber(Desc->CombatPoints));
 		}
 		else
 		{
@@ -395,21 +484,9 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 				FText::AsNumber(Desc->CargoBayCount),
 				FText::AsNumber(Desc->CargoBayCapacity));
 		}
-
-		ProductionTime += TargetShipyard->GetEstimatedQueueAndProductionDuration(Desc->Identifier, -1);
-		// Production cost
-		if (MenuManager->GetPC()->GetCompany() == TargetShipyard->GetCompany())
-		{
-			ProductionCost = FText::Format(LOCTEXT("FactoryProductionResourcesFormat", "\u2022 {0}"), TargetShipyard->GetShipCost(Desc->Identifier));
-		}
-		else
-		{
-			int32 CycleProductionCost = UFlareGameTools::ComputeSpacecraftPrice(Desc->Identifier, TargetShipyard->GetCurrentSector(), true);
-			ProductionCost = FText::Format(LOCTEXT("FactoryProductionCostFormat", "\u2022 {0} credits"), FText::AsNumber(UFlareGameTools::DisplayMoney(CycleProductionCost)));
-		}
 	}
 
-	// Sector
+	// Station-building
 	else
 	{
 		FCHECK(TargetSector);
@@ -595,6 +672,7 @@ TSharedRef<ITableRow> SFlareSpacecraftOrderOverlay::OnGenerateSpacecraftLine(TSh
 			[
 				SNew(STextBlock)
 				.Text(FText::Format(LOCTEXT("ProductionTimeFormat", "\u2022 {0} days"), FText::AsNumber(ProductionTime)))
+				.Visibility(ProductionTime > 0 ? EVisibility::Visible : EVisibility::Collapsed)
 				.WrapTextAt(0.65 * Theme.ContentWidth)
 				.TextStyle(&Theme.TextFont)
 			]
@@ -658,7 +736,7 @@ void SFlareSpacecraftOrderOverlay::OnConfirmed()
 				}
 			}
 
-			// Sector
+			// Sector, complex, skirmish...
 			else
 			{
 				OnConfirmedCB.ExecuteIfBound(Desc);

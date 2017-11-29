@@ -4,6 +4,8 @@
 
 #include "../Components/FlareButton.h"
 
+#include "../../Data/FlareCustomizationCatalog.h"
+
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
 #include "../../Game/FlareSkirmishManager.h"
@@ -46,6 +48,32 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 			.TextStyle(&Theme.SpecialTitleFont)
 		]
 
+		// Add ship
+		+ SVerticalBox::Slot()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Bottom)
+		.AutoHeight()
+		[
+			SNew(SFlareButton)
+			.Transparent(true)
+			.Width(3)
+			.Text(LOCTEXT("AddPlayerShip", "Add player ship"))
+			.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, true)
+		]
+
+		// Add ship
+		+ SVerticalBox::Slot()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Bottom)
+		.AutoHeight()
+		[
+			SNew(SFlareButton)
+			.Transparent(true)
+			.Width(3)
+			.Text(LOCTEXT("AddEnemyShip", "Add enemy ship"))
+			.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, false)
+		]
+
 		// Start
 		+ SVerticalBox::Slot()
 		.HAlign(HAlign_Left)
@@ -72,6 +100,8 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 			.OnClicked(this, &SFlareSkirmishSetupMenu::OnMainMenu)
 		]
 	];
+
+	// TODO 1075 : real menu, spacecraft lists...
 }
 
 
@@ -92,6 +122,8 @@ void SFlareSkirmishSetupMenu::Enter()
 	SetVisibility(EVisibility::Visible);
 
 	MenuManager->GetGame()->GetSkirmishManager()->StartSetup();
+	MenuManager->GetGame()->GetSkirmishManager()->SetAllowedValue(true, 100);
+	MenuManager->GetGame()->GetSkirmishManager()->SetAllowedValue(false, 100);
 }
 
 void SFlareSkirmishSetupMenu::Exit()
@@ -105,12 +137,45 @@ void SFlareSkirmishSetupMenu::Exit()
 	Callbacks
 ----------------------------------------------------*/
 
+void SFlareSkirmishSetupMenu::OnOrderShip(bool ForPlayer)
+{
+	IsOrderingForPlayer = ForPlayer;
+
+	FFlareMenuParameterData Data;
+	Data.OrderForPlayer = ForPlayer;
+	Data.Skirmish = MenuManager->GetGame()->GetSkirmishManager();
+	MenuManager->OpenSpacecraftOrder(Data, FOrderDelegate::CreateSP(this, &SFlareSkirmishSetupMenu::OnOrderShipConfirmed));
+}
+
+void SFlareSkirmishSetupMenu::OnOrderShipConfirmed(FFlareSpacecraftDescription* Spacecraft)
+{
+	MenuManager->GetGame()->GetSkirmishManager()->AddShip(IsOrderingForPlayer, Spacecraft);
+}
+
 void SFlareSkirmishSetupMenu::OnStartSkirmish()
 {
 	MenuManager->GetGame()->GetSkirmishManager()->StartPlay();
 
-	// TODO : use skirmish manager to build a data object that's passed to create game
-	//MenuManager->OpenMenu(EFlareMenu::MENU_CreateGame);
+	// Get company defaults
+	AFlarePlayerController* PC = MenuManager->GetPC();
+	UFlareCustomizationCatalog* CustomizationCatalog = PC->GetGame()->GetCustomizationCatalog();
+	const FFlareCompanyDescription* CurrentCompanyData = PC->GetCompanyDescription();
+
+	// Override defaults
+	PlayerCompanyData.Name = FText::FromString("Player");
+	PlayerCompanyData.ShortName = "PLY";
+	PlayerCompanyData.Emblem = CustomizationCatalog->GetEmblem(0);
+	PlayerCompanyData.CustomizationBasePaintColor = CurrentCompanyData->CustomizationBasePaintColor;
+	PlayerCompanyData.CustomizationPaintColor = CurrentCompanyData->CustomizationPaintColor;
+	PlayerCompanyData.CustomizationOverlayColor = CurrentCompanyData->CustomizationOverlayColor;
+	PlayerCompanyData.CustomizationLightColor = CurrentCompanyData->CustomizationLightColor;
+	PlayerCompanyData.CustomizationPatternIndex = CurrentCompanyData->CustomizationPatternIndex;
+
+	// Create the game
+	FFlareMenuParameterData Data;
+	Data.Skirmish = MenuManager->GetGame()->GetSkirmishManager();
+	Data.CompanyDescription = &PlayerCompanyData;
+	MenuManager->OpenMenu(EFlareMenu::MENU_CreateGame, Data);
 }
 
 void SFlareSkirmishSetupMenu::OnMainMenu()

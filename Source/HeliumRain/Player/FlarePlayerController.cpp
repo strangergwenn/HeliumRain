@@ -460,7 +460,10 @@ void AFlarePlayerController::FlyShip(AFlareSpacecraft* Ship, bool PossessNow)
 
 	// Set player ship
 	SetPlayerShip(ShipPawn->GetParent());
-	GetGame()->GetQuestManager()->OnFlyShip(Ship);
+	if (GetGame()->GetQuestManager())
+	{
+		GetGame()->GetQuestManager()->OnFlyShip(Ship);
+	}
 
 	// Update HUD
 	GetNavHUD()->OnTargetShipChanged();

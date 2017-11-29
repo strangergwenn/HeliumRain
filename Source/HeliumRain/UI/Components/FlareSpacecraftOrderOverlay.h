@@ -9,6 +9,7 @@
 
 class UFlareFactory;
 class UFlareSimulatedSector;
+class UFlareSkirmishManager;
 class AFlareMenuManager;
 
 
@@ -48,6 +49,9 @@ public:
 	
 	/** Show the overlay for a sector */
 	void Open(UFlareSimulatedSector* Sector, FOrderDelegate ConfirmationCallback);
+
+	/** Show the overlay for a skirmish */
+	void Open(UFlareSkirmishManager* Skirmish, bool ForPlayer, FOrderDelegate ConfirmationCallback);
 
 	/** Is this open */
 	bool IsOpen() const;
@@ -101,11 +105,13 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>                   MenuManager;
 	FOrderDelegate                                            OnConfirmedCB;
 	bool                                                      IsComplexSlotSpecial;
+	bool                                                      OrderForPlayer;
 
 	// Spacecraft building
 	UFlareSimulatedSpacecraft*                                TargetComplex;
 	UFlareSimulatedSpacecraft*                                TargetShipyard;
 	UFlareSimulatedSector*                                    TargetSector;
+	UFlareSkirmishManager*                                    TargetSkirmish;
 	TArray<TSharedPtr<FInterfaceContainer>>                   SpacecraftList;
 	TSharedPtr<SListView<TSharedPtr<FInterfaceContainer>>>    SpacecraftSelector;
 

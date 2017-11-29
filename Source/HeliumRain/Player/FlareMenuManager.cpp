@@ -327,6 +327,10 @@ void AFlareMenuManager::OpenSpacecraftOrder(FFlareMenuParameterData Data, FOrder
 	{
 		SpacecraftOrder->Open(Data.Sector, ConfirmationCallback);
 	}
+	else if (Data.Skirmish)
+	{
+		SpacecraftOrder->Open(GetGame()->GetSkirmishManager(), Data.OrderForPlayer, ConfirmationCallback);
+	}
 }
 
 void AFlareMenuManager::Back()
@@ -668,9 +672,16 @@ void AFlareMenuManager::UseDarkBackground()
 bool AFlareMenuManager::CreateGame()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
+	
+	// Create a new skirmish game
+	if (NextMenu.Value.Skirmish)
+	{
+		PC->GetGame()->CreateSkirmishGame(*NextMenu.Value.CompanyDescription);
+		PC->GetGame()->ActivateCurrentSector();
+	}
 
-	// Create
-	if (NextMenu.Value.ScenarioIndex >= 0)
+	// Create a new sandbox game
+	else if (NextMenu.Value.ScenarioIndex >= 0)
 	{
 		PC->GetGame()->CreateGame(*NextMenu.Value.CompanyDescription, NextMenu.Value.ScenarioIndex, NextMenu.Value.PlayerEmblemIndex, NextMenu.Value.PlayTutorial);
 		PC->GetGame()->ActivateCurrentSector();

@@ -72,10 +72,13 @@ struct FFlareMenuParameterData
 		, Sector(NULL)
 		, Spacecraft(NULL)
 		, Travel(NULL)
+		, Skirmish(NULL)
 		, Resource(NULL)
+		, CompanyDescription(NULL)
 		, ScenarioIndex(0)
 		, PlayerEmblemIndex(0)
 		, PlayTutorial(false)
+		, OrderForPlayer(false)
 		, SpacecraftOrderHeavy(false)
 		, ComplexConnectorName(NAME_None)
 	{}
@@ -88,12 +91,14 @@ struct FFlareMenuParameterData
 	class UFlareSimulatedSector*                Sector;
 	class UFlareSimulatedSpacecraft*            Spacecraft;
 	class UFlareTravel*                         Travel;
+	class UFlareSkirmishManager*               Skirmish;
 	struct FFlareResourceDescription*           Resource;
-
 	struct FFlareCompanyDescription*            CompanyDescription;
+
 	int32                                       ScenarioIndex;
 	int32                                       PlayerEmblemIndex;
 	bool                                        PlayTutorial;
+	bool                                        OrderForPlayer;
 	bool                                        SpacecraftOrderHeavy;
 	FName                                       ComplexConnectorName;
 };

@@ -43,7 +43,13 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-	
+
+	/** Start the process of ordering a new ship */
+	void OnOrderShip(bool ForPlayer);
+
+	/** Order a new ship */
+	void OnOrderShipConfirmed(FFlareSpacecraftDescription* Spacecraft);
+
 	/** Start engagement */
 	void OnStartSkirmish();
 
@@ -57,6 +63,9 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
+	bool                                        IsOrderingForPlayer;
+	FFlareCompanyDescription                    PlayerCompanyData;
+
+	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
 
 };

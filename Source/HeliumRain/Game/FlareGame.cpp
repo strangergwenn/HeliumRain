@@ -616,6 +616,7 @@ bool AFlareGame::DeleteSaveSlot(int32 Index)
 
 void AFlareGame::CreateGame(FFlareCompanyDescription CompanyData, int32 ScenarioIndex, int32 PlayerEmblemIndex, bool PlayTutorial)
 {
+	// Clean up
 	PlayerController = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 	Clean();
 	PlayerController->Clean();
@@ -634,8 +635,6 @@ void AFlareGame::CreateGame(FFlareCompanyDescription CompanyData, int32 Scenario
 
 	// Setup the player company
 	PlayerController->SetCompanyDescription(CompanyData);
-
-	// Player company
 	FFlarePlayerSave PlayerData;
 	UFlareCompany* PlayerCompany = CreateCompany(-1);
 	PlayerData.CompanyIdentifier = PlayerCompany->GetIdentifier();
@@ -651,6 +650,7 @@ void AFlareGame::CreateGame(FFlareCompanyDescription CompanyData, int32 Scenario
 	ScenarioTools->Init(PlayerCompany, &PlayerData);
 	World->PostLoad();
 
+	// Create scenario
 	switch (ScenarioIndex)
 	{
 		case -1: // Empty
@@ -673,6 +673,46 @@ void AFlareGame::CreateGame(FFlareCompanyDescription CompanyData, int32 Scenario
 	// Init the quest manager
 	QuestManager = NewObject<UFlareQuestManager>(this, UFlareQuestManager::StaticClass());
 	QuestManager->Load(PlayerData.QuestData);
+
+	// End loading
+	LoadedOrCreated = true;
+	PlayerController->OnLoadComplete();
+	FFlareLogWriter::InitWriter(PlayerData.UUID);
+}
+
+void AFlareGame::CreateSkirmishGame(FFlareCompanyDescription CompanyData)
+{
+	// Clean up
+	PlayerController = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	Clean();
+	PlayerController->Clean();
+
+	// Create the new world
+	World = NewObject<UFlareWorld>(this, UFlareWorld::StaticClass());
+	FFlareWorldSave WorldData;
+	WorldData.Date = 0;
+	World->Load(WorldData);
+	
+	// Setup the player company
+	PlayerController->SetCompanyDescription(CompanyData);
+	FFlarePlayerSave PlayerData;
+	UFlareCompany* PlayerCompany = CreateCompany(-1);
+	PlayerData.CompanyIdentifier = PlayerCompany->GetIdentifier();
+	PlayerData.UUID = FName(*FGuid::NewGuid().ToString());
+	PlayerData.ScenarioId = -1;
+	PlayerData.PlayerEmblemIndex = 0;
+	PlayerData.QuestData.PlayTutorial = false;
+	PlayerData.QuestData.NextGeneratedQuestIndex = 0;
+	PlayerController->SetCompany(PlayerCompany);
+
+	// TODO 1075 : create from skirmish description
+
+	// Load player
+	UFlareSimulatedSector* Sector = World->FindSector("the-depths");
+	UFlareSimulatedSpacecraft* InitialShip = Sector->CreateSpacecraft("ship-ghoul", PlayerCompany, FVector::ZeroVector);
+	PlayerData.LastFlownShipIdentifier = InitialShip->GetImmatriculation();
+	PlayerData.PlayerFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
+	PlayerController->Load(PlayerData);
 
 	// End loading
 	LoadedOrCreated = true;
@@ -1011,7 +1051,11 @@ void AFlareGame::OnLevelLoaded()
 
 		GetPC()->OnSectorActivated(ActiveSector);
 	}
-	GetQuestManager()->OnSectorActivation(ActivatingSector);
+
+	if (GetQuestManager())
+	{
+		GetQuestManager()->OnSectorActivation(ActivatingSector);
+	}
 
 	ActivatingSector = NULL;
 }

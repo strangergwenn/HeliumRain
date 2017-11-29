@@ -7,6 +7,8 @@
 #include "FlareGame.h"
 #include "FlareGameTools.h"
 
+#include "../Spacecrafts/FlareSpacecraftTypes.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareSkirmishManager"
 
@@ -25,6 +27,9 @@ void UFlareSkirmishManager::StartSetup()
 {
 	FCHECK(CurrentPhase == EFlareSkirmishPhase::Idle);
 
+	Player = FFlareSkirmishPlayer();
+	Enemy = FFlareSkirmishPlayer();
+
 	CurrentPhase = EFlareSkirmishPhase::Setup;
 }
 
@@ -34,7 +39,7 @@ void UFlareSkirmishManager::StartPlay()
 
 	CurrentPhase = EFlareSkirmishPhase::Play;
 
-	// TODO : reset counters, start time... 
+	// TODO 1075 : reset counters, start time... 
 }
 
 void UFlareSkirmishManager::EndPlay()
@@ -43,14 +48,17 @@ void UFlareSkirmishManager::EndPlay()
 
 	CurrentPhase = EFlareSkirmishPhase::End;
 
-	// TODO : stop counters
+	// TODO 1075 : stop counters
 }
 
 void UFlareSkirmishManager::EndSkirmish()
 {
 	CurrentPhase = EFlareSkirmishPhase::Idle;
 
-	// TODO : cleanup
+	// TODO 1075 : endgame detection, use FlareSkirmishScoreMenu
+
+	Player = FFlareSkirmishPlayer();
+	Enemy = FFlareSkirmishPlayer();
 }
 
 
@@ -58,11 +66,36 @@ void UFlareSkirmishManager::EndSkirmish()
 	Tools
 ----------------------------------------------------*/
 
-void UFlareSkirmishManager::AddShip(FFlareSpacecraftDescription*, bool ForPlayer)
+void UFlareSkirmishManager::SetAllowedValue(bool ForPlayer, uint32 Budget)
 {
-	// TODO : store decription, decrease budget... 
+	FFlareSkirmishPlayer& Belligerent = ForPlayer ? Player : Enemy;
 
-	// TODO : getter, storage, etc
+	Belligerent.AllowedValue = Budget;
+
+	while (GetCurrentCombatValue(ForPlayer) > Budget)
+	{
+		Belligerent.OrderedSpacecrafts.Pop();
+	}
+}
+
+inline uint32 UFlareSkirmishManager::GetCurrentCombatValue(bool ForPlayer) const
+{
+	const FFlareSkirmishPlayer& Belligerent = ForPlayer ? Player : Enemy;
+
+	uint32 Value = 0;
+	for (FFlareSpacecraftDescription* Desc : Belligerent.OrderedSpacecrafts)
+	{
+		Value += Desc->CombatPoints;
+	}
+
+	return Value;
+}
+
+void UFlareSkirmishManager::AddShip(bool ForPlayer, FFlareSpacecraftDescription* Desc)
+{
+	FFlareSkirmishPlayer& Belligerent = ForPlayer ? Player : Enemy;
+
+	Belligerent.OrderedSpacecrafts.Add(Desc);
 }
 
 bool UFlareSkirmishManager::IsPlaying() const
@@ -74,8 +107,6 @@ AFlareGame* UFlareSkirmishManager::GetGame() const
 {
 	return Cast<UFlareWorld>(GetOuter())->GetGame();
 }
-
-
 
 
 #undef LOCTEXT_NAMESPACE
