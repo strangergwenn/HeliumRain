@@ -329,6 +329,11 @@ public:
 		return CompanyStations;
 	}
 
+	inline TArray<UFlareSimulatedSpacecraft*>& GetCompanyChildStations()
+	{
+		return CompanyChildStations;
+	}
+
 	inline TArray<UFlareSimulatedSpacecraft*>& GetCompanyShips()
 	{
 		return CompanyShips;

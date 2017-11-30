@@ -1143,6 +1143,10 @@ FText AFlareGame::PickSpacecraftName(UFlareCompany* OwnerCompany, bool IsStation
 			{
 				CandidateShips.Add(Candidate);
 			}
+			for (auto& Candidate : GetGameWorld()->GetCompanies()[i]->GetCompanyChildStations())
+			{
+				CandidateShips.Add(Candidate);
+			}
 			for (auto& Candidate : GetGameWorld()->GetCompanies()[i]->GetCompanyShips())
 			{
 				CandidateShips.Add(Candidate);
