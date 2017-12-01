@@ -193,6 +193,11 @@ void UFlareQuestPendulum::Load(UFlareQuestManager* Parent)
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestBringResource::Create(this, BlueHeart, "tech", 500));
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestBringResource::Create(this, BlueHeart, "tools", 500));
 
+		Step->GetEndActions().Add(UFlareQuestActionTakeResources::Create(this, BlueHeart, "steel", 1000));
+		Step->GetEndActions().Add(UFlareQuestActionTakeResources::Create(this, BlueHeart, "plastics", 1000));
+		Step->GetEndActions().Add(UFlareQuestActionTakeResources::Create(this, BlueHeart, "tech", 500));
+		Step->GetEndActions().Add(UFlareQuestActionTakeResources::Create(this, BlueHeart, "tools", 500));
+
 		Steps.Add(Step);
 	}
 

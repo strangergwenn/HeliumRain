@@ -229,6 +229,35 @@ protected:
 
 //////////////////////////////////////////////////////
 UCLASS()
+class HELIUMRAIN_API UFlareQuestActionTakeResources: public UFlareQuestAction
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	/*----------------------------------------------------
+		Gameplay
+	----------------------------------------------------*/
+	static UFlareQuestActionTakeResources* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam, FName ResourceIdentifierParam, int32 CountParam);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam, FName ResourceIdentifierParam, int32 CountParam);
+
+	virtual void Perform();
+
+protected:
+
+	/*----------------------------------------------------
+		Protected data
+	----------------------------------------------------*/
+
+	UFlareSimulatedSector* Sector;
+	FFlareResourceDescription* Resource;
+	int32 Count;
+};
+
+
+//////////////////////////////////////////////////////
+UCLASS()
 class HELIUMRAIN_API UFlareQuestActionGeneric: public UFlareQuestAction
 {
 	GENERATED_UCLASS_BODY()

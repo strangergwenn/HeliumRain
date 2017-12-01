@@ -5,6 +5,7 @@
 #include "../Game/FlareGame.h"
 #include "../Game/FlareCompany.h"
 #include "../Game/FlareSimulatedSector.h"
+#include "../Data/FlareResourceCatalog.h"
 
 #include "../Player/FlarePlayerController.h"
 
@@ -213,6 +214,51 @@ void UFlareQuestActionReputationChange::Perform()
 	Company->GivePlayerReputation(Amount);
 }
 
+/*----------------------------------------------------
+	Take resources action
+----------------------------------------------------*/
+UFlareQuestActionTakeResources::UFlareQuestActionTakeResources(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestActionTakeResources* UFlareQuestActionTakeResources::Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam, FName ResourceIdentifierParam, int32 CountParam)
+{
+	UFlareQuestActionTakeResources* Action = NewObject<UFlareQuestActionTakeResources>(ParentQuest, UFlareQuestActionTakeResources::StaticClass());
+	Action->Load(ParentQuest, SectorParam, ResourceIdentifierParam, CountParam);
+	return Action;
+}
+
+void UFlareQuestActionTakeResources::Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* SectorParam, FName ResourceIdentifierParam, int32 CountParam)
+{
+	LoadInternal(ParentQuest);
+	Sector = SectorParam;
+	Resource = Sector->GetGame()->GetResourceCatalog()->Get(ResourceIdentifierParam);
+	Count = CountParam;
+}
+
+void UFlareQuestActionTakeResources::Perform()
+{
+	UFlareCompany* PlayerCompany = Sector->GetGame()->GetPC()->GetCompany();
+
+	int ResourceToTake = Count;
+
+	if(!Resource)
+	{
+		FLOG("WARNING: invalid resource in UFlareQuestActionTakeResources ")
+		return;
+	}
+
+	for(UFlareSimulatedSpacecraft* Ship: Sector->GetSectorShips())
+	{
+		if(Ship->GetCompany() != PlayerCompany)
+		{
+			continue;
+		}
+
+		ResourceToTake -= Ship->GetActiveCargoBay()->TakeResources(Resource, ResourceToTake, PlayerCompany);
+	}
+}
 
 /*----------------------------------------------------
 	Generic action
