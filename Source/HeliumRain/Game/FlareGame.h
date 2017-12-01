@@ -159,7 +159,7 @@ public:
 	----------------------------------------------------*/
 
 	/** Build a unique immatriculation string for this object */
-	void Immatriculate(UFlareCompany* Company, FName TargetClass, FFlareSpacecraftSave* SpacecraftSave);
+	void Immatriculate(UFlareCompany* Company, FName TargetClass, FFlareSpacecraftSave* SpacecraftSave, bool IsChildStation);
 
 	FName GenerateIdentifier(FName BaseName);
 

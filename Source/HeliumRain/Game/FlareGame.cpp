@@ -1023,7 +1023,7 @@ void AFlareGame::OnLevelUnLoaded()
 	Immatriculations
 ----------------------------------------------------*/
 
-void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlareSpacecraftSave* SpacecraftSave)
+void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlareSpacecraftSave* SpacecraftSave, bool IsChildStation)
 {
 	FString Immatriculation;
 	FString NickName;
@@ -1034,7 +1034,7 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 	Immatriculation += SpacecraftDesc->ImmatriculationCode.ToString().ToUpper(); // FString needed here
 
 	// Generate name
-	if (SpacecraftDesc->IsStation())
+	if (SpacecraftDesc->IsStation() && !IsChildStation)
 	{
 		FString StationName = SpacecraftDesc->ShortName.ToString();
 		if (StationName.Len() == 0)
@@ -1043,7 +1043,7 @@ void AFlareGame::Immatriculate(UFlareCompany* Company, FName TargetClass, FFlare
 		}
 		NickName = PickSpacecraftName(Company, true, "-" + StationName).ToString();
 	}
-	else if (SpacecraftDesc->Size == EFlarePartSize::L)
+	else if (SpacecraftDesc->Size == EFlarePartSize::L && !IsChildStation)
 	{
 		NickName = PickSpacecraftName(Company, false, "").ToString();
 	}

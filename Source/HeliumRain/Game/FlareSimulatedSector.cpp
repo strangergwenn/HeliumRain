@@ -254,7 +254,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	ShipData.LinearVelocity = FVector::ZeroVector;
 	ShipData.AngularVelocity = FVector::ZeroVector;
 	ShipData.SpawnMode = SafeSpawnAtLocation ? EFlareSpawnMode::Safe : EFlareSpawnMode::Spawn;
-	Game->Immatriculate(Company, ShipDescription->Identifier, &ShipData);
+	Game->Immatriculate(Company, ShipDescription->Identifier, &ShipData, AttachComplexStationName != NAME_None);
 	ShipData.Identifier = ShipDescription->Identifier;
 	ShipData.Heat = 600 * ShipDescription->HeatCapacity;
 	ShipData.PowerOutageDelay = 0;

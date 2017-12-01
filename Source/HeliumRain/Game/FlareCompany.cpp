@@ -589,7 +589,7 @@ UFlareSimulatedSpacecraft* UFlareCompany::LoadSpacecraft(const FFlareSpacecraftS
 		if(FindSpacecraft(SpacecraftData.Immatriculation))
 		{
 			FFlareSpacecraftSave FixedSpacecraftData = SpacecraftData;
-			Game->Immatriculate(this, SpacecraftData.Identifier, &FixedSpacecraftData);
+			Game->Immatriculate(this, SpacecraftData.Identifier, &FixedSpacecraftData, SpacecraftData.AttachComplexStationName != NAME_None);
 			FLOGV("WARNING : Double immatriculation, fix that. New immatriculation is %s", *FixedSpacecraftData.Immatriculation.ToString());
 			Spacecraft->Load(FixedSpacecraftData);
 		}
