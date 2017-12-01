@@ -100,7 +100,10 @@ bool PilotHelper::FindMostDangerousCollision(AActor*& MostDangerousCandidateActo
 		 && !(Ship->GetSize() == EFlarePartSize::L
 			  && SpacecraftCandidate->GetSize() == EFlarePartSize::S
 			  && IsShipDangerous(SpacecraftCandidate)
-			  && Ship->GetWarState(SpacecraftCandidate->GetCompany()) == EFlareHostility::Hostile))
+			  && Ship->GetWarState(SpacecraftCandidate->GetCompany()) == EFlareHostility::Hostile)
+		&& !(IgnoreConfig.SpacecraftToIgnore && IgnoreConfig.SpacecraftToIgnore->IsStation() && IgnoreConfig.SpacecraftToIgnore->GetParent()->IsComplexElement() && SpacecraftCandidate->GetParent() == IgnoreConfig.SpacecraftToIgnore->GetParent()->GetComplexMaster())
+		&& !(IgnoreConfig.SpacecraftToIgnore && IgnoreConfig.SpacecraftToIgnore->IsStation() && IgnoreConfig.SpacecraftToIgnore->GetParent()->IsComplex() && SpacecraftCandidate->GetParent()->GetComplexMaster() == IgnoreConfig.SpacecraftToIgnore->GetParent())
+		)
 		{
 			Candidate.Key = SpacecraftCandidate;
 			Candidate.Value = SpacecraftCandidate->Airframe->GetPhysicsLinearVelocity();
