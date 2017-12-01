@@ -2158,14 +2158,31 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 			if (Bundle.HasTag("open-menu") && Bundle.GetInt32("menu") == (EFlareMenu::MENU_Sector+0))
 			{
 				FFlareMenuParameterData* MenuData = (FFlareMenuParameterData*) Bundle.GetPtr("data");
-				if (MenuData && MenuData->Sector && MenuData->Sector->GetSectorStations().Num() > 0)
+
+				if (MenuData)
 				{
-					for (UFlareFleet* Fleet: MenuData->Sector->GetSectorFleets())
+					UFlareSimulatedSector* Sector = MenuData->Sector;
+					if (!Sector)
 					{
-						if (Fleet->GetFleetCompany() == GetQuestManager()->GetGame()->GetPC()->GetCompany()
-						&& Fleet != GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet())
+						if (GetQuestManager()->GetGame()->GetActiveSector())
 						{
-							return true;
+							Sector = GetQuestManager()->GetGame()->GetActiveSector()->GetSimulatedSector();
+						}
+						else if (GetQuestManager()->GetGame()->GetPC()->GetPlayerShip())
+						{
+							Sector = GetQuestManager()->GetGame()->GetPC()->GetPlayerShip()->GetCurrentSector();
+						}
+					}
+
+					if (Sector && Sector->GetSectorStations().Num() > 0)
+					{
+						for (UFlareFleet* Fleet: Sector->GetSectorFleets())
+						{
+							if (Fleet->GetFleetCompany() == GetQuestManager()->GetGame()->GetPC()->GetCompany()
+							&& Fleet != GetQuestManager()->GetGame()->GetPC()->GetPlayerFleet())
+							{
+								return true;
+							}
 						}
 					}
 				}
