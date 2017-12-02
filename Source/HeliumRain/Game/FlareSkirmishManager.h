@@ -40,6 +40,30 @@ struct FFlareSkirmishPlayer
 };
 
 
+/** Skirmish setup data */
+USTRUCT()
+struct FFlareSkirmishData
+{
+	GENERATED_USTRUCT_BODY()
+	
+	// Player setup
+	FFlareSkirmishPlayer                             Player;
+	FFlareCompanyDescription                         PlayerCompanyData;
+
+	// Enemy setup
+	FFlareSkirmishPlayer                             Enemy;
+	FName                                            EnemyCompanyName;
+
+	// Defaults
+	FFlareSkirmishData()
+		: Player()
+		, Enemy()
+		, EnemyCompanyName(NAME_None)
+	{
+	}
+};
+
+
 /** Skirmish managing class */
 UCLASS()
 class HELIUMRAIN_API UFlareSkirmishManager : public UObject
@@ -75,12 +99,11 @@ public:
 
 protected:
 
-	UPROPERTY()
+	// Skirmish data
 	TEnumAsByte<EFlareSkirmishPhase::Type>           CurrentPhase;
 
-	FFlareSkirmishPlayer                             Player;
-	FFlareSkirmishPlayer                             Enemy;
-
+	// Skirmish configuration data
+	FFlareSkirmishData                               Data;
 
 
 public:
@@ -91,9 +114,14 @@ public:
 
 	AFlareGame* GetGame() const;
 
+	inline FFlareSkirmishData& GetData()
+	{
+		return Data;
+	}
+
 	inline uint32 GetAllowedCombatValue(bool ForPlayer) const
 	{
-		return ForPlayer ? Player.AllowedValue : Enemy.AllowedValue;
+		return ForPlayer ? Data.Player.AllowedValue : Data.Enemy.AllowedValue;
 	}
 
 };

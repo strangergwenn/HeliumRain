@@ -7,7 +7,14 @@
 #include "FlareGame.h"
 #include "FlareGameTools.h"
 
+#include "../Data/FlareCustomizationCatalog.h"
+
+#include "../Player/FlareMenuManager.h"
+#include "../Player/FlarePlayerController.h"
+
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
+
+#include "../UI/FlareUITypes.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareSkirmishManager"
@@ -27,8 +34,7 @@ void UFlareSkirmishManager::StartSetup()
 {
 	FCHECK(CurrentPhase == EFlareSkirmishPhase::Idle);
 
-	Player = FFlareSkirmishPlayer();
-	Enemy = FFlareSkirmishPlayer();
+	Data = FFlareSkirmishData();
 
 	CurrentPhase = EFlareSkirmishPhase::Setup;
 }
@@ -36,10 +42,25 @@ void UFlareSkirmishManager::StartSetup()
 void UFlareSkirmishManager::StartPlay()
 {
 	FCHECK(CurrentPhase == EFlareSkirmishPhase::Setup);
+	
+	// Set common world elements
+	Data.PlayerCompanyData.Emblem = GetGame()->GetCustomizationCatalog()->GetEmblem(0);
+	Data.PlayerCompanyData.Name = FText::FromString("Player");
+	Data.PlayerCompanyData.ShortName = "PLY";
 
+	// TODO 1075 : from menu
+	Data.EnemyCompanyName = "PIR";
+
+	// Set phase
 	CurrentPhase = EFlareSkirmishPhase::Play;
 
 	// TODO 1075 : reset counters, start time... 
+
+	// Start the game
+	FFlareMenuParameterData Data;
+	Data.ScenarioIndex = -1;
+	Data.Skirmish = this;
+	AFlareMenuManager::GetSingleton()->OpenMenu(EFlareMenu::MENU_CreateGame, Data);
 }
 
 void UFlareSkirmishManager::EndPlay()
@@ -55,10 +76,7 @@ void UFlareSkirmishManager::EndSkirmish()
 {
 	CurrentPhase = EFlareSkirmishPhase::Idle;
 
-	// TODO 1075 : endgame detection, use FlareSkirmishScoreMenu
-
-	Player = FFlareSkirmishPlayer();
-	Enemy = FFlareSkirmishPlayer();
+	Data = FFlareSkirmishData();
 }
 
 
@@ -68,7 +86,7 @@ void UFlareSkirmishManager::EndSkirmish()
 
 void UFlareSkirmishManager::SetAllowedValue(bool ForPlayer, uint32 Budget)
 {
-	FFlareSkirmishPlayer& Belligerent = ForPlayer ? Player : Enemy;
+	FFlareSkirmishPlayer& Belligerent = ForPlayer ? Data.Player : Data.Enemy;
 
 	Belligerent.AllowedValue = Budget;
 
@@ -80,7 +98,7 @@ void UFlareSkirmishManager::SetAllowedValue(bool ForPlayer, uint32 Budget)
 
 inline uint32 UFlareSkirmishManager::GetCurrentCombatValue(bool ForPlayer) const
 {
-	const FFlareSkirmishPlayer& Belligerent = ForPlayer ? Player : Enemy;
+	const FFlareSkirmishPlayer& Belligerent = ForPlayer ? Data.Player : Data.Enemy;
 
 	uint32 Value = 0;
 	for (FFlareSpacecraftDescription* Desc : Belligerent.OrderedSpacecrafts)
@@ -93,7 +111,7 @@ inline uint32 UFlareSkirmishManager::GetCurrentCombatValue(bool ForPlayer) const
 
 void UFlareSkirmishManager::AddShip(bool ForPlayer, FFlareSpacecraftDescription* Desc)
 {
-	FFlareSkirmishPlayer& Belligerent = ForPlayer ? Player : Enemy;
+	FFlareSkirmishPlayer& Belligerent = ForPlayer ? Data.Player : Data.Enemy;
 
 	Belligerent.OrderedSpacecrafts.Add(Desc);
 }
@@ -105,7 +123,7 @@ bool UFlareSkirmishManager::IsPlaying() const
 
 AFlareGame* UFlareSkirmishManager::GetGame() const
 {
-	return Cast<UFlareWorld>(GetOuter())->GetGame();
+	return Cast<AFlareGame>(GetOuter());
 }
 
 

@@ -101,7 +101,13 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 		]
 	];
 
-	// TODO 1075 : real menu, spacecraft lists...
+	// TODO 1075 : budget picker
+	// TODO 1075 : spacecraft lists
+	// TODO 1075 : enemy company picker
+	// TODO 1075 : company customization
+	// TODO 1075 : sector settings
+	// TODO 1075 : sort spacecraft order
+
 }
 
 
@@ -121,6 +127,7 @@ void SFlareSkirmishSetupMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
+	// Start doing the setup
 	MenuManager->GetGame()->GetSkirmishManager()->StartSetup();
 	MenuManager->GetGame()->GetSkirmishManager()->SetAllowedValue(true, 100);
 	MenuManager->GetGame()->GetSkirmishManager()->SetAllowedValue(false, 100);
@@ -154,17 +161,11 @@ void SFlareSkirmishSetupMenu::OnOrderShipConfirmed(FFlareSpacecraftDescription* 
 
 void SFlareSkirmishSetupMenu::OnStartSkirmish()
 {
-	MenuManager->GetGame()->GetSkirmishManager()->StartPlay();
+	UFlareSkirmishManager* Skirmish = MenuManager->GetGame()->GetSkirmishManager();
 
-	// Get company defaults
-	AFlarePlayerController* PC = MenuManager->GetPC();
-	UFlareCustomizationCatalog* CustomizationCatalog = PC->GetGame()->GetCustomizationCatalog();
-	const FFlareCompanyDescription* CurrentCompanyData = PC->GetCompanyDescription();
-
-	// Override defaults
-	PlayerCompanyData.Name = FText::FromString("Player");
-	PlayerCompanyData.ShortName = "PLY";
-	PlayerCompanyData.Emblem = CustomizationCatalog->GetEmblem(0);
+	// Override defaults with current color settings
+	FFlareCompanyDescription& PlayerCompanyData = Skirmish->GetData().PlayerCompanyData;
+	const FFlareCompanyDescription* CurrentCompanyData = MenuManager->GetPC()->GetCompanyDescription();
 	PlayerCompanyData.CustomizationBasePaintColor = CurrentCompanyData->CustomizationBasePaintColor;
 	PlayerCompanyData.CustomizationPaintColor = CurrentCompanyData->CustomizationPaintColor;
 	PlayerCompanyData.CustomizationOverlayColor = CurrentCompanyData->CustomizationOverlayColor;
@@ -172,10 +173,7 @@ void SFlareSkirmishSetupMenu::OnStartSkirmish()
 	PlayerCompanyData.CustomizationPatternIndex = CurrentCompanyData->CustomizationPatternIndex;
 
 	// Create the game
-	FFlareMenuParameterData Data;
-	Data.Skirmish = MenuManager->GetGame()->GetSkirmishManager();
-	Data.CompanyDescription = &PlayerCompanyData;
-	MenuManager->OpenMenu(EFlareMenu::MENU_CreateGame, Data);
+	Skirmish->StartPlay();
 }
 
 void SFlareSkirmishSetupMenu::OnMainMenu()

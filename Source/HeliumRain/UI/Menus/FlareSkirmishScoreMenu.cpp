@@ -6,6 +6,7 @@
 
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
+#include "../../Game/FlareSkirmishManager.h"
 
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlareMenuManager.h"
@@ -76,6 +77,8 @@ void SFlareSkirmishScoreMenu::Enter()
 	FLOG("SFlareSkirmishScoreMenu::Enter");
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
+
+	// TODO 1075 : handle victory to enter this
 }
 
 void SFlareSkirmishScoreMenu::Exit()
@@ -91,6 +94,8 @@ void SFlareSkirmishScoreMenu::Exit()
 
 void SFlareSkirmishScoreMenu::OnMainMenu()
 {
+	MenuManager->GetGame()->GetSkirmishManager()->EndSkirmish();
+
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 }
 

@@ -680,7 +680,7 @@ void AFlareGame::CreateGame(FFlareCompanyDescription CompanyData, int32 Scenario
 	FFlareLogWriter::InitWriter(PlayerData.UUID);
 }
 
-void AFlareGame::CreateSkirmishGame(FFlareCompanyDescription CompanyData)
+void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 {
 	// Clean up
 	PlayerController = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
@@ -692,9 +692,15 @@ void AFlareGame::CreateSkirmishGame(FFlareCompanyDescription CompanyData)
 	FFlareWorldSave WorldData;
 	WorldData.Date = 0;
 	World->Load(WorldData);
+
+	// Create companies
+	for (int32 Index = 0; Index < GetCompanyCatalogCount(); Index++)
+	{
+		CreateCompany(Index);
+	}
 	
 	// Setup the player company
-	PlayerController->SetCompanyDescription(CompanyData);
+	PlayerController->SetCompanyDescription(Skirmish->GetData().PlayerCompanyData);
 	FFlarePlayerSave PlayerData;
 	UFlareCompany* PlayerCompany = CreateCompany(-1);
 	PlayerData.CompanyIdentifier = PlayerCompany->GetIdentifier();
@@ -705,13 +711,50 @@ void AFlareGame::CreateSkirmishGame(FFlareCompanyDescription CompanyData)
 	PlayerData.QuestData.NextGeneratedQuestIndex = 0;
 	PlayerController->SetCompany(PlayerCompany);
 
-	// TODO 1075 : create from skirmish description
+	// Create the universe	
+	ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
+	ScenarioTools->Init(PlayerCompany, &PlayerData);
+	UFlareSimulatedSector* Sector = World->FindSector("the-depths"); // TODO 1075 : use real settings
+	FCHECK(Sector);
+
+	// Setup enemy
+	UFlareCompany* EnemyCompany = World->FindCompanyByShortName(Skirmish->GetData().EnemyCompanyName);
+	FCHECK(EnemyCompany);
+	// TODO 1075 : set at war
+
+	// Create player fleet
+	UFlareFleet* Fleet = NULL;
+	for (const FFlareSpacecraftDescription* ShipDesc : Skirmish->GetData().Player.OrderedSpacecrafts)
+	{
+		UFlareSimulatedSpacecraft* Ship = Sector->CreateSpacecraft(ShipDesc->Identifier, PlayerCompany, FVector::ZeroVector);
+		if (Fleet == NULL)
+		{
+			Fleet = Ship->GetCurrentFleet();
+			PlayerData.LastFlownShipIdentifier = Ship->GetImmatriculation();
+			PlayerData.PlayerFleetIdentifier = Fleet->GetIdentifier();
+		}
+		else
+		{
+			Ship->GetCurrentFleet()->Merge(Fleet);
+		}
+	}
+
+	// Create enemy fleet
+	Fleet = NULL;
+	for (const FFlareSpacecraftDescription* ShipDesc : Skirmish->GetData().Enemy.OrderedSpacecrafts)
+	{
+		UFlareSimulatedSpacecraft* Ship = Sector->CreateSpacecraft(ShipDesc->Identifier, EnemyCompany, FVector::ZeroVector);
+		if (Fleet == NULL)
+		{
+			Fleet = Ship->GetCurrentFleet();
+		}
+		else
+		{
+			Ship->GetCurrentFleet()->Merge(Fleet);
+		}
+	}
 
 	// Load player
-	UFlareSimulatedSector* Sector = World->FindSector("the-depths");
-	UFlareSimulatedSpacecraft* InitialShip = Sector->CreateSpacecraft("ship-ghoul", PlayerCompany, FVector::ZeroVector);
-	PlayerData.LastFlownShipIdentifier = InitialShip->GetImmatriculation();
-	PlayerData.PlayerFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
 	PlayerController->Load(PlayerData);
 
 	// End loading
@@ -858,6 +901,12 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC, bool Async, bool Force)
 		return false;
 	}
 
+	if (IsSkirmish())
+	{
+		FLOG("AFlareGame::SaveGame : skirmish, aborting");
+		return false;
+	}
+
 	if(!AutoSave && !Force)
 	{
 		FLOG("AFlareGame::SaveGame : skip save because autosave is saved");
@@ -868,7 +917,7 @@ bool AFlareGame::SaveGame(AFlarePlayerController* PC, bool Async, bool Force)
 	UFlareSaveGame* Save = Cast<UFlareSaveGame>(UGameplayStatics::CreateSaveGameObject(UFlareSaveGame::StaticClass()));
 	
 	// Save process
-	if (PC && Save)
+	if (PC && Save) 
 	{
 		// Save the player
 		PC->Save(Save->PlayerData, Save->PlayerCompanyDescription);

@@ -676,8 +676,10 @@ bool AFlareMenuManager::CreateGame()
 	// Create a new skirmish game
 	if (NextMenu.Value.Skirmish)
 	{
-		PC->GetGame()->CreateSkirmishGame(*NextMenu.Value.CompanyDescription);
+		PC->GetGame()->CreateSkirmishGame(NextMenu.Value.Skirmish);
 		PC->GetGame()->ActivateCurrentSector();
+
+		NextMenu.Value.Skirmish = NULL;
 	}
 
 	// Create a new sandbox game

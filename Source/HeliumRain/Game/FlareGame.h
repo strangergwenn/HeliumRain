@@ -123,7 +123,7 @@ public:
 	virtual void CreateGame(FFlareCompanyDescription CompanyData, int32 ScenarioIndex, int32 PlayerEmblemIndex, bool PlayTutorial);
 
 	/** Create a new skirmish game */
-	virtual void CreateSkirmishGame(FFlareCompanyDescription CompanyData);
+	virtual void CreateSkirmishGame(UFlareSkirmishManager* Skirmish);
 
 	/** Create a company */
 	UFlareCompany* CreateCompany(int32 CatalogIdentifier);

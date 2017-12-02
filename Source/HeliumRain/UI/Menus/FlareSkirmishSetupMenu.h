@@ -64,7 +64,6 @@ protected:
 	----------------------------------------------------*/
 
 	bool                                        IsOrderingForPlayer;
-	FFlareCompanyDescription                    PlayerCompanyData;
 
 	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
 

@@ -1509,11 +1509,12 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly, EFl
 			continue;
 		}
 
-		// Tutorial execption
-		if(ShipCandidate->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip()
-				&& ShipCandidate->GetCurrentTarget() == Ship
-				&& Ship->GetGame()->GetQuestManager()->FindQuest("tutorial-fighter")->GetStatus() == EFlareQuestStatus::ONGOING
-				&& Ship->GetGame()->GetQuestManager()->FindQuest("tutorial-fighter")->GetCurrentStep()->GetIdentifier() == "hit-cargo")
+		// Tutorial exception
+		if (Ship->GetGame()->GetQuestManager()
+		 && ShipCandidate->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip()
+		 && ShipCandidate->GetCurrentTarget() == Ship
+		 && Ship->GetGame()->GetQuestManager()->FindQuest("tutorial-fighter")->GetStatus() == EFlareQuestStatus::ONGOING
+		 && Ship->GetGame()->GetQuestManager()->FindQuest("tutorial-fighter")->GetCurrentStep()->GetIdentifier() == "hit-cargo")
 		{
 			// don't skip
 		}

@@ -369,7 +369,11 @@ void AFlareSpacecraft::SetCurrentTarget(AFlareSpacecraft* Target)
 	{
 		CurrentTarget = Target;
 		FName TargetName = Target ? Target->GetImmatriculation() : NAME_None;
-		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("target-changed").PutName("target", TargetName));
+
+		if (GetGame()->GetQuestManager())
+		{
+			GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("target-changed").PutName("target", TargetName));
+		}
 	}
 }
 
@@ -1526,7 +1530,7 @@ void AFlareSpacecraft::DeactivateWeapon()
 		GetWeaponsSystem()->DeactivateWeapons();
 		GetStateManager()->EnablePilot(false);
 
-		if (this->GetParent() == GetGame()->GetPC()->GetPlayerShip())
+		if (GetGame()->GetQuestManager() && GetParent() == GetGame()->GetPC()->GetPlayerShip())
 		{
 			GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("deactivate-weapon"));
 		}
@@ -1574,7 +1578,7 @@ void AFlareSpacecraft::ActivateWeaponGroupByIndex(int32 Index)
 			StateManager->SetExternalCamera(false);
 		}
 
-		if (this->GetParent() == GetGame()->GetPC()->GetPlayerShip())
+		if (GetGame()->GetQuestManager() && GetParent() == GetGame()->GetPC()->GetPlayerShip())
 		{
 			GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("activate-weapon").PutInt32("index", Index));
 		}

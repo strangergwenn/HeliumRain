@@ -772,7 +772,14 @@ void UFlareWorld::Simulate()
 		// If last, activate recovery
 		if (EmptyFleet)
 		{
-			GetGame()->GetPC()->GetMenuManager()->OpenMenu(EFlareMenu::MENU_GameOver);
+			if (GetGame()->IsSkirmish())
+			{
+				GetGame()->GetPC()->GetMenuManager()->OpenMenu(EFlareMenu::MENU_SkirmishScore);
+			}
+			else
+			{
+				GetGame()->GetPC()->GetMenuManager()->OpenMenu(EFlareMenu::MENU_GameOver);
+			}
 		}
 	}
 
