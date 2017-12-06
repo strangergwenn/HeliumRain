@@ -395,6 +395,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 		ShipData.SpawnMode = CapturedSpacecraft->SpawnMode;
 		ShipData.AttachActorName = CapturedSpacecraft->AttachActorName;
 		ShipData.IsUnderConstruction = CapturedSpacecraft->IsUnderConstruction;
+		ShipData.ShipyardOrderQueue = CapturedSpacecraft->ShipyardOrderQueue;
 	}
 
 	// Create the ship
