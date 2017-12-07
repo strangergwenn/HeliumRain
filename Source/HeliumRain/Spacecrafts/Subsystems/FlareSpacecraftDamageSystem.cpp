@@ -478,7 +478,14 @@ void UFlareSpacecraftDamageSystem::CheckRecovery()
 	// If last, activate recovery
 	if (EmptyFleet)
 	{
-		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_GameOver);
+		if (PC->GetGame()->IsSkirmish())
+		{
+			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_SkirmishScore);
+		}
+		else
+		{
+			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_GameOver);
+		}
 	}
 }
 

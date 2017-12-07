@@ -32,6 +32,7 @@
 
 #include "../Game/FlareGame.h"
 #include "../Game/FlareGameTools.h"
+#include "../Game/FlareSkirmishManager.h"
 
 #include "FlareHUD.h"
 #include "FlareMenuPawn.h"
@@ -931,7 +932,16 @@ void AFlareMenuManager::OpenMainMenu()
 {
 	OnEnterMenu(true);
 	GetPC()->ExitShip();
-	GetPC()->GetGame()->SaveGame(GetPC(), false);
+
+	if (GetPC()->GetGame()->IsSkirmish())
+	{
+		GetPC()->GetGame()->GetSkirmishManager()->EndSkirmish();
+	}
+	else
+	{
+		GetPC()->GetGame()->SaveGame(GetPC(), false);
+	}
+
 	MainMenu->Enter();
 }
 
@@ -1108,7 +1118,11 @@ void AFlareMenuManager::OpenSkirmishSetup()
 
 void AFlareMenuManager::OpenSkirmishScore()
 {
-	OnEnterMenu(false, false, false);
+	OnEnterMenu(false, false);
+
+	GetPC()->ExitShip();
+	GetGame()->DeactivateSector();
+
 	SkirmishScoreMenu->Enter();
 }
 

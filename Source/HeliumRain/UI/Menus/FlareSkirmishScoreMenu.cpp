@@ -94,7 +94,6 @@ void SFlareSkirmishScoreMenu::Exit()
 
 void SFlareSkirmishScoreMenu::OnMainMenu()
 {
-	MenuManager->GetGame()->GetSkirmishManager()->EndSkirmish();
 
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 }
