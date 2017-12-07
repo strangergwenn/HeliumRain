@@ -720,7 +720,6 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 	// Setup enemy
 	UFlareCompany* EnemyCompany = World->FindCompanyByShortName(Skirmish->GetData().EnemyCompanyName);
 	FCHECK(EnemyCompany);
-	// TODO 1075 : set at war
 
 	// Create player fleet
 	UFlareFleet* Fleet = NULL;
@@ -756,6 +755,8 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 
 	// Load player
 	PlayerController->Load(PlayerData);
+	PlayerCompany->SetHostilityTo(EnemyCompany, true);
+	EnemyCompany->SetHostilityTo(PlayerCompany, true);
 
 	// End loading
 	LoadedOrCreated = true;

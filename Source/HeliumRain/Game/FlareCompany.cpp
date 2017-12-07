@@ -320,8 +320,7 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 		if (Hostile && !WasHostile)
 		{
 			CompanyData.HostileCompanies.AddUnique(TargetCompany->GetIdentifier());
-
-
+			
 			UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
 			if (TargetCompany == PlayerCompany)
 			{
@@ -349,7 +348,10 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 				TargetCompany->SetLastWarDate();
 			}
 
-			Game->GetQuestManager()->OnWarStateChanged(this, TargetCompany);
+			if (Game->GetQuestManager())
+			{
+				Game->GetQuestManager()->OnWarStateChanged(this, TargetCompany);
+			}
 		}
 		else if(!Hostile && WasHostile)
 		{
@@ -362,7 +364,7 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 				TargetCompany->ResetLastPeaceDate();
 			}
 
-			if(TargetCompany == PlayerCompany)
+			if (TargetCompany == PlayerCompany)
 			{
 				if(PlayerCompany->GetHostility(this) == EFlareHostility::Hostile)
 				{
@@ -389,7 +391,11 @@ void UFlareCompany::SetHostilityTo(UFlareCompany* TargetCompany, bool Hostile)
 
 				ClearLastWarDate();
 			}
-			Game->GetQuestManager()->OnWarStateChanged(this, TargetCompany);
+
+			if (Game->GetQuestManager())
+			{
+				Game->GetQuestManager()->OnWarStateChanged(this, TargetCompany);
+			}
 		}
 	}
 }

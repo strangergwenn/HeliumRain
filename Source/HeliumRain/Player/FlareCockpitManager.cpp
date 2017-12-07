@@ -403,9 +403,10 @@ void AFlareCockpitManager::UpdatePower(float DeltaSeconds)
 		CockpitLight->SetIntensity(LightIntensity);
 		CockpitLight2->SetIntensity(LightIntensity);
 
-		if(PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha() >= 1.f)
+		if (PC->GetGame()->GetQuestManager() 
+			&& PC->GetShipPawn()->GetStateManager()->GetCombatZoomAlpha() >= 1.f)
 		{
-			PC->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("full-zoom"));
+  			PC->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("full-zoom"));
 		}
 	}
 	

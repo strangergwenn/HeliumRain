@@ -406,9 +406,12 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	Spacecraft->GetNavigationSystem()->Undock();
 	Spacecraft->GetNavigationSystem()->AbortAllCommands();
 
-	Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft->GetParent(), true,
-																	LastDamageCause.Spacecraft ? DamageCause(LastDamageCause.Company, LastDamageCause.DamageType) : DamageCause(LastDamageCause.DamageType));
-
+	if (Spacecraft->GetGame()->GetQuestManager())
+	{
+		Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft->GetParent(), true,
+			LastDamageCause.Spacecraft ? DamageCause(LastDamageCause.Company, LastDamageCause.DamageType)
+				: DamageCause(LastDamageCause.DamageType));
+	}
 
 	UFlareCompany* PlayerCompany = PC->GetCompany();
 	UFlareSimulatedSpacecraft* PlayerShip = Spacecraft->GetGame()->GetPC()->GetPlayerShip();
