@@ -568,7 +568,7 @@ FText SFlareTradeMenu::GetTransactionDetails() const
 		if (TransactionSourceSpacecraft->GetCompany() != MenuManager->GetPC()->GetCompany()
 				|| TransactionDestinationSpacecraft->GetCompany() != MenuManager->GetPC()->GetCompany())
 		{
-			int64 BaseResourcePrice = TransactionSourceSpacecraft->GetCurrentSector()->GetResourcePrice(TransactionResource, EFlareResourcePriceContext::Default);
+			int64 BaseResourcePrice = TransactionSourceSpacecraft->GetResourcePrice(TransactionResource, EFlareResourcePriceContext::Default);
 			int64 TransactionResourcePrice = TransactionSourceSpacecraft->GetCurrentSector()->GetTransfertResourcePrice(TransactionSourceSpacecraft, TransactionDestinationSpacecraft, TransactionResource);
 
 			int64 Fee = TransactionResourcePrice - BaseResourcePrice;

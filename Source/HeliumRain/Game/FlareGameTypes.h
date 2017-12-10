@@ -64,19 +64,6 @@ namespace EFlareResourcePriceContext
 	};
 }
 
-
-struct FFlareResourceUsage
-{
-public:
-	bool HasAnyUsage() const;
-
-	bool HasUsage(EFlareResourcePriceContext::Type Usage) const;
-
-	void AddUsage(EFlareResourcePriceContext::Type Usage);
-private:
-	TArray<EFlareResourcePriceContext::Type> Usages;
-};
-
 /** Resource price context */
 UENUM()
 namespace EFlareResourceUsageContext
@@ -90,6 +77,20 @@ namespace EFlareResourceUsageContext
 		MaintenanceConsumption, /** resource sold to company using maintenance */
 	};
 }
+
+struct FFlareResourceUsage
+{
+public:
+	bool HasAnyUsage() const;
+
+	bool HasUsage(EFlareResourceUsageContext::Type Usage) const;
+
+	void AddUsage(EFlareResourceUsageContext::Type Usage);
+private:
+	TArray<EFlareResourceUsageContext::Type> Usages;
+};
+
+
 
 /** Combat tactics */
 UENUM()

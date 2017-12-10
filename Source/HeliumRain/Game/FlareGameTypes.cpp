@@ -399,12 +399,12 @@ bool FFlareResourceUsage::HasAnyUsage() const
 	return Usages.Num() > 0;
 }
 
-bool FFlareResourceUsage::HasUsage(EFlareResourcePriceContext::Type Usage) const
+bool FFlareResourceUsage::HasUsage(EFlareResourceUsageContext::Type Usage) const
 {
 	return Usages.Contains(Usage);
 }
 
-void FFlareResourceUsage::AddUsage(EFlareResourcePriceContext::Type Usage)
+void FFlareResourceUsage::AddUsage(EFlareResourceUsageContext::Type Usage)
 {
 	Usages.AddUnique(Usage);
 }

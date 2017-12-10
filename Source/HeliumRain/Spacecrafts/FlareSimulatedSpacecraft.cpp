@@ -482,7 +482,7 @@ FFlareResourceUsage UFlareSimulatedSpacecraft::GetResourceUseType(FFlareResource
 	// Check we're and station
 	if (!IsStation())
 	{
-		Usage.AddUsage(EFlareResourceUsageContext::Default);
+		Usage.AddUsage(EFlareResourceUsageContext::None);
 		return Usage;
 	}
 
