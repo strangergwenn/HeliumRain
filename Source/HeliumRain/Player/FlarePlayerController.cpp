@@ -2548,7 +2548,8 @@ void AFlarePlayerController::WheelPressed()
 				}
 
 				// Fly
-				if (Target->GetParent()->GetCompany() == GetCompany() && !Target->GetParent()->IsStation())
+				if (Target->GetParent()->GetCompany() == GetCompany() && !Target->GetParent()->IsStation()
+					&& Target->GetParent()->GetCurrentFleet() == GetPlayerFleet())
 				{
 					Text = FText::Format(LOCTEXT("FlyTargetFormat", "Fly {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
 					MouseMenu->AddWidget("Mouse_Fly", Text, FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::FlyTargetSpacecraft));
