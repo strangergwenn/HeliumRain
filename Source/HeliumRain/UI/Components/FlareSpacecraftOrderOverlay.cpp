@@ -147,6 +147,21 @@ void SFlareSpacecraftOrderOverlay::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
+static bool SortByCombatValue(const TSharedPtr<FInterfaceContainer>& Ship1, const TSharedPtr<FInterfaceContainer>& Ship2)
+{
+	FCHECK(Ship1->SpacecraftDescriptionPtr);
+	FCHECK(Ship2->SpacecraftDescriptionPtr);
+
+	if (Ship1->SpacecraftDescriptionPtr->CombatPoints < Ship2->SpacecraftDescriptionPtr->CombatPoints)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 void SFlareSpacecraftOrderOverlay::Open(UFlareSimulatedSpacecraft* Complex, FName ConnectorName, FOrderDelegate ConfirmationCallback)
 {
 	SetVisibility(EVisibility::Visible);
@@ -260,6 +275,8 @@ void SFlareSpacecraftOrderOverlay::Open(UFlareSkirmishManager* Skirmish, bool Fo
 			}
 		}
 	}
+
+	SpacecraftList.Sort(SortByCombatValue);
 
 	SpacecraftSelector->RequestListRefresh();
 	ConfirmText->SetText(FText());
