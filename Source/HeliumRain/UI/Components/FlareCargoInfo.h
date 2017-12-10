@@ -77,8 +77,11 @@ protected:
 		Private data
 	----------------------------------------------------*/
 
-	// Spacecraft data
+	// Spacecraft
+	UPROPERTY()
 	UFlareSimulatedSpacecraft*                      TargetSpacecraft;
+
+	// Spacecraft data
 	int32                                           CargoIndex;
 	FFlareButtonClicked                             OnClicked;
 
