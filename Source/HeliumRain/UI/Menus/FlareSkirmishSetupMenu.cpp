@@ -4,6 +4,7 @@
 
 #include "../Components/FlareButton.h"
 
+#include "../../Data/FlareCompanyCatalog.h"
 #include "../../Data/FlareCustomizationCatalog.h"
 
 #include "../../Game/FlareGame.h"
@@ -46,6 +47,28 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 			SNew(STextBlock)
 			.Text(LOCTEXT("SkirmishSetupTitle", "New skirmish"))
 			.TextStyle(&Theme.SpecialTitleFont)
+		]
+	
+		+ SVerticalBox::Slot()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Bottom)
+		.AutoHeight()
+		[
+			SAssignNew(CompanySelector, SFlareDropList<FFlareCompanyDescription>)
+			.OptionsSource(&MenuManager->GetPC()->GetGame()->GetCompanyCatalog()->Companies)
+			.OnGenerateWidget(this, &SFlareSkirmishSetupMenu::OnGenerateCompanyComboLine)
+			.OnSelectionChanged(this, &SFlareSkirmishSetupMenu::OnCompanyComboLineSelectionChanged)
+			.HeaderWidth(5)
+			.ItemWidth(5)
+			[
+				SNew(SBox)
+				.Padding(Theme.ListContentPadding)
+				[
+					SNew(STextBlock)
+					.Text(this, &SFlareSkirmishSetupMenu::OnGetCurrentCompanyComboLine)
+					.TextStyle(&Theme.TextFont)
+				]
+			]
 		]
 
 		// Add ship
@@ -103,10 +126,9 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 
 	// TODO 1075 : budget picker
 	// TODO 1075 : spacecraft lists
-	// TODO 1075 : enemy company picker
+	// TODO 1075 : spacecraft customization
 	// TODO 1075 : company customization
 	// TODO 1075 : sector settings
-	// TODO 1075 : sort spacecraft order
 
 }
 
@@ -127,6 +149,8 @@ void SFlareSkirmishSetupMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
+	CompanySelector->RefreshOptions();
+
 	// Start doing the setup
 	MenuManager->GetGame()->GetSkirmishManager()->StartSetup();
 	MenuManager->GetGame()->GetSkirmishManager()->SetAllowedValue(true, 100);
@@ -137,6 +161,35 @@ void SFlareSkirmishSetupMenu::Exit()
 {
 	SetEnabled(false);
 	SetVisibility(EVisibility::Collapsed);
+}
+
+
+/*----------------------------------------------------
+	Content callbacks
+----------------------------------------------------*/
+
+TSharedRef<SWidget> SFlareSkirmishSetupMenu::OnGenerateCompanyComboLine(FFlareCompanyDescription Item)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
+		.Text(Item.Name)
+		.TextStyle(&Theme.TextFont)
+	];
+}
+
+void SFlareSkirmishSetupMenu::OnCompanyComboLineSelectionChanged(FFlareCompanyDescription Item, ESelectInfo::Type SelectInfo)
+{
+
+}
+
+FText SFlareSkirmishSetupMenu::OnGetCurrentCompanyComboLine() const
+{
+	const FFlareCompanyDescription Item = CompanySelector->GetSelectedItem();
+	return Item.Name;
 }
 
 
@@ -171,6 +224,9 @@ void SFlareSkirmishSetupMenu::OnStartSkirmish()
 	PlayerCompanyData.CustomizationOverlayColor = CurrentCompanyData->CustomizationOverlayColor;
 	PlayerCompanyData.CustomizationLightColor = CurrentCompanyData->CustomizationLightColor;
 	PlayerCompanyData.CustomizationPatternIndex = CurrentCompanyData->CustomizationPatternIndex;
+
+	// Set enemy name
+	Skirmish->GetData().EnemyCompanyName = CompanySelector->GetSelectedItem().ShortName;
 
 	// Create the game
 	Skirmish->StartPlay();

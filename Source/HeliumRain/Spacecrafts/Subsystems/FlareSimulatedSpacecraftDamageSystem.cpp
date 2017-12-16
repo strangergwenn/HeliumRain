@@ -415,14 +415,14 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 			{
 				ReputationCost = -InflictedDamageRatio * 2;
 			}
-
-
-
+			
 			UFlareCompany* PlayerCompany = Spacecraft->GetGame()->GetPC()->GetCompany();
-			//UFlareSimulatedSpacecraft* PlayerShip = Spacecraft->GetGame()->GetPC()->GetPlayerShip();
-
-
-			if (ReputationCost != 0 && DamageSource->IsResponsible(DamageType) && Spacecraft->GetCompany() != PlayerCompany && Spacecraft->GetCompany() != Spacecraft->GetGame()->GetScenarioTools()->Pirates)
+			
+			if (ReputationCost != 0
+				&& DamageSource->IsResponsible(DamageType)
+				&& !Spacecraft->GetGame()->IsSkirmish()
+				&& Spacecraft->GetCompany() != PlayerCompany
+				&& Spacecraft->GetCompany() != Spacecraft->GetGame()->GetScenarioTools()->Pirates)
 			{
 				// Being shot by enemies is pretty much expected
 				if (Spacecraft->GetCompany()->GetWarState(DamageSource->GetCompany()) != EFlareHostility::Hostile)
@@ -453,9 +453,6 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 						   FName("prisoner-attack"),
 						   EFlareNotification::NT_Military);
 				}
-
-
-
 			}
 		}
 
@@ -821,25 +818,24 @@ void UFlareSimulatedSpacecraftDamageSystem::NotifyDamage()
 	// Update uncontrollable status
 	if (WasControllable && IsUncontrollable())
 	{
-
 		WasControllable = false;
 
-		Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft, true,
-																			LastDamageCause);
-
+		if (Spacecraft->GetGame()->GetQuestManager())
+		{
+			Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft, true, LastDamageCause);
+		}
 	}
-
 
 	// Update alive status
 	if (WasAlive && !IsAlive())
 	{
-
 		WasAlive = false;
 
-		Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft, true,
-																			LastDamageCause);
+		if (Spacecraft->GetGame()->GetQuestManager())
+		{
+			Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft, true, LastDamageCause);
+		}
 	}
-
 }
 
 #undef LOCTEXT_NAMESPACE

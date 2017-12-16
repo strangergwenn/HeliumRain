@@ -1,8 +1,11 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../Components/FlareButton.h"
+#include "../Components/FlareDropList.h"
 
 
+struct FFlareCompanyDescription;
 class AFlareMenuManager;
 
 
@@ -41,6 +44,15 @@ public:
 protected:
 
 	/*----------------------------------------------------
+		Content callbacks
+	----------------------------------------------------*/
+
+	TSharedRef<SWidget> OnGenerateCompanyComboLine(FFlareCompanyDescription Item);
+	void OnCompanyComboLineSelectionChanged(FFlareCompanyDescription Item, ESelectInfo::Type SelectInfo);
+	FText OnGetCurrentCompanyComboLine() const;
+
+
+	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
 
@@ -66,5 +78,7 @@ protected:
 	bool                                        IsOrderingForPlayer;
 
 	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
+
+	TSharedPtr<SFlareDropList<FFlareCompanyDescription>> CompanySelector;
 
 };

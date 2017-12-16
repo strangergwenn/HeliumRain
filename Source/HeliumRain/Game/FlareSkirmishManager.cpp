@@ -47,10 +47,7 @@ void UFlareSkirmishManager::StartPlay()
 	Data.PlayerCompanyData.Emblem = GetGame()->GetCustomizationCatalog()->GetEmblem(0);
 	Data.PlayerCompanyData.Name = FText::FromString("Player");
 	Data.PlayerCompanyData.ShortName = "PLY";
-
-	// TODO 1075 : from menu
-	Data.EnemyCompanyName = "PIR";
-
+	
 	// Set phase
 	CurrentPhase = EFlareSkirmishPhase::Play;
 
