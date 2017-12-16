@@ -60,6 +60,8 @@ AFlareMenuManager::AFlareMenuManager(const class FObjectInitializer& PCIP)
 	, FadeFromBlack(true)
 	, NotifyExitSector(false)
 	, FadeDuration(0.3)
+	, SkirmishCountdownDuration(3)
+	, SkirmishCountdownTimer(-1)
 	, CurrentSpacecraftInfo(NULL)
 {
 }
@@ -179,10 +181,10 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 	if (Fader.IsValid() && FadeTimer >= 0)
 	{
 		FadeTimer += DeltaSeconds;
-		float AccelRatio = 1.1;
 		float Alpha = FMath::Clamp(FadeTimer / FadeDuration, 0.0f, 1.0f);
 
 		// Apply alpha
+		float AccelRatio = 1.1;
 		FLinearColor Color = FLinearColor::Black;
 		Color.A = FMath::Clamp((FadeFromBlack ? 1 - AccelRatio * Alpha : AccelRatio * Alpha), 0.0f, 1.0f);
 		Fader->SetBorderBackgroundColor(Color);
@@ -204,6 +206,24 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 		{
 			Fader->SetVisibility(EVisibility::Hidden);
 		}
+	}
+
+	// Skirmish countdown
+	if (GetGame()->IsSkirmish())
+	{
+		if (SkirmishCountdownTimer >= 0)
+		{
+			SkirmishCountdownTimer += DeltaSeconds;
+			if (SkirmishCountdownTimer > SkirmishCountdownDuration)
+			{
+				SkirmishCountdownTimer = -1;
+				OpenMenu(EFlareMenu::MENU_SkirmishScore);
+			}
+		}
+	}
+	else
+	{
+		SkirmishCountdownTimer = -1;
 	}
 }
 
@@ -495,6 +515,14 @@ void AFlareMenuManager::JoystickCursorMove(FVector2D Move)
 		JoystickCursorPosition.Y += Intensity * FMath::Sign(Move.Y) * FMath::Pow(Move.Y, Power);
 
 		Cursor->SetPosition(JoystickCursorPosition.X, JoystickCursorPosition.Y);
+	}
+}
+
+void AFlareMenuManager::PrepareSkirmishEnd()
+{
+	if (GetGame()->IsSkirmish() && SkirmishCountdownTimer < 0)
+	{
+		SkirmishCountdownTimer = 0;
 	}
 }
 

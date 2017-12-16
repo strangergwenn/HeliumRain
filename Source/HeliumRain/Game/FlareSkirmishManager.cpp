@@ -62,7 +62,10 @@ void UFlareSkirmishManager::StartPlay()
 
 void UFlareSkirmishManager::EndPlay()
 {
-	FCHECK(CurrentPhase == EFlareSkirmishPhase::Play);
+	if (CurrentPhase == EFlareSkirmishPhase::Play)
+	{
+		AFlareMenuManager::GetSingleton()->PrepareSkirmishEnd();
+	}
 
 	CurrentPhase = EFlareSkirmishPhase::End;
 
@@ -115,7 +118,7 @@ void UFlareSkirmishManager::AddShip(bool ForPlayer, FFlareSpacecraftDescription*
 
 bool UFlareSkirmishManager::IsPlaying() const
 {
-	return (CurrentPhase == EFlareSkirmishPhase::Play);
+	return (CurrentPhase == EFlareSkirmishPhase::Play || CurrentPhase == EFlareSkirmishPhase::End);
 }
 
 AFlareGame* UFlareSkirmishManager::GetGame() const

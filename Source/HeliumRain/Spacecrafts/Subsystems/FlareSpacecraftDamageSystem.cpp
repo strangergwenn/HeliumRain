@@ -3,15 +3,20 @@
 #include "../../Flare.h"
 
 #include "../FlareSpacecraft.h"
+
 #include "../../Game/FlareGame.h"
+#include "../../Game/FlareSkirmishManager.h"
 #include "../../Game/FlarePlanetarium.h"
+#include "../../Game/FlareScenarioTools.h"
+
 #include "../../Player/FlarePlayerController.h"
 #include "../../Player/FlareMenuManager.h"
+
 #include "../FlareEngine.h"
 #include "../FlareOrbitalEngine.h"
 #include "../FlareShell.h"
+
 #include "Engine/StaticMeshActor.h"
-#include "../../Game/FlareScenarioTools.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareDamageSystem Tick"), STAT_FlareDamageSystem_Tick, STATGROUP_Flare);
 
@@ -479,9 +484,9 @@ void UFlareSpacecraftDamageSystem::CheckRecovery()
 
 	// Check if it the last ship
 	bool EmptyFleet = true;
-	for(UFlareSimulatedSpacecraft* Ship : PC->GetPlayerFleet()->GetShips())
+	for (UFlareSimulatedSpacecraft* Ship : PC->GetPlayerFleet()->GetShips())
 	{
-		if(Ship->GetDamageSystem()->IsAlive() && !Ship->GetDamageSystem()->IsUncontrollable())
+		if (Ship->GetDamageSystem()->IsAlive() && !Ship->GetDamageSystem()->IsUncontrollable())
 		{
 			EmptyFleet = false;
 			break;
@@ -493,11 +498,22 @@ void UFlareSpacecraftDamageSystem::CheckRecovery()
 	{
 		if (PC->GetGame()->IsSkirmish())
 		{
-			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_SkirmishScore);
+			PC->GetGame()->GetSkirmishManager()->EndPlay();
 		}
 		else
 		{
 			PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_GameOver);
+		}
+	}
+
+	// Check skirmish victory
+	else if (PC->GetGame()->IsSkirmish())
+	{
+		FFlareSectorBattleState State = Spacecraft->GetOwnerSector()->GetSectorBattleState(PC->GetCompany());
+
+		if (State.BattleWon)
+		{
+			PC->GetGame()->GetSkirmishManager()->EndPlay();
 		}
 	}
 }

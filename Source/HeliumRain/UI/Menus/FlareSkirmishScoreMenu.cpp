@@ -77,8 +77,6 @@ void SFlareSkirmishScoreMenu::Enter()
 	FLOG("SFlareSkirmishScoreMenu::Enter");
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
-
-	// TODO 1075 : handle victory to enter this
 }
 
 void SFlareSkirmishScoreMenu::Exit()

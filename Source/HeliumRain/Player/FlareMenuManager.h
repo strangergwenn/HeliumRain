@@ -131,6 +131,9 @@ public:
 	/** Focus navigation with joystick */
 	void JoystickCursorMove(FVector2D Move);
 
+	/** Skirmish is done */
+	void PrepareSkirmishEnd();
+
 
 protected:
 
@@ -361,6 +364,12 @@ public:
 	/** Get the menu manager */
 	static AFlareMenuManager* GetSingleton();
 
+	/** Get the skirmish end countdown */
+	float GetSkirmishCountdown() const
+	{
+		return SkirmishCountdownTimer;
+	}
+
 
 protected:
 
@@ -379,6 +388,8 @@ protected:
 	bool                                    NotifyExitSector;
 	float                                   FadeDuration;
 	float                                   FadeTimer;
+	float                                   SkirmishCountdownDuration;
+	float                                   SkirmishCountdownTimer;
 	TFlareMenuData                          CurrentMenu;
 	TFlareMenuData                          NextMenu;
 	TArray<TFlareMenuData>                  MenuHistory;
