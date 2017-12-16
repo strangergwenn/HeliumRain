@@ -203,7 +203,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			// Reload the sector if player leave the limits
 			if (!HasExitedSector)
 			{
-				if (IsOutsideSector())
+				if (IsOutsideSector() && !GetGame()->IsSkirmish())
 				{
 					float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
 					float Distance = GetActorLocation().Size();

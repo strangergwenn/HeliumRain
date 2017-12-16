@@ -397,6 +397,8 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+
+	// TODO 1075 : hide sector controls in skirmish
 }
 
 

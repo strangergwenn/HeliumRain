@@ -920,7 +920,18 @@ void AFlarePlayerController::SetWorldPause(bool Pause)
 
 UFlareFleet* AFlarePlayerController::GetPlayerFleet()
 {
-	return PlayerFleet;
+	if (PlayerFleet)
+	{
+		return PlayerFleet;
+	}
+	else if (GetShipPawn())
+	{
+		return GetShipPawn()->GetParent()->GetCurrentFleet();
+	}
+	else
+	{
+		return NULL;
+	}
 }
 
 bool AFlarePlayerController::SwitchToNextShip(bool Instant)
@@ -2149,7 +2160,11 @@ void AFlarePlayerController::QuickSwitch()
 	if (!MenuManager->IsMenuOpen() && !IsTyping())
 	{
 		SwitchToNextShip(false);
-		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("quick-switch"));
+
+		if (GetGame()->GetQuestManager())
+		{
+			GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("quick-switch"));
+		}
 	}
 }
 
