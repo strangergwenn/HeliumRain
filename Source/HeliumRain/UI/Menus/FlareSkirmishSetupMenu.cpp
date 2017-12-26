@@ -13,6 +13,8 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
+#include "SBackgroundBlur.h"
+
 
 #define LOCTEXT_NAMESPACE "FlareSkirmishSetupMenu"
 
@@ -40,321 +42,467 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
 	[
-		SNew(SVerticalBox)
+		SNew(SOverlay)
 
-		// Title
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Center)
-		.Padding(Theme.ContentPadding)
+		// Main
+		+ SOverlay::Slot()
 		[
-			SNew(STextBlock)
-			.Text(LOCTEXT("SkirmishSetupTitle", "New skirmish"))
-			.TextStyle(&Theme.SpecialTitleFont)
-		]
+			SNew(SVerticalBox)
 
-		// Settings title
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Left)
-		.Padding(Theme.TitlePadding)
-		[
-			SNew(STextBlock)
-			.Text(LOCTEXT("SkirmishSettingsTitle", "Settings"))
-			.TextStyle(&Theme.SubTitleFont)
-		]
-	
-		// Opponent selector
-		+ SVerticalBox::Slot()
-		.HAlign(HAlign_Left)
-		.AutoHeight()
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(SHorizontalBox)
-
-			// Text
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SBox)
-				.WidthOverride(LabelWidth)
-				.Padding(FMargin(0, 10, 0, 0))
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("EnemyLabel", "Enemy company"))
-					.TextStyle(&Theme.TextFont)
-				]
-			]
-
-			// List
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
+			// Title
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Center)
 			.Padding(Theme.ContentPadding)
 			[
-				SAssignNew(CompanySelector, SFlareDropList<FFlareCompanyDescription>)
-				.OptionsSource(&MenuManager->GetPC()->GetGame()->GetCompanyCatalog()->Companies)
-				.OnGenerateWidget(this, &SFlareSkirmishSetupMenu::OnGenerateCompanyComboLine)
-				.HeaderWidth(8)
-				.ItemWidth(8)
-				[
-					SNew(SBox)
-					.Padding(Theme.ListContentPadding)
-					[
-						SNew(STextBlock)
-						.Text(this, &SFlareSkirmishSetupMenu::OnGetCurrentCompanyComboLine)
-						.TextStyle(&Theme.TextFont)
-					]
-				]
+				SNew(STextBlock)
+				.Text(LOCTEXT("SkirmishSetupTitle", "New skirmish"))
+				.TextStyle(&Theme.SpecialTitleFont)
 			]
-		]
 
-		// Player budget
-		+ SVerticalBox::Slot()
-		.HAlign(HAlign_Left)
-		.AutoHeight()
-		[
-			SNew(SBox)
-			.WidthOverride(Theme.ContentWidth)
+			// Settings title
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Left)
+			.Padding(Theme.TitlePadding)
+			[
+				SNew(STextBlock)
+				.Text(LOCTEXT("SkirmishSettingsTitle", "Settings"))
+				.TextStyle(&Theme.SubTitleFont)
+			]
+	
+			// Opponent selector
+			+ SVerticalBox::Slot()
+			.HAlign(HAlign_Left)
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
 			[
 				SNew(SHorizontalBox)
 
 				// Text
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
-				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
 					.WidthOverride(LabelWidth)
+					.Padding(FMargin(0, 10, 0, 0))
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("PlayerBudgetLabel", "Player combat value"))
+						.Text(LOCTEXT("EnemyLabel", "Enemy company"))
 						.TextStyle(&Theme.TextFont)
 					]
 				]
 
-				// Slider
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Center)
-				.Padding(Theme.ContentPadding)
-				[
-					SAssignNew(PlayerBudgetSlider, SSlider)
-					.Value(DefaultBudgetValue)
-					.Style(&Theme.SliderStyle)
-					.OnValueChanged(this, &SFlareSkirmishSetupMenu::OnBudgetSliderChanged, true)
-				]
-
-				// Label
+				// List
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
 				.Padding(Theme.ContentPadding)
 				[
-					SNew(SBox)
-					.WidthOverride(LabelWidth)
+					SAssignNew(CompanySelector, SFlareDropList<FFlareCompanyDescription>)
+					.OptionsSource(&MenuManager->GetPC()->GetGame()->GetCompanyCatalog()->Companies)
+					.OnGenerateWidget(this, &SFlareSkirmishSetupMenu::OnGenerateCompanyComboLine)
+					.HeaderWidth(8)
+					.ItemWidth(8)
 					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareSkirmishSetupMenu::GetPlayerBudget)
+						SNew(SBox)
+						.Padding(Theme.ListContentPadding)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareSkirmishSetupMenu::OnGetCurrentCompanyComboLine)
+							.TextStyle(&Theme.TextFont)
+						]
 					]
 				]
 			]
-		]
 
-		// Enemy budget
-		+ SVerticalBox::Slot()
-		.HAlign(HAlign_Left)
-		.AutoHeight()
-		[
-			SNew(SBox)
-			.WidthOverride(Theme.ContentWidth)
+			// Player budget
+			+ SVerticalBox::Slot()
+			.HAlign(HAlign_Left)
+			.AutoHeight()
+			[
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
+				[
+					SNew(SHorizontalBox)
+
+					// Text
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(LabelWidth)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("PlayerBudgetLabel", "Player combat value"))
+							.TextStyle(&Theme.TextFont)
+						]
+					]
+
+					// Slider
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(PlayerBudgetSlider, SSlider)
+						.Value(DefaultBudgetValue)
+						.Style(&Theme.SliderStyle)
+						.OnValueChanged(this, &SFlareSkirmishSetupMenu::OnBudgetSliderChanged, true)
+					]
+
+					// Label
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(LabelWidth)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(this, &SFlareSkirmishSetupMenu::GetPlayerBudget)
+						]
+					]
+				]
+			]
+
+			// Enemy budget
+			+ SVerticalBox::Slot()
+			.HAlign(HAlign_Left)
+			.AutoHeight()
+			[
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
+				[
+					SNew(SHorizontalBox)
+
+					// Text
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(LabelWidth)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("EnemyBudgetLabel", "Enemy combat value"))
+							.TextStyle(&Theme.TextFont)
+						]
+					]
+
+					// Slider
+					+ SHorizontalBox::Slot()
+					.VAlign(VAlign_Center)
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(EnemyBudgetSlider, SSlider)
+						.Value(DefaultBudgetValue)
+						.Style(&Theme.SliderStyle)
+						.OnValueChanged(this, &SFlareSkirmishSetupMenu::OnBudgetSliderChanged, false)
+					]
+
+					// Label
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SBox)
+						.WidthOverride(LabelWidth)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(this, &SFlareSkirmishSetupMenu::GetEnemyBudget)
+						]
+					]
+				]
+			]
+
+			// Lists
+			+ SVerticalBox::Slot()
+			.HAlign(HAlign_Fill)
+			.AutoHeight()
 			[
 				SNew(SHorizontalBox)
-
-				// Text
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SBox)
-					.WidthOverride(LabelWidth)
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("EnemyBudgetLabel", "Enemy combat value"))
-						.TextStyle(&Theme.TextFont)
-					]
-				]
-
-				// Slider
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Center)
-				.Padding(Theme.ContentPadding)
-				[
-					SAssignNew(EnemyBudgetSlider, SSlider)
-					.Value(DefaultBudgetValue)
-					.Style(&Theme.SliderStyle)
-					.OnValueChanged(this, &SFlareSkirmishSetupMenu::OnBudgetSliderChanged, false)
-				]
-
-				// Label
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.Padding(Theme.ContentPadding)
-				[
-					SNew(SBox)
-					.WidthOverride(LabelWidth)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareSkirmishSetupMenu::GetEnemyBudget)
-					]
-				]
-			]
-		]
-
-		// Lists
-		+ SVerticalBox::Slot()
-		.HAlign(HAlign_Fill)
-		.AutoHeight()
-		[
-			SNew(SHorizontalBox)
 			
-			// Player fleet
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SBox)
-				.WidthOverride(Width)
+				// Player fleet
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
 				[
-					SNew(SVerticalBox)
-
-					// Title
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.HAlign(HAlign_Left)
-					.Padding(Theme.TitlePadding)
+					SNew(SBox)
+					.WidthOverride(Width)
 					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("PlayerFleetTitle", "Player fleet"))
-						.TextStyle(&Theme.SubTitleFont)
-					]
+						SNew(SVerticalBox)
+
+						// Title
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Left)
+						.Padding(Theme.TitlePadding)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("PlayerFleetTitle", "Player fleet"))
+							.TextStyle(&Theme.SubTitleFont)
+						]
 					
-					// Add ship
-					+ SVerticalBox::Slot()
-					.HAlign(HAlign_Left)
-					.AutoHeight()
-					[
-						SNew(SFlareButton)
-						.Transparent(true)
-						.Width(8)
-						.Text(LOCTEXT("AddPlayerShip", "Add player ship"))
-						.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, true)
-					]
-
-					+ SVerticalBox::Slot()
-					[
-						SNew(SScrollBox)
-						.Style(&Theme.ScrollBoxStyle)
-						.ScrollBarStyle(&Theme.ScrollBarStyle)
-
-						+ SScrollBox::Slot()
-						.Padding(Theme.ContentPadding)
+						// Add ship
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Left)
+						.AutoHeight()
 						[
-							SAssignNew(PlayerSpacecraftList, SListView<TSharedPtr<FInterfaceContainer>>)
-							.ListItemsSource(&PlayerSpacecraftListData)
-							.SelectionMode(ESelectionMode::Single)
-							.OnGenerateRow(this, &SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine)
-							.OnSelectionChanged(this, &SFlareSkirmishSetupMenu::OnPlayerSpacecraftSelectionChanged)
+							SNew(SFlareButton)
+							.Transparent(true)
+							.Width(8)
+							.Text(LOCTEXT("AddPlayerShip", "Add player ship"))
+							.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, true)
+						]
+
+						+ SVerticalBox::Slot()
+						[
+							SNew(SScrollBox)
+							.Style(&Theme.ScrollBoxStyle)
+							.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+							+ SScrollBox::Slot()
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(PlayerSpacecraftList, SListView<TSharedPtr<FInterfaceContainer>>)
+								.ListItemsSource(&PlayerSpacecraftListData)
+								.SelectionMode(ESelectionMode::Single)
+								.OnGenerateRow(this, &SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine)
+								.OnSelectionChanged(this, &SFlareSkirmishSetupMenu::OnPlayerSpacecraftSelectionChanged)
+							]
 						]
 					]
 				]
-			]
 
-			// Enemy fleet
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SBox)
-				.WidthOverride(Width)
+				// Enemy fleet
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
 				[
-					SNew(SVerticalBox)
-
-					// Title
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.HAlign(HAlign_Left)
-					.Padding(Theme.TitlePadding)
+					SNew(SBox)
+					.WidthOverride(Width)
 					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("EnemyFleetTitle", "Enemy fleet"))
-						.TextStyle(&Theme.SubTitleFont)
-					]
+						SNew(SVerticalBox)
 
-					// Add ship
-					+ SVerticalBox::Slot()
-					.HAlign(HAlign_Left)
-					.AutoHeight()
-					[
-						SNew(SFlareButton)
-						.Transparent(true)
-						.Width(8)
-						.Text(LOCTEXT("AddEnemyShip", "Add enemy ship"))
-						.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, false)
-					]
-
-					+ SVerticalBox::Slot()
-					[
-						SNew(SScrollBox)
-						.Style(&Theme.ScrollBoxStyle)
-						.ScrollBarStyle(&Theme.ScrollBarStyle)
-
-						+ SScrollBox::Slot()
-						.Padding(Theme.ContentPadding)
+						// Title
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Left)
+						.Padding(Theme.TitlePadding)
 						[
-							SAssignNew(EnemySpacecraftList, SListView<TSharedPtr<FInterfaceContainer>>)
-							.ListItemsSource(&EnemySpacecraftListData)
-							.SelectionMode(ESelectionMode::Single)
-							.OnGenerateRow(this, &SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine)
-							.OnSelectionChanged(this, &SFlareSkirmishSetupMenu::OnEnemySpacecraftSelectionChanged)
+							SNew(STextBlock)
+							.Text(LOCTEXT("EnemyFleetTitle", "Enemy fleet"))
+							.TextStyle(&Theme.SubTitleFont)
+						]
+
+						// Add ship
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Left)
+						.AutoHeight()
+						[
+							SNew(SFlareButton)
+							.Transparent(true)
+							.Width(8)
+							.Text(LOCTEXT("AddEnemyShip", "Add enemy ship"))
+							.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, false)
+						]
+
+						+ SVerticalBox::Slot()
+						[
+							SNew(SScrollBox)
+							.Style(&Theme.ScrollBoxStyle)
+							.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+							+ SScrollBox::Slot()
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(EnemySpacecraftList, SListView<TSharedPtr<FInterfaceContainer>>)
+								.ListItemsSource(&EnemySpacecraftListData)
+								.SelectionMode(ESelectionMode::Single)
+								.OnGenerateRow(this, &SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine)
+								.OnSelectionChanged(this, &SFlareSkirmishSetupMenu::OnEnemySpacecraftSelectionChanged)
+							]
 						]
 					]
 				]
+
 			]
 
+			// Start
+			+ SVerticalBox::Slot()
+			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Bottom)
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(SHorizontalBox)
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareButton)
+					.Transparent(true)
+					.Width(4)
+					.Text(LOCTEXT("Back", "Back"))
+					.OnClicked(this, &SFlareSkirmishSetupMenu::OnMainMenu)
+				]
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareButton)
+					.Transparent(true)
+					.Width(4)
+					.Icon(FFlareStyleSet::GetIcon("Load"))
+					.Text(LOCTEXT("Start", "Start skirmish"))
+					.HelpText(this, &SFlareSkirmishSetupMenu::GetStartHelpText)
+					.IsDisabled(this, &SFlareSkirmishSetupMenu::IsStartDisabled)
+					.OnClicked(this, &SFlareSkirmishSetupMenu::OnStartSkirmish)
+				]
+			]
 		]
 
-		// Start
-		+ SVerticalBox::Slot()
-		.HAlign(HAlign_Left)
-		.VAlign(VAlign_Bottom)
-		.Padding(Theme.ContentPadding)
+		// Customization overlay
+		+ SOverlay::Slot()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
 		[
-			SNew(SHorizontalBox)
+			SNew(SBackgroundBlur)
+			.BlurRadius(Theme.BlurRadius)
+			.BlurStrength(Theme.BlurStrength)
+			.HAlign(HAlign_Left)
+			.VAlign(VAlign_Top)
+			.Visibility(EVisibility::Collapsed) // TODO 1075 : handle opening / closing
+			[		
+				SNew(SBorder)
+				.BorderImage(&Theme.BackgroundBrush)
+				[	
+					SNew(SVerticalBox)
 
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SFlareButton)
-				.Transparent(true)
-				.Width(4)
-				.Text(LOCTEXT("Back", "Back"))
-				.OnClicked(this, &SFlareSkirmishSetupMenu::OnMainMenu)
-			]
+					// Top line
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(SHorizontalBox)
+						
+						// Icon
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SImage)
+							.Image(FFlareStyleSet::GetIcon("ShipUpgradeMedium"))
+						]
 
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SFlareButton)
-				.Transparent(true)
-				.Width(4)
-				.Icon(FFlareStyleSet::GetIcon("Load"))
-				.Text(LOCTEXT("Start", "Start skirmish"))
-				.HelpText(this, &SFlareSkirmishSetupMenu::GetStartHelpText)
-				.IsDisabled(this, &SFlareSkirmishSetupMenu::IsStartDisabled)
-				.OnClicked(this, &SFlareSkirmishSetupMenu::OnStartSkirmish)
+						// Title
+						+ SHorizontalBox::Slot()
+						.HAlign(HAlign_Fill)
+						.VAlign(VAlign_Center)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("ShipUpgradeTitle", "Upgrade spacecraft"))
+							.TextStyle(&Theme.TitleFont)
+						]
+
+						// Close button
+						+ SHorizontalBox::Slot()
+						.HAlign(HAlign_Right)
+						.AutoWidth()
+						[
+							SNew(SFlareButton)
+							.Text(FText())
+							.Icon(FFlareStyleSet::GetIcon("Delete"))
+							.OnClicked(this, &SFlareSkirmishSetupMenu::OnCloseUpgradePanel)
+							.Width(1)
+						]
+					]
+
+					// Upgrades
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(SHorizontalBox)
+
+						// Engine
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SBox)
+							.WidthOverride(0.3 * Theme.ContentWidth)
+							[
+								SNew(SVerticalBox)
+
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(Theme.TitlePadding)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("EngineUpgradeTitle", "Orbital engine"))
+									.TextStyle(&Theme.SubTitleFont)
+								]
+
+								+ SVerticalBox::Slot()
+								[
+									SAssignNew(OrbitalEngineBox, SVerticalBox)
+								]
+							]
+						]
+
+						// RCS
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SBox)
+							.WidthOverride(0.3 * Theme.ContentWidth)
+							[
+								SNew(SVerticalBox)
+
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(Theme.TitlePadding)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("RCSUpgradeTitle", "RCS"))
+									.TextStyle(&Theme.SubTitleFont)
+								]
+
+								+ SVerticalBox::Slot()
+								[
+									SAssignNew(RCSBox, SVerticalBox)
+								]
+							]
+						]
+
+						// Weapons
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						[
+							SNew(SBox)
+							.WidthOverride(Theme.ContentWidth)
+							[
+								SNew(SVerticalBox)
+
+								+ SVerticalBox::Slot()
+								.AutoHeight()
+								.Padding(Theme.TitlePadding)
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("WeaponUpgradeTitle", "Weapons"))
+									.TextStyle(&Theme.SubTitleFont)
+									
+								]
+
+								+ SVerticalBox::Slot()
+								[
+									SAssignNew(WeaponBox, SHorizontalBox)
+								]
+							]
+						]
+					]
+				]
 			]
 		]
 	];
-
-	// TODO 1075 : spacecraft customization
 }
 
 
@@ -393,6 +541,8 @@ void SFlareSkirmishSetupMenu::Enter()
 	PlayerSpacecraftList->RequestListRefresh();
 	EnemySpacecraftList->RequestListRefresh();
 
+	// TODO 1075 : fill customization options
+	// TODO 1075 : handle customization settings
 }
 
 void SFlareSkirmishSetupMenu::Exit()
@@ -464,6 +614,18 @@ TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedP
 					.WrapTextAt(Theme.ContentWidth)
 				]
 			]
+		]
+		
+		// Upgrade button
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(SFlareButton)
+			.Text(FText())
+			.Icon(FFlareStyleSet::GetIcon("ShipUpgradeSmall"))
+			.OnClicked(this, &SFlareSkirmishSetupMenu::OnUpgradeSpacecraft)
+			.Width(1)
 		]
 	];
 }
@@ -619,6 +781,16 @@ void SFlareSkirmishSetupMenu::OnOrderShipConfirmed(FFlareSpacecraftDescription* 
 		EnemySpacecraftListData.AddUnique(FInterfaceContainer::New(Spacecraft));
 		EnemySpacecraftList->RequestListRefresh();
 	}
+}
+
+void SFlareSkirmishSetupMenu::OnUpgradeSpacecraft()
+{
+
+}
+
+void SFlareSkirmishSetupMenu::OnCloseUpgradePanel()
+{
+
 }
 
 void SFlareSkirmishSetupMenu::OnStartSkirmish()

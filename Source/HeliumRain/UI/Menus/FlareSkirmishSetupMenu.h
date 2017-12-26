@@ -85,6 +85,12 @@ protected:
 	/** Order a new ship */
 	void OnOrderShipConfirmed(FFlareSpacecraftDescription* Spacecraft);
 
+	/** Upgrade spacecraft */
+	void OnUpgradeSpacecraft();
+
+	/** Close upgrade panel */
+	void OnCloseUpgradePanel();
+
 	/** Start engagement */
 	void OnStartSkirmish();
 
@@ -107,6 +113,9 @@ protected:
 	TSharedPtr<SSlider>                                      EnemyBudgetSlider;
 	TSharedPtr<SListView<TSharedPtr<FInterfaceContainer>>>   PlayerSpacecraftList;
 	TSharedPtr<SListView<TSharedPtr<FInterfaceContainer>>>   EnemySpacecraftList;
+	TSharedPtr<SVerticalBox>                                 OrbitalEngineBox;
+	TSharedPtr<SVerticalBox>                                 RCSBox;
+	TSharedPtr<SHorizontalBox>                               WeaponBox;
 
 	// State
 	TArray<TSharedPtr<FInterfaceContainer>>                  PlayerSpacecraftListData;
