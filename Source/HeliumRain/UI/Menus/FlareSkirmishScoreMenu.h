@@ -43,7 +43,13 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-	
+
+	/** Set the results for a player */
+	void FillResults(TSharedPtr<SVerticalBox> Box, FText Title, struct FFlareSkirmishPlayerResult Result);
+
+	/** Add one result line */
+	void AddResult(TSharedPtr<SVerticalBox> Box, FText Name, int32 Result);
+
 	/** Quit the menu */
 	void OnMainMenu();
 
@@ -59,5 +65,8 @@ protected:
 
 	// Slate widgets
 	TSharedPtr<STextBlock>                        SkirmishResultText;
+	TSharedPtr<STextBlock>                        SkirmishTimeText;
+	TSharedPtr<SVerticalBox>                      PlayerResults;
+	TSharedPtr<SVerticalBox>                      EnemyResults;
 
 };

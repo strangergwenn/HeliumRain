@@ -544,8 +544,8 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 		// Skirmish scoring
 		if (Spacecraft->GetGame()->IsSkirmish())
 		{
-			bool ForPlayer = Spacecraft->GetCompany() == Spacecraft->GetPC()->GetCompany();
-			Spacecraft->GetGame()->GetSkirmishManager()->AmmoHit(ForPlayer);
+			bool HitByPlayer = ParentWeapon->GetSpacecraft()->GetCompany() == ParentWeapon->GetSpacecraft()->GetPC()->GetCompany();
+			Spacecraft->GetGame()->GetSkirmishManager()->AmmoHit(HitByPlayer);
 		}
 	}
 	else if (Asteroid)

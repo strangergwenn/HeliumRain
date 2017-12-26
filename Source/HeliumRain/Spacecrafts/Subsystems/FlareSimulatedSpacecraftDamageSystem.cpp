@@ -827,8 +827,8 @@ void UFlareSimulatedSpacecraftDamageSystem::NotifyDamage()
 		}
 		else if (Spacecraft->GetGame()->IsSkirmish())
 		{
-			bool IsPlayerShip = Spacecraft->GetCurrentFleet() == Spacecraft->GetGame()->GetPC()->GetPlayerFleet();
-			Spacecraft->GetGame()->GetSkirmishManager()->ShipDisabled(IsPlayerShip);
+			bool DisabledByPlayerShip = Spacecraft->GetCurrentFleet() != Spacecraft->GetGame()->GetPC()->GetPlayerFleet();
+			Spacecraft->GetGame()->GetSkirmishManager()->ShipDisabled(DisabledByPlayerShip);
 		}
 	}
 
@@ -843,8 +843,8 @@ void UFlareSimulatedSpacecraftDamageSystem::NotifyDamage()
 		}
 		else if (Spacecraft->GetGame()->IsSkirmish())
 		{
-			bool IsPlayerShip = Spacecraft->GetCurrentFleet() == Spacecraft->GetGame()->GetPC()->GetPlayerFleet();
-			Spacecraft->GetGame()->GetSkirmishManager()->ShipDestroyed(IsPlayerShip);
+			bool KilledByPlayerShip = Spacecraft->GetCurrentFleet() != Spacecraft->GetGame()->GetPC()->GetPlayerFleet();
+			Spacecraft->GetGame()->GetSkirmishManager()->ShipDestroyed(KilledByPlayerShip);
 		}
 	}
 }

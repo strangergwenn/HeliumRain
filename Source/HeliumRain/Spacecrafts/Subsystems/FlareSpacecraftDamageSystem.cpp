@@ -436,8 +436,8 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	// Skirmish scoring
 	if (Spacecraft->GetGame()->IsSkirmish())
 	{
-		bool IsPlayerShip = Spacecraft->GetParent()->GetCompany() == PC->GetCompany();
-		Spacecraft->GetGame()->GetSkirmishManager()->ShipDisabled(IsPlayerShip);
+		bool DisabledByPlayerShip = Spacecraft->GetParent()->GetCompany() != PC->GetCompany();
+		Spacecraft->GetGame()->GetSkirmishManager()->ShipDisabled(DisabledByPlayerShip);
 	}
 
 	UFlareCompany* PlayerCompany = PC->GetCompany();

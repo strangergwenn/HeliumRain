@@ -25,8 +25,7 @@ void SFlareSkirmishScoreMenu::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	int32 Width = 1.75 * Theme.ContentWidth;
-	int32 TextWidth = Width - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right;
+	int32 Width = Theme.ContentWidth;
 
 	// Build structure
 	ChildSlot
@@ -44,13 +43,48 @@ void SFlareSkirmishScoreMenu::Construct(const FArguments& InArgs)
 			SAssignNew(SkirmishResultText, STextBlock)
 			.TextStyle(&Theme.SpecialTitleFont)
 		]
+		
+		// Time
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Center)
+		.Padding(Theme.ContentPadding)
+		[
+			SAssignNew(SkirmishTimeText, STextBlock)
+			.TextStyle(&Theme.SubTitleFont)
+		]
 	
 		// Main
 		+ SVerticalBox::Slot()
 		.AutoHeight()
-		.HAlign(HAlign_Left)
+		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Fill)
 		.Padding(Theme.ContentPadding)
+		[
+			SNew(SHorizontalBox)
+			
+			// Player
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SBox)
+				.WidthOverride(Width)
+				[
+					SAssignNew(PlayerResults, SVerticalBox)
+				]
+			]
+			
+			// Enemy
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SBox)
+				.WidthOverride(Width)
+				[
+					SAssignNew(EnemyResults, SVerticalBox)
+				]
+			]
+		]
 		
 		// Back
 		+ SVerticalBox::Slot()
@@ -81,9 +115,14 @@ void SFlareSkirmishScoreMenu::Setup()
 void SFlareSkirmishScoreMenu::Enter()
 {
 	FLOG("SFlareSkirmishScoreMenu::Enter");
+
+	// Setup
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
+	PlayerResults->ClearChildren();
+	EnemyResults->ClearChildren();
 
+	// Get data
 	UFlareSkirmishManager* SkirmishManager = MenuManager->GetGame()->GetSkirmishManager();
 	FFlareSkirmishResultData Result = SkirmishManager->GetResult();
 
@@ -96,18 +135,94 @@ void SFlareSkirmishScoreMenu::Enter()
 	{
 		SkirmishResultText->SetText(LOCTEXT("SkirmishLoss", "Skirmish lost"));
 	}
+
+	// Set time
+	int32 Minutes = FMath::Max(FMath::RoundToInt(Result.GameTime / 60), 1);
+	FText MinutesText = (Minutes > 1) ? LOCTEXT("Minutes", "minutes") : LOCTEXT("Minute", "minute");
+	SkirmishTimeText->SetText(
+		FText::Format(LOCTEXT("TimeFormat", "Skirmish completed in {0} {1}"),
+		MinutesText, FText::AsNumber(Minutes)));
+
+	// Set results
+	FillResults(PlayerResults, LOCTEXT("PlayerTitle", "Player results"), Result.Player);
+	FillResults(EnemyResults,  LOCTEXT("EnemyTitle",  "Enemy results"),  Result.Enemy);
 }
 
 void SFlareSkirmishScoreMenu::Exit()
 {
 	SetEnabled(false);
 	SetVisibility(EVisibility::Collapsed);
+
+	PlayerResults->ClearChildren();
+	EnemyResults->ClearChildren();
 }
 
 
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+void SFlareSkirmishScoreMenu::FillResults(TSharedPtr<SVerticalBox> Box, FText Title, FFlareSkirmishPlayerResult Result)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	// Title
+	Box->AddSlot()
+	.AutoHeight()
+	.HAlign(HAlign_Left)
+	.Padding(Theme.TitlePadding)
+	[
+		SNew(STextBlock)
+		.Text(Title)
+		.TextStyle(&Theme.SubTitleFont)
+	];
+
+	// Results
+	AddResult(Box, LOCTEXT("ResultDisabled",  "Ships disabled"),    Result.ShipsDisabled);
+	AddResult(Box, LOCTEXT("ResultDestroyed", "Ships destroyed"),   Result.ShipsDestroyed);
+	AddResult(Box, LOCTEXT("ResultFired",     "Projectiles fired"), Result.AmmoFired);
+	AddResult(Box, LOCTEXT("ResultHit",       "Successful hits"),   Result.AmmoHit);
+}
+
+void SFlareSkirmishScoreMenu::AddResult(TSharedPtr<SVerticalBox> Box, FText Name, int32 Result)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	
+	// Slot
+	Box->AddSlot()
+	.AutoHeight()
+	.HAlign(HAlign_Left)
+	.Padding(Theme.ContentPadding)
+	[
+		SNew(SHorizontalBox)
+
+		// Stat name
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		[
+			SNew(SBox)
+			.WidthOverride(Theme.ContentWidth / 3)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.TextFont)
+				.Text(Name)
+			]
+		]
+
+		// Stat value
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		[
+			SNew(SBox)
+			.WidthOverride(Theme.ContentWidth / 3)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.TextFont)
+				.Text(FText::AsNumber(Result))
+			]
+		]
+	];
+}
 
 void SFlareSkirmishScoreMenu::OnMainMenu()
 {

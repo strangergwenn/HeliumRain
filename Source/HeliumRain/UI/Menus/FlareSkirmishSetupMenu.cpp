@@ -32,7 +32,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 Width = 1.25 * Theme.ContentWidth;
-	int32 LabelWidth = Theme.ContentWidth / 3 - Theme.SmallContentPadding.Left - Theme.SmallContentPadding.Right;
+	int32 LabelWidth = Theme.ContentWidth / 4;
 	float DefaultBudgetValue = (DEFAULT_VALUE_BUDGET - MIN_VALUE_BUDGET) / (MAX_VALUE_BUDGET - MIN_VALUE_BUDGET);
 
 	// Build structure
@@ -70,18 +70,40 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 		.AutoHeight()
 		.Padding(Theme.ContentPadding)
 		[
-			SAssignNew(CompanySelector, SFlareDropList<FFlareCompanyDescription>)
-			.OptionsSource(&MenuManager->GetPC()->GetGame()->GetCompanyCatalog()->Companies)
-			.OnGenerateWidget(this, &SFlareSkirmishSetupMenu::OnGenerateCompanyComboLine)
-			.HeaderWidth(8)
-			.ItemWidth(8)
+			SNew(SHorizontalBox)
+
+			// Text
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
 			[
 				SNew(SBox)
-				.Padding(Theme.ListContentPadding)
+				.WidthOverride(LabelWidth)
+				.Padding(FMargin(0, 10, 0, 0))
 				[
 					SNew(STextBlock)
-					.Text(this, &SFlareSkirmishSetupMenu::OnGetCurrentCompanyComboLine)
+					.Text(LOCTEXT("EnemyLabel", "Enemy company"))
 					.TextStyle(&Theme.TextFont)
+				]
+			]
+
+			// List
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(Theme.ContentPadding)
+			[
+				SAssignNew(CompanySelector, SFlareDropList<FFlareCompanyDescription>)
+				.OptionsSource(&MenuManager->GetPC()->GetGame()->GetCompanyCatalog()->Companies)
+				.OnGenerateWidget(this, &SFlareSkirmishSetupMenu::OnGenerateCompanyComboLine)
+				.HeaderWidth(8)
+				.ItemWidth(8)
+				[
+					SNew(SBox)
+					.Padding(Theme.ListContentPadding)
+					[
+						SNew(STextBlock)
+						.Text(this, &SFlareSkirmishSetupMenu::OnGetCurrentCompanyComboLine)
+						.TextStyle(&Theme.TextFont)
+					]
 				]
 			]
 		]
