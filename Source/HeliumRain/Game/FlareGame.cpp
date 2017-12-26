@@ -719,7 +719,6 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 
 	// TODO 1075 : add sector settings
 	// TODO #1075 : ensure correct location of fleets
-	// TODO #1075 : ensure that player exiting sector calls SkirmishManager->EndPlay()
 
 	// Setup enemy
 	UFlareCompany* EnemyCompany = World->FindCompanyByShortName(Skirmish->GetData().EnemyCompanyName);

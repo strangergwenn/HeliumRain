@@ -19,9 +19,10 @@
 
 #include "../Game/FlareGame.h"
 #include "../Game/FlareAsteroid.h"
-#include "../Game/AI/FlareCompanyAI.h"
+#include "../Game/FlareSkirmishManager.h"
 #include "../Game/FlareGameUserSettings.h"
 #include "../Game/FlareGameTools.h"
+#include "../Game/AI/FlareCompanyAI.h"
 
 #include "../UI/Menus/FlareShipMenu.h"
 
@@ -201,15 +202,14 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 
 			// Reload the sector if player leave the limits
-			if (!HasExitedSector)
+			if (!HasExitedSector && IsOutsideSector())
 			{
-				if (IsOutsideSector() && !GetGame()->IsSkirmish())
-				{
-					float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
-					float Distance = GetActorLocation().Size();
+				float Limits = GetGame()->GetActiveSector()->GetSectorLimits();
+				float Distance = GetActorLocation().Size();
+				FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits);
 
-					FLOGV("%s exit sector distance to center=%f and limits=%f", *GetImmatriculation().ToString(), Distance, Limits);
-					
+				if (!GetGame()->IsSkirmish())
+				{					
 					// Reset the ship
 					if (GetData().SpawnMode != EFlareSpawnMode::Travel)
 					{
@@ -239,6 +239,10 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 					}
 
 					return;
+				}
+				else
+				{
+					GetGame()->GetSkirmishManager()->EndPlay();
 				}
 			}
 

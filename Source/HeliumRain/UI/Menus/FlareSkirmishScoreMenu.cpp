@@ -141,7 +141,7 @@ void SFlareSkirmishScoreMenu::Enter()
 	FText MinutesText = (Minutes > 1) ? LOCTEXT("Minutes", "minutes") : LOCTEXT("Minute", "minute");
 	SkirmishTimeText->SetText(
 		FText::Format(LOCTEXT("TimeFormat", "Skirmish completed in {0} {1}"),
-		MinutesText, FText::AsNumber(Minutes)));
+		FText::AsNumber(Minutes), MinutesText));
 
 	// Set results
 	FillResults(PlayerResults, LOCTEXT("PlayerTitle", "Player results"), Result.Player);
