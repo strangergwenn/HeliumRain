@@ -121,6 +121,24 @@ bool UFlareSkirmishManager::IsPlaying() const
 	return (CurrentPhase == EFlareSkirmishPhase::Play || CurrentPhase == EFlareSkirmishPhase::End);
 }
 
+bool UFlareSkirmishManager::CanStartPlaying(FText& Reason) const
+{
+	Reason = FText();
+
+	if (Data.Player.OrderedSpacecrafts.Num() == 0)
+	{
+		Reason = LOCTEXT("SkirmishCantStartNoPlayer", "You don't have enough ships to start playing");
+		return false;
+	}
+	else if (Data.Enemy.OrderedSpacecrafts.Num() == 0)
+	{
+		Reason = LOCTEXT("SkirmishCantStartNoEnemy", "Your opponent doesn't have enough ships to start playing");
+		return false;
+	}
+
+	return true;
+}
+
 AFlareGame* UFlareSkirmishManager::GetGame() const
 {
 	return Cast<AFlareGame>(GetOuter());

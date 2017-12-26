@@ -96,6 +96,9 @@ public:
 	/** Are we playing skirmish */
 	bool IsPlaying() const;
 
+	/** Can we start playing skirmish */
+	bool CanStartPlaying(FText& Reason) const;
+
 
 protected:
 

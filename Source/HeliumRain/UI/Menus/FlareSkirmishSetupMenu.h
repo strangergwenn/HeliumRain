@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
 #include "../Components/FlareDropList.h"
+#include "../Components/FlareListItem.h"
 
 
 struct FFlareCompanyDescription;
@@ -44,12 +45,25 @@ public:
 protected:
 
 	/*----------------------------------------------------
+		Lists
+	----------------------------------------------------*/
+
+	TSharedRef<ITableRow> OnGenerateSpacecraftLine(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
+	void OnPlayerSpacecraftSelectionChanged(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo);
+	void OnEnemySpacecraftSelectionChanged(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo);
+
+
+	/*----------------------------------------------------
 		Content callbacks
 	----------------------------------------------------*/
 
 	TSharedRef<SWidget> OnGenerateCompanyComboLine(FFlareCompanyDescription Item);
-	void OnCompanyComboLineSelectionChanged(FFlareCompanyDescription Item, ESelectInfo::Type SelectInfo);
+
 	FText OnGetCurrentCompanyComboLine() const;
+
+	bool IsStartDisabled() const;
+
+	FText GetStartHelpText() const;
 
 
 	/*----------------------------------------------------
@@ -75,10 +89,19 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	bool                                        IsOrderingForPlayer;
+	// Data
+	TWeakObjectPtr<class AFlareMenuManager>                  MenuManager;
 
-	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
+	// Widgets
+	TSharedPtr<SFlareDropList<FFlareCompanyDescription>>     CompanySelector;
+	TSharedPtr<SListView<TSharedPtr<FInterfaceContainer>>>   PlayerSpacecraftList;
+	TSharedPtr<SListView<TSharedPtr<FInterfaceContainer>>>   EnemySpacecraftList;
 
-	TSharedPtr<SFlareDropList<FFlareCompanyDescription>> CompanySelector;
+	// State
+	TArray<TSharedPtr<FInterfaceContainer>>                  PlayerSpacecraftListData;
+	TArray<TSharedPtr<FInterfaceContainer>>                  EnemySpacecraftListData;
+	bool                                                     IsOrderingForPlayer;
+	TSharedPtr<SFlareListItem>                               PreviousSelection;
+	TSharedPtr<FInterfaceContainer>                          SelectedItem;
 
 };

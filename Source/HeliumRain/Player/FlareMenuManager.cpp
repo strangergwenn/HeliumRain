@@ -211,6 +211,8 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 	// Skirmish countdown
 	if (GetGame()->IsSkirmish())
 	{
+		// TODO 1075 : visible countdown
+
 		if (SkirmishCountdownTimer >= 0)
 		{
 			SkirmishCountdownTimer += DeltaSeconds;
