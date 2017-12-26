@@ -323,9 +323,6 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 	];
 
 	// TODO 1075 : spacecraft customization
-	// TODO 1075 : sector settings
-	// TODO 1075 : company customization
-
 }
 
 

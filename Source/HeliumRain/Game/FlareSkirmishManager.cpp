@@ -51,7 +51,7 @@ void UFlareSkirmishManager::StartPlay()
 	// Set phase
 	CurrentPhase = EFlareSkirmishPhase::Play;
 
-	// TODO 1075 : reset counters, start time... 
+	// TODO 1075 : implement counters for time, kills, damage, etc
 
 	// Start the game
 	FFlareMenuParameterData Data;
@@ -68,8 +68,6 @@ void UFlareSkirmishManager::EndPlay()
 	}
 
 	CurrentPhase = EFlareSkirmishPhase::End;
-
-	// TODO 1075 : stop counters
 }
 
 void UFlareSkirmishManager::EndSkirmish()
