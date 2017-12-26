@@ -53,7 +53,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TitleFont)
-					.Text(LOCTEXT("SaveSlotTitle", "Sandbox mode"))
+					.Text(LOCTEXT("SaveSlotTitle", "Sandbox"))
 				]
 		
 				// Save slots
@@ -76,7 +76,7 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TitleFont)
-					.Text(LOCTEXT("SkirmishTitle", "Skirmish mode"))
+					.Text(LOCTEXT("SkirmishTitle", "Skirmish"))
 				]
 
 				// Skirmish button

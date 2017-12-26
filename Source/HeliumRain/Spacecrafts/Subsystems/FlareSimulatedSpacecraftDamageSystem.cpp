@@ -8,6 +8,7 @@
 #include "../../Data/FlareSpacecraftComponentsCatalog.h"
 
 #include "../../Game/FlareGame.h"
+#include "../../Game/FlareSkirmishManager.h"
 #include "../../Game/FlarePlanetarium.h"
 
 #include "../../Player/FlarePlayerController.h"
@@ -824,6 +825,11 @@ void UFlareSimulatedSpacecraftDamageSystem::NotifyDamage()
 		{
 			Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft, true, LastDamageCause);
 		}
+		else if (Spacecraft->GetGame()->IsSkirmish())
+		{
+			bool IsPlayerShip = Spacecraft->GetCurrentFleet() == Spacecraft->GetGame()->GetPC()->GetPlayerFleet();
+			Spacecraft->GetGame()->GetSkirmishManager()->ShipDisabled(IsPlayerShip);
+		}
 	}
 
 	// Update alive status
@@ -834,6 +840,11 @@ void UFlareSimulatedSpacecraftDamageSystem::NotifyDamage()
 		if (Spacecraft->GetGame()->GetQuestManager())
 		{
 			Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft, true, LastDamageCause);
+		}
+		else if (Spacecraft->GetGame()->IsSkirmish())
+		{
+			bool IsPlayerShip = Spacecraft->GetCurrentFleet() == Spacecraft->GetGame()->GetPC()->GetPlayerFleet();
+			Spacecraft->GetGame()->GetSkirmishManager()->ShipDestroyed(IsPlayerShip);
 		}
 	}
 }

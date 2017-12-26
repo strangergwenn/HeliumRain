@@ -30,11 +30,20 @@ UFlareSkirmishManager::UFlareSkirmishManager(const FObjectInitializer& ObjectIni
 	CurrentPhase = EFlareSkirmishPhase::Idle;
 }
 
+void UFlareSkirmishManager::Update(float DeltaSeconds)
+{
+	if (CurrentPhase == EFlareSkirmishPhase::Play)
+	{
+		Result.GameTime += DeltaSeconds;
+	}
+}
+
 void UFlareSkirmishManager::StartSetup()
 {
 	FCHECK(CurrentPhase == EFlareSkirmishPhase::Idle);
 
 	Data = FFlareSkirmishData();
+	Result = FFlareSkirmishResultData();
 
 	CurrentPhase = EFlareSkirmishPhase::Setup;
 }
@@ -51,8 +60,6 @@ void UFlareSkirmishManager::StartPlay()
 	// Set phase
 	CurrentPhase = EFlareSkirmishPhase::Play;
 
-	// TODO 1075 : implement counters for time, kills, damage, etc
-
 	// Start the game
 	FFlareMenuParameterData Data;
 	Data.ScenarioIndex = -1;
@@ -62,11 +69,25 @@ void UFlareSkirmishManager::StartPlay()
 
 void UFlareSkirmishManager::EndPlay()
 {
+	// Start skirmish countdown
 	if (CurrentPhase == EFlareSkirmishPhase::Play)
 	{
 		AFlareMenuManager::GetSingleton()->PrepareSkirmishEnd();
 	}
 
+	// Detect victory
+	AFlarePlayerController* PC = GetGame()->GetPC();
+	FFlareSectorBattleState State = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(PC->GetCompany());
+	if (State.BattleWon)
+	{
+		Result.PlayerVictory = true;
+	}
+	else
+	{
+		Result.PlayerVictory = false;
+	}
+
+	// Reset phase
 	CurrentPhase = EFlareSkirmishPhase::End;
 }
 
@@ -75,43 +96,7 @@ void UFlareSkirmishManager::EndSkirmish()
 	CurrentPhase = EFlareSkirmishPhase::Idle;
 
 	Data = FFlareSkirmishData();
-}
-
-
-/*----------------------------------------------------
-	Tools
-----------------------------------------------------*/
-
-void UFlareSkirmishManager::SetAllowedValue(bool ForPlayer, uint32 Budget)
-{
-	FFlareSkirmishPlayer& Belligerent = ForPlayer ? Data.Player : Data.Enemy;
-
-	Belligerent.AllowedValue = Budget;
-
-	while (GetCurrentCombatValue(ForPlayer) > Budget)
-	{
-		Belligerent.OrderedSpacecrafts.Pop();
-	}
-}
-
-inline uint32 UFlareSkirmishManager::GetCurrentCombatValue(bool ForPlayer) const
-{
-	const FFlareSkirmishPlayer& Belligerent = ForPlayer ? Data.Player : Data.Enemy;
-
-	uint32 Value = 0;
-	for (FFlareSpacecraftDescription* Desc : Belligerent.OrderedSpacecrafts)
-	{
-		Value += Desc->CombatPoints;
-	}
-
-	return Value;
-}
-
-void UFlareSkirmishManager::AddShip(bool ForPlayer, FFlareSpacecraftDescription* Desc)
-{
-	FFlareSkirmishPlayer& Belligerent = ForPlayer ? Data.Player : Data.Enemy;
-
-	Belligerent.OrderedSpacecrafts.Add(Desc);
+	Result = FFlareSkirmishResultData();
 }
 
 bool UFlareSkirmishManager::IsPlaying() const
@@ -136,6 +121,81 @@ bool UFlareSkirmishManager::CanStartPlaying(FText& Reason) const
 
 	return true;
 }
+
+
+/*----------------------------------------------------
+	Setup
+----------------------------------------------------*/
+
+void UFlareSkirmishManager::SetAllowedValue(bool ForPlayer, uint32 Budget)
+{
+	FFlareSkirmishPlayerData& Belligerent = ForPlayer ? Data.Player : Data.Enemy;
+
+	Belligerent.AllowedValue = Budget;
+
+	while (GetCurrentCombatValue(ForPlayer) > Budget)
+	{
+		Belligerent.OrderedSpacecrafts.Pop();
+	}
+}
+
+inline uint32 UFlareSkirmishManager::GetCurrentCombatValue(bool ForPlayer) const
+{
+	const FFlareSkirmishPlayerData& Belligerent = ForPlayer ? Data.Player : Data.Enemy;
+
+	uint32 Value = 0;
+	for (FFlareSpacecraftDescription* Desc : Belligerent.OrderedSpacecrafts)
+	{
+		Value += Desc->CombatPoints;
+	}
+
+	return Value;
+}
+
+void UFlareSkirmishManager::AddShip(bool ForPlayer, FFlareSpacecraftDescription* Desc)
+{
+	FFlareSkirmishPlayerData& Belligerent = ForPlayer ? Data.Player : Data.Enemy;
+
+	Belligerent.OrderedSpacecrafts.Add(Desc);
+}
+
+
+/*----------------------------------------------------
+	Scoring
+----------------------------------------------------*/
+
+void UFlareSkirmishManager::ShipDisabled(bool ForPlayer)
+{
+	FFlareSkirmishPlayerResult& Belligerent = ForPlayer ? Result.Player : Result.Enemy;
+
+	Belligerent.ShipsDisabled++;
+}
+
+void UFlareSkirmishManager::ShipDestroyed(bool ForPlayer)
+{
+	FFlareSkirmishPlayerResult& Belligerent = ForPlayer ? Result.Player : Result.Enemy;
+
+	Belligerent.ShipsDestroyed++;
+}
+
+void UFlareSkirmishManager::AmmoFired(bool ForPlayer)
+{
+	FFlareSkirmishPlayerResult& Belligerent = ForPlayer ? Result.Player : Result.Enemy;
+
+	Belligerent.AmmoFired++;
+}
+
+void UFlareSkirmishManager::AmmoHit(bool ForPlayer)
+{
+	FFlareSkirmishPlayerResult& Belligerent = ForPlayer ? Result.Player : Result.Enemy;
+
+	Belligerent.AmmoHit++;
+}
+
+
+/*----------------------------------------------------
+	Getters
+----------------------------------------------------*/
 
 AFlareGame* UFlareSkirmishManager::GetGame() const
 {

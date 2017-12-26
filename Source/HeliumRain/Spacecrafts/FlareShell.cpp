@@ -2,9 +2,13 @@
 #include "FlareShell.h"
 #include "../Flare.h"
 #include "FlareSpacecraft.h"
+
 #include "../Game/FlareGame.h"
 #include "../Game/FlareGameTypes.h"
+#include "../Game/FlareSkirmishManager.h"
+
 #include "../Player/FlarePlayerController.h"
+
 #include "Components/DecalComponent.h"
 #include "Components/DestructibleComponent.h"
 
@@ -529,10 +533,19 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 		{
 			SpacecraftPawn->GetPC()->PlayLocalizedSound(PenetrateArmor ? DamageSound : ImpactSound, ImpactLocation);
 		}
+
+		// Quest progress
 		if (Spacecraft->GetGame()->GetQuestManager()
 			&& ParentWeapon->GetSpacecraft()->GetParent() == ParentWeapon->GetSpacecraft()->GetGame()->GetPC()->GetPlayerShip())
 		{
 			ParentWeapon->GetSpacecraft()->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("hit-ship").PutName("immatriculation", Spacecraft->GetImmatriculation()));
+		}
+
+		// Skirmish scoring
+		if (Spacecraft->GetGame()->IsSkirmish())
+		{
+			bool ForPlayer = Spacecraft->GetCompany() == Spacecraft->GetPC()->GetCompany();
+			Spacecraft->GetGame()->GetSkirmishManager()->AmmoHit(ForPlayer);
 		}
 	}
 	else if (Asteroid)

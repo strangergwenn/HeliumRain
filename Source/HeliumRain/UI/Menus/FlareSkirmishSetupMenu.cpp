@@ -31,7 +31,6 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	UFlareSkirmishManager* SkirmishManager = MenuManager->GetGame()->GetSkirmishManager();
 	int32 Width = 1.25 * Theme.ContentWidth;
 	int32 LabelWidth = Theme.ContentWidth / 3 - Theme.SmallContentPadding.Left - Theme.SmallContentPadding.Right;
 	float DefaultBudgetValue = (DEFAULT_VALUE_BUDGET - MIN_VALUE_BUDGET) / (MAX_VALUE_BUDGET - MIN_VALUE_BUDGET);
@@ -58,7 +57,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.HAlign(HAlign_Left)
-		.Padding(Theme.ContentPadding)
+		.Padding(Theme.TitlePadding)
 		[
 			SNew(STextBlock)
 			.Text(LOCTEXT("SkirmishSettingsTitle", "Settings"))
@@ -189,17 +188,6 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 			]
 		]
 
-		// Fleet title
-		+ SVerticalBox::Slot()
-		.AutoHeight()
-		.HAlign(HAlign_Left)
-		.Padding(Theme.ContentPadding)
-		[
-			SNew(STextBlock)
-			.Text(LOCTEXT("SkirmishFleetTitle", "Fleets"))
-			.TextStyle(&Theme.SubTitleFont)
-		]
-
 		// Lists
 		+ SVerticalBox::Slot()
 		.HAlign(HAlign_Fill)
@@ -215,6 +203,17 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 				.WidthOverride(Width)
 				[
 					SNew(SVerticalBox)
+
+					// Title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("PlayerFleetTitle", "Player fleet"))
+						.TextStyle(&Theme.SubTitleFont)
+					]
 					
 					// Add ship
 					+ SVerticalBox::Slot()
@@ -255,6 +254,17 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 				.WidthOverride(Width)
 				[
 					SNew(SVerticalBox)
+
+					// Title
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(HAlign_Left)
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.Text(LOCTEXT("EnemyFleetTitle", "Enemy fleet"))
+						.TextStyle(&Theme.SubTitleFont)
+					]
 
 					// Add ship
 					+ SVerticalBox::Slot()

@@ -1,12 +1,17 @@
 
 #include "FlareWeapon.h"
 #include "../Flare.h"
+
 #include "FlareSpacecraftTypes.h"
 #include "FlareSpacecraft.h"
 #include "FlareShell.h"
 #include "FlareBomb.h"
+
 #include "../Game/FlareGame.h"
+#include "../Game/FlareSkirmishManager.h"
+
 #include "../Player/FlarePlayerController.h"
+
 #include "Engine/StaticMeshSocket.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareWeapon Firing"), STAT_Weapon_Firing, STATGROUP_Flare);
@@ -321,13 +326,20 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	ShipComponentData->Weapon.FiredAmmo++;
 	Spacecraft->GetParent()->GetDamageSystem()->SetAmmoDirty();
 
-
+	// Quest progress
 	if (Spacecraft->GetGame()->GetQuestManager() && 
 		Spacecraft->GetParent() == Spacecraft->GetGame()->GetPC()->GetPlayerShip())
 	{
 		Spacecraft->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("fire-gun"));
 	}
 
+	// Skirmish scoring
+	if (Spacecraft->GetGame()->IsSkirmish())
+	{
+		bool ForPlayer = Spacecraft->GetCompany() == Spacecraft->GetPC()->GetCompany();
+		Spacecraft->GetGame()->GetSkirmishManager()->AmmoFired(ForPlayer);
+	}
+	
 	return true;
 }
 

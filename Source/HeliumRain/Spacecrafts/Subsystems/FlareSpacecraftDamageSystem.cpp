@@ -326,6 +326,13 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 			LastDamageCause.Spacecraft ? DamageCause(LastDamageCause.Company, LastDamageCause.DamageType) : DamageCause(LastDamageCause.DamageType));
 	}
 
+	// Skirmish scoring
+	if (Spacecraft->GetGame()->IsSkirmish())
+	{
+		bool IsPlayerShip = Spacecraft->GetParent()->GetCompany() == PC->GetCompany();
+		Spacecraft->GetGame()->GetSkirmishManager()->ShipDestroyed(IsPlayerShip);
+	}
+
 	UFlareCompany* PlayerCompany = PC->GetCompany();
 	UFlareSimulatedSpacecraft* PlayerShip = Spacecraft->GetGame()->GetPC()->GetPlayerShip();
 
@@ -424,6 +431,13 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 		Spacecraft->GetGame()->GetQuestManager()->OnSpacecraftDestroyed(Spacecraft->GetParent(), true,
 			LastDamageCause.Spacecraft ? DamageCause(LastDamageCause.Company, LastDamageCause.DamageType)
 				: DamageCause(LastDamageCause.DamageType));
+	}
+
+	// Skirmish scoring
+	if (Spacecraft->GetGame()->IsSkirmish())
+	{
+		bool IsPlayerShip = Spacecraft->GetParent()->GetCompany() == PC->GetCompany();
+		Spacecraft->GetGame()->GetSkirmishManager()->ShipDisabled(IsPlayerShip);
 	}
 
 	UFlareCompany* PlayerCompany = PC->GetCompany();

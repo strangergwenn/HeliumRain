@@ -54,6 +54,10 @@ protected:
 		Protected data
 	----------------------------------------------------*/
 
-	TWeakObjectPtr<class AFlareMenuManager>    MenuManager;
+	// Data
+	TWeakObjectPtr<class AFlareMenuManager>       MenuManager;
+
+	// Slate widgets
+	TSharedPtr<STextBlock>                        SkirmishResultText;
 
 };

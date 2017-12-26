@@ -41,16 +41,22 @@ void SFlareSkirmishScoreMenu::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Center)
 		.Padding(Theme.ContentPadding)
 		[
-			SNew(STextBlock)
-			.Text(LOCTEXT("SkirmishScoreTitle", "Skirmish results"))
+			SAssignNew(SkirmishResultText, STextBlock)
 			.TextStyle(&Theme.SpecialTitleFont)
 		]
-
+	
+		// Main
+		+ SVerticalBox::Slot()
+		.AutoHeight()
+		.HAlign(HAlign_Left)
+		.VAlign(VAlign_Fill)
+		.Padding(Theme.ContentPadding)
+		
 		// Back
 		+ SVerticalBox::Slot()
 		.HAlign(HAlign_Left)
 		.VAlign(VAlign_Bottom)
-		.AutoHeight()
+		.Padding(Theme.ContentPadding)
 		[
 			SNew(SFlareButton)
 			.Transparent(true)
@@ -77,6 +83,19 @@ void SFlareSkirmishScoreMenu::Enter()
 	FLOG("SFlareSkirmishScoreMenu::Enter");
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
+
+	UFlareSkirmishManager* SkirmishManager = MenuManager->GetGame()->GetSkirmishManager();
+	FFlareSkirmishResultData Result = SkirmishManager->GetResult();
+
+	// Set title
+	if (Result.PlayerVictory)
+	{
+		SkirmishResultText->SetText(LOCTEXT("SkirmishVictory", "Skirmish won"));
+	}
+	else
+	{
+		SkirmishResultText->SetText(LOCTEXT("SkirmishLoss", "Skirmish lost"));
+	}
 }
 
 void SFlareSkirmishScoreMenu::Exit()
@@ -92,7 +111,6 @@ void SFlareSkirmishScoreMenu::Exit()
 
 void SFlareSkirmishScoreMenu::OnMainMenu()
 {
-
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
 }
 
