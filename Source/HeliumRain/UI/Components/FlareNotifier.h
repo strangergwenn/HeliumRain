@@ -68,6 +68,12 @@ public:
 	/** Is the button visible ? */
 	EVisibility GetHideButtonVisibility() const;
 
+	/** Get the countdown text */
+	FText GetSkirmishCountdown() const;
+
+	/** Is the countdown visible ? */
+	EVisibility GetSkirmishCountdownVisibility() const;
+
 	/** Show/hide button was clicked */
 	void OnHideClicked();
 

@@ -75,7 +75,7 @@ protected:
 	/** Visibility of lists */
 	EVisibility GetVisitedListVisibility() const;
 
-	/** Visibility unkwown sector text */
+	/** Visibility unknown sector text */
 	EVisibility GetUnknownSectorVisibility() const;
 
 	/** Get the refill text */
@@ -113,6 +113,9 @@ protected:
 
 	/** Get the combat value */
 	FText GetHostileCombatValue() const;
+
+	/** Visibility callback to hide sector controls during skirmish */
+	EVisibility GetSectorControlsVisibility() const;
 	
 
 	/*----------------------------------------------------

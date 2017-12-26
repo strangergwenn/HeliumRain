@@ -361,14 +361,11 @@ public:
 	/** Get the height of the main overlay */
 	static int32 GetMainOverlayHeight();
 
+	/** Get the skirmish end countdown */
+	int32 GetSkirmishCountdown() const;
+
 	/** Get the menu manager */
 	static AFlareMenuManager* GetSingleton();
-
-	/** Get the skirmish end countdown */
-	float GetSkirmishCountdown() const
-	{
-		return SkirmishCountdownTimer;
-	}
 
 
 protected:

@@ -60,7 +60,7 @@ AFlareMenuManager::AFlareMenuManager(const class FObjectInitializer& PCIP)
 	, FadeFromBlack(true)
 	, NotifyExitSector(false)
 	, FadeDuration(0.3)
-	, SkirmishCountdownDuration(3)
+	, SkirmishCountdownDuration(5)
 	, SkirmishCountdownTimer(-1)
 	, CurrentSpacecraftInfo(NULL)
 {
@@ -211,8 +211,6 @@ void AFlareMenuManager::Tick(float DeltaSeconds)
 	// Skirmish countdown
 	if (GetGame()->IsSkirmish())
 	{
-		// TODO 1075 : visible countdown
-
 		if (SkirmishCountdownTimer >= 0)
 		{
 			SkirmishCountdownTimer += DeltaSeconds;
@@ -1406,6 +1404,18 @@ TSharedPtr<SFlareShipMenu> AFlareMenuManager::GetShipMenu() const
 int32 AFlareMenuManager::GetMainOverlayHeight()
 {
 	return 150;
+}
+
+int32 AFlareMenuManager::GetSkirmishCountdown() const
+{
+	if (SkirmishCountdownTimer >= 0)
+	{
+		return FMath::RoundToInt(SkirmishCountdownDuration - SkirmishCountdownTimer);
+	}
+	else
+	{
+		return -1;
+	}
 }
 
 AFlareMenuManager* AFlareMenuManager::GetSingleton()

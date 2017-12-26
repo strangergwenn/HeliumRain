@@ -31,83 +31,102 @@ void SFlareNotifier::Construct(const FArguments& InArgs)
 
 	// Create the layout
 	ChildSlot
-	.VAlign(VAlign_Bottom)
+	.VAlign(VAlign_Fill)
 	.HAlign(HAlign_Right)
 	.Padding(FMargin(0))
 	[
-		SNew(SBox)
-		.HeightOverride(800)
-		.VAlign(VAlign_Bottom)
+		SNew(SVerticalBox)
+
+		// Countdown
+		+ SVerticalBox::Slot()
+		.VAlign(VAlign_Fill)
+		.HAlign(HAlign_Right)
+		.Padding(Theme.ContentPadding)
 		[
-			SNew(SVerticalBox)
-
-			// Notifications
-			+ SVerticalBox::Slot()
-			.AutoHeight()
+			SNew(STextBlock)
+			.TextStyle(&Theme.SpecialTitleFont)
+			.Text(this, &SFlareNotifier::GetSkirmishCountdown)
+			.Visibility(this, &SFlareNotifier::GetSkirmishCountdownVisibility)
+		]
+	
+		// Main body
+		+ SVerticalBox::Slot()
+		.VAlign(VAlign_Fill)
+		[
+			SNew(SBox)
+			.HeightOverride(800)
+			.VAlign(VAlign_Bottom)
 			[
-				SAssignNew(NotificationContainer, SVerticalBox)
-			]
+				SNew(SVerticalBox)
 
-			// Objective
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SNew(SHorizontalBox)
-
-				// Icon
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
+				// Notifications
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				[
-					SNew(SBox)
-					.WidthOverride(2)
-					[
-						SNew(SImage)
-						.Image(&Theme.InvertedBrush)
-						.ColorAndOpacity(ObjectiveColor)
-						.Visibility(this, &SFlareNotifier::GetObjectiveVisibility)
-					]
+					SAssignNew(NotificationContainer, SVerticalBox)
 				]
 
-				// Text
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
+				// Objective
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				[
-					SNew(SBackgroundBlur)
-					.BlurRadius(Theme.BlurRadius)
-					.BlurStrength(Theme.BlurStrength)
-					.HAlign(HAlign_Fill)
-					.VAlign(VAlign_Fill)
-					.Padding(FMargin(0))
+					SNew(SHorizontalBox)
+
+					// Icon
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
 					[
-						SNew(SBorder)
-						.BorderImage(this, &SFlareNotifier::GetBackgroundBrush)
+						SNew(SBox)
+						.WidthOverride(2)
 						[
-							SNew(SBox)
-							.WidthOverride(ObjectiveInfoWidth)
+							SNew(SImage)
+							.Image(&Theme.InvertedBrush)
+							.ColorAndOpacity(ObjectiveColor)
 							.Visibility(this, &SFlareNotifier::GetObjectiveVisibility)
-							.Padding(Theme.SmallContentPadding)
+						]
+					]
+
+					// Text
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBackgroundBlur)
+						.BlurRadius(Theme.BlurRadius)
+						.BlurStrength(Theme.BlurStrength)
+						.HAlign(HAlign_Fill)
+						.VAlign(VAlign_Fill)
+						.Padding(FMargin(0))
+						[
+							SNew(SBorder)
+							.BorderImage(this, &SFlareNotifier::GetBackgroundBrush)
 							[
-								SNew(SFlareObjectiveInfo)
-								.PC(MenuManager->GetPC())
-								.Width(ObjectiveInfoWidth)
+								SNew(SBox)
+								.WidthOverride(ObjectiveInfoWidth)
+								.Visibility(this, &SFlareNotifier::GetObjectiveVisibility)
+								.Padding(Theme.SmallContentPadding)
+								[
+									SNew(SFlareObjectiveInfo)
+									.PC(MenuManager->GetPC())
+									.Width(ObjectiveInfoWidth)
+								]
 							]
 						]
 					]
 				]
-			]
 
-			// Hide button
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Right)
-			[
-				SAssignNew(NotificationVisibleButton, SFlareButton)
-				.Width(3)
-				.Small(true)
-				.Transparent(true)
-				.Text(this, &SFlareNotifier::GetHideText)
-				.OnClicked(this, &SFlareNotifier::OnHideClicked)
-				.Visibility(this, &SFlareNotifier::GetHideButtonVisibility)
+				// Hide button
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.HAlign(HAlign_Right)
+				[
+					SAssignNew(NotificationVisibleButton, SFlareButton)
+					.Width(3)
+					.Small(true)
+					.Transparent(true)
+					.Text(this, &SFlareNotifier::GetHideText)
+					.OnClicked(this, &SFlareNotifier::OnHideClicked)
+					.Visibility(this, &SFlareNotifier::GetHideButtonVisibility)
+				]
 			]
 		]
 	];
@@ -322,6 +341,23 @@ EVisibility SFlareNotifier::GetHideButtonVisibility() const
 		return EVisibility::Collapsed;
 	}
 	else if (NotificationData.Num() > 0 || (QuestManager && QuestManager->GetSelectedQuest()))
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
+}
+
+FText SFlareNotifier::GetSkirmishCountdown() const
+{
+	return FText::AsNumber(MenuManager->GetSkirmishCountdown());
+}
+
+EVisibility SFlareNotifier::GetSkirmishCountdownVisibility() const
+{
+	if (MenuManager->GetSkirmishCountdown() > 0)
 	{
 		return EVisibility::Visible;
 	}

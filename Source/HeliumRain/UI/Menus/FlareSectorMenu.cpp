@@ -195,6 +195,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					SNew(STextBlock)
 					.TextStyle(&Theme.SubTitleFont)
 					.Text(LOCTEXT("TravelTitle", "Travel"))
+					.Visibility(this, &SFlareSectorMenu::GetSectorControlsVisibility)
 				]
 				
 				// Travel
@@ -216,6 +217,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.OptionsSource(&FleetList)
 							.OnGenerateWidget(this, &SFlareSectorMenu::OnGenerateFleetComboLine)
 							.OnSelectionChanged(this, &SFlareSectorMenu::OnFleetComboLineSelectionChanged)
+							.Visibility(this, &SFlareSectorMenu::GetSectorControlsVisibility)
 							.HeaderWidth(10)
 							.ItemWidth(10)
 							[
@@ -243,6 +245,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						.Icon(FFlareStyleSet::GetIcon("Travel"))
 						.OnClicked(this, &SFlareSectorMenu::OnTravelHereClicked)
 						.IsDisabled(this, &SFlareSectorMenu::IsTravelDisabled)
+						.Visibility(this, &SFlareSectorMenu::GetSectorControlsVisibility)
 					]
 				]
 
@@ -256,6 +259,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 					SNew(STextBlock)
 					.TextStyle(&Theme.SubTitleFont)
 					.Text(LOCTEXT("Actions", "Sector tools"))
+					.Visibility(this, &SFlareSectorMenu::GetSectorControlsVisibility)
 				]
 
 				// Helpers
@@ -284,6 +288,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.Icon(FFlareStyleSet::GetIcon("Travel"))
 							.OnClicked(this, &SFlareSectorMenu::OnResourcePrices)
 							.IsDisabled(this, &SFlareSectorMenu::IsResourcePricesDisabled)
+							.Visibility(this, &SFlareSectorMenu::GetSectorControlsVisibility)
 						]
 
 						// Build station button
@@ -297,6 +302,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 							.Icon(FFlareStyleSet::GetIcon("Build"))
 							.OnClicked(this, &SFlareSectorMenu::OnBuildStationClicked)
 							.IsDisabled(this, &SFlareSectorMenu::IsBuildStationDisabled)
+							.Visibility(this, &SFlareSectorMenu::GetSectorControlsVisibility)
 						]
 					]
 				
@@ -313,6 +319,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						.Icon(FFlareStyleSet::GetIcon("Tank"))
 						.OnClicked(this, &SFlareSectorMenu::OnRefillClicked)
 						.IsDisabled(this, &SFlareSectorMenu::IsRefillDisabled)
+						.Visibility(this, &SFlareSectorMenu::GetSectorControlsVisibility)
 					]
 
 					// Repair fleets
@@ -328,6 +335,7 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 						.Icon(FFlareStyleSet::GetIcon("Repair"))
 						.OnClicked(this, &SFlareSectorMenu::OnRepairClicked)
 						.IsDisabled(this, &SFlareSectorMenu::IsRepairDisabled)
+						.Visibility(this, &SFlareSectorMenu::GetSectorControlsVisibility)
 					]
 				]
 
@@ -397,8 +405,6 @@ void SFlareSectorMenu::Construct(const FArguments& InArgs)
 			]
 		]
 	];
-
-	// TODO 1075 : hide sector controls in skirmish
 }
 
 
@@ -1237,6 +1243,18 @@ FText SFlareSectorMenu::GetHostileCombatValue() const
 	}
 
 	return Result;
+}
+
+EVisibility SFlareSectorMenu::GetSectorControlsVisibility() const
+{
+	if (IsEnabled() && !MenuManager->GetGame()->IsSkirmish())
+	{
+		return EVisibility::Visible;
+	}
+	else
+	{
+		return EVisibility::Collapsed;
+	}
 }
 
 
