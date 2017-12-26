@@ -132,7 +132,7 @@ bool UFlareSkirmishManager::CanStartPlaying(FText& Reason) const
 	}
 	else if (Data.Enemy.OrderedSpacecrafts.Num() == 0)
 	{
-		Reason = LOCTEXT("SkirmishCantStartNoEnemy", "Your opponent doesn't have enough ships to start playing");
+		Reason = LOCTEXT("SkirmishCantStartNoEnemy", "Your enemy doesn't have enough ships to start playing");
 		return false;
 	}
 

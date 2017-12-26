@@ -49,13 +49,19 @@ protected:
 	----------------------------------------------------*/
 
 	TSharedRef<ITableRow> OnGenerateSpacecraftLine(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
+
 	void OnPlayerSpacecraftSelectionChanged(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo);
+
 	void OnEnemySpacecraftSelectionChanged(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo);
 
 
 	/*----------------------------------------------------
 		Content callbacks
 	----------------------------------------------------*/
+
+	FText GetPlayerBudget() const;
+
+	FText GetEnemyBudget() const;
 
 	TSharedRef<SWidget> OnGenerateCompanyComboLine(FFlareCompanyDescription Item);
 
@@ -69,6 +75,9 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
+
+	/** Budget changed */
+	void OnBudgetSliderChanged(float Value, bool ForPlayer);
 
 	/** Start the process of ordering a new ship */
 	void OnOrderShip(bool ForPlayer);
@@ -94,6 +103,8 @@ protected:
 
 	// Widgets
 	TSharedPtr<SFlareDropList<FFlareCompanyDescription>>     CompanySelector;
+	TSharedPtr<SSlider>                                      PlayerBudgetSlider;
+	TSharedPtr<SSlider>                                      EnemyBudgetSlider;
 	TSharedPtr<SListView<TSharedPtr<FInterfaceContainer>>>   PlayerSpacecraftList;
 	TSharedPtr<SListView<TSharedPtr<FInterfaceContainer>>>   EnemySpacecraftList;
 
