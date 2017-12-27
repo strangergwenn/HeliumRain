@@ -63,6 +63,14 @@ protected:
 
 	bool IsStartDisabled() const;
 
+	FText GetAddToPlayerFleetText() const;
+
+	FText GetAddToEnemyFleetText() const;
+
+	bool IsAddToPlayerFleetDisabled() const;
+
+	bool IsAddToEnemyFleetDisabled() const;
+
 	FText GetStartHelpText() const;
 
 	bool CanStartPlaying(FText& Reason) const;
@@ -74,6 +82,9 @@ protected:
 	
 	/** Clear the fleet */
 	void OnClearFleet(bool ForPlayer);
+
+	/** Do an automatic fleet for the enemy */
+	void OnAutoCreateEnemyFleet();
 
 	/** Start the process of ordering a new ship */
 	void OnOrderShip(bool ForPlayer);

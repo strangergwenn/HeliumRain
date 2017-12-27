@@ -718,17 +718,21 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 	FCHECK(Sector);
 
 	// TODO 1075 : add sector settings
-	// TODO 1075 : ensure correct location of fleets
 
 	// Setup enemy
 	UFlareCompany* EnemyCompany = World->FindCompanyByShortName(Skirmish->GetData().EnemyCompanyName);
 	FCHECK(EnemyCompany);
 
+	// Spawn distance between fleets
+	float Distance = 5000;
+	FVector TargetPosition1 = Distance * FVector(-50, 0, 0);
+	FVector TargetPosition2 = Distance * FVector(50, 0, 0);
+
 	// Create player fleet
 	UFlareFleet* Fleet = NULL;
 	for (auto Order : Skirmish->GetData().Player.OrderedSpacecrafts)
 	{
-		UFlareSimulatedSpacecraft* Ship = CreateSkirmishSpacecraft(Sector, PlayerCompany, Order);
+		UFlareSimulatedSpacecraft* Ship = CreateSkirmishSpacecraft(Sector, PlayerCompany, Order, TargetPosition1);
 
 		// Set fleet
 		if (Fleet == NULL)
@@ -739,7 +743,7 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 		}
 		else
 		{
-			Ship->GetCurrentFleet()->Merge(Fleet);
+			Fleet->AddShip(Ship);
 		}
 	}
 
@@ -747,7 +751,7 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 	Fleet = NULL;
 	for (auto Order : Skirmish->GetData().Enemy.OrderedSpacecrafts)
 	{
-		UFlareSimulatedSpacecraft* Ship = CreateSkirmishSpacecraft(Sector, EnemyCompany, Order);
+		UFlareSimulatedSpacecraft* Ship = CreateSkirmishSpacecraft(Sector, EnemyCompany, Order, TargetPosition2);
 
 		// Set fleet
 		if (Fleet == NULL)
@@ -771,10 +775,10 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 	FFlareLogWriter::InitWriter(PlayerData.UUID);
 }
 
-UFlareSimulatedSpacecraft* AFlareGame::CreateSkirmishSpacecraft(UFlareSimulatedSector* Sector, UFlareCompany* Company, FFlareSkirmishSpacecraftOrder Order)
+UFlareSimulatedSpacecraft* AFlareGame::CreateSkirmishSpacecraft(UFlareSimulatedSector* Sector, UFlareCompany* Company, FFlareSkirmishSpacecraftOrder Order, FVector TargetPosition)
 {
 	const FFlareSpacecraftDescription* ShipDesc = Order.Description;
-	UFlareSimulatedSpacecraft* Ship = Sector->CreateSpacecraft(ShipDesc->Identifier, Company, FVector::ZeroVector);
+	UFlareSimulatedSpacecraft* Ship = Sector->CreateSpacecraft(ShipDesc->Identifier, Company, TargetPosition);
 
 	for (auto& Component : Ship->GetData().Components)
 	{

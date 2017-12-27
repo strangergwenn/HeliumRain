@@ -126,7 +126,7 @@ public:
 	void CreateSkirmishGame(UFlareSkirmishManager* Skirmish);
 
 	/** Create a spacecraft based on a skirmish order */
-	UFlareSimulatedSpacecraft* CreateSkirmishSpacecraft(UFlareSimulatedSector* Sector, UFlareCompany* Company, FFlareSkirmishSpacecraftOrder Order);
+	UFlareSimulatedSpacecraft* CreateSkirmishSpacecraft(UFlareSimulatedSector* Sector, UFlareCompany* Company, FFlareSkirmishSpacecraftOrder Order, FVector TargetPosition);
 
 	/** Create a company */
 	UFlareCompany* CreateCompany(int32 CatalogIdentifier);

@@ -9,6 +9,7 @@
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
 #include "../../Game/FlareSkirmishManager.h"
+#include "../../Game/FlareGameUserSettings.h"
 
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlareMenuManager.h"
@@ -29,6 +30,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 Width = 1.25 * Theme.ContentWidth;
 	int32 LabelWidth = Theme.ContentWidth / 4;
+	int32 ListHeight = 700;
 
 	// Build structure
 	ChildSlot
@@ -149,6 +151,8 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								.Transparent(true)
 								.Width(6)
 								.Text(LOCTEXT("AddPlayerShip", "Add player ship"))
+								.HelpText(this, &SFlareSkirmishSetupMenu::GetAddToPlayerFleetText)
+								.IsDisabled(this, &SFlareSkirmishSetupMenu::IsAddToPlayerFleetDisabled)
 								.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, true)
 							]
 
@@ -165,17 +169,21 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 
 						+ SVerticalBox::Slot()
 						[
-							SNew(SScrollBox)
-							.Style(&Theme.ScrollBoxStyle)
-							.ScrollBarStyle(&Theme.ScrollBarStyle)
-
-							+ SScrollBox::Slot()
-							.Padding(Theme.ContentPadding)
+							SNew(SBox)
+							.HeightOverride(ListHeight)
 							[
-								SAssignNew(PlayerSpacecraftList, SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>)
-								.ListItemsSource(&PlayerSpacecraftListData)
-								.SelectionMode(ESelectionMode::None)
-								.OnGenerateRow(this, &SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine)
+								SNew(SScrollBox)
+								.Style(&Theme.ScrollBoxStyle)
+								.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+								+ SScrollBox::Slot()
+								.Padding(Theme.ContentPadding)
+								[
+									SAssignNew(PlayerSpacecraftList, SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>)
+									.ListItemsSource(&PlayerSpacecraftListData)
+									.SelectionMode(ESelectionMode::None)
+									.OnGenerateRow(this, &SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine)
+								]
 							]
 						]
 					]
@@ -215,6 +223,8 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								.Transparent(true)
 								.Width(6)
 								.Text(LOCTEXT("AddEnemyShip", "Add enemy ship"))
+								.HelpText(this, &SFlareSkirmishSetupMenu::GetAddToEnemyFleetText)
+								.IsDisabled(this, &SFlareSkirmishSetupMenu::IsAddToEnemyFleetDisabled)
 								.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, false)
 							]
 
@@ -235,24 +245,27 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								.Transparent(true)
 								.Width(6)
 								.Text(LOCTEXT("AutomaticFleet", "Automatic fleet"))
-								//.OnClicked(this, &SFlareSkirmishSetupMenu::OnAutoCreateEnemyFleet)
-								// TODO 1075 : add automatic enemy fleet
+								.OnClicked(this, &SFlareSkirmishSetupMenu::OnAutoCreateEnemyFleet)
 							]
 						]
 
 						+ SVerticalBox::Slot()
 						[
-							SNew(SScrollBox)
-							.Style(&Theme.ScrollBoxStyle)
-							.ScrollBarStyle(&Theme.ScrollBarStyle)
-
-							+ SScrollBox::Slot()
-							.Padding(Theme.ContentPadding)
+							SNew(SBox)
+							.HeightOverride(ListHeight)
 							[
-								SAssignNew(EnemySpacecraftList, SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>)
-								.ListItemsSource(&EnemySpacecraftListData)
-								.SelectionMode(ESelectionMode::None)
-								.OnGenerateRow(this, &SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine)
+								SNew(SScrollBox)
+								.Style(&Theme.ScrollBoxStyle)
+								.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+								+ SScrollBox::Slot()
+								.Padding(Theme.ContentPadding)
+								[
+									SAssignNew(EnemySpacecraftList, SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>)
+									.ListItemsSource(&EnemySpacecraftListData)
+									.SelectionMode(ESelectionMode::None)
+									.OnGenerateRow(this, &SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine)
+								]
 							]
 						]
 					]
@@ -554,7 +567,6 @@ TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedP
 
 		// Main infos
 		+ SHorizontalBox::Slot()
-		.AutoWidth()
 		.Padding(Theme.ContentPadding)
 		[
 			SNew(SVerticalBox)
@@ -578,7 +590,7 @@ TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedP
 					SNew(STextBlock)
 					.Text(Desc->Description)
 					.TextStyle(&Theme.TextFont)
-					.WrapTextAt(Theme.ContentWidth)
+					.WrapTextAt(0.9 * Theme.ContentWidth)
 				]
 			]
 		]
@@ -629,6 +641,48 @@ bool SFlareSkirmishSetupMenu::IsStartDisabled() const
 	return false;
 }
 
+FText SFlareSkirmishSetupMenu::GetAddToPlayerFleetText() const
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+
+	if (PlayerSpacecraftListData.Num() >= MyGameSettings->MaxShipsInSector)
+	{
+		return LOCTEXT("TooManyPlayerShips", "You can't add more ships than the limit defined in settings");
+	}
+	else
+	{
+		return LOCTEXT("OKPlayerShips", "Add a new ship to the player fleet");
+	}
+}
+
+FText SFlareSkirmishSetupMenu::GetAddToEnemyFleetText() const
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+
+	if (EnemySpacecraftListData.Num() >= MyGameSettings->MaxShipsInSector)
+	{
+		return LOCTEXT("TooManyEnemyShips", "You can't add more ships than the limit defined in settings");
+	}
+	else
+	{
+		return LOCTEXT("OKEnemyShips", "Add a new ship to the enemy fleet");
+	}
+}
+
+bool SFlareSkirmishSetupMenu::IsAddToPlayerFleetDisabled() const
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+
+	return (PlayerSpacecraftListData.Num() >= MyGameSettings->MaxShipsInSector);
+}
+
+bool SFlareSkirmishSetupMenu::IsAddToEnemyFleetDisabled() const
+{
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+
+	return (EnemySpacecraftListData.Num() >= MyGameSettings->MaxShipsInSector);
+}
+
 FText SFlareSkirmishSetupMenu::GetStartHelpText() const
 {
 	UFlareSkirmishManager* SkirmishManager = MenuManager->GetGame()->GetSkirmishManager();
@@ -677,6 +731,15 @@ void SFlareSkirmishSetupMenu::OnClearFleet(bool ForPlayer)
 		EnemySpacecraftListData.Empty();
 		EnemySpacecraftList->RequestListRefresh();
 	}
+}
+void SFlareSkirmishSetupMenu::OnAutoCreateEnemyFleet()
+{
+	EnemySpacecraftListData.Empty();
+
+	// TODO 1075 : do a real algorithm
+	EnemySpacecraftListData = PlayerSpacecraftListData;
+
+	EnemySpacecraftList->RequestListRefresh();
 }
 
 void SFlareSkirmishSetupMenu::OnOrderShip(bool ForPlayer)
