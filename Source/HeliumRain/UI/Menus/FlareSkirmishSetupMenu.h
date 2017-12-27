@@ -5,6 +5,8 @@
 #include "../Components/FlareDropList.h"
 #include "../Components/FlareListItem.h"
 
+#include "SBackgroundBlur.h"
+
 
 struct FFlareCompanyDescription;
 class AFlareMenuManager;
@@ -43,21 +45,12 @@ public:
 
 
 protected:
-
-	/*----------------------------------------------------
-		Lists
-	----------------------------------------------------*/
-
-	TSharedRef<ITableRow> OnGenerateSpacecraftLine(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
-
-	void OnPlayerSpacecraftSelectionChanged(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo);
-
-	void OnEnemySpacecraftSelectionChanged(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo);
-
-
+	
 	/*----------------------------------------------------
 		Content callbacks
 	----------------------------------------------------*/
+
+	TSharedRef<ITableRow> OnGenerateSpacecraftLine(TSharedPtr<FFlareSkirmishSpacecraftOrder> Item, const TSharedRef<STableViewBase>& OwnerTable);
 
 	FText GetPlayerBudget() const;
 
@@ -70,6 +63,8 @@ protected:
 	bool IsStartDisabled() const;
 
 	FText GetStartHelpText() const;
+
+	bool CanStartPlaying(FText& Reason) const;
 
 
 	/*----------------------------------------------------
@@ -86,7 +81,7 @@ protected:
 	void OnOrderShipConfirmed(FFlareSpacecraftDescription* Spacecraft);
 
 	/** Upgrade spacecraft */
-	void OnUpgradeSpacecraft();
+	void OnUpgradeSpacecraft(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order);
 
 	/** Close upgrade panel */
 	void OnCloseUpgradePanel();
@@ -111,17 +106,18 @@ protected:
 	TSharedPtr<SFlareDropList<FFlareCompanyDescription>>     CompanySelector;
 	TSharedPtr<SSlider>                                      PlayerBudgetSlider;
 	TSharedPtr<SSlider>                                      EnemyBudgetSlider;
-	TSharedPtr<SListView<TSharedPtr<FInterfaceContainer>>>   PlayerSpacecraftList;
-	TSharedPtr<SListView<TSharedPtr<FInterfaceContainer>>>   EnemySpacecraftList;
+	TSharedPtr<SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>>   PlayerSpacecraftList;
+	TSharedPtr<SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>>   EnemySpacecraftList;
+
+	// Upgrade widgets
+	TSharedPtr<SBackgroundBlur>                              UpgradeBox;
 	TSharedPtr<SVerticalBox>                                 OrbitalEngineBox;
 	TSharedPtr<SVerticalBox>                                 RCSBox;
 	TSharedPtr<SHorizontalBox>                               WeaponBox;
 
 	// State
-	TArray<TSharedPtr<FInterfaceContainer>>                  PlayerSpacecraftListData;
-	TArray<TSharedPtr<FInterfaceContainer>>                  EnemySpacecraftListData;
+	TArray<TSharedPtr<FFlareSkirmishSpacecraftOrder>>        PlayerSpacecraftListData;
+	TArray<TSharedPtr<FFlareSkirmishSpacecraftOrder>>        EnemySpacecraftListData;
 	bool                                                     IsOrderingForPlayer;
-	TSharedPtr<SFlareListItem>                               PreviousSelection;
-	TSharedPtr<FInterfaceContainer>                          SelectedItem;
 
 };

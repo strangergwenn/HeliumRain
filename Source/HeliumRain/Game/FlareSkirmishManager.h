@@ -29,7 +29,7 @@ struct FFlareSkirmishPlayerData
 
 	// Fleet building
 	uint32                                           AllowedValue;
-	TArray<FFlareSpacecraftDescription*>             OrderedSpacecrafts;
+	TArray<FFlareSkirmishSpacecraftOrder>            OrderedSpacecrafts;
 
 	// Defaults
 	FFlareSkirmishPlayerData()
@@ -140,9 +140,6 @@ public:
 	/** Are we playing skirmish */
 	bool IsPlaying() const;
 
-	/** Can we start playing skirmish */
-	bool CanStartPlaying(FText& Reason) const;
-
 
 	/*----------------------------------------------------
 		Setup
@@ -155,7 +152,7 @@ public:
 	inline uint32 GetCurrentCombatValue(bool ForPlayer) const;
 
 	/** Add a ship */
-	void AddShip(bool ForPlayer, FFlareSpacecraftDescription* Desc);
+	void AddShip(bool ForPlayer, FFlareSkirmishSpacecraftOrder Desc);
 
 
 	/*----------------------------------------------------

@@ -104,24 +104,6 @@ bool UFlareSkirmishManager::IsPlaying() const
 	return (CurrentPhase == EFlareSkirmishPhase::Play || CurrentPhase == EFlareSkirmishPhase::End);
 }
 
-bool UFlareSkirmishManager::CanStartPlaying(FText& Reason) const
-{
-	Reason = FText();
-
-	if (Data.Player.OrderedSpacecrafts.Num() == 0)
-	{
-		Reason = LOCTEXT("SkirmishCantStartNoPlayer", "You don't have enough ships to start playing");
-		return false;
-	}
-	else if (Data.Enemy.OrderedSpacecrafts.Num() == 0)
-	{
-		Reason = LOCTEXT("SkirmishCantStartNoEnemy", "Your enemy doesn't have enough ships to start playing");
-		return false;
-	}
-
-	return true;
-}
-
 
 /*----------------------------------------------------
 	Setup
@@ -144,19 +126,19 @@ inline uint32 UFlareSkirmishManager::GetCurrentCombatValue(bool ForPlayer) const
 	const FFlareSkirmishPlayerData& Belligerent = ForPlayer ? Data.Player : Data.Enemy;
 
 	uint32 Value = 0;
-	for (FFlareSpacecraftDescription* Desc : Belligerent.OrderedSpacecrafts)
+	for (const FFlareSkirmishSpacecraftOrder& Order : Belligerent.OrderedSpacecrafts)
 	{
-		Value += Desc->CombatPoints;
+		Value += Order.Description->CombatPoints;
 	}
 
 	return Value;
 }
 
-void UFlareSkirmishManager::AddShip(bool ForPlayer, FFlareSpacecraftDescription* Desc)
+void UFlareSkirmishManager::AddShip(bool ForPlayer, FFlareSkirmishSpacecraftOrder Order)
 {
 	FFlareSkirmishPlayerData& Belligerent = ForPlayer ? Data.Player : Data.Enemy;
 
-	Belligerent.OrderedSpacecrafts.Add(Desc);
+	Belligerent.OrderedSpacecrafts.Add(Order);
 }
 
 

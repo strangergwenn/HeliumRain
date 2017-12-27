@@ -13,8 +13,6 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
-#include "SBackgroundBlur.h"
-
 
 #define LOCTEXT_NAMESPACE "FlareSkirmishSetupMenu"
 
@@ -265,11 +263,10 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 							+ SScrollBox::Slot()
 							.Padding(Theme.ContentPadding)
 							[
-								SAssignNew(PlayerSpacecraftList, SListView<TSharedPtr<FInterfaceContainer>>)
+								SAssignNew(PlayerSpacecraftList, SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>)
 								.ListItemsSource(&PlayerSpacecraftListData)
-								.SelectionMode(ESelectionMode::Single)
+								.SelectionMode(ESelectionMode::None)
 								.OnGenerateRow(this, &SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine)
-								.OnSelectionChanged(this, &SFlareSkirmishSetupMenu::OnPlayerSpacecraftSelectionChanged)
 							]
 						]
 					]
@@ -316,11 +313,10 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 							+ SScrollBox::Slot()
 							.Padding(Theme.ContentPadding)
 							[
-								SAssignNew(EnemySpacecraftList, SListView<TSharedPtr<FInterfaceContainer>>)
+								SAssignNew(EnemySpacecraftList, SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>)
 								.ListItemsSource(&EnemySpacecraftListData)
-								.SelectionMode(ESelectionMode::Single)
+								.SelectionMode(ESelectionMode::None)
 								.OnGenerateRow(this, &SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine)
-								.OnSelectionChanged(this, &SFlareSkirmishSetupMenu::OnEnemySpacecraftSelectionChanged)
 							]
 						]
 					]
@@ -366,12 +362,12 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Center)
 		[
-			SNew(SBackgroundBlur)
+			SAssignNew(UpgradeBox, SBackgroundBlur)
 			.BlurRadius(Theme.BlurRadius)
 			.BlurStrength(Theme.BlurStrength)
 			.HAlign(HAlign_Left)
 			.VAlign(VAlign_Top)
-			.Visibility(EVisibility::Collapsed) // TODO 1075 : handle opening / closing
+			.Visibility(EVisibility::Collapsed)
 			[		
 				SNew(SBorder)
 				.BorderImage(&Theme.BackgroundBrush)
@@ -528,7 +524,6 @@ void SFlareSkirmishSetupMenu::Enter()
 	float DefaultBudgetValue = (float)(DEFAULT_VALUE_BUDGET - MIN_VALUE_BUDGET) / (float)(MAX_VALUE_BUDGET - MIN_VALUE_BUDGET);
 	PlayerBudgetSlider->SetValue(DefaultBudgetValue);
 	EnemyBudgetSlider->SetValue(DefaultBudgetValue);
-	FLOGV("%f <<<<", DefaultBudgetValue);
 
 	// Start doing the setup
 	MenuManager->GetGame()->GetSkirmishManager()->StartSetup();
@@ -558,14 +553,15 @@ void SFlareSkirmishSetupMenu::Exit()
 }
 
 
+
 /*----------------------------------------------------
-	Lists
+	Content callbacks
 ----------------------------------------------------*/
 
-TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
+TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedPtr<FFlareSkirmishSpacecraftOrder> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FFlareSpacecraftDescription* Desc = Item->SpacecraftDescriptionPtr;
+	FFlareSpacecraftDescription* Desc = Item->Description;
 
 	// Structure
 	return SNew(SFlareListItem, OwnerTable)
@@ -624,54 +620,11 @@ TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedP
 			SNew(SFlareButton)
 			.Text(FText())
 			.Icon(FFlareStyleSet::GetIcon("ShipUpgradeSmall"))
-			.OnClicked(this, &SFlareSkirmishSetupMenu::OnUpgradeSpacecraft)
+			.OnClicked(this, &SFlareSkirmishSetupMenu::OnUpgradeSpacecraft, Item)
 			.Width(1)
 		]
 	];
 }
-
-void SFlareSkirmishSetupMenu::OnPlayerSpacecraftSelectionChanged(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo)
-{
-	FLOG("SFlareSkirmishSetupMenu::OnPlayerSpacecraftSelectionChanged");
-
-	TSharedPtr<SFlareListItem> ItemWidget = StaticCastSharedPtr<SFlareListItem>(PlayerSpacecraftList->WidgetFromItem(Item));
-	SelectedItem = Item;
-
-	// Update selection
-	if (PreviousSelection.IsValid())
-	{
-		PreviousSelection->SetSelected(false);
-	}
-	if (ItemWidget.IsValid())
-	{
-		ItemWidget->SetSelected(true);
-		PreviousSelection = ItemWidget;
-	}
-}
-
-void SFlareSkirmishSetupMenu::OnEnemySpacecraftSelectionChanged(TSharedPtr<FInterfaceContainer> Item, ESelectInfo::Type SelectInfo)
-{
-	FLOG("SFlareSkirmishSetupMenu::OnEnemySpacecraftSelectionChanged");
-
-	TSharedPtr<SFlareListItem> ItemWidget = StaticCastSharedPtr<SFlareListItem>(EnemySpacecraftList->WidgetFromItem(Item));
-	SelectedItem = Item;
-
-	// Update selection
-	if (PreviousSelection.IsValid())
-	{
-		PreviousSelection->SetSelected(false);
-	}
-	if (ItemWidget.IsValid())
-	{
-		ItemWidget->SetSelected(true);
-		PreviousSelection = ItemWidget;
-	}
-}
-
-
-/*----------------------------------------------------
-	Content callbacks
-----------------------------------------------------*/
 
 FText SFlareSkirmishSetupMenu::GetPlayerBudget() const
 {
@@ -711,7 +664,7 @@ bool SFlareSkirmishSetupMenu::IsStartDisabled() const
 	UFlareSkirmishManager* SkirmishManager = MenuManager->GetGame()->GetSkirmishManager();
 
 	FText Unused;
-	if (!SkirmishManager->CanStartPlaying(Unused))
+	if (!CanStartPlaying(Unused))
 	{
 		return true;
 	}
@@ -724,12 +677,30 @@ FText SFlareSkirmishSetupMenu::GetStartHelpText() const
 	UFlareSkirmishManager* SkirmishManager = MenuManager->GetGame()->GetSkirmishManager();
 
 	FText Reason;
-	if (!SkirmishManager->CanStartPlaying(Reason))
+	if (!CanStartPlaying(Reason))
 	{
 		return Reason;
 	}
 
 	return LOCTEXT("StartHelpText", "Start the skirmish now");
+}
+
+bool SFlareSkirmishSetupMenu::CanStartPlaying(FText& Reason) const
+{
+	Reason = FText();
+
+	if (PlayerSpacecraftListData.Num() == 0)
+	{
+		Reason = LOCTEXT("SkirmishCantStartNoPlayer", "You don't have enough ships to start playing");
+		return false;
+	}
+	else if (EnemySpacecraftListData.Num() == 0)
+	{
+		Reason = LOCTEXT("SkirmishCantStartNoEnemy", "Your enemy doesn't have enough ships to start playing");
+		return false;
+	}
+
+	return true;
 }
 
 
@@ -769,33 +740,45 @@ void SFlareSkirmishSetupMenu::OnOrderShip(bool ForPlayer)
 
 void SFlareSkirmishSetupMenu::OnOrderShipConfirmed(FFlareSpacecraftDescription* Spacecraft)
 {
-	MenuManager->GetGame()->GetSkirmishManager()->AddShip(IsOrderingForPlayer, Spacecraft);
+	auto Order = FFlareSkirmishSpacecraftOrder::New(Spacecraft);
 
 	if (IsOrderingForPlayer)
 	{
-		PlayerSpacecraftListData.AddUnique(FInterfaceContainer::New(Spacecraft));
+		PlayerSpacecraftListData.AddUnique(Order);
 		PlayerSpacecraftList->RequestListRefresh();
 	}
 	else
 	{
-		EnemySpacecraftListData.AddUnique(FInterfaceContainer::New(Spacecraft));
+		EnemySpacecraftListData.AddUnique(Order);
 		EnemySpacecraftList->RequestListRefresh();
 	}
 }
 
-void SFlareSkirmishSetupMenu::OnUpgradeSpacecraft()
+void SFlareSkirmishSetupMenu::OnUpgradeSpacecraft(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order)
 {
+	// Fill options
 
+	UpgradeBox->SetVisibility(EVisibility::Visible);
 }
 
 void SFlareSkirmishSetupMenu::OnCloseUpgradePanel()
 {
-
+	UpgradeBox->SetVisibility(EVisibility::Collapsed);
 }
 
 void SFlareSkirmishSetupMenu::OnStartSkirmish()
 {
 	UFlareSkirmishManager* Skirmish = MenuManager->GetGame()->GetSkirmishManager();
+
+	// Add ships
+	for (auto Order : PlayerSpacecraftListData)
+	{
+		Skirmish->AddShip(true, *Order.Get());
+	}
+	for (auto Order : EnemySpacecraftListData)
+	{
+		Skirmish->AddShip(false, *Order.Get());
+	}
 
 	// Override defaults with current color settings
 	FFlareCompanyDescription& PlayerCompanyData = Skirmish->GetData().PlayerCompanyData;

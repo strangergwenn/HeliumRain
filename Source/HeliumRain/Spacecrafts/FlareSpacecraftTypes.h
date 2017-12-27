@@ -918,6 +918,34 @@ struct SpacecraftHelper
 };
 
 
+/** Data structure for a spacecraft in skirmish */
+struct FFlareSkirmishSpacecraftOrder
+{
+	// Base structure
+	FFlareSpacecraftDescription* Description;
+
+	// Upgrades
+	FName EngineType;
+	FName RCSType;
+	TArray<FName> WeaponTypes;
+
+	// Constructors
+	FFlareSkirmishSpacecraftOrder(FFlareSpacecraftDescription* Desc)
+		: Description(Desc)
+	{}
+	FFlareSkirmishSpacecraftOrder()
+		: Description(NULL)
+	{}
+
+	// Constructor helper for lists
+	static TSharedPtr<FFlareSkirmishSpacecraftOrder> New(FFlareSpacecraftDescription* Desc)
+	{
+		return MakeShareable(new FFlareSkirmishSpacecraftOrder(Desc));
+	}
+};
+
+
+
 UCLASS()
 class HELIUMRAIN_API UFlareSpacecraftTypes : public UObject
 {

@@ -718,7 +718,7 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 	FCHECK(Sector);
 
 	// TODO 1075 : add sector settings
-	// TODO #1075 : ensure correct location of fleets
+	// TODO 1075 : ensure correct location of fleets
 
 	// Setup enemy
 	UFlareCompany* EnemyCompany = World->FindCompanyByShortName(Skirmish->GetData().EnemyCompanyName);
@@ -726,9 +726,14 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 
 	// Create player fleet
 	UFlareFleet* Fleet = NULL;
-	for (const FFlareSpacecraftDescription* ShipDesc : Skirmish->GetData().Player.OrderedSpacecrafts)
+	for (auto Order : Skirmish->GetData().Player.OrderedSpacecrafts)
 	{
+		const FFlareSpacecraftDescription* ShipDesc = Order.Description;
 		UFlareSimulatedSpacecraft* Ship = Sector->CreateSpacecraft(ShipDesc->Identifier, PlayerCompany, FVector::ZeroVector);
+
+		// TODO 1075 : upgrade
+
+		// Set fleet
 		if (Fleet == NULL)
 		{
 			Fleet = Ship->GetCurrentFleet();
@@ -743,9 +748,14 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 
 	// Create enemy fleet
 	Fleet = NULL;
-	for (const FFlareSpacecraftDescription* ShipDesc : Skirmish->GetData().Enemy.OrderedSpacecrafts)
+	for (auto Order : Skirmish->GetData().Enemy.OrderedSpacecrafts)
 	{
+		const FFlareSpacecraftDescription* ShipDesc = Order.Description;
 		UFlareSimulatedSpacecraft* Ship = Sector->CreateSpacecraft(ShipDesc->Identifier, EnemyCompany, FVector::ZeroVector);
+
+		// TODO 1075 : upgrade
+
+		// Set fleet
 		if (Fleet == NULL)
 		{
 			Fleet = Ship->GetCurrentFleet();
