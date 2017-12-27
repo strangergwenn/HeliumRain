@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 
 #include "../../Data/FlareCompanyCatalog.h"
+#include "../../Data/FlareSpacecraftComponentsCatalog.h"
 #include "../../Data/FlareCustomizationCatalog.h"
 
 #include "../../Game/FlareGame.h"
@@ -130,7 +131,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.TitlePadding)
 						[
 							SNew(STextBlock)
-							.Text(LOCTEXT("PlayerFleetTitle", "Player fleet"))
+							.Text(this, &SFlareSkirmishSetupMenu::GetPlayerFleetTitle)
 							.TextStyle(&Theme.SubTitleFont)
 						]
 					
@@ -196,7 +197,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.TitlePadding)
 						[
 							SNew(STextBlock)
-							.Text(LOCTEXT("EnemyFleetTitle", "Enemy fleet"))
+							.Text(this, &SFlareSkirmishSetupMenu::GetEnemyFleetTitle)
 							.TextStyle(&Theme.SubTitleFont)
 						]
 
@@ -234,8 +235,8 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								.Transparent(true)
 								.Width(6)
 								.Text(LOCTEXT("AutomaticFleet", "Automatic fleet"))
-								//.OnClicked(this, &SFlareSkirmishSetupMenu::OnAutoCreateEnemyFleet, false)
-								// TODO 1075
+								//.OnClicked(this, &SFlareSkirmishSetupMenu::OnAutoCreateEnemyFleet)
+								// TODO 1075 : add automatic enemy fleet
 							]
 						]
 
@@ -359,7 +360,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 						.AutoWidth()
 						[
 							SNew(SBox)
-							.WidthOverride(0.3 * Theme.ContentWidth)
+							.WidthOverride(0.25 * Theme.ContentWidth)
 							[
 								SNew(SVerticalBox)
 
@@ -368,11 +369,12 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								.Padding(Theme.TitlePadding)
 								[
 									SNew(STextBlock)
-									.Text(LOCTEXT("EngineUpgradeTitle", "Orbital engine"))
+									.Text(LOCTEXT("EngineUpgradeTitle", "Orbital engines"))
 									.TextStyle(&Theme.SubTitleFont)
 								]
 
 								+ SVerticalBox::Slot()
+								.VAlign(VAlign_Top)
 								[
 									SAssignNew(OrbitalEngineBox, SVerticalBox)
 								]
@@ -384,7 +386,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 						.AutoWidth()
 						[
 							SNew(SBox)
-							.WidthOverride(0.3 * Theme.ContentWidth)
+							.WidthOverride(0.25 * Theme.ContentWidth)
 							[
 								SNew(SVerticalBox)
 
@@ -398,6 +400,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								]
 
 								+ SVerticalBox::Slot()
+								.VAlign(VAlign_Top)
 								[
 									SAssignNew(RCSBox, SVerticalBox)
 								]
@@ -408,24 +411,31 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 						+ SHorizontalBox::Slot()
 						.AutoWidth()
 						[
-							SNew(SBox)
-							.WidthOverride(Theme.ContentWidth)
+							SNew(SVerticalBox)
+
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							.Padding(Theme.TitlePadding)
 							[
-								SNew(SVerticalBox)
+								SNew(STextBlock)
+								.Text(LOCTEXT("WeaponUpgradeTitle", "Weapons"))
+								.TextStyle(&Theme.SubTitleFont)
+							]
 
-								+ SVerticalBox::Slot()
-								.AutoHeight()
-								.Padding(Theme.TitlePadding)
+							+ SVerticalBox::Slot()
+							.VAlign(VAlign_Top)
+							[
+								SNew(SBox)
+								.HeightOverride(900)
 								[
-									SNew(STextBlock)
-									.Text(LOCTEXT("WeaponUpgradeTitle", "Weapons"))
-									.TextStyle(&Theme.SubTitleFont)
-									
-								]
+									SNew(SScrollBox)
+									.Style(&Theme.ScrollBoxStyle)
+									.ScrollBarStyle(&Theme.ScrollBarStyle)
 
-								+ SVerticalBox::Slot()
-								[
-									SAssignNew(WeaponBox, SHorizontalBox)
+									+ SScrollBox::Slot()
+									[
+										SAssignNew(WeaponBox, SHorizontalBox)
+									]
 								]
 							]
 						]
@@ -463,9 +473,6 @@ void SFlareSkirmishSetupMenu::Enter()
 	EnemySpacecraftListData.Empty();
 	PlayerSpacecraftList->RequestListRefresh();
 	EnemySpacecraftList->RequestListRefresh();
-
-	// TODO 1075 : fill customization options
-	// TODO 1075 : handle customization settings
 }
 
 void SFlareSkirmishSetupMenu::Exit()
@@ -485,6 +492,42 @@ void SFlareSkirmishSetupMenu::Exit()
 /*----------------------------------------------------
 	Content callbacks
 ----------------------------------------------------*/
+
+FText SFlareSkirmishSetupMenu::GetPlayerFleetTitle() const
+{
+	UFlareSpacecraftComponentsCatalog* Catalog = MenuManager->GetGame()->GetShipPartsCatalog();
+	int32 CombatValue = 0;
+
+	for (auto Order : PlayerSpacecraftListData)
+	{
+		CombatValue += Order->Description->CombatPoints;
+
+		for (auto Weapon : Order->WeaponTypes)
+		{
+			CombatValue += Catalog->Get(Weapon)->CombatPoints;
+		}
+	}
+
+	return FText::Format(LOCTEXT("PlayerFleetTitleFormat", "Player fleet ({0})"), CombatValue);
+}
+
+FText SFlareSkirmishSetupMenu::GetEnemyFleetTitle() const
+{
+	UFlareSpacecraftComponentsCatalog* Catalog = MenuManager->GetGame()->GetShipPartsCatalog();
+	int32 CombatValue = 0;
+
+	for (auto Order : EnemySpacecraftListData)
+	{
+		CombatValue += Order->Description->CombatPoints;
+
+		for (auto Weapon : Order->WeaponTypes)
+		{
+			CombatValue += Catalog->Get(Weapon)->CombatPoints;
+		}
+	}
+
+	return FText::Format(LOCTEXT("EnemyFleetTitleFormat", "Enemy fleet ({0})"), CombatValue);
+}
 
 TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedPtr<FFlareSkirmishSpacecraftOrder> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {
@@ -622,6 +665,19 @@ bool SFlareSkirmishSetupMenu::CanStartPlaying(FText& Reason) const
 	Callbacks
 ----------------------------------------------------*/
 
+void SFlareSkirmishSetupMenu::OnClearFleet(bool ForPlayer)
+{
+	if (ForPlayer)
+	{
+		PlayerSpacecraftListData.Empty();
+		PlayerSpacecraftList->RequestListRefresh();
+	}
+	else
+	{
+		EnemySpacecraftListData.Empty();
+		EnemySpacecraftList->RequestListRefresh();
+	}
+}
 
 void SFlareSkirmishSetupMenu::OnOrderShip(bool ForPlayer)
 {
@@ -637,6 +693,28 @@ void SFlareSkirmishSetupMenu::OnOrderShipConfirmed(FFlareSpacecraftDescription* 
 {
 	auto Order = FFlareSkirmishSpacecraftOrder::New(Spacecraft);
 
+	// Set default upgrades
+	if (Order->Description->Size == EFlarePartSize::S)
+	{
+		Order->EngineType = FName("engine-thresher");
+		Order->RCSType = FName("rcs-coral");
+
+		for (auto& Slot : Order->Description->WeaponGroups)
+		{
+			Order->WeaponTypes.Add(FName("weapon-eradicator"));
+		}
+	}
+	else
+	{
+		Order->EngineType = FName("pod-thera");
+		Order->RCSType = FName("rcs-rift");
+
+		for (auto& Slot : Order->Description->WeaponGroups)
+		{
+			Order->WeaponTypes.Add(FName("weapon-artemis"));
+		}
+	}
+
 	if (IsOrderingForPlayer)
 	{
 		PlayerSpacecraftListData.AddUnique(Order);
@@ -651,9 +729,124 @@ void SFlareSkirmishSetupMenu::OnOrderShipConfirmed(FFlareSpacecraftDescription* 
 
 void SFlareSkirmishSetupMenu::OnUpgradeSpacecraft(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order)
 {
-	// Fill options
+	FFlareSpacecraftDescription* Desc = Order->Description;
+	UFlareSpacecraftComponentsCatalog* Catalog = MenuManager->GetGame()->GetShipPartsCatalog();
+	TArray<FFlareSpacecraftComponentDescription*> PartList;
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
+	// Prepare data
+	FText Text = LOCTEXT("PickComponentFormat", "{0}\n({1} value)");
+	FText HelpText = LOCTEXT("PickComponentHelp", "Upgrade with this component");
+
+	// Reset lists
+	OrbitalEngineBox->ClearChildren();
+	RCSBox->ClearChildren();
+	WeaponBox->ClearChildren();
 	UpgradeBox->SetVisibility(EVisibility::Visible);
+
+	// Engines
+	Catalog->GetEngineList(PartList, Desc->Size);
+	for (auto Engine : PartList)
+	{
+		FLinearColor Color = (Order->EngineType == Engine->Identifier) ? Theme.FriendlyColor : Theme.NeutralColor;
+
+		OrbitalEngineBox->InsertSlot(0)
+		.Padding(FMargin(0, 10))
+		[
+			SNew(SFlareRoundButton)
+			.Icon(&Engine->MeshPreviewBrush)
+			.Text(Engine->Name)
+			.HelpText(HelpText)
+			.InvertedBackground(true)
+			.HighlightColor(Color)
+			.OnClicked(this, &SFlareSkirmishSetupMenu::OnUpgradeEngine, Order, Engine->Identifier)
+		];
+	}
+
+	// RCS
+	PartList.Empty();
+	Catalog->GetRCSList(PartList, Desc->Size);
+	for (auto RCS : PartList)
+	{
+		FLinearColor Color = (Order->RCSType == RCS->Identifier) ? Theme.FriendlyColor : Theme.NeutralColor;
+
+		RCSBox->InsertSlot(0)
+		.Padding(FMargin(0, 10))
+		[
+			SNew(SFlareRoundButton)
+			.Icon(&RCS->MeshPreviewBrush)
+			.Text(RCS->Name)
+			.HelpText(HelpText)
+			.InvertedBackground(true)
+			.HighlightColor(Color)
+			.OnClicked(this, &SFlareSkirmishSetupMenu::OnUpgradeRCS, Order, RCS->Identifier)
+		];
+	}
+
+	// Weapons
+	PartList.Empty();
+	Catalog->GetWeaponList(PartList, Desc->Size);
+	for (int32 Index = 0; Index < Order->Description->WeaponGroups.Num(); Index++)
+	{
+		// Create vertical structure
+		FFlareSpacecraftSlotGroupDescription& Slot = Order->Description->WeaponGroups[Index];
+		TSharedPtr<SVerticalBox> WeaponSlot;
+		WeaponBox->AddSlot()
+		[
+			SNew(SBox)
+			.WidthOverride(0.25 * Theme.ContentWidth)
+			[
+				SAssignNew(WeaponSlot, SVerticalBox)
+			]
+		];
+
+		for (auto Weapon : PartList)
+		{
+			FText NameText = FText::Format(Text, Weapon->Name, FText::AsNumber(Weapon->CombatPoints));
+			FLinearColor Color = (Order->WeaponTypes[Index] == Weapon->Identifier) ? Theme.FriendlyColor : Theme.NeutralColor;
+
+			WeaponSlot->AddSlot()
+			.Padding(FMargin(0, 10))
+			[
+				SNew(SFlareRoundButton)
+				.Icon(&Weapon->MeshPreviewBrush)
+				.Text(NameText)
+				.HelpText(HelpText)
+				.InvertedBackground(true)
+				.HighlightColor(Color)
+				.OnClicked(this, &SFlareSkirmishSetupMenu::OnUpgradeWeapon, Order, Index, Weapon->Identifier)
+			];
+		}
+	}
+
+	SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
+}
+
+void SFlareSkirmishSetupMenu::OnUpgradeEngine(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order, FName Upgrade)
+{
+	Order->EngineType = Upgrade;
+	OnUpgradeSpacecraft(Order);
+}
+
+void SFlareSkirmishSetupMenu::OnUpgradeRCS(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order, FName Upgrade)
+{
+	Order->RCSType = Upgrade;
+	OnUpgradeSpacecraft(Order);
+}
+
+void SFlareSkirmishSetupMenu::OnUpgradeWeapon(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order, int32 GroupIndex, FName Upgrade)
+{
+	FFlareSpacecraftDescription* Desc = Order->Description;
+
+	for (int32 Index = 0; Index < Order->Description->WeaponGroups.Num(); Index++)
+	{
+		if (Index == GroupIndex)
+		{
+			Order->WeaponTypes[Index] = Upgrade;
+		}
+	}
+
+	OnUpgradeSpacecraft(Order);
 }
 
 void SFlareSkirmishSetupMenu::OnCloseUpgradePanel()

@@ -2,6 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
+#include "../Components/FlareRoundButton.h"
 #include "../Components/FlareDropList.h"
 #include "../Components/FlareListItem.h"
 
@@ -50,6 +51,10 @@ protected:
 		Content callbacks
 	----------------------------------------------------*/
 
+	FText GetPlayerFleetTitle() const;
+
+	FText GetEnemyFleetTitle() const;
+
 	TSharedRef<ITableRow> OnGenerateSpacecraftLine(TSharedPtr<FFlareSkirmishSpacecraftOrder> Item, const TSharedRef<STableViewBase>& OwnerTable);
 	
 	TSharedRef<SWidget> OnGenerateCompanyComboLine(FFlareCompanyDescription Item);
@@ -66,6 +71,9 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
+	
+	/** Clear the fleet */
+	void OnClearFleet(bool ForPlayer);
 
 	/** Start the process of ordering a new ship */
 	void OnOrderShip(bool ForPlayer);
@@ -75,6 +83,11 @@ protected:
 
 	/** Upgrade spacecraft */
 	void OnUpgradeSpacecraft(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order);
+
+	// Upgrade callbacks
+	void OnUpgradeEngine(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order, FName Upgrade);
+	void OnUpgradeRCS(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order, FName Upgrade);
+	void OnUpgradeWeapon(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order, int32 GroupIndex, FName Upgrade);
 
 	/** Close upgrade panel */
 	void OnCloseUpgradePanel();
