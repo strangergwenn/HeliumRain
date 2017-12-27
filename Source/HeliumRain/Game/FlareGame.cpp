@@ -728,10 +728,7 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 	UFlareFleet* Fleet = NULL;
 	for (auto Order : Skirmish->GetData().Player.OrderedSpacecrafts)
 	{
-		const FFlareSpacecraftDescription* ShipDesc = Order.Description;
-		UFlareSimulatedSpacecraft* Ship = Sector->CreateSpacecraft(ShipDesc->Identifier, PlayerCompany, FVector::ZeroVector);
-
-		// TODO 1075 : upgrade
+		UFlareSimulatedSpacecraft* Ship = CreateSkirmishSpacecraft(Sector, PlayerCompany, Order);
 
 		// Set fleet
 		if (Fleet == NULL)
@@ -750,10 +747,7 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 	Fleet = NULL;
 	for (auto Order : Skirmish->GetData().Enemy.OrderedSpacecrafts)
 	{
-		const FFlareSpacecraftDescription* ShipDesc = Order.Description;
-		UFlareSimulatedSpacecraft* Ship = Sector->CreateSpacecraft(ShipDesc->Identifier, EnemyCompany, FVector::ZeroVector);
-
-		// TODO 1075 : upgrade
+		UFlareSimulatedSpacecraft* Ship = CreateSkirmishSpacecraft(Sector, EnemyCompany, Order);
 
 		// Set fleet
 		if (Fleet == NULL)
@@ -775,6 +769,36 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 	LoadedOrCreated = true;
 	PlayerController->OnLoadComplete();
 	FFlareLogWriter::InitWriter(PlayerData.UUID);
+}
+
+UFlareSimulatedSpacecraft* AFlareGame::CreateSkirmishSpacecraft(UFlareSimulatedSector* Sector, UFlareCompany* Company, FFlareSkirmishSpacecraftOrder Order)
+{
+	const FFlareSpacecraftDescription* ShipDesc = Order.Description;
+	UFlareSimulatedSpacecraft* Ship = Sector->CreateSpacecraft(ShipDesc->Identifier, Company, FVector::ZeroVector);
+
+	for (auto& Component : Ship->GetData().Components)
+	{
+		FFlareSpacecraftComponentDescription* ComponentDescription = GetShipPartsCatalog()->Get(Component.ComponentIdentifier);
+
+		if (ComponentDescription->Type == EFlarePartType::OrbitalEngine)
+		{
+			Component.ComponentIdentifier = Order.EngineType;
+		}
+		else if (ComponentDescription->Type == EFlarePartType::RCS)
+		{
+			Component.ComponentIdentifier = Order.RCSType;
+		}
+		if (ComponentDescription->Type == EFlarePartType::Weapon)
+		{
+			FName SlotName = Component.ShipSlotIdentifier;
+			int32 SlotGroupIndex = UFlareSimulatedSpacecraftWeaponsSystem::GetGroupIndexFromSlotIdentifier(Ship->GetDescription(), SlotName);
+			FCHECK(SlotGroupIndex >= 0 && SlotGroupIndex < Order.WeaponTypes.Num());
+
+			Component.ComponentIdentifier = Order.WeaponTypes[SlotGroupIndex];
+		}
+	}
+
+	return Ship;
 }
 
 UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
