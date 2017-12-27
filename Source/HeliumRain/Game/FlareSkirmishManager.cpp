@@ -109,18 +109,6 @@ bool UFlareSkirmishManager::IsPlaying() const
 	Setup
 ----------------------------------------------------*/
 
-void UFlareSkirmishManager::SetAllowedValue(bool ForPlayer, uint32 Budget)
-{
-	FFlareSkirmishPlayerData& Belligerent = ForPlayer ? Data.Player : Data.Enemy;
-
-	Belligerent.AllowedValue = Budget;
-
-	while (GetCurrentCombatValue(ForPlayer) > Budget)
-	{
-		Belligerent.OrderedSpacecrafts.Pop();
-	}
-}
-
 inline uint32 UFlareSkirmishManager::GetCurrentCombatValue(bool ForPlayer) const
 {
 	const FFlareSkirmishPlayerData& Belligerent = ForPlayer ? Data.Player : Data.Enemy;

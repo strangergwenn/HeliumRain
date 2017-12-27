@@ -28,12 +28,10 @@ struct FFlareSkirmishPlayerData
 	GENERATED_USTRUCT_BODY()
 
 	// Fleet building
-	uint32                                           AllowedValue;
 	TArray<FFlareSkirmishSpacecraftOrder>            OrderedSpacecrafts;
 
 	// Defaults
 	FFlareSkirmishPlayerData()
-		: AllowedValue(0)
 	{
 		OrderedSpacecrafts.Empty();
 	}
@@ -145,9 +143,6 @@ public:
 		Setup
 	----------------------------------------------------*/
 	
-	/** Set the combat value allowed */
-	void SetAllowedValue(bool ForPlayer, uint32 Budget);
-
 	/** Get the current combat value */
 	inline uint32 GetCurrentCombatValue(bool ForPlayer) const;
 
@@ -198,11 +193,6 @@ public:
 	inline const FFlareSkirmishResultData& GetResult() const
 	{
 		return Result;
-	}
-
-	inline uint32 GetAllowedCombatValue(bool ForPlayer) const
-	{
-		return ForPlayer ? Data.Player.AllowedValue : Data.Enemy.AllowedValue;
 	}
 
 };

@@ -344,18 +344,8 @@ void SFlareSpacecraftOrderOverlay::Tick(const FGeometry& AllottedGeometry, const
 			// Skirmish mode
 			else if (TargetSkirmish)
 			{
-				uint32 CombatValue = Desc->CombatPoints;
-				uint32 CurrentValue = TargetSkirmish->GetCurrentCombatValue(OrderForPlayer);
-				uint32 AllowedValue = TargetSkirmish->GetAllowedCombatValue(OrderForPlayer);
-				CanBuild = CurrentValue + CombatValue <= AllowedValue;
-
-				// Show reason
-				if (!CanBuild)
-				{
-					ConfirmText->SetText(FText::Format(LOCTEXT("CannotAddShip", "Exceeds allowed combat value ({0} / {1})"),
-						FText::AsNumber(CurrentValue + CombatValue),
-						FText::AsNumber(AllowedValue)));
-				}
+				// No rules
+				CanBuild = true;
 			}
 
 			// Sector mode (stations, complex stations)
@@ -418,16 +408,8 @@ FText SFlareSpacecraftOrderOverlay::GetWalletText() const
 {
 	if (TargetSkirmish)
 	{
-		if (OrderForPlayer)
-		{
-			return FText::Format(LOCTEXT("SkirmishCurrentPlayerWallet", "You have {0} combat value available."),
-				FText::AsNumber(TargetSkirmish->GetAllowedCombatValue(true)));
-		}
-		else
-		{
-			return FText::Format(LOCTEXT("SkirmishCurrentEnemyWallet", "Your enemy has {0} combat value available."),
-				FText::AsNumber(TargetSkirmish->GetAllowedCombatValue(false)));
-		}
+		// No rules
+		return FText();
 	}
 	else if (MenuManager->GetPC())
 	{

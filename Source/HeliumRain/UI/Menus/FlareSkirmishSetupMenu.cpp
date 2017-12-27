@@ -16,11 +16,6 @@
 
 #define LOCTEXT_NAMESPACE "FlareSkirmishSetupMenu"
 
-#define MIN_VALUE_BUDGET 20
-#define MAX_VALUE_BUDGET 1000
-#define DEFAULT_VALUE_BUDGET 200
-#define VALUE_BUDGET_STEP 10
-
 
 /*----------------------------------------------------
 	Construct
@@ -33,7 +28,6 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 Width = 1.25 * Theme.ContentWidth;
 	int32 LabelWidth = Theme.ContentWidth / 4;
-	float DefaultBudgetValue = (DEFAULT_VALUE_BUDGET - MIN_VALUE_BUDGET) / (MAX_VALUE_BUDGET - MIN_VALUE_BUDGET);
 
 	// Build structure
 	ChildSlot
@@ -113,108 +107,6 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 				]
 			]
 
-			// Player budget
-			+ SVerticalBox::Slot()
-			.HAlign(HAlign_Left)
-			.AutoHeight()
-			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
-				[
-					SNew(SHorizontalBox)
-
-					// Text
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.WidthOverride(LabelWidth)
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("PlayerBudgetLabel", "Player combat value"))
-							.TextStyle(&Theme.TextFont)
-						]
-					]
-
-					// Slider
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					.Padding(Theme.ContentPadding)
-					[
-						SAssignNew(PlayerBudgetSlider, SSlider)
-						.Value(DefaultBudgetValue)
-						.Style(&Theme.SliderStyle)
-						.OnValueChanged(this, &SFlareSkirmishSetupMenu::OnBudgetSliderChanged, true)
-					]
-
-					// Label
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.WidthOverride(LabelWidth)
-						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.TextFont)
-							.Text(this, &SFlareSkirmishSetupMenu::GetPlayerBudget)
-						]
-					]
-				]
-			]
-
-			// Enemy budget
-			+ SVerticalBox::Slot()
-			.HAlign(HAlign_Left)
-			.AutoHeight()
-			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
-				[
-					SNew(SHorizontalBox)
-
-					// Text
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.WidthOverride(LabelWidth)
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("EnemyBudgetLabel", "Enemy combat value"))
-							.TextStyle(&Theme.TextFont)
-						]
-					]
-
-					// Slider
-					+ SHorizontalBox::Slot()
-					.VAlign(VAlign_Center)
-					.Padding(Theme.ContentPadding)
-					[
-						SAssignNew(EnemyBudgetSlider, SSlider)
-						.Value(DefaultBudgetValue)
-						.Style(&Theme.SliderStyle)
-						.OnValueChanged(this, &SFlareSkirmishSetupMenu::OnBudgetSliderChanged, false)
-					]
-
-					// Label
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SBox)
-						.WidthOverride(LabelWidth)
-						[
-							SNew(STextBlock)
-							.TextStyle(&Theme.TextFont)
-							.Text(this, &SFlareSkirmishSetupMenu::GetEnemyBudget)
-						]
-					]
-				]
-			]
-
 			// Lists
 			+ SVerticalBox::Slot()
 			.HAlign(HAlign_Fill)
@@ -247,11 +139,27 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 						.HAlign(HAlign_Left)
 						.AutoHeight()
 						[
-							SNew(SFlareButton)
-							.Transparent(true)
-							.Width(8)
-							.Text(LOCTEXT("AddPlayerShip", "Add player ship"))
-							.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, true)
+							SNew(SHorizontalBox)
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(SFlareButton)
+								.Transparent(true)
+								.Width(6)
+								.Text(LOCTEXT("AddPlayerShip", "Add player ship"))
+								.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, true)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(SFlareButton)
+								.Transparent(true)
+								.Width(6)
+								.Text(LOCTEXT("ClearPlayerFleet", "Clear fleet"))
+								.OnClicked(this, &SFlareSkirmishSetupMenu::OnClearFleet, true)
+							]
 						]
 
 						+ SVerticalBox::Slot()
@@ -297,11 +205,38 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 						.HAlign(HAlign_Left)
 						.AutoHeight()
 						[
-							SNew(SFlareButton)
-							.Transparent(true)
-							.Width(8)
-							.Text(LOCTEXT("AddEnemyShip", "Add enemy ship"))
-							.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, false)
+							SNew(SHorizontalBox)
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(SFlareButton)
+								.Transparent(true)
+								.Width(6)
+								.Text(LOCTEXT("AddEnemyShip", "Add enemy ship"))
+								.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, false)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(SFlareButton)
+								.Transparent(true)
+								.Width(6)
+								.Text(LOCTEXT("ClearEnemyFleet", "Clear fleet"))
+								.OnClicked(this, &SFlareSkirmishSetupMenu::OnClearFleet, false)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(SFlareButton)
+								.Transparent(true)
+								.Width(6)
+								.Text(LOCTEXT("AutomaticFleet", "Automatic fleet"))
+								//.OnClicked(this, &SFlareSkirmishSetupMenu::OnAutoCreateEnemyFleet, false)
+								// TODO 1075
+							]
 						]
 
 						+ SVerticalBox::Slot()
@@ -520,15 +455,8 @@ void SFlareSkirmishSetupMenu::Enter()
 
 	CompanySelector->RefreshOptions();
 
-	// Reset sliders
-	float DefaultBudgetValue = (float)(DEFAULT_VALUE_BUDGET - MIN_VALUE_BUDGET) / (float)(MAX_VALUE_BUDGET - MIN_VALUE_BUDGET);
-	PlayerBudgetSlider->SetValue(DefaultBudgetValue);
-	EnemyBudgetSlider->SetValue(DefaultBudgetValue);
-
 	// Start doing the setup
 	MenuManager->GetGame()->GetSkirmishManager()->StartSetup();
-	MenuManager->GetGame()->GetSkirmishManager()->SetAllowedValue(true, DEFAULT_VALUE_BUDGET);
-	MenuManager->GetGame()->GetSkirmishManager()->SetAllowedValue(false, DEFAULT_VALUE_BUDGET);
 
 	// Empty lists
 	PlayerSpacecraftListData.Empty();
@@ -626,20 +554,6 @@ TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedP
 	];
 }
 
-FText SFlareSkirmishSetupMenu::GetPlayerBudget() const
-{
-	UFlareSkirmishManager* SkirmishManager = MenuManager->GetGame()->GetSkirmishManager();
-
-	return FText::AsNumber(SkirmishManager->GetAllowedCombatValue(true));
-}
-
-FText SFlareSkirmishSetupMenu::GetEnemyBudget() const
-{
-	UFlareSkirmishManager* SkirmishManager = MenuManager->GetGame()->GetSkirmishManager();
-
-	return FText::AsNumber(SkirmishManager->GetAllowedCombatValue(false));
-}
-
 TSharedRef<SWidget> SFlareSkirmishSetupMenu::OnGenerateCompanyComboLine(FFlareCompanyDescription Item)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -708,25 +622,6 @@ bool SFlareSkirmishSetupMenu::CanStartPlaying(FText& Reason) const
 	Callbacks
 ----------------------------------------------------*/
 
-void SFlareSkirmishSetupMenu::OnBudgetSliderChanged(float Value, bool ForPlayer)
-{
-	UFlareSkirmishManager* SkirmishManager = MenuManager->GetGame()->GetSkirmishManager();
-	
-	int32 BudgetValue = MIN_VALUE_BUDGET + Value * (MAX_VALUE_BUDGET - MIN_VALUE_BUDGET);
-	int32 RoundedBudgetValue = FMath::RoundToInt(BudgetValue / VALUE_BUDGET_STEP) * VALUE_BUDGET_STEP;
-	float SteppedRatio = ((float)RoundedBudgetValue - MIN_VALUE_BUDGET) / ((float)MAX_VALUE_BUDGET - MIN_VALUE_BUDGET);
-	
-	if (ForPlayer)
-	{
-		PlayerBudgetSlider->SetValue(SteppedRatio);
-	}
-	else
-	{
-		EnemyBudgetSlider->SetValue(SteppedRatio);
-	}
-
-	SkirmishManager->SetAllowedValue(ForPlayer, RoundedBudgetValue);
-}
 
 void SFlareSkirmishSetupMenu::OnOrderShip(bool ForPlayer)
 {

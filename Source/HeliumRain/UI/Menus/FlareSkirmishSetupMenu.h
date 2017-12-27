@@ -51,11 +51,7 @@ protected:
 	----------------------------------------------------*/
 
 	TSharedRef<ITableRow> OnGenerateSpacecraftLine(TSharedPtr<FFlareSkirmishSpacecraftOrder> Item, const TSharedRef<STableViewBase>& OwnerTable);
-
-	FText GetPlayerBudget() const;
-
-	FText GetEnemyBudget() const;
-
+	
 	TSharedRef<SWidget> OnGenerateCompanyComboLine(FFlareCompanyDescription Item);
 
 	FText OnGetCurrentCompanyComboLine() const;
@@ -70,9 +66,6 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-
-	/** Budget changed */
-	void OnBudgetSliderChanged(float Value, bool ForPlayer);
 
 	/** Start the process of ordering a new ship */
 	void OnOrderShip(bool ForPlayer);
@@ -104,8 +97,6 @@ protected:
 
 	// Widgets
 	TSharedPtr<SFlareDropList<FFlareCompanyDescription>>     CompanySelector;
-	TSharedPtr<SSlider>                                      PlayerBudgetSlider;
-	TSharedPtr<SSlider>                                      EnemyBudgetSlider;
 	TSharedPtr<SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>>   PlayerSpacecraftList;
 	TSharedPtr<SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>>   EnemySpacecraftList;
 
