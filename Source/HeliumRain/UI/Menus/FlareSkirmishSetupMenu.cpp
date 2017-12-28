@@ -110,6 +110,13 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 				]
 			]
 
+			// TODO 1075 : orbital body picker
+			// TODO 1075 : sector type picker (rock, metla debris)
+			// TODO 1075 : icy checkbox
+			// TODO 1075 : altitude slider
+			// TODO 1075 : asteroid slider
+			// TODO 1075 : debris intensity slider
+
 			// Lists
 			+ SVerticalBox::Slot()
 			.HAlign(HAlign_Fill)

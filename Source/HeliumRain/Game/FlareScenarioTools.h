@@ -51,6 +51,8 @@ protected:
 	void SetupKnownSectors(UFlareCompany* Company);
 
 
+public:
+
 	/*----------------------------------------------------
 		Helpers
 	----------------------------------------------------*/
@@ -67,6 +69,8 @@ protected:
 	/** Create a station and fill its input */
 	void CreateStations(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count, int32 Level = 1, FFlareStationSpawnParameters SpawnParameters = FFlareStationSpawnParameters());
 
+
+protected:
 
 	/*----------------------------------------------------
 		Protected data

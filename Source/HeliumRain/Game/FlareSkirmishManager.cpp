@@ -27,6 +27,22 @@
 UFlareSkirmishManager::UFlareSkirmishManager(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
+	// Load catalog
+	struct FConstructorStatics
+	{
+		ConstructorHelpers::FObjectFinder<UFlareAsteroidCatalog> RockCatalog;
+		ConstructorHelpers::FObjectFinder<UFlareAsteroidCatalog> DebrisCatalog;
+		FConstructorStatics()
+			: RockCatalog(TEXT("/Game/ThirdParty/RocksDebris/RockDebrisCatalog.RockDebrisCatalog"))
+			, DebrisCatalog(TEXT("/Game/Environment/Debris/MetalDebrisCatalog.MetalDebrisCatalog"))
+		{}
+	};
+	static FConstructorStatics ConstructorStatics;
+
+	// Push catalog data into storage
+	RockCatalog = ConstructorStatics.RockCatalog.Object;
+	DebrisCatalog = ConstructorStatics.DebrisCatalog.Object;
+
 	CurrentPhase = EFlareSkirmishPhase::Idle;
 }
 
@@ -44,6 +60,25 @@ void UFlareSkirmishManager::StartSetup()
 
 	Data = FFlareSkirmishData();
 	Result = FFlareSkirmishResultData();
+
+	// Sector
+	Data.SectorDescription.Identifier = FName("sector-skirmish");
+	Data.SectorDescription.Name = LOCTEXT("SkirmishSectorName", "Skirmish");
+	Data.SectorDescription.Description = LOCTEXT("SkirmishSectorDescription", "Unknown sector");
+	Data.SectorDescription.CelestialBodyIdentifier = "nema";
+	Data.SectorDescription.Altitude = 6000;
+	Data.SectorDescription.Phase = 0;
+	Data.SectorDescription.IsIcy = true;
+	Data.SectorDescription.LevelName = FName("GenericIcySector");
+
+	// Debris field
+	Data.SectorDescription.DebrisFieldInfo.DebrisCatalog = RockCatalog;
+	Data.SectorDescription.DebrisFieldInfo.DebrisFieldDensity = 25;
+	Data.SectorDescription.DebrisFieldInfo.MinDebrisSize = 3;
+	Data.SectorDescription.DebrisFieldInfo.MaxDebrisSize = 7;
+
+	// Asteroids
+	Data.AsteroidCount = 100;
 
 	CurrentPhase = EFlareSkirmishPhase::Setup;
 }

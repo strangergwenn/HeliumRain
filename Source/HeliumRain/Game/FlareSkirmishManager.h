@@ -43,7 +43,11 @@ USTRUCT()
 struct FFlareSkirmishData
 {
 	GENERATED_USTRUCT_BODY()
-	
+
+	// World setup
+	FFlareSectorDescription                          SectorDescription;
+	int32                                            AsteroidCount;
+
 	// Player setup
 	FFlareSkirmishPlayerData                         Player;
 	FFlareCompanyDescription                         PlayerCompanyData;
@@ -54,7 +58,8 @@ struct FFlareSkirmishData
 
 	// Defaults
 	FFlareSkirmishData()
-		: Player()
+		: SectorDescription()
+		, Player()
 		, Enemy()
 		, EnemyCompanyName(NAME_None)
 	{
@@ -168,6 +173,12 @@ protected:
 	/*----------------------------------------------------
 		Data
 	----------------------------------------------------*/
+
+	UPROPERTY()
+	UFlareAsteroidCatalog*                           RockCatalog;
+
+	UPROPERTY()
+	UFlareAsteroidCatalog*                           DebrisCatalog;
 
 	// Skirmish data
 	TEnumAsByte<EFlareSkirmishPhase::Type>           CurrentPhase;

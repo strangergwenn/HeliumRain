@@ -714,10 +714,24 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 	// Create the universe	
 	ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
 	ScenarioTools->Init(PlayerCompany, &PlayerData);
-	UFlareSimulatedSector* Sector = World->FindSector("the-depths");
-	FCHECK(Sector);
+	
+	// Get sector data
+	FFlareSectorDescription* SectorDescription = &Skirmish->GetData().SectorDescription;
+	FFlareSectorSave SectorSave;
+	FFlareSectorOrbitParameters SectorParameters;
 
-	// TODO 1075 : add sector settings
+	// Copy sector data around
+	SectorSave.Identifier = SectorDescription->Identifier;
+	SectorSave.GivenName = SectorDescription->Name;
+	SectorSave.IsTravelSector = false;
+	SectorParameters.CelestialBodyIdentifier = SectorDescription->CelestialBodyIdentifier;
+	SectorParameters.Altitude = SectorDescription->Altitude;
+	SectorParameters.Phase = SectorDescription->Phase;
+
+	// Load sector
+	UFlareSimulatedSector* Sector = World->LoadSector(SectorDescription, SectorSave, SectorParameters);
+	FCHECK(Sector);
+	ScenarioTools->CreateAsteroids(Sector, Skirmish->GetData().AsteroidCount, FVector(75, 15, 15));
 
 	// Setup enemy
 	UFlareCompany* EnemyCompany = World->FindCompanyByShortName(Skirmish->GetData().EnemyCompanyName);
