@@ -19,6 +19,9 @@
 
 #define LOCTEXT_NAMESPACE "FlareSkirmishSetupMenu"
 
+#define MAX_ASTEROIDS           50
+#define MAX_DEBRIS_PERCENTAGE   25
+
 
 /*----------------------------------------------------
 	Construct
@@ -29,9 +32,9 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	int32 Width = 1.25 * Theme.ContentWidth;
-	int32 LabelWidth = Theme.ContentWidth / 4;
-	int32 ListHeight = 600;
+	int32 Width = 0.9 * Theme.ContentWidth;
+	int32 LabelWidth = Theme.ContentWidth / 5;
+	int32 ListHeight = 700;
 
 	// Build structure
 	ChildSlot
@@ -56,7 +59,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 				.TextStyle(&Theme.SpecialTitleFont)
 			]
 	
-			// Top box
+			// Content
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			[
@@ -64,6 +67,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 
 				// Sector settings
 				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Left)
 				.AutoWidth()
 				[
 					SNew(SBox)
@@ -78,8 +82,52 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.TitlePadding)
 						[
 							SNew(STextBlock)
-							.Text(LOCTEXT("SkirmishSectorSettingssTitle", "Sector settings"))
+							.Text(LOCTEXT("SkirmishSectorSettingssTitle", "Settings"))
 							.TextStyle(&Theme.SubTitleFont)
+						]
+	
+						// Opponent selector
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Left)
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SHorizontalBox)
+
+							// Text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(SBox)
+								.WidthOverride(LabelWidth)
+								.Padding(FMargin(0, 20, 0, 0))
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("EnemyLabel", "Enemy company"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// List
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(CompanySelector, SFlareDropList<FFlareCompanyDescription>)
+								.OptionsSource(&MenuManager->GetPC()->GetGame()->GetCompanyCatalog()->Companies)
+								.OnGenerateWidget(this, &SFlareSkirmishSetupMenu::OnGenerateCompanyComboLine)
+								.HeaderWidth(8)
+								.ItemWidth(8)
+								[
+									SNew(SBox)
+									.Padding(Theme.ListContentPadding)
+									[
+										SNew(STextBlock)
+										.Text(this, &SFlareSkirmishSetupMenu::OnGetCurrentCompanyComboLine)
+										.TextStyle(&Theme.TextFont)
+									]
+								]
+							]
 						]
 	
 						// Planet selector
@@ -127,9 +175,108 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 						]
 
 						// TODO 1075 : altitude picker
-						// TODO 1075 : debris type picker (rock debris, battle debris, none)
-						// TODO 1075 : debris intensity slider
-						// TODO 1075 : asteroid slider
+
+						// Asteroids
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Left)
+						.AutoHeight()
+						[
+							SNew(SBox)
+							.WidthOverride(Theme.ContentWidth)
+							[
+								SNew(SHorizontalBox)
+
+								// Text
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.Padding(Theme.ContentPadding)
+								[
+									SNew(SBox)
+									.WidthOverride(LabelWidth)
+									[
+										SNew(STextBlock)
+										.Text(LOCTEXT("AsteroidLabel", "Asteroids"))
+										.TextStyle(&Theme.TextFont)
+									]
+								]
+
+								// Slider
+								+ SHorizontalBox::Slot()
+								.VAlign(VAlign_Center)
+								.Padding(Theme.ContentPadding)
+								[
+									SAssignNew(AsteroidSlider, SSlider)
+									.Value(0)
+									.Style(&Theme.SliderStyle)
+									.OnValueChanged(this, &SFlareSkirmishSetupMenu::OnAsteroidSliderChanged, true)
+								]
+
+								// Label
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.Padding(Theme.ContentPadding)
+								[
+									SNew(SBox)
+									.WidthOverride(LabelWidth)
+									[
+										SNew(STextBlock)
+										.TextStyle(&Theme.TextFont)
+										.Text(this, &SFlareSkirmishSetupMenu::GetAsteroidValue)
+									]
+								]
+							]
+						]
+
+						// Debris
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Left)
+						.AutoHeight()
+						[
+							SNew(SBox)
+							.WidthOverride(Theme.ContentWidth)
+							[
+								SNew(SHorizontalBox)
+
+								// Text
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.Padding(Theme.ContentPadding)
+								[
+									SNew(SBox)
+									.WidthOverride(LabelWidth)
+									[
+										SNew(STextBlock)
+										.Text(LOCTEXT("DebrisLabel", "Debris density"))
+										.TextStyle(&Theme.TextFont)
+									]
+								]
+
+								// Slider
+								+ SHorizontalBox::Slot()
+								.VAlign(VAlign_Center)
+								.Padding(Theme.ContentPadding)
+								[
+									SAssignNew(DebrisSlider, SSlider)
+									.Value(0)
+									.Style(&Theme.SliderStyle)
+									.OnValueChanged(this, &SFlareSkirmishSetupMenu::OnDebrisSliderChanged, true)
+								]
+
+								// Label
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.Padding(Theme.ContentPadding)
+								[
+									SNew(SBox)
+									.WidthOverride(LabelWidth)
+									[
+										SNew(STextBlock)
+										.TextStyle(&Theme.TextFont)
+										.Text(this, &SFlareSkirmishSetupMenu::GetDebrisValue)
+									]
+								]
+							]
+						]
 
 						// Icy
 						+ SVerticalBox::Slot()
@@ -137,90 +284,36 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 						.AutoHeight()
 						.Padding(Theme.ContentPadding)
 						[
-							SAssignNew(IcyButton, SFlareButton)
-							.Text(LOCTEXT("Icy", "Icy sector"))
-							.HelpText(LOCTEXT("IcyInfo", "This sector will encompass an icy cloud of water particles"))
-							.Toggle(true)
-						]
-					]
-				]
-
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SBox)
-					.WidthOverride(Width)
-					[
-						SNew(SVerticalBox)
-
-						// Title
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.HAlign(HAlign_Left)
-						.Padding(Theme.TitlePadding)
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("SkirmishSettingsTitle", "General settings"))
-							.TextStyle(&Theme.SubTitleFont)
-						]
-	
-						// Opponent selector
-						+ SVerticalBox::Slot()
-						.HAlign(HAlign_Left)
-						.AutoHeight()
-						.Padding(Theme.ContentPadding)
-						[
 							SNew(SHorizontalBox)
 
-							// Text
+							// Icy
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
+							.Padding(Theme.SmallContentPadding)
 							[
-								SNew(SBox)
-								.WidthOverride(LabelWidth)
-								.Padding(FMargin(0, 20, 0, 0))
-								[
-									SNew(STextBlock)
-									.Text(LOCTEXT("EnemyLabel", "Enemy company"))
-									.TextStyle(&Theme.TextFont)
-								]
+								SAssignNew(IcyButton, SFlareButton)
+								.Text(LOCTEXT("Icy", "Icy sector"))
+								.HelpText(LOCTEXT("IcyInfo", "This sector will encompass an icy cloud of water particles"))
+								.Toggle(true)
 							]
 
-							// List
+							// Debris
 							+ SHorizontalBox::Slot()
 							.AutoWidth()
-							.Padding(Theme.ContentPadding)
+							.Padding(Theme.SmallContentPadding)
 							[
-								SAssignNew(CompanySelector, SFlareDropList<FFlareCompanyDescription>)
-								.OptionsSource(&MenuManager->GetPC()->GetGame()->GetCompanyCatalog()->Companies)
-								.OnGenerateWidget(this, &SFlareSkirmishSetupMenu::OnGenerateCompanyComboLine)
-								.HeaderWidth(8)
-								.ItemWidth(8)
-								[
-									SNew(SBox)
-									.Padding(Theme.ListContentPadding)
-									[
-										SNew(STextBlock)
-										.Text(this, &SFlareSkirmishSetupMenu::OnGetCurrentCompanyComboLine)
-										.TextStyle(&Theme.TextFont)
-									]
-								]
+								SAssignNew(MetalDebrisButton, SFlareButton)
+								.Text(LOCTEXT("MetallicDebris", "Battle debris"))
+								.HelpText(LOCTEXT("MetallicDebrisInfo", "This sector will feature remains of a battle, instead of asteroid fragments"))
+								.Toggle(true)
 							]
 						]
 					]
 				]
-			]
-
-			// Lists
-			+ SVerticalBox::Slot()
-			.HAlign(HAlign_Fill)
-			.AutoHeight()
-			[
-				SNew(SHorizontalBox)
 			
 				// Player fleet
 				+ SHorizontalBox::Slot()
-				.AutoWidth()
+				.HAlign(HAlign_Fill)
 				[
 					SNew(SBox)
 					.WidthOverride(Width)
@@ -250,8 +343,8 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 							[
 								SNew(SFlareButton)
 								.Transparent(true)
-								.Width(6)
-								.Text(LOCTEXT("AddPlayerShip", "Add player ship"))
+								.Width(4)
+								.Text(LOCTEXT("AddPlayerShip", "Add ship"))
 								.HelpText(this, &SFlareSkirmishSetupMenu::GetAddToPlayerFleetText)
 								.IsDisabled(this, &SFlareSkirmishSetupMenu::IsAddToPlayerFleetDisabled)
 								.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, true)
@@ -262,7 +355,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 							[
 								SNew(SFlareButton)
 								.Transparent(true)
-								.Width(6)
+								.Width(4)
 								.Text(LOCTEXT("ClearPlayerFleet", "Clear fleet"))
 								.OnClicked(this, &SFlareSkirmishSetupMenu::OnClearFleet, true)
 							]
@@ -292,6 +385,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 
 				// Enemy fleet
 				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Right)
 				.AutoWidth()
 				[
 					SNew(SBox)
@@ -322,8 +416,8 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 							[
 								SNew(SFlareButton)
 								.Transparent(true)
-								.Width(6)
-								.Text(LOCTEXT("AddEnemyShip", "Add enemy ship"))
+								.Width(4)
+								.Text(LOCTEXT("AddEnemyShip", "Add ship"))
 								.HelpText(this, &SFlareSkirmishSetupMenu::GetAddToEnemyFleetText)
 								.IsDisabled(this, &SFlareSkirmishSetupMenu::IsAddToEnemyFleetDisabled)
 								.OnClicked(this, &SFlareSkirmishSetupMenu::OnOrderShip, false)
@@ -334,7 +428,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 							[
 								SNew(SFlareButton)
 								.Transparent(true)
-								.Width(6)
+								.Width(4)
 								.Text(LOCTEXT("ClearEnemyFleet", "Clear fleet"))
 								.OnClicked(this, &SFlareSkirmishSetupMenu::OnClearFleet, false)
 							]
@@ -344,7 +438,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 							[
 								SNew(SFlareButton)
 								.Transparent(true)
-								.Width(6)
+								.Width(4)
 								.Text(LOCTEXT("AutomaticFleet", "Automatic fleet"))
 								.OnClicked(this, &SFlareSkirmishSetupMenu::OnAutoCreateEnemyFleet)
 							]
@@ -599,6 +693,7 @@ void SFlareSkirmishSetupMenu::Exit()
 	SetVisibility(EVisibility::Collapsed);
 
 	// Empty lists
+	WeaponBox->ClearChildren();
 	PlayerSpacecraftListData.Empty();
 	EnemySpacecraftListData.Empty();
 	PlayerSpacecraftList->RequestListRefresh();
@@ -606,10 +701,19 @@ void SFlareSkirmishSetupMenu::Exit()
 }
 
 
-
 /*----------------------------------------------------
 	Content callbacks
 ----------------------------------------------------*/
+
+FText SFlareSkirmishSetupMenu::GetAsteroidValue() const
+{
+	return FText::AsNumber(FMath::RoundToInt(MAX_ASTEROIDS * AsteroidSlider->GetValue()));
+}
+
+FText SFlareSkirmishSetupMenu::GetDebrisValue() const
+{
+	return FText::AsNumber(FMath::RoundToInt(100.0f * DebrisSlider->GetValue()));
+}
 
 FText SFlareSkirmishSetupMenu::GetPlayerFleetTitle() const
 {
@@ -654,7 +758,7 @@ TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedP
 
 	// Structure
 	return SNew(SFlareListItem, OwnerTable)
-	.Width(32)
+	.Width(16)
 	.Height(2)
 	.Content()
 	[
@@ -695,7 +799,7 @@ TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedP
 					SNew(STextBlock)
 					.Text(Desc->Description)
 					.TextStyle(&Theme.TextFont)
-					.WrapTextAt(0.9 * Theme.ContentWidth)
+					.WrapTextAt(0.65 * Theme.ContentWidth)
 				]
 			]
 		]
@@ -853,6 +957,14 @@ bool SFlareSkirmishSetupMenu::CanStartPlaying(FText& Reason) const
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+void SFlareSkirmishSetupMenu::OnAsteroidSliderChanged(float Value, bool ForPlayer)
+{
+}
+
+void SFlareSkirmishSetupMenu::OnDebrisSliderChanged(float Value, bool ForPlayer)
+{
+}
 
 void SFlareSkirmishSetupMenu::OnClearFleet(bool ForPlayer)
 {
@@ -1062,22 +1174,19 @@ void SFlareSkirmishSetupMenu::OnStartSkirmish()
 	{
 		Skirmish->AddShip(true, *Order.Get());
 	}
+	PlayerSpacecraftListData.Empty();
 	for (auto Order : EnemySpacecraftListData)
 	{
 		Skirmish->AddShip(false, *Order.Get());
 	}
+	EnemySpacecraftListData.Empty();
 
 	// Set sector settings
+	Skirmish->GetData().AsteroidCount = MAX_ASTEROIDS * AsteroidSlider->GetValue();
+	Skirmish->GetData().MetallicDebris = MetalDebrisButton->IsActive();
 	Skirmish->GetData().SectorDescription.CelestialBodyIdentifier = PlanetSelector->GetSelectedItem().CelestialBodyIdentifier;
 	Skirmish->GetData().SectorDescription.IsIcy = IcyButton->IsActive();
-	if (IcyButton->IsActive())
-	{
-		Skirmish->GetData().SectorDescription.LevelName = FName("GenericIcySector");
-	}
-	else 
-	{
-		Skirmish->GetData().SectorDescription.LevelName = FName("GenericDustySector");
-	}
+	Skirmish->GetData().SectorDescription.DebrisFieldInfo.DebrisFieldDensity = MAX_DEBRIS_PERCENTAGE * DebrisSlider->GetValue();
 
 	// Override company color with current settings 
 	FFlareCompanyDescription& PlayerCompanyData = Skirmish->GetData().PlayerCompanyData;

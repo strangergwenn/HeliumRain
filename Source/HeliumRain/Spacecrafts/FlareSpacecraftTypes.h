@@ -919,8 +919,11 @@ struct SpacecraftHelper
 
 
 /** Data structure for a spacecraft in skirmish */
+USTRUCT()
 struct FFlareSkirmishSpacecraftOrder
 {
+	GENERATED_USTRUCT_BODY()
+
 	// Base structure
 	FFlareSpacecraftDescription* Description;
 

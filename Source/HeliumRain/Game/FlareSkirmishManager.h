@@ -47,6 +47,7 @@ struct FFlareSkirmishData
 	// World setup
 	FFlareSectorDescription                          SectorDescription;
 	int32                                            AsteroidCount;
+	bool                                             MetallicDebris;
 
 	// Player setup
 	FFlareSkirmishPlayerData                         Player;

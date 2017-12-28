@@ -52,6 +52,10 @@ protected:
 		Content callbacks
 	----------------------------------------------------*/
 
+	FText GetAsteroidValue() const;
+
+	FText GetDebrisValue() const;
+
 	FText GetPlayerFleetTitle() const;
 
 	FText GetEnemyFleetTitle() const;
@@ -82,6 +86,12 @@ protected:
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
+
+	/** Asteroid density */
+	void OnAsteroidSliderChanged(float Value, bool ForPlayer);
+
+	/** Debris density */
+	void OnDebrisSliderChanged(float Value, bool ForPlayer);
 	
 	/** Clear the fleet */
 	void OnClearFleet(bool ForPlayer);
@@ -122,10 +132,13 @@ protected:
 	// Data
 	TWeakObjectPtr<class AFlareMenuManager>                  MenuManager;
 
-	// Settingsidgets
+	// Settings widgets
 	TSharedPtr<SFlareDropList<FFlareCompanyDescription>>               CompanySelector;
 	TSharedPtr<SFlareDropList<FFlareSectorCelestialBodyDescription>>   PlanetSelector;
+	TSharedPtr<SSlider>                                                AsteroidSlider;
+	TSharedPtr<SSlider>                                                DebrisSlider;
 	TSharedPtr<SFlareButton>                                           IcyButton;
+	TSharedPtr<SFlareButton>                                           MetalDebrisButton;
 
 	// Lists
 	TSharedPtr<SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>>   PlayerSpacecraftList;

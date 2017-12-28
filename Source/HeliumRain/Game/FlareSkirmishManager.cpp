@@ -72,7 +72,6 @@ void UFlareSkirmishManager::StartSetup()
 	Data.SectorDescription.LevelName = FName("GenericIcySector");
 
 	// Debris field
-	Data.SectorDescription.DebrisFieldInfo.DebrisCatalog = RockCatalog;
 	Data.SectorDescription.DebrisFieldInfo.DebrisFieldDensity = 25;
 	Data.SectorDescription.DebrisFieldInfo.MinDebrisSize = 3;
 	Data.SectorDescription.DebrisFieldInfo.MaxDebrisSize = 7;
@@ -87,6 +86,26 @@ void UFlareSkirmishManager::StartPlay()
 {
 	FCHECK(CurrentPhase == EFlareSkirmishPhase::Setup);
 	
+	// Use the appropriate debris
+	if (Data.MetallicDebris)
+	{
+		Data.SectorDescription.DebrisFieldInfo.DebrisCatalog = DebrisCatalog;
+	}
+	else
+	{
+		Data.SectorDescription.DebrisFieldInfo.DebrisCatalog = RockCatalog;
+	}
+
+	// Set level name
+	if (Data.SectorDescription.IsIcy)
+	{
+		Data.SectorDescription.LevelName = FName("GenericIcySector");
+	}
+	else
+	{
+		Data.SectorDescription.LevelName = FName("GenericDustySector");
+	}
+
 	// Set common world elements
 	Data.PlayerCompanyData.Emblem = GetGame()->GetCustomizationCatalog()->GetEmblem(0);
 	Data.PlayerCompanyData.Name = FText::FromString("Player");
