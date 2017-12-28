@@ -122,9 +122,12 @@ protected:
 	// Data
 	TWeakObjectPtr<class AFlareMenuManager>                  MenuManager;
 
-	// Widgets
+	// Settingsidgets
 	TSharedPtr<SFlareDropList<FFlareCompanyDescription>>               CompanySelector;
 	TSharedPtr<SFlareDropList<FFlareSectorCelestialBodyDescription>>   PlanetSelector;
+	TSharedPtr<SFlareButton>                                           IcyButton;
+
+	// Lists
 	TSharedPtr<SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>>   PlayerSpacecraftList;
 	TSharedPtr<SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>>   EnemySpacecraftList;
 

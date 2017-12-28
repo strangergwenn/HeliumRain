@@ -31,7 +31,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 Width = 1.25 * Theme.ContentWidth;
 	int32 LabelWidth = Theme.ContentWidth / 4;
-	int32 ListHeight = 700;
+	int32 ListHeight = 600;
 
 	// Build structure
 	ChildSlot
@@ -125,14 +125,25 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								]
 							]
 						]
+
+						// TODO 1075 : altitude picker
+						// TODO 1075 : debris type picker (rock debris, battle debris, none)
+						// TODO 1075 : debris intensity slider
+						// TODO 1075 : asteroid slider
+
+						// Icy
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Left)
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(IcyButton, SFlareButton)
+							.Text(LOCTEXT("Icy", "Icy sector"))
+							.HelpText(LOCTEXT("IcyInfo", "This sector will encompass an icy cloud of water particles"))
+							.Toggle(true)
+						]
 					]
 				]
-
-				// TODO 1075 : altitude picker
-				// TODO 1075 : debris type picker (rock debris, battle debris, none)
-				// TODO 1075 : debris intensity slider
-				// TODO 1075 : icy checkbox
-				// TODO 1075 : asteroid slider
 
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
@@ -1058,6 +1069,15 @@ void SFlareSkirmishSetupMenu::OnStartSkirmish()
 
 	// Set sector settings
 	Skirmish->GetData().SectorDescription.CelestialBodyIdentifier = PlanetSelector->GetSelectedItem().CelestialBodyIdentifier;
+	Skirmish->GetData().SectorDescription.IsIcy = IcyButton->IsActive();
+	if (IcyButton->IsActive())
+	{
+		Skirmish->GetData().SectorDescription.LevelName = FName("GenericIcySector");
+	}
+	else 
+	{
+		Skirmish->GetData().SectorDescription.LevelName = FName("GenericDustySector");
+	}
 
 	// Override company color with current settings 
 	FFlareCompanyDescription& PlayerCompanyData = Skirmish->GetData().PlayerCompanyData;
