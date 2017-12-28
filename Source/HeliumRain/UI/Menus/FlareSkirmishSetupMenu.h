@@ -10,6 +10,7 @@
 
 
 struct FFlareCompanyDescription;
+struct FFlareSectorCelestialBodyDescription;
 class AFlareMenuManager;
 
 
@@ -55,11 +56,13 @@ protected:
 
 	FText GetEnemyFleetTitle() const;
 
-	TSharedRef<ITableRow> OnGenerateSpacecraftLine(TSharedPtr<FFlareSkirmishSpacecraftOrder> Item, const TSharedRef<STableViewBase>& OwnerTable);
-	
-	TSharedRef<SWidget> OnGenerateCompanyComboLine(FFlareCompanyDescription Item);
+	TSharedRef<ITableRow> OnGenerateSpacecraftLine(TSharedPtr<FFlareSkirmishSpacecraftOrder> Item, const TSharedRef<STableViewBase>& OwnerTable);	
 
+	TSharedRef<SWidget> OnGenerateCompanyComboLine(FFlareCompanyDescription Item);
 	FText OnGetCurrentCompanyComboLine() const;
+	
+	TSharedRef<SWidget> OnGeneratePlanetComboLine(FFlareSectorCelestialBodyDescription Item);
+	FText OnGetCurrentPlanetComboLine() const;
 
 	bool IsStartDisabled() const;
 
@@ -120,7 +123,8 @@ protected:
 	TWeakObjectPtr<class AFlareMenuManager>                  MenuManager;
 
 	// Widgets
-	TSharedPtr<SFlareDropList<FFlareCompanyDescription>>     CompanySelector;
+	TSharedPtr<SFlareDropList<FFlareCompanyDescription>>               CompanySelector;
+	TSharedPtr<SFlareDropList<FFlareSectorCelestialBodyDescription>>   PlanetSelector;
 	TSharedPtr<SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>>   PlayerSpacecraftList;
 	TSharedPtr<SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>>   EnemySpacecraftList;
 

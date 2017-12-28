@@ -5,6 +5,7 @@
 #include "../../Data/FlareCompanyCatalog.h"
 #include "../../Data/FlareSpacecraftComponentsCatalog.h"
 #include "../../Data/FlareCustomizationCatalog.h"
+#include "../../Data/FlareOrbitalMap.h"
 
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
@@ -54,68 +55,150 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 				.Text(LOCTEXT("SkirmishSetupTitle", "New skirmish"))
 				.TextStyle(&Theme.SpecialTitleFont)
 			]
-
-			// Settings title
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			.HAlign(HAlign_Left)
-			.Padding(Theme.TitlePadding)
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("SkirmishSettingsTitle", "Settings"))
-				.TextStyle(&Theme.SubTitleFont)
-			]
 	
-			// Opponent selector
+			// Top box
 			+ SVerticalBox::Slot()
-			.HAlign(HAlign_Left)
 			.AutoHeight()
-			.Padding(Theme.ContentPadding)
 			[
 				SNew(SHorizontalBox)
 
-				// Text
+				// Sector settings
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
 				[
 					SNew(SBox)
-					.WidthOverride(LabelWidth)
-					.Padding(FMargin(0, 10, 0, 0))
+					.WidthOverride(Width)
 					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("EnemyLabel", "Enemy company"))
-						.TextStyle(&Theme.TextFont)
+						SNew(SVerticalBox)
+
+						// Title
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Left)
+						.Padding(Theme.TitlePadding)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("SkirmishSectorSettingssTitle", "Sector settings"))
+							.TextStyle(&Theme.SubTitleFont)
+						]
+	
+						// Planet selector
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Left)
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SHorizontalBox)
+
+							// Text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(SBox)
+								.WidthOverride(LabelWidth)
+								.Padding(FMargin(0, 20, 0, 0))
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("PlanetLabel", "Planetary body"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// List
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(PlanetSelector, SFlareDropList<FFlareSectorCelestialBodyDescription>)
+								.OptionsSource(&MenuManager->GetPC()->GetGame()->GetOrbitalBodies()->OrbitalBodies)
+								.OnGenerateWidget(this, &SFlareSkirmishSetupMenu::OnGeneratePlanetComboLine)
+								.HeaderWidth(8)
+								.ItemWidth(8)
+								[
+									SNew(SBox)
+									.Padding(Theme.ListContentPadding)
+									[
+										SNew(STextBlock)
+										.Text(this, &SFlareSkirmishSetupMenu::OnGetCurrentPlanetComboLine)
+										.TextStyle(&Theme.TextFont)
+									]
+								]
+							]
+						]
 					]
 				]
 
-				// List
+				// TODO 1075 : altitude picker
+				// TODO 1075 : debris type picker (rock debris, battle debris, none)
+				// TODO 1075 : debris intensity slider
+				// TODO 1075 : icy checkbox
+				// TODO 1075 : asteroid slider
+
 				+ SHorizontalBox::Slot()
 				.AutoWidth()
-				.Padding(Theme.ContentPadding)
 				[
-					SAssignNew(CompanySelector, SFlareDropList<FFlareCompanyDescription>)
-					.OptionsSource(&MenuManager->GetPC()->GetGame()->GetCompanyCatalog()->Companies)
-					.OnGenerateWidget(this, &SFlareSkirmishSetupMenu::OnGenerateCompanyComboLine)
-					.HeaderWidth(8)
-					.ItemWidth(8)
+					SNew(SBox)
+					.WidthOverride(Width)
 					[
-						SNew(SBox)
-						.Padding(Theme.ListContentPadding)
+						SNew(SVerticalBox)
+
+						// Title
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Left)
+						.Padding(Theme.TitlePadding)
 						[
 							SNew(STextBlock)
-							.Text(this, &SFlareSkirmishSetupMenu::OnGetCurrentCompanyComboLine)
-							.TextStyle(&Theme.TextFont)
+							.Text(LOCTEXT("SkirmishSettingsTitle", "General settings"))
+							.TextStyle(&Theme.SubTitleFont)
+						]
+	
+						// Opponent selector
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Left)
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SHorizontalBox)
+
+							// Text
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(SBox)
+								.WidthOverride(LabelWidth)
+								.Padding(FMargin(0, 20, 0, 0))
+								[
+									SNew(STextBlock)
+									.Text(LOCTEXT("EnemyLabel", "Enemy company"))
+									.TextStyle(&Theme.TextFont)
+								]
+							]
+
+							// List
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(CompanySelector, SFlareDropList<FFlareCompanyDescription>)
+								.OptionsSource(&MenuManager->GetPC()->GetGame()->GetCompanyCatalog()->Companies)
+								.OnGenerateWidget(this, &SFlareSkirmishSetupMenu::OnGenerateCompanyComboLine)
+								.HeaderWidth(8)
+								.ItemWidth(8)
+								[
+									SNew(SBox)
+									.Padding(Theme.ListContentPadding)
+									[
+										SNew(STextBlock)
+										.Text(this, &SFlareSkirmishSetupMenu::OnGetCurrentCompanyComboLine)
+										.TextStyle(&Theme.TextFont)
+									]
+								]
+							]
 						]
 					]
 				]
 			]
-
-			// TODO 1075 : orbital body picker
-			// TODO 1075 : sector type picker (rock, metla debris)
-			// TODO 1075 : icy checkbox
-			// TODO 1075 : altitude slider
-			// TODO 1075 : asteroid slider
-			// TODO 1075 : debris intensity slider
 
 			// Lists
 			+ SVerticalBox::Slot()
@@ -483,7 +566,11 @@ void SFlareSkirmishSetupMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
+	// Setup lists
 	CompanySelector->RefreshOptions();
+	PlanetSelector->RefreshOptions();
+	CompanySelector->SetSelectedIndex(0);
+	PlanetSelector->SetSelectedIndex(0);
 
 	// Start doing the setup
 	MenuManager->GetGame()->GetSkirmishManager()->StartSetup();
@@ -633,6 +720,36 @@ FText SFlareSkirmishSetupMenu::OnGetCurrentCompanyComboLine() const
 {
 	const FFlareCompanyDescription Item = CompanySelector->GetSelectedItem();
 	return Item.Name;
+}
+
+FText Capitalize(const FText& Text)
+{
+	FString Lowercase = Text.ToString().ToLower();
+
+	FString FirstChar = Lowercase.Left(1).ToUpper();
+	FString Remainder = Lowercase.Right(Lowercase.Len() - 1);
+
+	return FText::FromString(FirstChar + Remainder);
+}
+
+TSharedRef<SWidget> SFlareSkirmishSetupMenu::OnGeneratePlanetComboLine(FFlareSectorCelestialBodyDescription Item)
+{	
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
+		.Text(Capitalize(Item.CelestialBodyName))
+		.TextStyle(&Theme.TextFont)
+	];
+}
+
+FText SFlareSkirmishSetupMenu::OnGetCurrentPlanetComboLine() const
+{
+	const FFlareSectorCelestialBodyDescription Item = PlanetSelector->GetSelectedItem();
+	
+	return Capitalize(Item.CelestialBodyName);
 }
 
 bool SFlareSkirmishSetupMenu::IsStartDisabled() const
@@ -785,6 +902,7 @@ void SFlareSkirmishSetupMenu::OnOrderShipConfirmed(FFlareSpacecraftDescription* 
 		}
 	}
 
+	// Add ship
 	if (IsOrderingForPlayer)
 	{
 		PlayerSpacecraftListData.AddUnique(Order);
@@ -938,7 +1056,10 @@ void SFlareSkirmishSetupMenu::OnStartSkirmish()
 		Skirmish->AddShip(false, *Order.Get());
 	}
 
-	// Override defaults with current color settings
+	// Set sector settings
+	Skirmish->GetData().SectorDescription.CelestialBodyIdentifier = PlanetSelector->GetSelectedItem().CelestialBodyIdentifier;
+
+	// Override company color with current settings 
 	FFlareCompanyDescription& PlayerCompanyData = Skirmish->GetData().PlayerCompanyData;
 	const FFlareCompanyDescription* CurrentCompanyData = MenuManager->GetPC()->GetCompanyDescription();
 	PlayerCompanyData.CustomizationBasePaintColor = CurrentCompanyData->CustomizationBasePaintColor;
