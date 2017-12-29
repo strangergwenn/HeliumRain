@@ -80,8 +80,6 @@ protected:
 
 	FText GetStartHelpText() const;
 
-	bool CanStartPlaying(FText& Reason) const;
-
 
 	/*----------------------------------------------------
 		Callbacks
@@ -95,6 +93,9 @@ protected:
 	
 	/** Clear the fleet */
 	void OnClearFleet(bool ForPlayer);
+
+	/** Sort the player fleet */
+	void OnSortPlayerFleet();
 
 	/** Do an automatic fleet for the enemy */
 	void OnAutoCreateEnemyFleet();
@@ -121,6 +122,15 @@ protected:
 
 	/** Quit the menu */
 	void OnMainMenu();
+
+
+	/*----------------------------------------------------
+		Helpers
+	----------------------------------------------------*/
+
+	bool CanStartPlaying(FText& Reason) const;
+
+	void SetOrderDefaults(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order);
 
 
 protected:

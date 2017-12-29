@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 
 #include "../../Data/FlareCompanyCatalog.h"
+#include "../../Data/FlareSpacecraftCatalog.h"
 #include "../../Data/FlareSpacecraftComponentsCatalog.h"
 #include "../../Data/FlareCustomizationCatalog.h"
 #include "../../Data/FlareOrbitalMap.h"
@@ -34,7 +35,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	int32 Width = 0.9 * Theme.ContentWidth;
 	int32 LabelWidth = Theme.ContentWidth / 5;
-	int32 ListHeight = 700;
+	int32 ListHeight = 880;
 
 	// Build structure
 	ChildSlot
@@ -358,6 +359,16 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								.Width(4)
 								.Text(LOCTEXT("ClearPlayerFleet", "Clear fleet"))
 								.OnClicked(this, &SFlareSkirmishSetupMenu::OnClearFleet, true)
+							]
+
+							+ SHorizontalBox::Slot()
+							.AutoWidth()
+							[
+								SNew(SFlareButton)
+								.Transparent(true)
+								.Width(4)
+								.Text(LOCTEXT("SortFleet", "Sort fleet"))
+								.OnClicked(this, &SFlareSkirmishSetupMenu::OnSortPlayerFleet)
 							]
 						]
 
@@ -754,7 +765,7 @@ FText SFlareSkirmishSetupMenu::GetEnemyFleetTitle() const
 TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedPtr<FFlareSkirmishSpacecraftOrder> Item, const TSharedRef<STableViewBase>& OwnerTable)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	FFlareSpacecraftDescription* Desc = Item->Description;
+	const FFlareSpacecraftDescription* Desc = Item->Description;
 
 	// Structure
 	return SNew(SFlareListItem, OwnerTable)
@@ -935,24 +946,6 @@ FText SFlareSkirmishSetupMenu::GetStartHelpText() const
 	return LOCTEXT("StartHelpText", "Start the skirmish now");
 }
 
-bool SFlareSkirmishSetupMenu::CanStartPlaying(FText& Reason) const
-{
-	Reason = FText();
-
-	if (PlayerSpacecraftListData.Num() == 0)
-	{
-		Reason = LOCTEXT("SkirmishCantStartNoPlayer", "You don't have enough ships to start playing");
-		return false;
-	}
-	else if (EnemySpacecraftListData.Num() == 0)
-	{
-		Reason = LOCTEXT("SkirmishCantStartNoEnemy", "Your enemy doesn't have enough ships to start playing");
-		return false;
-	}
-
-	return true;
-}
-
 
 /*----------------------------------------------------
 	Callbacks
@@ -979,12 +972,162 @@ void SFlareSkirmishSetupMenu::OnClearFleet(bool ForPlayer)
 		EnemySpacecraftList->RequestListRefresh();
 	}
 }
+
+static bool SortByCombatValue(const TSharedPtr<FFlareSkirmishSpacecraftOrder>& Ship1, const TSharedPtr<FFlareSkirmishSpacecraftOrder>& Ship2)
+{
+	FCHECK(Ship1->Description);
+	FCHECK(Ship2->Description);
+
+	if (Ship1->Description->CombatPoints > Ship2->Description->CombatPoints)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void SFlareSkirmishSetupMenu::OnSortPlayerFleet()
+{
+	PlayerSpacecraftListData.Sort(SortByCombatValue);
+	PlayerSpacecraftList->RequestListRefresh();
+}
+
 void SFlareSkirmishSetupMenu::OnAutoCreateEnemyFleet()
 {
-	EnemySpacecraftListData.Empty();
+	// Settings
+	float NerfRatio = 0.9f;
+	float ShipRatio = 0.9f;
+	float DiversityRatio = 0.6f;
 
-	// TODO 1075 : do a real algorithm
-	EnemySpacecraftListData = PlayerSpacecraftListData;
+	// Data
+	UFlareSpacecraftCatalog* SpacecraftCatalog = MenuManager->GetGame()->GetSpacecraftCatalog();
+	UFlareSpacecraftComponentsCatalog* PartsCatalog = MenuManager->GetGame()->GetShipPartsCatalog();
+
+	// Get player value
+	int32 PlayerLargeShips = 0;
+	int32 PlayerCombatValue = 0;
+	for (auto Order : PlayerSpacecraftListData)
+	{
+		PlayerCombatValue += Order->Description->CombatPoints;
+
+		for (auto Weapon : Order->WeaponTypes)
+		{
+			PlayerCombatValue += PartsCatalog->Get(Weapon)->CombatPoints;
+		}
+
+		if (Order->Description->Size == EFlarePartSize::L)
+		{
+			PlayerLargeShips++;
+		}
+	}
+
+	// Define objectives
+	bool IsHighValueFleet = (PlayerCombatValue > 25);
+	int32 TargetCombatValue = IsHighValueFleet ? NerfRatio * PlayerCombatValue : PlayerCombatValue;
+	int32 TargetShipCombatValue = IsHighValueFleet ? ShipRatio * TargetCombatValue : TargetCombatValue;
+	int32 CurrentCombatValue = 0;
+
+	// Add ships, starting with the most powerful
+	EnemySpacecraftListData.Empty();
+	for (int32 Index = SpacecraftCatalog->ShipCatalog.Num() - 1; Index >= 0; Index--)
+	{
+		for (const UFlareSpacecraftCatalogEntry* Spacecraft : SpacecraftCatalog->ShipCatalog)
+		{
+			int32 RemainingCombatValue = TargetShipCombatValue - CurrentCombatValue;
+
+			if (Spacecraft->Data.CombatPoints > 0 && Spacecraft->Data.CombatPoints < RemainingCombatValue)
+			{
+				// Define how much of this ship we want
+				float RawShipCount = (DiversityRatio * RemainingCombatValue) / (float)Spacecraft->Data.CombatPoints;
+				int32 ShipCount = IsHighValueFleet ? FMath::FloorToInt(RawShipCount) :  FMath::CeilToInt(RawShipCount);
+
+				// Order all copies
+				for (int OrderIndex = 0; OrderIndex < ShipCount; OrderIndex++)
+				{
+					TSharedPtr<FFlareSkirmishSpacecraftOrder> Order = FFlareSkirmishSpacecraftOrder::New(&Spacecraft->Data);
+					SetOrderDefaults(Order);
+					EnemySpacecraftListData.Add(Order);
+					CurrentCombatValue += Spacecraft->Data.CombatPoints;
+				}
+			}
+		}
+
+		// Value exceeded, break off
+		if (CurrentCombatValue >= TargetShipCombatValue)
+		{
+			break;
+		}
+	}
+
+	// Upgrade ships, starting with the least powerful
+	for (int32 Index = EnemySpacecraftListData.Num() - 1; Index >= 0; Index--)
+	{
+		// Value exceeded, break off
+		int32 RemainingCombatValue = TargetCombatValue - CurrentCombatValue;
+		if (RemainingCombatValue <= 0)
+		{
+			break;
+		}
+
+		// Get data
+		TSharedPtr<FFlareSkirmishSpacecraftOrder> Order = EnemySpacecraftListData[Index];
+		FFlareSpacecraftComponentDescription* BestAntiLargeWeapon = NULL;
+		FFlareSpacecraftComponentDescription* BestAntiSmallWeapon = NULL;
+		float BestAntiLarge = 0;
+		float BestAntiSmall = 0;
+
+		// Find best weapons against specific archetypes
+		TArray<FFlareSpacecraftComponentDescription*> WeaponList;
+		PartsCatalog->GetWeaponList(WeaponList, Order->Description->Size);
+		for (FFlareSpacecraftComponentDescription* Weapon : WeaponList)
+		{
+			int32 UpgradeCombatValue = Order->WeaponTypes.Num() * Weapon->CombatPoints;
+			if (UpgradeCombatValue > RemainingCombatValue)
+			{
+				continue;
+			}
+
+			// TODO : this algorithm always ends up using missiles if it upgrades at all, make it more diverse
+
+			float AntiLarge = Weapon->WeaponCharacteristics.AntiLargeShipValue;
+			if (AntiLarge > BestAntiLarge)
+			{
+				BestAntiLarge = AntiLarge;
+				BestAntiLargeWeapon = Weapon;
+			}
+
+			float AntiSmall = Weapon->WeaponCharacteristics.AntiSmallShipValue;
+			if (AntiSmall > BestAntiSmall)
+			{
+				BestAntiSmall = AntiSmall;
+				BestAntiSmallWeapon = Weapon;
+			}
+		}
+
+		// Assign one anti-L weapon to each L ship, else use anti small
+		FFlareSpacecraftComponentDescription* UpgradeWeapon = NULL;
+		if (PlayerLargeShips && BestAntiLargeWeapon)
+		{
+			UpgradeWeapon = BestAntiLargeWeapon;
+			PlayerLargeShips--;
+		}
+		else if (BestAntiSmallWeapon)
+		{
+			UpgradeWeapon = BestAntiSmallWeapon;
+		}
+
+		// Upgrade
+		if (UpgradeWeapon)
+		{
+			for (int32 WeaponIndex = 0; WeaponIndex < Order->WeaponTypes.Num(); WeaponIndex++)
+			{
+				Order->WeaponTypes[WeaponIndex] = UpgradeWeapon->Identifier;
+				CurrentCombatValue += UpgradeWeapon->CombatPoints;
+			}
+		}
+	}
 
 	EnemySpacecraftList->RequestListRefresh();
 }
@@ -1003,33 +1146,13 @@ void SFlareSkirmishSetupMenu::OnOrderShipConfirmed(FFlareSpacecraftDescription* 
 {
 	auto Order = FFlareSkirmishSpacecraftOrder::New(Spacecraft);
 
-	// Set default upgrades
-	if (Order->Description->Size == EFlarePartSize::S)
-	{
-		Order->EngineType = FName("engine-thresher");
-		Order->RCSType = FName("rcs-coral");
-
-		for (auto& Slot : Order->Description->WeaponGroups)
-		{
-			Order->WeaponTypes.Add(FName("weapon-eradicator"));
-		}
-	}
-	else
-	{
-		Order->EngineType = FName("pod-thera");
-		Order->RCSType = FName("rcs-rift");
-
-		for (auto& Slot : Order->Description->WeaponGroups)
-		{
-			Order->WeaponTypes.Add(FName("weapon-artemis"));
-		}
-	}
+	SetOrderDefaults(Order);
 
 	// Add ship
 	if (IsOrderingForPlayer)
 	{
 		PlayerSpacecraftListData.AddUnique(Order);
-		PlayerSpacecraftList->RequestListRefresh();
+		OnSortPlayerFleet();
 	}
 	else
 	{
@@ -1040,7 +1163,7 @@ void SFlareSkirmishSetupMenu::OnOrderShipConfirmed(FFlareSpacecraftDescription* 
 
 void SFlareSkirmishSetupMenu::OnUpgradeSpacecraft(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order)
 {
-	FFlareSpacecraftDescription* Desc = Order->Description;
+	const FFlareSpacecraftDescription* Desc = Order->Description;
 	UFlareSpacecraftComponentsCatalog* Catalog = MenuManager->GetGame()->GetShipPartsCatalog();
 	TArray<FFlareSpacecraftComponentDescription*> PartList;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
@@ -1100,7 +1223,7 @@ void SFlareSkirmishSetupMenu::OnUpgradeSpacecraft(TSharedPtr<FFlareSkirmishSpace
 	for (int32 Index = 0; Index < Order->Description->WeaponGroups.Num(); Index++)
 	{
 		// Create vertical structure
-		FFlareSpacecraftSlotGroupDescription& Slot = Order->Description->WeaponGroups[Index];
+		const FFlareSpacecraftSlotGroupDescription& Slot = Order->Description->WeaponGroups[Index];
 		TSharedPtr<SVerticalBox> WeaponSlot;
 		WeaponBox->AddSlot()
 		[
@@ -1147,7 +1270,7 @@ void SFlareSkirmishSetupMenu::OnUpgradeRCS(TSharedPtr<FFlareSkirmishSpacecraftOr
 
 void SFlareSkirmishSetupMenu::OnUpgradeWeapon(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order, int32 GroupIndex, FName Upgrade)
 {
-	FFlareSpacecraftDescription* Desc = Order->Description;
+	const FFlareSpacecraftDescription* Desc = Order->Description;
 
 	for (int32 Index = 0; Index < Order->Description->WeaponGroups.Num(); Index++)
 	{
@@ -1209,6 +1332,53 @@ void SFlareSkirmishSetupMenu::OnMainMenu()
 	MenuManager->GetGame()->GetSkirmishManager()->EndSkirmish();
 
 	MenuManager->OpenMenu(EFlareMenu::MENU_Main);
+}
+
+
+/*----------------------------------------------------
+	Helpers
+----------------------------------------------------*/
+
+bool SFlareSkirmishSetupMenu::CanStartPlaying(FText& Reason) const
+{
+	Reason = FText();
+
+	if (PlayerSpacecraftListData.Num() == 0)
+	{
+		Reason = LOCTEXT("SkirmishCantStartNoPlayer", "You don't have enough ships to start playing");
+		return false;
+	}
+	else if (EnemySpacecraftListData.Num() == 0)
+	{
+		Reason = LOCTEXT("SkirmishCantStartNoEnemy", "Your enemy doesn't have enough ships to start playing");
+		return false;
+	}
+
+	return true;
+}
+
+void SFlareSkirmishSetupMenu::SetOrderDefaults(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order)
+{
+	if (Order->Description->Size == EFlarePartSize::S)
+	{
+		Order->EngineType = FName("engine-thresher");
+		Order->RCSType = FName("rcs-coral");
+
+		for (auto& Slot : Order->Description->WeaponGroups)
+		{
+			Order->WeaponTypes.Add(FName("weapon-eradicator"));
+		}
+	}
+	else
+	{
+		Order->EngineType = FName("pod-thera");
+		Order->RCSType = FName("rcs-rift");
+
+		for (auto& Slot : Order->Description->WeaponGroups)
+		{
+			Order->WeaponTypes.Add(FName("weapon-artemis"));
+		}
+	}
 }
 
 

@@ -36,7 +36,7 @@ struct FSortByEntrySize
 		}
 		else if (A->IsMilitary() && B->IsMilitary())
 		{
-			return A->WeaponGroups.Num() > B->WeaponGroups.Num();
+			return A->CombatPoints > B->CombatPoints;
 		}
 		else if (A->IsMilitary() && !B->IsMilitary())
 		{

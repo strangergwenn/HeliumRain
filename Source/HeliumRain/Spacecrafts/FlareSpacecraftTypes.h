@@ -925,7 +925,7 @@ struct FFlareSkirmishSpacecraftOrder
 	GENERATED_USTRUCT_BODY()
 
 	// Base structure
-	FFlareSpacecraftDescription* Description;
+	const FFlareSpacecraftDescription* Description;
 
 	// Upgrades
 	FName EngineType;
@@ -933,7 +933,7 @@ struct FFlareSkirmishSpacecraftOrder
 	TArray<FName> WeaponTypes;
 
 	// Constructors
-	FFlareSkirmishSpacecraftOrder(FFlareSpacecraftDescription* Desc)
+	FFlareSkirmishSpacecraftOrder(const FFlareSpacecraftDescription* Desc)
 		: Description(Desc)
 	{}
 	FFlareSkirmishSpacecraftOrder()
@@ -941,7 +941,7 @@ struct FFlareSkirmishSpacecraftOrder
 	{}
 
 	// Constructor helper for lists
-	static TSharedPtr<FFlareSkirmishSpacecraftOrder> New(FFlareSpacecraftDescription* Desc)
+	static TSharedPtr<FFlareSkirmishSpacecraftOrder> New(const FFlareSpacecraftDescription* Desc)
 	{
 		return MakeShareable(new FFlareSkirmishSpacecraftOrder(Desc));
 	}

@@ -365,6 +365,14 @@ bool UFlareWeapon::FireBomb()
 		ShipComponentData->Weapon.FiredAmmo++;
 		Spacecraft->GetParent()->GetDamageSystem()->SetAmmoDirty();
 	}
+
+	// Skirmish scoring
+	if (Spacecraft->GetGame()->IsSkirmish())
+	{
+		bool ForPlayer = Spacecraft->GetCompany() == Spacecraft->GetPC()->GetCompany();
+		Spacecraft->GetGame()->GetSkirmishManager()->AmmoFired(ForPlayer);
+	}
+
 	return true;
 }
 

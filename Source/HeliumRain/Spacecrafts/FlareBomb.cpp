@@ -5,6 +5,7 @@
 #include "../Game/FlareAsteroid.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareGameTools.h"
+#include "../Game/FlareSkirmishManager.h"
 
 #include "../Player/FlarePlayerController.h"
 
@@ -500,6 +501,13 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 			DecalMaterialInst->SetScalarParameterValue("IsShipHull", ShipComponent->IsA(UFlareSpacecraftComponent::StaticClass()));
 			Decal->SetMaterial(0, DecalMaterialInst);
 		}
+	}
+
+	// Skirmish scoring
+	if (Spacecraft->GetGame()->IsSkirmish())
+	{
+		bool HitByPlayer = ParentWeapon->GetSpacecraft()->GetCompany() == ParentWeapon->GetSpacecraft()->GetPC()->GetCompany();
+		Spacecraft->GetGame()->GetSkirmishManager()->AmmoHit(HitByPlayer);
 	}
 
 	// Bomb has done its job, good job bomb

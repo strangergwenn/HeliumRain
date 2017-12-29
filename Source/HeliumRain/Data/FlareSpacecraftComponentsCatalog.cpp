@@ -11,20 +11,13 @@
 
 static bool SortByWeaponType(const UFlareSpacecraftComponentsCatalogEntry& A, const UFlareSpacecraftComponentsCatalogEntry& B)
 {
-	const FFlareSpacecraftComponentWeaponCharacteristics& CharA = A.Data.WeaponCharacteristics;
-	const FFlareSpacecraftComponentWeaponCharacteristics& CharB = B.Data.WeaponCharacteristics;
-
-	if (CharA.BombCharacteristics.IsBomb && !CharB.BombCharacteristics.IsBomb)
+	if (A.Data.WeaponCharacteristics.BombCharacteristics.IsBomb && !B.Data.WeaponCharacteristics.BombCharacteristics.IsBomb)
 	{
 		return false;
 	}
-	if (CharA.BombCharacteristics.IsBomb && CharB.BombCharacteristics.IsBomb)
-	{
-		return (CharA.ExplosionPower > CharB.ExplosionPower);
-	}
 	else
 	{
-		return (CharA.GunCharacteristics.KineticEnergy > CharB.GunCharacteristics.KineticEnergy);
+		return (A.Data.CombatPoints > B.Data.CombatPoints);
 	}
 }
 
