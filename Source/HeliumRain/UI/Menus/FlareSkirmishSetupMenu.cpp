@@ -878,13 +878,32 @@ TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedP
 		// Upgrade button
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
-		.Padding(Theme.ContentPadding)
 		[
-			SNew(SFlareButton)
-			.Text(FText())
-			.Icon(FFlareStyleSet::GetIcon("ShipUpgradeSmall"))
-			.OnClicked(this, &SFlareSkirmishSetupMenu::OnUpgradeSpacecraft, Item)
-			.Width(1)
+			SNew(SVerticalBox)
+
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(SFlareButton)
+				.Text(FText())
+				.HelpText(LOCTEXT("UpgradeSpacecraftInfo", "Upgrade this spacecraft"))
+				.Icon(FFlareStyleSet::GetIcon("ShipUpgradeSmall"))
+				.OnClicked(this, &SFlareSkirmishSetupMenu::OnUpgradeSpacecraft, Item)
+				.Width(1)
+			]
+
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(SFlareButton)
+				.Text(FText())
+				.HelpText(LOCTEXT("RemoveSpacecraftInfo", "Remove this spacecraft"))
+				.Icon(FFlareStyleSet::GetIcon("Delete"))
+				.OnClicked(this, &SFlareSkirmishSetupMenu::OnRemoveSpacecraft, Item)
+				.Width(1)
+			]
 		]
 	];
 }
@@ -1107,6 +1126,7 @@ void SFlareSkirmishSetupMenu::OnAutoCreateEnemyFleet()
 				for (int OrderIndex = 0; OrderIndex < ShipCount; OrderIndex++)
 				{
 					TSharedPtr<FFlareSkirmishSpacecraftOrder> Order = FFlareSkirmishSpacecraftOrder::New(&Spacecraft->Data);
+					Order->ForPlayer = false;
 					SetOrderDefaults(Order);
 					EnemySpacecraftListData.Add(Order);
 					CurrentCombatValue += Spacecraft->Data.CombatPoints;
@@ -1206,6 +1226,7 @@ void SFlareSkirmishSetupMenu::OnOrderShipConfirmed(FFlareSpacecraftDescription* 
 {
 	auto Order = FFlareSkirmishSpacecraftOrder::New(Spacecraft);
 
+	Order->ForPlayer = IsOrderingForPlayer;
 	SetOrderDefaults(Order);
 
 	// Add ship
@@ -1314,6 +1335,20 @@ void SFlareSkirmishSetupMenu::OnUpgradeSpacecraft(TSharedPtr<FFlareSkirmishSpace
 	}
 
 	SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
+}
+
+void SFlareSkirmishSetupMenu::OnRemoveSpacecraft(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order)
+{
+	if (Order->ForPlayer)
+	{
+		PlayerSpacecraftListData.Remove(Order);
+		PlayerSpacecraftList->RequestListRefresh();
+	}
+	else
+	{
+		EnemySpacecraftListData.Remove(Order);
+		EnemySpacecraftList->RequestListRefresh();
+	}
 }
 
 void SFlareSkirmishSetupMenu::OnUpgradeEngine(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order, FName Upgrade)

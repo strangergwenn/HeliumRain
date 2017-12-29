@@ -932,6 +932,9 @@ struct FFlareSkirmishSpacecraftOrder
 	FName RCSType;
 	TArray<FName> WeaponTypes;
 
+	// Menu hint
+	bool ForPlayer;
+
 	// Constructors
 	FFlareSkirmishSpacecraftOrder(const FFlareSpacecraftDescription* Desc)
 		: Description(Desc)
