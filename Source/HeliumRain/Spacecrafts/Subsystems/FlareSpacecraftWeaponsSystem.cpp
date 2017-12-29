@@ -96,9 +96,8 @@ void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 			}
 			break;
 
-		// For turrets, use the fire director
+		// Turrets follow the player aim
 		case EFlareWeaponGroupType::WG_TURRET:
-			if (IsInFireDirector())
 			{
 				for (int32 i = 0; i < ActiveWeaponGroup->Weapons.Num(); i++)
 				{
@@ -387,7 +386,10 @@ void UFlareSpacecraftWeaponsSystem::DeactivateWeapons()
 
 bool UFlareSpacecraftWeaponsSystem::IsInFireDirector()
 {
-	return (ActiveWeaponGroupIndex >= 0 && Spacecraft->GetDescription()->Size != EFlarePartSize::S);
+	// The fire director mode was used to control turrets
+	// It would be useful later on, for a command ship, but is now unused
+
+	return false;
 }
 
 void UFlareSpacecraftWeaponsSystem::ToggleWeaponActivation()

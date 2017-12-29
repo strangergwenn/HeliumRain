@@ -82,7 +82,7 @@ void AFlareShell::Initialize(UFlareWeapon* Weapon, const FFlareSpacecraftCompone
 	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->RegisterShell(this);
 	PC = ParentWeapon->GetSpacecraft()->GetGame()->GetPC();
 
-	ManualTurret = ParentWeapon->GetSpacecraft()->GetWeaponsSystem()->IsInFireDirector();
+	ManualTurret = ParentWeapon->GetSpacecraft()->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET;
 }
 
 void AFlareShell::Tick(float DeltaSeconds)

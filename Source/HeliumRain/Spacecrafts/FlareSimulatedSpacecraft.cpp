@@ -2190,41 +2190,26 @@ bool UFlareSimulatedSpacecraft::IsResponsible(EFlareDamage::Type DamageType)
 {
 	UFlareSimulatedSpacecraft* PlayerShip = GetGame()->GetPC()->GetPlayerShip();
 
-	if(this != PlayerShip)
+	if (this != PlayerShip)
 	{
 		return false;
 	}
 
-	if(PlayerShip->GetSize() == EFlarePartSize::S)
+	if (PlayerShip->GetSize() == EFlarePartSize::S)
 	{
 		return true;
 	}
 	else
 	{
-		if(PlayerShip->IsActive())
+		if (PlayerShip->IsActive())
 		{
-			if (PlayerShip->GetActive()->GetWeaponsSystem()->IsInFireDirector())
+			if (PlayerShip->GetActive()->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET)
 			{
-				if (DamageType == EFlareDamage::DAM_Collision)
-				{
-					return false;
-				}
-				else
-				{
-					return true;
-				}
-
+				return true;
 			}
 			else
 			{
-				if (DamageType == EFlareDamage::DAM_Collision)
-				{
-					return true;
-				}
-				else
-				{
-					return false;
-				}
+				return (DamageType == EFlareDamage::DAM_Collision);
 			}
 		}
 		else
