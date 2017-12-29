@@ -52,6 +52,8 @@ protected:
 		Content callbacks
 	----------------------------------------------------*/
 
+	FText GetAltitudeValue() const;
+
 	FText GetAsteroidValue() const;
 
 	FText GetDebrisValue() const;
@@ -145,6 +147,7 @@ protected:
 	// Settings widgets
 	TSharedPtr<SFlareDropList<FFlareCompanyDescription>>               CompanySelector;
 	TSharedPtr<SFlareDropList<FFlareSectorCelestialBodyDescription>>   PlanetSelector;
+	TSharedPtr<SSlider>                                                AltitudeSlider;
 	TSharedPtr<SSlider>                                                AsteroidSlider;
 	TSharedPtr<SSlider>                                                DebrisSlider;
 	TSharedPtr<SFlareButton>                                           IcyButton;

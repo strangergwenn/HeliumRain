@@ -224,6 +224,14 @@ struct FFlareSectorCelestialBodyDescription
 	/** Celestial body image */
 	UPROPERTY(EditAnywhere, Category = Content)
 	FSlateBrush CelestialBodyPicture;
+
+	/** Minimal orbit */
+	UPROPERTY(EditAnywhere, Category = Content)
+	float MinimalOrbitAltitude;
+
+	/** Maximal orbit */
+	UPROPERTY(EditAnywhere, Category = Content)
+	float MaximalOrbitAltitude;
 };
 
 

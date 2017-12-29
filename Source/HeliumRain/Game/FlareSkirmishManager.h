@@ -46,6 +46,7 @@ struct FFlareSkirmishData
 
 	// World setup
 	FFlareSectorDescription                          SectorDescription;
+	float                                            SectorAltitude;
 	int32                                            AsteroidCount;
 	bool                                             MetallicDebris;
 

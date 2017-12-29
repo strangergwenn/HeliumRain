@@ -175,7 +175,55 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 							]
 						]
 
-						// TODO 1075 : altitude picker
+						// Altitude
+						+ SVerticalBox::Slot()
+						.HAlign(HAlign_Left)
+						.AutoHeight()
+						[
+							SNew(SBox)
+							.WidthOverride(Theme.ContentWidth)
+							[
+								SNew(SHorizontalBox)
+
+								// Text
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.Padding(Theme.ContentPadding)
+								[
+									SNew(SBox)
+									.WidthOverride(LabelWidth)
+									[
+										SNew(STextBlock)
+										.Text(LOCTEXT("AltitudeLabel", "Altitude"))
+										.TextStyle(&Theme.TextFont)
+									]
+								]
+
+								// Slider
+								+ SHorizontalBox::Slot()
+								.VAlign(VAlign_Center)
+								.Padding(Theme.ContentPadding)
+								[
+									SAssignNew(AltitudeSlider, SSlider)
+									.Value(0)
+									.Style(&Theme.SliderStyle)
+								]
+
+								// Label
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.Padding(Theme.ContentPadding)
+								[
+									SNew(SBox)
+									.WidthOverride(LabelWidth)
+									[
+										SNew(STextBlock)
+										.TextStyle(&Theme.TextFont)
+										.Text(this, &SFlareSkirmishSetupMenu::GetAltitudeValue)
+									]
+								]
+							]
+						]
 
 						// Asteroids
 						+ SVerticalBox::Slot()
@@ -716,6 +764,11 @@ void SFlareSkirmishSetupMenu::Exit()
 	Content callbacks
 ----------------------------------------------------*/
 
+FText SFlareSkirmishSetupMenu::GetAltitudeValue() const
+{
+	return FText::AsNumber(FMath::RoundToInt(100.0f * AltitudeSlider->GetValue()));
+}
+
 FText SFlareSkirmishSetupMenu::GetAsteroidValue() const
 {
 	return FText::AsNumber(FMath::RoundToInt(MAX_ASTEROIDS * AsteroidSlider->GetValue()));
@@ -1152,7 +1205,7 @@ void SFlareSkirmishSetupMenu::OnOrderShipConfirmed(FFlareSpacecraftDescription* 
 	if (IsOrderingForPlayer)
 	{
 		PlayerSpacecraftListData.AddUnique(Order);
-		OnSortPlayerFleet();
+		PlayerSpacecraftList->RequestListRefresh();
 	}
 	else
 	{
@@ -1305,6 +1358,7 @@ void SFlareSkirmishSetupMenu::OnStartSkirmish()
 	EnemySpacecraftListData.Empty();
 
 	// Set sector settings
+	Skirmish->GetData().SectorAltitude = AltitudeSlider->GetValue();
 	Skirmish->GetData().AsteroidCount = MAX_ASTEROIDS * AsteroidSlider->GetValue();
 	Skirmish->GetData().MetallicDebris = MetalDebrisButton->IsActive();
 	Skirmish->GetData().SectorDescription.CelestialBodyIdentifier = PlanetSelector->GetSelectedItem().CelestialBodyIdentifier;

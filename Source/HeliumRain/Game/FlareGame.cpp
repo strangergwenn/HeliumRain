@@ -725,8 +725,17 @@ void AFlareGame::CreateSkirmishGame(UFlareSkirmishManager* Skirmish)
 	SectorSave.GivenName = SectorDescription->Name;
 	SectorSave.IsTravelSector = false;
 	SectorParameters.CelestialBodyIdentifier = SectorDescription->CelestialBodyIdentifier;
-	SectorParameters.Altitude = SectorDescription->Altitude;
 	SectorParameters.Phase = SectorDescription->Phase;
+
+	// Compute altitude
+	for (auto Body : GetOrbitalBodies()->OrbitalBodies)
+	{
+		if (SectorDescription->CelestialBodyIdentifier == Body.CelestialBodyIdentifier)
+		{
+			float AltitudeRange = Body.MaximalOrbitAltitude - Body.MinimalOrbitAltitude;
+			SectorParameters.Altitude = Body.MinimalOrbitAltitude + Skirmish->GetData().SectorAltitude * AltitudeRange;
+		}
+	}
 
 	// Load sector
 	UFlareSimulatedSector* Sector = World->LoadSector(SectorDescription, SectorSave, SectorParameters);
