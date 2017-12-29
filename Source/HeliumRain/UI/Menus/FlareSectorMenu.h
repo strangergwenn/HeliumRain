@@ -4,6 +4,7 @@
 #include "../Components/FlareListItem.h"
 #include "../Components/FlareSpacecraftInfo.h"
 #include "../Components/FlareList.h"
+#include "../Components/FlareDropList.h"
 #include "../../Game/FlareGame.h"
 
 
