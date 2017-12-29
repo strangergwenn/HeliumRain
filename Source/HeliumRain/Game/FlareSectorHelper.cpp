@@ -171,10 +171,10 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 
 
 
-			uint32 MaxBuyableQuantity = Request.Client->GetCompany()->GetMoney() / SectorHelper::GetBuyResourcePrice(Sector, Request.Resource, ResourceUsage);
+			uint32 MaxBuyableQuantity = Request.Client->GetCompany()->GetMoney() / Station->GetResourcePrice(Request.Resource, EFlareResourcePriceContext::BuyPrice);
 			LoadMaxQuantity = FMath::Min(LoadMaxQuantity , MaxBuyableQuantity);
 
-			uint32 MaxSellableQuantity = Station->GetCompany()->GetMoney() / SectorHelper::GetSellResourcePrice(Sector, Request.Resource, ResourceUsage);
+			uint32 MaxSellableQuantity = Station->GetCompany()->GetMoney() / Station->GetResourcePrice(Request.Resource, EFlareResourcePriceContext::SellPrice);
 			UnloadMaxQuantity = FMath::Min(UnloadMaxQuantity , MaxSellableQuantity);
 
 			Score += UnloadMaxQuantity * SellQuantityScoreMultiplier;
@@ -203,55 +203,6 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 
 	return BestStation;
 }
-
-int64 SectorHelper::GetSellResourcePrice(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource, FFlareResourceUsage Usage)
-{
-	if(Usage.HasUsage(EFlareResourcePriceContext::FactoryInput) ||
-	   Usage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption) ||
-	   Usage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption))
-	{
-		 if(!Usage.HasUsage(EFlareResourcePriceContext::FactoryOutput))
-		 {
-			return Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
-		 }
-	}
-	return Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
-}
-
-int64 SectorHelper::GetBuyResourcePrice(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource, FFlareResourceUsage Usage)
-{
-
-	if(!Usage.HasAnyUsage())
-	{
-		return Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
-	}
-
-	int64 MaxPrice = 0;
-
-
-	if(Usage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption))
-	{
-		MaxPrice = FMath::Max(MaxPrice, Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::ConsumerConsumption));
-	}
-
-	if(Usage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption))
-	{
-		MaxPrice = FMath::Max(MaxPrice, Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::MaintenanceConsumption));
-	}
-
-	if(Usage.HasUsage(EFlareResourcePriceContext::FactoryInput))
-	{
-		MaxPrice = FMath::Max(MaxPrice, Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
-	}
-
-	if(Usage.HasUsage(EFlareResourcePriceContext::FactoryOutput))
-	{
-		MaxPrice = FMath::Max(MaxPrice, Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryOutput));
-	}
-
-	return MaxPrice;
-}
-
 
 int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 MaxQuantity, int64* TransactionPrice, UFlareTradeRoute* TradeRoute)
 {
@@ -349,6 +300,8 @@ void SectorHelper::GetAvailableFleetSupplyCount(UFlareSimulatedSector* Sector, U
 	OwnedFS = 0;
 	int32 NotOwnedFS = 0;
 
+	TArray<TPair<int32, int32>> NotOwnedFSPrices;
+
 	FFlareResourceDescription* FleetSupply = Sector->GetGame()->GetScenarioTools()->FleetSupply;
 
 	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
@@ -363,6 +316,11 @@ void SectorHelper::GetAvailableFleetSupplyCount(UFlareSimulatedSector* Sector, U
 
 		int32 AvailableQuantity = Spacecraft->GetActiveCargoBay()->GetResourceQuantity(FleetSupply, Company);
 
+		if(AvailableQuantity <= 0)
+		{
+			continue;
+		}
+
 		if (Company == Spacecraft->GetCompany())
 		{
 			OwnedFS += AvailableQuantity;
@@ -370,15 +328,35 @@ void SectorHelper::GetAvailableFleetSupplyCount(UFlareSimulatedSector* Sector, U
 		else
 		{
 			NotOwnedFS += AvailableQuantity;
+			NotOwnedFSPrices.Add(TPair<int32, int32>(Spacecraft->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::BuyPrice), AvailableQuantity));
 		}
 	}
 
 	AvailableFS = OwnedFS + NotOwnedFS;
-	int32 ResourcePrice = Sector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::MaintenanceConsumption);
+	//int32 ResourcePrice = Sector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::MaintenanceConsumption);
 
-	int32 MaxAffordableQuantity = FMath::Max(0, int32(Company->GetMoney() / ResourcePrice));
+	int32 MaxAffordableQuantity = 0;
 
-	AffordableFS = OwnedFS + FMath::Min(MaxAffordableQuantity, NotOwnedFS);
+	NotOwnedFSPrices.Sort([](const TPair<int32, int32>& Left, const TPair<int32, int32>& Right)
+	{
+		return Left.Key < Right.Key;
+	});
+
+	int64 RemainingCompanyMoney = Company->GetMoney();
+
+	for(auto Prices : NotOwnedFSPrices)
+	{
+		int32 AffordableQuantity = FMath::Max(0, int32(RemainingCompanyMoney / Prices.Key));
+		if(AffordableQuantity == 0)
+		{
+			break;
+		}
+		int32 UsedQuantity = FMath::Min(Prices.Value, AffordableQuantity);
+		MaxAffordableQuantity+= UsedQuantity;
+		RemainingCompanyMoney -= UsedQuantity * Prices.Key;
+	}
+
+	AffordableFS = OwnedFS + MaxAffordableQuantity;
 }
 
 float SectorHelper::GetComponentMaxRepairRatio(FFlareSpacecraftComponentDescription* ComponentDescription)
@@ -742,53 +720,61 @@ void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 
 void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 ConsumedFS, bool ForRepair)
 {
-	// First check for owned FS
 	Sector->OnFleetSupplyConsumed(ConsumedFS);
 
+	struct FSPrice
+	{
+		int64 Price;
+		int32 Quantity;
+		UFlareSimulatedSpacecraft* Spacecraft;
+	};
+
+	TArray<FSPrice> FSPrices;
 	FFlareResourceDescription* FleetSupply = Sector->GetGame()->GetScenarioTools()->FleetSupply;
 
-	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+
+	for(UFlareSimulatedSpacecraft* Spacecraft : Sector->GetSectorSpacecrafts())
 	{
-		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
-
-		if (Company != Spacecraft->GetCompany())
-		{
-			continue;
-		}
-
-		int TakenQuantity = Spacecraft->GetActiveCargoBay()->TakeResources(FleetSupply, ConsumedFS, Company);
-		ConsumedFS -= TakenQuantity;
-
-		if(ConsumedFS == 0)
-		{
-			return;
-		}
-	}
-
-	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
-	{
-		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
-
-		if (Company == Spacecraft->GetCompany())
-		{
-			continue;
-		}
-
 		if (Company->GetWarState(Spacecraft->GetCompany()) == EFlareHostility::Hostile)
 		{
 			// At war, no trade possible
 			continue;
 		}
 
-		int TakenQuantity = Spacecraft->GetActiveCargoBay()->TakeResources(FleetSupply, ConsumedFS, Company);
+		int32 AvailableQuantity = Spacecraft->GetActiveCargoBay()->GetResourceQuantity(FleetSupply, Company);
+		if(AvailableQuantity <= 0)
+		{
+			continue;
+		}
+
+		FSPrices.Add({Spacecraft->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::BuyPrice), AvailableQuantity, Spacecraft});
+	}
+
+	FSPrices.Sort([](const FSPrice& Left, const FSPrice& Right)
+	{
+		if(Left.Price == Right.Price)
+		{
+			return Left.Quantity > Right.Quantity;
+		}
+		else
+		{
+			return Left.Price < Right.Price;
+		}
+	});
+
+
+	for(const FSPrice& Price: FSPrices)
+	{
+		int TakenQuantity = Price.Spacecraft->GetActiveCargoBay()->TakeResources(FleetSupply, ConsumedFS, Company);
 
 		if(TakenQuantity > 0)
 		{
-			int32 ResourcePrice = Sector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::MaintenanceConsumption);
-
-			int64 Cost = TakenQuantity * ResourcePrice;
-			Company->TakeMoney(Cost, true, FFlareTransactionLogEntry::LogPayMaintenance(Spacecraft, TakenQuantity, ForRepair));
-			Spacecraft->GetCompany()->GiveMoney(Cost, FFlareTransactionLogEntry::LogPaidForMaintenance(Spacecraft, Company, TakenQuantity, ForRepair));
+			if(Price.Price > 0)
+			{
+				int64 Cost = TakenQuantity * Price.Price;
+				Company->TakeMoney(Cost, true, FFlareTransactionLogEntry::LogPayMaintenance(Spacecraft, TakenQuantity, ForRepair));
+				Price.Spacecraft->GetCompany()->GiveMoney(Cost, FFlareTransactionLogEntry::LogPaidForMaintenance(Spacecraft, Company, TakenQuantity, ForRepair));
+			}
 
 			ConsumedFS -= TakenQuantity;
 

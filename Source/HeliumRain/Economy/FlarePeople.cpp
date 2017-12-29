@@ -200,7 +200,8 @@ void UFlarePeople::SimulateResourcePurchase()
 		//TODO reputation
 	}
 
-
+	// TODO ECO2
+/*
 	float FuelPrice = Parent->GetResourcePrice(Fuel, EFlareResourcePriceContext::Default);
 	float FuelPriceRatio = (FuelPrice - Fuel->MinPrice) / (float)(Fuel->MaxPrice - Fuel->MinPrice);
 	if(!LockNext && FuelPriceRatio < 0.75)
@@ -293,6 +294,7 @@ void UFlarePeople::SimulateResourcePurchase()
 	{
 		PeopleData.TechConsumption = TECH_MIN_CONSUMPTION;
 	}
+	*/
 }
 
 uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, uint32 Quantity, float MarketingRatio)
@@ -316,7 +318,9 @@ uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, u
 
 	// Limit quantity to buy with money
 
-	int64 SectorResourcePrice = Parent->GetResourcePrice(Resource, EFlareResourcePriceContext::ConsumerConsumption);
+	//int64 SectorResourcePrice = Parent->GetResourcePrice(Resource, EFlareResourcePriceContext::ConsumerConsumption);
+	// TODO ECO2
+	int64 SectorResourcePrice = 10;
 
 
 	uint32 BaseQuantity = FMath::Min(Quantity, PeopleData.Money / (uint32) (SectorResourcePrice));

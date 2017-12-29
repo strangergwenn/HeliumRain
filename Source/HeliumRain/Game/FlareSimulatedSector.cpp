@@ -790,7 +790,7 @@ void UFlareSimulatedSector::SimulatePriceVariation()
 		SimulatePriceVariation(Resource);
 	}
 }
-
+/*
 void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Resource)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareSector_SimulatePriceVariation);
@@ -874,13 +874,7 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 		float WantedVariation = MeanWantedPriceRatio - OldPriceRatio;
 
 
-		/*FLOGV(">>> %s price in %s", *Resource->Name.ToString(), *GetSectorName().ToString());
-		FLOGV("   WantedPriceSum %f", WantedPriceSum);
-		FLOGV("   WantedWeightSum %f", WantedWeightSum);
-		FLOGV("   MeanWantedPriceRatio %f", MeanWantedPriceRatio);
-		FLOGV("   OldPrice %f", OldPrice);
-		FLOGV("   OldPriceRatio %f", OldPriceRatio);
-		FLOGV("   WantedVariation %f", WantedVariation);*/
+
 
 
 
@@ -916,23 +910,9 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 			float NewPrice = FMath::Max(1.f, OldPrice * (1 + Variation / 100.f));
 
 
-			/*FLOGV("   VariationScale %f", VariationScale);
-			FLOGV("   Variation %f", Variation);
-			FLOGV("   NewPrice %f", NewPrice);*/
 
 			SetPreciseResourcePrice(Resource, NewPrice);
-			/*if(NewPrice > Resource->MaxPrice)
-			{
-				FLOGV("%s price at max in %s", *Resource->Name.ToString(), *GetSectorName().ToString());
-			}
-			else if(NewPrice < Resource->MinPrice)
-			{
-				FLOGV("%s price at min in %s", *Resource->Name.ToString(), *GetSectorName().ToString());
-			}
-			else
-			{
-				FLOGV("%s price in %s change from %f to %f (%f)", *Resource->Name.ToString(), *GetSectorName().ToString(), OldPrice / 100.f, NewPrice / 100.f, Variation);
-			}*/
+
 		}
 	}
 	else
@@ -973,7 +953,7 @@ void UFlareSimulatedSector::SimulatePriceVariation(FFlareResourceDescription* Re
 		float MeanNearPrice = PriceSum / NumSector;
 		SetPreciseResourcePrice(Resource, MeanNearPrice);
 	}
-}
+}*/
 
 bool UFlareSimulatedSector::WantSell(FFlareResourceDescription* Resource, UFlareCompany* Client)
 {

@@ -632,7 +632,7 @@ FText SFlareTradeMenu::GetTransactionInvalidDetails() const
 
 FText SFlareTradeMenu::GetResourcePriceInfo(FFlareResourceDescription* Resource) const
 {
-	if (TargetSector)
+	/*if (TargetSector)
 	{
 		FNumberFormattingOptions MoneyFormat;
 		MoneyFormat.MaximumFractionalDigits = 2;
@@ -660,7 +660,8 @@ FText SFlareTradeMenu::GetResourcePriceInfo(FFlareResourceDescription* Resource)
 			FText::AsNumber(ResourcePrice / 100.0f, &MoneyFormat),
 			FText::AsNumber(Resource->TransportFee / 100.0f, &MoneyFormat),
 			VariationText);
-	}
+	}*/
+	// TODO ECO2
 
 	return FText();
 }
@@ -846,7 +847,7 @@ void SFlareTradeMenu::UpdatePrice()
 		if (TransactionSourceSpacecraft && TransactionDestinationSpacecraft->GetCompany() != TransactionSourceSpacecraft->GetCompany() && ResourceUnitPrice > 0)
 		{
 			int64 TransactionPrice = TransactionQuantity * ResourceUnitPrice;
-			bool AllowDepts = TransactionDestinationSpacecraft->GetResourceUseType(TransactionResource).HasUsage(EFlareResourcePriceContext::ConsumerConsumption) || MenuManager->GetGame()->GetQuestManager()->IsTradeQuestUseStation(TransactionDestinationSpacecraft);
+			bool AllowDepts = TransactionDestinationSpacecraft->GetResourceUseType(TransactionResource).HasUsage(EFlareResourceUsageContext::ConsumerConsumption) || MenuManager->GetGame()->GetQuestManager()->IsTradeQuestUseStation(TransactionDestinationSpacecraft);
 
 			PriceBox->Show(TransactionPrice, TransactionDestinationSpacecraft->GetCompany(), AllowDepts);
 		}
