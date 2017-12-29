@@ -730,6 +730,9 @@ void SFlareSkirmishSetupMenu::Enter()
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
+	FCHECK(PlayerSpacecraftListData.Num() == 0);
+	FCHECK(EnemySpacecraftListData.Num() == 0);
+
 	// Setup lists
 	CompanySelector->RefreshOptions();
 	PlanetSelector->RefreshOptions();
@@ -750,6 +753,10 @@ void SFlareSkirmishSetupMenu::Exit()
 {
 	SetEnabled(false);
 	SetVisibility(EVisibility::Collapsed);
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	FCHECK(PlayerSpacecraftListData.Num() <= MyGameSettings->MaxShipsInSector);
+	FCHECK(EnemySpacecraftListData.Num() <= MyGameSettings->MaxShipsInSector);
 
 	// Empty lists
 	WeaponBox->ClearChildren();

@@ -157,6 +157,12 @@ protected:
 	TSharedPtr<SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>>   PlayerSpacecraftList;
 	TSharedPtr<SListView<TSharedPtr<FFlareSkirmishSpacecraftOrder>>>   EnemySpacecraftList;
 
+	// List data
+	UPROPERTY()
+	TArray<TSharedPtr<FFlareSkirmishSpacecraftOrder>>        PlayerSpacecraftListData;
+	UPROPERTY()
+	TArray<TSharedPtr<FFlareSkirmishSpacecraftOrder>>        EnemySpacecraftListData;
+
 	// Upgrade widgets
 	TSharedPtr<SBackgroundBlur>                              UpgradeBox;
 	TSharedPtr<SVerticalBox>                                 OrbitalEngineBox;
@@ -164,8 +170,6 @@ protected:
 	TSharedPtr<SHorizontalBox>                               WeaponBox;
 
 	// State
-	TArray<TSharedPtr<FFlareSkirmishSpacecraftOrder>>        PlayerSpacecraftListData;
-	TArray<TSharedPtr<FFlareSkirmishSpacecraftOrder>>        EnemySpacecraftListData;
 	bool                                                     IsOrderingForPlayer;
 
 };
