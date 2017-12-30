@@ -590,6 +590,9 @@ struct FFlareSpacecraftSlotDescription
 	/** Power components */
 	UPROPERTY(EditAnywhere, Category = Content)
 	TArray<FName> PoweredComponents;
+
+	/** Is the turret controllable in manual aim mode */
+	UPROPERTY(EditAnywhere, Category = Content) bool IgnoreManualAim;
 };
 
 /** Spacecraft capabilities */

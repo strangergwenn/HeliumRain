@@ -90,7 +90,7 @@ void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 	}
 
 	// Fire director
-	if (IsManuallyFiring)
+	if (IsManuallyFiring && !Turret->IsIgnoreManualAim())
 	{
 		AimAxis = ManualAimDirection;
 

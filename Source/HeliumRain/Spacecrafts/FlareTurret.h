@@ -81,4 +81,6 @@ public:
 		return Pilot;
 	}
 
+	bool IsIgnoreManualAim() const;
+
 };

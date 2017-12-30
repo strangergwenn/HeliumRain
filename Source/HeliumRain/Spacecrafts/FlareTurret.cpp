@@ -361,6 +361,22 @@ static inline int PositiveModulo(int i, int n)
 	return (i % n + n) % n;
 }
 
+bool UFlareTurret::IsIgnoreManualAim() const
+{
+	FFlareSpacecraftDescription* Desc = Spacecraft->GetParent()->GetDescription();
+
+	for (int32 i = 0; i < Desc->TurretSlots.Num(); i++)
+	{
+		// TODO optimize and store that in cache
+		if (Desc->TurretSlots[i].SlotIdentifier == ShipComponentData->ShipSlotIdentifier)
+		{
+			return Desc->TurretSlots[i].IgnoreManualAim;
+		}
+	}
+
+	return false;
+}
+
 float UFlareTurret::GetMinLimitAtAngle(float Angle) const
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareTurret_GetMinLimitAtAngle);

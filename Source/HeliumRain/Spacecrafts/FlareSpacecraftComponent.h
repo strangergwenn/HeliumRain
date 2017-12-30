@@ -196,7 +196,6 @@ struct FFlareSpacecraftComponentTurretCharacteristics
 
 	/** Sound played on barrel rotation*/
 	UPROPERTY(EditAnywhere, Category = Content) USoundCue* BarrelRotationSound;
-
 };
 
 /** Weapon characteristics */
