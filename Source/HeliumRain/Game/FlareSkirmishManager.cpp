@@ -115,10 +115,10 @@ void UFlareSkirmishManager::StartPlay()
 	CurrentPhase = EFlareSkirmishPhase::Play;
 
 	// Start the game
-	FFlareMenuParameterData Data;
-	Data.ScenarioIndex = -1;
-	Data.Skirmish = this;
-	AFlareMenuManager::GetSingleton()->OpenMenu(EFlareMenu::MENU_CreateGame, Data);
+	FFlareMenuParameterData MenuData;
+	MenuData.ScenarioIndex = -1;
+	MenuData.Skirmish = this;
+	AFlareMenuManager::GetSingleton()->OpenMenu(EFlareMenu::MENU_CreateGame, MenuData);
 }
 
 void UFlareSkirmishManager::EndPlay()
