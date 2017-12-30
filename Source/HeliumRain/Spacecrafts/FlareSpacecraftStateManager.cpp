@@ -350,19 +350,11 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 			IsFireDirectorInit = true;
 		}
 
-		float Dot = FVector::DotProduct(FireDirectorLookRotation.GetForwardVector(), Spacecraft->Airframe->GetComponentTransform().GetRotation().GetForwardVector());
-
-		float ScaledDot = (FMath::Max(Dot - 0.5f, 0.f) * 2.f);
-
-		FQuat Yaw(FVector(0,0,1), FMath::DegreesToRadians(YawRotation * ScaledDot));
-		FQuat Pitch(FVector(0,1,0), FMath::DegreesToRadians(PitchRotation * ScaledDot));
-
-
-
+		FQuat Yaw(FVector(0,0,1), FMath::DegreesToRadians(YawRotation));
+		FQuat Pitch(FVector(0,1,0), FMath::DegreesToRadians(PitchRotation));
 
 		FireDirectorLookRotation *= Yaw;
 		FireDirectorLookRotation *= Pitch;
-
 
 		// roll correction
 		FVector CameraTop = FireDirectorLookRotation.GetAxisZ();
@@ -372,11 +364,26 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		FlatCameraTop.X = 0;
 		FlatCameraTop.Normalize();
 
-		float Angle = FMath::UnwindRadians(FMath::Atan2(FlatCameraTop.Y, FlatCameraTop.Z));
-
-		FQuat Roll(FVector(1,0,0), Angle);
+		float TopAngle = FMath::UnwindRadians(FMath::Atan2(FlatCameraTop.Y, FlatCameraTop.Z));
+		FQuat Roll(FVector(1,0,0), TopAngle);
 
 		FireDirectorLookRotation *= Roll;
+
+
+		// Clamp max distance to front
+		FVector CameraFront = FireDirectorLookRotation.GetAxisX();
+		FVector LocalCameraFront = Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(CameraFront);
+		float FrontFactor = LocalCameraFront.X;
+
+		float MinFactor = 0.9f;
+
+		if(FrontFactor < MinFactor)
+		{
+			float Alpha = 5.f * FMath::Clamp((MinFactor - FrontFactor) / MinFactor, 0.f, 1.f);
+			float AlphaNormalized = FMath::Clamp(Alpha * DeltaSeconds, 0.f, 1.f);
+
+			FireDirectorLookRotation = FQuat::Slerp(FireDirectorLookRotation, Spacecraft->Airframe->GetComponentTransform().GetRotation(), AlphaNormalized);
+		}
 
 		FireDirectorLookRotation.Normalize();
 
