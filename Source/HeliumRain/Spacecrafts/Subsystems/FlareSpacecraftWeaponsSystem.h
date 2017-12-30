@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "../FlarePilotHelper.h"
 #include "FlareSpacecraftWeaponsSystemInterface.h"
 #include "FlareSpacecraftWeaponsSystem.generated.h"
 
@@ -114,7 +115,7 @@ public:
 
 	void GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollableCivil, float* IsUncontrollableSmallMilitary, float* IsUncontrollableLargeMilitary, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned, FFlareWeaponGroup* RestrictGroup = NULL);
 
-	int32 FindBestWeaponGroup(AFlareSpacecraft* Target);
+	int32 FindBestWeaponGroup(PilotHelper::PilotTarget Target);
 
 protected:
 

@@ -188,11 +188,11 @@ FVector UFlareWeapon::ComputeParallaxCorrection(int GunIndex)
 	FVector CameraLocation = Spacecraft->GetCamera()->GetComponentLocation();
 	FVector CameraAimDirection = Spacecraft->GetCamera()->GetComponentRotation().Vector();
 
-	if(Spacecraft->GetCurrentTarget() && !IsTurret())
+	if(Spacecraft->GetCurrentTarget().IsValid() && !IsTurret())
 	{
 		FVector TargetAmmoIntersectionLocation;
 
-		float InterceptTime = Spacecraft->GetCurrentTarget()->GetAimPosition(Spacecraft, GetAmmoVelocity(), 0.0, &TargetAmmoIntersectionLocation);
+		float InterceptTime = Spacecraft->GetCurrentTarget().GetAimPosition(Spacecraft, GetAmmoVelocity(), 0.0, &TargetAmmoIntersectionLocation);
 
 		HasParallaxTarget = true;
 
@@ -361,7 +361,7 @@ bool UFlareWeapon::FireBomb()
 	AFlareBomb* Bomb = Bombs.Pop();
 	if (Bomb)
 	{
-		Bomb->OnLaunched(Spacecraft->GetCurrentTarget());
+		Bomb->OnLaunched(Spacecraft->GetCurrentTarget().SpacecraftTarget);
 		ShipComponentData->Weapon.FiredAmmo++;
 		Spacecraft->GetParent()->GetDamageSystem()->SetAmmoDirty();
 	}

@@ -1045,7 +1045,7 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 			// Small ship
 			if (ShipDistance < MaxSDangerDistance && Ship->GetDescription()->Size == EFlarePartSize::S)
 			{
-				IsDangerous = (Ship->GetPilot()->GetTargetShip() == GetShipPawn());
+				IsDangerous = (Ship->GetPilot()->GetPilotTarget().Is(GetShipPawn()));
 				IsFiring = IsDangerous && Ship->GetPilot()->IsWantFire();
 			}
 
@@ -1057,7 +1057,7 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 					UFlareTurret* Turret = Cast<UFlareTurret>(Weapon);
 					FCHECK(Turret);
 
-					if (Turret->GetTurretPilot()->GetTargetShip() == GetShipPawn())
+					if (Turret->GetTurretPilot()->GetTurretTarget().Is(GetShipPawn()))
 					{
 						IsDangerous = true;
 						if (Turret->GetTurretPilot()->IsWantFire())
@@ -2107,7 +2107,7 @@ void AFlarePlayerController::EnablePilot()
 		// Try docking at target station
 		if (GetCompany()->IsTechnologyUnlocked("auto-docking"))
 		{
-			AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
+			AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget().SpacecraftTarget;
 			if (TargetSpacecraft && TargetSpacecraft->IsStation())
 			{
 				bool DockingConfirmed = ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft);
@@ -2539,7 +2539,7 @@ void AFlarePlayerController::WheelPressed()
 		else
 		{
 			// Targeting
-			AFlareSpacecraft* Target = ShipPawn->GetCurrentTarget();
+			AFlareSpacecraft* Target = ShipPawn->GetCurrentTarget().SpacecraftTarget;
 			if (Target)
 			{
 				FText Text;
@@ -2605,7 +2605,7 @@ void AFlarePlayerController::InspectTargetSpacecraft()
 {
 	if (ShipPawn)
 	{
-		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
+		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget().SpacecraftTarget;
 		if (ShipPawn->GetNavigationSystem()->IsDocked())
 		{
 			TargetSpacecraft = ShipPawn->GetNavigationSystem()->GetDockStation();
@@ -2624,7 +2624,7 @@ void AFlarePlayerController::FlyTargetSpacecraft()
 {
 	if (ShipPawn)
 	{
-		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
+		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget().SpacecraftTarget;
 		if (TargetSpacecraft)
 		{
 			// Disable pilot during the switch
@@ -2640,7 +2640,7 @@ void AFlarePlayerController::DockAtTargetSpacecraft()
 {
 	if (ShipPawn)
 	{
-		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
+		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget().SpacecraftTarget;
 		if (TargetSpacecraft)
 		{
 			bool DockingConfirmed = ShipPawn->GetNavigationSystem()->DockAt(TargetSpacecraft);
@@ -2658,7 +2658,7 @@ void AFlarePlayerController::MatchSpeedWithTargetSpacecraft()
 {
 	if (ShipPawn)
 	{
-		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
+		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget().SpacecraftTarget;
 		if (TargetSpacecraft)
 		{
 			DisengagePilot();
@@ -2671,7 +2671,7 @@ void AFlarePlayerController::LookAtTargetSpacecraft()
 {
 	if (ShipPawn && !ShipPawn->GetNavigationSystem()->IsDocked())
 	{
-		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget();
+		AFlareSpacecraft* TargetSpacecraft = ShipPawn->GetCurrentTarget().SpacecraftTarget;
 		if (TargetSpacecraft)
 		{
 			FVector TargetDirection = (TargetSpacecraft->GetActorLocation() - ShipPawn->GetActorLocation());

@@ -1631,7 +1631,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 			if(PlayerShip && PlayerShip->IsActive())
 			{
-				AFlareSpacecraft* Target = PlayerShip->GetActive()->GetCurrentTarget();
+				AFlareSpacecraft* Target = PlayerShip->GetActive()->GetCurrentTarget().SpacecraftTarget;
 
 				if(Target && Target->GetCompany() == PlayerShip->GetCompany() && !Target->IsMilitary())
 				{
@@ -1669,7 +1669,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 				if(PlayerShip && PlayerShip->IsActive())
 				{
-					AFlareSpacecraft* Target = PlayerShip->GetActive()->GetCurrentTarget();
+					AFlareSpacecraft* Target = PlayerShip->GetActive()->GetCurrentTarget().SpacecraftTarget;
 
 					if(Target)
 					{
@@ -1710,7 +1710,7 @@ void UFlareQuestTutorialFighter::Load(UFlareQuestManager* Parent)
 
 				if(PlayerShip && PlayerShip->IsActive())
 				{
-					AFlareSpacecraft* Target = PlayerShip->GetActive()->GetCurrentTarget();
+					AFlareSpacecraft* Target = PlayerShip->GetActive()->GetCurrentTarget().SpacecraftTarget;
 
 					if(Target && Target->GetCompany() == PlayerShip->GetCompany() && !Target->IsMilitary())
 					{
@@ -3045,7 +3045,7 @@ void UFlareQuestConditionTutorialTargetSpacecraft::Save(FFlareBundle* Bundle)
 
 bool UFlareQuestConditionTutorialTargetSpacecraft::IsCompleted()
 {
-	AFlareSpacecraft* SpacecraftActive = GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetCurrentTarget();
+	AFlareSpacecraft* SpacecraftActive = GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetCurrentTarget().SpacecraftTarget;
 	UFlareSimulatedSpacecraft* Spacecraft = SpacecraftActive ? SpacecraftActive->GetParent() : NULL;
 
 	if (TargetSpacecraft == Spacecraft)
@@ -3076,7 +3076,7 @@ void UFlareQuestConditionTutorialTargetSpacecraft::AddConditionObjectives(FFlare
 	ObjectiveCondition.MaxCounter = 0;
 	ObjectiveCondition.Counter = 0;
 
-	AFlareSpacecraft* SpacecraftActive = GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetCurrentTarget();
+	AFlareSpacecraft* SpacecraftActive = GetGame()->GetPC()->GetPlayerShip()->GetActive()->GetCurrentTarget().SpacecraftTarget;
 	UFlareSimulatedSpacecraft* Spacecraft = SpacecraftActive ? SpacecraftActive->GetParent() : NULL;
 
 

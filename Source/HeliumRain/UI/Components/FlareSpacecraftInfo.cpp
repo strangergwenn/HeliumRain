@@ -861,7 +861,7 @@ bool SFlareSpacecraftInfo::IsTargetDisabled() const
 	{
 		return true;
 	}
-	else if (TargetSpacecraft->GetActive() == PC->GetPlayerShip()->GetActive()->GetCurrentTarget())
+	else if (PC->GetPlayerShip()->GetActive()->GetCurrentTarget().Is(TargetSpacecraft->GetActive()))
 	{
 		return true;
 	}
@@ -886,7 +886,7 @@ FText SFlareSpacecraftInfo::GetTargetButtonHint() const
 	{
 		return LOCTEXT("CantTargetInactive", "Can't target ships in other sectors");
 	}
-	else if (TargetSpacecraft->GetActive() == PC->GetPlayerShip()->GetActive()->GetCurrentTarget())
+	else if (PC->GetPlayerShip()->GetActive()->GetCurrentTarget().Is(TargetSpacecraft->GetActive()))
 	{
 		return LOCTEXT("CantTargetSame", "You are already targeting this spacecraft");
 	}

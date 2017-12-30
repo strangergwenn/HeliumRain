@@ -2,6 +2,7 @@
 
 #include "FlareSpacecraftTypes.h"
 #include "../Game/FlareGameTypes.h"
+#include "FlarePilotHelper.h"
 #include "FlareShipPilot.generated.h"
 
 class UFlareCompany;
@@ -135,16 +136,14 @@ protected:
 	float								         CurrentWaitTime;
 
 	// Pilot targets
-	UPROPERTY()
-	AFlareSpacecraft*                            PilotTargetShip;
-	UPROPERTY()
-	AFlareSpacecraft*                            LastPilotTargetShip;
+	PilotHelper::PilotTarget                     PilotTarget;
+	PilotHelper::PilotTarget                     LastPilotTarget;
 	UPROPERTY()
 	AFlareSpacecraft*                            PilotTargetStation;
 	UPROPERTY()
 	AFlareSpacecraft*                            PilotLastTargetStation;
 	UPROPERTY()
-	UFlareSpacecraftComponent*			         PilotTargetComponent;
+	UFlareSpacecraftComponent*			         PilotTargetShipComponent;
 
 	float                                        AttackAngle;
 	float                                        AttackDistance;
@@ -171,8 +170,8 @@ protected:
 
 public:
 
-	inline AFlareSpacecraft* GetTargetShip()
+	inline PilotHelper::PilotTarget GetPilotTarget()
 	{
-		return PilotTargetShip;
+		return PilotTarget;
 	}
 };

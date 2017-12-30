@@ -82,7 +82,6 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	MaxTimeBeforeSelectionReset = 3.0;
 	ScanningTimerDuration = 5.0f;
 	StateManager = NULL;
-	CurrentTarget = NULL;
 	NavigationSystem = NULL;
 	TimeSinceUncontrollable = FLT_MAX;
 }
@@ -126,7 +125,7 @@ void AFlareSpacecraft::BeginPlay()
 		}
 	}
 
-	CurrentTarget = NULL;
+	CurrentTarget.Clear();
 }
 
 void AFlareSpacecraft::Tick(float DeltaSeconds)
@@ -336,7 +335,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 			}
 
 			// Set a default target if there is current target
-			if (!CurrentTarget)
+			if (CurrentTarget.IsEmpty())
 			{
 				TArray<FFlareScreenTarget>& ScreenTargets = GetCurrentTargets();
 				if (ScreenTargets.Num())
@@ -367,12 +366,13 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 }
 
-void AFlareSpacecraft::SetCurrentTarget(AFlareSpacecraft* Target)
+void AFlareSpacecraft::SetCurrentTarget(PilotHelper::PilotTarget const& Target)
 {
 	if (CurrentTarget != Target)
 	{
 		CurrentTarget = Target;
-		FName TargetName = Target ? Target->GetImmatriculation() : NAME_None;
+
+		FName TargetName = Target.SpacecraftTarget ? Target.SpacecraftTarget->GetImmatriculation() : NAME_None;
 
 		if (GetGame()->GetQuestManager())
 		{
@@ -511,19 +511,6 @@ void AFlareSpacecraft::Destroyed()
 	// Notify PC
 	if(!IsPresentationMode())
 	{
-		AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
-		if (PC)
-		{
-			if (PC->GetShipPawn())
-			{
-				AFlareSpacecraft* PlayerTarget = PC->GetShipPawn()->GetCurrentTarget();
-				if (PlayerTarget == this)
-				{
-					//PC->GetShipPawn()->ResetCurrentTarget();
-				}
-			}
-		}
-
 		if(Parent)
 		{
 			Parent->SetActiveSpacecraft(NULL);
@@ -554,7 +541,7 @@ void AFlareSpacecraft::Destroyed()
 		}
 	}
 
-	CurrentTarget = NULL;
+	CurrentTarget.Clear();
 }
 
 void AFlareSpacecraft::SetPause(bool Pause)
@@ -567,7 +554,7 @@ void AFlareSpacecraft::SetPause(bool Pause)
 	CustomTimeDilation = (Pause ? 0.f : 1.0);
 	if (Pause)
 	{
-		CurrentTarget = NULL;
+		CurrentTarget.Clear();
 		Save(); // Save must be performed with the old pause state
 		//FLOGV("%s save linear velocity : %s", *GetImmatriculation().ToString(), *GetData().LinearVelocity.ToString());
 	}
@@ -662,33 +649,21 @@ float AFlareSpacecraft::GetSpacecraftMass() const
 	Player interface
 ----------------------------------------------------*/
 
-float AFlareSpacecraft::GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const
-{
-	return SpacecraftHelper::GetIntersectionPosition(GetActorLocation(),
-											  Airframe->GetPhysicsLinearVelocity(),
-											  TargettingShip->GetCamera()->GetComponentLocation(),
-											  TargettingShip->GetLinearVelocity() * 100,
-											  BulletSpeed * 100,
-											  PredictionDelay,
-											  ResultPosition);
-}
-
 void AFlareSpacecraft::ResetCurrentTarget()
 {
-	SetCurrentTarget(NULL);
+	SetCurrentTarget(PilotHelper::PilotTarget());
 }
 
-AFlareSpacecraft* AFlareSpacecraft::GetCurrentTarget() const
+PilotHelper::PilotTarget AFlareSpacecraft::GetCurrentTarget() const
 {
 	// Crash "preventer" - ensure we've got a really valid target, this isn't a solution, but it seems to only happen when using CreateShip commands
-	if (IsValidLowLevel() && CurrentTarget  && CurrentTarget->IsValidLowLevel()
-	 && CurrentTarget->GetDamageSystem() && CurrentTarget->GetDamageSystem()->IsValidLowLevel() && CurrentTarget->GetParent()->GetDamageSystem()->IsAlive())
+	if (IsValidLowLevel() && CurrentTarget.IsValid())
 	{
 		return CurrentTarget;
 	}
 	else
 	{
-		return NULL;
+		return PilotHelper::PilotTarget();
 	}
 }
 
@@ -968,7 +943,7 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 		Airframe->SetSimulatePhysics(false);
 	}
 
-	CurrentTarget = NULL;
+	CurrentTarget.Clear();
 }
 
 void AFlareSpacecraft::Save()
@@ -1358,7 +1333,7 @@ void AFlareSpacecraft::StartPresentation()
 		Airframe->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
-	CurrentTarget = NULL;
+	CurrentTarget.Clear();
 }
 
 void AFlareSpacecraft::DrawShipName(UCanvas* TargetCanvas, int32 Width, int32 Height)
@@ -1633,7 +1608,7 @@ void AFlareSpacecraft::NextTarget()
 	TArray<FFlareScreenTarget>& ScreenTargets = GetCurrentTargets();
 	auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
 	{
-		return Candidate.Spacecraft == CurrentTarget;
+		return Candidate.Spacecraft == CurrentTarget.SpacecraftTarget;
 	};
 
 	// Is visible on screen
@@ -1649,7 +1624,7 @@ void AFlareSpacecraft::NextTarget()
 	else
 	{
 		TargetIndex = 0;
-		SetCurrentTarget(NULL);
+		SetCurrentTarget(PilotHelper::PilotTarget());
 		FLOG("AFlareSpacecraft::NextTarget : reset to center");
 	}
 
@@ -1662,7 +1637,7 @@ void AFlareSpacecraft::PreviousTarget()
 	TArray<FFlareScreenTarget>& ScreenTargets = GetCurrentTargets();
 	auto FindCurrentTarget = [=](const FFlareScreenTarget& Candidate)
 	{
-		return Candidate.Spacecraft == CurrentTarget;
+		return Candidate.Spacecraft == CurrentTarget.SpacecraftTarget;
 	};
 
 	// Is visible on screen
@@ -1930,7 +1905,7 @@ void AFlareSpacecraft::LockDirectionOff()
 
 void AFlareSpacecraft::FindTarget()
 {
-	AFlareSpacecraft* TargetCandidate = NULL;
+	PilotHelper::PilotTarget TargetCandidate;
 
 	struct PilotHelper::TargetPreferences TargetPreferences;
 	TargetPreferences.IsLarge = 1;
@@ -1951,14 +1926,17 @@ void AFlareSpacecraft::FindTarget()
 	TargetPreferences.TargetStateWeight = 1;
 	TargetPreferences.MaxDistance = 2000000;
 	TargetPreferences.DistanceWeight = 0.5;
-	TargetPreferences.AttackTarget = this;
-	TargetPreferences.AttackTargetWeight = 10;
-	TargetPreferences.LastTarget = CurrentTarget;
+	TargetPreferences.AttackTarget = nullptr;
+	TargetPreferences.AttackTargetWeight = 1.f;
+	TargetPreferences.AttackMeWeight = 10;
+	TargetPreferences.LastTarget = PilotHelper::PilotTarget(CurrentTarget);
 	TargetPreferences.LastTargetWeight = -10; // Avoid current target
 	TargetPreferences.PreferredDirection = GetFrontVector();
 	TargetPreferences.MinAlignement = -1;
 	TargetPreferences.AlignementWeight = 0.2;
 	TargetPreferences.BaseLocation = GetActorLocation();
+	TargetPreferences.IsBomb = 0;
+	TargetPreferences.IsMeteorite = 0;
 
 	GetWeaponsSystem()->GetTargetPreference(
 		&TargetPreferences.IsSmall,
@@ -1973,7 +1951,7 @@ void AFlareSpacecraft::FindTarget()
 
 	TargetCandidate = PilotHelper::GetBestTarget(this, TargetPreferences);
 
-	if (!TargetCandidate && GetPC()->GetCurrentObjective() && GetPC()->GetCurrentObjective()->TargetSpacecrafts.Num())
+	if (TargetCandidate.IsEmpty() && GetPC()->GetCurrentObjective() && GetPC()->GetCurrentObjective()->TargetSpacecrafts.Num())
 	{
 		for(UFlareSimulatedSpacecraft* Candidate : GetPC()->GetCurrentObjective()->TargetSpacecrafts)
 		{
@@ -1984,19 +1962,19 @@ void AFlareSpacecraft::FindTarget()
 
 			AFlareSpacecraft* ActiveCandidate = Candidate->GetActive();
 
-			if(ActiveCandidate == this || ActiveCandidate == CurrentTarget)
+			if(ActiveCandidate == this || ActiveCandidate == CurrentTarget.SpacecraftTarget)
 			{
 				continue;
 			}
 
-			TargetCandidate = ActiveCandidate;
+			TargetCandidate.SetSpacecraft(ActiveCandidate);
 			break;
 		}
 	}
 
-	if (TargetCandidate)
+	if (TargetCandidate.SpacecraftTarget)
 	{
-		SetCurrentTarget(TargetCandidate);
+		SetCurrentTarget(TargetCandidate.SpacecraftTarget);
 	}
 	else
 	{

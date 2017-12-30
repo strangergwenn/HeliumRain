@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Game/FlareGameTypes.h"
+#include "FlarePilotHelper.h"
 #include "FlareTurretPilot.generated.h"
 
 class UFlareTurret;
@@ -50,7 +51,7 @@ public:
 	virtual bool IsWantFire() const;
 
 	/** Return true if the ship is dangerous */
-	virtual bool IsShipDangerous(AFlareSpacecraft* ShipCandidate) const;
+	virtual bool IsTargetDangerous(PilotHelper::PilotTarget const& Target) const;
 
 
 protected:
@@ -61,7 +62,7 @@ protected:
 
 	void ProcessTurretTargetSelection();
 
-	AFlareSpacecraft* GetNearestHostileShip(bool ReachableOnly, EFlareCombatTactic::Type Tactic) const;
+	PilotHelper::PilotTarget GetNearestHostileTarget(bool ReachableOnly, EFlareCombatTactic::Type Tactic) const;
 
 
 protected:
@@ -91,8 +92,8 @@ protected:
 	float                                TimeUntilNextTargetSelectionReaction;
 	float                                TimeUntilFireReaction;
 	float                                TimeUntilNextComponentSwitch;
-	AFlareSpacecraft*                    PilotTargetShip;
-	UFlareSpacecraftComponent*			 PilotTargetComponent;
+	PilotHelper::PilotTarget             PilotTarget;
+	UFlareSpacecraftComponent*			 PilotTargetShipComponent;
 
 
 	/*----------------------------------------------------
@@ -101,9 +102,9 @@ protected:
 
 public:
 
-	inline AFlareSpacecraft* GetTargetShip()
+	inline PilotHelper::PilotTarget GetTurretTarget()
 	{
-		return PilotTargetShip;
+		return PilotTarget;
 	}
 
 	float GetFireDistance() const

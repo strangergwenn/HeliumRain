@@ -54,7 +54,7 @@ void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 			Weapon->IsSafeToFire(0, HitTarget);
 			if (!HitTarget || HitTarget == Weapon->GetSpacecraft())
 			{
-				HitTarget = Weapon->GetSpacecraft()->GetCurrentTarget();
+				HitTarget = Weapon->GetSpacecraft()->GetCurrentTarget().GetActor();
 			}
 
 			// Aim the turret toward the target or a distant point
@@ -109,12 +109,12 @@ void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 					FVector AimDirection;
 					float AimDistance;
 
-					if(Spacecraft->GetCurrentTarget())
+					if(Spacecraft->GetCurrentTarget().IsValid())
 					{
 
 						FVector AmmoIntersectionLocation;
 						float AmmoVelocity = Turret->GetAmmoVelocity();
-						float InterceptTime = Spacecraft->GetCurrentTarget()->GetAimPosition(Spacecraft, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
+						float InterceptTime = Spacecraft->GetCurrentTarget().GetAimPosition(Spacecraft, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 
 						FVector MuzzleLocation = Turret->GetMuzzleLocation(0);
 
@@ -518,58 +518,85 @@ void UFlareSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* I
 	*IsHarpooned = HarpoonedPool;
 }
 
-int32 UFlareSpacecraftWeaponsSystem::FindBestWeaponGroup(AFlareSpacecraft* Target)
+int32 UFlareSpacecraftWeaponsSystem::FindBestWeaponGroup(PilotHelper::PilotTarget Target)
 {
 	int32 BestWeaponGroup = -1;
 	float BestScore = 0;
 
-	if (!Target) {
+	if(Target.IsEmpty())
+	{
 		return -1;
 	}
 
-	bool LargeTarget = (Target->GetSize() == EFlarePartSize::L);
-	bool SmallTarget = (Target->GetSize() == EFlarePartSize::S);
-	bool UncontrollableTarget = Target->GetParent()->GetDamageSystem()->IsUncontrollable();
-
-	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
+	if(Target.SpacecraftTarget)
 	{
-		float Score = Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, true);
+		AFlareSpacecraft* SpacecraftTarget = Target.SpacecraftTarget;
 
+		bool LargeTarget = (SpacecraftTarget->GetSize() == EFlarePartSize::L);
+		bool SmallTarget = (SpacecraftTarget->GetSize() == EFlarePartSize::S);
+		bool UncontrollableTarget = SpacecraftTarget->GetParent()->GetDamageSystem()->IsUncontrollable();
 
-		EFlareShellDamageType::Type DamageType = WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.DamageType;
-
-		if (SmallTarget)
+		for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
 		{
-			Score *= WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiSmallShipValue;
-		}
-
-		if (LargeTarget)
-		{
-			Score *= WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiLargeShipValue;
-		}
+			float Score = Spacecraft->GetDamageSystem()->GetWeaponGroupHealth(GroupIndex, true);
 
 
-		if(DamageType == EFlareShellDamageType::LightSalvage || DamageType == EFlareShellDamageType::HeavySalvage)
-		{
-			Score *= (UncontrollableTarget ? 1.f : 0.f);
-			Score *= (Target->GetParent()->IsHarpooned() ? 0.f: 1.f);
-		}
-		else
-		{
-			if(Target->IsMilitary())
+			EFlareShellDamageType::Type DamageType = WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.DamageType;
+
+			if (SmallTarget)
 			{
-				Score *= (UncontrollableTarget ? 0.01f : 1.f);
+				Score *= WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiSmallShipValue;
+			}
+
+			if (LargeTarget)
+			{
+				Score *= WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiLargeShipValue;
+			}
+
+
+			if(DamageType == EFlareShellDamageType::LightSalvage || DamageType == EFlareShellDamageType::HeavySalvage)
+			{
+				Score *= (UncontrollableTarget ? 1.f : 0.f);
+				Score *= (SpacecraftTarget->GetParent()->IsHarpooned() ? 0.f: 1.f);
 			}
 			else
 			{
-				Score *= (UncontrollableTarget ? 0.f : 1.f);
+				if(SpacecraftTarget->IsMilitary())
+				{
+					Score *= (UncontrollableTarget ? 0.01f : 1.f);
+				}
+				else
+				{
+					Score *= (UncontrollableTarget ? 0.f : 1.f);
+				}
+			}
+
+			if (Score > 0 && Score > BestScore)
+			{
+				BestWeaponGroup = GroupIndex;
+				BestScore = Score;
 			}
 		}
-
-		if (Score > 0 && Score > BestScore)
+	}
+	else
+	{
+		for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
 		{
-			BestWeaponGroup = GroupIndex;
-			BestScore = Score;
+			float Score = 1.f;
+
+			EFlareShellDamageType::Type DamageType = WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.DamageType;
+			Score *= WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiSmallShipValue;
+
+			if(DamageType == EFlareShellDamageType::LightSalvage || DamageType == EFlareShellDamageType::HeavySalvage)
+			{
+				Score = 0.f;
+			}
+
+			if (Score > 0 && Score > BestScore)
+			{
+				BestWeaponGroup = GroupIndex;
+				BestScore = Score;
+			}
 		}
 	}
 

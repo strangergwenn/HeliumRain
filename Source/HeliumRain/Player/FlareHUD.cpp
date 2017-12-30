@@ -873,7 +873,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 		CurrentPos += 2 * InstrumentLine;
 
 		// Target info
-		AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget();
+		AFlareSpacecraft* TargetShip = PlayerShip->GetCurrentTarget().SpacecraftTarget;
 		if (TargetShip && TargetShip->IsValidLowLevel())
 		{
 			FText ShipText = FText::Format(LOCTEXT("CurrentTargetFormat", "Targeting {0}"),
@@ -1196,7 +1196,7 @@ void AFlareHUD::DrawHUDInternal()
 			bool ShouldDrawSearchMarker = DrawHUDDesignator(Spacecraft);
 						
 			// Get more info
-			bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
+			bool Highlighted = (PlayerShip && PlayerShip->GetCurrentTarget().Is(Spacecraft));
 			bool IsObjective = (PC->GetCurrentObjective() && PC->GetCurrentObjective()->TargetSpacecrafts.Find(Spacecraft->GetParent()) != INDEX_NONE);
 
 			// Draw search markers for alive ships or highlighted stations when not in external camera
@@ -1593,15 +1593,15 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 			FLinearColor Color = GetHostilityColor(PC, Spacecraft);
 
 			// Draw designator corners
-			bool Highlighted = (PlayerShip && Spacecraft == PlayerShip->GetCurrentTarget());
-			bool Dangerous = PilotHelper::IsShipDangerous(Spacecraft);
+			bool Highlighted = (PlayerShip && PlayerShip->GetCurrentTarget().Is(Spacecraft));
+			bool Dangerous = PilotHelper::IsTargetDangerous(PilotHelper::PilotTarget(Spacecraft));
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, -1), 0,     Color, Dangerous, Highlighted);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(-1, +1), -90,   Color, Dangerous, Highlighted);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, +1), -180,  Color, Dangerous, Highlighted);
 			DrawHUDDesignatorCorner(ScreenPosition, ObjectSize, CornerSize, FVector2D(+1, -1), -270,  Color, Dangerous, Highlighted);
 
 			// Draw the target's distance if selected
-			if (Spacecraft == PlayerShip->GetCurrentTarget())
+			if (PlayerShip->GetCurrentTarget().Is(Spacecraft))
 			{
 				FText DistanceText = FormatDistance(Distance / 100);
 				FVector2D DistanceTextPosition = ScreenPosition - (CurrentViewportSize / 2)
@@ -1631,7 +1631,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 		float Distance = (TargetLocation - PlayerLocation).Size();
 
 		// Combat helper
-		if (Spacecraft == PlayerShip->GetCurrentTarget()
+		if (PlayerShip->GetCurrentTarget().Is(Spacecraft)
 		 && PlayerShip && PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() != EFlareWeaponGroupType::WG_NONE)
 		{
 			FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
@@ -1642,7 +1642,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 				float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
 				float Range = WeaponGroup->Weapons[0]->GetDescription()->WeaponCharacteristics.GunCharacteristics.AmmoRange;
 				float AmmoLifeTime = Range / AmmoVelocity;
-				float InterceptTime = Spacecraft->GetAimPosition(PlayerShip, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
+				float InterceptTime = PilotHelper::PilotTarget(Spacecraft).GetAimPosition(PlayerShip, AmmoVelocity, 0.0, &AmmoIntersectionLocation);
 
 				if (InterceptTime > 0 && ProjectWorldLocationToCockpit(AmmoIntersectionLocation, HelperScreenPosition) && (Range == 0 || InterceptTime < AmmoLifeTime))
 				{

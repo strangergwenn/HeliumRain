@@ -9,6 +9,7 @@
 #include "Subsystems/FlareSpacecraftDockingSystem.h"
 #include "Subsystems/FlareSpacecraftWeaponsSystem.h"
 #include "FlareSpacecraftStateManager.h"
+#include "FlarePilotHelper.h"
 #include "FlareSpacecraft.generated.h"
 
 class UFlareShipPilot;
@@ -81,14 +82,11 @@ public:
 		Player interface
 	----------------------------------------------------*/
 
-	/** Extrapolate the position of a ship for a given targeting ship. Return time before intersect. If time is negative, no intersection. */
-	virtual float GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const;
-
 	/** Reset the target */
 	void ResetCurrentTarget();
 
 	/** Get the current target */
-	AFlareSpacecraft* GetCurrentTarget() const;
+	PilotHelper::PilotTarget GetCurrentTarget() const;
 
 	/** Are we scanning for a waypoint ? */
 	bool IsInScanningMode();
@@ -140,7 +138,7 @@ public:
 	
 	UFlareSimulatedSector* GetOwnerSector();
 	
-	void SetCurrentTarget(AFlareSpacecraft* Target);
+	void SetCurrentTarget(PilotHelper::PilotTarget const& Target);
 
 public:
 
@@ -346,8 +344,7 @@ protected:
 	----------------------------------------------------*/
 
 	// Target spacecraft
-	UPROPERTY()
-	AFlareSpacecraft*                              CurrentTarget;
+	PilotHelper::PilotTarget                       CurrentTarget;
 
 	// target spacecraft index in the list
 	int32                                          TargetIndex;

@@ -99,7 +99,7 @@ bool PilotHelper::FindMostDangerousCollision(AActor*& MostDangerousCandidateActo
 		 && !Ship->GetDockingSystem()->IsDockedShip(SpacecraftCandidate)
 		 && !(Ship->GetSize() == EFlarePartSize::L
 			  && SpacecraftCandidate->GetSize() == EFlarePartSize::S
-			  && IsShipDangerous(SpacecraftCandidate)
+			  && IsTargetDangerous(PilotTarget(SpacecraftCandidate))
 			  && Ship->GetWarState(SpacecraftCandidate->GetCompany()) == EFlareHostility::Hostile)
 		&& !(IgnoreConfig.SpacecraftToIgnore && IgnoreConfig.SpacecraftToIgnore->IsStation() && IgnoreConfig.SpacecraftToIgnore->GetParent()->IsComplexElement() && SpacecraftCandidate->GetParent() == IgnoreConfig.SpacecraftToIgnore->GetParent()->GetComplexMaster())
 		&& !(IgnoreConfig.SpacecraftToIgnore && IgnoreConfig.SpacecraftToIgnore->IsStation() && IgnoreConfig.SpacecraftToIgnore->GetParent()->IsComplex() && SpacecraftCandidate->GetParent()->GetComplexMaster() == IgnoreConfig.SpacecraftToIgnore->GetParent())
@@ -327,25 +327,24 @@ bool PilotHelper::IsSectorExitImminent(AFlareSpacecraft* Ship, float PreventionD
 	return ExitImminent;
 }
 
-AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct TargetPreferences Preferences)
+__attribute__ ((optnone))
+PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct TargetPreferences Preferences)
 {
 	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_GetBestTarget);
 
 	if (!Ship || !Ship->GetGame()->GetActiveSector())
 	{
-		return NULL;
+		return PilotHelper::PilotTarget();
 	}
 
-	AFlareSpacecraft* BestTarget = NULL;
+	PilotTarget BestTarget;
 	float BestScore = 0;
 
 	//FLOGV("GetBestTarget for %s", *Ship->GetImmatriculation().ToString());
 
-	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Ship->GetGame()->GetActiveSector()->GetSpacecrafts().Num(); SpacecraftIndex++)
+	for (AFlareSpacecraft* ShipCandidate :Ship->GetGame()->GetActiveSector()->GetSpacecrafts())
 	{
-		AFlareSpacecraft* ShipCandidate = Ship->GetGame()->GetActiveSector()->GetSpacecrafts()[SpacecraftIndex];
-
-		if (Preferences.IgnoreList.Contains(ShipCandidate))
+		if (Preferences.IgnoreList.Contains(PilotTarget(ShipCandidate)))
 		{
 			continue;
 		}
@@ -404,7 +403,7 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 			StateScore *= Preferences.IsNotMilitary;
 		}
 
-		if (IsShipDangerous(ShipCandidate))
+		if (IsTargetDangerous(PilotTarget(ShipCandidate)))
 		{
 			StateScore *= Preferences.IsDangerous;
 		}
@@ -456,7 +455,7 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 			}
 		}
 
-		if (IsShipDangerous(ShipCandidate))
+		if (IsTargetDangerous(PilotTarget(ShipCandidate)))
 		{
 			if(BombCount > 1)
 			{
@@ -482,7 +481,7 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 		}
 
 
-		if(ShipCandidate == Preferences.LastTarget) {
+		if(Preferences.LastTarget.Is(ShipCandidate)) {
 			StateScore *=  Preferences.LastTargetWeight;
 		}
 
@@ -496,9 +495,13 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 			DistanceScore = Preferences.DistanceWeight * (1.f - (Distance / Preferences.MaxDistance));
 		}
 
-		if (Preferences.AttackTarget && IsShipDangerous(ShipCandidate) && ShipCandidate->GetPilot()->GetTargetShip() == Preferences.AttackTarget)
+		if (Preferences.AttackTarget && IsTargetDangerous(PilotTarget(ShipCandidate)) && ShipCandidate->GetPilot()->GetPilotTarget().Is(Preferences.AttackTarget))
 		{
 			AttackTargetScore = Preferences.AttackTargetWeight;
+		}
+		else if(IsTargetDangerous(PilotTarget(ShipCandidate)) && ShipCandidate->GetPilot()->GetPilotTarget().Is(Ship))
+		{
+			AttackTargetScore = Preferences.AttackMeWeight;
 		}
 		else
 		{
@@ -530,12 +533,101 @@ AFlareSpacecraft* PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct Targ
 
 		if (Score > 0)
 		{
-			if (BestTarget == NULL || Score > BestScore)
+			if (BestTarget.IsEmpty() || Score > BestScore)
 			{
-				BestTarget = ShipCandidate;
+				BestTarget.SetSpacecraft(ShipCandidate);
 				BestScore = Score;
 			}
 		}
+	}
+
+	for (AFlareBomb* BombCandidate :Ship->GetGame()->GetActiveSector()->GetBombs())
+	{
+		if (Preferences.IgnoreList.Contains(PilotTarget(BombCandidate)))
+		{
+			continue;
+		}
+
+		if (BombCandidate->GetActorLocation().Size() > Ship->GetGame()->GetActiveSector()->GetSectorLimits())
+		{
+			// Ignore out limit ships
+			continue;
+		}
+
+		float Score;
+		float StateScore;
+		float AttackTargetScore;
+		float DistanceScore;
+		float AlignementScore;
+
+		StateScore = Preferences.TargetStateWeight * Preferences.IsBomb;
+
+		StateScore *= Preferences.IsSmall;
+		StateScore *= Preferences.IsNotStation;
+		StateScore *= Preferences.IsMilitary;
+		StateScore *= Preferences.IsDangerous;
+		StateScore *= Preferences.IsNotStranded;
+		StateScore *= Preferences.IsNotUncontrollable;
+
+		if(Preferences.LastTarget.Is(BombCandidate)) {
+			StateScore *=  Preferences.LastTargetWeight;
+		}
+
+		float Distance = (Preferences.BaseLocation - BombCandidate->GetActorLocation()).Size();
+		if (Distance >= Preferences.MaxDistance)
+		{
+			DistanceScore = 0.f;
+		}
+		else
+		{
+			DistanceScore = Preferences.DistanceWeight * (1.f - (Distance / Preferences.MaxDistance));
+		}
+
+		if (Preferences.AttackTarget && BombCandidate->GetTargetSpacecraft() == Preferences.AttackTarget)
+		{
+			AttackTargetScore = Preferences.AttackTargetWeight;
+		}
+		else if(BombCandidate->GetTargetSpacecraft() == Ship)
+		{
+			AttackTargetScore = Preferences.AttackMeWeight;
+		}
+		else
+		{
+			AttackTargetScore = 0.0f;
+		}
+
+		FVector Direction = (BombCandidate->GetActorLocation() - Preferences.BaseLocation).GetUnsafeNormal();
+
+
+		float Alignement = FVector::DotProduct(Preferences.PreferredDirection, Direction);
+
+		if (Alignement > Preferences.MinAlignement)
+		{
+			AlignementScore = Preferences.AlignementWeight * ((Alignement - Preferences.MinAlignement) / (1 - Preferences.MinAlignement));
+		}
+		else
+		{
+			AlignementScore = 0;
+		}
+
+		Score = StateScore * (AttackTargetScore + DistanceScore + AlignementScore);
+
+
+		/*FLOGV("  - %s: %f", *ShipCandidate->GetImmatriculation().ToString(), Score);
+		FLOGV("        - StateScore=%f", StateScore);
+		FLOGV("        - AttackTargetScore=%f", AttackTargetScore);
+		FLOGV("        - DistanceScore=%f", DistanceScore);
+		FLOGV("        - AlignementScore=%f", AlignementScore);*/
+
+		if (Score > 0)
+		{
+			if (!BestTarget.IsEmpty() || Score > BestScore)
+			{
+				BestTarget.SetBomb(BombCandidate);
+				BestScore = Score;
+			}
+		}
+
 	}
 
 	/*if(BestTarget)
@@ -757,7 +849,159 @@ bool PilotHelper::CheckRelativeDangerosity(AActor*& MostDangerousCandidateActor,
 	return false;
 }
 
-bool PilotHelper::IsShipDangerous(AFlareSpacecraft* ShipCandidate)
+bool PilotHelper::IsTargetDangerous(PilotHelper::PilotTarget const& Target)
 {
-	return ShipCandidate->IsMilitary() && !ShipCandidate->GetParent()->GetDamageSystem()->IsDisarmed();
+	if(Target.SpacecraftTarget)
+	{
+		return Target.SpacecraftTarget->GetParent()->IsMilitary() && !Target.SpacecraftTarget->GetParent()->GetDamageSystem()->IsDisarmed();
+	}
+	else if(Target.BombTarget)
+	{
+		return true;
+	}
+
+	return false;
+}
+
+bool PilotHelper::PilotTarget::IsEmpty() const
+{
+	return SpacecraftTarget == nullptr & MeteoriteTarget == nullptr && BombTarget == nullptr;
+}
+
+bool PilotHelper::PilotTarget::IsValid() const
+{
+	return SpacecraftTarget != nullptr || MeteoriteTarget != nullptr || BombTarget != nullptr;
+}
+
+bool PilotHelper::PilotTarget::Is(AFlareSpacecraft* Spacecraft) const
+{
+	return SpacecraftTarget == Spacecraft;
+}
+
+bool PilotHelper::PilotTarget::Is(AFlareMeteorite* Meteorite) const
+{
+	return MeteoriteTarget == Meteorite;
+}
+
+bool PilotHelper::PilotTarget::Is(AFlareBomb* Bomb) const
+{
+	return BombTarget == Bomb;
+}
+
+void PilotHelper::PilotTarget::Clear()
+{
+	SpacecraftTarget = nullptr;
+	MeteoriteTarget = nullptr;
+	BombTarget = nullptr;
+}
+
+void PilotHelper::PilotTarget::SetSpacecraft(AFlareSpacecraft* Spacecraft)
+{
+	Clear();
+	SpacecraftTarget = Spacecraft;
+}
+
+void PilotHelper::PilotTarget::SetMeteorite(AFlareMeteorite* Meteorite)
+{
+	Clear();
+	MeteoriteTarget = Meteorite;
+}
+
+void PilotHelper::PilotTarget::SetBomb(AFlareBomb* Bomb)
+{
+	Clear();
+	BombTarget = Bomb;
+}
+
+FVector PilotHelper::PilotTarget::GetActorLocation() const
+{
+	if(SpacecraftTarget)
+	{
+		return SpacecraftTarget->GetActorLocation();
+	}
+
+	if(BombTarget)
+	{
+		return BombTarget->GetActorLocation();
+	}
+
+	if(MeteoriteTarget)
+	{
+		return MeteoriteTarget->GetActorLocation();
+	}
+
+	return FVector::ZeroVector;
+}
+
+FVector PilotHelper::PilotTarget::GetLinearVelocity() const
+{
+	if(SpacecraftTarget)
+	{
+		return SpacecraftTarget->Airframe->GetPhysicsLinearVelocity();
+	}
+
+	if(BombTarget)
+	{
+		return Cast<UPrimitiveComponent>(BombTarget->GetRootComponent())->GetPhysicsLinearVelocity();
+	}
+
+	if(MeteoriteTarget)
+	{
+		return Cast<UPrimitiveComponent>(MeteoriteTarget->GetRootComponent())->GetPhysicsLinearVelocity();
+	}
+
+	return FVector::ZeroVector;
+}
+
+
+float PilotHelper::PilotTarget::GetMeshScale()
+{
+	if(SpacecraftTarget)
+	{
+		return SpacecraftTarget->GetMeshScale();
+	}
+
+	if(BombTarget)
+	{
+		FBox Box = BombTarget->GetComponentsBoundingBox();
+		return FMath::Max(Box.GetExtent().Size(), 1.0f);
+	}
+
+	if(MeteoriteTarget)
+	{
+		FBox Box = MeteoriteTarget->GetComponentsBoundingBox();
+		return FMath::Max(Box.GetExtent().Size(), 1.0f);
+	}
+
+	return 0.f;
+}
+
+float PilotHelper::PilotTarget::GetAimPosition(AFlareSpacecraft* TargettingShip, float BulletSpeed, float PredictionDelay, FVector* ResultPosition) const
+{
+	return SpacecraftHelper::GetIntersectionPosition(GetActorLocation(),
+											  GetLinearVelocity(),
+											  TargettingShip->GetCamera()->GetComponentLocation(),
+											  TargettingShip->GetLinearVelocity() * 100,
+											  BulletSpeed * 100,
+											  PredictionDelay,
+											  ResultPosition);
+}
+
+AActor* PilotHelper::PilotTarget::GetActor()
+{
+	if(SpacecraftTarget)
+	{
+		return SpacecraftTarget;
+	}
+
+	if(BombTarget)
+	{
+		return BombTarget;
+	}
+
+	if(MeteoriteTarget)
+	{
+		return MeteoriteTarget;
+	}
+	return nullptr;
 }
