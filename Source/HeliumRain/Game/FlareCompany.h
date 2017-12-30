@@ -136,8 +136,6 @@ public:
 	/** Make peace with Company in echange for money */
 	void PayTribute(UFlareCompany* Company, bool AllowDepts = false);
 
-	void GiveShame(float ShameGain);
-
 	void StartCapture(UFlareSimulatedSpacecraft* Station);
 	void StopCapture(UFlareSimulatedSpacecraft* Station);
 	bool CanStartCapture(UFlareSimulatedSpacecraft* Station);
@@ -436,16 +434,11 @@ public:
 		return CompanyData.PlayerLastTributeDate;
 	}
 
-	inline float GetShame()
-	{
-		return CompanyData.Shame;
-	}
-
 	TArray<UFlareCompany*> GetOtherCompanies(bool Shuffle = false);
 
 	float GetConfidenceLevel(UFlareCompany* ReferenceCompany, TArray<UFlareCompany*>& Allies);
 
-	float ComputeCompanyDiplomaticWeight(bool WithShame);
+	float ComputeCompanyDiplomaticWeight();
 
 	bool WantWarWith(UFlareCompany* TargetCompany);
 

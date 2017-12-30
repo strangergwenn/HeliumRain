@@ -642,7 +642,7 @@ void UFlareGameTools::PrintCompany(FName CompanyShortName)
 
 
 	FLOGV("    - Army %f $", Value.ArmyValue/ 100.);
-	FLOGV("    - Diplomatic weigh %f", Company->ComputeCompanyDiplomaticWeight(true));
+	FLOGV("    - Diplomatic weigh %f", Company->ComputeCompanyDiplomaticWeight());
 	FLOGV("    - Army current combat point %d", Value.ArmyCurrentCombatPoints);
 	FLOGV("    - Army total combat point %d", Value.ArmyTotalCombatPoints);
 	TArray<UFlareFleet*> CompanyFleets = Company->GetCompanyFleets();

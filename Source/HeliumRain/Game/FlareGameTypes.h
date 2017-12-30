@@ -270,9 +270,6 @@ struct FFlareCompanySave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int64 PlayerLastWarDate;
 
-	/** Modify reputation to this company */
-	float Shame;
-
 	/** Unlocked technologies */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FName> UnlockedTechnologies;

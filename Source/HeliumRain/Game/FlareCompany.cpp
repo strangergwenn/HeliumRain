@@ -790,11 +790,11 @@ void UFlareCompany::GivePlayerReputationToOthers(float Amount)
 }
 
 
-float UFlareCompany::ComputeCompanyDiplomaticWeight(bool WithShame)
+float UFlareCompany::ComputeCompanyDiplomaticWeight()
 {
 	CompanyValue Value = GetCompanyValue();
 
-	return (Value.TotalValue + Value.ArmyCurrentCombatPoints * 10) * (WithShame ? FMath::Pow(1.5f, GetShame()) : 1.f);
+	return (Value.TotalValue + Value.ArmyCurrentCombatPoints * 10);
 }
 
 bool UFlareCompany::WantWarWith(UFlareCompany* TargetCompany)
@@ -815,8 +815,8 @@ bool UFlareCompany::WantWarWith(UFlareCompany* TargetCompany)
 	}
 	else if (PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints < Game->GetGameWorld()->GetTotalWorldCombatPoint() / 4)
 	{
-		float MyWeight = ComputeCompanyDiplomaticWeight(false);
-		return TargetCompany->ComputeCompanyDiplomaticWeight(true) > MyWeight;
+		float MyWeight = ComputeCompanyDiplomaticWeight();
+		return TargetCompany->ComputeCompanyDiplomaticWeight() > MyWeight;
 	}
 
 	return false;
@@ -1150,11 +1150,6 @@ void UFlareCompany::PayTribute(UFlareCompany* Company, bool AllowDepts)
 	{
 		FLOG("UFlareCompany::PayTribute: not enough money to pay tribute");
 	}
-}
-
-void UFlareCompany::GiveShame(float ShameGain)
-{
-	CompanyData.Shame += ShameGain;
 }
 
 void UFlareCompany::StartCapture(UFlareSimulatedSpacecraft* Station)

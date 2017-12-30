@@ -852,7 +852,6 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	CompanyData.PlayerLastPeaceDate = 0;
 	CompanyData.PlayerLastTributeDate = 0;
 	CompanyData.PlayerLastWarDate = 0;
-	CompanyData.Shame = 0.0;
 	CompanyData.ResearchRatio = 1.0;
 	CompanyData.ResearchAmount = 0;
 	CompanyData.ResearchSpent = 0;

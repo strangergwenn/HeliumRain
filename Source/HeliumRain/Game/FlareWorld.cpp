@@ -697,21 +697,7 @@ void UFlareWorld::Simulate()
 	{
 		TravelsToProcess[TravelIndex]->Simulate();
 	}
-
-	FLOG("* Simulate > Reputation");
-	// Reputation stabilization
-	if(Game->GetPC()->GetCompany()->GetGame() != nullptr)
-	{
-		for (UFlareCompany* Company : Companies)
-		{
-			if(Company != Game->GetPC()->GetCompany())
-			{
-				Company->GivePlayerReputation(-Game->GetPC()->GetCompany()->GetShame(), 50.f);
-			}
-		}
-	}
-
-
+	
 	FLOG("* Simulate > Prices");
 	// Price variation.
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
@@ -909,7 +895,7 @@ void UFlareWorld::ProcessShipCapture()
 
 		if (GetGame()->GetPC()->GetCompany() == HarpoonOwner)
 		{
-			Owner->GivePlayerReputation(-10);
+			Owner->GivePlayerReputation(-20);
 
 			if (Owner != GetGame()->GetScenarioTools()->Pirates)
 			{
@@ -1071,25 +1057,15 @@ void UFlareWorld::ProcessStationCapture()
 
 
 		GetGame()->GetQuestManager()->OnSpacecraftCaptured(Spacecraft, NewShip);
-
-		// Shame - Shame - Shame - Dingdingding
-		float Shame = 0.1 * NewShip->GetLevel();
-		if (Owner != GetGame()->GetScenarioTools()->Pirates)
-		{
-			Capturer->GiveShame(Shame);
-			Owner->GiveShame(-Shame);
-		}
-
+		
 		if (GetGame()->GetPC()->GetCompany() == Capturer)
 		{
-			Owner->GivePlayerReputation(-40);
+			Owner->GivePlayerReputation(-10);
 
 			if (Owner != GetGame()->GetScenarioTools()->Pirates)
 			{
-				GetGame()->GetPC()->GetCompany()->GivePlayerReputationToOthers(-50);
+				GetGame()->GetPC()->GetCompany()->GivePlayerReputationToOthers(-5);
 			}
-
-
 
 			FFlareMenuParameterData MenuData;
 			MenuData.Sector = Sector;

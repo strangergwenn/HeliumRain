@@ -227,7 +227,6 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompany(FFlareCompanySave* Data)
 	JsonObject->SetStringField("ResearchAmount", FormatInt32(Data->ResearchAmount));
 	JsonObject->SetStringField("ResearchSpent", FormatInt32(Data->ResearchSpent));
 	JsonObject->SetObjectField("AI", SaveCompanyAI(&Data->AI));
-	SaveFloat(JsonObject,"Shame", Data->Shame);
 	SaveFloat(JsonObject,"ResearchRatio", Data->ResearchRatio);
 
 	TArray< TSharedPtr<FJsonValue> > UnlockedTechnologies;

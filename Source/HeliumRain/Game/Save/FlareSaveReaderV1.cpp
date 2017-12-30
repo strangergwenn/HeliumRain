@@ -266,7 +266,6 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 	LoadInt32(Object, "ResearchAmount", &Data->ResearchAmount);
 	LoadInt32(Object, "ResearchSpent", &Data->ResearchSpent);
 	LoadFloat(Object, "ResearchRatio", &Data->ResearchRatio);
-	LoadFloat(Object, "Shame", &Data->Shame);
 
 	const TArray<TSharedPtr<FJsonValue>>* UnlockedTechnologies;
 	if (Object->TryGetArrayField("UnlockedTechnologies", UnlockedTechnologies))

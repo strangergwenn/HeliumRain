@@ -228,7 +228,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 				{
 					//FLOGV("%s add %s as target", *Company->GetCompanyName().ToString(), *OtherCompany->GetCompanyName().ToString());
 
-					TargetCompanies.Add(TPairInitializer<UFlareCompany*, float>(OtherCompany, OtherCompany->ComputeCompanyDiplomaticWeight(true)));
+					TargetCompanies.Add(TPairInitializer<UFlareCompany*, float>(OtherCompany, OtherCompany->ComputeCompanyDiplomaticWeight()));
 				}
 			}
 
