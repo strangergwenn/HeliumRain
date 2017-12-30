@@ -322,7 +322,7 @@ void AFlareShell::OnImpact(const FHitResult& HitResult, const FVector& HitVeloci
 			}
 
 			// Spawn penetration effect
-			if(!(Spacecraft && Spacecraft->IsInImmersiveMode()))
+			if(!(Spacecraft && Spacecraft->GetCameraMode() == EFlareCameraMode::Immersive))
 			{
 				UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
 					ExplosionEffectTemplate,
@@ -607,7 +607,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	}
 
 	// Apply FX
-	if (HitComponent && !(Spacecraft && Spacecraft->IsInImmersiveMode()))
+	if (HitComponent && !(Spacecraft && Spacecraft->GetCameraMode() == EFlareCameraMode::Immersive))
 	{
 		UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAttached(
 			ImpactEffectTemplate,

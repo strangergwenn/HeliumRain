@@ -210,6 +210,13 @@ void UFlareSpacecraftStateManager::Tick(float DeltaSeconds)
 			PlayerManualAngularVelocity.Z = 0;
 			PlayerManualAngularVelocity.Y = 0;
 		}
+		else if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET)
+		{
+			FireDirectorAngularVelocity.Z = CompensatedDistance * FMath::Cos(Angle) * 2 * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+			FireDirectorAngularVelocity.Y = CompensatedDistance * FMath::Sin(Angle) * 2 * Spacecraft->GetNavigationSystem()->GetAngularMaxVelocity();
+			PlayerManualAngularVelocity.Z = 0;
+			PlayerManualAngularVelocity.Y = 0;
+		}
 		else
 		{
 			FireDirectorAngularVelocity.Z = 0;
@@ -253,7 +260,7 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 
 	if (!Spacecraft->IsFlownByPlayer())
 	{
-		Spacecraft->DisableImmersiveCamera();
+		Spacecraft->ConfigureInternalFixedCamera();
 		return;
 	}
 
@@ -265,7 +272,6 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 
 		if (!IsFireDirectorInit)
 		{
-			FVector FrontVector = Spacecraft->Airframe-> GetComponentTransform().TransformVector(FVector(1, 0, 0));
 			FireDirectorLookRotation =  Spacecraft->Airframe-> GetComponentTransform().GetRotation();
 			IsFireDirectorInit = true;
 		}
@@ -325,12 +331,57 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 		float Speed = FMath::Clamp(DeltaSeconds * 12, 0.f, 1.f);
 		ExternalCameraDistance = ExternalCameraDistance * (1 - Speed) + ExternalCameraDistanceTarget * Speed;
 
-		Spacecraft->DisableImmersiveCamera();
+		Spacecraft->ConfigureInternalFixedCamera();
 		Spacecraft->SetCameraPitch(ExternalCameraPitch);
 		Spacecraft->SetCameraYaw(ExternalCameraYaw);
 		Spacecraft->SetCameraDistance(ExternalCameraDistance);
 
 		IsFireDirectorInit = false;
+	}
+	else if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET)
+	{
+		float YawRotation = FireDirectorAngularVelocity.Z * DeltaSeconds;
+		float PitchRotation = FireDirectorAngularVelocity.Y * DeltaSeconds;
+
+
+		if (!IsFireDirectorInit)
+		{
+			FireDirectorLookRotation =  Spacecraft->Airframe->GetComponentTransform().GetRotation();
+			IsFireDirectorInit = true;
+		}
+
+		float Dot = FVector::DotProduct(FireDirectorLookRotation.GetForwardVector(), Spacecraft->Airframe->GetComponentTransform().GetRotation().GetForwardVector());
+
+		float ScaledDot = (FMath::Max(Dot - 0.5f, 0.f) * 2.f);
+
+		FQuat Yaw(FVector(0,0,1), FMath::DegreesToRadians(YawRotation * ScaledDot));
+		FQuat Pitch(FVector(0,1,0), FMath::DegreesToRadians(PitchRotation * ScaledDot));
+
+
+
+
+		FireDirectorLookRotation *= Yaw;
+		FireDirectorLookRotation *= Pitch;
+
+
+		// roll correction
+		FVector CameraTop = FireDirectorLookRotation.GetAxisZ();
+		FVector LocalCameraTop = Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(CameraTop);
+
+		FVector FlatCameraTop = LocalCameraTop;
+		FlatCameraTop.X = 0;
+		FlatCameraTop.Normalize();
+
+		float Angle = FMath::UnwindRadians(FMath::Atan2(FlatCameraTop.Y, FlatCameraTop.Z));
+
+		FQuat Roll(FVector(1,0,0), Angle);
+
+		FireDirectorLookRotation *= Roll;
+
+		FireDirectorLookRotation.Normalize();
+
+
+		Spacecraft->ConfigureInternalRotatingCamera(FireDirectorLookRotation);
 	}
 	else
 	{
@@ -339,7 +390,7 @@ void UFlareSpacecraftStateManager::UpdateCamera(float DeltaSeconds)
 
 		float Speed = FMath::Clamp(DeltaSeconds * 8, 0.f, 1.f);
 		
-		Spacecraft->DisableImmersiveCamera();
+		Spacecraft->ConfigureInternalFixedCamera();
 		InternalCameraYaw = InternalCameraYaw * (1 - Speed) + InternalCameraYawTarget * Speed;
 		InternalCameraPitch = InternalCameraPitch * (1 - Speed) + InternalCameraPitchTarget * Speed;
 		Spacecraft->SetCameraPitch(InternalCameraPitch);
@@ -707,6 +758,14 @@ FVector UFlareSpacecraftStateManager::GetAngularTargetVelocity() const
 	if (IsPiloted)
 	{
 		return Spacecraft->GetPilot()->GetAngularTargetVelocity();
+	}
+	else if (Spacecraft->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET)
+	{
+		FVector LookAtDirection = FireDirectorLookRotation.GetForwardVector();
+		FVector GlobalYawPitchTarget = Spacecraft->GetNavigationSystem()->GetAngularVelocityToAlignAxis(FVector(1.f, 0.f, 0.f), LookAtDirection, FVector::ZeroVector, 0.f);
+		FVector LocalTarget = Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(GlobalYawPitchTarget);
+		LocalTarget.X = PlayerManualAngularVelocity.X;
+		return Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalTarget);
 	}
 	else
 	{

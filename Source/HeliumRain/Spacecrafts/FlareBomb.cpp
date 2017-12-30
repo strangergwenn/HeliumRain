@@ -408,7 +408,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 	}
 
 	// Spawn penetration effect
-	if (ExplosionEffectTemplate && !(Spacecraft && Spacecraft->IsInImmersiveMode()))
+	if (ExplosionEffectTemplate && !(Spacecraft && Spacecraft->GetCameraMode() == EFlareCameraMode::Immersive))
 	{
 		UParticleSystemComponent* PSC;
 		if(Shell)

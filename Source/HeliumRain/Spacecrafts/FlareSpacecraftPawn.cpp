@@ -32,7 +32,7 @@ AFlareSpacecraftPawn::AFlareSpacecraftPawn(const class FObjectInitializer& PCIP)
 	Camera = PCIP.CreateDefaultSubobject<UCameraComponent>(this, TEXT("Camera"));
 	Camera->AttachToComponent(CameraContainerPitch, AttachRules);
 	MeshScaleCache = -1;
-	UseImmersiveCamera = false;
+	CameraMode = EFlareCameraMode::InternalFixed;
 
 	// Init
 	PreviousCameraName = NAME_None;
@@ -55,7 +55,7 @@ void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 	PreviousCameraName = CurrentCameraName;
 	
 	// Apply interpolated values
-	if (!UseImmersiveCamera)
+	if (CameraMode == EFlareCameraMode::InternalFixed)
 	{
 		CurrentCameraName = NAME_None;
 		CameraContainerPitch->SetRelativeRotation(FRotator(CameraOffsetPitch, 0, 0).GetNormalized());
@@ -63,11 +63,17 @@ void AFlareSpacecraftPawn::Tick(float DeltaSeconds)
 		Camera->SetRelativeLocation(CameraLocalPosition - FVector(CameraOffsetDistance, 0, 0));
 		Camera->SetRelativeRotation(FRotator::ZeroRotator);
 	}
-	else
+	else if (CameraMode == EFlareCameraMode::InternalRotating)
+	{
+		CurrentCameraName = NAME_None;
+		Camera->SetRelativeLocation(CameraLocalPosition - FVector(CameraOffsetDistance, 0, 0));
+		Camera->SetWorldRotation(CameraTargetRotation);
+	}
+	else if (CameraMode == EFlareCameraMode::Immersive)
 	{
 		CurrentCameraName = FName("Camera");
 		FVector CameraLocation = GetRootComponent()->GetSocketLocation(CurrentCameraName);
-		Camera->SetWorldLocationAndRotation(CameraLocation, ImmersiveTargetRotation);
+		Camera->SetWorldLocationAndRotation(CameraLocation, CameraTargetRotation);
 	}
 }
 
@@ -98,19 +104,31 @@ void AFlareSpacecraftPawn::SetCameraDistance(float Value)
 
 void AFlareSpacecraftPawn::ConfigureImmersiveCamera(FQuat TargetRotation)
 {
-	if(!UseImmersiveCamera)
+	if(CameraMode != EFlareCameraMode::Immersive)
 	{
-		UseImmersiveCamera = true;
+		CameraMode = EFlareCameraMode::Immersive;
 	}
+
 	SetPhysicalVisibility(false);
-	ImmersiveTargetRotation = TargetRotation;
+	CameraTargetRotation = TargetRotation;
 }
 
-void AFlareSpacecraftPawn::DisableImmersiveCamera()
+void AFlareSpacecraftPawn::ConfigureInternalRotatingCamera(FQuat TargetRotation)
 {
-	if(UseImmersiveCamera)
+	if(CameraMode != EFlareCameraMode::InternalRotating)
 	{
-		UseImmersiveCamera = false;
+		CameraMode = EFlareCameraMode::InternalRotating;
+		SetPhysicalVisibility(true);
+	}
+
+	CameraTargetRotation = TargetRotation;
+}
+
+void AFlareSpacecraftPawn::ConfigureInternalFixedCamera()
+{
+	if(CameraMode != EFlareCameraMode::InternalFixed)
+	{
+		CameraMode = EFlareCameraMode::InternalFixed;
 		SetPhysicalVisibility(true);
 	}
 }

@@ -9,6 +9,18 @@ class AFlareGame;
 class AFlarePlayerController;
 class UFlareInternalComponent;
 
+/** Resource lock type values */
+UENUM()
+namespace EFlareCameraMode
+{
+	enum Type
+	{
+		InternalFixed,
+		InternalRotating,
+		Immersive,
+	};
+}
+
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship))
 class AFlareSpacecraftPawn : public APawn
 {
@@ -59,7 +71,9 @@ public:
 
 	void ConfigureImmersiveCamera(FQuat TargetRotation);
 
-	void DisableImmersiveCamera();
+	void ConfigureInternalRotatingCamera(FQuat TargetRotation);
+
+	void ConfigureInternalFixedCamera();
 
 	void SetPhysicalVisibility(bool Visibility);
 
@@ -135,8 +149,10 @@ private:
 	float                                           CameraOffsetPitch;
 	float                                           CameraOffsetYaw;
 	float                                           CameraOffsetDistance;
-	bool                                            UseImmersiveCamera;
-	FQuat                                           ImmersiveTargetRotation;
+	FQuat                                           CameraTargetRotation;
+	EFlareCameraMode::Type                          CameraMode;
+
+
 
 	float                                           MeshScaleCache;
 
@@ -215,9 +231,9 @@ public:
 		return CameraMaxYaw;
 	}
 
-	inline bool IsInImmersiveMode() const
+	inline EFlareCameraMode::Type GetCameraMode() const
 	{
-		return UseImmersiveCamera;
+		return CameraMode;
 	}
 
 	inline bool HasFLIRCameraChanged() const

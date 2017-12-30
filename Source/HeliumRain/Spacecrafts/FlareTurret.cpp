@@ -418,7 +418,7 @@ void UFlareTurret::GetBoundingSphere(FVector& Location, float& SphereRadius)
 
 void UFlareTurret::ShowFiringEffects(int GunIndex)
 {
-	if (FiringEffects[GunIndex] && !Spacecraft->IsInImmersiveMode())
+	if (FiringEffects[GunIndex] && Spacecraft->GetCameraMode() != EFlareCameraMode::Immersive)
 	{
 		FiringEffects[GunIndex]->ActivateSystem();
 	}

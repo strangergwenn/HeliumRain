@@ -345,7 +345,7 @@ bool UFlareWeapon::FireGun(int GunIndex)
 
 void UFlareWeapon::ShowFiringEffects(int GunIndex)
 {
-	if (FiringEffect && !Spacecraft->IsInImmersiveMode())
+	if (FiringEffect && Spacecraft->GetCameraMode() != EFlareCameraMode::Immersive)
 	{
 		FiringEffect->ActivateSystem();
 	}
