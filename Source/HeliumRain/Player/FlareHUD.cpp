@@ -1164,8 +1164,7 @@ void AFlareHUD::DrawHUDInternal()
 	EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
 
 	// Draw combat mouse pointer
-	if (HUDVisible && !PlayerShip->GetNavigationSystem()->IsAutoPilot()
-	 && (WeaponType == EFlareWeaponGroupType::WG_NONE || WeaponType == EFlareWeaponGroupType::WG_GUN))
+	if (HUDVisible && !PlayerShip->GetNavigationSystem()->IsAutoPilot())
 	{
 		// Compute clamped mouse position
 		FVector2D MousePosDelta = CombatMouseRadius * PlayerShip->GetStateManager()->GetPlayerAim();
