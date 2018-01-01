@@ -875,15 +875,15 @@ TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedP
 			]
 		]
 		
-		// Upgrade button
+		// Action buttons
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
+		.Padding(Theme.ContentPadding)
 		[
 			SNew(SVerticalBox)
 
 			+ SVerticalBox::Slot()
 			.AutoHeight()
-			.Padding(Theme.ContentPadding)
 			[
 				SNew(SFlareButton)
 				.Text(FText())
@@ -895,7 +895,17 @@ TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedP
 
 			+ SVerticalBox::Slot()
 			.AutoHeight()
-			.Padding(Theme.ContentPadding)
+			[
+				SNew(SFlareButton)
+				.Text(FText())
+				.HelpText(LOCTEXT("DuplicateSpacecraftInfo", "Add a copy of this spacecraft and upgrades"))
+				.Icon(FFlareStyleSet::GetIcon("New"))
+				.OnClicked(this, &SFlareSkirmishSetupMenu::OnDuplicateSpacecraft, Item)
+				.Width(1)
+			]
+
+			+ SVerticalBox::Slot()
+			.AutoHeight()
 			[
 				SNew(SFlareButton)
 				.Text(FText())
@@ -1347,6 +1357,28 @@ void SFlareSkirmishSetupMenu::OnRemoveSpacecraft(TSharedPtr<FFlareSkirmishSpacec
 	else
 	{
 		EnemySpacecraftListData.Remove(Order);
+		EnemySpacecraftList->RequestListRefresh();
+	}
+}
+
+void SFlareSkirmishSetupMenu::OnDuplicateSpacecraft(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order)
+{
+	// Copy order
+	TSharedPtr<FFlareSkirmishSpacecraftOrder> NewOrder = FFlareSkirmishSpacecraftOrder::New(Order->Description);
+	NewOrder->EngineType = Order->EngineType;
+	NewOrder->RCSType = Order->RCSType;
+	NewOrder->WeaponTypes = Order->WeaponTypes;
+	NewOrder->ForPlayer = Order->ForPlayer;
+
+	// Add order
+	if (Order->ForPlayer)
+	{
+		PlayerSpacecraftListData.Add(NewOrder);
+		PlayerSpacecraftList->RequestListRefresh();
+	}
+	else
+	{
+		EnemySpacecraftListData.Add(NewOrder);
 		EnemySpacecraftList->RequestListRefresh();
 	}
 }

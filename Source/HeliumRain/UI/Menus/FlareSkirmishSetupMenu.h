@@ -114,6 +114,9 @@ protected:
 	/** Remove spacecraft */
 	void OnRemoveSpacecraft(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order);
 
+	/** Duplicate spacecraft */
+	void OnDuplicateSpacecraft(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order);
+
 	// Upgrade callbacks
 	void OnUpgradeEngine(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order, FName Upgrade);
 	void OnUpgradeRCS(TSharedPtr<FFlareSkirmishSpacecraftOrder> Order, FName Upgrade);
