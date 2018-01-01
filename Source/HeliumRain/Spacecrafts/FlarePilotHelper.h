@@ -3,7 +3,7 @@
 #include "EngineMinimal.h"
 
 class UFlareCompany;
-class UFlareSeOctor;
+class UFlareSector;
 class UFlareSpacecraftComponent;
 class AFlareSpacecraft;
 class AFlareMeteorite;

@@ -944,7 +944,7 @@ bool PilotHelper::IsTargetDangerous(PilotHelper::PilotTarget const& Target)
 
 bool PilotHelper::PilotTarget::IsEmpty() const
 {
-	return SpacecraftTarget == nullptr & MeteoriteTarget == nullptr && BombTarget == nullptr;
+	return SpacecraftTarget == nullptr && MeteoriteTarget == nullptr && BombTarget == nullptr;
 }
 
 bool PilotHelper::PilotTarget::IsValid() const
