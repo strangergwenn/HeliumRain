@@ -364,6 +364,7 @@ PilotHelper::PilotTarget UFlareTurretPilot::GetNearestHostileTarget(bool Reachab
 	TargetPreferences.LastTarget = PilotTarget;
 	TargetPreferences.LastTargetWeight = 5.;
 	TargetPreferences.IsBomb = 5.f;
+	TargetPreferences.MaxBombDistance = 400000;
 	TargetPreferences.IsMeteorite = 0.0001f;
 
 	TargetPreferences.PreferredDirection = FireAxis;

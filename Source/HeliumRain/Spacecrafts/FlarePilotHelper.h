@@ -103,6 +103,7 @@ struct PilotHelper
 		float AlignementWeight;
 		FVector BaseLocation;
 		float IsBomb;
+		float MaxBombDistance;
 		float IsMeteorite;
 		TArray<PilotTarget> IgnoreList;
 	};

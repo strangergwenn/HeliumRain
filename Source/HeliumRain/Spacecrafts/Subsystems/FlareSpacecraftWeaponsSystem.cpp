@@ -566,6 +566,36 @@ int32 UFlareSpacecraftWeaponsSystem::FindBestWeaponGroup(PilotHelper::PilotTarge
 			}
 
 
+			if(WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.BombCharacteristics.IsBomb)
+			{
+				int BombCount = 0;
+				for (AFlareBomb* Bomb : SpacecraftTarget->GetGame()->GetActiveSector()->GetBombs())
+				{
+					if (Bomb->GetTargetSpacecraft() == SpacecraftTarget && Bomb->IsActive())
+					{
+						BombCount++;
+					}
+				}
+
+
+				if (PilotHelper::IsTargetDangerous(PilotHelper::PilotTarget(SpacecraftTarget)))
+				{
+					if(BombCount > 1)
+					{
+						continue;
+					}
+				}
+				else
+				{
+					if(BombCount > 0)
+					{
+						continue;
+					}
+				}
+			}
+
+
+
 			if(DamageType == EFlareShellDamageType::LightSalvage || DamageType == EFlareShellDamageType::HeavySalvage)
 			{
 				Score *= (UncontrollableTarget ? 1.f : 0.f);
@@ -598,6 +628,11 @@ int32 UFlareSpacecraftWeaponsSystem::FindBestWeaponGroup(PilotHelper::PilotTarge
 
 			EFlareShellDamageType::Type DamageType = WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.DamageType;
 			Score *= WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiSmallShipValue;
+
+			if(WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.BombCharacteristics.IsBomb)
+			{
+				continue;
+			}
 
 			if(DamageType == EFlareShellDamageType::LightSalvage || DamageType == EFlareShellDamageType::HeavySalvage)
 			{

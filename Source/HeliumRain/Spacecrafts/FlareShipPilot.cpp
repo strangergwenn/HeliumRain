@@ -1261,6 +1261,8 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 	TargetPreferences.AlignementWeight = 0.5;
 	TargetPreferences.BaseLocation = Ship->GetActorLocation();
 	TargetPreferences.IsBomb = 5.f;
+	TargetPreferences.MaxBombDistance = 200000.f;
+
 	TargetPreferences.IsMeteorite = 0.0001f;
 
 	Ship->GetWeaponsSystem()->UpdateTargetPreference(TargetPreferences);

@@ -443,32 +443,14 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 			StateScore *= Preferences.IsNotUncontrollable;
 		}
 
-		int BombCount = 0;
 		// Divise by 25 the stateScore per current incoming missile
 		for (AFlareBomb* Bomb : Ship->GetGame()->GetActiveSector()->GetBombs())
 		{
 			if (Bomb->GetTargetSpacecraft() == ShipCandidate && Bomb->IsActive())
 			{
-				BombCount++;
 				StateScore /= 25;
 			}
 		}
-
-		if (IsTargetDangerous(PilotTarget(ShipCandidate)))
-		{
-			if(BombCount > 1)
-			{
-				continue;
-			}
-		}
-		else
-		{
-			if(BombCount > 0)
-			{
-				continue;
-			}
-		}
-
 
 		if(ShipCandidate->GetParent()->IsHarpooned()) {
 			if(ShipCandidate->GetParent()->GetDamageSystem()->IsUncontrollable())
@@ -498,14 +480,16 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 		{
 			AttackTargetScore = Preferences.AttackTargetWeight;
 		}
-		else if(IsTargetDangerous(PilotTarget(ShipCandidate)) && ShipCandidate->GetPilot()->GetPilotTarget().Is(Ship))
-		{
-			AttackTargetScore = Preferences.AttackMeWeight;
-		}
 		else
 		{
 			AttackTargetScore = 0.0f;
 		}
+
+		if(IsTargetDangerous(PilotTarget(ShipCandidate)) && ShipCandidate->GetPilot()->GetPilotTarget().Is(Ship))
+		{
+			StateScore *= Preferences.AttackMeWeight;
+		}
+
 
 		FVector Direction = (ShipCandidate->GetActorLocation() - Preferences.BaseLocation).GetUnsafeNormal();
 
@@ -547,6 +531,23 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 			continue;
 		}
 
+
+		UPrimitiveComponent* RootComponent = Cast<UPrimitiveComponent>(BombCandidate->GetRootComponent());
+		FVector DeltaVelocity = RootComponent->GetPhysicsLinearVelocity() - Ship->GetLinearVelocity() * 100;
+		FVector DeltaLocation = BombCandidate->GetActorLocation() - Ship->GetActorLocation();
+
+		bool Approching = true;
+
+		if (DeltaVelocity.IsNearlyZero() || (FVector::DotProduct(DeltaLocation.GetUnsafeNormal(), DeltaVelocity) > 0))
+		{
+			Approching = false;
+		}
+
+		if (!BombCandidate->IsActive() && !Approching)
+		{
+			continue;
+		}
+
 		if (Ship->GetParent()->GetCompany()->GetWarState(BombCandidate->GetFiringSpacecraft()->GetCompany()) != EFlareHostility::Hostile)
 		{
 			// Ignore not hostile bomb
@@ -557,6 +558,7 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 			// Ignore out limit ships
 			continue;
 		}
+
 
 		float Score;
 		float StateScore;
@@ -571,6 +573,12 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 		}
 
 		float Distance = (Preferences.BaseLocation - BombCandidate->GetActorLocation()).Size();
+
+		if(Distance >= Preferences.MaxBombDistance)
+		{
+			continue;
+		}
+
 		if (Distance >= Preferences.MaxDistance)
 		{
 			DistanceScore = 0.f;
@@ -584,14 +592,17 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 		{
 			AttackTargetScore = Preferences.AttackTargetWeight;
 		}
-		else if(BombCandidate->GetTargetSpacecraft() == Ship)
-		{
-			AttackTargetScore = Preferences.AttackMeWeight;
-		}
 		else
 		{
 			AttackTargetScore = 0.0f;
 		}
+
+
+		if(BombCandidate->GetTargetSpacecraft() == Ship)
+		{
+			StateScore *= Preferences.AttackMeWeight;
+		}
+
 
 		FVector Direction = (BombCandidate->GetActorLocation() - Preferences.BaseLocation).GetUnsafeNormal();
 
