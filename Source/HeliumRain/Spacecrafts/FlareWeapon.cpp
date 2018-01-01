@@ -262,6 +262,8 @@ FVector UFlareWeapon::ComputeParallaxCorrection(int GunIndex)
 
 			}
 		}
+
+
 	}
 
 	if (HasParallaxTarget)
