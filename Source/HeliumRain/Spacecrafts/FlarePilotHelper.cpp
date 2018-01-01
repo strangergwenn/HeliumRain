@@ -327,7 +327,6 @@ bool PilotHelper::IsSectorExitImminent(AFlareSpacecraft* Ship, float PreventionD
 	return ExitImminent;
 }
 
-__attribute__ ((optnone))
 PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, struct TargetPreferences Preferences)
 {
 	SCOPE_CYCLE_COUNTER(STAT_PilotHelper_GetBestTarget);
@@ -548,6 +547,11 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 			continue;
 		}
 
+		if (Ship->GetParent()->GetCompany()->GetWarState(BombCandidate->GetFiringSpacecraft()->GetCompany()) != EFlareHostility::Hostile)
+		{
+			// Ignore not hostile bomb
+			continue;
+		}
 		if (BombCandidate->GetActorLocation().Size() > Ship->GetGame()->GetActiveSector()->GetSectorLimits())
 		{
 			// Ignore out limit ships
@@ -561,13 +565,6 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 		float AlignementScore;
 
 		StateScore = Preferences.TargetStateWeight * Preferences.IsBomb;
-
-		StateScore *= Preferences.IsSmall;
-		StateScore *= Preferences.IsNotStation;
-		StateScore *= Preferences.IsMilitary;
-		StateScore *= Preferences.IsDangerous;
-		StateScore *= Preferences.IsNotStranded;
-		StateScore *= Preferences.IsNotUncontrollable;
 
 		if(Preferences.LastTarget.Is(BombCandidate)) {
 			StateScore *=  Preferences.LastTargetWeight;
@@ -621,9 +618,80 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 
 		if (Score > 0)
 		{
-			if (!BestTarget.IsEmpty() || Score > BestScore)
+			if (BestTarget.IsEmpty() || Score > BestScore)
 			{
 				BestTarget.SetBomb(BombCandidate);
+				BestScore = Score;
+			}
+		}
+
+	}
+
+	for (AFlareMeteorite* MeteoriteCandidate :Ship->GetGame()->GetActiveSector()->GetMeteorites())
+	{
+		if (Preferences.IgnoreList.Contains(PilotTarget(MeteoriteCandidate)))
+		{
+			continue;
+		}
+
+		if (MeteoriteCandidate->GetActorLocation().Size() > Ship->GetGame()->GetActiveSector()->GetSectorLimits())
+		{
+			// Ignore out limit ships
+			continue;
+		}
+
+		if (MeteoriteCandidate->IsBroken())
+		{
+			continue;
+		}
+
+		float Score;
+		float StateScore;
+		float AttackTargetScore;
+		float DistanceScore;
+		float AlignementScore;
+
+		StateScore = Preferences.TargetStateWeight * Preferences.IsMeteorite;
+
+
+		if(Preferences.LastTarget.Is(MeteoriteCandidate)) {
+			StateScore *=  Preferences.LastTargetWeight;
+		}
+
+		float Distance = (Preferences.BaseLocation - MeteoriteCandidate->GetActorLocation()).Size();
+		if (Distance >= Preferences.MaxDistance)
+		{
+			DistanceScore = 0.f;
+		}
+		else
+		{
+			DistanceScore = Preferences.DistanceWeight * (1.f - (Distance / Preferences.MaxDistance));
+		}
+
+
+		AttackTargetScore = 0.0f;
+
+		FVector Direction = (MeteoriteCandidate->GetActorLocation() - Preferences.BaseLocation).GetUnsafeNormal();
+
+
+		float Alignement = FVector::DotProduct(Preferences.PreferredDirection, Direction);
+
+		if (Alignement > Preferences.MinAlignement)
+		{
+			AlignementScore = Preferences.AlignementWeight * ((Alignement - Preferences.MinAlignement) / (1 - Preferences.MinAlignement));
+		}
+		else
+		{
+			AlignementScore = 0;
+		}
+
+		Score = StateScore * (AttackTargetScore + DistanceScore + AlignementScore);
+
+		if (Score > 0)
+		{
+			if (BestTarget.IsEmpty() || Score > BestScore)
+			{
+				BestTarget.SetMeteorite(MeteoriteCandidate);
 				BestScore = Score;
 			}
 		}

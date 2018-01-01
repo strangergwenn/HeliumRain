@@ -72,6 +72,14 @@ void UFlareTurretPilot::PlayerStopFire()
 	WantFire = false;
 }
 
+void UFlareTurretPilot::ClearInvalidTarget(PilotHelper::PilotTarget InvalidTarget)
+{
+	if(PilotTarget == InvalidTarget)
+	{
+		PilotTarget.Clear();
+	}
+}
+
 void UFlareTurretPilot::TickPilot(float DeltaSeconds)
 {
 	SCOPE_CYCLE_COUNTER(STAT_FlareTurretPilot_Tick);
@@ -351,12 +359,12 @@ PilotHelper::PilotTarget UFlareTurretPilot::GetNearestHostileTarget(bool Reachab
 	TargetPreferences.MaxDistance = 5000000;
 	TargetPreferences.DistanceWeight = 0.1;
 	TargetPreferences.AttackTarget = NULL;
-	TargetPreferences.AttackTargetWeight = 1;
-	TargetPreferences.AttackMeWeight = 1;
+	TargetPreferences.AttackTargetWeight = 15;
+	TargetPreferences.AttackMeWeight = 10;
 	TargetPreferences.LastTarget = PilotTarget;
-	TargetPreferences.LastTargetWeight = 10;
-	TargetPreferences.IsBomb = 1.5f;
-	TargetPreferences.IsMeteorite = 0.1f;
+	TargetPreferences.LastTargetWeight = 5.;
+	TargetPreferences.IsBomb = 5.f;
+	TargetPreferences.IsMeteorite = 0.0001f;
 
 	TargetPreferences.PreferredDirection = FireAxis;
 	TargetPreferences.MinAlignement = -1;

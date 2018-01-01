@@ -85,6 +85,9 @@ public:
 	/** Reset the target */
 	void ResetCurrentTarget();
 
+	/** Clear target */
+	void ClearInvalidTarget(PilotHelper::PilotTarget invalidTarget);
+
 	/** Get the current target */
 	PilotHelper::PilotTarget GetCurrentTarget() const;
 

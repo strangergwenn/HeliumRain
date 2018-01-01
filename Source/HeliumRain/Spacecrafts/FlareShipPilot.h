@@ -30,6 +30,8 @@ public:
 	/** Initialize this pilot and register the master ship object */
 	virtual void Initialize(const FFlareShipPilotSave* Data, UFlareCompany* Company, AFlareSpacecraft* OwnerShip);
 
+	void ClearInvalidTarget(PilotHelper::PilotTarget InvalidTarget);
+
 protected:
 	/*----------------------------------------------------
 		Pilot functions

@@ -445,7 +445,7 @@ bool UFlareSpacecraftWeaponsSystem::HasUsableWeaponType(EFlareWeaponGroupType::T
 	return false;
 }
 
-void UFlareSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollableCivil, float* IsUncontrollableSmallMilitary, float* IsUncontrollableLargeMilitary, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned, FFlareWeaponGroup* RestrictGroup)
+void UFlareSpacecraftWeaponsSystem::UpdateTargetPreference(struct PilotHelper::TargetPreferences& Preferences, FFlareWeaponGroup* RestrictGroup)
 {
 	float LargePool = 0;
 	float SmallPool = 0;
@@ -455,6 +455,8 @@ void UFlareSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* I
 	float UncontrollableLargeMilitaryPool = 0;
 	float NotUncontrollablePool = 0;
 	float HarpoonedPool = 0;
+	float BombPool = 0;
+	float MeteoritePool = 0;
 
 
 	for (int32 GroupIndex = 0; GroupIndex < WeaponGroupList.Num(); GroupIndex++)
@@ -474,6 +476,12 @@ void UFlareSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* I
 		SmallPool += WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiSmallShipValue;
 		LargePool += WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiLargeShipValue;
 		StationPool += WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiStationValue;
+
+		if(!WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.BombCharacteristics.IsBomb)
+		{
+			BombPool += WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiSmallShipValue;
+			MeteoritePool += WeaponGroupList[GroupIndex]->Description->WeaponCharacteristics.AntiSmallShipValue;
+		}
 
 		if(DamageType == EFlareShellDamageType::LightSalvage)
 
@@ -501,21 +509,25 @@ void UFlareSpacecraftWeaponsSystem::GetTargetPreference(float* IsSmall, float* I
 		SmallPool = PoolVector.Y;
 	}
 
-	StationPool = FMath::Clamp(StationPool, 0.f, 0.1f);
-	HarpoonedPool = FMath::Clamp(HarpoonedPool, 0.f, 0.1f);
-	NotUncontrollablePool = FMath::Clamp(NotUncontrollablePool, 0.f, 0.1f);
-	UncontrollableCivilPool = FMath::Clamp(UncontrollableCivilPool, 0.f, 0.1f);
-	UncontrollableSmallMilitaryPool = FMath::Clamp(UncontrollableSmallMilitaryPool, 0.f, 0.1f);
-	UncontrollableLargeMilitaryPool = FMath::Clamp(UncontrollableLargeMilitaryPool, 0.f, 0.1f);
+	StationPool = FMath::Clamp(StationPool, 0.f, 1.0f);
+	HarpoonedPool = FMath::Clamp(HarpoonedPool, 0.f, 1.0f);
+	NotUncontrollablePool = FMath::Clamp(NotUncontrollablePool, 0.f, 1.0f);
+	UncontrollableCivilPool = FMath::Clamp(UncontrollableCivilPool, 0.f, 1.0f);
+	UncontrollableSmallMilitaryPool = FMath::Clamp(UncontrollableSmallMilitaryPool, 0.f, 1.0f);
+	UncontrollableLargeMilitaryPool = FMath::Clamp(UncontrollableLargeMilitaryPool, 0.f, 1.0f);
+	MeteoritePool = FMath::Clamp(MeteoritePool, 0.f, 1.0f);
+	BombPool = FMath::Clamp(BombPool, 0.f, 1.0f);
 
-	*IsLarge  = LargePool;
-	*IsSmall  = SmallPool;
-	*IsNotUncontrollable  = NotUncontrollablePool;
-	*IsUncontrollableCivil  = UncontrollableCivilPool;
-	*IsUncontrollableSmallMilitary = UncontrollableSmallMilitaryPool;
-	*IsUncontrollableLargeMilitary = UncontrollableLargeMilitaryPool;
-	*IsStation = StationPool;
-	*IsHarpooned = HarpoonedPool;
+	Preferences.IsLarge  *= LargePool;
+	Preferences.IsSmall  *= SmallPool;
+	Preferences.IsNotUncontrollable  *= NotUncontrollablePool;
+	Preferences.IsUncontrollableCivil  *= UncontrollableCivilPool;
+	Preferences.IsUncontrollableSmallMilitary *= UncontrollableSmallMilitaryPool;
+	Preferences.IsUncontrollableLargeMilitary *= UncontrollableLargeMilitaryPool;
+	Preferences.IsStation *= StationPool;
+	Preferences.IsHarpooned *= HarpoonedPool;
+	Preferences.IsBomb *= BombPool;
+	Preferences.IsMeteorite *= MeteoritePool;
 }
 
 int32 UFlareSpacecraftWeaponsSystem::FindBestWeaponGroup(PilotHelper::PilotTarget Target)

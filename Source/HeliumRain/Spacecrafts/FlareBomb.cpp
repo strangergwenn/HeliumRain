@@ -504,10 +504,10 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 	}
 
 	// Skirmish scoring
-	if (Spacecraft->GetGame()->IsSkirmish())
+	if (ParentWeapon->GetSpacecraft()->GetGame()->IsSkirmish())
 	{
 		bool HitByPlayer = ParentWeapon->GetSpacecraft()->GetCompany() == ParentWeapon->GetSpacecraft()->GetPC()->GetCompany();
-		Spacecraft->GetGame()->GetSkirmishManager()->AmmoHit(HitByPlayer);
+		ParentWeapon->GetSpacecraft()->GetGame()->GetSkirmishManager()->AmmoHit(HitByPlayer);
 	}
 
 	// Bomb has done its job, good job bomb

@@ -39,6 +39,8 @@ public:
 	/** Stop firing */
 	void PlayerStopFire();
 
+	void ClearInvalidTarget(PilotHelper::PilotTarget InvalidTarget);
+
 
 	/*----------------------------------------------------
 		Pilot output

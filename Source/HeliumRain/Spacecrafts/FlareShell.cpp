@@ -535,24 +535,24 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 		}
 
 		// Quest progress
-		if (Spacecraft->GetGame()->GetQuestManager()
+		if (ParentWeapon->GetSpacecraft()->GetGame()->GetQuestManager()
 			&& ParentWeapon->GetSpacecraft()->GetParent() == ParentWeapon->GetSpacecraft()->GetGame()->GetPC()->GetPlayerShip())
 		{
 			ParentWeapon->GetSpacecraft()->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("hit-ship").PutName("immatriculation", Spacecraft->GetImmatriculation()));
 		}
 
 		// Skirmish scoring
-		if (Spacecraft->GetGame()->IsSkirmish())
+		if (ParentWeapon->GetSpacecraft()->GetGame()->IsSkirmish())
 		{
 			bool HitByPlayer = ParentWeapon->GetSpacecraft()->GetCompany() == ParentWeapon->GetSpacecraft()->GetPC()->GetCompany();
-			Spacecraft->GetGame()->GetSkirmishManager()->AmmoHit(HitByPlayer);
+			ParentWeapon->GetSpacecraft()->GetGame()->GetSkirmishManager()->AmmoHit(HitByPlayer);
 		}
 	}
 	else if (Asteroid)
 	{
 		// Physics impulse
 		Asteroid->GetAsteroidComponent()->AddImpulseAtLocation( 5000	 * ImpactRadius * AbsorbedEnergy * (PenetrateArmor ? ImpactAxis : -ImpactNormal), ImpactLocation);
-		if (Spacecraft->GetGame()->GetQuestManager()
+		if (ParentWeapon->GetSpacecraft()->GetGame()->GetQuestManager()
 			&& ParentWeapon->GetSpacecraft()->GetParent() == ParentWeapon->GetSpacecraft()->GetGame()->GetPC()->GetPlayerShip())
 		{
 			ParentWeapon->GetSpacecraft()->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("hit-asteroid"));
@@ -562,7 +562,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 	{
 		// Physics impulse
 		Meteorite->GetMeteoriteComponent()->AddImpulseAtLocation( 5000	 * ImpactRadius * AbsorbedEnergy * (PenetrateArmor ? ImpactAxis : -ImpactNormal), ImpactLocation);
-		if (Spacecraft->GetGame()->GetQuestManager()
+		if (ParentWeapon->GetSpacecraft()->GetGame()->GetQuestManager()
 			&& ParentWeapon->GetSpacecraft()->GetParent() == ParentWeapon->GetSpacecraft()->GetGame()->GetPC()->GetPlayerShip())
 		{
 			ParentWeapon->GetSpacecraft()->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("hit-meteorite"));

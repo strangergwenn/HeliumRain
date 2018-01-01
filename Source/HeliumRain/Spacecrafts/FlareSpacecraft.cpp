@@ -5,6 +5,7 @@
 #include "FlareOrbitalEngine.h"
 #include "FlareRCS.h"
 #include "FlareWeapon.h"
+#include "FlareTurret.h"
 #include "FlareShipPilot.h"
 #include "FlarePilotHelper.h"
 #include "FlareInternalComponent.h"
@@ -652,6 +653,28 @@ float AFlareSpacecraft::GetSpacecraftMass() const
 void AFlareSpacecraft::ResetCurrentTarget()
 {
 	SetCurrentTarget(PilotHelper::PilotTarget());
+}
+
+void AFlareSpacecraft::ClearInvalidTarget(PilotHelper::PilotTarget InvalidTarget)
+{
+	if(CurrentTarget == InvalidTarget)
+	{
+		ResetCurrentTarget();
+	}
+
+	GetPilot()->ClearInvalidTarget(InvalidTarget);
+
+	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
+	{
+		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
+
+		UFlareTurret* Turret = Cast<UFlareTurret>(Components[ComponentIndex]);
+		if (Turret)
+		{
+			Turret->GetTurretPilot()->ClearInvalidTarget(InvalidTarget);
+		}
+	}
 }
 
 PilotHelper::PilotTarget AFlareSpacecraft::GetCurrentTarget() const
@@ -1927,7 +1950,7 @@ void AFlareSpacecraft::FindTarget()
 	TargetPreferences.MaxDistance = 2000000;
 	TargetPreferences.DistanceWeight = 0.5;
 	TargetPreferences.AttackTarget = nullptr;
-	TargetPreferences.AttackTargetWeight = 1.f;
+	TargetPreferences.AttackTargetWeight = 15.f;
 	TargetPreferences.AttackMeWeight = 10;
 	TargetPreferences.LastTarget = PilotHelper::PilotTarget(CurrentTarget);
 	TargetPreferences.LastTargetWeight = -10; // Avoid current target
@@ -1938,16 +1961,7 @@ void AFlareSpacecraft::FindTarget()
 	TargetPreferences.IsBomb = 0;
 	TargetPreferences.IsMeteorite = 0;
 
-	GetWeaponsSystem()->GetTargetPreference(
-		&TargetPreferences.IsSmall,
-		&TargetPreferences.IsLarge,
-		&TargetPreferences.IsUncontrollableCivil,
-		&TargetPreferences.IsUncontrollableSmallMilitary,
-		&TargetPreferences.IsUncontrollableLargeMilitary,
-		&TargetPreferences.IsNotUncontrollable,
-		&TargetPreferences.IsStation,
-		&TargetPreferences.IsHarpooned,
-		GetWeaponsSystem()->GetActiveWeaponGroup());
+	GetWeaponsSystem()->UpdateTargetPreference(TargetPreferences, GetWeaponsSystem()->GetActiveWeaponGroup());
 
 	TargetCandidate = PilotHelper::GetBestTarget(this, TargetPreferences);
 

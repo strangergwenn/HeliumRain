@@ -175,26 +175,7 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 				TimeUntilNextComponentSwitch = 5;
 			}
 
-			if(PilotTargetShipComponent)
-			{
-				EFlareWeaponGroupType::Type WeaponType = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Type;
-				if (WeaponType == EFlareWeaponGroupType::WG_GUN)
-				{
-					FighterPilot(DeltaSeconds);
-					Idle = false;
-				}
-				else if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
-				{
-					BomberPilot(DeltaSeconds);
-					Idle = false;
-				}
-				else if (WeaponType == EFlareWeaponGroupType::WG_MISSILE)
-				{
-					MissilePilot(DeltaSeconds);
-					Idle = false;
-				}
-			}
-			else
+			if(!PilotTargetShipComponent)
 			{
 				PilotTarget.Clear();
 			}
@@ -202,6 +183,27 @@ void UFlareShipPilot::MilitaryPilot(float DeltaSeconds)
 		else
 		{
 			PilotTargetShipComponent = NULL;
+		}
+
+		if(PilotTarget.IsValid())
+		{
+
+			EFlareWeaponGroupType::Type WeaponType = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Type;
+			if (WeaponType == EFlareWeaponGroupType::WG_GUN)
+			{
+				FighterPilot(DeltaSeconds);
+				Idle = false;
+			}
+			else if (WeaponType == EFlareWeaponGroupType::WG_BOMB)
+			{
+				BomberPilot(DeltaSeconds);
+				Idle = false;
+			}
+			else if (WeaponType == EFlareWeaponGroupType::WG_MISSILE)
+			{
+				MissilePilot(DeltaSeconds);
+				Idle = false;
+			}
 		}
 	}
 	else if (Ship->GetSize() == EFlarePartSize::L && PilotTarget.IsValid())
@@ -456,7 +458,8 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 	if(WantFire)
 	{
-		TimeSinceAiming -= 10 * DeltaSeconds / Experience;
+		float Recoil = Ship->GetWeaponsSystem()->GetActiveWeaponGroup()->Description->WeaponCharacteristics.GunCharacteristics.AmmoPrecision;
+		TimeSinceAiming -= (5 + 100 * Recoil) * DeltaSeconds / Experience;
 		TimeSinceAiming = FMath::Max(0.f, TimeSinceAiming);
 	}
 	if(FMath::RadiansToDegrees(TargetAxisAngularPrecision) < 30)
@@ -671,6 +674,12 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 						FLOGV("Gun %d AngularPrecision=%f", GunIndex, AngularPrecision);
 						FLOGV("Gun %d limit=%f", GunIndex, (DangerousTarget ? AngularSize * 0.5 : AngularSize * 0.2));
 					}*/
+
+					if(PilotTarget.BombTarget)
+					{
+						AngularSize *= 10.f;
+					}
+
 					if (AngularPrecision < (DangerousTarget ? AngularSize * 0.5 : AngularSize * 0.2))
 					{
 						/*if(Ship->GetParent() == Ship->GetGame()->GetPC()->GetPlayerShip())
@@ -1243,18 +1252,18 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 	TargetPreferences.MaxDistance = 1000000;
 	TargetPreferences.DistanceWeight = 0.5;
 	TargetPreferences.AttackTarget = NULL;
-	TargetPreferences.AttackTargetWeight = 1;
-	TargetPreferences.AttackMeWeight = 1;
+	TargetPreferences.AttackTargetWeight = 15;
+	TargetPreferences.AttackMeWeight = 10;
 	TargetPreferences.LastTarget = PilotTarget;
-	TargetPreferences.LastTargetWeight = 20;
+	TargetPreferences.LastTargetWeight = 10;
 	TargetPreferences.PreferredDirection = Ship->GetFrontVector();
 	TargetPreferences.MinAlignement = -1;
 	TargetPreferences.AlignementWeight = 0.5;
 	TargetPreferences.BaseLocation = Ship->GetActorLocation();
-	TargetPreferences.IsBomb = 1.5f;
-	TargetPreferences.IsMeteorite = 0.1f;
+	TargetPreferences.IsBomb = 5.f;
+	TargetPreferences.IsMeteorite = 0.0001f;
 
-	Ship->GetWeaponsSystem()->GetTargetPreference(&TargetPreferences.IsSmall, &TargetPreferences.IsLarge, &TargetPreferences.IsUncontrollableCivil , &TargetPreferences.IsUncontrollableSmallMilitary , &TargetPreferences.IsUncontrollableLargeMilitary, &TargetPreferences.IsNotUncontrollable, &TargetPreferences.IsStation, &TargetPreferences.IsHarpooned);
+	Ship->GetWeaponsSystem()->UpdateTargetPreference(TargetPreferences);
 
 
 	float MinAmmoRatio = 1.f;
@@ -1313,9 +1322,13 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 		}
 	}
 
+
+
 	TargetCandidate = PilotHelper::GetBestTarget(Ship, TargetPreferences);
 
-	if (!TargetCandidate.IsEmpty())
+
+
+	if (TargetCandidate.IsValid())
 	{
 		bool NewTarget = false;
 		bool NewWeapon = false;
@@ -1349,6 +1362,9 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 			float TargetSize = PilotTarget.GetMeshScale() / 100.f; // Radius in meters
 			AttackDistance = FMath::FRandRange(100, 200) + TargetSize;
 			MaxFollowDistance = TargetSize * 60; // Distance in meters
+			TimeBeforeNextDrop = FMath::FRandRange(0.1, 1.0);
+			TimeSinceAiming /= 2;
+
 			LockTarget = false;
 		}
 
@@ -1360,7 +1376,18 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 	}
 }
 
+void UFlareShipPilot::ClearInvalidTarget(PilotHelper::PilotTarget InvalidTarget)
+{
+	if(PilotTarget == InvalidTarget)
+	{
+		PilotTarget.Clear();
+	}
 
+	if(LastPilotTarget == InvalidTarget)
+	{
+		LastPilotTarget.Clear();
+	}
+}
 
 int32 UFlareShipPilot::GetPreferedWeaponGroup() const
 {

@@ -188,70 +188,73 @@ FVector UFlareWeapon::ComputeParallaxCorrection(int GunIndex)
 	FVector CameraLocation = Spacecraft->GetCamera()->GetComponentLocation();
 	FVector CameraAimDirection = Spacecraft->GetCamera()->GetComponentRotation().Vector();
 
-	if(Spacecraft->GetCurrentTarget().IsValid() && !IsTurret())
+	if(!IsTurret())
 	{
-		FVector TargetAmmoIntersectionLocation;
-
-		float InterceptTime = Spacecraft->GetCurrentTarget().GetAimPosition(Spacecraft, GetAmmoVelocity(), 0.0, &TargetAmmoIntersectionLocation);
-
-		HasParallaxTarget = true;
-
-		AmmoIntersectionLocation = TargetAmmoIntersectionLocation;
-
-	}
-
-	// Paralax on targetables (bombs and meteorites)
-	if(Spacecraft == Spacecraft->GetGame()->GetPC()->GetPlayerShip()->GetActive())
-	{
-		float BestObjectTargetDot = 0;
-
-		if(HasParallaxTarget)
+		if(Spacecraft->GetCurrentTarget().IsValid() && !IsTurret())
 		{
-			FVector TargetAimDirection = (AmmoIntersectionLocation- CameraLocation).GetUnsafeNormal();
-			float RealTargetDot = FVector::DotProduct(CameraAimDirection, TargetAimDirection);
-			BestObjectTargetDot = RealTargetDot;
+			FVector TargetAmmoIntersectionLocation;
+
+			float InterceptTime = Spacecraft->GetCurrentTarget().GetAimPosition(Spacecraft, GetAmmoVelocity(), 0.0, &TargetAmmoIntersectionLocation);
+
+			HasParallaxTarget = true;
+
+			AmmoIntersectionLocation = TargetAmmoIntersectionLocation;
+
 		}
 
-		TArray<AActor*> TargetCanditates;
-
-		for(AFlareBomb* Bomb: Spacecraft->GetGame()->GetActiveSector()->GetBombs())
+		// Paralax on targetables (bombs and meteorites)
+		if(Spacecraft == Spacecraft->GetGame()->GetPC()->GetPlayerShip()->GetActive())
 		{
-			TargetCanditates.Add(Bomb);
-		}
+			float BestObjectTargetDot = 0;
 
-		for(AFlareMeteorite* Meteorite: Spacecraft->GetGame()->GetActiveSector()->GetMeteorites())
-		{
-			if(!Meteorite->IsBroken())
+			if(HasParallaxTarget)
 			{
-				TargetCanditates.Add(Meteorite);
-			}
-		}
-
-		for(AActor* TargetCandidate: TargetCanditates)
-		{
-			FVector ResultPosition;
-
-			UPrimitiveComponent* CandidateRootComponent = Cast<UPrimitiveComponent>(TargetCandidate->GetRootComponent());
-
-			if(!CandidateRootComponent)
-			{
-				continue;
+				FVector TargetAimDirection = (AmmoIntersectionLocation- CameraLocation).GetUnsafeNormal();
+				float RealTargetDot = FVector::DotProduct(CameraAimDirection, TargetAimDirection);
+				BestObjectTargetDot = RealTargetDot;
 			}
 
-			float CandidateInterceptTime = SpacecraftHelper::GetIntersectionPosition(TargetCandidate->GetActorLocation(), CandidateRootComponent->GetPhysicsLinearVelocity(), CameraLocation, Spacecraft->GetLinearVelocity() * 100, GetAmmoVelocity() * 100, 0.0, &ResultPosition);
+			TArray<AActor*> TargetCanditates;
 
-			FVector CandidateAimDirection = (ResultPosition - CameraLocation).GetUnsafeNormal();
-
-
-			float CandidateTargetDot = FVector::DotProduct(CameraAimDirection, CandidateAimDirection);
-
-			if(BestObjectTargetDot < CandidateTargetDot)
+			for(AFlareBomb* Bomb: Spacecraft->GetGame()->GetActiveSector()->GetBombs())
 			{
-				BestObjectTargetDot = CandidateTargetDot;
-				AmmoIntersectionLocation = ResultPosition;
-				HasParallaxTarget = true;
+				TargetCanditates.Add(Bomb);
 			}
 
+			for(AFlareMeteorite* Meteorite: Spacecraft->GetGame()->GetActiveSector()->GetMeteorites())
+			{
+				if(!Meteorite->IsBroken())
+				{
+					TargetCanditates.Add(Meteorite);
+				}
+			}
+
+			for(AActor* TargetCandidate: TargetCanditates)
+			{
+				FVector ResultPosition;
+
+				UPrimitiveComponent* CandidateRootComponent = Cast<UPrimitiveComponent>(TargetCandidate->GetRootComponent());
+
+				if(!CandidateRootComponent)
+				{
+					continue;
+				}
+
+				float CandidateInterceptTime = SpacecraftHelper::GetIntersectionPosition(TargetCandidate->GetActorLocation(), CandidateRootComponent->GetPhysicsLinearVelocity(), CameraLocation, Spacecraft->GetLinearVelocity() * 100, GetAmmoVelocity() * 100, 0.0, &ResultPosition);
+
+				FVector CandidateAimDirection = (ResultPosition - CameraLocation).GetUnsafeNormal();
+
+
+				float CandidateTargetDot = FVector::DotProduct(CameraAimDirection, CandidateAimDirection);
+
+				if(BestObjectTargetDot < CandidateTargetDot)
+				{
+					BestObjectTargetDot = CandidateTargetDot;
+					AmmoIntersectionLocation = ResultPosition;
+					HasParallaxTarget = true;
+				}
+
+			}
 		}
 	}
 

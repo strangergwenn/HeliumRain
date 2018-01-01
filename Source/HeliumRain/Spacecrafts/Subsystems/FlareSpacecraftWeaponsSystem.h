@@ -113,7 +113,7 @@ public:
 	
 	virtual void StopAllWeapons();
 
-	void GetTargetPreference(float* IsSmall, float* IsLarge, float* IsUncontrollableCivil, float* IsUncontrollableSmallMilitary, float* IsUncontrollableLargeMilitary, float* IsNotUncontrollable, float* IsStation, float* IsHarpooned, FFlareWeaponGroup* RestrictGroup = NULL);
+	void UpdateTargetPreference(struct PilotHelper::TargetPreferences& Preferences, FFlareWeaponGroup* RestrictGroup = NULL);
 
 	int32 FindBestWeaponGroup(PilotHelper::PilotTarget Target);
 

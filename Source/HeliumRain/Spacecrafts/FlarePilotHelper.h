@@ -28,6 +28,11 @@ struct PilotHelper
 			, MeteoriteTarget(nullptr)
 			, BombTarget(Bomb) {}
 
+		PilotTarget(AFlareMeteorite* Meteorite)
+			: SpacecraftTarget(nullptr)
+			, MeteoriteTarget(Meteorite)
+			, BombTarget(nullptr) {}
+
 
 		bool IsValid() const;
 		bool IsEmpty() const;
