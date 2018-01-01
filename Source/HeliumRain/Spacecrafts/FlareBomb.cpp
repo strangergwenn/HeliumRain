@@ -209,7 +209,13 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		FVector BombVelocityDirectionRefTarget = BombVelocityRefTarget.GetUnsafeNormal();
 
 
-		FVector AimVelocityRefTarget = TargetDirection * WeaponDescription->WeaponCharacteristics.BombCharacteristics.NominalVelocity;
+
+		float VelocityInTargetAxis = FVector::DotProduct(TargetDirection, BombVelocityRefTarget);
+
+		float UsedVelocity = FMath::Max(WeaponDescription->WeaponCharacteristics.BombCharacteristics.NominalVelocity, VelocityInTargetAxis);
+
+
+		FVector AimVelocityRefTarget = TargetDirection * UsedVelocity;
 
 
 	
@@ -315,9 +321,9 @@ void AFlareBomb::Tick(float DeltaSeconds)
 		
 		if (LastLocation != FVector::ZeroVector)
 		{
-			DrawDebugLine(GetWorld(), GetActorLocation(), LastLocation, FColor::Green, true);
-			DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + EffectiveDeltaVelocity, FColor::Blue, true);
-			DrawDebugLine(GetWorld(), TargetSpacecraft->GetActorLocation(), LastTargetLocation, FColor::Red, true);
+			UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), LastLocation, FColor::Green, 1000.f);
+			UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + EffectiveDeltaVelocity, FColor::Blue, 1000.f);
+			UKismetSystemLibrary::DrawDebugLine(GetWorld(), TargetSpacecraft->GetActorLocation(), LastTargetLocation, FColor::Red, 1000.f);
 		}*/
 		LastLocation = GetActorLocation();
 		LastTargetLocation = TargetSpacecraft->GetActorLocation();
