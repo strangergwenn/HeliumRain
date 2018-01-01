@@ -200,6 +200,10 @@ FVector UFlareWeapon::ComputeParallaxCorrection(int GunIndex)
 
 			AmmoIntersectionLocation = TargetAmmoIntersectionLocation;
 
+			if(Spacecraft == Spacecraft->GetGame()->GetPC()->GetPlayerShip()->GetActive())
+			{
+				SetTarget(Spacecraft->GetCurrentTarget().GetActorLocation(), Spacecraft->GetCurrentTarget().GetLinearVelocity() / 100.f);
+			}
 		}
 
 		// Paralax on targetables (bombs and meteorites)
@@ -252,6 +256,8 @@ FVector UFlareWeapon::ComputeParallaxCorrection(int GunIndex)
 					BestObjectTargetDot = CandidateTargetDot;
 					AmmoIntersectionLocation = ResultPosition;
 					HasParallaxTarget = true;
+
+					SetTarget(TargetCandidate->GetActorLocation(), CandidateRootComponent->GetPhysicsLinearVelocity() / 100.f);
 				}
 
 			}
