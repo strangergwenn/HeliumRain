@@ -1179,24 +1179,34 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 	{
 
 		PilotTargetLocation = FMath::VRand() * FMath::FRand() * 80000 + PilotTarget.GetActorLocation();
+		//FLOGV("New TargetDeltaLocation %f", (PilotTargetLocation - PilotTarget.GetActorLocation()).Size());
+		//UKismetSystemLibrary::DrawDebugSphere(Ship->GetWorld(), PilotTargetLocation, 1000, 12, FColor::Red, 1000.f);
 	}
 
+	//UKismetSystemLibrary::DrawDebugSphere(Ship->GetWorld(), PilotTargetLocation, 20, 12, FColor::Orange, 1000.f);
+	//UKismetSystemLibrary::DrawDebugPoint(Ship->GetWorld(), PilotTarget.GetActorLocation(), 2, FColor::Green, 1000.f);
+	//FLOGV("FlagShipPilot PilotTargetLocation: %s PilotTarget.GetActorLocation(): %s", *PilotTargetLocation.ToString(), *PilotTarget.GetActorLocation().ToString());
+	//FLOGV("TargetDeltaLocation %f", (PilotTargetLocation - PilotTarget.GetActorLocation()).Size());
 
-	AngularTargetVelocity = FVector::ZeroVector;
 	LinearTargetVelocity = (PilotTargetLocation - Ship->GetActorLocation()).GetUnsafeNormal()  * Ship->GetNavigationSystem()->GetLinearMaxVelocity() * 2;
-
 	LinearTargetVelocity += LinearTargetVelocity.GetUnsafeNormal() * FVector::DotProduct(PilotTarget.GetLinearVelocity() / 100.f,LinearTargetVelocity.GetUnsafeNormal());
 
 	// TODO Bomb avoid
 
-	AlignToTargetVelocityWithThrust(DeltaSeconds);
+	FVector DeltaLocation = PilotTarget.GetActorLocation() - Ship->GetActorLocation();
 
-	AngularTargetVelocity = AngularTargetVelocity.GetClampedToMaxSize(0.1f);
+	//FLOGV("DeltaLocation %f", DeltaLocation.Size());
+
+	AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), DeltaLocation.GetUnsafeNormal(), FVector::ZeroVector, DeltaSeconds);
+	AngularTargetVelocity = AngularTargetVelocity.GetClampedToMaxSize(10.f);
+
+	//FLOGV("LinearTargetVelocity: %s AngularTargetVelocity: %s", *LinearTargetVelocity.ToString(), *AngularTargetVelocity.ToString())
+	//FLOGV("AngularVelocity: %s", *Ship->Airframe->GetPhysicsAngularVelocity().ToString())
 
 	// Exit avoidance
-	if(PilotTarget.IsEmpty() || (PilotTarget.Is(Ship->GetGame()->GetPC()->GetShipPawn())))
+	if(PilotTarget.IsEmpty() || (!PilotTarget.Is(Ship->GetGame()->GetPC()->GetShipPawn())))
 	{
-		LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.5);
+		LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.7);
 	}
 
 	// Anticollision
