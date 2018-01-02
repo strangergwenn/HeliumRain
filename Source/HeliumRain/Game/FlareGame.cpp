@@ -438,6 +438,11 @@ void AFlareGame::Tick(float DeltaSeconds)
 		QuestManager->OnTick(DeltaSeconds);
 	}
 
+	if(SkirmishManager)
+	{
+		SkirmishManager->Update(DeltaSeconds);
+	}
+
 	if (GetActiveSector() != NULL)
 	{
 		for (int CompanyIndex = 0; CompanyIndex < GetGameWorld()->GetCompanies().Num(); CompanyIndex++)
