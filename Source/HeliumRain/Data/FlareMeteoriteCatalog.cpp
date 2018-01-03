@@ -2,8 +2,6 @@
 #include "FlareMeteoriteCatalog.h"
 #include "../Flare.h"
 
-#include "DestructibleMesh.h"
-
 
 /*----------------------------------------------------
 	Constructor

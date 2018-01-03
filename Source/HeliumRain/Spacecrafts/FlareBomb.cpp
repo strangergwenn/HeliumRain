@@ -14,7 +14,7 @@
 #include "FlareShell.h"
 
 #include "Components/DecalComponent.h"
-#include "DestructibleComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 #define LOCTEXT_NAMESPACE "FlareBomb"
 
