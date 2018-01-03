@@ -6,8 +6,7 @@
 #include "../Data/FlareMeteoriteCatalog.h"
 #include "../Player/FlarePlayerController.h"
 
-#include "DestructibleMesh.h"
-#include "DestructibleComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 #define LOCTEXT_NAMESPACE "FlareMeteorite"
 
@@ -19,7 +18,7 @@
 AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(PCIP)
 {
 	// Mesh
-	Meteorite = PCIP.CreateDefaultSubobject<UDestructibleComponent>(this, TEXT("Meteorite"));
+	Meteorite = PCIP.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("Meteorite"));
 	Meteorite->bTraceComplexOnMove = true;
 	Meteorite->SetLinearDamping(0);
 	Meteorite->SetAngularDamping(0);
@@ -29,7 +28,7 @@ AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(P
 
 	// Physics
 	Meteorite->SetMobility(EComponentMobility::Movable);
-	Meteorite->SetCollisionProfileName("Destructible");
+	Meteorite->SetCollisionProfileName("BlockAllDynamic");
 	Meteorite->GetBodyInstance()->SetUseAsyncScene(false);
 	Meteorite->GetBodyInstance()->SetInstanceSimulatePhysics(true);
 	Meteorite->SetNotifyRigidBodyCollision(true);
@@ -40,8 +39,10 @@ AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(P
 	Paused = false;
 
 	// Content
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeteoriteCoreObj(TEXT("/Game/Environment/Meteorites/Common/SM_Meteorite_Core.SM_Meteorite_Core"));
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> RockEffectTemplateObj(TEXT("/Game/Environment/Meteorites/Common/PS_Breakup_Rock.PS_Breakup_Rock"));
 	static ConstructorHelpers::FObjectFinder<UParticleSystem> MetalEffectTemplateObj(TEXT("/Game/Environment/Meteorites/Common/PS_Breakup_Metal.PS_Breakup_Metal"));
+	MeteoriteCoreMesh = MeteoriteCoreObj.Object;
 	RockEffectTemplate = RockEffectTemplateObj.Object;
 	MetalEffectTemplate = MetalEffectTemplateObj.Object;
 }
@@ -98,26 +99,6 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 		}
 	}
 
-	/*FLOGV("Meteorite %s vel=%s", *GetName(), *Meteorite->GetPhysicsLinearVelocity().ToString());
-	FLOGV(" - IsPhysicsCollisionEnabled %d", Meteorite->IsPhysicsCollisionEnabled());
-	FLOGV(" - IsPhysicsStateCreated %d", Meteorite->IsPhysicsStateCreated());
-	FLOGV(" - IsAnySimulatingPhysics %d", Meteorite->IsAnySimulatingPhysics());
-	FLOGV(" - IsAnyRigidBodyAwake %d", Meteorite->IsAnyRigidBodyAwake());
-	FLOGV(" - IsCollisionEnabled %d", Meteorite->IsCollisionEnabled());
-	FLOGV(" - IsSimulatingPhysics %d", Meteorite->IsSimulatingPhysics());*/
-
-	/*float CollisionSize = Asteroid->GetCollisionShape().GetExtent().Size();
-	if (SpawnLocation.Size() <= 0.1)
-	{
-		SpawnLocation = GetActorLocation();
-		DrawDebugSphere(GetWorld(), SpawnLocation, CollisionSize / 2, 16, FColor::Red, true);
-	}
-	else
-	{
-		DrawDebugSphere(GetWorld(), GetActorLocation(), CollisionSize / 2, 16, FColor::Blue, false);
-		DrawDebugLine(GetWorld(), GetActorLocation(), SpawnLocation, FColor::Green, false);
-	}*/
-
 	if (LifeTime > SafeThresold)
 	{
 		if (!IsBroken()  && !MeteoriteData->HasMissed && Target)
@@ -130,9 +111,6 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 			FVector TargetVelocity = TargetDirection * Velocity;
 			float Dot = FVector::DotProduct(CurrentDirection, TargetDirection);
 
-			//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + TargetDirection * 10000,FColor::Green, 1000.f);
-			//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + CurrentDirection * 10000,FColor::Red, 1000.f);
-
 			if (Dot > 0)
 			{
 				// Don't fix if miss
@@ -141,7 +119,6 @@ void AFlareMeteorite::Tick(float DeltaSeconds)
 				FVector CorrectedVelocity = CurrentVelocity + DeltaVelocityClamped;
 				FVector CorrectedDirection = CorrectedVelocity.GetUnsafeNormal();
 
-				//UKismetSystemLibrary::DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + CorrectedDirection * 10000 ,FColor::Blue, 1000.f);
 				Meteorite->SetPhysicsLinearVelocity(CorrectedDirection * Velocity);
 			}
 			else if (Dot < -0.5f)
@@ -180,6 +157,9 @@ void AFlareMeteorite::OnCollision(class AActor* Other, FVector HitLocation)
 			float Energy = EnergyBaseRatio * MeteoriteData->BrokenDamage * DeltaVelocity.SizeSquared() * (Spacecraft->IsStation() ? 0.2f : 0.0001f);
 
 			Spacecraft->GetDamageSystem()->ApplyDamage(Energy, MeteoriteData->BrokenDamage, HitLocation, EFlareDamage::DAM_Collision, NULL, FString());
+
+			// Set core
+			Meteorite->SetStaticMesh(MeteoriteCoreMesh);
 
 			// Spawn FX
 			UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAtLocation(
@@ -239,10 +219,10 @@ void AFlareMeteorite::SetupMeteoriteMesh()
 	
 	if (Game->GetMeteoriteCatalog())
 	{
-		const TArray<UDestructibleMesh*>& MeteoriteList = MeteoriteData->IsMetal ? Game->GetMeteoriteCatalog()->MetalMeteorites : Game->GetMeteoriteCatalog()->RockMeteorites;
+		const TArray<UStaticMesh*>& MeteoriteList = MeteoriteData->IsMetal ? Game->GetMeteoriteCatalog()->MetalMeteorites : Game->GetMeteoriteCatalog()->RockMeteorites;
 		FCHECK(MeteoriteData->MeteoriteMeshID >= 0 && MeteoriteData->MeteoriteMeshID < MeteoriteList.Num());
 
-		Meteorite->SetDestructibleMesh(MeteoriteList[MeteoriteData->MeteoriteMeshID]);
+		Meteorite->SetStaticMesh(MeteoriteList[MeteoriteData->MeteoriteMeshID]);
 		Meteorite->GetBodyInstance()->SetMassScale(10000);
 		Meteorite->GetBodyInstance()->UpdateMassProperties();
 	}
@@ -268,7 +248,7 @@ void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, 
 
 	if (!IsBroken())
 	{
-		MeteoriteData->Damage+= Energy;
+		MeteoriteData->Damage += Energy;
 
 		if (IsBroken())
 		{
@@ -287,6 +267,10 @@ void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, 
 				PC->SetAchievementProgression("ACHIEVEMENT_METEORITE", 1);
 			}
 
+			// Set core
+			Meteorite->SetStaticMesh(MeteoriteCoreMesh);
+			Meteorite->SetPhysicsLinearVelocity(CurrentVelocity);
+
 			// Spawn FX
 			UParticleSystemComponent* PSC = UGameplayStatics::SpawnEmitterAtLocation(
 				PC,
@@ -300,15 +284,7 @@ void AFlareMeteorite::ApplyDamage(float Energy, float Radius, FVector Location, 
 			if (!MeteoriteData->HasMissed)
 			{
 				Parent->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("meteorite-destroyed").PutName("sector", Parent->GetSimulatedSector()->GetIdentifier()));
-			}			
-			Meteorite->ApplyRadiusDamage(FMath::Max(200.f, Energy), Location, 100.f, FMath::Max(200.f, Energy )* 200 , false);
-		}
-	}
-	else
-	{
-		if (DamageType != EFlareDamage::DAM_Collision)
-		{
-			Meteorite->ApplyRadiusDamage(FMath::Max(180.f, Energy/ 100 ) , Location, 100.f, FMath::Max(180.f, Energy ) * 500 , false);
+			}
 		}
 	}
 }

@@ -8,6 +8,7 @@ class UFlareSimulatedSpacecraft;
 class UFlareSector;
 class AFlareSpacecraft;
 
+
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))
 class AFlareMeteorite : public AActor
 {
@@ -50,10 +51,14 @@ public:
 
 	// Mesh
 	UPROPERTY(Category = Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
-	class UDestructibleComponent*                 Meteorite;
+	class UStaticMeshComponent*                  Meteorite;
 
 
 protected:
+	
+	// Core breakup effect
+	UPROPERTY()
+	UStaticMesh*                                  MeteoriteCoreMesh;
 
 	// Rock breakup effect
 	UPROPERTY()
@@ -81,7 +86,7 @@ public:
 	bool IsBroken();
 
 
-	UDestructibleComponent *GetMeteoriteComponent()
+	UStaticMeshComponent* GetMeteoriteComponent()
 	{
 		return Meteorite;
 	}

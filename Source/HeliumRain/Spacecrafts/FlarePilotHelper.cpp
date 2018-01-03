@@ -11,7 +11,7 @@
 #include "FlareShipPilot.h"
 #include "../Quests/FlareMeteorite.h"
 
-#include "DestructibleComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 
 DECLARE_CYCLE_STAT(TEXT("PilotHelper CheckFriendlyFire"), STAT_PilotHelper_CheckFriendlyFire, STATGROUP_Flare);

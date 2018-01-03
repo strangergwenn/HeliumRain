@@ -1,6 +1,7 @@
 
 #include "FlareShell.h"
 #include "../Flare.h"
+
 #include "FlareSpacecraft.h"
 
 #include "../Game/FlareGame.h"
@@ -10,7 +11,7 @@
 #include "../Player/FlarePlayerController.h"
 
 #include "Components/DecalComponent.h"
-#include "DestructibleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Engine.h"
 
 
