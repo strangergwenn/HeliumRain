@@ -2013,73 +2013,94 @@ void AFlarePlayerController::TradeMenu()
 
 void AFlarePlayerController::SpacecraftKey1()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping())
 	{
-		MenuManager->SpacecraftInfoHotkey(1);
-	}
-	else
-	{
-		ShipPawn->DeactivateWeapon();
+		if (IsInMenu())
+		{
+			MenuManager->SpacecraftInfoHotkey(1);
+		}
+		else
+		{
+			ShipPawn->DeactivateWeapon();
+		}
 	}
 }
 
 void AFlarePlayerController::SpacecraftKey2()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping())
 	{
-		MenuManager->SpacecraftInfoHotkey(2);
-	}
-	else
-	{
-		ShipPawn->ActivateWeaponGroup1();
+		if (IsInMenu())
+		{
+			MenuManager->SpacecraftInfoHotkey(2);
+		}
+		else
+		{
+			ShipPawn->ActivateWeaponGroup1();
+		}
 	}
 }
 
 void AFlarePlayerController::SpacecraftKey3()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping())
 	{
-		MenuManager->SpacecraftInfoHotkey(3);
-	}
-	else
-	{
-		ShipPawn->ActivateWeaponGroup2();
+		if (IsInMenu())
+		{
+			MenuManager->SpacecraftInfoHotkey(3);
+		}
+		else
+		{
+			ShipPawn->ActivateWeaponGroup2();
+		}
 	}
 }
 
 void AFlarePlayerController::SpacecraftKey4()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping())
 	{
-		MenuManager->SpacecraftInfoHotkey(3);
-	}
-	else
-	{
-		ShipPawn->ActivateWeaponGroup3();
+		if (IsInMenu())
+		{
+			MenuManager->SpacecraftInfoHotkey(4);
+		}
+		else
+		{
+			ShipPawn->ActivateWeaponGroup3();
+		}
 	}
 }
 
 void AFlarePlayerController::SpacecraftKey5()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping())
 	{
-		MenuManager->SpacecraftInfoHotkey(5);
+		if (IsInMenu())
+		{
+			MenuManager->SpacecraftInfoHotkey(5);
+		}
 	}
 }
 
 void AFlarePlayerController::SpacecraftKey6()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping())
 	{
-		MenuManager->SpacecraftInfoHotkey(6);
+		if (IsInMenu())
+		{
+			MenuManager->SpacecraftInfoHotkey(6);
+		}
 	}
 }
 
 void AFlarePlayerController::SpacecraftKey7()
 {
-	if (GetGame()->IsLoadedOrCreated() && !IsTyping() && IsInMenu())
+	if (GetGame()->IsLoadedOrCreated() && !IsTyping())
 	{
-		MenuManager->SpacecraftInfoHotkey(7);
+		if (IsInMenu())
+		{
+			MenuManager->SpacecraftInfoHotkey(7);
+		}
 	}
 }
 
