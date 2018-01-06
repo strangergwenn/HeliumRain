@@ -33,8 +33,9 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 	// Data
 	MenuManager = InArgs._MenuManager;
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	int32 Width = 0.9 * Theme.ContentWidth;
-	int32 LabelWidth = Theme.ContentWidth / 5;
+	int32 SideWidth = 0.65 * Theme.ContentWidth;
+	int32 Width = 1 * Theme.ContentWidth;
+	int32 LabelWidth = 0.225 * Theme.ContentWidth;
 	int32 ListHeight = 880;
 
 	// Build structure
@@ -72,7 +73,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 				.AutoWidth()
 				[
 					SNew(SBox)
-					.WidthOverride(Width)
+					.WidthOverride(SideWidth)
 					[
 						SNew(SVerticalBox)
 
@@ -117,8 +118,8 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								SAssignNew(CompanySelector, SFlareDropList<FFlareCompanyDescription>)
 								.OptionsSource(&MenuManager->GetPC()->GetGame()->GetCompanyCatalog()->Companies)
 								.OnGenerateWidget(this, &SFlareSkirmishSetupMenu::OnGenerateCompanyComboLine)
-								.HeaderWidth(8)
-								.ItemWidth(8)
+								.HeaderWidth(6)
+								.ItemWidth(6)
 								[
 									SNew(SBox)
 									.Padding(Theme.ListContentPadding)
@@ -161,8 +162,8 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								SAssignNew(PlanetSelector, SFlareDropList<FFlareSectorCelestialBodyDescription>)
 								.OptionsSource(&MenuManager->GetPC()->GetGame()->GetOrbitalBodies()->OrbitalBodies)
 								.OnGenerateWidget(this, &SFlareSkirmishSetupMenu::OnGeneratePlanetComboLine)
-								.HeaderWidth(8)
-								.ItemWidth(8)
+								.HeaderWidth(6)
+								.ItemWidth(6)
 								[
 									SNew(SBox)
 									.Padding(Theme.ListContentPadding)
@@ -215,7 +216,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								.Padding(Theme.ContentPadding)
 								[
 									SNew(SBox)
-									.WidthOverride(LabelWidth)
+									.WidthOverride(LabelWidth / 2)
 									[
 										SNew(STextBlock)
 										.TextStyle(&Theme.TextFont)
@@ -266,7 +267,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								.Padding(Theme.ContentPadding)
 								[
 									SNew(SBox)
-									.WidthOverride(LabelWidth)
+									.WidthOverride(LabelWidth / 2)
 									[
 										SNew(STextBlock)
 										.TextStyle(&Theme.TextFont)
@@ -317,7 +318,7 @@ void SFlareSkirmishSetupMenu::Construct(const FArguments& InArgs)
 								.Padding(Theme.ContentPadding)
 								[
 									SNew(SBox)
-									.WidthOverride(LabelWidth)
+									.WidthOverride(LabelWidth / 2)
 									[
 										SNew(STextBlock)
 										.TextStyle(&Theme.TextFont)
@@ -870,7 +871,7 @@ TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedP
 					SNew(STextBlock)
 					.Text(Desc->Description)
 					.TextStyle(&Theme.TextFont)
-					.WrapTextAt(0.65 * Theme.ContentWidth)
+					.WrapTextAt(0.7 * Theme.ContentWidth)
 				]
 			]
 		]
@@ -885,34 +886,38 @@ TSharedRef<ITableRow> SFlareSkirmishSetupMenu::OnGenerateSpacecraftLine(TSharedP
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			[
-				SNew(SFlareButton)
-				.Text(FText())
-				.HelpText(LOCTEXT("UpgradeSpacecraftInfo", "Upgrade this spacecraft"))
-				.Icon(FFlareStyleSet::GetIcon("ShipUpgradeSmall"))
-				.OnClicked(this, &SFlareSkirmishSetupMenu::OnUpgradeSpacecraft, Item)
-				.Width(1)
+				SNew(SHorizontalBox)
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareButton)
+					.Text(FText())
+					.HelpText(LOCTEXT("UpgradeSpacecraftInfo", "Upgrade this spacecraft"))
+					.Icon(FFlareStyleSet::GetIcon("ShipUpgradeSmall"))
+					.OnClicked(this, &SFlareSkirmishSetupMenu::OnUpgradeSpacecraft, Item)
+					.Width(1)
+				]
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SFlareButton)
+					.Text(FText())
+					.HelpText(LOCTEXT("RemoveSpacecraftInfo", "Remove this spacecraft"))
+					.Icon(FFlareStyleSet::GetIcon("Delete"))
+					.OnClicked(this, &SFlareSkirmishSetupMenu::OnRemoveSpacecraft, Item)
+					.Width(1)
+				]
 			]
 
 			+ SVerticalBox::Slot()
 			.AutoHeight()
 			[
 				SNew(SFlareButton)
-				.Text(FText())
+				.Text(LOCTEXT("DuplicateSpacecraft", "Copy"))
 				.HelpText(LOCTEXT("DuplicateSpacecraftInfo", "Add a copy of this spacecraft and upgrades"))
-				.Icon(FFlareStyleSet::GetIcon("New"))
 				.OnClicked(this, &SFlareSkirmishSetupMenu::OnDuplicateSpacecraft, Item)
-				.Width(1)
-			]
-
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SNew(SFlareButton)
-				.Text(FText())
-				.HelpText(LOCTEXT("RemoveSpacecraftInfo", "Remove this spacecraft"))
-				.Icon(FFlareStyleSet::GetIcon("Delete"))
-				.OnClicked(this, &SFlareSkirmishSetupMenu::OnRemoveSpacecraft, Item)
-				.Width(1)
+				.Width(2)
 			]
 		]
 	];
