@@ -658,6 +658,11 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 			continue;
 		}
 
+		if (MeteoriteCandidate->HasMissed())
+		{
+			continue;
+		}
+
 		float Score;
 		float StateScore;
 		float AttackTargetScore;

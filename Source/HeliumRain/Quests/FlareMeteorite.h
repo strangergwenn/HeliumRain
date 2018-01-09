@@ -85,6 +85,10 @@ public:
 
 	bool IsBroken();
 
+	bool HasMissed()
+	{
+		return MeteoriteData->HasMissed;
+	}
 
 	UStaticMeshComponent* GetMeteoriteComponent()
 	{
