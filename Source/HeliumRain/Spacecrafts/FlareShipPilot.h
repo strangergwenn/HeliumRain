@@ -165,6 +165,22 @@ protected:
 
 	EFlareCombatTactic::Type			         CurrentTactic;
 
+	struct PilotFormation
+	{
+
+		bool IsLeader();
+		bool IsWingman();
+
+		AFlareSpacecraft* GetLeader();
+		PilotFormation& GetFormation();
+
+		void UpdateFormation();
+
+		AFlareSpacecraft* Wingmen[3];
+	};
+
+	PilotFormation								 Formation;
+
 
 	/*----------------------------------------------------
 		Helper

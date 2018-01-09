@@ -366,6 +366,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::CreateSpacecraft(FFlareSpacecr
 	// Init pilot
 	ShipData.Pilot.Identifier = "chewie";
 	ShipData.Pilot.Name = "Chewbacca";
+	ShipData.Pilot.Initiative = FMath::FRand();
 
 	// Init company
 	ShipData.CompanyIdentifier = Company->GetIdentifier();

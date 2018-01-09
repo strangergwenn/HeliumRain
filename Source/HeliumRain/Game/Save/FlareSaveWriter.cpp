@@ -419,6 +419,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SavePilot(FFlareShipPilotSave* Data)
 
 	JsonObject->SetStringField("Identifier", Data->Identifier.ToString());
 	JsonObject->SetStringField("Name", Data->Name);
+	SaveFloat(JsonObject,"Initiative", Data->Initiative);
 
 	return JsonObject;
 }

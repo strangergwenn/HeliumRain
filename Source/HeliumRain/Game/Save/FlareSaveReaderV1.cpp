@@ -571,6 +571,7 @@ void UFlareSaveReaderV1::LoadPilot(const TSharedPtr<FJsonObject> Object, FFlareS
 {
 	LoadFName(Object, "Identifier", &Data->Identifier);
 	Object->TryGetStringField(TEXT("Name"), Data->Name);
+	LoadFloat(Object, "Initiative", &Data->Initiative);
 }
 
 

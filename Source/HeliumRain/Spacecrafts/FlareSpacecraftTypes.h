@@ -196,6 +196,9 @@ struct FFlareShipPilotSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	FString Name;
 
+	/** Pilot initiative */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float Initiative;
 };
 
 /** Asteroid save data */
