@@ -75,7 +75,7 @@ void SFlareKeyBind::SetKey(FKey NewKey, bool bCanReset, bool bNotify)
 		bWaitingForKey = false;
 
 		FSlateApplication::Get().GetPlatformApplication().Get()->Cursor->Show(true);
-		FSlateApplication::Get().ClearKeyboardFocus(EKeyboardFocusCause::SetDirectly);
+		FSlateApplication::Get().ClearKeyboardFocus(EFocusCause::SetDirectly);
 
 		if (bNotify)
 		{
