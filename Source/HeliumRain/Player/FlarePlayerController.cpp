@@ -662,12 +662,12 @@ void AFlarePlayerController::SpacecraftCrashed()
 
 void AFlarePlayerController::MissileFired(AFlareBomb* Bomb)
 {
-	//ClientPlaySound(MissileWarningSound);
-	//
-	//Notify(LOCTEXT("MissileFiredAtPlayer", "Incoming missile !"),
-	//	LOCTEXT("MissileFiredAtPlayerInfo", "A missile has been fired at your ship !"),
-	//	FName("missile-fired"),
-	//	EFlareNotification::NT_Military);
+	ClientPlaySound(MissileWarningSound);
+
+	Notify(LOCTEXT("MissileFiredAtPlayer", "Incoming missile !"),
+		LOCTEXT("MissileFiredAtPlayerInfo", "A missile has been fired at your ship !"),
+		FName("missile-fired"),
+		EFlareNotification::NT_MilitarySilent);
 }
 
 void AFlarePlayerController::PlayLocalizedSound(USoundCue* Sound, FVector WorldLocation)
@@ -814,19 +814,24 @@ void AFlarePlayerController::Notify(FText Title, FText Info, FName Tag, EFlareNo
 	FLOGV("AFlarePlayerController::Notify : '%s'", *Title.ToString());
 
 	// Notify
-	if(MenuManager->Notify(Title, Info, Tag, Type, Pinned, TargetMenu, TargetInfo))
+	if (MenuManager->Notify(Title, Info, Tag, Type, Pinned, TargetMenu, TargetInfo))
 	{
 		// Play sound
 		USoundCue* NotifSound = NULL;
 		switch (Type)
 		{
-			case EFlareNotification::NT_Info:      NotifSound = NotificationInfoSound;      break;
-			case EFlareNotification::NT_Military:  NotifSound = NotificationCombatSound;    break;
-			case EFlareNotification::NT_Quest:	   NotifSound = NotificationQuestSound;     break;
-			case EFlareNotification::NT_NewQuest:	   NotifSound = NotificationQuestSound;     break;
-			case EFlareNotification::NT_Economy:   NotifSound = NotificationTradingSound;   break;
+			case EFlareNotification::NT_Info:            NotifSound = NotificationInfoSound;      break;
+			case EFlareNotification::NT_Military:        NotifSound = NotificationCombatSound;    break;
+			case EFlareNotification::NT_MilitarySilent:  NotifSound = NULL;                       break;
+			case EFlareNotification::NT_Quest:	         NotifSound = NotificationQuestSound;     break;
+			case EFlareNotification::NT_NewQuest:        NotifSound = NotificationQuestSound;     break;
+			case EFlareNotification::NT_Economy:         NotifSound = NotificationTradingSound;   break;
 		}
-		MenuManager->GetPC()->ClientPlaySound(NotifSound);
+
+		if (NotifSound)
+		{
+			MenuManager->GetPC()->ClientPlaySound(NotifSound);
+		}
 	}
 }
 

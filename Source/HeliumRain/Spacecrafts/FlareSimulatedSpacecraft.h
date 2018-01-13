@@ -3,6 +3,7 @@
 #include "Object.h"
 #include "../Game/FlareSimulatedSector.h"
 #include "../Economy/FlareResource.h"
+#include "Subsystems/FlareSpacecraftDockingSystem.h"
 #include "FlareSimulatedSpacecraft.generated.h"
 
 
@@ -166,10 +167,10 @@ public:
 	bool IsComplexElement() const;
 
 	/** Get available connectors */
-	TArray<struct FFlareDockingInfo>& GetStationConnectors();
+	TArray<FFlareDockingInfo>& GetStationConnectors();
 
 	/** Get a specific connector */
-	struct FFlareDockingInfo* GetStationConnector(FName Name);
+	FFlareDockingInfo* GetStationConnector(FName Name);
 
 	/** Add an element to this complex */
 	void RegisterComplexElement(FFlareConnectionSave ConnectionData);
@@ -277,7 +278,7 @@ protected:
 	UPROPERTY()
 	UFlareCargoBay*                                         ConstructionCargoBay;
 
-	TArray<struct FFlareDockingInfo>                        ConnectorSlots;
+	TArray<FFlareDockingInfo>                               ConnectorSlots;
 
 	UFlareSimulatedSpacecraft*								ComplexMaster;
 	TArray<UFlareSimulatedSpacecraft*>						ComplexChildren;
