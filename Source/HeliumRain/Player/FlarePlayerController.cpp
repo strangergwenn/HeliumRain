@@ -663,10 +663,10 @@ void AFlarePlayerController::SpacecraftCrashed()
 void AFlarePlayerController::MissileFired(AFlareBomb* Bomb)
 {
 	ClientPlaySound(MissileWarningSound);
-
+	
 	Notify(LOCTEXT("MissileFiredAtPlayer", "Incoming missile !"),
 		LOCTEXT("MissileFiredAtPlayerInfo", "A missile has been fired at your ship !"),
-		FName("missile-fired"),
+		FName(*Bomb->GetName()),
 		EFlareNotification::NT_MilitarySilent);
 }
 
@@ -1110,13 +1110,12 @@ void AFlarePlayerController::GetPlayerShipThreatStatus(bool& IsTargeted, bool& I
 		{
 			for (AFlareBomb* Bomb : GetGame()->GetActiveSector()->GetBombs())
 			{
-				if (Bomb->GetTargetSpacecraft() == GetShipPawn() && Bomb->IsActive())
+				if (Bomb->GetTargetSpacecraft() == GetShipPawn() && Bomb->IsActive() && Bomb->GetDistanceTo(GetShipPawn()) < 200000)
 				{
 					IsFiredUpon = true;
 					break;
 				}
 			}
-
 		}
 
 		// Low health
