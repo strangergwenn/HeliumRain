@@ -34,7 +34,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	UseCockpit = true;
 	UseAnticollision = false;
 	PauseGameInMenus = false;
-	MaxShipsInSector = 30;
+	MaxShipsInSector = 50;
 
 	// Input
 	GamepadProfileLayout = EFlareGamepadLayout::GL_Default;
