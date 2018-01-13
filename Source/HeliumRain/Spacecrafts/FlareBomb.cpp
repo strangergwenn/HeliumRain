@@ -116,7 +116,6 @@ void AFlareBomb::OnLaunched(AFlareSpacecraft* Target)
 	// Detach
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	DetachFromActor(DetachRules);
-
 	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->RegisterBomb(this);
 
 	// Spin to stabilize
@@ -124,11 +123,19 @@ void AFlareBomb::OnLaunched(AFlareSpacecraft* Target)
 	BombComp->SetPhysicsAngularVelocityInDegrees(FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropAngularVelocity);
 	BombComp->SetPhysicsLinearVelocity(ParentWeapon->GetSpacecraft()->Airframe->GetPhysicsLinearVelocity() + FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropLinearVelocity * 100);
 
+	// Set data
 	BombData.DropParentDistance = GetParentDistance();
 	BombData.Dropped = true;
 	BombData.LifeTime = 0;
 	BombData.BurnDuration = 0;
 	TargetSpacecraft = Target;
+
+	// Notify player
+	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PC && Target && Target->IsPlayerShip())
+	{
+		PC->MissileFired(this);
+	}
 }
 
 void AFlareBomb::Tick(float DeltaSeconds)

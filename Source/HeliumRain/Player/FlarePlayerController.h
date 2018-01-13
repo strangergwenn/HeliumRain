@@ -112,6 +112,9 @@ public:
 
 	/** We've impacted into something */
 	void SpacecraftCrashed();
+	
+	/** Missile fired at us */
+	void MissileFired(AFlareBomb* Bomb);
 
 	/** Play a sound */
 	void PlayLocalizedSound(USoundCue* Sound, FVector WorldLocation);
@@ -394,6 +397,7 @@ protected:
 	UPROPERTY() USoundCue*                   NotificationQuestSound;
 	UPROPERTY() USoundCue*                   NotificationTradingSound;
 	UPROPERTY() USoundCue*                   CrashSound;
+	UPROPERTY() USoundCue*                   MissileWarningSound;
 
 	// Sound manager
 	UPROPERTY()

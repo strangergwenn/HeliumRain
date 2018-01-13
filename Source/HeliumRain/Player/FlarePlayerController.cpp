@@ -32,6 +32,7 @@
 
 #include "Engine/PostProcessVolume.h"
 #include "Engine/Canvas.h"
+#include "Engine.h"
 #include "EngineUtils.h"
 
 #include "OnlineSubsystem.h"
@@ -89,13 +90,15 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationQuestSoundObj(TEXT("/Game/Sound/Game/A_NotificationQuest"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationTradingSoundObj(TEXT("/Game/Sound/Game/A_NotificationEconomy"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> CrashSoundObj(TEXT("/Game/Sound/Impacts/A_Collision"));
-
+	static ConstructorHelpers::FObjectFinder<USoundCue> MissileWarningSoundObj(TEXT("/Game/Sound/Game/A_MissileWarning"));
+	
 	// Sound
 	NotificationInfoSound = NotificationInfoSoundObj.Object;
 	NotificationCombatSound = NotificationCombatSoundObj.Object;
 	NotificationQuestSound = NotificationQuestSoundObj.Object;
 	NotificationTradingSound = NotificationTradingSoundObj.Object;
 	CrashSound = CrashSoundObj.Object;
+	MissileWarningSound = MissileWarningSoundObj.Object;	
 
 	// Gameplay
 	QuickSwitchNextOffset = 0;
@@ -655,6 +658,16 @@ void AFlarePlayerController::SpacecraftCrashed()
 	{
 		ClientPlayCameraShake(CameraShakeCatalog->ImpactL);
 	}
+}
+
+void AFlarePlayerController::MissileFired(AFlareBomb* Bomb)
+{
+	//ClientPlaySound(MissileWarningSound);
+	//
+	//Notify(LOCTEXT("MissileFiredAtPlayer", "Incoming missile !"),
+	//	LOCTEXT("MissileFiredAtPlayerInfo", "A missile has been fired at your ship !"),
+	//	FName("missile-fired"),
+	//	EFlareNotification::NT_Military);
 }
 
 void AFlarePlayerController::PlayLocalizedSound(USoundCue* Sound, FVector WorldLocation)
