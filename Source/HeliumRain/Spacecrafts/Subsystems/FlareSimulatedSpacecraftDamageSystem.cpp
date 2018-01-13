@@ -843,8 +843,8 @@ void UFlareSimulatedSpacecraftDamageSystem::NotifyDamage()
 		}
 		else if (Spacecraft->GetGame()->IsSkirmish())
 		{
-			bool KilledByPlayerShip = Spacecraft->GetCurrentFleet() != Spacecraft->GetGame()->GetPC()->GetPlayerFleet();
-			Spacecraft->GetGame()->GetSkirmishManager()->ShipDestroyed(KilledByPlayerShip);
+			bool IsPlayerShip = Spacecraft->GetParent()->GetCompany() == PC->GetCompany();
+			Spacecraft->GetGame()->GetSkirmishManager()->ShipDestroyed(!IsPlayerShip);
 		}
 	}
 }

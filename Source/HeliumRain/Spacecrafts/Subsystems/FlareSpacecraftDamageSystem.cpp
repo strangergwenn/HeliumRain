@@ -330,7 +330,7 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 	if (Spacecraft->GetGame()->IsSkirmish())
 	{
 		bool IsPlayerShip = Spacecraft->GetParent()->GetCompany() == PC->GetCompany();
-		Spacecraft->GetGame()->GetSkirmishManager()->ShipDestroyed(IsPlayerShip);
+		Spacecraft->GetGame()->GetSkirmishManager()->ShipDestroyed(!IsPlayerShip);
 	}
 
 	UFlareCompany* PlayerCompany = PC->GetCompany();
