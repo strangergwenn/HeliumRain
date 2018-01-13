@@ -60,7 +60,7 @@ AFlareMenuManager::AFlareMenuManager(const class FObjectInitializer& PCIP)
 	, FadeFromBlack(true)
 	, NotifyExitSector(false)
 	, FadeDuration(0.3)
-	, SkirmishCountdownDuration(6)
+	, SkirmishCountdownDuration(11)
 	, SkirmishCountdownTimer(-1)
 	, CurrentSpacecraftInfo(NULL)
 {
