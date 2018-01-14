@@ -1666,11 +1666,7 @@ bool AFlareHUD::DrawHUDDesignator(AFlareSpacecraft* Spacecraft)
 						FVector2D AimOffset = ScreenPosition - HelperScreenPosition;
 						UTexture2D* NoseIcon = (HasPlayerHit) ? HUDAimHitIcon : HUDAimIcon;
 
-						FLinearColor AimOffsetColor = HudColorFriendly;
-						AimOffsetColor.A = ZoomAlpha * 0.5;
-
-						DrawHUDIcon(AimOffset + CurrentViewportSize / 2, IconSize *0.75 , NoseIcon, AimOffsetColor, true);
-						FlareDrawLine(CurrentViewportSize / 2, AimOffset + CurrentViewportSize / 2, AimOffsetColor);
+						DrawHUDIcon(AimOffset + CurrentViewportSize / 2, IconSize *0.75 , NoseIcon, HUDAimHelperColor, true);
 					}
 					
 					// Bomber UI (time display)

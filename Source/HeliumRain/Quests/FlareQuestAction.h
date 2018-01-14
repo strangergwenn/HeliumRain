@@ -3,6 +3,7 @@
 #include <functional>
 #include "FlareQuestAction.generated.h"
 
+struct FFlareResourceDescription;
 class UFlareSimulatedSector;
 class UFlareSimulatedSpacecraft;
 class UFlareQuest;

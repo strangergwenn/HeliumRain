@@ -7,6 +7,8 @@
 #include "../Game/FlareSimulatedSector.h"
 #include "../Data/FlareResourceCatalog.h"
 
+#include "../Economy/FlareCargoBay.h"
+
 #include "../Player/FlarePlayerController.h"
 
 #include "FlareQuest.h"
