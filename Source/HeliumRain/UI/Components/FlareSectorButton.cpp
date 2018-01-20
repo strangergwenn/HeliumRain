@@ -143,6 +143,8 @@ void SFlareSectorButton::Tick(const FGeometry& AllottedGeometry, const double In
 			if (Fleet->GetFleetCompany()->IsPlayerCompany())
 			{
 				FLinearColor FleetColor = Fleet->GetFleetColor();
+				const FSlateBrush* FleetIcon = (Fleet->GetCombatPoints(false) > 0) ?
+					FFlareStyleSet::GetIcon("Fleet_Small_Military") : FFlareStyleSet::GetIcon("Fleet_Small");
 
 				FleetBox->AddSlot()
 				.AutoWidth()
@@ -154,7 +156,7 @@ void SFlareSectorButton::Tick(const FGeometry& AllottedGeometry, const double In
 					.HAlign(HAlign_Center)
 					[
 						SNew(SImage)
-						.Image(FFlareStyleSet::GetIcon("Fleet_Small"))
+						.Image(FleetIcon)
 						.ColorAndOpacity(FleetColor)
 					]
 				];
