@@ -216,10 +216,11 @@ void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 		
 		// Device
 		FAudioDevice* AudioDevice = Player->GetWorld()->GetAudioDevice();
-		FCHECK(AudioDevice);
-		FCHECK(MasterSoundClass);
-		FCHECK(MasterSoundMix);
-		AudioDevice->SetBaseSoundMix(MasterSoundMix);
+		if (AudioDevice)
+		{
+			FCHECK(MasterSoundMix);
+			AudioDevice->SetBaseSoundMix(MasterSoundMix);
+		}
 	}
 }
 
@@ -231,8 +232,10 @@ void UFlareSoundManager::SetMusicVolume(int32 Volume)
 
 	// Update
 	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
-	FCHECK(AudioDevice);
-	AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MusicSoundClass, MusicVolume, 1.0f, 0.5f, true);
+	if (AudioDevice)
+	{
+		AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MusicSoundClass, MusicVolume, 1.0f, 0.5f, true);
+	}
 }
 
 void UFlareSoundManager::SetMasterVolume(int32 Volume)
@@ -243,8 +246,12 @@ void UFlareSoundManager::SetMasterVolume(int32 Volume)
 
 	// Update
 	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
-	FCHECK(AudioDevice);
-	AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MasterSoundClass, MasterVolume, 1.0f, 0.5f, true);
+	if (AudioDevice)
+	{
+		FCHECK(MasterSoundMix);
+		FCHECK(MasterSoundClass);
+		AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MasterSoundClass, MasterVolume, 1.0f, 0.5f, true);
+	}
 }
 
 void UFlareSoundManager::Update(float DeltaSeconds)
@@ -406,8 +413,10 @@ void UFlareSoundManager::UpdateEffectsVolume(float DeltaSeconds)
 
 	// Get device and update
 	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
-	FCHECK(AudioDevice);
-	AudioDevice->SetSoundMixClassOverride(MasterSoundMix, EffectsSoundClass, EffectsVolume, 1.0f, 0.0f, true);
+	if (AudioDevice)
+	{
+		AudioDevice->SetSoundMixClassOverride(MasterSoundMix, EffectsSoundClass, EffectsVolume, 1.0f, 0.0f, true);
+	}
 }
 
 void UFlareSoundManager::UpdatePlayer(FFlareSoundPlayer& Player, float VolumeDelta)
