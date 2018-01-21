@@ -267,19 +267,18 @@ void AFlareShell::CheckFuze(FVector ActorLocation, FVector NextActorLocation)
 		}
 	};
 
-	for(AFlareSpacecraft* ShipCandidate : Sector->GetSpacecrafts())
+	// Check targets against every actor in the level, using index-based, not for-range, because this can affect the container
+	for (int32 Index = 0; Index < Sector->GetSpacecrafts().Num(); Index++)
 	{
-		CheckTarget(PilotHelper::PilotTarget(ShipCandidate));
+		CheckTarget(PilotHelper::PilotTarget(Sector->GetSpacecrafts()[Index]));
 	}
-
-	for(AFlareBomb* BombCandidate : Sector->GetBombs())
+	for (int32 Index = 0; Index < Sector->GetBombs().Num(); Index++)
 	{
-		CheckTarget(PilotHelper::PilotTarget(BombCandidate));
+		CheckTarget(PilotHelper::PilotTarget(Sector->GetBombs()[Index]));
 	}
-
-	for(AFlareMeteorite* MeteoriteCandidate : Sector->GetMeteorites())
+	for (int32 Index = 0; Index < Sector->GetMeteorites().Num(); Index++)
 	{
-		CheckTarget(PilotHelper::PilotTarget(MeteoriteCandidate));
+		CheckTarget(PilotHelper::PilotTarget(Sector->GetMeteorites()[Index]));
 	}
 }
 
@@ -518,21 +517,18 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 		}
 	};
 
-
-	for(AFlareSpacecraft* ShipCandidate : Sector->GetSpacecrafts())
+	// Check targets against every actor in the level, using index-based, not for-range, because this can affect the container
+	for (int32 Index = 0; Index < Sector->GetSpacecrafts().Num(); Index++)
 	{
-		CheckTarget(PilotHelper::PilotTarget(ShipCandidate));
+		CheckTarget(PilotHelper::PilotTarget(Sector->GetSpacecrafts()[Index]));
 	}
-
-	TArray<AFlareBomb*> Bombs = Sector->GetBombs();
-	for(AFlareBomb* BombCandidate : Bombs)
+	for (int32 Index = 0; Index < Sector->GetBombs().Num(); Index++)
 	{
-		CheckTarget(PilotHelper::PilotTarget(BombCandidate));
+		CheckTarget(PilotHelper::PilotTarget(Sector->GetBombs()[Index]));
 	}
-
-	for(AFlareMeteorite* MeteoriteCandidate : Sector->GetMeteorites())
+	for (int32 Index = 0; Index < Sector->GetMeteorites().Num(); Index++)
 	{
-		CheckTarget(PilotHelper::PilotTarget(MeteoriteCandidate));
+		CheckTarget(PilotHelper::PilotTarget(Sector->GetMeteorites()[Index]));
 	}
 
 	Destroy();
