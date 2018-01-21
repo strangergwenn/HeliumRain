@@ -32,7 +32,7 @@ AFlareBomb::AFlareBomb(const class FObjectInitializer& PCIP) : Super(PCIP)
 	BombComp = PCIP.CreateDefaultSubobject<UFlareBombComponent>(this, TEXT("Root"));
 	BombComp->bTraceComplexOnMove = true;
 	BombComp->LDMaxDrawDistance = 100000; // 1km*/
-	BombComp->SetSimulatePhysics(true);
+	BombComp->SetSimulatePhysics(false);
 	BombComp->SetLinearDamping(0);
 	BombComp->SetAngularDamping(0);
 	RootComponent = BombComp;
@@ -59,7 +59,7 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 	ParentWeapon = Weapon;
 	WeaponDescription = Weapon->GetDescription();
 
-	// Get the power from description
+	// Load data from description
 	if (WeaponDescription)
 	{
 		FFlareSpacecraftComponentSave ComponentData;
@@ -71,11 +71,10 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 		ExplosionEffectTemplate = WeaponDescription->WeaponCharacteristics.ExplosionEffect;
 		ExplosionEffectScale = WeaponDescription->WeaponCharacteristics.ExplosionEffectScale;
 		ExplosionEffectMaterial = WeaponDescription->WeaponCharacteristics.GunCharacteristics.ExplosionMaterial;
-
 	}
-
 	SetActorScale3D(ParentWeapon->GetSpacecraft()->GetActorScale3D());
 
+	// Load game data
 	if (Data)
 	{
 		BombData = *Data;
@@ -90,8 +89,12 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 		BombData.Identifier = Weapon->GetSpacecraft()->GetGame()->GenerateIdentifier(TEXT("bomb"));
 	}
 
+	// Setup collision
 	SetActorEnableCollision(BombData.Activated);
+	BombComp->BodyInstance.bUseCCD = true;
+	ParentWeapon->MoveIgnoreActors.Add(this);
 
+	// Setup targets and physics
 	if (BombData.AttachTarget != NAME_None)
 	{
 		AFlareSpacecraft* AttachTarget = ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->FindSpacecraft(BombData.AttachTarget);
@@ -101,10 +104,10 @@ void AFlareBomb::Initialize(const FFlareBombSave* Data, UFlareWeapon* Weapon)
 	{
 		TargetSpacecraft = ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->FindSpacecraft(BombData.AimTargetSpacecraft);
 	}
-
-	BombComp->BodyInstance.bUseCCD = true;
-
-	ParentWeapon->MoveIgnoreActors.Add(this);
+	if (BombData.Activated && BombData.AttachTarget == NAME_None)
+	{
+		BombComp->SetSimulatePhysics(true);
+	}
 }
 
 void AFlareBomb::OnLaunched(AFlareSpacecraft* Target)
@@ -118,8 +121,9 @@ void AFlareBomb::OnLaunched(AFlareSpacecraft* Target)
 	DetachFromActor(DetachRules);
 	ParentWeapon->GetSpacecraft()->GetGame()->GetActiveSector()->RegisterBomb(this);
 
-	// Spin to stabilize
+	// Start physics, spin up, move out
 	FVector FrontVector = BombComp-> GetComponentTransform().TransformVector(FVector(1, 0, 0));
+	BombComp->SetSimulatePhysics(true);
 	BombComp->SetPhysicsAngularVelocityInDegrees(FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropAngularVelocity);
 	BombComp->SetPhysicsLinearVelocity(ParentWeapon->GetSpacecraft()->Airframe->GetPhysicsLinearVelocity() + FrontVector * WeaponDescription->WeaponCharacteristics.BombCharacteristics.DropLinearVelocity * 100);
 
