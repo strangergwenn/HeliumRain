@@ -529,6 +529,10 @@ void UFlareSpacecraftDamageSystem::CheckRecovery()
 		{
 			PC->GetGame()->GetSkirmishManager()->EndPlay();
 		}
+		else if(!State.InFight && !State.BattleWon)
+		{
+			PC->GetGame()->GetSkirmishManager()->EndPlay();
+		}
 	}
 }
 
