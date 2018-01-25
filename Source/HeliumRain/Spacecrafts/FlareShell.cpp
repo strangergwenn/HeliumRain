@@ -494,7 +494,7 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 					AFlareSpacecraftPawn* SpacecraftPawn = Cast<AFlareSpacecraftPawn>(Spacecraft);
 					if (SpacecraftPawn->IsPlayerShip())
 					{
-						SpacecraftPawn->GetPC()->PlayLocalizedSound(ImpactSound, BestHitResult.Location);
+						SpacecraftPawn->GetPC()->PlayLocalizedSound(ImpactSound, BestHitResult.Location, BestHitResult.GetComponent());
 					}
 				}
 				else if (Bomb)
@@ -584,7 +584,7 @@ float AFlareShell::ApplyDamage(AActor *ActorToDamage, UPrimitiveComponent* HitCo
 		AFlareSpacecraftPawn* SpacecraftPawn = Cast<AFlareSpacecraftPawn>(Spacecraft);
 		if (SpacecraftPawn->IsPlayerShip())
 		{
-			SpacecraftPawn->GetPC()->PlayLocalizedSound(PenetrateArmor ? DamageSound : ImpactSound, ImpactLocation);
+			SpacecraftPawn->GetPC()->PlayLocalizedSound(PenetrateArmor ? DamageSound : ImpactSound, ImpactLocation, HitComponent);
 		}
 
 		// Quest progress

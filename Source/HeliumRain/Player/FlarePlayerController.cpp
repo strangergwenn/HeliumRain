@@ -670,11 +670,17 @@ void AFlarePlayerController::MissileFired(AFlareBomb* Bomb)
 		EFlareNotification::NT_MilitarySilent);
 }
 
-void AFlarePlayerController::PlayLocalizedSound(USoundCue* Sound, FVector WorldLocation)
+void AFlarePlayerController::PlayLocalizedSound(USoundCue* Sound, FVector WorldLocation, USceneComponent* Component)
 {
 	if (MenuManager->IsMenuOpen())
 	{
 		ClientPlaySound(Sound);
+	}
+	else if (Component != nullptr)
+	{
+
+
+		UGameplayStatics::SpawnSoundAttached(Sound, Component, NAME_None, WorldLocation, FRotator::ZeroRotator, EAttachLocation::KeepWorldPosition);
 	}
 	else
 	{

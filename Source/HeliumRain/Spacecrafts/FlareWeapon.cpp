@@ -162,7 +162,7 @@ void UFlareWeapon::TickComponent(float DeltaTime, enum ELevelTick TickType, FAct
 		// Empty
 		else if (!IsTurret() && SpacecraftPawn->IsPlayerShip())
 		{
-			SpacecraftPawn->GetPC()->PlayLocalizedSound(EmptySound, GetComponentLocation());
+			SpacecraftPawn->GetPC()->PlayLocalizedSound(EmptySound, GetComponentLocation(), this);
 			TimeSinceLastShell = 0;
 		}
 	}
@@ -330,7 +330,7 @@ bool UFlareWeapon::FireGun(int GunIndex)
 	// Play sound
 	if (SpacecraftPawn->IsPlayerShip())
 	{
-		SpacecraftPawn->GetPC()->PlayLocalizedSound(FiringSound, GetComponentLocation());
+		SpacecraftPawn->GetPC()->PlayLocalizedSound(FiringSound, GetComponentLocation(), this);
 	}
 
 	// Update data
@@ -366,7 +366,7 @@ bool UFlareWeapon::FireBomb()
 {
 	if (SpacecraftPawn->IsPlayerShip())
 	{
-		SpacecraftPawn->GetPC()->PlayLocalizedSound(BombDroppedSound, GetComponentLocation());
+		SpacecraftPawn->GetPC()->PlayLocalizedSound(BombDroppedSound, GetComponentLocation(), this);
 	}
 
 	AFlareBomb* Bomb = Bombs.Pop();

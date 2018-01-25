@@ -117,7 +117,7 @@ public:
 	void MissileFired(AFlareBomb* Bomb);
 
 	/** Play a sound */
-	void PlayLocalizedSound(USoundCue* Sound, FVector WorldLocation);
+	void PlayLocalizedSound(USoundCue* Sound, FVector WorldLocation, USceneComponent* Component);
 
 	/** Cleanup the PC owned stuff */
 	void Clean();

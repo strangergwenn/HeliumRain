@@ -550,7 +550,7 @@ void AFlareBomb::OnSpacecraftHit(AFlareSpacecraft* HitSpacecraft, UFlareSpacecra
 	// Play sound
 	if (HitSpacecraft->IsPlayerShip())
 	{
-		HitSpacecraft->GetPC()->PlayLocalizedSound(DamageSound, HitLocation);
+		HitSpacecraft->GetPC()->PlayLocalizedSound(DamageSound, HitLocation, HitComponent);
 	}
 
 	// Ship salvage
