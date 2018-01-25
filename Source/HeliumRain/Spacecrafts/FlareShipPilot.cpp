@@ -458,7 +458,7 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 
 	if(WantFire)
 	{
-		float Recoil = Ship->GetWeaponsSystem()->GetActiveWeaponGroup()->Description->WeaponCharacteristics.GunCharacteristics.AmmoPrecision;
+		float Recoil = Ship->GetWeaponsSystem()->GetWeaponGroup(SelectedWeaponGroupIndex)->Description->WeaponCharacteristics.GunCharacteristics.AmmoPrecision;
 		TimeSinceAiming -= (5 + 100 * Recoil) * DeltaSeconds / Experience;
 		TimeSinceAiming = FMath::Max(0.f, TimeSinceAiming);
 	}
