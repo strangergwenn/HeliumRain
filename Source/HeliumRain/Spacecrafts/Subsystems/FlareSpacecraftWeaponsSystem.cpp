@@ -397,7 +397,8 @@ void UFlareSpacecraftWeaponsSystem::ToggleWeaponActivation()
 	if (ActiveWeaponGroupIndex < 0)
 	{
 		ActivateWeapons();
-		if (Spacecraft->GetParent() == Spacecraft->GetGame()->GetPC()->GetPlayerShip())
+		if (Spacecraft->GetGame()->GetQuestManager() 
+		 && Spacecraft->GetParent() == Spacecraft->GetGame()->GetPC()->GetPlayerShip())
 		{
 			Spacecraft->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("toggle-combat").PutInt32("new-state", 1));
 		}
@@ -405,7 +406,8 @@ void UFlareSpacecraftWeaponsSystem::ToggleWeaponActivation()
 	else
 	{
 		DeactivateWeapons();
-		if (Spacecraft->GetParent() == Spacecraft->GetGame()->GetPC()->GetPlayerShip())
+		if (Spacecraft->GetGame()->GetQuestManager() 
+		 && Spacecraft->GetParent() == Spacecraft->GetGame()->GetPC()->GetPlayerShip())
 		{
 			Spacecraft->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("toggle-combat").PutInt32("new-state", 0));
 		}
