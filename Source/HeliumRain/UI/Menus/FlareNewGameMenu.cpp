@@ -44,7 +44,7 @@ void SFlareNewGameMenu::Construct(const FArguments& InArgs)
 	// Name
 	FText DefaultName = LOCTEXT("CompanyName", "Player Inc");
 	FText DefaultIdentifier = LOCTEXT("CompanyCode", "PLY");
-	FString PlayerName = MenuManager->GetPC()->PlayerState->PlayerName;
+	FString PlayerName = MenuManager->GetPC()->PlayerState->GetPlayerName();
 	if (PlayerName.Len())
 	{
 		DefaultName = FText::Format(LOCTEXT("CompanyNameFormat", "{0} Corp"), FText::FromString(PlayerName));
