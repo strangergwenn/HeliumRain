@@ -561,9 +561,14 @@ const FFlareSaveSlotInfo& AFlareGame::GetSaveSlotInfo(int32 Index)
 	return SaveSlots[RealIndex];
 }
 
+FString AFlareGame::GetSaveFileName(int32 Index) const
+{
+	return "SaveSlot" + FString::FromInt(Index);
+}
+
 UFlareSaveGame* AFlareGame::ReadSaveSlot(int32 Index)
 {
-	FString SaveFile = "SaveSlot" + FString::FromInt(Index);
+	FString SaveFile = GetSaveFileName(Index);
 	UFlareSaveGame* Save = NULL;
 
 	// Prototype load

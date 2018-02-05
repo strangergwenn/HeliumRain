@@ -108,6 +108,9 @@ public:
 	/** Get metadata for this save slot */
 	const FFlareSaveSlotInfo& GetSaveSlotInfo(int32 Index);
 
+	/** Get the file name for a game save */
+	FString GetSaveFileName(int32 Index) const;
+
 	/** Load a game save */
 	UFlareSaveGame* ReadSaveSlot(int32 Index);
 
