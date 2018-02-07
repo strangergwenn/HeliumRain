@@ -705,12 +705,12 @@ FText SFlareWorldEconomyMenu::GetResourcePriceVariationInfo(UFlareSimulatedSecto
 			{
 				return FText::Format(LOCTEXT("ResourceVariationFormat", "{0}{1}%"),
 								(Variation > 0 ?
-									FText(LOCTEXT("ResourceVariationFormatSignPlus","+")) :
-									FText(LOCTEXT("ResourceVariationFormatSignMinus","-"))),
+									LOCTEXT("ResourceVariationFormatSignPlus","+") :
+									LOCTEXT("ResourceVariationFormatSignMinus","-")),
 							  FText::AsNumber(FMath::Abs(Variation) * 100.0f, &MoneyFormat));
 			}
 		}
-		return FText(LOCTEXT("ResourceMainPriceNoVariationFormat", "-"));
+		return LOCTEXT("ResourceMainPriceNoVariationFormat", "-");
 	}
 
 	return FText();

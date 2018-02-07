@@ -290,7 +290,7 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 		{
 			PC->Notify(
 				LOCTEXT("PlayerShipCrashedDestroyed", "Crash"),
-				FText::FText(LOCTEXT("ShipCrashedDestroyedFormat", "You crashed your ship")),
+				LOCTEXT("ShipCrashedDestroyedFormat", "You crashed your ship"),
 				FName("ship-crashed"),
 				EFlareNotification::NT_Military,
 				false,
@@ -401,7 +401,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 			{
 				PC->Notify(
 					LOCTEXT("PlayerShipUncontrollableCrashed", "Crash"),
-					FText::FText(LOCTEXT("ShipUncontrollableCrashedFormat", "You crashed your ship")),
+					LOCTEXT("ShipUncontrollableCrashedFormat", "You crashed your ship"),
 					FName("ship-uncontrollable-crashed"),
 					EFlareNotification::NT_Military,
 					false,
