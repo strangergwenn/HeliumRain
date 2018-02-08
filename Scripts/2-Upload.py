@@ -8,23 +8,26 @@ steamConfig = json.load(steamData)
 steamSDKDir = steamConfig["sdkDir"]
 steamBuilder = steamConfig["builder"]
 steamCommand = steamConfig["command"]
-steamAppFile = steamConfig["appFile"]
+steamAppFiles = steamConfig["appFiles"]
 steamUser = steamConfig["user"]
 steamPassword = steamConfig["password"]
 steamData.close()
 
-# Generate paths
-buildAppFile = os.path.join("..", steamAppFile)
-buildRootDir = os.path.join(steamSDKDir, "tools", "ContentBuilder")
+# Upload all platforms
+for appFile in steamAppFiles:
 
-# Generate full command line
-commandLine = os.path.join(steamBuilder, steamCommand)
-commandLine += " +login " + steamUser + " " + steamPassword
-commandLine += " +run_app_build " + buildAppFile
-commandLine += " +quit"
+	# Generate paths
+	buildAppFile = os.path.join("..", appFile)
+	buildRootDir = os.path.join(steamSDKDir, "tools", "ContentBuilder")
 
-# Call
-currentPath = os.getcwd()
-os.chdir(buildRootDir)
-os.system(commandLine)
-os.chdir(currentPath)
+	# Generate full command line
+	commandLine = os.path.join(steamBuilder, steamCommand)
+	commandLine += " +login " + steamUser + " " + steamPassword
+	commandLine += " +run_app_build " + buildAppFile
+	commandLine += " +quit"
+
+	# Call
+	currentPath = os.getcwd()
+	os.chdir(buildRootDir)
+	os.system(commandLine)
+	os.chdir(currentPath)

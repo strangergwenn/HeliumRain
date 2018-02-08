@@ -14,7 +14,7 @@ projectData.close()
 # Get system settings
 systemData = open("system.json")
 systemConfig = json.load(systemData)
-buildPlatform = systemConfig["platform"]
+buildPlatforms = systemConfig["platforms"]
 inputDir = systemConfig["inputDir"]
 outputDir = systemConfig["outputDir"]
 engineDir = systemConfig["engineDir"]
@@ -43,19 +43,23 @@ else:
 inputProject = os.path.join(inputDir, "HeliumRain.uproject")
 buildTool = os.path.join(engineDir, "Engine", "Build", "BatchFiles", "RunUAT" + scriptExt)
 
-command = ['git', 'describe']
-buildVersion = subprocess.check_output(command).decode("utf-8")
+# Generate version tag
+gitCommand = ['git', 'describe']
+buildVersion = subprocess.check_output(gitCommand).decode("utf-8")
 buildVersion = buildVersion.replace("\n", "");
 
-# Generate command line
-commandLine = buildTool
-commandLine += " BuildCookRun -project=" + inputProject + " -nocompile" + noCompileEditorOption + installedOption
-commandLine += " -nop4 -clientconfig=" + buildConfiguration
-commandLine += " -cook -allmaps -stage -archive -archivedirectory=" + outputDir
-commandLine += " -package -ue4exe=" + engineExecutable
-commandLine += " -build -targetplatform=" + buildPlatform + cleanOption
-commandLine += " -pak -prereqs -distribution -createreleaseversion=" + buildVersion
-commandLine += " -utf8output -CookCultures=" + buildCultures
+# Build each platform
+for platform in buildPlatforms:
 
-# Call
-os.system(commandLine)
+	# Generate command line
+	commandLine = buildTool
+	commandLine += " BuildCookRun -project=" + inputProject + " -nocompile" + noCompileEditorOption + installedOption
+	commandLine += " -nop4 -clientconfig=" + buildConfiguration
+	commandLine += " -cook -allmaps -stage -archive -archivedirectory=" + outputDir
+	commandLine += " -package -ue4exe=" + engineExecutable
+	commandLine += " -build -targetplatform=" + platform + cleanOption
+	commandLine += " -pak -prereqs -distribution -createreleaseversion=" + buildVersion
+	commandLine += " -utf8output -CookCultures=" + buildCultures
+
+	# Call
+	os.system(commandLine)

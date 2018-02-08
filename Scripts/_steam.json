@@ -1,6 +1,6 @@
 {
 	"sdkDir": "/usr/share/steamsdk-v1.4.0",
-	"appFile": "scripts/app_build_1000.vdf"",
+	"appFile": ["scripts/app_build_1000.vdf", "scripts/app_build_1001.vdf"],
 	"builder": "builder_linux",
 	"command": "steamcmd.sh",
 	"user": "account",
