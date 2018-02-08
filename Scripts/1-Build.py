@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import os
+import sys
 import json
 import subprocess
 
@@ -21,7 +22,7 @@ engineInstalled = systemConfig["engineInstalled"]
 systemData.close()
 
 # Platform-dependent names
-if buildPlatform == "Linux":
+if sys.platform.startswith('linux'):
 	scriptExt = ".sh"
 	engineExecutable = "UE4Editor"
 	noCompileEditorOption = " -LinuxNoEditor"
