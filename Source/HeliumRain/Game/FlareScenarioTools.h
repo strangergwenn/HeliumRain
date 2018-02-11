@@ -69,6 +69,18 @@ public:
 	/** Create a station and fill its input */
 	void CreateStations(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count, int32 Level = 1, FFlareStationSpawnParameters SpawnParameters = FFlareStationSpawnParameters());
 
+	/** Setup the Blue Heart capital station */
+	void CreateBlueHeart();
+
+	/** Setup the Boneyard capital station */
+	void CreateBoneyard();
+
+	/** Setup the Night's Home capital station */
+	void CreateNightsHome();
+
+	/** Setup the Farm capital station */
+	void CreateTheFarm();
+
 
 protected:
 
@@ -105,6 +117,7 @@ public:
 	UFlareSimulatedSector*                     BlueShores;
 	UFlareSimulatedSector*                     TheSpire;
 	UFlareSimulatedSector*                     Pendulum;
+	UFlareSimulatedSector*                     TheFarm;
 
 	// Notable sectors (Anka)
 	UFlareSimulatedSector*                     Outpost;

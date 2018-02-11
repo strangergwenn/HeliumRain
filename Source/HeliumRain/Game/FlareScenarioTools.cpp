@@ -51,6 +51,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 	BlueShores =  World->FindSector("blue-shores");
 	TheSpire =    World->FindSector("the-spire");
 	Pendulum =    World->FindSector("pendulum");
+	TheFarm =     World->FindSector("farm");
 	
 	// Notable sectors (Anka)
 	Outpost =     World->FindSector("outpost");
@@ -195,13 +196,14 @@ void UFlareScenarioTools::SetupWorld()
 	// Setup common stuff
 	SetupAsteroids();
 
-	// Setup player sector knwoleage
+	// Setup player sector knowledge
 	PlayerCompany->DiscoverSector(TheDepths);
 	PlayerCompany->DiscoverSector(BlueHeart);
 	PlayerCompany->DiscoverSector(TheSpire);
 	PlayerCompany->DiscoverSector(Outpost);
 	PlayerCompany->DiscoverSector(MinersHome);
 	PlayerCompany->DiscoverSector(NightsHome);
+	PlayerCompany->DiscoverSector(TheFarm);
 
 	// Discover public sectors
 	SetupKnownSectors(MiningSyndicate);
@@ -313,43 +315,14 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, BlueShores, 1);
 	CreateStations(StationToolFactory, NemaHeavyWorks, BlueShores, 1, 2);
 	CreateStations(StationResearch, Sunwatch, BlueShores, 1, 1);
-		
-	// Create Blue Heart capital station
-	{
-		float StationRadius = 50000;
-		FVector UpVector(0, 0, 1);
-		FVector BaseLocation = FVector(-200000.0, 0, 0);
-		FFlareStationSpawnParameters StationParams;
-		StationParams.AttachActorName = FName("BlueHeartCore");
 
-		// BH Shipyard
-		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0);
-		StationParams.Rotation = FRotator::ZeroRotator;
-		CreateStations("station-bh-shipyard",   NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
+	// Blue Heart
+	CreateBlueHeart();
+	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, BlueHeart, 1);
+	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, BlueHeart, 1, 2);
 
-		// BH Arsenal
-		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(30, UpVector);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 30));
-		CreateStations("station-bh-arsenal",    AxisSupplies,   BlueHeart, 1, 1, StationParams);
-
-		// BH Hub
-		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(-30, UpVector);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -30));
-		CreateStations("station-bh-hub",        IonLane, BlueHeart, 1, 1, StationParams);
-
-		// BH Habitation 1
-		StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, 7168);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, 0));
-		CreateStations("station-bh-habitation", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
-
-		// BH Habitation 2
-		StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, -7168);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 0));
-		CreateStations("station-bh-habitation", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
-
-		CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, BlueHeart, 1);
-		CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, BlueHeart, 1, 2);
-	}
+	// The Farm
+	CreateTheFarm();
 	
 	// Anka HFR factory
 	CreateStations(StationSteelworks, HelixFoundries, TheForge, 4);
@@ -362,29 +335,8 @@ void UFlareScenarioTools::SetupWorld()
 	// Anka bases for Broken Moon
 	CreateStations(StationOutpost, BrokenMoon, Crossroads, 1);
 	
-	// Create Night's Home capital station
-	{
-		float StationRadius = 22480;
-		FVector UpVector(0, 0, 1);
-		FVector BaseLocation = FVector(-3740, 0, -153600);
-		FFlareStationSpawnParameters StationParams;
-		StationParams.AttachActorName = FName("NightsHomeCore");
-
-		// NH Arsenal
-		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(-135, UpVector);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(90, 0, -135));
-		CreateStations("station-nh-arsenal", AxisSupplies, NightsHome, 1, 2, StationParams);
-
-		// NH Shipyard
-		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(180, UpVector);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 180));
-		CreateStations("station-nh-shipyard", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
-
-		// NH Habitation
-		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(135, UpVector);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(-90, 0, 135));
-		CreateStations("station-nh-habitation", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
-	}
+	// Night's Home
+	CreateNightsHome();
 	
 	// Hela secondary economy
 	CreateStations(StationArsenal, AxisSupplies, FrozenRealm, 1, 2);
@@ -393,39 +345,9 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationHub, GhostWorksShipyards, FrozenRealm, 1);
 	CreateStations(StationIceMine, GhostWorksShipyards, ShoreOfIce, 3);
 	CreateStations(StationIceMine, MiningSyndicate, ShoreOfIce, 1);
-
-	// Create Boneyard pirate capital
-	{
-		float CoreLength = 4096;
-		float BoneLength = -16384;
-		float BoneHeight = 8192;
-		FVector FrontVector(1, 0, 0);
-		FVector BaseLocation = FVector(-200000.0, 0, 0);
-		FFlareStationSpawnParameters StationParams;
-		StationParams.AttachActorName = FName("BoneyardCore");
-
-		// BY Shipyard
-		StationParams.Location = BaseLocation + FVector(CoreLength, 0, 0);
-		StationParams.Rotation = FRotator::ZeroRotator;
-		CreateStations("station-by-shipyard", Pirates, Boneyard, 1, 1, StationParams);
-
-		// BY Arsenal
-		StationParams.Location = BaseLocation + FVector(BoneLength, 0, BoneHeight).RotateAngleAxis(120, FrontVector);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 210, 90));
-		CreateStations("station-by-arsenal", Pirates, Boneyard, 1, 1, StationParams);
-
-		// BY Hub
-		StationParams.Location = BaseLocation + FVector(2 * BoneLength, 0, BoneHeight).RotateAngleAxis(-120, FrontVector);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, -150, -90));
-		CreateStations("station-by-hub", Pirates, Boneyard, 1, 1, StationParams);
-
-		// BY Habitation
-		StationParams.Location = BaseLocation + FVector(3 * BoneLength, 0, BoneHeight);
-		StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 90, 0));
-		CreateStations("station-by-habitation", Pirates, Boneyard, 1, 1, StationParams);
-	}
-
-	// Boneyard support
+	
+	// Boneyard
+	CreateBoneyard();
 	CreateStations(StationSolarPlant, Pirates, Boneyard, 2);
 		
 	// Create hubs
@@ -664,6 +586,147 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 
 
 	}
+}
+
+void UFlareScenarioTools::CreateBlueHeart()
+{
+	float StationRadius = 50000;
+	FVector UpVector(0, 0, 1);
+	FVector BaseLocation = FVector(-200000.0, 0, 0);
+	FFlareStationSpawnParameters StationParams;
+	StationParams.AttachActorName = FName("BlueHeartCore");
+
+	// BH Shipyard
+	StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0);
+	StationParams.Rotation = FRotator::ZeroRotator;
+	CreateStations("station-bh-shipyard", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
+
+	// BH Arsenal
+	StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(30, UpVector);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 30));
+	CreateStations("station-bh-arsenal", AxisSupplies, BlueHeart, 1, 1, StationParams);
+
+	// BH Hub
+	StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(-30, UpVector);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -30));
+	CreateStations("station-bh-hub", IonLane, BlueHeart, 1, 1, StationParams);
+
+	// BH Habitation 1
+	StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, 7168);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, 0));
+	CreateStations("station-bh-habitation", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
+
+	// BH Habitation 2
+	StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, -7168);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 0));
+	CreateStations("station-bh-habitation", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
+
+	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, BlueHeart, 1);
+	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, BlueHeart, 1, 2);
+}
+
+void UFlareScenarioTools::CreateBoneyard()
+{
+	float CoreLength = 4096;
+	float BoneLength = -16384;
+	float BoneHeight = 8192;
+	FVector FrontVector(1, 0, 0);
+	FVector BaseLocation = FVector(-200000.0, 0, 0);
+	FFlareStationSpawnParameters StationParams;
+	StationParams.AttachActorName = FName("BoneyardCore");
+
+	// BY Shipyard
+	StationParams.Location = BaseLocation + FVector(CoreLength, 0, 0);
+	StationParams.Rotation = FRotator::ZeroRotator;
+	CreateStations("station-by-shipyard", Pirates, Boneyard, 1, 1, StationParams);
+
+	// BY Arsenal
+	StationParams.Location = BaseLocation + FVector(BoneLength, 0, BoneHeight).RotateAngleAxis(120, FrontVector);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 210, 90));
+	CreateStations("station-by-arsenal", Pirates, Boneyard, 1, 1, StationParams);
+
+	// BY Hub
+	StationParams.Location = BaseLocation + FVector(2 * BoneLength, 0, BoneHeight).RotateAngleAxis(-120, FrontVector);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, -150, -90));
+	CreateStations("station-by-hub", Pirates, Boneyard, 1, 1, StationParams);
+
+	// BY Habitation
+	StationParams.Location = BaseLocation + FVector(3 * BoneLength, 0, BoneHeight);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 90, 0));
+	CreateStations("station-by-habitation", Pirates, Boneyard, 1, 1, StationParams);
+}
+
+void UFlareScenarioTools::CreateNightsHome()
+{
+	float StationRadius = 22480;
+	FVector UpVector(0, 0, 1);
+	FVector BaseLocation = FVector(-3740, 0, -153600);
+	FFlareStationSpawnParameters StationParams;
+	StationParams.AttachActorName = FName("NightsHomeCore");
+
+	// NH Arsenal
+	StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(-135, UpVector);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(90, 0, -135));
+	CreateStations("station-nh-arsenal", AxisSupplies, NightsHome, 1, 2, StationParams);
+
+	// NH Shipyard
+	StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(180, UpVector);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 180));
+	CreateStations("station-nh-shipyard", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
+
+	// NH Habitation
+	StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(135, UpVector);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(-90, 0, 135));
+	CreateStations("station-nh-habitation", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
+}
+
+void UFlareScenarioTools::CreateTheFarm()
+{
+	float StationLength = 48640 + 2048 + 2000; // cap base + cap offset + station offset
+	float StationRadius = 24576;
+	FVector BaseLocation = FVector(-200000.0, 0, 0);
+	FFlareStationSpawnParameters StationParams;
+	StationParams.AttachActorName = FName("FarmCore");
+
+	// TF Arsenal
+	StationParams.Location = BaseLocation + FVector(StationRadius, StationLength, 0);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 90));
+	CreateStations("station-tf-arsenal", AxisSupplies, TheFarm, 1, 1, StationParams);
+
+	// TF Hub
+	StationParams.Location = BaseLocation + FVector(-StationRadius, StationLength, 0);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 90));
+	CreateStations("station-tf-hub", AxisSupplies, TheFarm, 1, 1, StationParams);
+
+	// TF Habitation
+	StationParams.Location = BaseLocation + FVector(0, StationLength, StationRadius);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 90));
+	CreateStations("station-tf-habitation", UnitedFarmsChemicals, TheFarm, 1, 1, StationParams);
+
+	// TF Power plant
+	StationParams.Location = BaseLocation + FVector(0, StationLength, -StationRadius);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 90));
+	CreateStations("station-tf-solar-plant", Sunwatch, TheFarm, 1, 1, StationParams);
+
+	// TF Farm 1
+	StationParams.Location = BaseLocation + FVector(0, -StationLength, StationRadius);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -90));
+	CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
+
+	// TF Farm 2
+	StationParams.Location = BaseLocation + FVector(0, -StationLength, -StationRadius);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -90));
+	CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
+
+	// TF Farm 3
+	StationParams.Location = BaseLocation + FVector(StationRadius, -StationLength, 0);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -90));
+	CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
+
+	// TF Farm 4
+	StationParams.Location = BaseLocation + FVector(-StationRadius, -StationLength, 0);
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -90));
+	CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
 }
 
 #undef LOCTEXT_NAMESPACE
