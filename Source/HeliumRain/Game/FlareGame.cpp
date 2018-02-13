@@ -1176,6 +1176,15 @@ void AFlareGame::OnLevelLoaded()
 		GetPC()->OnSectorActivated(ActiveSector);
 	}
 
+	// Skylight
+	TArray<AActor*> SkylightCandidates;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASkyLight::StaticClass(), SkylightCandidates);
+	if (SkylightCandidates.Num())
+	{
+		Cast<ASkyLight>(SkylightCandidates[0])->GetLightComponent()->RecaptureSky();
+	}
+
+	// Quests
 	if (GetQuestManager())
 	{
 		GetQuestManager()->OnSectorActivation(ActivatingSector);
