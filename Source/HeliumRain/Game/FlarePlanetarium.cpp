@@ -5,6 +5,7 @@
 #include "../Player/FlarePlayerController.h"
 
 #include "EngineUtils.h"
+#include "Engine.h"
 #include "Materials/MaterialInstanceConstant.h"
 
 
@@ -69,12 +70,19 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 			return;
 		}
 
+		bool LightWasAdjusted = false;
 		UFlareWorld* World = GetGame()->GetGameWorld();
 
 		if (World)
 		{
 			float LocalTime = GetGame()->GetActiveSector()->GetLocalTime();
 			CurrentSector = GetGame()->GetActiveSector()->GetSimulatedSector()->GetIdentifier();
+
+			if (CurrentSector != PreviousSector)
+			{
+				LightWasAdjusted = true;
+				PreviousSector = CurrentSector;
+			}
 
 			if (Sky == NULL)
 			{
@@ -170,8 +178,15 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 					//FLOGV("SunOcclusion %f", SunOcclusion);
 					if (Light)
 					{
+						float CurrentIntensity = Light->Intensity;
 						float Intensity = 5 * FMath::Pow((1.0 - SunOcclusion), 2);
-						//FLOGV("Light Intensity %f", Intensity);
+
+						if (FMath::Abs(Intensity - CurrentIntensity) > 0.1f)
+						{
+							LightWasAdjusted = true;
+							FLOG("AFlarePlanetarium::Tick : lighting was adjusted");
+						}
+
 						Light->SetIntensity(Intensity);
 					}
 					else
@@ -186,6 +201,18 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 
 
 			} while(SkipNightTimeRange != 0);
+			
+			// Recapture skylight
+			if (LightWasAdjusted)
+			{
+				FLOG("AFlarePlanetarium::Tick : recapturing skylight");
+				TArray<AActor*> SkylightCandidates;
+				UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASkyLight::StaticClass(), SkylightCandidates);
+				if (SkylightCandidates.Num())
+				{
+					Cast<ASkyLight>(SkylightCandidates[0])->GetLightComponent()->RecaptureSky();
+				}
+			}
 		}
 	}
 }

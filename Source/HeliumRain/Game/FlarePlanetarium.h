@@ -2,6 +2,8 @@
 
 #include "../Game/Planetarium/FlareSimulatedPlanetarium.h"
 #include "Components/DirectionalLightComponent.h"
+#include "GameFramework/Actor.h"
+
 #include "FlarePlanetarium.generated.h"
 
 
@@ -83,6 +85,7 @@ protected:
 	AActor* Sky;
 	UDirectionalLightComponent* Light;
 
+	FName PreviousSector;
 	FName CurrentSector;
 
 	FFlareCelestialBody Sun;
