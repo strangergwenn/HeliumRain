@@ -98,11 +98,6 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
-	// Tab management
-	int32 GetCurrentTabIndex() const;
-	bool IsCurrentTab(int32 Index) const;
-	void SetCurrentTabIndex(int32 Index);
-
 	// Culture
 	FText OnGetCurrentCultureComboLine() const;
 	TSharedRef<SWidget> OnGenerateCultureComboLine(TSharedPtr<FString> Item);
@@ -219,9 +214,6 @@ protected:
 	// Game data
 	AFlareGame*                                 Game;
 	TWeakObjectPtr<class AFlareMenuManager>     MenuManager;
-
-	// Tabs
-	int32                                       CurrentTabIndex;
 
 	// Graphics settings
 	TSharedPtr<SFlareButton>                    FullscreenButton;

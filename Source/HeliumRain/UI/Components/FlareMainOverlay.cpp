@@ -17,6 +17,7 @@
 #include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
 #include "Runtime/Engine/Classes/Engine/RendererSettings.h"
 #include "SBackgroundBlur.h"
+#include "Engine.h"
 
 #define LOCTEXT_NAMESPACE "FlareMainOverlay"
 
@@ -129,17 +130,17 @@ void SFlareMainOverlay::Construct(const FArguments& InArgs)
 								]
 							]
 						]
-
-						// Bottom border
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						.HAlign(HAlign_Fill)
-						[
-							SAssignNew(Border, SImage)
-							.Image(&Theme.NearInvisibleBrush)
-						]
 					]
 				]
+			]	
+
+			// Bottom border
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			.HAlign(HAlign_Fill)
+			[
+				SAssignNew(Border, SImage)
+				.Image(&Theme.NearInvisibleBrush)
 			]
 		]
 	];
