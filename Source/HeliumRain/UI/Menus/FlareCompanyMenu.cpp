@@ -4,6 +4,7 @@
 
 #include "../Components/FlarePartInfo.h"
 #include "../Components/FlareCompanyInfo.h"
+#include "../Components/FlareTabView.h"
 
 #include "../../Data/FlareSpacecraftComponentsCatalog.h"
 #include "../../Data/FlareCustomizationCatalog.h"
@@ -37,19 +38,18 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Fill)
 	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
-		SNew(SHorizontalBox)
+		SNew(SFlareTabView)
 
 		// Content block
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Left)
-		.AutoWidth()
+		+ SFlareTabView::Slot()
+		.Header(LOCTEXT("CompanyMainTab", "Company"))
+		.HeaderHelp(LOCTEXT("CompanyMainTabHelp", "General information about your company"))
 		[
-			SNew(SScrollBox)
-			.Style(&Theme.ScrollBoxStyle)
-			.ScrollBarStyle(&Theme.ScrollBarStyle)
+			SNew(SVerticalBox)
 
-			+ SScrollBox::Slot()
+			+ SVerticalBox::Slot()
 			.Padding(Theme.TitlePadding)
+			.AutoHeight()
 			[
 				SNew(STextBlock)
 				.TextStyle(&Theme.SubTitleFont)
@@ -57,8 +57,9 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 			]
 
 			// Company info
-			+ SScrollBox::Slot()
+			+ SVerticalBox::Slot()
 			.Padding(Theme.ContentPadding)
+			.AutoHeight()
 			[
 				SNew(SBox)
 				.WidthOverride(0.8 * Theme.ContentWidth)
@@ -69,113 +70,120 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 			]
 
 			// TR info
-			+ SScrollBox::Slot()
+			+ SVerticalBox::Slot()
+			.AutoHeight()
 			[
 				SAssignNew(TradeRouteInfo, SFlareTradeRouteInfo)
 				.MenuManager(MenuManager)
 			]
+		]
 
-			// Property list
-			+ SScrollBox::Slot()
+		// Property block
+		+ SFlareTabView::Slot()
+		.Header(LOCTEXT("CompanyPropertyTab", "Property"))
+		.HeaderHelp(LOCTEXT("CompanyPropertyTabHelp", "Fleets, ships and stations"))
+		[
+			SNew(SBox)
+			.WidthOverride(Theme.ContentWidth)
+			.HAlign(HAlign_Left)
 			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
-				.HAlign(HAlign_Left)
-				[
-					SAssignNew(ShipList, SFlareList)
-					.MenuManager(MenuManager)
-					.Title(LOCTEXT("Property", "Property"))
-				]
+				SAssignNew(ShipList, SFlareList)
+				.MenuManager(MenuManager)
+				.Title(LOCTEXT("Property", "Property"))
 			]
 		]
 
 		// Company customization
-		+ SHorizontalBox::Slot()
-		.HAlign(HAlign_Right)
+		+ SFlareTabView::Slot()
+		.Header(LOCTEXT("CompanyCustomizationTab", "Appearance"))
+		.HeaderHelp(LOCTEXT("CompanyCustomizationTabHelp", "Appearance settings for your company"))
 		[
-			SNew(SVerticalBox)
-
-			+ SVerticalBox::Slot()
-			.Padding(Theme.TitlePadding)
-			.AutoHeight()
+			SNew(SBox)
+			.WidthOverride(Theme.ContentWidth)
+			.HAlign(HAlign_Left)
 			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.SubTitleFont)
-				.Text(LOCTEXT("CompanyEditTitle", "Company appearance"))
-			]
+				SNew(SVerticalBox)
 
-			// Company name
-			+ SVerticalBox::Slot()
-			.Padding(Theme.ContentPadding)
-			.AutoHeight()
-			.HAlign(HAlign_Fill)
-			[
-				SNew(SHorizontalBox)
-
-				+ SHorizontalBox::Slot()
-				.VAlign(VAlign_Center)
-				.AutoWidth()
+				+ SVerticalBox::Slot()
+				.Padding(Theme.TitlePadding)
+				.AutoHeight()
 				[
 					SNew(STextBlock)
-					.TextStyle(&Theme.TextFont)
-					.Text(LOCTEXT("EditCompanyName", "Company name"))
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(LOCTEXT("CompanyEditTitle", "Appearance"))
 				]
 
-				+ SHorizontalBox::Slot()
-				.HAlign(HAlign_Right)
+				// Company name
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
 				[
-					SNew(SBox)
-					.WidthOverride(0.4 * Theme.ContentWidth)
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
 					[
-						SNew(SBorder)
-						.BorderImage(&Theme.BackgroundBrush)
-						.Padding(Theme.ContentPadding)
+						SNew(STextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(LOCTEXT("EditCompanyName", "Company name"))
+					]
+
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Right)
+					[
+						SNew(SBox)
+						.WidthOverride(0.4 * Theme.ContentWidth)
 						[
-							SAssignNew(CompanyName, SEditableText)
-							.AllowContextMenu(false)
-							.Style(&Theme.TextInputStyle)
+							SNew(SBorder)
+							.BorderImage(&Theme.BackgroundBrush)
+							.Padding(Theme.ContentPadding)
+							[
+								SAssignNew(CompanyName, SEditableText)
+								.AllowContextMenu(false)
+								.Style(&Theme.TextInputStyle)
+							]
 						]
 					]
-				]
 			
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.HAlign(HAlign_Right)
-				[
-					SNew(SFlareButton)
-					.Text(LOCTEXT("Rename", "Rename"))
-					.HelpText(LOCTEXT("RenameInfo", "Rename this company"))
-					.Icon(FFlareStyleSet::GetIcon("OK"))
-					.OnClicked(this, &SFlareCompanyMenu::OnRename)
-					.IsDisabled(this, &SFlareCompanyMenu::IsRenameDisabled)
-					.Width(4)
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Right)
+					[
+						SNew(SFlareButton)
+						.Text(LOCTEXT("Rename", "Rename"))
+						.HelpText(LOCTEXT("RenameInfo", "Rename this company"))
+						.Icon(FFlareStyleSet::GetIcon("OK"))
+						.OnClicked(this, &SFlareCompanyMenu::OnRename)
+						.IsDisabled(this, &SFlareCompanyMenu::IsRenameDisabled)
+						.Width(4)
+					]
 				]
-			]
 
-			// Color picker
-			+ SVerticalBox::Slot()
-			.Padding(Theme.ContentPadding)
-			.AutoHeight()
-			[
-				SAssignNew(ColorBox, SFlareColorPanel)
-				.MenuManager(MenuManager)
-			]
+				// Color picker
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.AutoHeight()
+				[
+					SAssignNew(ColorBox, SFlareColorPanel)
+					.MenuManager(MenuManager)
+				]
 				
-			// Emblem
-			+ SVerticalBox::Slot()
-			.Padding(Theme.ContentPadding)
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Top)
-			[
-				SAssignNew(EmblemPicker, SFlareDropList<int32>)
-				.LineSize(1)
-				.HeaderWidth(3)
-				.HeaderHeight(3)
-				.ItemWidth(3)
-				.ItemHeight(2.7)
-				.ShowColorWheel(false)
-				.MaximumHeight(600)
-				.OnItemPicked(this, &SFlareCompanyMenu::OnEmblemPicked)
+				// Emblem
+				+ SVerticalBox::Slot()
+				.Padding(Theme.ContentPadding)
+				.VAlign(VAlign_Top)
+				[
+					SAssignNew(EmblemPicker, SFlareDropList<int32>)
+					.LineSize(1)
+					.HeaderWidth(3)
+					.HeaderHeight(3)
+					.ItemWidth(3)
+					.ItemHeight(2.7)
+					.ShowColorWheel(false)
+					.MaximumHeight(600)
+					.OnItemPicked(this, &SFlareCompanyMenu::OnEmblemPicked)
+				]
 			]
 		]
 	];
