@@ -256,8 +256,8 @@ public:
 	/** Waiting for a key */
 	void SetWaitingForKey(bool State);
 
-	/** Is busy */
-	void MarkAsBusy();
+	/** Set busy */
+	void SetBusy(bool Busy);
 
 	// Menus
 	void ShipMenu();

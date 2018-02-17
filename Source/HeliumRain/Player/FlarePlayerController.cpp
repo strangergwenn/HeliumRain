@@ -66,6 +66,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	, TimeSinceWeaponSwitch(0)
 	, CombatZoomFOVRatio(0.4f)
 	, WaitingForKey(false)
+	, IsBusy(false)
 {
 	CheatClass = UFlareGameTools::StaticClass();
 		
@@ -186,8 +187,7 @@ void AFlarePlayerController::PlayerTick(float DeltaSeconds)
 	Super::PlayerTick(DeltaSeconds);
 	AFlareHUD* HUD = GetNavHUD();
 	TimeSinceWeaponSwitch += DeltaSeconds;
-	IsBusy = false;
-	
+		
 	// We are flying
 	if (ShipPawn)
 	{
@@ -1847,9 +1847,10 @@ void AFlarePlayerController::BackMenu()
 	}
 }
 
-void AFlarePlayerController::MarkAsBusy()
+void AFlarePlayerController::SetBusy(bool Busy)
 {
-	IsBusy = true;
+	FLOGV("AFlarePlayerController::SetBusy : %d", Busy);
+	IsBusy = Busy;
 }
 
 void AFlarePlayerController::Simulate()

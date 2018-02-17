@@ -184,20 +184,23 @@ void AFlareGame::Logout(AController* Player)
 
 void AFlareGame::ActivateSector(UFlareSimulatedSector* Sector)
 {
+	// No sector to activate
 	if (!Sector)
 	{
-		// No sector to activate
 		return;
 	}
+
+	// Stop processing notifications
+	GetPC()->SetBusy(true);
 
 	// Check if we should really activate
 	FLOGV("AFlareGame::ActivateSector : %s", *Sector->GetSectorName().ToString());
 	if (ActiveSector)
 	{
+		// Sector to activate is already active
 		FLOG("AFlareGame::ActivateSector : There is already an active sector");
 		if (ActiveSector->GetSimulatedSector()->GetIdentifier() == Sector->GetIdentifier())
 		{
-			// Sector to activate is already active
 			return;
 		}
 
@@ -205,15 +208,15 @@ void AFlareGame::ActivateSector(UFlareSimulatedSector* Sector)
 		DeactivateSector();
 	}
 
+	// Sector to activate is already activating
 	if (ActivatingSector == Sector)
 	{
-		// Sector to activate is already activating
 		return;
 	}
 
 	// Load the sector level - Will call OnLevelLoaded()
 	ActivatingSector = Sector;
-	if(LoadStreamingLevel(Sector->GetDescription()->LevelName))
+	if (LoadStreamingLevel(Sector->GetDescription()->LevelName))
 	{
 		OnLevelLoaded();
 	}
@@ -1132,6 +1135,7 @@ void AFlareGame::UnloadStreamingLevel(FName SectorLevel)
 void AFlareGame::OnLevelLoaded()
 {
 	IsLoadingStreamingLevel = false;
+	GetPC()->SetBusy(false);
 
 	// Ensure the current state is correct
 	if (ActivatingSector == NULL || ActivatingSector->GetGame()->GetGameWorld() == NULL)

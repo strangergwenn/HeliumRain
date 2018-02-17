@@ -9,6 +9,7 @@
 
 #include "FlareGame.h"
 #include "FlareGameTools.h"
+#include "FlareScenarioTools.h"
 #include "FlareSector.h"
 #include "FlareTravel.h"
 #include "FlareFleet.h"
@@ -414,7 +415,6 @@ void UFlareWorld::Simulate()
 {
 	double StartTs = FPlatformTime::Seconds();
 	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
-	Game->GetPC()->MarkAsBusy();
 
 	/**
 	 *  End previous day
