@@ -92,11 +92,29 @@ void SFlareSkirmishScoreMenu::Construct(const FArguments& InArgs)
 		.VAlign(VAlign_Bottom)
 		.Padding(Theme.ContentPadding)
 		[
-			SNew(SFlareButton)
-			.Transparent(true)
-			.Width(3)
-			.Text(LOCTEXT("Back", "Back"))
-			.OnClicked(this, &SFlareSkirmishScoreMenu::OnMainMenu)
+			SNew(SHorizontalBox)
+
+			// Retry
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SFlareButton)
+				.Transparent(true)
+				.Width(3)
+				.Text(LOCTEXT("Retry", "Retry"))
+				.OnClicked(this, &SFlareSkirmishScoreMenu::OnRetry)
+			]
+			
+			// Back
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SFlareButton)
+				.Transparent(true)
+				.Width(3)
+				.Text(LOCTEXT("Exit", "Exit"))
+				.OnClicked(this, &SFlareSkirmishScoreMenu::OnMainMenu)
+			]
 		]
 	];
 }
@@ -124,6 +142,7 @@ void SFlareSkirmishScoreMenu::Enter()
 
 	// Get data
 	UFlareSkirmishManager* SkirmishManager = MenuManager->GetGame()->GetSkirmishManager();
+	FCHECK(SkirmishManager);
 	FFlareSkirmishResultData Result = SkirmishManager->GetResult();
 
 	// Set title
@@ -222,6 +241,13 @@ void SFlareSkirmishScoreMenu::AddResult(TSharedPtr<SVerticalBox> Box, FText Name
 			]
 		]
 	];
+}
+
+void SFlareSkirmishScoreMenu::OnRetry()
+{
+	UFlareSkirmishManager* SkirmishManager = MenuManager->GetGame()->GetSkirmishManager();
+	FCHECK(SkirmishManager);
+	SkirmishManager->RestartPlay();
 }
 
 void SFlareSkirmishScoreMenu::OnMainMenu()

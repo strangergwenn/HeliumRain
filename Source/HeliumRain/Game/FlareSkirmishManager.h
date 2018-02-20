@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Object.h"
+#include "FlareSimulatedSector.h"
+#include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareSkirmishManager.generated.h"
 
 
@@ -130,11 +132,14 @@ public:
 	/** Update the manager */
 	void Update(float DeltaSeconds);
 	
-	/** Setup the setup phase */
+	/** Start the setup phase */
 	void StartSetup();
 
-	/** Setup the playing phase */
+	/** Start the playing phase */
 	void StartPlay();
+
+	/** Restart the playing phase */
+	void RestartPlay();
 
 	/** Start the endgame phase */
 	void EndPlay();

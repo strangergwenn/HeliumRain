@@ -1,6 +1,9 @@
 #pragma once
 
 #include "../../Flare.h"
+#include "Widgets/SCompoundWidget.h"
+#include "Widgets/SBoxPanel.h"
+#include "Widgets/Text/STextBlock.h"
 
 
 class AFlareMenuManager;
@@ -49,6 +52,9 @@ protected:
 
 	/** Add one result line */
 	void AddResult(TSharedPtr<SVerticalBox> Box, FText Name, int32 Result);
+
+	/** Relaunch */
+	void OnRetry();
 
 	/** Quit the menu */
 	void OnMainMenu();

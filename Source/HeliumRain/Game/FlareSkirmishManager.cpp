@@ -121,6 +121,23 @@ void UFlareSkirmishManager::StartPlay()
 	AFlareMenuManager::GetSingleton()->OpenMenu(EFlareMenu::MENU_CreateGame, MenuData);
 }
 
+void UFlareSkirmishManager::RestartPlay()
+{
+	FCHECK(CurrentPhase == EFlareSkirmishPhase::End);
+
+	// Reset
+	Result = FFlareSkirmishResultData();
+
+	// Set phase
+	CurrentPhase = EFlareSkirmishPhase::Play;
+
+	// Start the game
+	FFlareMenuParameterData MenuData;
+	MenuData.ScenarioIndex = -1;
+	MenuData.Skirmish = this;
+	AFlareMenuManager::GetSingleton()->OpenMenu(EFlareMenu::MENU_CreateGame, MenuData);
+}
+
 void UFlareSkirmishManager::EndPlay()
 {
 	// Start skirmish countdown
