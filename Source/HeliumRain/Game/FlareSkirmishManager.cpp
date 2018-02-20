@@ -148,8 +148,8 @@ void UFlareSkirmishManager::EndPlay()
 
 	// Detect victory
 	AFlarePlayerController* PC = GetGame()->GetPC();
-	FFlareSectorBattleState State = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(PC->GetCompany());
-	if (State.BattleWon)
+	FFlareSectorBattleState BattleState = GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(PC->GetCompany());
+	if (BattleState.FriendlyControllableShipCount > 0 && !BattleState.HasDanger)
 	{
 		Result.PlayerVictory = true;
 	}
