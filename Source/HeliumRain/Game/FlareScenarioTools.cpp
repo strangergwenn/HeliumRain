@@ -690,12 +690,12 @@ void UFlareScenarioTools::CreateTheFarm()
 
 	// TF Arsenal
 	StationParams.Location = BaseLocation + FVector(StationRadius, StationLength, 0);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 90));
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(-90, 0, 90));
 	CreateStations("station-tf-arsenal", AxisSupplies, TheFarm, 1, 1, StationParams);
 
 	// TF Hub
 	StationParams.Location = BaseLocation + FVector(-StationRadius, StationLength, 0);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 90));
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(90, 0, 90));
 	CreateStations("station-tf-hub", AxisSupplies, TheFarm, 1, 1, StationParams);
 
 	// TF Habitation
@@ -705,7 +705,7 @@ void UFlareScenarioTools::CreateTheFarm()
 
 	// TF Power plant
 	StationParams.Location = BaseLocation + FVector(0, StationLength, -StationRadius);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 90));
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, 90));
 	CreateStations("station-tf-solar-plant", Sunwatch, TheFarm, 1, 1, StationParams);
 
 	// TF Farm 1
@@ -715,17 +715,17 @@ void UFlareScenarioTools::CreateTheFarm()
 
 	// TF Farm 2
 	StationParams.Location = BaseLocation + FVector(0, -StationLength, -StationRadius);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -90));
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, -90));
 	CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
 
 	// TF Farm 3
 	StationParams.Location = BaseLocation + FVector(StationRadius, -StationLength, 0);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -90));
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(90, 0, -90));
 	CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
 
 	// TF Farm 4
 	StationParams.Location = BaseLocation + FVector(-StationRadius, -StationLength, 0);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -90));
+	StationParams.Rotation = FRotator::MakeFromEuler(FVector(-90, 0, -90));
 	CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
 }
 
