@@ -715,15 +715,35 @@ void AFlarePlayerController::Clean()
 	Gamepad
 ----------------------------------------------------*/
 
-void RemoveActionMapping(UInputSettings* InputSettings, FName ActionName, FName KeyName)
+void RemoveGamepadActionMapping(UInputSettings* InputSettings, FName ActionName)
 {
-	FInputActionKeyMapping Bind;
-	Bind.ActionName = ActionName;
-	Bind.Key = FKey(KeyName);
-	InputSettings->RemoveActionMapping(Bind);
+	TArray<FInputActionKeyMapping> Bindings;
+	InputSettings->GetActionMappingByName(ActionName, Bindings);
+
+	for (FInputActionKeyMapping& Bind : Bindings)
+	{
+		if (Bind.Key.ToString().StartsWith("Gamepad"))
+		{
+			InputSettings->RemoveActionMapping(Bind);
+		}
+	}
 }
 
-void AddActionMapping(UInputSettings* InputSettings, FName ActionName, FName KeyName)
+void RemoveGamepadAxisMapping(UInputSettings* InputSettings, FName AxisName)
+{
+	TArray<FInputAxisKeyMapping> Bindings;
+	InputSettings->GetAxisMappingByName(AxisName, Bindings);
+
+	for (FInputAxisKeyMapping& Bind : Bindings)
+	{
+		if (Bind.Key.ToString().StartsWith("Gamepad"))
+		{
+			InputSettings->RemoveAxisMapping(Bind);
+		}
+	}
+}
+
+void AddGamepadActionMapping(UInputSettings* InputSettings, FName ActionName, FName KeyName)
 {
 	FInputActionKeyMapping Bind;
 	Bind.ActionName = ActionName;
@@ -731,15 +751,7 @@ void AddActionMapping(UInputSettings* InputSettings, FName ActionName, FName Key
 	InputSettings->AddActionMapping(Bind);
 }
 
-void RemoveAxisMapping(UInputSettings* InputSettings, FName AxisName, FName KeyName)
-{
-	FInputAxisKeyMapping Bind;
-	Bind.AxisName = AxisName;
-	Bind.Key = FKey(KeyName);
-	InputSettings->RemoveAxisMapping(Bind);
-}
-
-void AddAxisMapping(UInputSettings* InputSettings, FName AxisName, FName KeyName, float Scale)
+void AddGamepadAxisMapping(UInputSettings* InputSettings, FName AxisName, FName KeyName, float Scale)
 {
 	FInputAxisKeyMapping Bind;
 	Bind.AxisName = AxisName;
@@ -754,56 +766,69 @@ void AFlarePlayerController::SetupGamepad()
 
 	// Remove previous gamepad mappings (#931)
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-	RemoveAxisMapping(InputSettings, "GamepadMoveVerticalInput", "Gamepad_LeftThumbstick");
-	RemoveAxisMapping(InputSettings, "GamepadMoveVerticalInput", "Gamepad_RightThumbstick");
-	RemoveAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftY");
-	RemoveAxisMapping(InputSettings, "NormalRollInput", "Gamepad_LeftShoulder");
-	RemoveAxisMapping(InputSettings, "NormalRollInput", "Gamepad_RightShoulder");
+	RemoveGamepadAxisMapping(InputSettings, "GamepadMoveVerticalInput");
+	RemoveGamepadAxisMapping(InputSettings, "GamepadThrustInput");
+	RemoveGamepadAxisMapping(InputSettings, "NormalRollInput");
 
-	// Add gamepad mappings (#930, #931)
-	AddAxisMapping(InputSettings, "GamepadMoveHorizontalInput", "Gamepad_LeftX", 1.0f);
-	AddAxisMapping(InputSettings, "GamepadMoveVerticalInput", "Gamepad_LeftY", -1.0f);
-	AddAxisMapping(InputSettings, "GamepadYawInput", "Gamepad_RightX", 1.0f);
-	AddAxisMapping(InputSettings, "GamepadPitchInput", "Gamepad_RightY", -1.0f);
-	AddAxisMapping(InputSettings, "NormalRollInput", "Gamepad_LeftThumbstick", -1.0f);
-	AddAxisMapping(InputSettings, "NormalRollInput", "Gamepad_RightThumbstick", 1.0f);
-	AddActionMapping(InputSettings, "NextTarget", "Gamepad_DPad_Right");
-	AddActionMapping(InputSettings, "PreviousWeapon", "Gamepad_DPad_Down");
-	AddActionMapping(InputSettings, "PreviousTarget", "Gamepad_DPad_Left");
-	AddActionMapping(InputSettings, "NextWeapon", "Gamepad_DPad_Up");
-	AddActionMapping(InputSettings, "BackMenu", "Gamepad_FaceButton_Right");
-	AddActionMapping(InputSettings, "EnterMenu", "Gamepad_FaceButton_Bottom");
-	AddActionMapping(InputSettings, "QuickSwitch", "Gamepad_FaceButton_Left");
-	AddActionMapping(InputSettings, "FindTarget", "Gamepad_FaceButton_Top");
-	AddActionMapping(InputSettings, "ToggleMenu", "Gamepad_Special_Left");
-	AddActionMapping(InputSettings, "Wheel", "Gamepad_Special_Right");
+	// Add gamepad mappings
+	AddGamepadAxisMapping(InputSettings, "GamepadMoveHorizontalInput", "Gamepad_LeftX", 1.0f);
+	AddGamepadAxisMapping(InputSettings, "GamepadMoveVerticalInput", "Gamepad_LeftY", -1.0f);
+	AddGamepadAxisMapping(InputSettings, "GamepadYawInput", "Gamepad_RightX", 1.0f);
+	AddGamepadAxisMapping(InputSettings, "GamepadPitchInput", "Gamepad_RightY", -1.0f);
+	AddGamepadActionMapping(InputSettings, "NextTarget", "Gamepad_DPad_Right");
+	AddGamepadActionMapping(InputSettings, "PreviousWeapon", "Gamepad_DPad_Down");
+	AddGamepadActionMapping(InputSettings, "PreviousTarget", "Gamepad_DPad_Left");
+	AddGamepadActionMapping(InputSettings, "NextWeapon", "Gamepad_DPad_Up");
+	AddGamepadActionMapping(InputSettings, "BackMenu", "Gamepad_FaceButton_Right");
+	AddGamepadActionMapping(InputSettings, "EnterMenu", "Gamepad_FaceButton_Bottom");
+	AddGamepadActionMapping(InputSettings, "QuickSwitch", "Gamepad_FaceButton_Left");
+	AddGamepadActionMapping(InputSettings, "ToggleMenu", "Gamepad_Special_Left");
+	AddGamepadActionMapping(InputSettings, "Wheel", "Gamepad_Special_Right");
+
+	// Clear saved controls that will be overridden by profile settings
+	RemoveGamepadAxisMapping(InputSettings, "GamepadThrustInput");
+	RemoveGamepadAxisMapping(InputSettings, "NormalRollInput");
+	RemoveGamepadActionMapping(InputSettings, "CombatZoom");
+	RemoveGamepadActionMapping(InputSettings, "StartFire");
+	RemoveGamepadActionMapping(InputSettings, "FindTarget");
 
 	// Left handed profile for rear buttons
 	if (MyGameSettings->GamepadProfileLayout == EFlareGamepadLayout::GL_LeftHanded)
 	{
-		RemoveAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftShoulder");
-		RemoveAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_RightShoulder");
-		AddAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftTrigger", 1.0f);
-		AddAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_RightTrigger", -1.0f);
+		AddGamepadAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftTrigger", 1.0f);
+		AddGamepadAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_RightTrigger", -1.0f);
+		AddGamepadAxisMapping(InputSettings, "NormalRollInput", "Gamepad_LeftThumbstick", -1.0f);
+		AddGamepadAxisMapping(InputSettings, "NormalRollInput", "Gamepad_RightThumbstick", 1.0f);
 
-		RemoveActionMapping(InputSettings, "CombatZoom", "Gamepad_LeftTrigger");
-		RemoveActionMapping(InputSettings, "StartFire", "Gamepad_RightTrigger");
-		AddActionMapping(InputSettings, "CombatZoom", "Gamepad_RightShoulder");
-		AddActionMapping(InputSettings, "StartFire", "Gamepad_LeftShoulder");
+		AddGamepadActionMapping(InputSettings, "CombatZoom", "Gamepad_RightShoulder");
+		AddGamepadActionMapping(InputSettings, "StartFire", "Gamepad_LeftShoulder");
+		AddGamepadActionMapping(InputSettings, "FindTarget", "Gamepad_FaceButton_Top");
+	}
+
+	// Profile for playing without thumbsticks
+	else if (MyGameSettings->GamepadProfileLayout == EFlareGamepadLayout::GL_RollWithShoulders)
+	{
+		AddGamepadAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftTrigger", -1.0f);
+		AddGamepadAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_RightTrigger", 1.0f);
+		AddGamepadAxisMapping(InputSettings, "NormalRollInput", "Gamepad_LeftShoulder", -1.0f);
+		AddGamepadAxisMapping(InputSettings, "NormalRollInput", "Gamepad_RightShoulder", 1.0f);
+
+		AddGamepadActionMapping(InputSettings, "CombatZoom", "Gamepad_LeftThumbstick");
+		AddGamepadActionMapping(InputSettings, "StartFire", "Gamepad_FaceButton_Top");
+		AddGamepadActionMapping(InputSettings, "FindTarget", "Gamepad_RightThumbstick");
 	}
 
 	// Default & turn-with-left-stick profiles
 	else
 	{
-		RemoveAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftTrigger");
-		RemoveAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_RightTrigger");
-		AddAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftShoulder", -1.0f);
-		AddAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_RightShoulder", 1.0f);
+		AddGamepadAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_LeftShoulder", -1.0f);
+		AddGamepadAxisMapping(InputSettings, "GamepadThrustInput", "Gamepad_RightShoulder", 1.0f);
+		AddGamepadAxisMapping(InputSettings, "NormalRollInput", "Gamepad_LeftThumbstick", -1.0f);
+		AddGamepadAxisMapping(InputSettings, "NormalRollInput", "Gamepad_RightThumbstick", 1.0f);
 
-		RemoveActionMapping(InputSettings, "CombatZoom", "Gamepad_RightShoulder");
-		RemoveActionMapping(InputSettings, "StartFire", "Gamepad_LeftShoulder");
-		AddActionMapping(InputSettings, "CombatZoom", "Gamepad_LeftTrigger");
-		AddActionMapping(InputSettings, "StartFire", "Gamepad_RightTrigger");
+		AddGamepadActionMapping(InputSettings, "CombatZoom", "Gamepad_LeftTrigger");
+		AddGamepadActionMapping(InputSettings, "StartFire", "Gamepad_RightTrigger");
+		AddGamepadActionMapping(InputSettings, "FindTarget", "Gamepad_FaceButton_Top");
 	}
 
 	// Save inputs

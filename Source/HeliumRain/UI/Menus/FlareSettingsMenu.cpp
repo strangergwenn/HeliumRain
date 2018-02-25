@@ -1977,6 +1977,10 @@ const FSlateBrush* SFlareSettingsMenu::GetGamepadDrawing() const
 			return FFlareStyleSet::GetImage("Pad_LeftHanded");
 			break;
 
+		case EFlareGamepadLayout::GL_RollWithShoulders:
+			return FFlareStyleSet::GetImage("Pad_RollWithShoulders");
+			break;
+
 		default:
 		case EFlareGamepadLayout::GL_Default:
 			return FFlareStyleSet::GetImage("Pad");
@@ -2294,6 +2298,7 @@ void SFlareSettingsMenu::FillGameGamepadList()
 	GamepadList.Add(MakeShareable(new FText(LOCTEXT("GamepadDefault", "Default layout"))));
 	GamepadList.Add(MakeShareable(new FText(LOCTEXT("GamepadTurnLeft", "Turn with left stick"))));
 	GamepadList.Add(MakeShareable(new FText(LOCTEXT("GamepadLeftHanded", "Left-handed"))));
+	GamepadList.Add(MakeShareable(new FText(LOCTEXT("RollWithShoulders", "Roll with shoulders"))));
 
 	GamepadSelector->RefreshOptions();
 	GamepadSelector->SetSelectedIndex(MyGameSettings->GamepadProfileLayout);

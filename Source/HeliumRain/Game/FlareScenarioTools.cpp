@@ -322,7 +322,7 @@ void UFlareScenarioTools::SetupWorld()
 	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, BlueHeart, 1, 2);
 
 	// The Farm
-	//CreateTheFarm();
+	CreateTheFarm();
 	
 	// Anka HFR factory
 	CreateStations(StationSteelworks, HelixFoundries, TheForge, 4);

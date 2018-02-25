@@ -14,7 +14,8 @@ namespace EFlareGamepadLayout
 	{
 		GL_Default,
 		GL_TurnWithLeftStick,
-		GL_LeftHanded
+		GL_LeftHanded,
+		GL_RollWithShoulders
 	};
 }
 
@@ -127,9 +128,4 @@ public:
 	/** Master volume */
 	UPROPERTY(Config)
 	int32                                    MasterVolume;
-
-
-	/** Legacy */
-	UPROPERTY(Config)
-	bool                                     TurnWithLeftStick;
 };

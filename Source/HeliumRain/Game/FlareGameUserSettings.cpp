@@ -65,10 +65,6 @@ void UFlareGameUserSettings::EnsureConsistency()
 	{
 		InputSensitivity = 1.0f;
 	}
-	if (TurnWithLeftStick)
-	{
-		GamepadProfileLayout = EFlareGamepadLayout::GL_TurnWithLeftStick;
-	}
 
 	ApplySettings(false);
 }
