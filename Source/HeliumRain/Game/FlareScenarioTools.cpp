@@ -426,6 +426,7 @@ void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 	Company->DiscoverSector(Lighthouse);
 	Company->DiscoverSector(BlueShores);
 	Company->DiscoverSector(TheSpire);
+	Company->DiscoverSector(TheFarm);
 	// Unknown : FirstLight, Anomaly, Pendulum
 
 	// Anka
