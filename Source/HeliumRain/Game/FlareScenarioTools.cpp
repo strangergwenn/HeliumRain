@@ -196,14 +196,11 @@ void UFlareScenarioTools::SetupWorld()
 	// Setup common stuff
 	SetupAsteroids();
 
-	// Setup player sector knowledge
+	// Setup player sector knowledge, other capital sectors are discovered in CreateXX methods
 	PlayerCompany->DiscoverSector(TheDepths);
-	PlayerCompany->DiscoverSector(BlueHeart);
 	PlayerCompany->DiscoverSector(TheSpire);
 	PlayerCompany->DiscoverSector(Outpost);
 	PlayerCompany->DiscoverSector(MinersHome);
-	PlayerCompany->DiscoverSector(NightsHome);
-	PlayerCompany->DiscoverSector(TheFarm);
 
 	// Discover public sectors
 	SetupKnownSectors(MiningSyndicate);
@@ -590,6 +587,8 @@ void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Comp
 
 void UFlareScenarioTools::CreateBlueHeart()
 {
+	PlayerCompany->DiscoverSector(BlueHeart);
+
 	float StationRadius = 50000;
 	FVector UpVector(0, 0, 1);
 	FVector BaseLocation = FVector(-200000.0, 0, 0);
@@ -658,6 +657,8 @@ void UFlareScenarioTools::CreateBoneyard()
 
 void UFlareScenarioTools::CreateNightsHome()
 {
+	PlayerCompany->DiscoverSector(NightsHome);
+
 	float StationRadius = 22480;
 	FVector UpVector(0, 0, 1);
 	FVector BaseLocation = FVector(-3740, 0, -153600);
@@ -682,6 +683,8 @@ void UFlareScenarioTools::CreateNightsHome()
 
 void UFlareScenarioTools::CreateTheFarm()
 {
+	PlayerCompany->DiscoverSector(TheFarm);
+
 	float StationLength = 48640 + 2048 + 2000; // cap base + cap offset + station offset
 	float StationRadius = 24576;
 	FVector BaseLocation = FVector(-200000.0, 0, 0);
