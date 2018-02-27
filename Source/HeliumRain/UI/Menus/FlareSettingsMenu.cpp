@@ -2326,12 +2326,12 @@ void SFlareSettingsMenu::CreateBinds()
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("MoveDown", "Move down")))
 		->AddAxisMapping("MoveVerticalInput", -1.0f)
 		->AddDefaults(EKeys::LeftControl)));
-	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCW", "Roll right")))
-		->AddAxisMapping("NormalRollInput", 1.0f)
-		->AddDefaults(EKeys::Q)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCCW", "Roll left")))
 		->AddAxisMapping("NormalRollInput", -1.0f)
 		->AddDefaults(EKeys::E)));
+	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("RollCW", "Roll right")))
+		->AddAxisMapping("NormalRollInput", 1.0f)
+		->AddDefaults(EKeys::Q)));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("NextTarget", "Next target")))
 		->AddActionMapping("AlternateNextTarget")));
 	Binds.Add(MakeShareable((new FSimpleBind(LOCTEXT("PreviousTarget", "Previous target")))
