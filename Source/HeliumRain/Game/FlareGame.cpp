@@ -918,6 +918,7 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 		ScenarioTools->Init(PC->GetCompany(), &Save->PlayerData);
 		World->PostLoad();
 		World->CheckIntegrity();
+		ScenarioTools->PostLoad();
 
 		// Init the quest manager
 		QuestManager = NewObject<UFlareQuestManager>(this, UFlareQuestManager::StaticClass());

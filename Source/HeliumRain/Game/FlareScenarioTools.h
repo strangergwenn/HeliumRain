@@ -24,6 +24,8 @@ public:
 	----------------------------------------------------*/
 
 	void Init(UFlareCompany* Company, FFlarePlayerSave* Player);
+
+	void PostLoad();
 	
 	// Game scnarios
 	void GenerateEmptyScenario();
