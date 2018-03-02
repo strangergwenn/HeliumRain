@@ -1977,12 +1977,18 @@ int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSe
 
 	// Base cost
 	int64 Cost = 0;
-	Cost += Desc->CycleCost.ProductionCost;
 
 	// For stations, use the sectore penalty
-	if (Desc->IsStation() && ConstructionPrice && Company)
+	if (Desc->IsStation())
 	{
-		Cost = Sector->GetStationConstructionFee(Cost, Company);
+		if(ConstructionPrice && Company)
+		{
+			Cost += Sector->GetStationConstructionFee(Cost, Company);
+		}
+	}
+	else
+	{
+		Cost += Desc->CycleCost.ProductionCost;
 	}
 
 	// Add input resource cost

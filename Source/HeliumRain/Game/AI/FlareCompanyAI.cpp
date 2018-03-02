@@ -888,6 +888,11 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool Technology, 
 				continue;
 			}
 
+			if (Station->GetLevel() >= Station->GetDescription()->MaxLevel)
+			{
+				continue;
+			}
+
 			int32 StationCountForThisKind = 0;
 			int32 StationWithLowerLevelInSectorForThisKind = 0;
 			for(UFlareSimulatedSpacecraft* StationCandidate : Company->GetCompanyStations())
@@ -3478,7 +3483,7 @@ float UFlareCompanyAI::ComputeStationPrice(UFlareSimulatedSector* Sector, FFlare
 	if (Station)
 	{
 		// Upgrade
-		StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * (Station->GetStationUpgradeFee() +  UFlareGameTools::ComputeSpacecraftPrice(StationDescription->Identifier, Sector, true, false));
+		StationPrice = STATION_CONSTRUCTION_PRICE_BONUS * (Station->GetStationUpgradeFee() +  UFlareGameTools::ComputeSpacecraftPrice(StationDescription->Identifier, Sector, true, false, false)) - 1;
 	}
 	else
 	{
