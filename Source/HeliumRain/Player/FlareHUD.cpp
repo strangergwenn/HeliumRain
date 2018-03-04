@@ -2041,9 +2041,18 @@ FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpac
 bool AFlareHUD::ProjectWorldLocationToCockpit(FVector World, FVector2D& Cockpit)
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
-
 	FVector2D Screen;
-	if (PC->ProjectWorldLocationToScreen(World, Screen))
+
+	// Check direction
+	FVector CameraLocation = PC->GetShipPawn()->GetCamera()->GetComponentLocation();
+	FVector CameraAimDirection = PC->GetShipPawn()->GetCamera()->GetComponentRotation().Vector().GetSafeNormal();
+	FVector SpacecraftDirection = (World - CameraLocation).GetSafeNormal();
+
+	if (FVector::DotProduct(CameraAimDirection, SpacecraftDirection) < 0.3f)
+	{
+		return false;
+	}
+	else if (PC->ProjectWorldLocationToScreen(World, Screen))
 	{
 		Cockpit = Screen;
 		return true;
