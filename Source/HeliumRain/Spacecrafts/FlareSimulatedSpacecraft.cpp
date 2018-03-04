@@ -1562,6 +1562,12 @@ UFlareFactory* UFlareSimulatedSpacecraft::GetCompatibleIdleShipyardFactory(FName
 
 void UFlareSimulatedSpacecraft::UpdateShipyardProduction()
 {
+	if(IsComplexElement())
+	{
+		GetComplexMaster()->UpdateShipyardProduction();
+		return;
+	}
+
 	TArray<int32> IndexToRemove;
 
 	int32 Index = 0;
