@@ -277,7 +277,6 @@ void SFlareList::RefreshList()
 		}
 	};
 
-	ClearSelection();
 
 	// Apply filters
 	FilteredObjectList.Empty();
@@ -323,6 +322,8 @@ void SFlareList::RefreshList()
 	FilteredObjectList.Sort(FSortBySize());
 	WidgetList->RequestListRefresh();
 	SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
+
+	ClearSelection();
 }
 
 void SFlareList::ClearSelection()
