@@ -288,10 +288,15 @@ bool UFlareFactory::HasOutputFreeSpace()
 
 	TArray<FFlareFactoryResource> OutputResources = GetLimitedOutputResources();
 
-	// First, fill already existing slots
+	// First, fill already existing locked slots
 	for (int32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
 	{
 		if(!CargoBay->CheckRestriction(CargoBay->GetSlot(CargoIndex), Parent->GetCompany()))
+		{
+			continue;
+		}
+
+		if(CargoBay->GetSlot(CargoIndex)->Lock == EFlareResourceLock::NoLock)
 		{
 			continue;
 		}
@@ -318,13 +323,18 @@ bool UFlareFactory::HasOutputFreeSpace()
 		}
 	}
 
-	// Fill free cargo slots
+	// Fill free cargo locked slots
 	for (int32 CargoIndex = 0 ; CargoIndex < CargoBay->GetSlotCount() ; CargoIndex++)
 	{
 		if (OutputResources.Num() == 0)
 		{
 			// No more resource to try to put
 			break;
+		}
+
+		if(CargoBay->GetSlot(CargoIndex)->Lock == EFlareResourceLock::NoLock)
+		{
+			continue;
 		}
 
 		if (CargoBay->GetSlot(CargoIndex)->Quantity == 0)
