@@ -477,20 +477,37 @@ bool UFlareCargoBay::LockSlot(FFlareResourceDescription* Resource, EFlareResourc
 	{
 		return false;
 	}
-	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
-	{
-		FFlareCargo& Cargo = CargoBay[CargoIndex];
 
-		if (Cargo.Lock == EFlareResourceLock::NoLock && (Cargo.Resource == NULL || Cargo.Resource == Resource))
+	//Check double lock
+	for(FFlareCargo& Cargo : CargoBay)
+	{
+		if(Cargo.Resource == Resource && Cargo.Lock != EFlareResourceLock::NoLock)
+		{
+			FLOG("WARNING: double lock for a cargo bay for a resource. Abort");
+			return false;
+		}
+	}
+
+	//Check slot with the resource
+	for(FFlareCargo& Cargo : CargoBay)
+	{
+		if (Cargo.Resource == Resource)
 		{
 			Cargo.Lock = LockType;
 			Cargo.ManualLock = ManualLock;
+			return true;
+		}
+	}
 
-			if (Cargo.Resource == NULL)
-			{
-				Cargo.Resource = Resource;
-				Cargo.Quantity = 0;
-			}
+	//Check emplty slots
+	for(FFlareCargo& Cargo : CargoBay)
+	{
+		if (Cargo.Resource == NULL)
+		{
+			Cargo.Lock = LockType;
+			Cargo.ManualLock = ManualLock;
+			Cargo.Resource = Resource;
+			Cargo.Quantity = 0;
 			return true;
 		}
 	}
