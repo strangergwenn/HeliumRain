@@ -49,6 +49,26 @@ public:
 	/** Exit this menu */
 	void Exit();
 
+
+	/*----------------------------------------------------
+		Content helpers
+	----------------------------------------------------*/
+
+	/** Show the company property */
+	void ShowProperty(UFlareCompany* Target);
+
+	/** Show the company economy log */
+	void ShowCompanyLog(UFlareCompany* Target);
+
+	/** Generate a log line */
+	void AddTransactionLog(int64 Time, UFlareSimulatedSpacecraft* Source, UFlareSimulatedSector* Sector,
+		UFlareCompany* Owner, UFlareCompany* Other, int64 Value, FText Comment, bool EvenIndex);
+
+
+	/*----------------------------------------------------
+		Callbacks
+	----------------------------------------------------*/
+
 	/** Confirm details */
 	void OnRename();
 
@@ -67,6 +87,8 @@ protected:
 
 	// Gameplay data
 	UFlareCompany*                           Company;
+	int32                                    SmallWidth;
+	int32                                    LargeWidth;
 
 	// Menu data
 	TSharedPtr<SFlareColorPanel>             ColorBox;
@@ -75,6 +97,7 @@ protected:
 	TSharedPtr<SFlareTradeRouteInfo>         TradeRouteInfo;
 	TSharedPtr<SEditableText>                CompanyName;
 	TSharedPtr<SFlareDropList<int32>>        EmblemPicker;
+	TSharedPtr<SVerticalBox>                 CompanyLog;
 
 
 };

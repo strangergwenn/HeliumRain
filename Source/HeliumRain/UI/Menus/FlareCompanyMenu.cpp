@@ -11,6 +11,7 @@
 
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareCompany.h"
+#include "../../Game/FlareGameTools.h"
 
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlareMenuPawn.h"
@@ -29,9 +30,13 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 	// Data
 	Company = NULL;
 	MenuManager = InArgs._MenuManager;
-	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	AFlarePlayerController* PC = MenuManager->GetPC();
-	
+
+	// Theme
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	SmallWidth = 0.25 * Theme.ContentWidth;
+	LargeWidth = 0.5 * Theme.ContentWidth;
+
 	// Build structure
 	ChildSlot
 	.HAlign(HAlign_Fill)
@@ -186,6 +191,150 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 				]
 			]
 		]
+
+		// Company log
+		+ SFlareTabView::Slot()
+		.Header(LOCTEXT("CompanyLogTab", "Transaction log"))
+		.HeaderHelp(LOCTEXT("CompanyLogTabHelp", "Log of recent commercial operations"))
+		[
+			SNew(SBox)
+			.WidthOverride(Theme.ContentWidth)
+			.HAlign(HAlign_Fill)
+			[
+				SNew(SVerticalBox)
+
+				// Title
+				+ SVerticalBox::Slot()
+				.Padding(Theme.TitlePadding)
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(LOCTEXT("CompanyLogTitle", "Transaction log"))
+				]
+
+				// Header
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SHorizontalBox)
+
+					// Date
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitleDate", "Date"))
+						]
+					]
+
+					// Debit
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitleDebit", "Debit"))
+						]
+					]
+
+					// Credit
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitleCredit", "Credit"))
+						]
+					]
+
+					// Source
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitleSource", "Source"))
+						]
+					]
+
+					// Location
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitleSector", "Sector"))
+						]
+					]
+
+					// Partner
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitlePartner", "Partner"))
+						]
+					]
+
+					// Comment
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(LargeWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitleComment", "Comment"))
+						]
+					]
+				]
+
+				// Company log contents
+				+ SVerticalBox::Slot()
+				.HAlign(HAlign_Fill)
+				.AutoHeight()
+				[
+					SAssignNew(CompanyLog, SVerticalBox)
+				]
+			]
+		]
 	];
 }
 
@@ -235,7 +384,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	CompanyName->SetText(Company->GetCompanyName());
 	TradeRouteInfo->UpdateTradeRouteList();
 
-	// Player specific
+	// Player customization
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	if (PC && Target)
 	{
@@ -254,7 +403,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 		EmblemPicker->SetSelectedIndex(PC->GetPlayerData()->PlayerEmblemIndex);
 
 		// Menu
-		PC->GetMenuPawn()->SetCameraOffset(FVector2D(100, -30));
+		PC->GetMenuPawn()->SetCameraOffset(FVector2D(200, -30));
 		if (PC->GetPlayerShip())
 		{
 			PC->GetMenuPawn()->ShowShip(PC->GetPlayerShip());
@@ -264,28 +413,13 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 			const FFlareSpacecraftComponentDescription* PartDesc = PC->GetGame()->GetShipPartsCatalog()->Get("object-safe");
 			PC->GetMenuPawn()->ShowPart(PartDesc);
 		}
-		
-		// Station list
-		TArray<UFlareSimulatedSpacecraft*>& CompanyStations = Target->GetCompanyStations();
-		for (int32 i = 0; i < CompanyStations.Num(); i++)
-		{
-			if (CompanyStations[i]->GetDamageSystem()->IsAlive())
-			{
-				ShipList->AddShip(CompanyStations[i]);
-			}
-		}
-
-		// Ship list
-		TArray<UFlareSimulatedSpacecraft*>& CompanyShips = Target->GetCompanyShips();
-		for (int32 i = 0; i < CompanyShips.Num(); i++)
-		{
-			if (CompanyShips[i]->GetDamageSystem()->IsAlive())
-			{
-				ShipList->AddShip(CompanyShips[i]);
-			}
-		}
 	}
 
+	// Sub-menus
+	ShowProperty(Target);
+	ShowCompanyLog(Target);
+
+	// Refresh
 	ShipList->RefreshList();
 	ShipList->SetVisibility(EVisibility::Visible);
 }
@@ -298,10 +432,213 @@ void SFlareCompanyMenu::Exit()
 
 	EmblemPicker->ClearItems();
 	TradeRouteInfo->Clear();
+	CompanyLog->ClearChildren();
 
 	Company = NULL;
 	SetVisibility(EVisibility::Collapsed);
 }
+
+
+/*----------------------------------------------------
+	Content helpers
+----------------------------------------------------*/
+
+void SFlareCompanyMenu::ShowProperty(UFlareCompany* Target)
+{
+	// Station list
+	TArray<UFlareSimulatedSpacecraft*>& CompanyStations = Target->GetCompanyStations();
+	for (int32 i = 0; i < CompanyStations.Num(); i++)
+	{
+		if (CompanyStations[i]->GetDamageSystem()->IsAlive())
+		{
+			ShipList->AddShip(CompanyStations[i]);
+		}
+	}
+
+	// Ship list
+	TArray<UFlareSimulatedSpacecraft*>& CompanyShips = Target->GetCompanyShips();
+	for (int32 i = 0; i < CompanyShips.Num(); i++)
+	{
+		if (CompanyShips[i]->GetDamageSystem()->IsAlive())
+		{
+			ShipList->AddShip(CompanyShips[i]);
+		}
+	}
+}
+
+void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
+{
+	CompanyLog->ClearChildren();
+
+	/*//DEBUG
+	AddTransactionLog(1455,
+		MenuManager->GetPC()->GetPlayerShip(),
+		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
+		Target,
+		Target,
+		640000,
+		FText::FromString(TEXT("Sold 125 steel")), true);
+
+	AddTransactionLog(1453,
+		MenuManager->GetPC()->GetPlayerShip(),
+		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
+		Target,
+		Target,
+		-3400000,
+		FText::FromString(TEXT("Bought 63 iron")), false);
+
+	AddTransactionLog(1452,
+		MenuManager->GetPC()->GetPlayerShip(),
+		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
+		Target,
+		Target,
+		-13000,
+		FText::FromString(TEXT("Bought 12 water")), true);*/
+}
+
+void SFlareCompanyMenu::AddTransactionLog(int64 Time, UFlareSimulatedSpacecraft* Source, UFlareSimulatedSector* Sector,
+	UFlareCompany* Owner, UFlareCompany* Other, int64 Value, FText Comment, bool EvenIndex)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	// Format credit & debit
+	FText Credit;
+	FText Debit;
+	if (Value >= 0)
+	{
+		Debit = FText::AsNumber(UFlareGameTools::DisplayMoney(Value));
+	}
+	else
+	{
+		Credit = FText::AsNumber(UFlareGameTools::DisplayMoney(Value));
+	}
+
+	// Add structure
+	CompanyLog->AddSlot()
+	[
+		SNew(SBorder)
+		.BorderImage((EvenIndex ? &Theme.EvenBrush : &Theme.OddBrush))
+		[
+			SNew(SHorizontalBox)
+
+			// Date
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.WidthOverride(SmallWidth)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(UFlareGameTools::GetDisplayDate(Time))
+				]
+			]
+
+			// Debit
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.WidthOverride(SmallWidth)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.ColorAndOpacity(Theme.FriendlyColor)
+					.Text(Debit)
+				]
+			]
+
+			// Credit
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.WidthOverride(SmallWidth)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.ColorAndOpacity(Theme.EnemyColor)
+					.Text(Credit)
+				]
+			]
+
+			// Source
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.WidthOverride(SmallWidth)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(Source->GetNickName())
+					.WrapTextAt(SmallWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
+				]
+			]
+
+			// Location
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.WidthOverride(SmallWidth)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(Sector->GetSectorName())
+					.WrapTextAt(SmallWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
+				]
+			]
+
+			// Partner
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.WidthOverride(SmallWidth)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(Other->GetCompanyName())
+					.WrapTextAt(SmallWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
+				]
+			]
+
+			// Comment
+			+ SHorizontalBox::Slot()
+			.HAlign(HAlign_Left)
+			.AutoWidth()
+			[
+				SNew(SBox)
+				.WidthOverride(LargeWidth)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(Comment)
+					.WrapTextAt(LargeWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
+				]
+			]
+		]
+	];
+}
+
+
+/*----------------------------------------------------
+	Callbacks
+----------------------------------------------------*/
 
 void SFlareCompanyMenu::OnRename()
 {
