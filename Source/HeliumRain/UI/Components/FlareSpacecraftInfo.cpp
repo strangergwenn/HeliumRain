@@ -355,6 +355,12 @@ void SFlareSpacecraftInfo::SetSpacecraft(UFlareSimulatedSpacecraft* Target)
 			for (int32 CargoIndex = 0; CargoIndex < TargetSpacecraft->GetActiveCargoBay()->GetSlotCount() ; CargoIndex++)
 			{
 				FFlareCargo* Cargo = TargetSpacecraft->GetActiveCargoBay()->GetSlot(CargoIndex);
+
+				if(Cargo->Lock == EFlareResourceLock::Hidden && Cargo->Quantity == 0)
+				{
+					continue;
+				}
+
 				FSortableCargoInfo CargoInfo;
 				CargoInfo.Cargo = Cargo;
 				CargoInfo.CargoInitialIndex = CargoIndex;

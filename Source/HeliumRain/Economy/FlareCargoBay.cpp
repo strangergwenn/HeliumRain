@@ -499,7 +499,7 @@ bool UFlareCargoBay::LockSlot(FFlareResourceDescription* Resource, EFlareResourc
 		}
 	}
 
-	//Check emplty slots
+	//Check empty slots
 	for(FFlareCargo& Cargo : CargoBay)
 	{
 		if (Cargo.Resource == NULL)
@@ -513,6 +513,18 @@ bool UFlareCargoBay::LockSlot(FFlareResourceDescription* Resource, EFlareResourc
 	}
 
 	return false;
+}
+
+void UFlareCargoBay::HideUnlockedSlots()
+{
+	for(FFlareCargo& Cargo : CargoBay)
+	{
+		if(Cargo.Lock == EFlareResourceLock::NoLock)
+		{
+			Cargo.Lock = EFlareResourceLock::Hidden;
+			Cargo.ManualLock = false;
+		}
+	}
 }
 
 void UFlareCargoBay::UnlockAll(bool IgnoreManualLock)

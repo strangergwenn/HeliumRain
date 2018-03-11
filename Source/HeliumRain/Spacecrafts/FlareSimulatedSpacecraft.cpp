@@ -606,11 +606,6 @@ void UFlareSimulatedSpacecraft::LockResources()
 				FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
 
 				AddLockInMap(Resource, EFlareResourceLock::Trade);
-
-				/*if (!GetActiveCargoBay()->LockSlot(Resource, EFlareResourceLock::Trade, false))
-				{
-					FLOGV("Fail to lock a slot of %s in %s", *Resource->Name.ToString(), *GetImmatriculation().ToString());
-				}*/
 			}
 		}
 	}
@@ -622,6 +617,8 @@ void UFlareSimulatedSpacecraft::LockResources()
 			FLOGV("Fail to lock a slot of %s in %s", *Entry.Key->Name.ToString(), *GetImmatriculation().ToString());
 		}
 	}
+
+	GetActiveCargoBay()->HideUnlockedSlots();
 }
 
 void UFlareSimulatedSpacecraft::ComputeConstructionCargoBaySize(int32& CargoBaySlotCapacity, int32& CargoBayCount)

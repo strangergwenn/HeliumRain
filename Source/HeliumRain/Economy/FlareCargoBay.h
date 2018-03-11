@@ -51,6 +51,8 @@ public:
 
 	void UnlockAll(bool IgnoreManualLock = true);
 
+	void HideUnlockedSlots();
+
 	bool LockSlot(FFlareResourceDescription* Resource, EFlareResourceLock::Type LockType, bool ManualLock);
 
 	void SetSlotRestriction(int32 SlotIndex, EFlareResourceRestriction::Type RestrictionType);
