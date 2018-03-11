@@ -61,8 +61,8 @@ public:
 	void ShowCompanyLog(UFlareCompany* Target);
 
 	/** Generate a log line */
-	void AddTransactionLog(int64 Time, UFlareSimulatedSpacecraft* Source, UFlareSimulatedSector* Sector,
-		UFlareCompany* Owner, UFlareCompany* Other, int64 Value, FText Comment, bool EvenIndex);
+	void AddTransactionLog(int64 Time, int64 Value, UFlareCompany* Owner, UFlareCompany* Other,
+		UFlareSimulatedSector* Sector, FText Source, FText Comment, bool EvenIndex);
 
 
 	/*----------------------------------------------------

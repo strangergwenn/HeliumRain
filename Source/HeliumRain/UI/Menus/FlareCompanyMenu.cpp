@@ -472,32 +472,32 @@ void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 
 	/*//DEBUG
 	AddTransactionLog(1455,
-		MenuManager->GetPC()->GetPlayerShip(),
-		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
-		Target,
-		Target,
 		640000,
+		Target,
+		Target,
+		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
+		MenuManager->GetPC()->GetPlayerShip()->GetNickName(),
 		FText::FromString(TEXT("Sold 125 steel")), true);
 
 	AddTransactionLog(1453,
-		MenuManager->GetPC()->GetPlayerShip(),
-		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
-		Target,
-		Target,
 		-3400000,
+		Target,
+		Target,
+		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
+		MenuManager->GetPC()->GetPlayerShip()->GetNickName(),
 		FText::FromString(TEXT("Bought 63 iron")), false);
 
 	AddTransactionLog(1452,
-		MenuManager->GetPC()->GetPlayerShip(),
-		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
-		Target,
-		Target,
 		-13000,
+		Target,
+		Target,
+		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
+		MenuManager->GetPC()->GetPlayerShip()->GetNickName(),
 		FText::FromString(TEXT("Bought 12 water")), true);*/
 }
 
-void SFlareCompanyMenu::AddTransactionLog(int64 Time, UFlareSimulatedSpacecraft* Source, UFlareSimulatedSector* Sector,
-	UFlareCompany* Owner, UFlareCompany* Other, int64 Value, FText Comment, bool EvenIndex)
+void SFlareCompanyMenu::AddTransactionLog(int64 Time, int64 Value, UFlareCompany* Owner, UFlareCompany* Other,
+	UFlareSimulatedSector* Sector, FText Source, FText Comment, bool EvenIndex)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
@@ -579,7 +579,7 @@ void SFlareCompanyMenu::AddTransactionLog(int64 Time, UFlareSimulatedSpacecraft*
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(Source->GetNickName())
+					.Text(Source)
 					.WrapTextAt(SmallWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
 				]
 			]
