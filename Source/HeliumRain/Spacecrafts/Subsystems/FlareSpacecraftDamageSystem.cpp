@@ -618,6 +618,12 @@ void UFlareSpacecraftDamageSystem::OnCollision(class AActor* Other, FVector HitL
 		return;
 	}
 
+	// Don't damage stations from ship impacts
+	if (Spacecraft->IsStation() && OtherSpacecraft)
+	{
+		return;
+	}
+
 	// Relative velocity
 	FVector DeltaVelocity = ((OtherRoot->GetPhysicsLinearVelocity() - Spacecraft->Airframe->GetPhysicsLinearVelocity()) / 100);
 
