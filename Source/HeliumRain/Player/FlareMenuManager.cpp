@@ -423,8 +423,38 @@ void AFlareMenuManager::Reload()
 {
 	if (MenuIsOpen)
 	{
-		FLOGV("AFlareMenuManager::Reload : reloading to '%s'", *GetMenuName(CurrentMenu.Key).ToString());
-		OpenMenu(CurrentMenu.Key, CurrentMenu.Value, false, true);
+		bool ValidReload = true;
+
+		// #1156 Don't reload to dead ship
+		if (CurrentMenu.Key == EFlareMenu::MENU_Ship
+		 || CurrentMenu.Key == EFlareMenu::MENU_ShipConfig
+		 || CurrentMenu.Key == EFlareMenu::MENU_Station)
+		{
+			ValidReload = false;
+			for (auto Company : GetGame()->GetGameWorld()->GetCompanies())
+			{
+				for (auto Spacecraft : Company->GetCompanySpacecrafts())
+				{
+					if (Spacecraft == CurrentMenu.Value.Spacecraft)
+					{
+						ValidReload = true;
+						break;
+					}
+				}
+			}
+		}
+
+		// Reload if we can
+		if (ValidReload)
+		{
+			FLOGV("AFlareMenuManager::Reload : reloading to '%s'", *GetMenuName(CurrentMenu.Key).ToString());
+			OpenMenu(CurrentMenu.Key, CurrentMenu.Value, false, true);
+		}
+		else
+		{
+			FLOGV("AFlareMenuManager::Reload : preventing reload to a dead ship");
+			CloseMenu();
+		}
 	}
 }
 
