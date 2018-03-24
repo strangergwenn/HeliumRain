@@ -452,7 +452,7 @@ void AFlareMenuManager::Reload()
 		}
 		else
 		{
-			FLOGV("AFlareMenuManager::Reload : preventing reload to a dead ship");
+			FLOG("AFlareMenuManager::Reload : preventing reload to a dead ship");
 			CloseMenu();
 		}
 	}
