@@ -618,7 +618,10 @@ void UFlareSimulatedSpacecraft::LockResources()
 		}
 	}
 
-	GetActiveCargoBay()->HideUnlockedSlots();
+	if(IsStation())
+	{
+		GetActiveCargoBay()->HideUnlockedSlots();
+	}
 }
 
 void UFlareSimulatedSpacecraft::ComputeConstructionCargoBaySize(int32& CargoBaySlotCapacity, int32& CargoBayCount)
