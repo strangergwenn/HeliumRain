@@ -228,19 +228,19 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 	FText LockText;
 	if (Cargo->Lock == EFlareResourceLock::Output)
 	{
-		LockText = FText::Format(LOCTEXT("OutputCargoFormat", "(Output)\n"), Cargo->Resource->Acronym);
+		LockText = LOCTEXT("OutputCargoFormat", "(Output)\n");
 	}
 	else if (Cargo->Lock == EFlareResourceLock::Input)
 	{
-		LockText = FText::Format(LOCTEXT("InputCargoFormat", "(Input)\n"), Cargo->Resource->Acronym);
+		LockText = LOCTEXT("InputCargoFormat", "(Input)\n");
 	}
 	else if (Cargo->Lock == EFlareResourceLock::Trade)
 	{
-		LockText = FText::Format(LOCTEXT("TradeCargoFormat", "(Trade)\n"), Cargo->Resource->Acronym);
+		LockText = LOCTEXT("TradeCargoFormat", "(Trade)\n");
 	}
 	else if (Cargo->Lock == EFlareResourceLock::Hidden)
 	{
-		LockText = FText::Format(LOCTEXT("HiddenCargoFormat", "(Hidden)\n"), Cargo->Resource->Acronym);
+		LockText = LOCTEXT("HiddenCargoFormat", "(Hidden)\n");
 	}
 	
 	// Format the current capacity info
