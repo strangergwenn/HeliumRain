@@ -230,20 +230,20 @@ void UFlareScenarioTools::SetupWorld()
 	SetupKnownSectors(Quantalium);
 	
 	// Company setup main
-	MiningSyndicate->GiveMoney(100000000);
-	HelixFoundries->GiveMoney(100000000);
-	Sunwatch->GiveMoney(100000000);
-	UnitedFarmsChemicals->GiveMoney(100000000);
-	IonLane->GiveMoney(100000000);
-	GhostWorksShipyards->GiveMoney(100000000);
-	NemaHeavyWorks->GiveMoney(100000000);
+	MiningSyndicate->GiveMoney(100000000, FFlareTransactionLogEntry::LogInitialMoney());
+	HelixFoundries->GiveMoney(100000000, FFlareTransactionLogEntry::LogInitialMoney());
+	Sunwatch->GiveMoney(100000000, FFlareTransactionLogEntry::LogInitialMoney());
+	UnitedFarmsChemicals->GiveMoney(100000000, FFlareTransactionLogEntry::LogInitialMoney());
+	IonLane->GiveMoney(100000000, FFlareTransactionLogEntry::LogInitialMoney());
+	GhostWorksShipyards->GiveMoney(100000000, FFlareTransactionLogEntry::LogInitialMoney());
+	NemaHeavyWorks->GiveMoney(100000000, FFlareTransactionLogEntry::LogInitialMoney());
 
 	// Company setup secondary
-	PlayerCompany->GiveMoney(500000);
-	Pirates->GiveMoney(1000000);
-	BrokenMoon->GiveMoney(1000000);
-	InfiniteOrbit->GiveMoney(1000000);
-	Quantalium->GiveMoney(1000000);
+	PlayerCompany->GiveMoney(500000, FFlareTransactionLogEntry::LogInitialMoney());
+	Pirates->GiveMoney(1000000, FFlareTransactionLogEntry::LogInitialMoney());
+	BrokenMoon->GiveMoney(1000000, FFlareTransactionLogEntry::LogInitialMoney());
+	InfiniteOrbit->GiveMoney(1000000, FFlareTransactionLogEntry::LogInitialMoney());
+	Quantalium->GiveMoney(1000000, FFlareTransactionLogEntry::LogInitialMoney());
 
 	// Give technology
 	IonLane->UnlockTechnology("stations", false, true);

@@ -403,4 +403,11 @@ void FFlareResourceUsage::AddUsage(EFlareResourcePriceContext::Type Usage)
 	Usages.AddUnique(Usage);
 }
 
+
+FFlareTransactionLogEntry::FFlareTransactionLogEntry(EFlareTransactionLogEntry::Type iType)
+	: Type(iType)
+{
+}
+
+
 #undef LOCTEXT_NAMESPACE

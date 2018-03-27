@@ -413,7 +413,7 @@ uint32 UFlarePeople::BuyInStationForCompany(FFlareResourceDescription* Resource,
 		RemainingQuantity -= TakenQuantity;
 		uint32 Price = (uint32) (ResourcePrice) * TakenQuantity;
 		PeopleData.Money -= Price;
-		Company->GiveMoney(Price);
+		Company->GiveMoney(Price, FFlareTransactionLogEntry::LogPeoplePurchase(BestStation, Resource, TakenQuantity));
 
 	}
 

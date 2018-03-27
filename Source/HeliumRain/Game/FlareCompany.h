@@ -118,10 +118,10 @@ public:
 
 
 	/** Take a money amount from the company */
-	virtual bool TakeMoney(int64 Amount, bool AllowDepts = false);
+	virtual bool TakeMoney(int64 Amount, bool AllowDepts, FFlareTransactionLogEntry TransactionContext);
 
 	/** Give a money amount to the company. In cents */
-	virtual void GiveMoney(int64 Amount);
+	virtual void GiveMoney(int64 Amount, FFlareTransactionLogEntry TransactionContext);
 
 	/** Give a research amount to the company */
 	virtual void GiveResearch(int64 Amount);

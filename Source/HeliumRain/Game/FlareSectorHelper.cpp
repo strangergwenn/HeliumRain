@@ -253,7 +253,7 @@ int64 SectorHelper::GetBuyResourcePrice(UFlareSimulatedSector* Sector, FFlareRes
 }
 
 
-int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 MaxQuantity, int64* TransactionPrice)
+int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 MaxQuantity, int64* TransactionPrice, bool IsTradeRoute)
 {
 	FText Unused;
 
@@ -292,8 +292,8 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSim
 	if (GivenResources > 0 && SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
 	{
 		int64 Price = ResourcePrice * GivenResources;
-		DestinationSpacecraft->GetCompany()->TakeMoney(Price, AllowDepts);
-		SourceSpacecraft->GetCompany()->GiveMoney(Price);
+		DestinationSpacecraft->GetCompany()->TakeMoney(Price, AllowDepts, FFlareTransactionLogEntry::LogBuyResource(SourceSpacecraft, DestinationSpacecraft, Resource, GivenResources, IsTradeRoute));
+		SourceSpacecraft->GetCompany()->GiveMoney(Price, FFlareTransactionLogEntry::LogSellResource(SourceSpacecraft, DestinationSpacecraft, Resource, GivenResources, IsTradeRoute));
 
 		if(TransactionPrice )
 		{
@@ -653,7 +653,7 @@ void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 	}
 
 	int32 ConsumedFS = FMath::CeilToInt((float) AffordableFS - RemainingFS);
-	ConsumeFleetSupply(Sector, Company, ConsumedFS);
+	ConsumeFleetSupply(Sector, Company, ConsumedFS, true);
 
 	if(ConsumedFS > 0 && Company == Sector->GetGame()->GetPC()->GetCompany())
 	{
@@ -732,7 +732,7 @@ void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 
 	int32 ConsumedFS = FMath::CeilToInt((float) AffordableFS - RemainingFS);
 
-	ConsumeFleetSupply(Sector, Company, ConsumedFS);
+	ConsumeFleetSupply(Sector, Company, ConsumedFS, false);
 
 	if(ConsumedFS > 0 && Company == Sector->GetGame()->GetPC()->GetCompany())
 	{
@@ -740,7 +740,7 @@ void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 	}
 }
 
-void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 ConsumedFS)
+void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 ConsumedFS, bool ForRepair)
 {
 	// First check for owned FS
 	Sector->OnFleetSupplyConsumed(ConsumedFS);
@@ -787,8 +787,8 @@ void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompa
 			int32 ResourcePrice = Sector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::MaintenanceConsumption);
 
 			int64 Cost = TakenQuantity * ResourcePrice;
-			Company->TakeMoney(Cost, true);
-			Spacecraft->GetCompany()->GiveMoney(Cost);
+			Company->TakeMoney(Cost, true, FFlareTransactionLogEntry::LogPayMaintenance(Spacecraft, TakenQuantity, ForRepair));
+			Spacecraft->GetCompany()->GiveMoney(Cost, FFlareTransactionLogEntry::LogPaidForMaintenance(Spacecraft, Company, TakenQuantity, ForRepair));
 
 			ConsumedFS -= TakenQuantity;
 

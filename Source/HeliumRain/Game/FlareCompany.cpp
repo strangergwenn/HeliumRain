@@ -690,7 +690,7 @@ void UFlareCompany::VisitSector(UFlareSimulatedSector* Sector)
 	}
 }
 
-bool UFlareCompany::TakeMoney(int64 Amount, bool AllowDepts)
+bool UFlareCompany::TakeMoney(int64 Amount, bool AllowDepts, FFlareTransactionLogEntry TransactionContext)
 {
 	if (Amount < 0 || (Amount > CompanyData.Money && !AllowDepts))
 	{
@@ -707,13 +707,20 @@ bool UFlareCompany::TakeMoney(int64 Amount, bool AllowDepts)
 			FLOGV("$ %s - %lld -> %llu", *GetCompanyName().ToString(), Amount, CompanyData.Money);
 		}*/
 
+		if (this == Game->GetPC()->GetCompany())
+		{
+			TransactionContext.Amount = -Amount;
+			TransactionContext.Date = GetGame()->GetGameWorld()->GetDate();
+			CompanyData.TransactionLog.Push(Transaction);
+		}
+
 		InvalidateCompanyValueCache();
 
 		return true;
 	}
 }
 
-void UFlareCompany::GiveMoney(int64 Amount)
+void UFlareCompany::GiveMoney(int64 Amount, FFlareTransactionLogEntry TransactionContext)
 {
 	if (Amount < 0)
 	{
@@ -727,6 +734,13 @@ void UFlareCompany::GiveMoney(int64 Amount)
 	if (this == Game->GetPC()->GetCompany() && GetGame()->GetQuestManager())
 	{
 		GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("gain-money").PutInt32("amount", Amount));
+	}
+
+	if (this == Game->GetPC()->GetCompany())
+	{
+		TransactionContext.Amount = Amount;
+		TransactionContext.Date = GetGame()->GetGameWorld()->GetDate();
+		CompanyData.TransactionLog.Push(Transaction);
 	}
 
 	InvalidateCompanyValueCache();

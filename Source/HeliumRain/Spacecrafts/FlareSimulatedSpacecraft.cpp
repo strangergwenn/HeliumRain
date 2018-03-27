@@ -1107,11 +1107,11 @@ bool UFlareSimulatedSpacecraft::UpgradePart(FFlareSpacecraftComponentDescription
 	// Update the world ship, take money from player, etc
 	if (TransactionCost > 0)
 	{
-		GetCompany()->TakeMoney(TransactionCost);
+		GetCompany()->TakeMoney(TransactionCost, false, FFlareTransactionLogEntry::LogUpgradeShipPart(this));
 	}
 	else
 	{
-		GetCompany()->GiveMoney(FMath::Abs(TransactionCost));
+		GetCompany()->GiveMoney(FMath::Abs(TransactionCost), FFlareTransactionLogEntry::LogUpgradeShipPart(this));
 	}
 
 	UFlareSimulatedSector* Sector = GetCurrentSector();
@@ -1410,7 +1410,7 @@ bool UFlareSimulatedSpacecraft::ShipyardOrderShip(UFlareCompany* OrderCompany, F
 	if(GetCompany() != OrderCompany)
 	{
 		ShipPrice = UFlareGameTools::ComputeSpacecraftPrice(ShipIdentifier, GetCurrentSector(), true);
-		if(!OrderCompany->TakeMoney(ShipPrice))
+		if(!OrderCompany->TakeMoney(ShipPrice, false, FFlareTransactionLogEntry::LogOrderShip(this, ShipIdentifier)))
 		{
 			// Not enough money
 			return false;
@@ -1460,7 +1460,7 @@ void UFlareSimulatedSpacecraft::CancelShipyardOrder(int32 OrderIndex)
 	FFlareShipyardOrderSave Order = SpacecraftData.ShipyardOrderQueue[OrderIndex];
 
 	UFlareCompany* OtherCompany = GetGame()->GetGameWorld()->FindCompany(Order.Company);
-	OtherCompany->GiveMoney(Order.AdvancePayment);
+	OtherCompany->GiveMoney(Order.AdvancePayment, FFlareTransactionLogEntry::LogCancelOrderShip(this, Order.ShipClass));
 
 
 	if(Order.Company == Game->GetPC()->GetCompany()->GetIdentifier())

@@ -163,7 +163,7 @@ void UFlareFactory::StartShipBuilding(FFlareShipyardOrderSave& Order)
 		FactoryData.TargetShipCompany = Order.Company;
 		FactoryData.ProductedDuration = 0;
 
-		Parent->GetCompany()->GiveMoney(Order.AdvancePayment);
+		Parent->GetCompany()->GiveMoney(Order.AdvancePayment, FFlareTransactionLogEntry::LogShipOrderAdvance(GetParent(), Order.Company, Order.ShipClass));
 	}
 	Start();
 	TryBeginProduction();
@@ -357,7 +357,7 @@ void UFlareFactory::BeginProduction()
 	bool AllowDepts = !IsShipyard()
 			|| (GetTargetShipCompany() != NAME_None && GetTargetShipCompany() != Parent->GetCompany()->GetIdentifier());
 
-	if(!Parent->GetCompany()->TakeMoney(GetProductionCost(), AllowDepts))
+	if(!Parent->GetCompany()->TakeMoney(GetProductionCost(), AllowDepts, FFlareTransactionLogEntry::LogFactoryWages(this)))
 	{
 		return;
 	}
@@ -415,7 +415,7 @@ void UFlareFactory::BeginProduction()
 
 void UFlareFactory::CancelProduction()
 {
-	Parent->GetCompany()->GiveMoney(FactoryData.CostReserved);
+	Parent->GetCompany()->GiveMoney(FactoryData.CostReserved, FFlareTransactionLogEntry::LogCancelFactoryWages(this));
 	FactoryData.CostReserved = 0;
 
 	// Restore reserved resources

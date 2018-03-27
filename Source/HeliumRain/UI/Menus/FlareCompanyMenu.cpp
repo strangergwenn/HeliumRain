@@ -493,7 +493,7 @@ void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 		Target,
 		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
 		MenuManager->GetPC()->GetPlayerShip()->GetNickName(),
-		FText::FromString(TEXT("Bought 12 water")), true);*/
+		FText::FromString(TEXT("Bought 12 water")), true);
 }
 
 void SFlareCompanyMenu::AddTransactionLog(int64 Time, int64 Value, UFlareCompany* Owner, UFlareCompany* Other,
