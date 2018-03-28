@@ -192,9 +192,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 			]
 		]
 
-		// TODO #1147
 		// Company log
-		/*
 		+ SFlareTabView::Slot()
 		.Header(LOCTEXT("CompanyLogTab", "Transaction log"))
 		.HeaderHelp(LOCTEXT("CompanyLogTabHelp", "Log of recent commercial operations"))
@@ -336,7 +334,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					SAssignNew(CompanyLog, SVerticalBox)
 				]
 			]
-		]*/
+		]
 	];
 }
 
@@ -434,9 +432,7 @@ void SFlareCompanyMenu::Exit()
 
 	EmblemPicker->ClearItems();
 	TradeRouteInfo->Clear();
-
-	// TODO #1147
-	//CompanyLog->ClearChildren();
+	CompanyLog->ClearChildren();
 
 	Company = NULL;
 	SetVisibility(EVisibility::Collapsed);
@@ -472,10 +468,9 @@ void SFlareCompanyMenu::ShowProperty(UFlareCompany* Target)
 
 void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 {
-	// TODO #1147
-	/*CompanyLog->ClearChildren();
+	CompanyLog->ClearChildren();
 
-	//DEBUG
+	/*//DEBUG
 	AddTransactionLog(1455,
 		640000,
 		Target,
