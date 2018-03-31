@@ -270,6 +270,7 @@ struct FFlareTransactionLogEntry
 	FName OtherSpacecraft;
 	FName Resource;
 	int32 ResourceQuantity;
+	FName ExtraIdentifier;
 
 	UFlareCompany* GetOtherCompany(AFlareGame* Game) const;
 	UFlareSimulatedSector* GetSector(AFlareGame* Game) const;

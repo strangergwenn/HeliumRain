@@ -4,6 +4,8 @@
 #include "../Flare.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Game/FlareGame.h"
+#include "../Economy/FlareFactory.h"
+#include "../Data/FlareFactoryCatalogEntry.h"
 
 #define LOCTEXT_NAMESPACE "FlareNavigationHUD"
 
@@ -438,6 +440,9 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogFactoryWages(UFlareFacto
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::FactoryWages;
+	Entry.Spacecraft = Factory->GetParent()->IsComplexElement() ? Factory->GetParent()->GetComplexMaster()->GetImmatriculation() : Factory->GetParent()->GetImmatriculation();
+	Entry.Sector = Factory->GetParent()->GetCurrentSector()->GetIdentifier();
+	Entry.ExtraIdentifier = Factory->GetDescription()->Identifier;
 	return Entry;
 }
 
@@ -445,6 +450,10 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogCancelFactoryWages(UFlar
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::CancelFactoryWages;
+	Entry.Spacecraft = Factory->GetParent()->IsComplexElement() ? Factory->GetParent()->GetComplexMaster()->GetImmatriculation() : Factory->GetParent()->GetImmatriculation();
+	Entry.Sector = Factory->GetParent()->GetCurrentSector()->GetIdentifier();
+	Entry.ExtraIdentifier = Factory->GetDescription()->Identifier;
+
 	return Entry;
 }
 
@@ -626,6 +635,102 @@ UFlareSimulatedSpacecraft* FFlareTransactionLogEntry::GetSpacecraft(AFlareGame* 
 
 FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 {
+	FText Comment;
+
+
+	FLOGV("--- Type %d", int(Type));
+	FLOGV("  Spacecraft %s", *Spacecraft.ToString());
+	FLOGV("  Sector %s", *Sector.ToString());
+	FLOGV("  ExtraIdentifier %s", *ExtraIdentifier.ToString());
+
+
+	UFlareSimulatedSpacecraft* SpacecraftCache = nullptr;
+
+	if(Spacecraft != NAME_None)
+	{
+		SpacecraftCache = Game->GetGameWorld()->FindSpacecraft(Spacecraft);
+	}
+
+	auto FindFactoryDescription = [](UFlareSimulatedSpacecraft* SpacecraftWithFactory, FName Identifier) -> FFlareFactoryDescription const*
+	{
+		for(UFlareFactory* Factory : SpacecraftWithFactory->GetFactories())
+		{
+			FFlareFactoryDescription const* FactoryDescription = Factory->GetDescription();
+			if(FactoryDescription->Identifier == Identifier)
+			{
+				return FactoryDescription;
+			}
+		}
+		return nullptr;
+	};
+
+	auto GetFactoryName = [this, &SpacecraftCache, &FindFactoryDescription]()
+	{
+		FFlareSpacecraftDescription* SpacecraftDescription = SpacecraftCache->GetDescription();
+
+
+		FFlareFactoryDescription const* FactoryDescription = FindFactoryDescription(SpacecraftCache, ExtraIdentifier);
+
+		if(FactoryDescription)
+		{
+			return FactoryDescription->Name;
+		}
+
+		return FText();
+	};
+
+
+	switch(Type)
+	{
+		case EFlareTransactionLogEntry::FactoryWages:
+		{
+			FLOG("EFlareTransactionLogEntry::FactoryWages");
+
+
+			if(SpacecraftCache)
+			{
+				FLOG("SpacecraftCache");
+				Comment = FText::Format(LOCTEXT("FactoryWages", "Factory wages for {0}"), GetFactoryName());
+				FLOGV("Comment %s", *Comment.ToString());
+			}
+			break;
+		}
+
+
+	/*case ManualResourcePurchase:
+	ManualResourceSell,
+	TradeRouteResourcePurchase,
+	TradeRouteResourceSell,
+	FactoryWages,
+	CancelFactoryWages,
+	StationConstructionFees,
+	StationUpgradeFees,
+	UpgradeShipPart,
+	OrderShip,
+	CancelOrderShip,
+	OrderShipAdvance,
+	PeoplePurchase,
+	InitialMoney,
+	PayRepair,
+	PayRefill,
+	PaidForRepair,
+	PaidForRefill,
+	SendTribute,
+	ReceiveTribute,
+	RecoveryFees,
+	ScrapCost,
+	Cheat,
+	QuestReward,
+
+	//AI only
+	MutualAssistance,
+	ScrapGain*/
+
+	default:
+
+		Comment = FText::Format(LOCTEXT("Dummy", "Dummy comment {0}"), int(Type));
+	}
+
 	/*FName Spacecraft;
 	FName Sector;
 	FName OtherCompany;
@@ -633,7 +738,7 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 	FName Resource;
 	int32 ResourceQuantity;
 */
-	return LOCTEXT("dummy", "dummy");
+	return Comment;
 }
 
 

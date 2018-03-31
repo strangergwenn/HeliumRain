@@ -270,7 +270,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					.AutoWidth()
 					[
 						SNew(SBox)
-						.WidthOverride(SmallWidth)
+						.WidthOverride(LargeWidth)
 						.HAlign(HAlign_Left)
 						.Padding(Theme.ContentPadding)
 						[
@@ -564,13 +564,13 @@ void SFlareCompanyMenu::AddTransactionLog(int64 Time, int64 Value, UFlareCompany
 			.HAlign(HAlign_Left)
 			[
 				SNew(SBox)
-				.WidthOverride(SmallWidth)
+				.WidthOverride(LargeWidth)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
 					.Text(Source ? Source->GetNickName() : FText())
-					.WrapTextAt(SmallWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
+					.WrapTextAt(LargeWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
 				]
 			]
 
