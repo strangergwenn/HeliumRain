@@ -62,7 +62,7 @@ public:
 
 	/** Generate a log line */
 	void AddTransactionLog(int64 Time, int64 Value, UFlareCompany* Owner, UFlareCompany* Other,
-		UFlareSimulatedSector* Sector, FText Source, FText Comment, bool EvenIndex);
+		UFlareSimulatedSector* Sector, UFlareSimulatedSpacecraft* Source, FText Comment, bool EvenIndex);
 
 
 	/*----------------------------------------------------

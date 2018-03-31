@@ -273,7 +273,7 @@ void AFlareGame::Recovery()
 	UFlareCompany* PlayerCompany = GetPC()->GetCompany();
 	int64 RecoveryFees = PlayerCompany->GetMoney() * 0.05;
 	FLOGV("AFlareGame::Recovery : fees ship=%lld", RecoveryFees);
-	GetPC()->GetCompany()->TakeMoney(RecoveryFees);
+	GetPC()->GetCompany()->TakeMoney(RecoveryFees, false, FFlareTransactionLogEntry::LogRecoveryFees());
 	ScenarioTools->BlueHeart->GetPeople()->Pay(RecoveryFees);
 
 	// Force peace
@@ -345,8 +345,8 @@ void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatricula
 
 	if (ScrapingStation->GetCompany() != ShipToScrap->GetCompany())
 	{
-		ScrapingStation->GetCompany()->TakeMoney(ScrapRevenue);
-		ShipToScrap->GetCompany()->GiveMoney(ScrapRevenue);
+		ScrapingStation->GetCompany()->TakeMoney(ScrapRevenue, false, FFlareTransactionLogEntry::LogScrapCost(ShipToScrap->GetCompany()));
+		ShipToScrap->GetCompany()->GiveMoney(ScrapRevenue, FFlareTransactionLogEntry::LogScrapGain(ShipToScrap, ScrapingStation->GetCompany()));
 		GetPC()->Notify(LOCTEXT("ShipSellScrap", "Ship scrap complete"),
 			FText::Format(LOCTEXT("ShipSellScrapFormat", "Your ship {0} has been scrapped for {1} credits!"), UFlareGameTools::DisplaySpacecraftName(ShipToScrap), FText::AsNumber(UFlareGameTools::DisplayMoney(ScrapRevenue))),
 			FName("ship-own-scraped"),

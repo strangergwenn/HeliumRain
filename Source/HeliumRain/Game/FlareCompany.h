@@ -460,4 +460,9 @@ public:
 
 	UFlareSimulatedSpacecraft* FindChildStation(FName StationImmatriculation);
 
+	TArray<FFlareTransactionLogEntry> const& GetTransactionLog() const
+	{
+		return CompanyData.TransactionLog;
+	}
+
 };

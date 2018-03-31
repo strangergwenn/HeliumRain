@@ -470,34 +470,24 @@ void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 {
 	CompanyLog->ClearChildren();
 
-	/*//DEBUG
-	AddTransactionLog(1455,
-		640000,
-		Target,
-		Target,
-		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
-		MenuManager->GetPC()->GetPlayerShip()->GetNickName(),
-		FText::FromString(TEXT("Sold 125 steel")), true);
+	bool even = true;
 
-	AddTransactionLog(1453,
-		-3400000,
-		Target,
-		Target,
-		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
-		MenuManager->GetPC()->GetPlayerShip()->GetNickName(),
-		FText::FromString(TEXT("Bought 63 iron")), false);
-
-	AddTransactionLog(1452,
-		-13000,
-		Target,
-		Target,
-		MenuManager->GetPC()->GetPlayerShip()->GetCurrentSector(),
-		MenuManager->GetPC()->GetPlayerShip()->GetNickName(),
-		FText::FromString(TEXT("Bought 12 water")), true);
+	for(FFlareTransactionLogEntry const& Transaction : Target->GetTransactionLog())
+	{
+		AddTransactionLog(Transaction.Date,
+						  Transaction.Amount,
+						  Target,
+						  Transaction.GetOtherCompany(Target->GetGame()),
+						  Transaction.GetSector(Target->GetGame()),
+						  Transaction.GetSpacecraft(Target->GetGame()),
+						  Transaction.GetComment(Target->GetGame()),
+						  even);
+		even = !even;
+	}
 }
 
 void SFlareCompanyMenu::AddTransactionLog(int64 Time, int64 Value, UFlareCompany* Owner, UFlareCompany* Other,
-	UFlareSimulatedSector* Sector, FText Source, FText Comment, bool EvenIndex)
+	UFlareSimulatedSector* Sector, UFlareSimulatedSpacecraft* Source, FText Comment, bool EvenIndex)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
@@ -579,7 +569,7 @@ void SFlareCompanyMenu::AddTransactionLog(int64 Time, int64 Value, UFlareCompany
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(Source)
+					.Text(Source ? Source->GetNickName() : FText())
 					.WrapTextAt(SmallWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
 				]
 			]
@@ -595,7 +585,7 @@ void SFlareCompanyMenu::AddTransactionLog(int64 Time, int64 Value, UFlareCompany
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(Sector->GetSectorName())
+					.Text(Sector ? Sector->GetSectorName() : FText())
 					.WrapTextAt(SmallWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
 				]
 			]
@@ -611,7 +601,7 @@ void SFlareCompanyMenu::AddTransactionLog(int64 Time, int64 Value, UFlareCompany
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(Other->GetCompanyName())
+					.Text(Other ? Other->GetCompanyName() : FText())
 					.WrapTextAt(SmallWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
 				]
 			]

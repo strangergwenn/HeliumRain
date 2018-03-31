@@ -663,7 +663,7 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::BuildStation(FFlareSpacecraftD
 	int64 ProductionCost = GetStationConstructionFee(StationDescription->CycleCost.ProductionCost, Company);
 
 	// Pay station cost
-	if (!Company->TakeMoney(ProductionCost))
+	if (!Company->TakeMoney(ProductionCost, false, FFlareTransactionLogEntry::LogBuildStationFees(StationDescription, this)))
 	{
 		return NULL;
 	}
@@ -716,7 +716,7 @@ bool UFlareSimulatedSector::UpgradeStation(UFlareSimulatedSpacecraft* Station)
 	int64 ProductionCost = Station->GetStationUpgradeFee();
 
 	// Pay station cost
-	if(!Company->TakeMoney(ProductionCost))
+	if(!Company->TakeMoney(ProductionCost, false, FFlareTransactionLogEntry::LogUpgradeStationFees(Station)))
 	{
 		return false;
 	}

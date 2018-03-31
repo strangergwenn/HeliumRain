@@ -1459,7 +1459,7 @@ void UFlareGameTools::TakeMoney(FName CompanyShortName, int64 Amount)
 		return;
 	}
 
-	Company->TakeMoney(Amount);
+	Company->TakeMoney(Amount, true, FFlareTransactionLogEntry::LogCheat());
 }
 
 void UFlareGameTools::GiveMoney(FName CompanyShortName, int64 Amount)
@@ -1477,7 +1477,7 @@ void UFlareGameTools::GiveMoney(FName CompanyShortName, int64 Amount)
 		return;
 	}
 
-	Company->GiveMoney(Amount);
+	Company->GiveMoney(Amount, FFlareTransactionLogEntry::LogCheat());
 }
 
 void UFlareGameTools::GiveResearch(FName CompanyShortName, int64 Amount)

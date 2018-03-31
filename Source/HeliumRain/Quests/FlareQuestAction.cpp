@@ -157,8 +157,8 @@ void UFlareQuestActionGiveMoney::Load(UFlareQuest* ParentQuest, UFlareCompany* F
 
 void UFlareQuestActionGiveMoney::Perform()
 {
-	FromCompany->TakeMoney(Amount, true);
-	ToCompany->GiveMoney(Amount);
+	FromCompany->TakeMoney(Amount, true, FFlareTransactionLogEntry::LogQuestReward(ToCompany));
+	ToCompany->GiveMoney(Amount, FFlareTransactionLogEntry::LogQuestReward(FromCompany));
 }
 
 /*----------------------------------------------------

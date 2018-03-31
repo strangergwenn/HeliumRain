@@ -711,7 +711,7 @@ bool UFlareCompany::TakeMoney(int64 Amount, bool AllowDepts, FFlareTransactionLo
 		{
 			TransactionContext.Amount = -Amount;
 			TransactionContext.Date = GetGame()->GetGameWorld()->GetDate();
-			CompanyData.TransactionLog.Push(Transaction);
+			CompanyData.TransactionLog.Push(TransactionContext);
 		}
 
 		InvalidateCompanyValueCache();
@@ -740,7 +740,7 @@ void UFlareCompany::GiveMoney(int64 Amount, FFlareTransactionLogEntry Transactio
 	{
 		TransactionContext.Amount = Amount;
 		TransactionContext.Date = GetGame()->GetGameWorld()->GetDate();
-		CompanyData.TransactionLog.Push(Transaction);
+		CompanyData.TransactionLog.Push(TransactionContext);
 	}
 
 	InvalidateCompanyValueCache();
@@ -1143,8 +1143,8 @@ void UFlareCompany::PayTribute(UFlareCompany* Company, bool AllowDepts)
 		FLOGV("UFlareCompany::PayTribute: %s paying %ld to %s", *GetCompanyName().ToString(), Cost, *Company->GetCompanyName().ToString());
 
 		// Exchange money
-		TakeMoney(Cost, AllowDepts);
-		Company->GiveMoney(Cost);
+		TakeMoney(Cost, AllowDepts, FFlareTransactionLogEntry::LogSendTribute(Company));
+		Company->GiveMoney(Cost, FFlareTransactionLogEntry::LogReceiveTribute(this));
 
 		// Reset pacifism
 		GetAI()->GetData()->Pacifism = FMath::Max(50.f, GetAI()->GetData()->Pacifism);

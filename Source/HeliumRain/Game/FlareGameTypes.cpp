@@ -3,6 +3,7 @@
 #include "../UI/FlareUITypes.h"
 #include "../Flare.h"
 #include "../Spacecrafts/FlareSpacecraft.h"
+#include "../Game/FlareGame.h"
 
 #define LOCTEXT_NAMESPACE "FlareNavigationHUD"
 
@@ -404,9 +405,235 @@ void FFlareResourceUsage::AddUsage(EFlareResourcePriceContext::Type Usage)
 }
 
 
-FFlareTransactionLogEntry::FFlareTransactionLogEntry(EFlareTransactionLogEntry::Type iType)
-	: Type(iType)
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogUpgradeShipPart(UFlareSimulatedSpacecraft* Spacecraft)
 {
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::UpgradeShipPart;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogOrderShip(UFlareSimulatedSpacecraft* Shipyard, FName OrderShipClass)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::OrderShip;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogCancelOrderShip(UFlareSimulatedSpacecraft* Shipyard, FName OrderShipClass)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::CancelOrderShip;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogShipOrderAdvance(UFlareSimulatedSpacecraft* Shipyard, FName Company, FName ShipClass)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::OrderShipAdvance;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogFactoryWages(UFlareFactory* Factory)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::FactoryWages;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogCancelFactoryWages(UFlareFactory* Factory)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::CancelFactoryWages;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogPeoplePurchase(UFlareSimulatedSpacecraft* Station, FFlareResourceDescription* Resource, int32 Quantity)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::PeoplePurchase;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogInitialMoney()
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::InitialMoney;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogBuyResource(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 GivenResources, bool IsTradeRoute)
+{
+	FFlareTransactionLogEntry Entry;
+	if(IsTradeRoute)
+	{
+		Entry.Type = EFlareTransactionLogEntry::TradeRouteResourcePurchase;
+	}
+	else
+	{
+		Entry.Type = EFlareTransactionLogEntry::ManualResourcePurchase;
+	}
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogSellResource(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 GivenResources, bool IsTradeRoute)
+{
+	FFlareTransactionLogEntry Entry;
+	if(IsTradeRoute)
+	{
+		Entry.Type = EFlareTransactionLogEntry::TradeRouteResourceSell;
+	}
+	else
+	{
+		Entry.Type = EFlareTransactionLogEntry::ManualResourceSell;
+	}
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogPayMaintenance(UFlareSimulatedSpacecraft* SellerSpacecraft, int32 TakenQuantity, bool ForRepair)
+{
+	FFlareTransactionLogEntry Entry;
+	if(ForRepair)
+	{
+		Entry.Type = EFlareTransactionLogEntry::PayRepair;
+	}
+	else
+	{
+		Entry.Type = EFlareTransactionLogEntry::PayRefill;
+	}
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogPaidForMaintenance(UFlareSimulatedSpacecraft* SellerSpacecraft, UFlareCompany* Company, int32 TakenQuantity, bool ForRepair)
+{
+	FFlareTransactionLogEntry Entry;
+	if(ForRepair)
+	{
+		Entry.Type = EFlareTransactionLogEntry::PaidForRepair;
+	}
+	else
+	{
+		Entry.Type = EFlareTransactionLogEntry::PaidForRefill;
+	}
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogSendTribute(UFlareCompany* Company)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::SendTribute;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogReceiveTribute(UFlareCompany* Company)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::ReceiveTribute;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogRecoveryFees()
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::RecoveryFees;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogBuildStationFees(FFlareSpacecraftDescription* StationDescription, UFlareSimulatedSector* Sector)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::StationConstructionFees;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogUpgradeStationFees(UFlareSimulatedSpacecraft* Station)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::StationUpgradeFees;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogScrapCost(UFlareCompany* Company)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::ScrapCost;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogScrapGain(UFlareSimulatedSpacecraft* ScrappedShip, UFlareCompany* Company)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::ScrapGain;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogMutualAssistance()
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::MutualAssistance;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogCheat()
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::Cheat;
+	return Entry;
+}
+
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogQuestReward(UFlareCompany* Company)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::QuestReward;
+	return Entry;
+}
+
+UFlareCompany* FFlareTransactionLogEntry::GetOtherCompany(AFlareGame* Game) const
+{
+	if(OtherCompany != NAME_None)
+	{
+		return Game->GetGameWorld()->FindCompany(OtherCompany);
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+UFlareSimulatedSector* FFlareTransactionLogEntry::GetSector(AFlareGame* Game) const
+{
+	if(Sector != NAME_None)
+	{
+		return Game->GetGameWorld()->FindSector(Sector);
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+UFlareSimulatedSpacecraft* FFlareTransactionLogEntry::GetSpacecraft(AFlareGame* Game) const
+{
+	if(Spacecraft != NAME_None)
+	{
+		return Game->GetGameWorld()->FindSpacecraft(Spacecraft);
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
+{
+	/*FName Spacecraft;
+	FName Sector;
+	FName OtherCompany;
+	FName OtherSpacecraft;
+	FName Resource;
+	int32 ResourceQuantity;
+*/
+	return LOCTEXT("dummy", "dummy");
 }
 
 

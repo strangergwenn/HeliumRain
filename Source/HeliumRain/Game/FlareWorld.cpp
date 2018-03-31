@@ -221,7 +221,7 @@ void UFlareWorld::CompanyMutualAssistance()
 			int64 MoneyToTake = Company->GetMoney() / 500;
 			if (MoneyToTake > 0)
 			{
-				if (Company->TakeMoney(MoneyToTake))
+				if (Company->TakeMoney(MoneyToTake, false, FFlareTransactionLogEntry::LogMutualAssistance()))
 				{
 					SharedPool +=MoneyToTake;
 				}
@@ -243,11 +243,11 @@ void UFlareWorld::CompanyMutualAssistance()
 		UFlareCompany* Company =Companies[CompanyIndex];
 		if (Company != PlayerCompany)
 		{
-			Company->GiveMoney(PoolPart);
+			Company->GiveMoney(PoolPart, FFlareTransactionLogEntry::LogMutualAssistance());
 
 			if(CompanyIndex == BonusIndex)
 			{
-				Company->GiveMoney(PoolBonus);
+				Company->GiveMoney(PoolBonus, FFlareTransactionLogEntry::LogMutualAssistance());
 			}
 
 			SharingCompanyIndex++;

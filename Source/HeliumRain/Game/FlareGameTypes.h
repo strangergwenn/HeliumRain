@@ -193,21 +193,20 @@ struct FFlareCompanyAISave
 	FName ResearchProject;
 };
 
-/** Technology type for user display */
+/** Transaction type*/
 UENUM()
 namespace EFlareTransactionLogEntry
 {
 	enum Type
 	{
-		Cheat,
 		ManualResourcePurchase,
 		ManualResourceSell,
 		TradeRouteResourcePurchase,
 		TradeRouteResourceSell,
 		FactoryWages,
 		CancelFactoryWages,
-		StationConstructionFee,
-		StationUpgradeFee,
+		StationConstructionFees,
+		StationUpgradeFees,
 		UpgradeShipPart,
 		OrderShip,
 		CancelOrderShip,
@@ -218,9 +217,16 @@ namespace EFlareTransactionLogEntry
 		PayRefill,
 		PaidForRepair,
 		PaidForRefill,
-
 		SendTribute,
 		ReceiveTribute,
+		RecoveryFees,
+		ScrapCost,
+		Cheat,
+		QuestReward,
+
+		//AI only
+		MutualAssistance,
+		ScrapGain
 	};
 }
 
@@ -231,7 +237,6 @@ struct FFlareTransactionLogEntry
 {
 	GENERATED_USTRUCT_BODY()
 
-	static FFlareTransactionLogEntry LogFactorySalary();
 	static FFlareTransactionLogEntry LogUpgradeShipPart(UFlareSimulatedSpacecraft* Spacecraft);
 	static FFlareTransactionLogEntry LogOrderShip(UFlareSimulatedSpacecraft* Shipyard, FName OrderShipClass);
 	static FFlareTransactionLogEntry LogCancelOrderShip(UFlareSimulatedSpacecraft* Shipyard, FName OrderShipClass);
@@ -244,9 +249,16 @@ struct FFlareTransactionLogEntry
 	static FFlareTransactionLogEntry LogSellResource(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 GivenResources, bool IsTradeRoute);
 	static FFlareTransactionLogEntry LogPayMaintenance(UFlareSimulatedSpacecraft* SellerSpacecraft, int32 TakenQuantity, bool ForRepair);
 	static FFlareTransactionLogEntry LogPaidForMaintenance(UFlareSimulatedSpacecraft* SellerSpacecraft, UFlareCompany* Company, int32 TakenQuantity, bool ForRepair);
-
-
-	FFlareTransactionLogEntry(EFlareTransactionLogEntry::Type iType);
+	static FFlareTransactionLogEntry LogSendTribute(UFlareCompany* Company);
+	static FFlareTransactionLogEntry LogReceiveTribute(UFlareCompany* Company);
+	static FFlareTransactionLogEntry LogRecoveryFees();
+	static FFlareTransactionLogEntry LogBuildStationFees(FFlareSpacecraftDescription* StationDescription, UFlareSimulatedSector* Sector);
+	static FFlareTransactionLogEntry LogUpgradeStationFees(UFlareSimulatedSpacecraft* Station);
+	static FFlareTransactionLogEntry LogScrapCost(UFlareCompany* Company);
+	static FFlareTransactionLogEntry LogScrapGain(UFlareSimulatedSpacecraft* ScrappedShip, UFlareCompany* Company);
+	static FFlareTransactionLogEntry LogMutualAssistance();
+	static FFlareTransactionLogEntry LogCheat();
+	static FFlareTransactionLogEntry LogQuestReward(UFlareCompany* Company);
 
 
 	int64 Date;
@@ -258,6 +270,11 @@ struct FFlareTransactionLogEntry
 	FName OtherSpacecraft;
 	FName Resource;
 	int32 ResourceQuantity;
+
+	UFlareCompany* GetOtherCompany(AFlareGame* Game) const;
+	UFlareSimulatedSector* GetSector(AFlareGame* Game) const;
+	UFlareSimulatedSpacecraft* GetSpacecraft(AFlareGame* Game) const;
+	FText GetComment(AFlareGame* Game) const;
 };
 
 /** Game save data */
