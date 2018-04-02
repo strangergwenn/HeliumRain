@@ -491,6 +491,7 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogBuyResource(UFlareSimula
 	Entry.Resource = Resource->Identifier;
 	Entry.ResourceQuantity = GivenResources;
 	Entry.ExtraIdentifier1 = SourceSpacecraft->GetImmatriculation();
+	Entry.OtherCompany = SourceSpacecraft->GetCompany()->GetIdentifier();
 
 	return Entry;
 }
@@ -513,6 +514,8 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogSellResource(UFlareSimul
 	Entry.Resource = Resource->Identifier;
 	Entry.ResourceQuantity = GivenResources;
 	Entry.ExtraIdentifier1 = DestinationSpacecraft->GetImmatriculation();
+	Entry.OtherCompany = DestinationSpacecraft->GetCompany()->GetIdentifier();
+
 
 
 	return Entry;
@@ -718,7 +721,25 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 
 	switch(Type)
 	{
-	//	ManualResourcePurchase
+	case EFlareTransactionLogEntry::ManualResourcePurchase:
+	{
+		UFlareSimulatedSpacecraft* OtherSpacecraftCache = Game->GetGameWorld()->FindSpacecraft(ExtraIdentifier1);
+
+		if(OtherSpacecraftCache && ResourceCache)
+		{
+			FText ResourceComment = FText::Format(LOCTEXT("ManualResourcePurchaseResources", "{0} {1}"), ResourceQuantity, ResourceCache->Name);
+
+			if(IsAITransaction(SpacecraftCache, OtherSpacecraftCache))
+			{
+				Comment = FText::Format(LOCTEXT("AIManualResourcePurchase", "{0} sell {1} with {2}"), OtherSpacecraftCache->GetCompany()->GetCompanyName(), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+			}
+			else
+			{
+				Comment = FText::Format(LOCTEXT("ManualResourcePurchase", "Buy {0} to {1}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+			}
+		}
+		break;
+	}
 	case EFlareTransactionLogEntry::ManualResourceSell:
 	{
 		UFlareSimulatedSpacecraft* OtherSpacecraftCache = Game->GetGameWorld()->FindSpacecraft(ExtraIdentifier1);
@@ -740,9 +761,30 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 	}
 	/*
 	 *
-	ManualResourceSell,
-	TradeRouteResourcePurchase,
+	,
+	,
 	,*/
+
+	case EFlareTransactionLogEntry::TradeRouteResourcePurchase:
+	{
+		UFlareSimulatedSpacecraft* OtherSpacecraftCache = Game->GetGameWorld()->FindSpacecraft(ExtraIdentifier1);
+		UFlareTradeRoute* TradeRouteCache = Game->GetGameWorld()->FindTradeRoute(ExtraIdentifier2);
+
+		if(OtherSpacecraftCache && ResourceCache)
+		{
+			FText ResourceComment = FText::Format(LOCTEXT("TradeRouteResourcePurchase", "{0} {1}"), ResourceQuantity, ResourceCache->Name);
+
+			if(TradeRouteCache)
+			{
+				Comment = FText::Format(LOCTEXT("TradeRouteResourcePurchase", "Buy {0} to {1} with trade route {2}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache), TradeRouteCache->GetTradeRouteName());
+			}
+			else
+			{
+				Comment = FText::Format(LOCTEXT("NotTradeRouteResourcePurchase", "Buy {0} to {1} with an old trade route"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+			}
+		}
+		break;
+	}
 
 	case EFlareTransactionLogEntry::TradeRouteResourceSell:
 	{
@@ -759,7 +801,7 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 			}
 			else
 			{
-				Comment = FText::Format(LOCTEXT("NotTradeRouteResourceSell", "Sell {0} to {1} with old trade route"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+				Comment = FText::Format(LOCTEXT("NotTradeRouteResourceSell", "Sell {0} to {1} with an old trade route"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
 			}
 		}
 		break;
