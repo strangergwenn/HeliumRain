@@ -285,7 +285,7 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 		if (StationCandidate)
 		{
 			int64 TransactionPrice;
-			int32 Quantity = SectorHelper::Trade(StationCandidate, Ship, Resource, Request.MaxQuantity, &TransactionPrice, true);
+			int32 Quantity = SectorHelper::Trade(StationCandidate, Ship, Resource, Request.MaxQuantity, &TransactionPrice, this);
 			TradeRouteData.CurrentOperationProgress += Quantity;
 
 			if (TradeRouteCompany == GetGame()->GetPC()->GetCompany())
@@ -394,7 +394,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 		if (StationCandidate)
 		{
 			int64 TransactionPrice;
-			int32 Quantity = SectorHelper::Trade(Ship, StationCandidate, Resource, Request.MaxQuantity, &TransactionPrice);
+			int32 Quantity = SectorHelper::Trade(Ship, StationCandidate, Resource, Request.MaxQuantity, &TransactionPrice, this);
 			TradeRouteData.CurrentOperationProgress += Quantity;
 
 			if (TradeRouteCompany == GetGame()->GetPC()->GetCompany())

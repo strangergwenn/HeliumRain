@@ -245,8 +245,8 @@ struct FFlareTransactionLogEntry
 	static FFlareTransactionLogEntry LogCancelFactoryWages(UFlareFactory* Factory);
 	static FFlareTransactionLogEntry LogPeoplePurchase(UFlareSimulatedSpacecraft* Station, FFlareResourceDescription* Resource, int32 Quantity);
 	static FFlareTransactionLogEntry LogInitialMoney();
-	static FFlareTransactionLogEntry LogBuyResource(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 GivenResources, bool IsTradeRoute);
-	static FFlareTransactionLogEntry LogSellResource(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 GivenResources, bool IsTradeRoute);
+	static FFlareTransactionLogEntry LogBuyResource(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 GivenResources, UFlareTradeRoute* TradeRoute);
+	static FFlareTransactionLogEntry LogSellResource(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 GivenResources, UFlareTradeRoute* TradeRoute);
 	static FFlareTransactionLogEntry LogPayMaintenance(UFlareSimulatedSpacecraft* SellerSpacecraft, int32 TakenQuantity, bool ForRepair);
 	static FFlareTransactionLogEntry LogPaidForMaintenance(UFlareSimulatedSpacecraft* SellerSpacecraft, UFlareCompany* Company, int32 TakenQuantity, bool ForRepair);
 	static FFlareTransactionLogEntry LogSendTribute(UFlareCompany* Company);
@@ -270,7 +270,8 @@ struct FFlareTransactionLogEntry
 	FName OtherSpacecraft;
 	FName Resource;
 	int32 ResourceQuantity;
-	FName ExtraIdentifier;
+	FName ExtraIdentifier1;
+	FName ExtraIdentifier2;
 
 	UFlareCompany* GetOtherCompany(AFlareGame* Game) const;
 	UFlareSimulatedSector* GetSector(AFlareGame* Game) const;

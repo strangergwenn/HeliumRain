@@ -253,7 +253,7 @@ int64 SectorHelper::GetBuyResourcePrice(UFlareSimulatedSector* Sector, FFlareRes
 }
 
 
-int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 MaxQuantity, int64* TransactionPrice, bool IsTradeRoute)
+int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 MaxQuantity, int64* TransactionPrice, UFlareTradeRoute* TradeRoute)
 {
 	FText Unused;
 
@@ -292,8 +292,8 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSim
 	if (GivenResources > 0 && SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany())
 	{
 		int64 Price = ResourcePrice * GivenResources;
-		DestinationSpacecraft->GetCompany()->TakeMoney(Price, AllowDepts, FFlareTransactionLogEntry::LogBuyResource(SourceSpacecraft, DestinationSpacecraft, Resource, GivenResources, IsTradeRoute));
-		SourceSpacecraft->GetCompany()->GiveMoney(Price, FFlareTransactionLogEntry::LogSellResource(SourceSpacecraft, DestinationSpacecraft, Resource, GivenResources, IsTradeRoute));
+		DestinationSpacecraft->GetCompany()->TakeMoney(Price, AllowDepts, FFlareTransactionLogEntry::LogBuyResource(SourceSpacecraft, DestinationSpacecraft, Resource, GivenResources, TradeRoute));
+		SourceSpacecraft->GetCompany()->GiveMoney(Price, FFlareTransactionLogEntry::LogSellResource(SourceSpacecraft, DestinationSpacecraft, Resource, GivenResources, TradeRoute));
 
 		if(TransactionPrice )
 		{

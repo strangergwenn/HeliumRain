@@ -89,6 +89,7 @@ protected:
 	UFlareCompany*                           Company;
 	int32                                    SmallWidth;
 	int32                                    LargeWidth;
+	int32                                    VeryLargeWidth;
 
 	// Menu data
 	TSharedPtr<SFlareColorPanel>             ColorBox;

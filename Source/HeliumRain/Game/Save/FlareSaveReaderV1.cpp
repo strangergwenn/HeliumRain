@@ -895,7 +895,8 @@ void UFlareSaveReaderV1::LoadTransactionLogEntry(const TSharedPtr<FJsonObject> O
 	LoadFName(Object, "OtherSpacecraft", &Data->OtherSpacecraft);
 	LoadFName(Object, "Resource", &Data->Resource);
 	LoadInt32(Object, "ResourceQuantity", &Data->ResourceQuantity);
-	LoadFName(Object, "ExtraIdentifier", &Data->ExtraIdentifier);
+	LoadFName(Object, "ExtraIdentifier1", &Data->ExtraIdentifier1);
+	LoadFName(Object, "ExtraIdentifier2", &Data->ExtraIdentifier2);
 }
 
 

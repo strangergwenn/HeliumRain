@@ -6,6 +6,8 @@
 #include "../Game/FlareGame.h"
 #include "../Economy/FlareFactory.h"
 #include "../Data/FlareFactoryCatalogEntry.h"
+#include "../Data/FlareResourceCatalog.h"
+#include "../Game/FlareGameTools.h"
 
 #define LOCTEXT_NAMESPACE "FlareNavigationHUD"
 
@@ -442,7 +444,7 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogFactoryWages(UFlareFacto
 	Entry.Type = EFlareTransactionLogEntry::FactoryWages;
 	Entry.Spacecraft = Factory->GetParent()->IsComplexElement() ? Factory->GetParent()->GetComplexMaster()->GetImmatriculation() : Factory->GetParent()->GetImmatriculation();
 	Entry.Sector = Factory->GetParent()->GetCurrentSector()->GetIdentifier();
-	Entry.ExtraIdentifier = Factory->GetDescription()->Identifier;
+	Entry.ExtraIdentifier1 = Factory->GetDescription()->Identifier;
 	return Entry;
 }
 
@@ -452,7 +454,7 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogCancelFactoryWages(UFlar
 	Entry.Type = EFlareTransactionLogEntry::CancelFactoryWages;
 	Entry.Spacecraft = Factory->GetParent()->IsComplexElement() ? Factory->GetParent()->GetComplexMaster()->GetImmatriculation() : Factory->GetParent()->GetImmatriculation();
 	Entry.Sector = Factory->GetParent()->GetCurrentSector()->GetIdentifier();
-	Entry.ExtraIdentifier = Factory->GetDescription()->Identifier;
+	Entry.ExtraIdentifier1 = Factory->GetDescription()->Identifier;
 
 	return Entry;
 }
@@ -471,31 +473,48 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogInitialMoney()
 	return Entry;
 }
 
-FFlareTransactionLogEntry FFlareTransactionLogEntry::LogBuyResource(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 GivenResources, bool IsTradeRoute)
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogBuyResource(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 GivenResources, UFlareTradeRoute* TradeRoute)
 {
 	FFlareTransactionLogEntry Entry;
-	if(IsTradeRoute)
+	if(TradeRoute)
 	{
 		Entry.Type = EFlareTransactionLogEntry::TradeRouteResourcePurchase;
+		Entry.ExtraIdentifier2 = TradeRoute->GetIdentifier();
 	}
 	else
 	{
 		Entry.Type = EFlareTransactionLogEntry::ManualResourcePurchase;
 	}
+
+	Entry.Spacecraft = DestinationSpacecraft->GetImmatriculation();
+	Entry.Sector = DestinationSpacecraft->GetCurrentSector()->GetIdentifier();
+	Entry.Resource = Resource->Identifier;
+	Entry.ResourceQuantity = GivenResources;
+	Entry.ExtraIdentifier1 = SourceSpacecraft->GetImmatriculation();
+
 	return Entry;
 }
 
-FFlareTransactionLogEntry FFlareTransactionLogEntry::LogSellResource(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 GivenResources, bool IsTradeRoute)
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogSellResource(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource, int32 GivenResources, UFlareTradeRoute* TradeRoute)
 {
 	FFlareTransactionLogEntry Entry;
-	if(IsTradeRoute)
+	if(TradeRoute)
 	{
 		Entry.Type = EFlareTransactionLogEntry::TradeRouteResourceSell;
+		Entry.ExtraIdentifier2 = TradeRoute->GetIdentifier();
 	}
 	else
 	{
 		Entry.Type = EFlareTransactionLogEntry::ManualResourceSell;
 	}
+
+	Entry.Spacecraft = SourceSpacecraft->GetImmatriculation();
+	Entry.Sector = SourceSpacecraft->GetCurrentSector()->GetIdentifier();
+	Entry.Resource = Resource->Identifier;
+	Entry.ResourceQuantity = GivenResources;
+	Entry.ExtraIdentifier1 = DestinationSpacecraft->GetImmatriculation();
+
+
 	return Entry;
 }
 
@@ -641,14 +660,21 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 	FLOGV("--- Type %d", int(Type));
 	FLOGV("  Spacecraft %s", *Spacecraft.ToString());
 	FLOGV("  Sector %s", *Sector.ToString());
-	FLOGV("  ExtraIdentifier %s", *ExtraIdentifier.ToString());
+	FLOGV("  ExtraIdentifier1 %s", *ExtraIdentifier1.ToString());
+	FLOGV("  ExtraIdentifier2 %s", *ExtraIdentifier2.ToString());
 
 
 	UFlareSimulatedSpacecraft* SpacecraftCache = nullptr;
+	FFlareResourceDescription* ResourceCache = nullptr;
 
 	if(Spacecraft != NAME_None)
 	{
 		SpacecraftCache = Game->GetGameWorld()->FindSpacecraft(Spacecraft);
+	}
+
+	if(Resource != NAME_None)
+	{
+		ResourceCache = Game->GetResourceCatalog()->Get(Resource);
 	}
 
 	auto FindFactoryDescription = [](UFlareSimulatedSpacecraft* SpacecraftWithFactory, FName Identifier) -> FFlareFactoryDescription const*
@@ -666,10 +692,7 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 
 	auto GetFactoryName = [this, &SpacecraftCache, &FindFactoryDescription]()
 	{
-		FFlareSpacecraftDescription* SpacecraftDescription = SpacecraftCache->GetDescription();
-
-
-		FFlareFactoryDescription const* FactoryDescription = FindFactoryDescription(SpacecraftCache, ExtraIdentifier);
+		FFlareFactoryDescription const* FactoryDescription = FindFactoryDescription(SpacecraftCache, ExtraIdentifier1);
 
 		if(FactoryDescription)
 		{
@@ -680,28 +703,80 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 	};
 
 
+	auto IsAITransaction = [](UFlareSimulatedSpacecraft* SpacecraftCache, UFlareSimulatedSpacecraft* OtherSpacecraftCache)
+	{
+		if(SpacecraftCache && OtherSpacecraftCache)
+		{
+			if((!SpacecraftCache->IsStation() && !SpacecraftCache->GetCompany()->IsPlayerCompany()) || (!OtherSpacecraftCache->IsStation() && !OtherSpacecraftCache->GetCompany()->IsPlayerCompany()))
+			{
+				return true;
+			}
+		}
+		return false;
+	};
+
+
 	switch(Type)
 	{
-		case EFlareTransactionLogEntry::FactoryWages:
+	//	ManualResourcePurchase
+	case EFlareTransactionLogEntry::ManualResourceSell:
+	{
+		UFlareSimulatedSpacecraft* OtherSpacecraftCache = Game->GetGameWorld()->FindSpacecraft(ExtraIdentifier1);
+
+		if(OtherSpacecraftCache && ResourceCache)
 		{
-			FLOG("EFlareTransactionLogEntry::FactoryWages");
+			FText ResourceComment = FText::Format(LOCTEXT("ManualResourceSellResources", "{0} {1}"), ResourceQuantity, ResourceCache->Name);
 
-
-			if(SpacecraftCache)
+			if(IsAITransaction(SpacecraftCache, OtherSpacecraftCache))
 			{
-				FLOG("SpacecraftCache");
-				Comment = FText::Format(LOCTEXT("FactoryWages", "Factory wages for {0}"), GetFactoryName());
-				FLOGV("Comment %s", *Comment.ToString());
+				Comment = FText::Format(LOCTEXT("AIManualResourceSell", "{0} buy {1} with {2}"), OtherSpacecraftCache->GetCompany()->GetCompanyName(), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
 			}
-			break;
+			else
+			{
+				Comment = FText::Format(LOCTEXT("ManualResourceSell", "Sell {0} to {1}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+			}
 		}
-
-
-	/*case ManualResourcePurchase:
+		break;
+	}
+	/*
+	 *
 	ManualResourceSell,
 	TradeRouteResourcePurchase,
-	TradeRouteResourceSell,
-	FactoryWages,
+	,*/
+
+	case EFlareTransactionLogEntry::TradeRouteResourceSell:
+	{
+		UFlareSimulatedSpacecraft* OtherSpacecraftCache = Game->GetGameWorld()->FindSpacecraft(ExtraIdentifier1);
+		UFlareTradeRoute* TradeRouteCache = Game->GetGameWorld()->FindTradeRoute(ExtraIdentifier2);
+
+		if(OtherSpacecraftCache && ResourceCache)
+		{
+			FText ResourceComment = FText::Format(LOCTEXT("TradeRouteResourceSellResources", "{0} {1}"), ResourceQuantity, ResourceCache->Name);
+
+			if(TradeRouteCache)
+			{
+				Comment = FText::Format(LOCTEXT("TradeRouteResourceSell", "Sell {0} to {1} with trade route {2}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache), TradeRouteCache->GetTradeRouteName());
+			}
+			else
+			{
+				Comment = FText::Format(LOCTEXT("NotTradeRouteResourceSell", "Sell {0} to {1} with old trade route"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+			}
+		}
+		break;
+	}
+
+	case EFlareTransactionLogEntry::FactoryWages:
+	{
+		if(SpacecraftCache)
+		{
+			Comment = FText::Format(LOCTEXT("FactoryWages", "Factory wages for {0}"), GetFactoryName());
+		}
+		break;
+	}
+
+
+	/*case
+
 	CancelFactoryWages,
 	StationConstructionFees,
 	StationUpgradeFees,

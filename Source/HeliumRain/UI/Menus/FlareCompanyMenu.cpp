@@ -36,6 +36,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	SmallWidth = 0.25 * Theme.ContentWidth;
 	LargeWidth = 0.5 * Theme.ContentWidth;
+	VeryLargeWidth = 1.0 * Theme.ContentWidth;
 
 	// Build structure
 	ChildSlot
@@ -315,7 +316,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 					.AutoWidth()
 					[
 						SNew(SBox)
-						.WidthOverride(LargeWidth)
+						.WidthOverride(VeryLargeWidth)
 						.HAlign(HAlign_Left)
 						.Padding(Theme.ContentPadding)
 						[
@@ -570,7 +571,7 @@ void SFlareCompanyMenu::AddTransactionLog(int64 Time, int64 Value, UFlareCompany
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.Text(Source ? Source->GetNickName() : FText())
+					.Text(Source ? UFlareGameTools::DisplaySpacecraftName(Source) : FText())
 					.WrapTextAt(LargeWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
 				]
 			]
@@ -613,13 +614,13 @@ void SFlareCompanyMenu::AddTransactionLog(int64 Time, int64 Value, UFlareCompany
 			.AutoWidth()
 			[
 				SNew(SBox)
-				.WidthOverride(LargeWidth)
+				.WidthOverride(VeryLargeWidth)
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
 					.Text(Comment)
-					.WrapTextAt(LargeWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
+					.WrapTextAt(VeryLargeWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
 				]
 			]
 		]

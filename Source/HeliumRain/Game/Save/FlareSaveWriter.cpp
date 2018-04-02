@@ -685,7 +685,8 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveTransactionLogEntry(FFlareTransact
 	JsonObject->SetStringField("Resource", Data->Resource.ToString());
 	JsonObject->SetStringField("Spacecraft", Data->Spacecraft.ToString());
 	JsonObject->SetStringField("ResourceQuantity", FormatInt32(Data->ResourceQuantity));
-	JsonObject->SetStringField("ExtraIdentifier", Data->ExtraIdentifier.ToString());
+	JsonObject->SetStringField("ExtraIdentifier1", Data->ExtraIdentifier1.ToString());
+	JsonObject->SetStringField("ExtraIdentifier2", Data->ExtraIdentifier2.ToString());
 
 	return JsonObject;
 }
