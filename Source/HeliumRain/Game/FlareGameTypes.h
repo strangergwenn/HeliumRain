@@ -220,13 +220,13 @@ namespace EFlareTransactionLogEntry
 		SendTribute,
 		ReceiveTribute,
 		RecoveryFees,
-		ScrapCost,
+		ScrapGain,
 		Cheat,
 		QuestReward,
 
 		//AI only
 		MutualAssistance,
-		ScrapGain
+		ScrapCost
 	};
 }
 

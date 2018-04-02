@@ -7,6 +7,7 @@
 #include "../Economy/FlareFactory.h"
 #include "../Data/FlareFactoryCatalogEntry.h"
 #include "../Data/FlareResourceCatalog.h"
+#include "../Data/FlareSpacecraftCatalog.h"
 #include "../Game/FlareGameTools.h"
 
 #define LOCTEXT_NAMESPACE "FlareNavigationHUD"
@@ -414,6 +415,9 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogUpgradeShipPart(UFlareSi
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::UpgradeShipPart;
+	Entry.Spacecraft = Spacecraft->GetImmatriculation();
+	Entry.Sector = Spacecraft->GetCurrentSector()->GetIdentifier();
+
 	return Entry;
 }
 
@@ -421,6 +425,11 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogOrderShip(UFlareSimulate
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::OrderShip;
+	Entry.Spacecraft = Shipyard->GetImmatriculation();
+	Entry.Sector = Shipyard->GetCurrentSector()->GetIdentifier();
+	Entry.OtherCompany = Shipyard->GetCompany()->GetIdentifier();
+	Entry.ExtraIdentifier1 = OrderShipClass;
+
 	return Entry;
 }
 
@@ -428,6 +437,11 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogCancelOrderShip(UFlareSi
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::CancelOrderShip;
+	Entry.Spacecraft = Shipyard->GetImmatriculation();
+	Entry.Sector = Shipyard->GetCurrentSector()->GetIdentifier();
+	Entry.OtherCompany = Shipyard->GetCompany()->GetIdentifier();
+	Entry.ExtraIdentifier1 = OrderShipClass;
+
 	return Entry;
 }
 
@@ -435,6 +449,11 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogShipOrderAdvance(UFlareS
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::OrderShipAdvance;
+	Entry.Spacecraft = Shipyard->GetImmatriculation();
+	Entry.Sector = Shipyard->GetCurrentSector()->GetIdentifier();
+	Entry.OtherCompany = Company;
+	Entry.ExtraIdentifier1 = ShipClass;
+
 	return Entry;
 }
 
@@ -463,6 +482,11 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogPeoplePurchase(UFlareSim
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::PeoplePurchase;
+	Entry.Spacecraft = Station->GetImmatriculation();
+	Entry.Sector = Station->GetCurrentSector()->GetIdentifier();
+	Entry.Resource = Resource->Identifier;
+	Entry.ResourceQuantity = Quantity;
+
 	return Entry;
 }
 
@@ -470,6 +494,9 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogInitialMoney()
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::InitialMoney;
+
+
+
 	return Entry;
 }
 
@@ -532,6 +559,12 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogPayMaintenance(UFlareSim
 	{
 		Entry.Type = EFlareTransactionLogEntry::PayRefill;
 	}
+
+	Entry.Spacecraft = SellerSpacecraft->GetImmatriculation();
+	Entry.Sector = SellerSpacecraft->GetCurrentSector()->GetIdentifier();
+	Entry.OtherCompany = SellerSpacecraft->GetCompany()->GetIdentifier();
+	Entry.ResourceQuantity = TakenQuantity;
+
 	return Entry;
 }
 
@@ -546,6 +579,12 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogPaidForMaintenance(UFlar
 	{
 		Entry.Type = EFlareTransactionLogEntry::PaidForRefill;
 	}
+
+	Entry.Spacecraft = SellerSpacecraft->GetImmatriculation();
+	Entry.Sector = SellerSpacecraft->GetCurrentSector()->GetIdentifier();
+	Entry.OtherCompany = Company->GetIdentifier();
+	Entry.ResourceQuantity = TakenQuantity;
+
 	return Entry;
 }
 
@@ -553,6 +592,8 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogSendTribute(UFlareCompan
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::SendTribute;
+	Entry.OtherCompany = Company->GetIdentifier();
+
 	return Entry;
 }
 
@@ -560,6 +601,8 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogReceiveTribute(UFlareCom
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::ReceiveTribute;
+	Entry.OtherCompany = Company->GetIdentifier();
+
 	return Entry;
 }
 
@@ -574,6 +617,9 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogBuildStationFees(FFlareS
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::StationConstructionFees;
+	Entry.Sector = Sector->GetIdentifier();
+	Entry.ExtraIdentifier1 = StationDescription->Identifier;
+
 	return Entry;
 }
 
@@ -581,6 +627,9 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogUpgradeStationFees(UFlar
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::StationUpgradeFees;
+	Entry.Spacecraft = Station->GetImmatriculation();
+	Entry.Sector = Station->GetCurrentSector()->GetIdentifier();
+
 	return Entry;
 }
 
@@ -588,6 +637,8 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogScrapCost(UFlareCompany*
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::ScrapCost;
+	Entry.OtherCompany = Company->GetIdentifier();
+
 	return Entry;
 }
 
@@ -595,6 +646,11 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogScrapGain(UFlareSimulate
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::ScrapGain;
+	Entry.Spacecraft = ScrappedShip->GetImmatriculation();
+	Entry.Sector = ScrappedShip->GetCurrentSector()->GetIdentifier();
+	Entry.OtherCompany = Company->GetIdentifier();
+
+
 	return Entry;
 }
 
@@ -616,6 +672,11 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogQuestReward(UFlareCompan
 {
 	FFlareTransactionLogEntry Entry;
 	Entry.Type = EFlareTransactionLogEntry::QuestReward;
+	if(Company)
+	{
+		Entry.OtherCompany = Company->GetIdentifier();
+	}
+
 	return Entry;
 }
 
@@ -759,12 +820,6 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		}
 		break;
 	}
-	/*
-	 *
-	,
-	,
-	,*/
-
 	case EFlareTransactionLogEntry::TradeRouteResourcePurchase:
 	{
 		UFlareSimulatedSpacecraft* OtherSpacecraftCache = Game->GetGameWorld()->FindSpacecraft(ExtraIdentifier1);
@@ -785,7 +840,6 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		}
 		break;
 	}
-
 	case EFlareTransactionLogEntry::TradeRouteResourceSell:
 	{
 		UFlareSimulatedSpacecraft* OtherSpacecraftCache = Game->GetGameWorld()->FindSpacecraft(ExtraIdentifier1);
@@ -806,7 +860,6 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		}
 		break;
 	}
-
 	case EFlareTransactionLogEntry::FactoryWages:
 	{
 		if(SpacecraftCache)
@@ -815,33 +868,81 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		}
 		break;
 	}
+	case EFlareTransactionLogEntry::CancelFactoryWages:
+	{
+		if(SpacecraftCache)
+		{
+			Comment = FText::Format(LOCTEXT("CancelFactoryWages", "Cancel factory wages for {0}"), GetFactoryName());
+		}
+		break;
+	}
+	case EFlareTransactionLogEntry::StationConstructionFees:
+	{
+		FFlareSpacecraftDescription* Description = Game->GetSpacecraftCatalog()->Get(ExtraIdentifier1);
 
+		if(Description)
+		{
+			Comment = FText::Format(LOCTEXT("StationConstructionFees", "Station contruction fees for {0}"), Description->Name);
+		}
+		break;
+	}
+	case EFlareTransactionLogEntry::StationUpgradeFees:
+	{
+		Comment = LOCTEXT("StationUpgradeFees", "Station upgrade fees");
+		break;
+	}
 
 	/*case
 
-	CancelFactoryWages,
-	StationConstructionFees,
-	StationUpgradeFees,
+	,
+
 	UpgradeShipPart,
 	OrderShip,
 	CancelOrderShip,
-	OrderShipAdvance,
-	PeoplePurchase,
-	InitialMoney,
-	PayRepair,
-	PayRefill,
-	PaidForRepair,
-	PaidForRefill,
-	SendTribute,
-	ReceiveTribute,
-	RecoveryFees,
-	ScrapCost,
-	Cheat,
-	QuestReward,
+	OrderShipAdvance,*/
+	case EFlareTransactionLogEntry::PeoplePurchase:
+	{
+		//UFlareSimulatedSpacecraft* OtherSpacecraftCache = Game->GetGameWorld()->FindSpacecraft(ExtraIdentifier1);
 
-	//AI only
-	MutualAssistance,
-	ScrapGain*/
+		if(ResourceCache)
+		{
+			FText ResourceComment = FText::Format(LOCTEXT("PeoplePurchaseResources", "{0} {1}"), ResourceQuantity, ResourceCache->Name);
+			Comment = FText::Format(LOCTEXT("PeoplePurchase", "People buy {0}"), ResourceComment);
+		}
+		break;
+	}
+	case EFlareTransactionLogEntry::InitialMoney:
+	{
+		Comment = LOCTEXT("InitialMoney", "Initial money");
+		break;
+	}
+
+	//PayRepair,
+	//PayRefill,
+	//PaidForRepair,
+	//PaidForRefill,
+	//SendTribute,
+	//ReceiveTribute,
+	//RecoveryFees,
+	case EFlareTransactionLogEntry::ScrapGain:
+	{
+		Comment = LOCTEXT("ScrapGain", "Scrap gain");
+		break;
+	}
+	case EFlareTransactionLogEntry::Cheat:
+	{
+		Comment = LOCTEXT("Cheat", "Cheat");
+		break;
+	}
+	case EFlareTransactionLogEntry::QuestReward:
+	{
+		Comment = LOCTEXT("QuestReward", "Contract reward");
+		break;
+	}
+
+	// AI only:
+	// MutualAssistance,
+	// ScrapCost
 
 	default:
 
