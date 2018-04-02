@@ -370,6 +370,17 @@ void UFlareSaveReaderV1::LoadCompany(const TSharedPtr<FJsonObject> Object, FFlar
 		}
 	}
 
+	const TArray<TSharedPtr<FJsonValue>>* TransactionLog;
+	if(Object->TryGetArrayField("TransactionLog", TransactionLog))
+	{
+		for (TSharedPtr<FJsonValue> Item : *TransactionLog)
+		{
+			FFlareTransactionLogEntry ChildData;
+			LoadTransactionLogEntry(Item->AsObject(), &ChildData);
+			Data->TransactionLog.Add(ChildData);
+		}
+	}
+
 	LoadFloat(Object, "PlayerReputation", &Data->PlayerReputation);
 }
 
@@ -872,6 +883,21 @@ void UFlareSaveReaderV1::LoadSectorKnowledge(const TSharedPtr<FJsonObject> Objec
 	LoadFName(Object, "SectorIdentifier", &Data->SectorIdentifier);
 	Data->Knowledge = LoadEnum<EFlareSectorKnowledge::Type>(Object, "Knowledge", "EFlareSectorKnowledge");
 }
+
+void UFlareSaveReaderV1::LoadTransactionLogEntry(const TSharedPtr<FJsonObject> Object, FFlareTransactionLogEntry* Data)
+{
+	LoadInt64(Object, "Date", &Data->Date);
+	LoadInt64(Object, "Amount", &Data->Amount);
+	Data->Type = LoadEnum<EFlareTransactionLogEntry::Type>(Object, "Type", "EFlareTransactionLogEntry");
+	LoadFName(Object, "Spacecraft", &Data->Spacecraft);
+	LoadFName(Object, "Sector", &Data->Sector);
+	LoadFName(Object, "OtherCompany", &Data->OtherCompany);
+	LoadFName(Object, "OtherSpacecraft", &Data->OtherSpacecraft);
+	LoadFName(Object, "Resource", &Data->Resource);
+	LoadInt32(Object, "ResourceQuantity", &Data->ResourceQuantity);
+	LoadFName(Object, "ExtraIdentifier", &Data->ExtraIdentifier);
+}
+
 
 
 void UFlareSaveReaderV1::LoadCompanyAI(const TSharedPtr<FJsonObject> Object, FFlareCompanyAISave* Data)

@@ -303,6 +303,14 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveCompany(FFlareCompanySave* Data)
 
 	SaveFloat(JsonObject,"PlayerReputation", Data->PlayerReputation);
 
+	TArray< TSharedPtr<FJsonValue> > TransactionLog;
+	for(int i = 0; i < Data->TransactionLog.Num(); i++)
+	{
+		TransactionLog.Add(MakeShareable(new FJsonValueObject(SaveTransactionLogEntry(&Data->TransactionLog[i]))));
+	}
+	JsonObject->SetArrayField("TransactionLog", TransactionLog);
+
+
 	return JsonObject;
 }
 
@@ -659,6 +667,25 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSectorKnowledge(FFlareCompanySecto
 
 	JsonObject->SetStringField("SectorIdentifier", Data->SectorIdentifier.ToString());
 	JsonObject->SetStringField("Knowledge", FormatEnum<EFlareSectorKnowledge::Type>("EFlareSectorKnowledge",Data->Knowledge));
+
+	return JsonObject;
+}
+
+TSharedRef<FJsonObject> UFlareSaveWriter::SaveTransactionLogEntry(FFlareTransactionLogEntry* Data)
+{
+	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+
+	JsonObject->SetStringField("Date", FormatInt64(Data->Date));
+	JsonObject->SetStringField("Amount", FormatInt64(Data->Amount));
+	JsonObject->SetStringField("Type", FormatEnum<EFlareTransactionLogEntry::Type>("EFlareTransactionLogEntry",Data->Type));
+	JsonObject->SetStringField("Spacecraft", Data->Spacecraft.ToString());
+	JsonObject->SetStringField("Sector", Data->Sector.ToString());
+	JsonObject->SetStringField("OtherCompany", Data->OtherCompany.ToString());
+	JsonObject->SetStringField("OtherSpacecraft", Data->OtherSpacecraft.ToString());
+	JsonObject->SetStringField("Resource", Data->Resource.ToString());
+	JsonObject->SetStringField("Spacecraft", Data->Spacecraft.ToString());
+	JsonObject->SetStringField("ResourceQuantity", FormatInt32(Data->ResourceQuantity));
+	JsonObject->SetStringField("ExtraIdentifier", Data->ExtraIdentifier.ToString());
 
 	return JsonObject;
 }

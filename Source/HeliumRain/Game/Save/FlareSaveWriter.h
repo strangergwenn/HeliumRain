@@ -90,6 +90,7 @@ protected:
 	TSharedRef<FJsonObject> SaveTradeRoute(FFlareTradeRouteSave* Data);
 	TSharedRef<FJsonObject> SaveTradeRouteSector(FFlareTradeRouteSectorSave* Data);
 	TSharedRef<FJsonObject> SaveSectorKnowledge(FFlareCompanySectorKnowledge* Data);
+	TSharedRef<FJsonObject> SaveTransactionLogEntry(FFlareTransactionLogEntry* Data);
 	TSharedRef<FJsonObject> SaveCompanyAI(FFlareCompanyAISave* Data);
 	TSharedRef<FJsonObject> SaveCompanyReputation(FFlareCompanyReputationSave* Data);
 

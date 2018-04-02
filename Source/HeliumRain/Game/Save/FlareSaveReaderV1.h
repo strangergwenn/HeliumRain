@@ -55,6 +55,7 @@ protected:
 	void LoadTradeRoute(const TSharedPtr<FJsonObject> Object, FFlareTradeRouteSave* Data);
 	void LoadTradeRouteSector(const TSharedPtr<FJsonObject> Object, FFlareTradeRouteSectorSave* Data);
 	void LoadSectorKnowledge(const TSharedPtr<FJsonObject> Object, FFlareCompanySectorKnowledge* Data);
+	void LoadTransactionLogEntry(const TSharedPtr<FJsonObject> Object, FFlareTransactionLogEntry* Data);
 	void LoadCompanyAI(const TSharedPtr<FJsonObject> Object, FFlareCompanyAISave* Data);
 	void LoadCompanyReputation(const TSharedPtr<FJsonObject> Object, FFlareCompanyReputationSave* Data);
 
