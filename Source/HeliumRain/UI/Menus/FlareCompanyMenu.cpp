@@ -472,8 +472,9 @@ void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 
 	bool even = true;
 
-	for(FFlareTransactionLogEntry const& Transaction : Target->GetTransactionLog())
+	for(int i = Target->GetTransactionLog().Num() -1 ; i >= 0 ; i--)
 	{
+		FFlareTransactionLogEntry const& Transaction = Target->GetTransactionLog()[i];
 		AddTransactionLog(Transaction.Date,
 						  Transaction.Amount,
 						  Target,
