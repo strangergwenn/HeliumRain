@@ -796,7 +796,7 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 			}
 			else
 			{
-				Comment = FText::Format(LOCTEXT("ManualResourcePurchase", "Bought {0} to {1}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+				Comment = FText::Format(LOCTEXT("ManualResourcePurchase", "Bought {0} from {1}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
 			}
 		}
 		break;
@@ -831,11 +831,11 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 
 			if(TradeRouteCache)
 			{
-				Comment = FText::Format(LOCTEXT("TradeRouteResourcePurchase", "Bought {0} to {1} on trade route {2}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache), TradeRouteCache->GetTradeRouteName());
+				Comment = FText::Format(LOCTEXT("TradeRouteResourcePurchase", "Bought {0} from {1} on trade route {2}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache), TradeRouteCache->GetTradeRouteName());
 			}
 			else
 			{
-				Comment = FText::Format(LOCTEXT("NotTradeRouteResourcePurchase", "Bought {0} to {1} on an old trade route"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+				Comment = FText::Format(LOCTEXT("NotTradeRouteResourcePurchase", "Bought {0} from {1} on an old trade route"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
 			}
 		}
 		break;
