@@ -61,7 +61,7 @@ public:
 	void ShowCompanyLog(UFlareCompany* Target);
 
 	/** Generate a log line separator for days */
-	void AddTransactionDay(int64 Time, UFlareCompany* Target, bool EvenIndex);
+	void AddTransactionDay(int64 Time, int64 Balance, UFlareCompany* Target, bool EvenIndex);
 
 	/** Generate a log line */
 	void AddTransactionLog(const FFlareTransactionLogEntry& Entry, UFlareCompany* Target, bool EvenIndex);

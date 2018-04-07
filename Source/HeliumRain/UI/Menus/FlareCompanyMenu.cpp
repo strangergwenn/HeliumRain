@@ -480,15 +480,34 @@ void SFlareCompanyMenu::ShowProperty(UFlareCompany* Target)
 void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 {
 	CompanyLog->ClearChildren();
-	int64 CurrentDate = 0;
-	bool Even = true;
 
+	// Compute balances
+	TMap<int64, int64> DayBalances;
+	for (const FFlareTransactionLogEntry& Entry : Target->GetTransactionLog())
+	{
+		int64* PreviousBalance = DayBalances.Find(Entry.Date);
+		if (PreviousBalance)
+		{
+			DayBalances.Add(Entry.Date, Entry.Amount + *PreviousBalance);			
+		}
+		else
+		{
+			DayBalances.Add(Entry.Date, Entry.Amount);
+		}
+	}
+
+	// Generate the full log
+	bool Even = true;
+	int64 CurrentDate = 0;
 	for (const FFlareTransactionLogEntry& Entry : Target->GetTransactionLog())
 	{
 		// Add day header if the date just changed
 		if (Entry.Date != CurrentDate)
 		{
-			AddTransactionDay(Entry.Date, Target, Even);
+			int64* Balance = DayBalances.Find(Entry.Date);
+			FCHECK(Balance);
+
+			AddTransactionDay(Entry.Date, *Balance, Target, Even);
 			CurrentDate = Entry.Date;
 			Even = !Even;
 		}
@@ -499,7 +518,7 @@ void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 	}
 }
 
-void SFlareCompanyMenu::AddTransactionDay(int64 Time, UFlareCompany* Target, bool EvenIndex)
+void SFlareCompanyMenu::AddTransactionDay(int64 Time, int64 Balance, UFlareCompany* Target, bool EvenIndex)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
@@ -534,6 +553,20 @@ void SFlareCompanyMenu::AddTransactionDay(int64 Time, UFlareCompany* Target, boo
 				.Text(FText::Format(LOCTEXT("TransactionDayFormat", "Transactions by {0} on {1}"),
 					Target->GetCompanyName(),
 					UFlareGameTools::GetDisplayDate(Time)))
+			]
+
+			// Date
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Center)
+			.Padding(Theme.SmallContentPadding)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.SmallFont)
+				.Text(FText::Format(LOCTEXT("TransactionBalanceFormat", "({0})"),
+					FText::AsNumber(UFlareGameTools::DisplayMoney(Balance))))
+				.ColorAndOpacity(Balance >= 0 ? Theme.FriendlyColor : Theme.EnemyColor)
 			]
 
 			+ SHorizontalBox::Slot()
