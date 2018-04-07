@@ -60,9 +60,11 @@ public:
 	/** Show the company economy log */
 	void ShowCompanyLog(UFlareCompany* Target);
 
+	/** Generate a log line separator for days */
+	void AddTransactionDay(int64 Time, UFlareCompany* Target, bool EvenIndex);
+
 	/** Generate a log line */
-	void AddTransactionLog(int64 Time, int64 Value, UFlareCompany* Owner, UFlareCompany* Other,
-		UFlareSimulatedSector* Sector, UFlareSimulatedSpacecraft* Source, FText Comment, bool EvenIndex);
+	void AddTransactionLog(const FFlareTransactionLogEntry& Entry, UFlareCompany* Target, bool EvenIndex);
 
 
 	/*----------------------------------------------------
@@ -74,7 +76,13 @@ public:
 
 	/** Emblem picked */
 	void OnEmblemPicked(int32 Index);
-		
+
+	/** Spacecraft picked */
+	void OnTransactionLogSectorClicked(UFlareSimulatedSector* Sector);
+
+	/** Spacecraft picked */
+	void OnTransactionLogSourceClicked(UFlareSimulatedSpacecraft* Source);
+
 
 protected:
 
