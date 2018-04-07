@@ -647,6 +647,8 @@ void SFlareCompanyMenu::ShowCompanyAccounting(UFlareCompany* Target)
 	AddAccountingCategory(EFlareTransactionLogEntry::FactoryWages, Balances, Target, true);
 	AddAccountingCategory(EFlareTransactionLogEntry::CancelFactoryWages, Balances, Target, false);
 	AddAccountingCategory(EFlareTransactionLogEntry::PeoplePurchase, Balances, Target, true);
+	AddAccountingCategory(EFlareTransactionLogEntry::PaidForRepair, Balances, Target, false);
+	AddAccountingCategory(EFlareTransactionLogEntry::PaidForRefill, Balances, Target, true);
 
 	// Others
 	AddAccountingHeader(LOCTEXT("AccountingHeaderOthers", "Others"));

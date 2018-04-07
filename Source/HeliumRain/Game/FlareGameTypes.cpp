@@ -700,8 +700,8 @@ FText FFlareTransactionLogEntry::GetCategoryDescription(EFlareTransactionLogEntr
 	case EFlareTransactionLogEntry::InitialMoney:               return LOCTEXT("InitialMoney",               "Initial capital");            break;
 	case EFlareTransactionLogEntry::PayRepair:                  return LOCTEXT("PayRepair",                  "Ship repairs");               break;
 	case EFlareTransactionLogEntry::PayRefill:                  return LOCTEXT("PayRefill",                  "Ship refilling");             break;
-	case EFlareTransactionLogEntry::PaidForRepair:              return LOCTEXT("PaidForRepair",              "Ship repairs");               break;
-	case EFlareTransactionLogEntry::PaidForRefill:              return LOCTEXT("PaidForRefill",              "Ship refilling");             break;
+	case EFlareTransactionLogEntry::PaidForRepair:              return LOCTEXT("PaidForRepair",              "Ship repair services");       break;
+	case EFlareTransactionLogEntry::PaidForRefill:              return LOCTEXT("PaidForRefill",              "Ship refilling services");    break;
 	case EFlareTransactionLogEntry::SendTribute:                return LOCTEXT("SendTribute",                "Tributes paid");              break;
 	case EFlareTransactionLogEntry::ReceiveTribute:             return LOCTEXT("ReceiveTribute",             "Tributes received");          break;
 	case EFlareTransactionLogEntry::RecoveryFees:               return LOCTEXT("RecoveryFees",               "Ship recovery");              break;
