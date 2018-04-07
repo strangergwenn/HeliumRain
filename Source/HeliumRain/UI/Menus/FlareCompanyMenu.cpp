@@ -282,7 +282,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 							SNew(SBox)
 							.WidthOverride(LargeWidth)
 							.HAlign(HAlign_Left)
-							.Padding(Theme.ContentPadding)
+							.Padding(Theme.ContentPadding + FMargin(10, 0, 0, 0))
 							[
 								SNew(STextBlock)
 								.TextStyle(&Theme.NameFont)
@@ -297,7 +297,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 							SNew(SBox)
 							.WidthOverride(SmallWidth)
 							.HAlign(HAlign_Left)
-							.Padding(Theme.ContentPadding)
+							.Padding(Theme.ContentPadding + FMargin(10, 0, 0, 0))
 							[
 								SNew(STextBlock)
 								.TextStyle(&Theme.NameFont)
@@ -504,25 +504,33 @@ void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 		// Add day header if the date just changed
 		if (Entry.Date != CurrentDate)
 		{
-			int64* Balance = DayBalances.Find(Entry.Date);
-			FCHECK(Balance);
+			if (CurrentDate != 0)
+			{
+				int64* Balance = DayBalances.Find(CurrentDate);
+				FCHECK(Balance);
+				AddTransactionDay(CurrentDate, *Balance, Target, Even);
+				Even = !Even;
+			}
 
-			AddTransactionDay(Entry.Date, *Balance, Target, Even);
 			CurrentDate = Entry.Date;
-			Even = !Even;
 		}
 
 		// Add regular transaction log entry
 		AddTransactionLog(Entry, Target, Even);
 		Even = !Even;
 	}
+
+	// Add header for the last day
+	int64* Balance = DayBalances.Find(CurrentDate);
+	FCHECK(Balance);
+	AddTransactionDay(CurrentDate, *Balance, Target, Even);
 }
 
 void SFlareCompanyMenu::AddTransactionDay(int64 Time, int64 Balance, UFlareCompany* Target, bool EvenIndex)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	CompanyLog->AddSlot()
+	CompanyLog->InsertSlot(0)
 	[
 		SNew(SBorder)
 		.BorderImage((EvenIndex ? &Theme.EvenBrush : &Theme.OddBrush))
@@ -607,7 +615,7 @@ void SFlareCompanyMenu::AddTransactionLog(const FFlareTransactionLogEntry& Entry
 	}
 
 	// Add structure
-	CompanyLog->AddSlot()
+	CompanyLog->InsertSlot(0)
 	.AutoHeight()
 	[
 		SNew(SBorder)
