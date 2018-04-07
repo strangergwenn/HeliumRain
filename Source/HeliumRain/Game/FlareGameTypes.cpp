@@ -680,6 +680,41 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogQuestReward(UFlareCompan
 	return Entry;
 }
 
+FText FFlareTransactionLogEntry::GetCategoryDescription(EFlareTransactionLogEntry::Type Type)
+{
+	switch (Type)
+	{		
+	case EFlareTransactionLogEntry::ManualResourcePurchase:     return LOCTEXT("ManualResourcePurchase",     "Resources purchases");        break;
+	case EFlareTransactionLogEntry::ManualResourceSell:         return LOCTEXT("ManualResourceSell",         "Resources sales");            break;
+	case EFlareTransactionLogEntry::TradeRouteResourcePurchase: return LOCTEXT("TradeRouteResourcePurchase", "Trade route purchases");      break;
+	case EFlareTransactionLogEntry::TradeRouteResourceSell:     return LOCTEXT("TradeRouteResourceSell",     "Trade route sales");          break;
+	case EFlareTransactionLogEntry::FactoryWages:               return LOCTEXT("FactoryWages",               "Factory wages");              break;
+	case EFlareTransactionLogEntry::CancelFactoryWages:         return LOCTEXT("CancelFactoryWages",         "Factory wages cancelled");    break;
+	case EFlareTransactionLogEntry::StationConstructionFees:    return LOCTEXT("StationConstructionFees",    "Station construction");       break;
+	case EFlareTransactionLogEntry::StationUpgradeFees:         return LOCTEXT("StationUpgradeFees",         "Station upgrades");           break;
+	case EFlareTransactionLogEntry::UpgradeShipPart:            return LOCTEXT("UpgradeShipPart",            "Ship upgrades");              break;
+	case EFlareTransactionLogEntry::OrderShip:                  return LOCTEXT("OrderShip",                  "Ship construction");          break;
+	case EFlareTransactionLogEntry::CancelOrderShip:            return LOCTEXT("CancelOrderShip",            "Ship construction refunds");  break;
+	case EFlareTransactionLogEntry::OrderShipAdvance:           return LOCTEXT("OrderShipAdvance",           "Ship construction advances"); break;
+	case EFlareTransactionLogEntry::PeoplePurchase:             return LOCTEXT("PeoplePurchase",             "Population purchases");       break;
+	case EFlareTransactionLogEntry::InitialMoney:               return LOCTEXT("InitialMoney",               "Initial capital");            break;
+	case EFlareTransactionLogEntry::PayRepair:                  return LOCTEXT("PayRepair",                  "Ship repairs");               break;
+	case EFlareTransactionLogEntry::PayRefill:                  return LOCTEXT("PayRefill",                  "Ship refilling");             break;
+	case EFlareTransactionLogEntry::PaidForRepair:              return LOCTEXT("PaidForRepair",              "Ship repairs");               break;
+	case EFlareTransactionLogEntry::PaidForRefill:              return LOCTEXT("PaidForRefill",              "Ship refilling");             break;
+	case EFlareTransactionLogEntry::SendTribute:                return LOCTEXT("SendTribute",                "Tributes paid");              break;
+	case EFlareTransactionLogEntry::ReceiveTribute:             return LOCTEXT("ReceiveTribute",             "Tributes received");          break;
+	case EFlareTransactionLogEntry::RecoveryFees:               return LOCTEXT("RecoveryFees",               "Ship recovery");              break;
+	case EFlareTransactionLogEntry::ScrapGain:                  return LOCTEXT("ScrapGain",                  "Ship scrapping");             break;
+	case EFlareTransactionLogEntry::Cheat:                      return LOCTEXT("Cheat",                      "Unlawful transactions");      break;
+	case EFlareTransactionLogEntry::QuestReward:                return LOCTEXT("QuestReward",                "Contracts");                  break;
+	case EFlareTransactionLogEntry::MutualAssistance:           return LOCTEXT("MutualAssistance",           "Mutual assistance");          break;
+	case EFlareTransactionLogEntry::ScrapCost:                  return LOCTEXT("ScrapCost",                  "Ship scrapping costs");       break;
+	}
+
+	return FText();
+}
+
 UFlareCompany* FFlareTransactionLogEntry::GetOtherCompany(AFlareGame* Game) const
 {
 	if(OtherCompany != NAME_None)

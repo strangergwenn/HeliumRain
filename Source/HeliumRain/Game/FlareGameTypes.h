@@ -199,7 +199,7 @@ namespace EFlareTransactionLogEntry
 {
 	enum Type
 	{
-		ManualResourcePurchase,
+		ManualResourcePurchase = 0,
 		ManualResourceSell,
 		TradeRouteResourcePurchase,
 		TradeRouteResourceSell,
@@ -215,18 +215,18 @@ namespace EFlareTransactionLogEntry
 		InitialMoney,
 		PayRepair,
 		PayRefill,
-		PaidForRepair,
-		PaidForRefill,
+		PaidForRepair, // AI only
+		PaidForRefill, // AI only
 		SendTribute,
-		ReceiveTribute,
+		ReceiveTribute, // AI only
 		RecoveryFees,
 		ScrapGain,
-		Cheat,
+		Cheat, // cheat !
 		QuestReward,
+		MutualAssistance, // AI only
+		ScrapCost, // AI only
 
-		//AI only
-		MutualAssistance,
-		ScrapCost
+		TYPE_COUNT
 	};
 }
 
@@ -260,7 +260,6 @@ struct FFlareTransactionLogEntry
 	static FFlareTransactionLogEntry LogCheat();
 	static FFlareTransactionLogEntry LogQuestReward(UFlareCompany* Company);
 
-
 	int64 Date;
 	int64 Amount;
 	EFlareTransactionLogEntry::Type Type;
@@ -272,6 +271,8 @@ struct FFlareTransactionLogEntry
 	int32 ResourceQuantity;
 	FName ExtraIdentifier1;
 	FName ExtraIdentifier2;
+
+	static FText GetCategoryDescription(EFlareTransactionLogEntry::Type Type);
 
 	UFlareCompany* GetOtherCompany(AFlareGame* Game) const;
 	UFlareSimulatedSector* GetSector(AFlareGame* Game) const;

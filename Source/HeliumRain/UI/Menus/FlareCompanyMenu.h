@@ -60,11 +60,20 @@ public:
 	/** Show the company economy log */
 	void ShowCompanyLog(UFlareCompany* Target);
 
+	/** Show the company accounting */
+	void ShowCompanyAccounting(UFlareCompany* Target);
+
 	/** Generate a log line separator for days */
-	void AddTransactionDay(int64 Time, int64 Balance, UFlareCompany* Target, bool EvenIndex);
+	void AddTransactionHeader(int64 Time, int64 Balance, UFlareCompany* Target);
 
 	/** Generate a log line */
 	void AddTransactionLog(const FFlareTransactionLogEntry& Entry, UFlareCompany* Target, bool EvenIndex);
+	
+	/** Generate a log line separator for days */
+	void AddAccountingHeader(FText Text);
+
+	/** Generate an accounting line */
+	void AddAccountingCategory(EFlareTransactionLogEntry::Type, TArray<int64>& Balances, UFlareCompany* Target, bool EvenIndex);
 
 
 	/*----------------------------------------------------
@@ -107,6 +116,6 @@ protected:
 	TSharedPtr<SEditableText>                CompanyName;
 	TSharedPtr<SFlareDropList<int32>>        EmblemPicker;
 	TSharedPtr<SVerticalBox>                 CompanyLog;
-
+	TSharedPtr<SVerticalBox>                 CompanyAccounting;
 
 };

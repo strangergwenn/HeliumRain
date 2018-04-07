@@ -207,142 +207,220 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 			.VAlign(VAlign_Fill)
 			.Padding(FMargin(0))
 			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
-				.HAlign(HAlign_Fill)
-				[
-					SNew(SVerticalBox)
+				SNew(SVerticalBox)
 
-					// Title
-					+ SVerticalBox::Slot()
-					.Padding(Theme.TitlePadding)
-					.AutoHeight()
+				// Title
+				+ SVerticalBox::Slot()
+				.Padding(Theme.TitlePadding)
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.SubTitleFont)
+					.Text(LOCTEXT("CompanyLogTitle", "Transaction log"))
+				]
+
+				// Header
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SHorizontalBox)
+
+					// Date
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitleDate", "Date"))
+						]
+					]
+
+					// Debit
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitleDebit", "Debit"))
+						]
+					]
+
+					// Credit
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitleCredit", "Credit"))
+						]
+					]
+
+					// Source
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(LargeWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding + FMargin(10, 0, 0, 0))
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitleSource", "Source"))
+						]
+					]
+
+					// Location
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding + FMargin(10, 0, 0, 0))
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitleSector", "Sector"))
+						]
+					]
+
+					// Partner
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitlePartner", "Partner"))
+						]
+					]
+
+					// Comment
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(VeryLargeWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("TransactionTitleComment", "Comment"))
+						]
+					]
+				]
+
+				// Company log contents
+				+ SVerticalBox::Slot()
+				.HAlign(HAlign_Fill)
+				.AutoHeight()
+				[
+					SAssignNew(CompanyLog, SVerticalBox)
+				]
+			]
+		]
+
+		// Company accounting
+		+ SFlareTabView::Slot()
+		.Header(LOCTEXT("CompanyAccountingTab", "Accounting"))
+		.HeaderHelp(LOCTEXT("CompanyAccountingTabHelp", "Company accounts"))
+		[
+			SNew(SVerticalBox)
+
+			// Title
+			+ SVerticalBox::Slot()
+			.Padding(Theme.TitlePadding)
+			.AutoHeight()
+			.HAlign(HAlign_Left)
+			[
+				SNew(STextBlock)
+				.TextStyle(&Theme.SubTitleFont)
+				.Text(LOCTEXT("CompanyAccountingTitle", "Accounting"))
+			]
+		
+			// Header
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				SNew(SHorizontalBox)
+
+				// Type
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SBox)
+					.WidthOverride(LargeWidth)
 					.HAlign(HAlign_Left)
+					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
-						.TextStyle(&Theme.SubTitleFont)
-						.Text(LOCTEXT("CompanyLogTitle", "Transaction log"))
+						.TextStyle(&Theme.NameFont)
+						.Text(LOCTEXT("AccountingTitleType", "Category"))
 					]
+				]
 
-					// Header
-					+ SVerticalBox::Slot()
-					.AutoHeight()
+				// Debit
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SBox)
+					.WidthOverride(SmallWidth)
+					.HAlign(HAlign_Left)
+					.Padding(Theme.ContentPadding)
 					[
-						SNew(SHorizontalBox)
-
-						// Date
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SNew(SBox)
-							.WidthOverride(SmallWidth)
-							.HAlign(HAlign_Left)
-							.Padding(Theme.ContentPadding)
-							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("TransactionTitleDate", "Date"))
-							]
-						]
-
-						// Debit
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SNew(SBox)
-							.WidthOverride(SmallWidth)
-							.HAlign(HAlign_Left)
-							.Padding(Theme.ContentPadding)
-							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("TransactionTitleDebit", "Debit"))
-							]
-						]
-
-						// Credit
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SNew(SBox)
-							.WidthOverride(SmallWidth)
-							.HAlign(HAlign_Left)
-							.Padding(Theme.ContentPadding)
-							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("TransactionTitleCredit", "Credit"))
-							]
-						]
-
-						// Source
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SNew(SBox)
-							.WidthOverride(LargeWidth)
-							.HAlign(HAlign_Left)
-							.Padding(Theme.ContentPadding + FMargin(10, 0, 0, 0))
-							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("TransactionTitleSource", "Source"))
-							]
-						]
-
-						// Location
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SNew(SBox)
-							.WidthOverride(SmallWidth)
-							.HAlign(HAlign_Left)
-							.Padding(Theme.ContentPadding + FMargin(10, 0, 0, 0))
-							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("TransactionTitleSector", "Sector"))
-							]
-						]
-
-						// Partner
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SNew(SBox)
-							.WidthOverride(SmallWidth)
-							.HAlign(HAlign_Left)
-							.Padding(Theme.ContentPadding)
-							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("TransactionTitlePartner", "Partner"))
-							]
-						]
-
-						// Comment
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						[
-							SNew(SBox)
-							.WidthOverride(VeryLargeWidth)
-							.HAlign(HAlign_Left)
-							.Padding(Theme.ContentPadding)
-							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("TransactionTitleComment", "Comment"))
-							]
-						]
+						SNew(STextBlock)
+						.TextStyle(&Theme.NameFont)
+						.Text(LOCTEXT("AccountingTitleDebit", "Debit"))
 					]
+				]
 
-					// Company log contents
-					+ SVerticalBox::Slot()
-					.HAlign(HAlign_Fill)
-					.AutoHeight()
+				// Credit
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SBox)
+					.WidthOverride(SmallWidth)
+					.HAlign(HAlign_Left)
+					.Padding(Theme.ContentPadding)
 					[
-						SAssignNew(CompanyLog, SVerticalBox)
+						SNew(STextBlock)
+						.TextStyle(&Theme.NameFont)
+						.Text(LOCTEXT("AccountingTitleCredit", "Credit"))
 					]
+				]
+			]
+
+			// Company accounting contents
+			+ SVerticalBox::Slot()
+			.HAlign(HAlign_Left)
+			.AutoHeight()
+			[
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
+				[
+					SAssignNew(CompanyAccounting, SVerticalBox)
 				]
 			]
 		]
@@ -429,6 +507,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	// Sub-menus
 	ShowProperty(Target);
 	ShowCompanyLog(Target);
+	ShowCompanyAccounting(Target);
 
 	// Refresh
 	ShipList->RefreshList();
@@ -444,6 +523,7 @@ void SFlareCompanyMenu::Exit()
 	EmblemPicker->ClearItems();
 	TradeRouteInfo->Clear();
 	CompanyLog->ClearChildren();
+	CompanyAccounting->ClearChildren();
 
 	Company = NULL;
 	SetVisibility(EVisibility::Collapsed);
@@ -508,8 +588,7 @@ void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 			{
 				int64* Balance = DayBalances.Find(CurrentDate);
 				FCHECK(Balance);
-				AddTransactionDay(CurrentDate, *Balance, Target, Even);
-				Even = !Even;
+				AddTransactionHeader(CurrentDate, *Balance, Target);
 			}
 
 			CurrentDate = Entry.Date;
@@ -523,70 +602,117 @@ void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 	// Add header for the last day
 	int64* Balance = DayBalances.Find(CurrentDate);
 	FCHECK(Balance);
-	AddTransactionDay(CurrentDate, *Balance, Target, Even);
+	AddTransactionHeader(CurrentDate, *Balance, Target);
 }
 
-void SFlareCompanyMenu::AddTransactionDay(int64 Time, int64 Balance, UFlareCompany* Target, bool EvenIndex)
+void SFlareCompanyMenu::ShowCompanyAccounting(UFlareCompany* Target)
+{
+	CompanyAccounting->ClearChildren();
+
+	// Initialize balances
+	TArray<int64> Balances;
+	for (int32 Type = 0; Type < EFlareTransactionLogEntry::Type::TYPE_COUNT; Type++)
+	{
+		Balances.Add(0);
+	}
+
+	// Compute balances
+	for (const FFlareTransactionLogEntry& Entry : Target->GetTransactionLog())
+	{
+		Balances[Entry.Type] += Entry.Amount;
+	}
+
+	// Trading
+	AddAccountingHeader(LOCTEXT("AccountingHeaderTrading", "Trading"));
+	AddAccountingCategory(EFlareTransactionLogEntry::ManualResourcePurchase, Balances, Target, true);
+	AddAccountingCategory(EFlareTransactionLogEntry::ManualResourceSell, Balances, Target, false);
+	AddAccountingCategory(EFlareTransactionLogEntry::TradeRouteResourcePurchase, Balances, Target, true);
+	AddAccountingCategory(EFlareTransactionLogEntry::TradeRouteResourceSell, Balances, Target, false);
+
+	// Ships
+	AddAccountingHeader(LOCTEXT("AccountingHeaderShips", "Ships"));
+	AddAccountingCategory(EFlareTransactionLogEntry::OrderShip, Balances, Target, false);
+	AddAccountingCategory(EFlareTransactionLogEntry::OrderShipAdvance, Balances, Target, false);
+	AddAccountingCategory(EFlareTransactionLogEntry::CancelOrderShip, Balances, Target, true);
+	AddAccountingCategory(EFlareTransactionLogEntry::UpgradeShipPart, Balances, Target, true);
+	AddAccountingCategory(EFlareTransactionLogEntry::PayRepair, Balances, Target, true);
+	AddAccountingCategory(EFlareTransactionLogEntry::PayRefill, Balances, Target, false);
+	AddAccountingCategory(EFlareTransactionLogEntry::RecoveryFees, Balances, Target, false);
+	AddAccountingCategory(EFlareTransactionLogEntry::ScrapGain, Balances, Target, true);
+
+	// Stations
+	AddAccountingHeader(LOCTEXT("AccountingHeaderStations", "Stations"));
+	AddAccountingCategory(EFlareTransactionLogEntry::StationConstructionFees, Balances, Target, true);
+	AddAccountingCategory(EFlareTransactionLogEntry::StationUpgradeFees, Balances, Target, false);
+	AddAccountingCategory(EFlareTransactionLogEntry::FactoryWages, Balances, Target, true);
+	AddAccountingCategory(EFlareTransactionLogEntry::CancelFactoryWages, Balances, Target, false);
+	AddAccountingCategory(EFlareTransactionLogEntry::PeoplePurchase, Balances, Target, true);
+
+	// Others
+	AddAccountingHeader(LOCTEXT("AccountingHeaderOthers", "Others"));
+	AddAccountingCategory(EFlareTransactionLogEntry::QuestReward, Balances, Target, false);
+	AddAccountingCategory(EFlareTransactionLogEntry::SendTribute, Balances, Target, true);
+	AddAccountingCategory(EFlareTransactionLogEntry::InitialMoney, Balances, Target, false);
+}
+
+void SFlareCompanyMenu::AddTransactionHeader(int64 Time, int64 Balance, UFlareCompany* Target)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
 	CompanyLog->InsertSlot(0)
+	.AutoHeight()
 	[
-		SNew(SBorder)
-		.BorderImage((EvenIndex ? &Theme.EvenBrush : &Theme.OddBrush))
-		[
-			SNew(SHorizontalBox)
+		SNew(SHorizontalBox)
 			
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Center)
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		[
+			SNew(SBox)
+			.HeightOverride(2)
 			[
-				SNew(SBox)
-				.HeightOverride(2)
-				[
-					SNew(SImage)
-					.Image(&Theme.NearInvisibleBrush)
-				]
+				SNew(SImage)
+				.Image(&Theme.NearInvisibleBrush)
 			]
+		]
 
-			// Date
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Center)
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.SmallFont)
-				.Text(FText::Format(LOCTEXT("TransactionDayFormat", "Transactions by {0} on {1}"),
-					Target->GetCompanyName(),
-					UFlareGameTools::GetDisplayDate(Time)))
-			]
+		// Date
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.SmallFont)
+			.Text(FText::Format(LOCTEXT("TransactionDayFormat", "Transactions by {0} on {1}"),
+				Target->GetCompanyName(),
+				UFlareGameTools::GetDisplayDate(Time)))
+		]
 
-			// Date
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.HAlign(HAlign_Center)
-			.VAlign(VAlign_Center)
-			.Padding(Theme.SmallContentPadding)
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.SmallFont)
-				.Text(FText::Format(LOCTEXT("TransactionBalanceFormat", "({0})"),
-					FText::AsNumber(UFlareGameTools::DisplayMoney(Balance))))
-				.ColorAndOpacity(Balance >= 0 ? Theme.FriendlyColor : Theme.EnemyColor)
-			]
+		// Date
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.SmallFont)
+			.Text(FText::Format(LOCTEXT("TransactionBalanceFormat", "({0})"),
+				FText::AsNumber(UFlareGameTools::DisplayMoney(Balance))))
+			.ColorAndOpacity(Balance >= 0 ? Theme.FriendlyColor : Theme.EnemyColor)
+		]
 
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Center)
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		[
+			SNew(SBox)
+			.HeightOverride(2)
 			[
-				SNew(SBox)
-				.HeightOverride(2)
-				[
-					SNew(SImage)
-					.Image(&Theme.NearInvisibleBrush)
-				]
+				SNew(SImage)
+				.Image(&Theme.NearInvisibleBrush)
 			]
 		]
 	];
@@ -733,6 +859,130 @@ void SFlareCompanyMenu::AddTransactionLog(const FFlareTransactionLogEntry& Entry
 					.TextStyle(&Theme.TextFont)
 					.Text(Comment)
 					.WrapTextAt(VeryLargeWidth - 2 * Theme.ContentPadding.Left - 2 * Theme.ContentPadding.Right)
+				]
+			]
+		]
+	];
+}
+
+void SFlareCompanyMenu::AddAccountingHeader(FText Text)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	CompanyAccounting->AddSlot()
+	.AutoHeight()
+	[
+		SNew(SHorizontalBox)
+			
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		[
+			SNew(SBox)
+			.HeightOverride(2)
+			[
+				SNew(SImage)
+				.Image(&Theme.NearInvisibleBrush)
+			]
+		]
+
+		// Text
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.SmallFont)
+			.Text(Text)
+		]
+
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Center)
+		[
+			SNew(SBox)
+			.HeightOverride(2)
+			[
+				SNew(SImage)
+				.Image(&Theme.NearInvisibleBrush)
+			]
+		]
+	];
+}
+
+void SFlareCompanyMenu::AddAccountingCategory(EFlareTransactionLogEntry::Type Type, TArray<int64>& Balances, UFlareCompany* Target, bool EvenIndex)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	FText Category = FFlareTransactionLogEntry::GetCategoryDescription(Type);
+	FCHECK(Type < Balances.Num());
+
+	// Format credit & debit
+	FText Credit;
+	FText Debit;
+	if (Balances[Type] >= 0)
+	{
+		Debit = FText::AsNumber(UFlareGameTools::DisplayMoney(Balances[Type]));
+	}
+	else
+	{
+		Credit = FText::AsNumber(UFlareGameTools::DisplayMoney(Balances[Type]));
+	}
+
+	// Add structure
+	CompanyAccounting->AddSlot()
+	.AutoHeight()
+	[
+		SNew(SBorder)
+		.BorderImage((EvenIndex ? &Theme.EvenBrush : &Theme.OddBrush))
+		[
+			SNew(SHorizontalBox)
+
+			// Category
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.WidthOverride(LargeWidth)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(Category)
+				]
+			]
+
+			// Debit
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.WidthOverride(SmallWidth)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.ColorAndOpacity(Theme.FriendlyColor)
+					.Text(Debit)
+				]
+			]
+
+			// Credit
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.HAlign(HAlign_Left)
+			[
+				SNew(SBox)
+				.WidthOverride(SmallWidth)
+				.Padding(Theme.ContentPadding)
+				[
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.ColorAndOpacity(Theme.EnemyColor)
+					.Text(Credit)
 				]
 			]
 		]
