@@ -63,7 +63,6 @@ void SFlareTabView::Construct(const FArguments& InArgs)
 		// Main view
 		+ SVerticalBox::Slot()
 		.HAlign(HAlign_Fill)
-		.Padding(Theme.ContentPadding)
 		[
 			SNew(SScrollBox)
 			.Style(&Theme.ScrollBoxStyle)
