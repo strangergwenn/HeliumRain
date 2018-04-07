@@ -792,11 +792,11 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 
 			if(IsAITransaction(SpacecraftCache, OtherSpacecraftCache))
 			{
-				Comment = FText::Format(LOCTEXT("AIManualResourcePurchase", "{0} sell {1} with {2}"), OtherSpacecraftCache->GetCompany()->GetCompanyName(), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+				Comment = FText::Format(LOCTEXT("AIManualResourcePurchase", "{0} sold {1} with {2}"), OtherSpacecraftCache->GetCompany()->GetCompanyName(), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
 			}
 			else
 			{
-				Comment = FText::Format(LOCTEXT("ManualResourcePurchase", "Buy {0} to {1}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+				Comment = FText::Format(LOCTEXT("ManualResourcePurchase", "Bought {0} to {1}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
 			}
 		}
 		break;
@@ -811,11 +811,11 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 
 			if(IsAITransaction(SpacecraftCache, OtherSpacecraftCache))
 			{
-				Comment = FText::Format(LOCTEXT("AIManualResourceSell", "{0} buy {1} with {2}"), OtherSpacecraftCache->GetCompany()->GetCompanyName(), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+				Comment = FText::Format(LOCTEXT("AIManualResourceSell", "{0} bought {1} with {2}"), OtherSpacecraftCache->GetCompany()->GetCompanyName(), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
 			}
 			else
 			{
-				Comment = FText::Format(LOCTEXT("ManualResourceSell", "Sell {0} to {1}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+				Comment = FText::Format(LOCTEXT("ManualResourceSell", "Sold {0} to {1}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
 			}
 		}
 		break;
@@ -831,11 +831,11 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 
 			if(TradeRouteCache)
 			{
-				Comment = FText::Format(LOCTEXT("TradeRouteResourcePurchase", "Buy {0} to {1} with trade route {2}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache), TradeRouteCache->GetTradeRouteName());
+				Comment = FText::Format(LOCTEXT("TradeRouteResourcePurchase", "Bought {0} to {1} on trade route {2}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache), TradeRouteCache->GetTradeRouteName());
 			}
 			else
 			{
-				Comment = FText::Format(LOCTEXT("NotTradeRouteResourcePurchase", "Buy {0} to {1} with an old trade route"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+				Comment = FText::Format(LOCTEXT("NotTradeRouteResourcePurchase", "Bought {0} to {1} on an old trade route"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
 			}
 		}
 		break;
@@ -851,11 +851,11 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 
 			if(TradeRouteCache)
 			{
-				Comment = FText::Format(LOCTEXT("TradeRouteResourceSell", "Sell {0} to {1} with trade route {2}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache), TradeRouteCache->GetTradeRouteName());
+				Comment = FText::Format(LOCTEXT("TradeRouteResourceSell", "Sold {0} to {1} on trade route {2}"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache), TradeRouteCache->GetTradeRouteName());
 			}
 			else
 			{
-				Comment = FText::Format(LOCTEXT("NotTradeRouteResourceSell", "Sell {0} to {1} with an old trade route"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
+				Comment = FText::Format(LOCTEXT("NotTradeRouteResourceSell", "Sold {0} to {1} on an old trade route"), ResourceComment, UFlareGameTools::DisplaySpacecraftName(OtherSpacecraftCache));
 			}
 		}
 		break;
@@ -872,7 +872,7 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 	{
 		if(SpacecraftCache)
 		{
-			Comment = FText::Format(LOCTEXT("CancelFactoryWages", "Cancel factory wages for {0}"), GetFactoryName());
+			Comment = FText::Format(LOCTEXT("CancelFactoryWages", "Cancelled factory wages for {0}"), GetFactoryName());
 		}
 		break;
 	}
@@ -882,7 +882,7 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 
 		if(Description)
 		{
-			Comment = FText::Format(LOCTEXT("StationConstructionFees", "Station contruction fees for {0}"), Description->Name);
+			Comment = FText::Format(LOCTEXT("StationConstructionFees", "Contruction fees for {0}"), Description->Name);
 		}
 		break;
 	}
@@ -907,13 +907,13 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		if(ResourceCache)
 		{
 			FText ResourceComment = FText::Format(LOCTEXT("PeoplePurchaseResources", "{0} {1}"), ResourceQuantity, ResourceCache->Name);
-			Comment = FText::Format(LOCTEXT("PeoplePurchase", "People buy {0}"), ResourceComment);
+			Comment = FText::Format(LOCTEXT("PeoplePurchase", "Population bought {0}"), ResourceComment);
 		}
 		break;
 	}
 	case EFlareTransactionLogEntry::InitialMoney:
 	{
-		Comment = LOCTEXT("InitialMoney", "Initial money");
+		Comment = LOCTEXT("InitialMoney", "Initial company capital");
 		break;
 	}
 
@@ -926,12 +926,12 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 	//RecoveryFees,
 	case EFlareTransactionLogEntry::ScrapGain:
 	{
-		Comment = LOCTEXT("ScrapGain", "Scrap gain");
+		Comment = LOCTEXT("ScrapGain", "Scrap money");
 		break;
 	}
 	case EFlareTransactionLogEntry::Cheat:
 	{
-		Comment = LOCTEXT("Cheat", "Cheat");
+		Comment = LOCTEXT("Cheat", "Unlawful transaction");
 		break;
 	}
 	case EFlareTransactionLogEntry::QuestReward:
