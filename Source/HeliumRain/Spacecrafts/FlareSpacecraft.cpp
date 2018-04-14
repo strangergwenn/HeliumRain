@@ -436,16 +436,20 @@ void AFlareSpacecraft::NotifyHit(class UPrimitiveComponent* MyComp, class AActor
 	// Strictly disallow self-collision : this should never happen
 	if (Other == this)
 	{
-		FLOGV("AFlareSpacecraft::NotifyHit : %s (%d) self-collision: %s/%s collided with %s/%s",
+		FString SelfCollisionReport = FString::Printf(
+			TEXT("AFlareSpacecraft::NotifyHit : %s (%d) self-collision: %s/%s collided with %s/%s in %s"),
 			*GetImmatriculation().ToString(),
 			IsPresentationMode(),
 			(this ? *this->GetName() : TEXT("null")),
 			(MyComp ? *MyComp->GetName() : TEXT("null")),
 			(Other ? *Other->GetName() : TEXT("null")),
-			(OtherComp ? *OtherComp->GetName() : TEXT("null"))
+			(OtherComp ? *OtherComp->GetName() : TEXT("null")),
+			*GetParent()->GetCurrentSector()->GetSectorName().ToString()
 		);
 
-		FCHECK(false);
+		FLOGV("%s", *SelfCollisionReport);
+
+		FFlareModule::ReportError(SelfCollisionReport);
 	}
 
 	// ghoul 10m/s -> asteroid : 5919376.500000

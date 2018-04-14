@@ -39,8 +39,22 @@ void FFlareModule::ShutdownModule()
 	delete StyleInstance;
 }
 
-void FFlareModule::ReportError(FString FunctionName)
+
+/*----------------------------------------------------
+	Error reporting
+----------------------------------------------------*/
+
+FThreadSafeBool HasCrashed = false;
+
+void FFlareModule::ReportError(FString Title)
 {
+	// Ensure no duplicates
+	if (HasCrashed)
+	{
+		return;
+	}
+	HasCrashed = true;
+
 	// Get stack trace
 	ANSICHAR Callstack[4096];
 	Callstack[0] = 0;
@@ -55,11 +69,13 @@ void FFlareModule::ReportError(FString FunctionName)
 	FString ReportURL = TEXT("http://deimos.games/report.php");
 	FString GameString = TEXT("Helium Rain");
 	FString GameParameter = TEXT("game");
+	FString TitleParameter = TEXT("title");
 	FString StackParameter = TEXT("callstack");
 
 	// Format data
 	FString RequestContent = GameParameter + TEXT("=") + GameString
-		+ TEXT("&") + StackParameter + TEXT("=") + FString(CallstackString);
+	          + TEXT("&") + TitleParameter + TEXT("=") + Title
+	          + TEXT("&") + StackParameter + TEXT("=") + FString(CallstackString);
 
 	// Report to server
 	TSharedRef<IHttpRequest> Request = FHttpModule::Get().CreateRequest();
@@ -84,9 +100,9 @@ void FFlareModule::ReportError(FString FunctionName)
 
 	// Report to user
 	FPlatformMisc::MessageBoxExt(EAppMsgType::Ok,
-		*FString::Printf(TEXT("Helium Rain crashed in %s. Please report it on dev.helium-rain.com.\n\n%s"), *FunctionName, CallstackString),
+		*FString::Printf(TEXT("Helium Rain crashed (%s). Please report it on dev.helium-rain.com.\n\n%s"), *Title, CallstackString),
 		TEXT("Sorry :("));
 
 	// Crash
-	check(false);
+	FPlatformMisc::RequestExit(0);
 }

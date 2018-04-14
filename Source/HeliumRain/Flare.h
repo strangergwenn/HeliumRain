@@ -43,7 +43,7 @@ public:
 	void ShutdownModule() override;
 
 	/** Send a crash report, display the stack and exit */
-	static void ReportError(FString FunctionName);
+	static void ReportError(FString Title);
 
 protected:
 
