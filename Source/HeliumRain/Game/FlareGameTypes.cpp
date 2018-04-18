@@ -936,7 +936,7 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		FFlareSpacecraftDescription* Description = Game->GetSpacecraftCatalog()->Get(ExtraIdentifier1);
 		if(Description)
 		{
-			Comment = FText::Format(LOCTEXT("OrderShip", "Order ship ({0}})"), Description->Name);
+			Comment = FText::Format(LOCTEXT("OrderShip", "Ordered ship ({0}})"), Description->Name);
 		}
 		break;
 	}
@@ -945,7 +945,7 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		FFlareSpacecraftDescription* Description = Game->GetSpacecraftCatalog()->Get(ExtraIdentifier1);
 		if(Description)
 		{
-			Comment = FText::Format(LOCTEXT("CancelOrderShip", "Cancel order ship ({0}})"), Description->Name);
+			Comment = FText::Format(LOCTEXT("CancelOrderShip", "Cancelled ship order ({0}})"), Description->Name);
 		}
 		break;
 	}
@@ -954,7 +954,7 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		FFlareSpacecraftDescription* Description = Game->GetSpacecraftCatalog()->Get(ExtraIdentifier1);
 		if(Description)
 		{
-			Comment = FText::Format(LOCTEXT("OrderShipAdvance", "Paid to build ship ({0}})"), Description->Name);
+			Comment = FText::Format(LOCTEXT("OrderShipAdvance", "Paid for ship order ({0}})"), Description->Name);
 		}
 		break;
 	}
