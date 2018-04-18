@@ -926,15 +926,38 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		Comment = LOCTEXT("StationUpgradeFees", "Station upgrade fees");
 		break;
 	}
-
-	/*case
-
-	,
-
-	UpgradeShipPart,
-	OrderShip,
-	CancelOrderShip,
-	OrderShipAdvance,*/
+	case EFlareTransactionLogEntry::UpgradeShipPart:
+	{
+		Comment = LOCTEXT("UpgradeShipFees", "Upgrade ship fees");
+		break;
+	}
+	case EFlareTransactionLogEntry::OrderShip:
+	{
+		FFlareSpacecraftDescription* Description = Game->GetSpacecraftCatalog()->Get(ExtraIdentifier1);
+		if(Description)
+		{
+			Comment = FText::Format(LOCTEXT("OrderShip", "Order ship ({0}})"), Description->Name);
+		}
+		break;
+	}
+	case EFlareTransactionLogEntry::CancelOrderShip:
+	{
+		FFlareSpacecraftDescription* Description = Game->GetSpacecraftCatalog()->Get(ExtraIdentifier1);
+		if(Description)
+		{
+			Comment = FText::Format(LOCTEXT("CancelOrderShip", "Cancel order ship ({0}})"), Description->Name);
+		}
+		break;
+	}
+	case EFlareTransactionLogEntry::OrderShipAdvance:
+	{
+		FFlareSpacecraftDescription* Description = Game->GetSpacecraftCatalog()->Get(ExtraIdentifier1);
+		if(Description)
+		{
+			Comment = FText::Format(LOCTEXT("OrderShipAdvance", "Paid to build ship ({0}})"), Description->Name);
+		}
+		break;
+	}
 	case EFlareTransactionLogEntry::PeoplePurchase:
 	{
 		//UFlareSimulatedSpacecraft* OtherSpacecraftCache = Game->GetGameWorld()->FindSpacecraft(ExtraIdentifier1);
