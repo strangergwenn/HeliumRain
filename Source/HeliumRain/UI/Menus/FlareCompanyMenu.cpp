@@ -601,8 +601,10 @@ void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 
 	// Add header for the last day
 	int64* Balance = DayBalances.Find(CurrentDate);
-	FCHECK(Balance);
-	AddTransactionHeader(CurrentDate, *Balance, Target);
+	if (Balance)
+	{
+		AddTransactionHeader(CurrentDate, *Balance, Target);
+	}
 }
 
 void SFlareCompanyMenu::ShowCompanyAccounting(UFlareCompany* Target)
