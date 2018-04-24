@@ -1944,6 +1944,11 @@ void SFlareTradeRouteMenu::OnDeleteOperationClicked(FFlareTradeRouteSectorOperat
 {
 	if (Operation && TargetTradeRoute)
 	{
+		if (Operation == SelectedOperation)
+		{
+			SelectedOperation = NULL;
+		}
+
 		TargetTradeRoute->DeleteOperation(Operation);
 		GenerateSectorList();
 	}
