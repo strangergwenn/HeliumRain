@@ -382,20 +382,16 @@ void SFlareMainOverlay::Tick(const FGeometry& AllottedGeometry, const double InC
 	SCompoundWidget::Tick(AllottedGeometry, InCurrentTime, InDeltaTime);
 	AFlarePlayerController* PC = MenuManager->GetPC();
 	
-	// Get 2D position
-	FVector2D MousePosition = MenuManager->GetPC()->GetMousePosition();
-	FVector2D ViewportSize = FVector2D(GEngine->GameViewport->Viewport->GetSizeXY());
-	float ViewportScale = GetDefault<UUserInterfaceSettings>(UUserInterfaceSettings::StaticClass())->GetDPIScaleBasedOnSize(FIntPoint(ViewportSize.X, ViewportSize.Y));
-
 	// Visibility check
-	float Height = AFlareMenuManager::GetMainOverlayHeight() + 2.0f;
-	if (!IsOverlayVisible || (MousePosition.Y / ViewportScale) > Height)
+	FVector2D MousePosition = FSlateApplication::Get().GetPlatformApplication().Get()->Cursor->GetPosition();
+	FVector2D RelativeMousePosition = AllottedGeometry.AbsoluteToLocal(MousePosition);
+	if (IsOverlayVisible && RelativeMousePosition.Y < AFlareMenuManager::GetMainOverlayHeight())
 	{
-		SetVisibility(EVisibility::HitTestInvisible);
+		SetVisibility(EVisibility::Visible);
 	}
 	else
 	{
-		SetVisibility(EVisibility::Visible);
+		SetVisibility(EVisibility::HitTestInvisible);
 	}
 
 	// Player info text
