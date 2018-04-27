@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 #include "../../Game/FlareGameTools.h"
 #include "../../Game/FlareCompany.h"
+#include "../../Game/FlareGameTools.h"
 #include "../../Game/FlareTradeRoute.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
