@@ -355,9 +355,54 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 			.AutoHeight()
 			.HAlign(HAlign_Left)
 			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.SubTitleFont)
-				.Text(LOCTEXT("CompanyAccountingTitle", "Accounting"))
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
+				.HAlign(HAlign_Fill)
+				[
+					SNew(SHorizontalBox)
+
+					// Previous
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Left)
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareButton)
+						.Width(1.5)
+						.Transparent(true)
+						.OnClicked(this, &SFlareCompanyMenu::OnPreviousYear)
+						.IsDisabled(this, &SFlareCompanyMenu::IsPreviousYearDisabled)
+						.Icon(FFlareStyleSet::GetIcon("MoveLeft"))
+						.Text(FText())
+						.HelpText(LOCTEXT("PreviousYearHelp", "Show accounting for the previous year"))
+					]
+
+					// Title
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Center)
+					.VAlign(VAlign_Center)
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SubTitleFont)
+						.Text(this, &SFlareCompanyMenu::GetAccountingTitle)
+					]
+
+					// Next year
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Right)
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SFlareButton)
+						.Width(1.5)
+						.OnClicked(this, &SFlareCompanyMenu::OnNextYear)
+						.IsDisabled(this, &SFlareCompanyMenu::IsNextYearDisabled)
+						.Icon(FFlareStyleSet::GetIcon("MoveRight"))
+						.Text(FText())
+						.HelpText(LOCTEXT("PreviousYearHelp", "Show accounting for the next year"))
+					]
+				]
 			]
 		
 			// Header
@@ -472,6 +517,11 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	CompanyInfo->SetCompany(Company);
 	CompanyName->SetText(Company->GetCompanyName());
 	TradeRouteInfo->UpdateTradeRouteList();
+
+	// Date
+	int64 CurrentGameDate = MenuManager->GetGame()->GetGameWorld()->GetDate();
+	CurrentGameYear = UFlareGameTools::GetYearFromDate(CurrentGameDate);
+	CurrentAccountingYear = CurrentGameYear;
 
 	// Player customization
 	AFlarePlayerController* PC = MenuManager->GetPC();
@@ -621,42 +671,46 @@ void SFlareCompanyMenu::ShowCompanyAccounting(UFlareCompany* Target)
 	// Compute balances
 	for (const FFlareTransactionLogEntry& Entry : Target->GetTransactionLog())
 	{
-		Balances[Entry.Type] += Entry.Amount;
+		if (UFlareGameTools::GetYearFromDate(Entry.Date) == CurrentAccountingYear)
+		{
+			Balances[Entry.Type] += Entry.Amount;
+		}
 	}
 
-	// Trading
-	AddAccountingHeader(LOCTEXT("AccountingHeaderTrading", "Trading"));
-	AddAccountingCategory(EFlareTransactionLogEntry::ManualResourcePurchase, Balances, Target, true);
-	AddAccountingCategory(EFlareTransactionLogEntry::ManualResourceSell, Balances, Target, false);
-	AddAccountingCategory(EFlareTransactionLogEntry::TradeRouteResourcePurchase, Balances, Target, true);
-	AddAccountingCategory(EFlareTransactionLogEntry::TradeRouteResourceSell, Balances, Target, false);
-
-	// Ships
-	AddAccountingHeader(LOCTEXT("AccountingHeaderShips", "Ships"));
-	AddAccountingCategory(EFlareTransactionLogEntry::OrderShip, Balances, Target, false);
-	AddAccountingCategory(EFlareTransactionLogEntry::OrderShipAdvance, Balances, Target, false);
-	AddAccountingCategory(EFlareTransactionLogEntry::CancelOrderShip, Balances, Target, true);
-	AddAccountingCategory(EFlareTransactionLogEntry::UpgradeShipPart, Balances, Target, true);
-	AddAccountingCategory(EFlareTransactionLogEntry::PayRepair, Balances, Target, true);
-	AddAccountingCategory(EFlareTransactionLogEntry::PayRefill, Balances, Target, false);
-	AddAccountingCategory(EFlareTransactionLogEntry::RecoveryFees, Balances, Target, false);
-	AddAccountingCategory(EFlareTransactionLogEntry::ScrapGain, Balances, Target, true);
+	// Others
+	int64 CurrentTotal = AddAccountingCategory(EFlareTransactionLogEntry::InitialMoney, Balances, Target, false);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::SendTribute, Balances, Target, true);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::QuestReward, Balances, Target, false);
+	AddAccountingHeader(LOCTEXT("AccountingHeaderOthers", "Others"), CurrentTotal);
 
 	// Stations
-	AddAccountingHeader(LOCTEXT("AccountingHeaderStations", "Stations"));
-	AddAccountingCategory(EFlareTransactionLogEntry::StationConstructionFees, Balances, Target, true);
-	AddAccountingCategory(EFlareTransactionLogEntry::StationUpgradeFees, Balances, Target, false);
-	AddAccountingCategory(EFlareTransactionLogEntry::FactoryWages, Balances, Target, true);
-	AddAccountingCategory(EFlareTransactionLogEntry::CancelFactoryWages, Balances, Target, false);
-	AddAccountingCategory(EFlareTransactionLogEntry::PeoplePurchase, Balances, Target, true);
-	AddAccountingCategory(EFlareTransactionLogEntry::PaidForRepair, Balances, Target, false);
-	AddAccountingCategory(EFlareTransactionLogEntry::PaidForRefill, Balances, Target, true);
+	CurrentTotal = AddAccountingCategory(EFlareTransactionLogEntry::PaidForRefill, Balances, Target, true);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::PaidForRepair, Balances, Target, false);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::PeoplePurchase, Balances, Target, true);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::CancelFactoryWages, Balances, Target, false);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::FactoryWages, Balances, Target, true);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::StationUpgradeFees, Balances, Target, false);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::StationConstructionFees, Balances, Target, true);
+	AddAccountingHeader(LOCTEXT("AccountingHeaderStations", "Stations"), CurrentTotal);
 
-	// Others
-	AddAccountingHeader(LOCTEXT("AccountingHeaderOthers", "Others"));
-	AddAccountingCategory(EFlareTransactionLogEntry::QuestReward, Balances, Target, false);
-	AddAccountingCategory(EFlareTransactionLogEntry::SendTribute, Balances, Target, true);
-	AddAccountingCategory(EFlareTransactionLogEntry::InitialMoney, Balances, Target, false);
+	// Ships
+	CurrentTotal = AddAccountingCategory(EFlareTransactionLogEntry::ScrapGain, Balances, Target, true);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::RecoveryFees, Balances, Target, false);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::PayRefill, Balances, Target, false);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::PayRepair, Balances, Target, true);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::UpgradeShipPart, Balances, Target, true);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::CancelOrderShip, Balances, Target, true);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::OrderShipAdvance, Balances, Target, false);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::OrderShip, Balances, Target, false);
+	AddAccountingHeader(LOCTEXT("AccountingHeaderShips", "Ships"), CurrentTotal);
+
+	// Trading
+	CurrentTotal = AddAccountingCategory(EFlareTransactionLogEntry::TradeRouteResourceSell, Balances, Target, false);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::TradeRouteResourcePurchase, Balances, Target, true);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::ManualResourceSell, Balances, Target, false);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::ManualResourcePurchase, Balances, Target, true);
+	AddAccountingHeader(LOCTEXT("AccountingHeaderTrading", "Trading"), CurrentTotal);
+
 }
 
 void SFlareCompanyMenu::AddTransactionHeader(int64 Time, int64 Balance, UFlareCompany* Target)
@@ -694,7 +748,7 @@ void SFlareCompanyMenu::AddTransactionHeader(int64 Time, int64 Balance, UFlareCo
 				UFlareGameTools::GetDisplayDate(Time)))
 		]
 
-		// Date
+		// Balance
 		+ SHorizontalBox::Slot()
 		.AutoWidth()
 		.HAlign(HAlign_Center)
@@ -869,11 +923,11 @@ void SFlareCompanyMenu::AddTransactionLog(const FFlareTransactionLogEntry& Entry
 	];
 }
 
-void SFlareCompanyMenu::AddAccountingHeader(FText Text)
+void SFlareCompanyMenu::AddAccountingHeader(FText Text, int64 Balance)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	CompanyAccounting->AddSlot()
+	CompanyAccounting->InsertSlot(0)
 	.AutoHeight()
 	[
 		SNew(SHorizontalBox)
@@ -902,6 +956,20 @@ void SFlareCompanyMenu::AddAccountingHeader(FText Text)
 			.Text(Text)
 		]
 
+		// Balance
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
+		.Padding(Theme.SmallContentPadding)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.SmallFont)
+			.Text(FText::Format(LOCTEXT("AccountingBalanceFormat", "({0})"),
+				FText::AsNumber(UFlareGameTools::DisplayMoney(Balance))))
+			.ColorAndOpacity(Balance >= 0 ? Theme.FriendlyColor : Theme.EnemyColor)
+		]			
+
 		+ SHorizontalBox::Slot()
 		.HAlign(HAlign_Fill)
 		.VAlign(VAlign_Center)
@@ -916,7 +984,7 @@ void SFlareCompanyMenu::AddAccountingHeader(FText Text)
 	];
 }
 
-void SFlareCompanyMenu::AddAccountingCategory(EFlareTransactionLogEntry::Type Type, TArray<int64>& Balances, UFlareCompany* Target, bool EvenIndex)
+int64_t SFlareCompanyMenu::AddAccountingCategory(EFlareTransactionLogEntry::Type Type, TArray<int64>& Balances, UFlareCompany* Target, bool EvenIndex)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FText Category = FFlareTransactionLogEntry::GetCategoryDescription(Type);
@@ -935,7 +1003,7 @@ void SFlareCompanyMenu::AddAccountingCategory(EFlareTransactionLogEntry::Type Ty
 	}
 
 	// Add structure
-	CompanyAccounting->AddSlot()
+	CompanyAccounting->InsertSlot(0)
 	.AutoHeight()
 	[
 		SNew(SBorder)
@@ -991,6 +1059,8 @@ void SFlareCompanyMenu::AddAccountingCategory(EFlareTransactionLogEntry::Type Ty
 			]
 		]
 	];
+
+	return Balances[Type];
 }
 
 
@@ -1038,6 +1108,36 @@ void SFlareCompanyMenu::OnTransactionLogSourceClicked(UFlareSimulatedSpacecraft*
 	{
 		MenuManager->OpenMenu(EFlareMenu::MENU_Ship, Data);
 	}
+}
+
+void SFlareCompanyMenu::OnPreviousYear()
+{
+	CurrentAccountingYear--;
+
+	ShowCompanyAccounting(Company);
+}
+
+bool SFlareCompanyMenu::IsPreviousYearDisabled() const
+{
+	return (CurrentAccountingYear <= UFlareGameTools::START_YEAR);
+}
+
+void SFlareCompanyMenu::OnNextYear()
+{
+	CurrentAccountingYear++;
+
+	ShowCompanyAccounting(Company);
+}
+
+bool SFlareCompanyMenu::IsNextYearDisabled() const
+{
+	return (CurrentAccountingYear >= CurrentGameYear);
+}
+
+FText SFlareCompanyMenu::GetAccountingTitle() const
+{
+	return FText::Format(LOCTEXT("AccountingYearFormat", "Accounting for year {0}"),
+		FText::AsNumber(CurrentAccountingYear + 1));
 }
 
 #undef LOCTEXT_NAMESPACE

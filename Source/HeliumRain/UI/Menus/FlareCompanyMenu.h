@@ -70,10 +70,10 @@ public:
 	void AddTransactionLog(const FFlareTransactionLogEntry& Entry, UFlareCompany* Target, bool EvenIndex);
 	
 	/** Generate a log line separator for days */
-	void AddAccountingHeader(FText Text);
+	void AddAccountingHeader(FText Text, int64 Balance);
 
 	/** Generate an accounting line */
-	void AddAccountingCategory(EFlareTransactionLogEntry::Type, TArray<int64>& Balances, UFlareCompany* Target, bool EvenIndex);
+	int64 AddAccountingCategory(EFlareTransactionLogEntry::Type, TArray<int64>& Balances, UFlareCompany* Target, bool EvenIndex);
 
 
 	/*----------------------------------------------------
@@ -92,6 +92,21 @@ public:
 	/** Spacecraft picked */
 	void OnTransactionLogSourceClicked(UFlareSimulatedSpacecraft* Source);
 
+	/** Move accounting to the previous year */
+	void OnPreviousYear();
+
+	/** End-year detection */
+	bool IsPreviousYearDisabled() const;
+
+	/** Move accounting to the next year */
+	void OnNextYear();
+
+	/** End-year detection */
+	bool IsNextYearDisabled() const;
+
+	/** Title with current year */
+	FText GetAccountingTitle() const;
+
 
 protected:
 
@@ -107,6 +122,8 @@ protected:
 	int32                                    SmallWidth;
 	int32                                    LargeWidth;
 	int32                                    VeryLargeWidth;
+	int64                                    CurrentAccountingYear;
+	int64                                    CurrentGameYear;
 
 	// Menu data
 	TSharedPtr<SFlareColorPanel>             ColorBox;

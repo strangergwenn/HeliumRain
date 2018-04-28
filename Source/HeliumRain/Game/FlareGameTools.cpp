@@ -1957,12 +1957,17 @@ FText UFlareGameTools::AddLeadingSpace(FText Text, int Count)
 
 FText UFlareGameTools::GetDisplayDate(int64 Days)
 {
-	int64 Years = START_YEAR + (Days / DAYS_IN_YEAR);
+	int64 Years = GetYearFromDate(Days);
 	int64 RemainingDays = Days % DAYS_IN_YEAR;
 
 	return FText::Format(LOCTEXT("DateFormat", "year {0}, day {1}"),
 		FText::AsNumber(Years + 1),
 		FText::AsNumber(RemainingDays + 1));
+}
+
+int64 UFlareGameTools::GetYearFromDate(int64 Date)
+{
+	return START_YEAR + (Date / DAYS_IN_YEAR);
 }
 
 int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSector* Sector, bool WithMargin, bool ConstructionPrice, bool LocalPrice, UFlareCompany* Company)
