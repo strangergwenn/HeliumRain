@@ -77,6 +77,27 @@ public:
 
 
 	/*----------------------------------------------------
+		Lists
+	----------------------------------------------------*/
+	
+	// Source list
+	TSharedRef<SWidget> OnGenerateSourceComboLine(UFlareSimulatedSpacecraft* Item);
+	void OnSourceComboLineSelectionChanged(UFlareSimulatedSpacecraft* Item, ESelectInfo::Type SelectInfo);
+	FText OnGetCurrentSourceComboLine() const;
+
+	// Sector list
+	TSharedRef<SWidget> OnGenerateSectorComboLine(UFlareSimulatedSector* Item);
+	void OnSectorComboLineSelectionChanged(UFlareSimulatedSector* Item, ESelectInfo::Type SelectInfo);
+	FText OnGetCurrentSectorComboLine() const;
+
+	// Company list
+	TSharedRef<SWidget> OnGenerateCompanyComboLine(UFlareCompany* Item);
+	void OnCompanyComboLineSelectionChanged(UFlareCompany* Item, ESelectInfo::Type SelectInfo);
+	FText OnGetCurrentCompanyComboLine() const;
+
+
+
+	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
 
@@ -124,6 +145,21 @@ protected:
 	int32                                    VeryLargeWidth;
 	int64                                    CurrentAccountingYear;
 	int64                                    CurrentGameYear;
+
+	// Company log filter data
+	TArray<UFlareSimulatedSpacecraft*>       SourceList;
+	TArray<UFlareSimulatedSector*>           SectorList;
+	TArray<UFlareCompany*>                   CompanyList;
+
+	// Company log filters
+	TSharedPtr<SFlareDropList<UFlareSimulatedSpacecraft*>>   SourceSelector;
+	TSharedPtr<SFlareDropList<UFlareSimulatedSector*>>       SectorSelector;
+	TSharedPtr<SFlareDropList<UFlareCompany*>>               CompanySelector;
+
+	// Current filters
+	UFlareSimulatedSpacecraft*               CurrentSourceFilter;
+	UFlareSimulatedSector*                   CurrentSectorFilter;
+	UFlareCompany*                           CurrentCompanyFilter;
 
 	// Menu data
 	TSharedPtr<SFlareColorPanel>             ColorBox;

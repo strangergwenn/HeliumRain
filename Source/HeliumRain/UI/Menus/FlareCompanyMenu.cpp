@@ -211,13 +211,91 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 
 				// Title
 				+ SVerticalBox::Slot()
-				.Padding(Theme.TitlePadding)
 				.AutoHeight()
-				.HAlign(HAlign_Left)
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Top)
 				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.SubTitleFont)
-					.Text(LOCTEXT("CompanyLogTitle", "Transaction log"))
+					SNew(SHorizontalBox)
+
+					// Title
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Fill)
+					.VAlign(VAlign_Center)
+					.Padding(Theme.TitlePadding)
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SubTitleFont)
+						.Text(LOCTEXT("CompanyLogTitle", "Transaction log"))
+					]
+
+					// Source filter
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Right)
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(SourceSelector, SFlareDropList<UFlareSimulatedSpacecraft*>)
+						.OptionsSource(&SourceList)
+						.OnGenerateWidget(this, &SFlareCompanyMenu::OnGenerateSourceComboLine)
+						.OnSelectionChanged(this, &SFlareCompanyMenu::OnSourceComboLineSelectionChanged)
+						.HeaderWidth(8)
+						.ItemWidth(8)
+						[
+							SNew(SBox)
+							.Padding(Theme.ListContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareCompanyMenu::OnGetCurrentSourceComboLine)
+								.TextStyle(&Theme.TextFont)
+							]
+						]
+					]
+
+					// Sector filter
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Right)
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(SectorSelector, SFlareDropList<UFlareSimulatedSector*>)
+						.OptionsSource(&SectorList)
+						.OnGenerateWidget(this, &SFlareCompanyMenu::OnGenerateSectorComboLine)
+						.OnSelectionChanged(this, &SFlareCompanyMenu::OnSectorComboLineSelectionChanged)
+						.HeaderWidth(8)
+						.ItemWidth(8)
+						[
+							SNew(SBox)
+							.Padding(Theme.ListContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareCompanyMenu::OnGetCurrentSectorComboLine)
+								.TextStyle(&Theme.TextFont)
+							]
+						]
+					]
+
+					// Company filter
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.HAlign(HAlign_Right)
+					.Padding(Theme.ContentPadding)
+					[
+						SAssignNew(CompanySelector, SFlareDropList<UFlareCompany*>)
+						.OptionsSource(&CompanyList)
+						.OnGenerateWidget(this, &SFlareCompanyMenu::OnGenerateCompanyComboLine)
+						.OnSelectionChanged(this, &SFlareCompanyMenu::OnCompanyComboLineSelectionChanged)
+						.HeaderWidth(8)
+						.ItemWidth(8)
+						[
+							SNew(SBox)
+							.Padding(Theme.ListContentPadding)
+							[
+								SNew(STextBlock)
+								.Text(this, &SFlareCompanyMenu::OnGetCurrentCompanyComboLine)
+								.TextStyle(&Theme.TextFont)
+							]
+						]
+					]
 				]
 
 				// Header
@@ -554,12 +632,35 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 		}
 	}
 
+	// Add filter options
+	SourceList.Add(NULL);
+	SectorList.Add(NULL);
+	CompanyList.Add(NULL);
+	for (auto Entry : Target->GetTransactionLog())
+	{
+		UFlareCompany* Other = Entry.GetOtherCompany(Target->GetGame());
+		UFlareSimulatedSector* Sector = Entry.GetSector(Target->GetGame());
+		UFlareSimulatedSpacecraft* Source = Entry.GetSpacecraft(Target->GetGame());
+
+		SourceList.AddUnique(Source);
+		SectorList.AddUnique(Sector);
+		CompanyList.AddUnique(Other);
+	}
+
+	// Reset filters
+	CurrentSourceFilter = NULL;
+	CurrentSectorFilter = NULL;
+	CurrentCompanyFilter = NULL;
+
 	// Sub-menus
 	ShowProperty(Target);
 	ShowCompanyLog(Target);
 	ShowCompanyAccounting(Target);
 
 	// Refresh
+	SourceSelector->RefreshOptions();
+	SectorSelector->RefreshOptions();
+	CompanySelector->RefreshOptions();
 	ShipList->RefreshList();
 	ShipList->SetVisibility(EVisibility::Visible);
 }
@@ -574,6 +675,14 @@ void SFlareCompanyMenu::Exit()
 	TradeRouteInfo->Clear();
 	CompanyLog->ClearChildren();
 	CompanyAccounting->ClearChildren();
+
+	SourceList.Empty();
+	SectorList.Empty();
+	CompanyList.Empty();
+
+	CurrentSourceFilter = NULL;
+	CurrentSectorFilter = NULL;
+	CurrentCompanyFilter = NULL;
 
 	Company = NULL;
 	SetVisibility(EVisibility::Collapsed);
@@ -631,6 +740,23 @@ void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 	int64 CurrentDate = 0;
 	for (const FFlareTransactionLogEntry& Entry : Target->GetTransactionLog())
 	{
+		// Check filters
+		UFlareCompany* Other = Entry.GetOtherCompany(Target->GetGame());
+		UFlareSimulatedSector* Sector = Entry.GetSector(Target->GetGame());
+		UFlareSimulatedSpacecraft* Source = Entry.GetSpacecraft(Target->GetGame());
+		if (CurrentSourceFilter && CurrentSourceFilter != Source)
+		{
+			continue;
+		}
+		else if (CurrentSectorFilter && CurrentSectorFilter != Sector)
+		{
+			continue;
+		}
+		else if (CurrentCompanyFilter && CurrentCompanyFilter != Other)
+		{
+			continue;
+		}
+
 		// Add day header if the date just changed
 		if (Entry.Date != CurrentDate)
 		{
@@ -1061,6 +1187,91 @@ int64_t SFlareCompanyMenu::AddAccountingCategory(EFlareTransactionLogEntry::Type
 	];
 
 	return Balances[Type];
+}
+
+
+/*----------------------------------------------------
+	Lists
+----------------------------------------------------*/
+
+TSharedRef<SWidget> SFlareCompanyMenu::OnGenerateSourceComboLine(UFlareSimulatedSpacecraft* Item)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
+		.Text(Item ? Item->GetNickName() : LOCTEXT("NoFilterBySource", "No filter"))
+		.TextStyle(&Theme.TextFont)
+	];
+}
+
+void SFlareCompanyMenu::OnSourceComboLineSelectionChanged(UFlareSimulatedSpacecraft* Item, ESelectInfo::Type SelectInfo)
+{
+	CurrentSourceFilter = Item;
+
+	ShowCompanyLog(Company);
+}
+
+FText SFlareCompanyMenu::OnGetCurrentSourceComboLine() const
+{
+	UFlareSimulatedSpacecraft* Item = SourceSelector->GetSelectedItem();
+
+	return Item ? Item->GetNickName() : LOCTEXT("FilterBySource", "Filter by source");
+}
+
+
+TSharedRef<SWidget> SFlareCompanyMenu::OnGenerateSectorComboLine(UFlareSimulatedSector* Item)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
+		.Text(Item ? Item->GetSectorName() : LOCTEXT("NoFilterBySector", "No filter"))
+		.TextStyle(&Theme.TextFont)
+	];
+}
+
+void SFlareCompanyMenu::OnSectorComboLineSelectionChanged(UFlareSimulatedSector* Item, ESelectInfo::Type SelectInfo)
+{
+	CurrentSectorFilter = Item;
+
+	ShowCompanyLog(Company);
+}
+
+FText SFlareCompanyMenu::OnGetCurrentSectorComboLine() const
+{
+	UFlareSimulatedSector* Item = SectorSelector->GetSelectedItem();
+	return Item ? Item->GetSectorName() : LOCTEXT("FilterBySector", "Filter by sector");
+}
+
+TSharedRef<SWidget> SFlareCompanyMenu::OnGenerateCompanyComboLine(UFlareCompany* Item)
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	
+	return SNew(SBox)
+	.Padding(Theme.ListContentPadding)
+	[
+		SNew(STextBlock)
+		.Text(Item ? Item->GetCompanyName() : LOCTEXT("NoFilterByCompany", "No filter"))
+		.TextStyle(&Theme.TextFont)
+	];
+}
+
+void SFlareCompanyMenu::OnCompanyComboLineSelectionChanged(UFlareCompany* Item, ESelectInfo::Type SelectInfo)
+{
+	CurrentCompanyFilter = Item;
+
+	ShowCompanyLog(Company);
+}
+
+FText SFlareCompanyMenu::OnGetCurrentCompanyComboLine() const
+{
+	UFlareCompany* Item = CompanySelector->GetSelectedItem();
+	return Item ? Item->GetCompanyName() : LOCTEXT("FilterByCompany", "Filter by company");
 }
 
 
