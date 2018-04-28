@@ -1110,7 +1110,7 @@ void SFlareCompanyMenu::AddAccountingHeader(FText Text, int64 Balance)
 	];
 }
 
-int64_t SFlareCompanyMenu::AddAccountingCategory(EFlareTransactionLogEntry::Type Type, TArray<int64>& Balances, UFlareCompany* Target, bool EvenIndex)
+int64 SFlareCompanyMenu::AddAccountingCategory(EFlareTransactionLogEntry::Type Type, TArray<int64>& Balances, UFlareCompany* Target, bool EvenIndex)
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 	FText Category = FFlareTransactionLogEntry::GetCategoryDescription(Type);
