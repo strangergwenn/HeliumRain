@@ -974,11 +974,27 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		Comment = LOCTEXT("InitialMoney", "Initial company capital");
 		break;
 	}
+	case EFlareTransactionLogEntry::PayRepair:
+	{
+		Comment = FText::Format(LOCTEXT("PayRepair", "Shipcraft reparations ({0} fleet supply)"), ResourceQuantity);
+		break;
+	}
+	case EFlareTransactionLogEntry::PayRefill:
+	{
+		Comment = FText::Format(LOCTEXT("PayRefill", "Refill weapons ({0} fleet supply)"), ResourceQuantity);
+		break;
+	}
+	case EFlareTransactionLogEntry::PaidForRepair:
+	{
+		Comment = FText::Format(LOCTEXT("PaidForRepair", "Paid for reparations ({0} fleet supply)"), ResourceQuantity);
+		break;
+	}
+	case EFlareTransactionLogEntry::PaidForRefill:
+	{
+		Comment = FText::Format(LOCTEXT("PaidForRefill", "Paid for refill ({0} fleet supply)"), ResourceQuantity);
+		break;
+	}
 
-	//PayRepair,
-	//PayRefill,
-	//PaidForRepair,
-	//PaidForRefill,
 	//SendTribute,
 	//ReceiveTribute,
 	//RecoveryFees,
