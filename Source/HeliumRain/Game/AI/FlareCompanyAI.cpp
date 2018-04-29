@@ -50,7 +50,13 @@
 
 
 DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateDiplomacy"), STAT_FlareCompanyAI_UpdateDiplomacy, STATGROUP_Flare);
+
 DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading"), STAT_FlareCompanyAI_UpdateTrading, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading Ships"), STAT_FlareCompanyAI_UpdateTrading_Ships, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading Sectors"), STAT_FlareCompanyAI_UpdateTrading_Sectors, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading Best Deal"), STAT_FlareCompanyAI_UpdateTrading_BestDeal, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading Deal"), STAT_FlareCompanyAI_UpdateTrading_Deal, STATGROUP_Flare);
+
 DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI CargosEvasion"), STAT_FlareCompanyAI_CargosEvasion, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI RepairAndRefill"), STAT_FlareCompanyAI_RepairAndRefill, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI ProcessBudget"), STAT_FlareCompanyAI_ProcessBudget, STATGROUP_Flare);
@@ -266,6 +272,8 @@ void UFlareCompanyAI::UpdateTrading()
 
 	for (int32 ShipIndex = 0; ShipIndex < IdleCargos.Num(); ShipIndex++)
 	{
+		SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_UpdateTrading_Ships);
+
 		UFlareSimulatedSpacecraft* Ship = IdleCargos[ShipIndex];
 
 #ifdef DEBUG_AI_TRADING
@@ -292,6 +300,7 @@ void UFlareCompanyAI::UpdateTrading()
 		
 		for (int32 SectorAIndex = 0; SectorAIndex < Company->GetKnownSectors().Num(); SectorAIndex++)
 		{
+			SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_UpdateTrading_Sectors);
 			UFlareSimulatedSector* SectorA = Company->GetKnownSectors()[SectorAIndex];
 
 			SectorDeal SectorBestDeal;
@@ -346,6 +355,8 @@ void UFlareCompanyAI::UpdateTrading()
 #endif
 			if (Ship->GetCurrentSector() == BestDeal.SectorA)
 			{
+				SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_UpdateTrading_BestDeal);
+
 				// Already in A, buy resources and go to B
 				if (BestDeal.BuyQuantity == 0)
 				{
@@ -434,6 +445,8 @@ void UFlareCompanyAI::UpdateTrading()
 			}
 			else
 			{
+				SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_UpdateTrading_Deal);
+
 				if (BestDeal.SectorA != Ship->GetCurrentSector())
 				{
 					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), BestDeal.SectorA);
