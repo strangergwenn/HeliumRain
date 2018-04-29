@@ -994,10 +994,21 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		Comment = FText::Format(LOCTEXT("PaidForRefill", "Paid for refill ({0} fleet supply)"), ResourceQuantity);
 		break;
 	}
-
-	//SendTribute,
-	//ReceiveTribute,
-	//RecoveryFees,
+	case EFlareTransactionLogEntry::SendTribute:
+	{
+		Comment = LOCTEXT("SendTribute", "Send tribute");
+		break;
+	}
+	case EFlareTransactionLogEntry::ReceiveTribute:
+	{
+		Comment = LOCTEXT("ReceiveTribute", "Receive tribute");
+		break;
+	}
+	case EFlareTransactionLogEntry::ReceiveTribute:
+	{
+		Comment = LOCTEXT("RecoveryFees", "Recovery fees");
+		break;
+	}
 	case EFlareTransactionLogEntry::ScrapGain:
 	{
 		Comment = LOCTEXT("ScrapGain", "Scrap money");
@@ -1023,13 +1034,6 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		Comment = FText::Format(LOCTEXT("Dummy", "Dummy comment {0}"), int(Type));
 	}
 
-	/*FName Spacecraft;
-	FName Sector;
-	FName OtherCompany;
-	FName OtherSpacecraft;
-	FName Resource;
-	int32 ResourceQuantity;
-*/
 	return Comment;
 }
 
