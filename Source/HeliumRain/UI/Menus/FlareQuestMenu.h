@@ -125,6 +125,7 @@ protected:
 	TSharedPtr<SVerticalBox>                        AvailableQuestList;
 	TSharedPtr<SVerticalBox>                        OngoingQuestList;
 	TSharedPtr<SVerticalBox>                        PreviousQuestList;
+	TSharedPtr<SVerticalBox>                        TutorialsList;	
 	TSharedPtr<SVerticalBox>                        QuestDetails;
 
 	// Data

@@ -122,6 +122,22 @@ void SFlareQuestMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(PreviousQuestList, SVerticalBox)
 						]
+
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.TitlePadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.SubTitleFont)
+							.Text(LOCTEXT("TutorialsTitle", "Previous tutorials"))
+						]
+
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SAssignNew(TutorialsList, SVerticalBox)
+						]
 					]
 				]
 			]
@@ -197,6 +213,7 @@ void SFlareQuestMenu::Exit()
 
 	OngoingQuestList->ClearChildren();
 	PreviousQuestList->ClearChildren();
+	TutorialsList->ClearChildren();
 	QuestDetails->ClearChildren();
 
 	SelectedQuest = NULL;
@@ -367,7 +384,19 @@ void SFlareQuestMenu::FillPreviousQuestList()
 			continue;
 		}
 
-		PreviousQuestList->AddSlot()
+		// Get appropriate list
+		TSharedPtr<SVerticalBox> List;
+		if (Quest->GetQuestCategory() == EFlareQuestCategory::TUTORIAL)
+		{
+			List = TutorialsList;
+		}
+		else
+		{
+			List = PreviousQuestList;
+		}
+
+		// Add slot
+		List->AddSlot()
 		.Padding(Theme.SmallContentPadding)
 		.HAlign(HAlign_Left)
 		[
@@ -397,6 +426,17 @@ void SFlareQuestMenu::FillPreviousQuestList()
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
 			.Text(LOCTEXT("NoPreviousQuest", "No previous contract."))
+		];
+	}
+
+	// No previous tutorial
+	if (TutorialsList->NumSlots() == 0)
+	{
+		TutorialsList->AddSlot()
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.TextFont)
+			.Text(LOCTEXT("NoPreviousTutorial", "No previous tutorial."))
 		];
 	}
 }
