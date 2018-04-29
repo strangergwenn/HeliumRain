@@ -24,14 +24,7 @@ class SFlareCompanyMenu : public SCompoundWidget
 
 
 public:
-
-	/*----------------------------------------------------
-		Callbacks
-	----------------------------------------------------*/
-
-	/** Can we validate new details */
-	bool IsRenameDisabled() const;
-
+	
 
 	/*----------------------------------------------------
 		Interaction
@@ -101,6 +94,15 @@ public:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Blur intensity */
+	TOptional<int32> GetBlurRadius() const;
+
+	/** Blur intensity */
+	float GetBlurStrength() const;
+
+	/** Can we validate new details */
+	bool IsRenameDisabled() const;
+
 	/** Confirm details */
 	void OnRename();
 
@@ -162,6 +164,7 @@ protected:
 	UFlareCompany*                           CurrentCompanyFilter;
 
 	// Menu data
+	TSharedPtr<class SFlareTabView>          TabView;
 	TSharedPtr<SFlareColorPanel>             ColorBox;
 	TSharedPtr<SFlareList>                   ShipList;
 	TSharedPtr<SFlareCompanyInfo>            CompanyInfo;

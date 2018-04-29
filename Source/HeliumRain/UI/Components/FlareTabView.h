@@ -77,15 +77,15 @@ public:
 		return *(new SFlareTabView::FSlot());
 	}
 
+	/** Get the current widget slot to activate */
+	int32 GetCurrentTabIndex() const;
+
 
 protected:
 
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
-
-	/** Get the current widget slot to activate */
-	int32 GetCurrentTabIndex() const;
 
 	/** Check if this tab is the current tab */
 	bool IsCurrentTab(int32 Index) const;

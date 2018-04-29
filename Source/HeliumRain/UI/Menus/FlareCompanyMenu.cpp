@@ -46,69 +46,19 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 	.VAlign(VAlign_Fill)
 	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
-		SNew(SFlareTabView)
-
-		// Content block
-		+ SFlareTabView::Slot()
-		.Header(LOCTEXT("CompanyMainTab", "Company"))
-		.HeaderHelp(LOCTEXT("CompanyMainTabHelp", "General information about your company"))
+		SNew(SBackgroundBlur)
+		.BlurRadius(this, &SFlareCompanyMenu::GetBlurRadius)
+		.BlurStrength(this, &SFlareCompanyMenu::GetBlurStrength)
+		.HAlign(HAlign_Fill)
+		.VAlign(VAlign_Fill)
+		.Padding(FMargin(0))
 		[
-			SNew(SVerticalBox)
+			SAssignNew(TabView, SFlareTabView)
 
-			+ SVerticalBox::Slot()
-			.Padding(Theme.TitlePadding)
-			.AutoHeight()
-			[
-				SNew(STextBlock)
-				.TextStyle(&Theme.SubTitleFont)
-				.Text(LOCTEXT("CompanyInfoTitle", "Company"))
-			]
-
-			// Company info
-			+ SVerticalBox::Slot()
-			.Padding(Theme.ContentPadding)
-			.AutoHeight()
-			[
-				SNew(SBox)
-				.WidthOverride(0.8 * Theme.ContentWidth)
-				[
-					SAssignNew(CompanyInfo, SFlareCompanyInfo)
-					.Player(PC)
-				]
-			]
-
-			// TR info
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SAssignNew(TradeRouteInfo, SFlareTradeRouteInfo)
-				.MenuManager(MenuManager)
-			]
-		]
-
-		// Property block
-		+ SFlareTabView::Slot()
-		.Header(LOCTEXT("CompanyPropertyTab", "Property"))
-		.HeaderHelp(LOCTEXT("CompanyPropertyTabHelp", "Fleets, ships and stations"))
-		[
-			SNew(SBox)
-			.WidthOverride(Theme.ContentWidth)
-			.HAlign(HAlign_Left)
-			[
-				SAssignNew(ShipList, SFlareList)
-				.MenuManager(MenuManager)
-				.Title(LOCTEXT("Property", "Property"))
-			]
-		]
-
-		// Company customization
-		+ SFlareTabView::Slot()
-		.Header(LOCTEXT("CompanyCustomizationTab", "Appearance"))
-		.HeaderHelp(LOCTEXT("CompanyCustomizationTabHelp", "Appearance settings for your company"))
-		[
-			SNew(SBox)
-			.WidthOverride(Theme.ContentWidth)
-			.HAlign(HAlign_Left)
+			// Content block
+			+ SFlareTabView::Slot()
+			.Header(LOCTEXT("CompanyMainTab", "Company"))
+			.HeaderHelp(LOCTEXT("CompanyMainTabHelp", "General information about your company"))
 			[
 				SNew(SVerticalBox)
 
@@ -118,94 +68,144 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.SubTitleFont)
-					.Text(LOCTEXT("CompanyEditTitle", "Appearance"))
+					.Text(LOCTEXT("CompanyInfoTitle", "Company"))
 				]
 
-				// Company name
+				// Company info
 				+ SVerticalBox::Slot()
 				.Padding(Theme.ContentPadding)
 				.AutoHeight()
 				[
-					SNew(SHorizontalBox)
-
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.VAlign(VAlign_Center)
+					SNew(SBox)
+					.WidthOverride(0.8 * Theme.ContentWidth)
 					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(LOCTEXT("EditCompanyName", "Company name"))
-					]
-
-					+ SHorizontalBox::Slot()
-					.HAlign(HAlign_Right)
-					[
-						SNew(SBox)
-						.WidthOverride(0.4 * Theme.ContentWidth)
-						[
-							SNew(SBorder)
-							.BorderImage(&Theme.BackgroundBrush)
-							.Padding(Theme.ContentPadding)
-							[
-								SAssignNew(CompanyName, SEditableText)
-								.AllowContextMenu(false)
-								.Style(&Theme.TextInputStyle)
-							]
-						]
-					]
-			
-					+ SHorizontalBox::Slot()
-					.AutoWidth()
-					.HAlign(HAlign_Right)
-					[
-						SNew(SFlareButton)
-						.Text(LOCTEXT("Rename", "Rename"))
-						.HelpText(LOCTEXT("RenameInfo", "Rename this company"))
-						.Icon(FFlareStyleSet::GetIcon("OK"))
-						.OnClicked(this, &SFlareCompanyMenu::OnRename)
-						.IsDisabled(this, &SFlareCompanyMenu::IsRenameDisabled)
-						.Width(4)
+						SAssignNew(CompanyInfo, SFlareCompanyInfo)
+						.Player(PC)
 					]
 				]
 
-				// Color picker
+				// TR info
 				+ SVerticalBox::Slot()
-				.Padding(Theme.ContentPadding)
 				.AutoHeight()
 				[
-					SAssignNew(ColorBox, SFlareColorPanel)
+					SAssignNew(TradeRouteInfo, SFlareTradeRouteInfo)
 					.MenuManager(MenuManager)
 				]
-				
-				// Emblem
-				+ SVerticalBox::Slot()
-				.Padding(Theme.ContentPadding)
-				.VAlign(VAlign_Top)
+			]
+
+			// Property block
+			+ SFlareTabView::Slot()
+			.Header(LOCTEXT("CompanyPropertyTab", "Property"))
+			.HeaderHelp(LOCTEXT("CompanyPropertyTabHelp", "Fleets, ships and stations"))
+			[
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
+				.HAlign(HAlign_Left)
 				[
-					SAssignNew(EmblemPicker, SFlareDropList<int32>)
-					.LineSize(1)
-					.HeaderWidth(3)
-					.HeaderHeight(3)
-					.ItemWidth(3)
-					.ItemHeight(2.7)
-					.ShowColorWheel(false)
-					.MaximumHeight(600)
-					.OnItemPicked(this, &SFlareCompanyMenu::OnEmblemPicked)
+					SAssignNew(ShipList, SFlareList)
+					.MenuManager(MenuManager)
+					.Title(LOCTEXT("Property", "Property"))
 				]
 			]
-		]
 
-		// Company log
-		+ SFlareTabView::Slot()
-		.Header(LOCTEXT("CompanyLogTab", "Transaction log"))
-		.HeaderHelp(LOCTEXT("CompanyLogTabHelp", "Log of recent commercial operations"))
-		[
-			SNew(SBackgroundBlur)
-			.BlurRadius(Theme.BlurRadius)
-			.BlurStrength(Theme.BlurStrength)
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Fill)
-			.Padding(FMargin(0))
+			// Company customization
+			+ SFlareTabView::Slot()
+			.Header(LOCTEXT("CompanyCustomizationTab", "Appearance"))
+			.HeaderHelp(LOCTEXT("CompanyCustomizationTabHelp", "Appearance settings for your company"))
+			[
+				SNew(SBox)
+				.WidthOverride(Theme.ContentWidth)
+				.HAlign(HAlign_Left)
+				[
+					SNew(SVerticalBox)
+
+					+ SVerticalBox::Slot()
+					.Padding(Theme.TitlePadding)
+					.AutoHeight()
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.SubTitleFont)
+						.Text(LOCTEXT("CompanyEditTitle", "Appearance"))
+					]
+
+					// Company name
+					+ SVerticalBox::Slot()
+					.Padding(Theme.ContentPadding)
+					.AutoHeight()
+					[
+						SNew(SHorizontalBox)
+
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.VAlign(VAlign_Center)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(LOCTEXT("EditCompanyName", "Company name"))
+						]
+
+						+ SHorizontalBox::Slot()
+						.HAlign(HAlign_Right)
+						[
+							SNew(SBox)
+							.WidthOverride(0.4 * Theme.ContentWidth)
+							[
+								SNew(SBorder)
+								.BorderImage(&Theme.BackgroundBrush)
+								.Padding(Theme.ContentPadding)
+								[
+									SAssignNew(CompanyName, SEditableText)
+									.AllowContextMenu(false)
+									.Style(&Theme.TextInputStyle)
+								]
+							]
+						]
+			
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.HAlign(HAlign_Right)
+						[
+							SNew(SFlareButton)
+							.Text(LOCTEXT("Rename", "Rename"))
+							.HelpText(LOCTEXT("RenameInfo", "Rename this company"))
+							.Icon(FFlareStyleSet::GetIcon("OK"))
+							.OnClicked(this, &SFlareCompanyMenu::OnRename)
+							.IsDisabled(this, &SFlareCompanyMenu::IsRenameDisabled)
+							.Width(4)
+						]
+					]
+
+					// Color picker
+					+ SVerticalBox::Slot()
+					.Padding(Theme.ContentPadding)
+					.AutoHeight()
+					[
+						SAssignNew(ColorBox, SFlareColorPanel)
+						.MenuManager(MenuManager)
+					]
+				
+					// Emblem
+					+ SVerticalBox::Slot()
+					.Padding(Theme.ContentPadding)
+					.VAlign(VAlign_Top)
+					[
+						SAssignNew(EmblemPicker, SFlareDropList<int32>)
+						.LineSize(1)
+						.HeaderWidth(3)
+						.HeaderHeight(3)
+						.ItemWidth(3)
+						.ItemHeight(2.7)
+						.ShowColorWheel(false)
+						.MaximumHeight(600)
+						.OnItemPicked(this, &SFlareCompanyMenu::OnEmblemPicked)
+					]
+				]
+			]
+
+			// Company log
+			+ SFlareTabView::Slot()
+			.Header(LOCTEXT("CompanyLogTab", "Transaction log"))
+			.HeaderHelp(LOCTEXT("CompanyLogTabHelp", "Log of recent commercial operations"))
 			[
 				SNew(SVerticalBox)
 
@@ -412,165 +412,141 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 
 				// Company log contents
 				+ SVerticalBox::Slot()
-				.HAlign(HAlign_Fill)
 				.AutoHeight()
 				[
 					SAssignNew(CompanyLog, SVerticalBox)
 				]
 			]
-		]
 
-		// Company accounting
-		+ SFlareTabView::Slot()
-		.Header(LOCTEXT("CompanyAccountingTab", "Accounting"))
-		.HeaderHelp(LOCTEXT("CompanyAccountingTabHelp", "Company accounts"))
-		[
-			SNew(SVerticalBox)
-
-			// Title
-			+ SVerticalBox::Slot()
-			.Padding(Theme.TitlePadding)
-			.AutoHeight()
-			.HAlign(HAlign_Left)
+			// Company accounting
+			+ SFlareTabView::Slot()
+			.Header(LOCTEXT("CompanyAccountingTab", "Accounting"))
+			.HeaderHelp(LOCTEXT("CompanyAccountingTabHelp", "Company accounts"))
 			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
-				.HAlign(HAlign_Fill)
+				SNew(SVerticalBox)
+
+				// Title
+				+ SVerticalBox::Slot()
+				.Padding(Theme.TitlePadding)
+				.AutoHeight()
+				.HAlign(HAlign_Left)
+				[
+					SNew(SBox)
+					.WidthOverride(Theme.ContentWidth)
+					.HAlign(HAlign_Fill)
+					[
+						SNew(SHorizontalBox)
+
+						// Previous
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.HAlign(HAlign_Left)
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(SFlareButton)
+							.Width(1.5)
+							.Transparent(true)
+							.OnClicked(this, &SFlareCompanyMenu::OnPreviousYear)
+							.IsDisabled(this, &SFlareCompanyMenu::IsPreviousYearDisabled)
+							.Icon(FFlareStyleSet::GetIcon("MoveLeft"))
+							.Text(FText())
+							.HelpText(LOCTEXT("PreviousYearHelp", "Show accounting for the previous year"))
+						]
+
+						// Title
+						+ SHorizontalBox::Slot()
+						.HAlign(HAlign_Center)
+						.VAlign(VAlign_Center)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.SubTitleFont)
+							.Text(this, &SFlareCompanyMenu::GetAccountingTitle)
+						]
+
+						// Next year
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.HAlign(HAlign_Right)
+						.Padding(Theme.SmallContentPadding)
+						[
+							SNew(SFlareButton)
+							.Width(1.5)
+							.OnClicked(this, &SFlareCompanyMenu::OnNextYear)
+							.IsDisabled(this, &SFlareCompanyMenu::IsNextYearDisabled)
+							.Icon(FFlareStyleSet::GetIcon("MoveRight"))
+							.Text(FText())
+							.HelpText(LOCTEXT("PreviousYearHelp", "Show accounting for the next year"))
+						]
+					]
+				]
+		
+				// Header
+				+ SVerticalBox::Slot()
+				.AutoHeight()
 				[
 					SNew(SHorizontalBox)
 
-					// Previous
+					// Type
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
-					.HAlign(HAlign_Left)
-					.Padding(Theme.SmallContentPadding)
 					[
-						SNew(SFlareButton)
-						.Width(1.5)
-						.Transparent(true)
-						.OnClicked(this, &SFlareCompanyMenu::OnPreviousYear)
-						.IsDisabled(this, &SFlareCompanyMenu::IsPreviousYearDisabled)
-						.Icon(FFlareStyleSet::GetIcon("MoveLeft"))
-						.Text(FText())
-						.HelpText(LOCTEXT("PreviousYearHelp", "Show accounting for the previous year"))
+						SNew(SBox)
+						.WidthOverride(LargeWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("AccountingTitleType", "Category"))
+						]
 					]
 
-					// Title
-					+ SHorizontalBox::Slot()
-					.HAlign(HAlign_Center)
-					.VAlign(VAlign_Center)
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.SubTitleFont)
-						.Text(this, &SFlareCompanyMenu::GetAccountingTitle)
-					]
-
-					// Next year
+					// Debit
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
-					.HAlign(HAlign_Right)
-					.Padding(Theme.SmallContentPadding)
 					[
-						SNew(SFlareButton)
-						.Width(1.5)
-						.OnClicked(this, &SFlareCompanyMenu::OnNextYear)
-						.IsDisabled(this, &SFlareCompanyMenu::IsNextYearDisabled)
-						.Icon(FFlareStyleSet::GetIcon("MoveRight"))
-						.Text(FText())
-						.HelpText(LOCTEXT("PreviousYearHelp", "Show accounting for the next year"))
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("AccountingTitleDebit", "Debit"))
+						]
+					]
+
+					// Credit
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(SmallWidth)
+						.HAlign(HAlign_Left)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.NameFont)
+							.Text(LOCTEXT("AccountingTitleCredit", "Credit"))
+						]
 					]
 				]
-			]
-		
-			// Header
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SNew(SHorizontalBox)
 
-				// Type
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
+				// Company accounting contents
+				+ SVerticalBox::Slot()
+				.HAlign(HAlign_Left)
+				.AutoHeight()
 				[
 					SNew(SBox)
-					.WidthOverride(LargeWidth)
-					.HAlign(HAlign_Left)
-					.Padding(Theme.ContentPadding)
+					.WidthOverride(Theme.ContentWidth)
 					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(LOCTEXT("AccountingTitleType", "Category"))
+						SAssignNew(CompanyAccounting, SVerticalBox)
 					]
-				]
-
-				// Debit
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SBox)
-					.WidthOverride(SmallWidth)
-					.HAlign(HAlign_Left)
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(LOCTEXT("AccountingTitleDebit", "Debit"))
-					]
-				]
-
-				// Credit
-				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				[
-					SNew(SBox)
-					.WidthOverride(SmallWidth)
-					.HAlign(HAlign_Left)
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.NameFont)
-						.Text(LOCTEXT("AccountingTitleCredit", "Credit"))
-					]
-				]
-			]
-
-			// Company accounting contents
-			+ SVerticalBox::Slot()
-			.HAlign(HAlign_Left)
-			.AutoHeight()
-			[
-				SNew(SBox)
-				.WidthOverride(Theme.ContentWidth)
-				[
-					SAssignNew(CompanyAccounting, SVerticalBox)
 				]
 			]
 		]
 	];
-}
-
-
-/*----------------------------------------------------
-	Callbacks
-----------------------------------------------------*/
-
-bool SFlareCompanyMenu::IsRenameDisabled() const
-{
-	FString CompanyNameData = CompanyName->GetText().ToString();
-
-	if (CompanyNameData.Len() > 25)
-	{
-		return true;
-	}
-	if (CompanyNameData == Company->GetCompanyName().ToString())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
 }
 
 
@@ -1278,6 +1254,36 @@ FText SFlareCompanyMenu::OnGetCurrentCompanyComboLine() const
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+TOptional<int32> SFlareCompanyMenu::GetBlurRadius() const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	return (TabView->GetCurrentTabIndex() == 3) ? Theme.BlurRadius : 0;
+}
+
+float SFlareCompanyMenu::GetBlurStrength() const
+{
+	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
+	return (TabView->GetCurrentTabIndex() == 3) ? Theme.BlurStrength : 0;
+}
+
+bool SFlareCompanyMenu::IsRenameDisabled() const
+{
+	FString CompanyNameData = CompanyName->GetText().ToString();
+
+	if (CompanyNameData.Len() > 25)
+	{
+		return true;
+	}
+	if (CompanyNameData == Company->GetCompanyName().ToString())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 void SFlareCompanyMenu::OnRename()
 {
