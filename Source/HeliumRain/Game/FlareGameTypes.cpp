@@ -1004,7 +1004,7 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 		Comment = LOCTEXT("ReceiveTribute", "Receive tribute");
 		break;
 	}
-	case EFlareTransactionLogEntry::ReceiveTribute:
+	case EFlareTransactionLogEntry::RecoveryFees:
 	{
 		Comment = LOCTEXT("RecoveryFees", "Recovery fees");
 		break;
