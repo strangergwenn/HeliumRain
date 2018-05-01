@@ -39,7 +39,6 @@ struct FFlareCompanyReputationSave;
 struct FFlareSectorSave;
 struct FFlarePeopleSave;
 struct FFlareBombSave;
-struct FFFlareResourcePrice;
 struct FFlareTravelSave;
 struct FFlareFloatBuffer;
 
@@ -98,7 +97,6 @@ protected:
 	TSharedRef<FJsonObject> SaveSector(FFlareSectorSave* Data);
 	TSharedRef<FJsonObject> SavePeople(FFlarePeopleSave* Data);
 	TSharedRef<FJsonObject> SaveBomb(FFlareBombSave* Data);
-	TSharedRef<FJsonObject> SaveResourcePrice(FFFlareResourcePrice* Data);
 	TSharedRef<FJsonObject> SaveFloatBuffer(FFlareFloatBuffer* Data);
 	TSharedRef<FJsonObject> SaveBundle(FFlareBundle* Data);
 

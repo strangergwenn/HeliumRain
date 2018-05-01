@@ -133,8 +133,6 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 		SectorData.FleetSupplyConsumptionStats.Resize(FLEET_SUPPLY_CONSUMPTION_STATS);
 		SectorData.DailyFleetSupplyConsumption = 0;
 	}
-
-	LoadResourcePrices();
 }
 
 UFlarePeople* UFlareSimulatedSector::LoadPeople(const FFlarePeopleSave& PeopleData)
@@ -162,8 +160,6 @@ FFlareSectorSave* UFlareSimulatedSector::Save()
 	}
 
 	SectorData.PeopleData = *People->Save();
-
-	SaveResourcePrices();
 
 	if(Game->GetActiveSector() && Game->GetActiveSector()->GetSimulatedSector() == this)
 	{
@@ -1087,43 +1083,6 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 	return ResourceCount;
 }
 
-void UFlareSimulatedSector::LoadResourcePrices()
-{
-	ResourcePrices.Empty();
-	LastResourcePrices.Empty();
-	for (int PriceIndex = 0; PriceIndex < SectorData.ResourcePrices.Num(); PriceIndex++)
-	{
-		FFFlareResourcePrice* ResourcePrice = &SectorData.ResourcePrices[PriceIndex];
-		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourcePrice->ResourceIdentifier);
-		float Price = ResourcePrice->Price;
-		ResourcePrices.Add(Resource, Price);
-		FFlareFloatBuffer* Prices = &ResourcePrice->Prices;
-		Prices->Resize(50);
-		LastResourcePrices.Add(Resource, *Prices);
-	}
-}
-
-void UFlareSimulatedSector::SaveResourcePrices()
-{
-	SectorData.ResourcePrices.Empty();
-
-	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
-	{
-		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
-		if (ResourcePrices.Contains(Resource))
-		{
-			FFFlareResourcePrice Price;
-			Price.ResourceIdentifier = Resource->Identifier;
-			Price.Price = ResourcePrices[Resource];
-			if (LastResourcePrices.Contains(Resource))
-			{
-				Price.Prices = LastResourcePrices[Resource];
-				SectorData.ResourcePrices.Add(Price);
-			}
-		}
-	}
-}
-
 FText UFlareSimulatedSector::GetSectorName()
 {
 	if (SectorData.GivenName.ToString().Len())
@@ -2033,39 +1992,7 @@ void UFlareSimulatedSector::UpdateReserveShips()
 		}
 	}
 }
-/*
-int64 UFlareSimulatedSector::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, int32 Age)
-{
-	int64 DefaultPrice = FMath::RoundToInt(GetPreciseResourcePrice(Resource, Age));
 
-	switch (PriceContext)
-	{
-		case EFlareResourcePriceContext::Default:
-			return DefaultPrice;
-		break;
-		case EFlareResourcePriceContext::FactoryOutput:
-			return DefaultPrice - Resource->TransportFee;
-		break;
-		case EFlareResourcePriceContext::FactoryInput:
-			return DefaultPrice + Resource->TransportFee;
-		break;
-		case EFlareResourcePriceContext::ConsumerConsumption:
-			return DefaultPrice * 1.1 + Resource->TransportFee; // TODO dynamic
-		break;
-		case EFlareResourcePriceContext::MaintenanceConsumption:
-			return DefaultPrice * 1.5  + Resource->TransportFee;
-		break;
-		default:
-			return 0;
-			break;
-	}
-}
-
-float UFlareSimulatedSector::GetDefaultResourcePrice(FFlareResourceDescription* Resource)
-{
-	return (Resource->MinPrice + Resource->MaxPrice)/2;
-}
-*/
 uint32 UFlareSimulatedSector::GetTransfertResourcePrice(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSimulatedSpacecraft* DestinationSpacecraft, FFlareResourceDescription* Resource)
 {
 	UFlareSimulatedSpacecraft* Station = NULL;
@@ -2081,19 +2008,16 @@ uint32 UFlareSimulatedSector::GetTransfertResourcePrice(UFlareSimulatedSpacecraf
 	}
 	else
 	{
-		return GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+		return 0;
 	}
-
-	// Get context
-	FFlareResourceUsage ResourceUsage = Station->GetResourceUseType(Resource);
 
 	if (Station == DestinationSpacecraft)
 	{
-		 return SectorHelper::GetSellResourcePrice(this,Resource, ResourceUsage);
+		 return DestinationSpacecraft->GetResourcePrice(Resource, EFlareResourcePriceContext::SellPrice);
 	}
 	else
 	{
-		return SectorHelper::GetBuyResourcePrice(this,Resource, ResourceUsage);
+		return SourceSpacecraft->GetResourcePrice(Resource, EFlareResourcePriceContext::BuyPrice);
 	}
 }
 

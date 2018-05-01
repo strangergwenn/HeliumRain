@@ -256,39 +256,7 @@ void UFlareTravel::EndTravel()
 
 	// People migration
 	OriginSector->GetPeople()->Migrate(DestinationSector, Fleet->GetShipCount());
-	
-	// Price migration
-	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
-	{
-		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
 
-		float ContaminationFactor = 0.00f;
-		for (int ShipIndex = 0; ShipIndex < Fleet->GetShips().Num(); ShipIndex++)
-		{
-			UFlareSimulatedSpacecraft* Ship = Fleet->GetShips()[ShipIndex];
-			if (Ship->GetActiveCargoBay()->GetResourceQuantity(Resource, Ship->GetCompany()) > 0)
-			{
-				ContaminationFactor += Ship->GetActiveCargoBay()->GetResourceQuantity(Resource, Ship->GetCompany()) / 1000.f;
-				//TODO scale bay world stock/flow
-			}
-		}
-
-		ContaminationFactor = FMath::Min(ContaminationFactor, 1.f);
-
-		float OriginPrice = OriginSector->GetPreciseResourcePrice(Resource);
-		float DestinationPrice = DestinationSector->GetPreciseResourcePrice(Resource);
-		float Mean = (OriginPrice + DestinationPrice) / 2.f;
-		
-		float NewOriginPrice = (OriginPrice * (1 - ContaminationFactor)) + (ContaminationFactor * Mean);
-		float NewDestinationPrice = (DestinationPrice * (1 - ContaminationFactor)) + (ContaminationFactor * Mean);
-
-		//FLOGV("Travel start from %s. %s price ajusted from %f to %f (Mean: %f)", *OriginSector->GetSectorName().ToString(), *Resource->Name.ToString(), OriginPrice/100., NewOriginPrice/100., Mean/100.);
-		//FLOGV("Travel end from %s. %s price ajusted from %f to %f (Mean: %f)", *DestinationSector->GetSectorName().ToString(), *Resource->Name.ToString(), DestinationPrice/100., NewDestinationPrice/100., Mean/100.);
-
-		OriginSector->SetPreciseResourcePrice(Resource, NewOriginPrice);
-		DestinationSector->SetPreciseResourcePrice(Resource, NewDestinationPrice);
-	}
-	
 	// Notify travel ended
 	if (Fleet->GetFleetCompany() == Game->GetPC()->GetCompany() && (Fleet->GetCurrentTradeRoute() == NULL || Fleet->GetCurrentTradeRoute()->IsPaused()))
 	{

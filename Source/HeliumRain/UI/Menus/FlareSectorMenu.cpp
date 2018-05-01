@@ -847,7 +847,7 @@ FText SFlareSectorMenu::GetRefillText() const
 		int32 UsedNotOwnedFs  = UsedFs - UsedOwnedFs;
 		FFlareResourceDescription* FleetSupply = TargetSector->GetGame()->GetScenarioTools()->FleetSupply;
 
-		int64 UsedNotOwnedFsCost = UsedNotOwnedFs * TargetSector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::MaintenanceConsumption);
+		int64 UsedNotOwnedFsCost = UsedNotOwnedFs * TargetSector->GetGame()->GetGameWorld()->GetFSPrice();
 
 
 		FText OwnedCostText;
@@ -929,7 +929,7 @@ FText SFlareSectorMenu::GetRepairText() const
 		int32 UsedNotOwnedFs  = UsedFs - UsedOwnedFs;
 		FFlareResourceDescription* FleetSupply = TargetSector->GetGame()->GetScenarioTools()->FleetSupply;
 
-		int64 UsedNotOwnedFsCost = UsedNotOwnedFs * TargetSector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::MaintenanceConsumption);
+		int64 UsedNotOwnedFsCost = UsedNotOwnedFs * TargetSector->GetGame()->GetGameWorld()->GetFSPrice();
 
 
 		FText OwnedCostText;

@@ -449,13 +449,14 @@ FText SFlareResourcePricesMenu::GetSectorName() const
 FSlateColor SFlareResourcePricesMenu::GetPriceColor(FFlareResourceDescription* Resource) const
 {
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	if (TargetSector)
+	/*if (TargetSector)
 	{
 		FLinearColor HighPriceColor = Theme.FriendlyColor;
 		FLinearColor MeanPriceColor = Theme.NeutralColor;
 		FLinearColor LowPriceColor = Theme.EnemyColor;
 
-		float ResourcePrice = TargetSector->GetPreciseResourcePrice(Resource);
+		//float ResourcePrice = TargetSector->GetPreciseResourcePrice(Resource);
+		float ResourcePrice = Resource->MinPrice;
 
 		float PriceRatio = (ResourcePrice - Resource->MinPrice) / (float) (Resource->MaxPrice - Resource->MinPrice);
 
@@ -467,7 +468,8 @@ FSlateColor SFlareResourcePricesMenu::GetPriceColor(FFlareResourceDescription* R
 		{
 			return FMath::Lerp(LowPriceColor, MeanPriceColor, 2.f * PriceRatio);
 		}
-	}
+	}*/
+	// TODO
 	return Theme.FriendlyColor;
 }
 
@@ -542,7 +544,8 @@ FText SFlareResourcePricesMenu::GetResourcePriceInfo(FFlareResourceDescription* 
 		FNumberFormattingOptions MoneyFormat;
 		MoneyFormat.MaximumFractionalDigits = 2;
 
-		int64 ResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+		//int64 ResourcePrice = TargetSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+		int64 ResourcePrice = 0; // TODO
 
 		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "{0} credits"),
 			FText::AsNumber(ResourcePrice / 100.0f, &MoneyFormat));
@@ -555,7 +558,7 @@ FText SFlareResourcePricesMenu::GetResourcePriceVariationInfo(FFlareResourceDesc
 {
 	if (TargetSector)
 	{
-		FNumberFormattingOptions MoneyFormat;
+		/*FNumberFormattingOptions MoneyFormat;
 		MoneyFormat.MaximumFractionalDigits = 2;
 
 		int32 MeanDuration = 30;
@@ -576,7 +579,7 @@ FText SFlareResourcePricesMenu::GetResourcePriceVariationInfo(FFlareResourceDesc
 			}
 		}
 
-		return LOCTEXT("ResourceMainPriceNoVariationFormat", "-");
+		return LOCTEXT("ResourceMainPriceNoVariationFormat", "-");*/
 	}
 
 	return FText();
@@ -586,11 +589,11 @@ FText SFlareResourcePricesMenu::GetResourceTransportFeeInfo(FFlareResourceDescri
 {
 	if (TargetSector)
 	{
-		FNumberFormattingOptions MoneyFormat;
+	/*	FNumberFormattingOptions MoneyFormat;
 		MoneyFormat.MaximumFractionalDigits = 2;
 
 		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "{0} credits"),
-			FText::AsNumber(Resource->TransportFee / 100.0f, &MoneyFormat));
+			FText::AsNumber(Resource->TransportFee / 100.0f, &MoneyFormat));*/
 	}
 
 	return FText();

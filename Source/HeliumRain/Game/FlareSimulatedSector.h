@@ -253,23 +253,6 @@ struct FFlareSectorOrbitParameters
 	double Phase;
 };
 
-/** Sector resources prices*/
-USTRUCT()
-struct FFFlareResourcePrice
-{
-	GENERATED_USTRUCT_BODY()
-	/** Resource */
-	UPROPERTY(EditAnywhere, Category = Save)
-	FName ResourceIdentifier;
-
-	/** Price */
-	UPROPERTY(EditAnywhere, Category = Save)
-	float Price;
-
-	UPROPERTY(EditAnywhere, Category = Save)
-	FFlareFloatBuffer Prices;
-};
-
 /** Sector save data */
 USTRUCT()
 struct FFlareSectorSave
@@ -306,9 +289,6 @@ struct FFlareSectorSave
 	/** Sector peole. */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FFlarePeopleSave PeopleData;
-
-	UPROPERTY(VisibleAnywhere, Category = Save)
-	TArray<FFFlareResourcePrice> ResourcePrices;
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	bool IsTravelSector;
@@ -371,11 +351,6 @@ public:
 
 	/** Save the sector to a save file */
     virtual FFlareSectorSave* Save();
-
-	void LoadResourcePrices();
-
-	void SaveResourcePrices();
-
 
     /*----------------------------------------------------
         Gameplay

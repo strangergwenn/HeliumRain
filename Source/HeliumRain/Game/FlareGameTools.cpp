@@ -187,7 +187,7 @@ void UFlareGameTools::CheckEconomyBalance()
 	FLOG("=============");
 	FLOG("");
 
-	TArray<UFlareResourceCatalogEntry*> ResourceEntries = GetGame()->GetResourceCatalog()->Resources;
+/*	TArray<UFlareResourceCatalogEntry*> ResourceEntries = GetGame()->GetResourceCatalog()->Resources;
 	for(int ResourceIndex = 0; ResourceIndex < ResourceEntries.Num(); ResourceIndex++)
 	{
 		FFlareResourceDescription* Resource = &ResourceEntries[ResourceIndex]->Data;
@@ -363,7 +363,7 @@ void UFlareGameTools::CheckEconomyBalance()
 		FLOG( "");
 	}
 
-
+*/
 
 }
 
@@ -1284,12 +1284,12 @@ void UFlareGameTools::PrintSector(FName SectorIdentifier)
 	}
 
 	//Prices
-	FLOG("  > prices");
+	/*FLOG("  > prices");
 	for(int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
 	{
 		FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->Resources[ResourceIndex]->Data;
 		FLOGV("   - %s : %f credits", *Resource->Name.ToString(), Sector->GetPreciseResourcePrice(Resource) / 100.);
-	}
+	}*/
 
 	//People
 	FLOG("  > people");
@@ -2003,11 +2003,11 @@ int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSe
 		int64 ResourcePrice;
 		if(LocalPrice)
 		{
-			ResourcePrice = Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::Default);
+			ResourcePrice = SectorHelper::GetMeanResourcePrice(Sector, &Resource->Resource->Data);
 		}
 		else
 		{
-			ResourcePrice = Resource->Resource->Data.MinPrice;
+			ResourcePrice = SectorHelper::GetMeanWorldResourcePrice(Sector->GetGame()->GetGameWorld(), &Resource->Resource->Data);
 		}
 
 		Cost += Resource->Quantity * ResourcePrice;
@@ -2020,11 +2020,11 @@ int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSe
 		int64 ResourcePrice;
 		if(LocalPrice)
 		{
-			ResourcePrice = Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::Default);
+			ResourcePrice = SectorHelper::GetMeanResourcePrice(Sector, &Resource->Resource->Data);
 		}
 		else
 		{
-			ResourcePrice = Resource->Resource->Data.MinPrice;
+			ResourcePrice = SectorHelper::GetMeanWorldResourcePrice(Sector->GetGame()->GetGameWorld(), &Resource->Resource->Data);
 		}
 
 		Cost -= Resource->Quantity * ResourcePrice;

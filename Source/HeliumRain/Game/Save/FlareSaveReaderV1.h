@@ -63,7 +63,6 @@ protected:
 	void LoadSector(const TSharedPtr<FJsonObject> Object, FFlareSectorSave* Data);
 	void LoadPeople(const TSharedPtr<FJsonObject> Object, FFlarePeopleSave* Data);
 	void LoadBomb(const TSharedPtr<FJsonObject> Object, FFlareBombSave* Data);
-	void LoadResourcePrice(const TSharedPtr<FJsonObject> Object, FFFlareResourcePrice* Data);
 	void LoadTravel(const TSharedPtr<FJsonObject> Object, FFlareTravelSave* Data);
 
 	/*----------------------------------------------------

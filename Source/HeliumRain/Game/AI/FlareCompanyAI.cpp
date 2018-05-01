@@ -98,8 +98,10 @@ void UFlareCompanyAI::Tick()
 	}
 }
 
-void UFlareCompanyAI::Simulate()
+void UFlareCompanyAI::Simulate(UFlareAIDataCache* AICache)
 {
+	AiDataCache = AICache;
+
 	if (Game && Company != Game->GetPC()->GetCompany())
 	{
 		Behavior->Load(Company);
@@ -3371,10 +3373,9 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 		// Factory
 		for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.InputResources.Num(); ResourceIndex++)
 		{
-			// TODO E2 rewrite
-			/*const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
-			GainPerCycle -= Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::FactoryInput) * Resource->Quantity;
 
+			const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.InputResources[ResourceIndex];
+			GainPerCycle -= AiDataCache->GetInputResourcePrice(Sector, &Resource->Resource->Data) * Resource->Quantity;
 
 			float MaxVolume = FMath::Max(WorldStats[&Resource->Resource->Data].Production, WorldStats[&Resource->Resource->Data].Consumption);
 			if (MaxVolume > 0)
@@ -3394,11 +3395,6 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 				// No input production, ignore this station
 				return 0;
 			}
-
-			float ResourcePrice = Sector->GetPreciseResourcePrice(&Resource->Resource->Data);
-			float PriceRatio = (ResourcePrice - (float) Resource->Resource->Data.MinPrice) / (float) (Resource->Resource->Data.MaxPrice - Resource->Resource->Data.MinPrice);
-
-			Score *= (1 - PriceRatio) * 2;*/
 		}
 
 		//FLOGV(" after input: %f", Score);
@@ -3411,7 +3407,7 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 		for (int32 ResourceIndex = 0; ResourceIndex < FactoryDescription->CycleCost.OutputResources.Num(); ResourceIndex++)
 		{
 			const FFlareFactoryResource* Resource = &FactoryDescription->CycleCost.OutputResources[ResourceIndex];
-			GainPerCycle += Sector->GetResourcePrice(&Resource->Resource->Data, EFlareResourcePriceContext::FactoryOutput) * Resource->Quantity;
+			GainPerCycle += AiDataCache->GetOutputResourcePrice(Sector, &Resource->Resource->Data) * Resource->Quantity;
 
 			float ResourceAffility = Behavior->GetResourceAffility(&Resource->Resource->Data);
 			Score *= ResourceAffility;
@@ -3436,15 +3432,6 @@ float UFlareCompanyAI::ComputeConstructionScoreForStation(UFlareSimulatedSector*
 			{
 				Score *= 1000;
 			}
-
-			float ResourcePrice = Sector->GetPreciseResourcePrice(&Resource->Resource->Data);
-			float PriceRatio = (ResourcePrice - (float) Resource->Resource->Data.MinPrice) / (float) (Resource->Resource->Data.MaxPrice - Resource->Resource->Data.MinPrice);
-
-
-			//FLOGV("    PriceRatio %f", PriceRatio);
-
-
-			Score *= PriceRatio * 2;
 		}
 
 		//FLOGV(" after output: %f", Score);
@@ -3617,7 +3604,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 					}
 					else
 					{
-						Capacity = FMath::Min(Capacity, CanSellQuantity);
+						Capacity = FMath::Min(Capacity, CanBuyQuantity);
 						Variation->FactoryCapacity += Capacity * Behavior->TradingSell;
 					}
 
@@ -3869,8 +3856,7 @@ SectorVariation UFlareCompanyAI::ComputeSectorResourceVariation(UFlareSimulatedS
 			else
 			{
 				FFlareResourceDescription* FleetSupply = Sector->GetGame()->GetScenarioTools()->FleetSupply;
-				//int32 CanBuyQuantity =  (int32) (OtherCompany->GetMoney() / Sector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::Default));
-				// TODO E2 fix
+				int32 CanBuyQuantity =  (int32) (OtherCompany->GetMoney() / AiDataCache->GetOutputResourcePrice(Sector, FleetSupply));
 
 				Variation->MaintenanceCapacity += FMath::Min(CanBuyQuantity, NeededFSSum);
 			}
@@ -4134,11 +4120,11 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 			}
 
 			int32 OwnedSellQuantity = FMath::Min(OwnedCapacity, QuantityToSell);
-			MoneyGain += OwnedSellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * 2;
+			MoneyGain += OwnedSellQuantity * AiDataCache->GetInputResourcePrice(SectorB, Resource) * 2;
 			QuantityToSell -= OwnedSellQuantity;
 
 			int32 MaintenanceSellQuantity = FMath::Min(MaintenanceCapacity, QuantityToSell);
-			MoneyGain += MaintenanceSellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::MaintenanceConsumption);
+			MoneyGain += MaintenanceSellQuantity * GetGame()->GetGameWorld()->GetFSPrice();
 			QuantityToSell -= MaintenanceSellQuantity;
 
 			int32 FactorySellQuantity = FMath::Min(FactoryCapacity, QuantityToSell);
@@ -4147,7 +4133,7 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 			QuantityToSell -= FactorySellQuantity;
 
 			int32 StorageSellQuantity = FMath::Min(StorageCapacity, QuantityToSell);
-			MoneyGain += StorageSellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+			MoneyGain += StorageSellQuantity * AiDataCache->GetInputResourcePrice(SectorB, Resource);
 			QuantityToSell -= StorageSellQuantity;
 
 			int32 MoneySpend = 0;
@@ -4159,15 +4145,15 @@ SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecr
 
 
 			int32 OwnedBuyQuantity = FMath::Min(OwnedStock, QuantityToBuy);
-			MoneySpend += OwnedBuyQuantity * SectorA->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * 0.5;
+			MoneySpend += OwnedBuyQuantity * AiDataCache->GetOutputResourcePrice(SectorA, Resource) * 0.5;
 			QuantityToBuy -= OwnedBuyQuantity;
 
 			int32 FactoryBuyQuantity = FMath::Min(FactoryStock, QuantityToBuy);
-			MoneySpend += FactoryBuyQuantity * SectorA->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryOutput);
+			MoneySpend += FactoryBuyQuantity * AiDataCache->GetOutputResourcePrice(SectorA, Resource);
 			QuantityToBuy -= FactoryBuyQuantity;
 
 			int32 StorageBuyQuantity = FMath::Min(StorageStock, QuantityToBuy);
-			MoneySpend += StorageBuyQuantity * SectorA->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+			MoneySpend += StorageBuyQuantity * AiDataCache->GetOutputResourcePrice(SectorA, Resource);
 			QuantityToBuy -= StorageBuyQuantity;
 
 

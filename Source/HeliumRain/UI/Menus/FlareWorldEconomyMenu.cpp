@@ -510,9 +510,12 @@ FSlateColor SFlareWorldEconomyMenu::GetPriceColor(UFlareSimulatedSector* Sector)
 		FLinearColor MeanPriceColor = Theme.NeutralColor;
 		FLinearColor LowPriceColor = Theme.EnemyColor;
 
-		float ResourcePrice = Sector->GetPreciseResourcePrice(TargetResource);
 
-		float PriceRatio = (ResourcePrice - TargetResource->MinPrice) / (float)(TargetResource->MaxPrice - TargetResource->MinPrice);
+
+		// TODO EV2
+		float PriceRatio = 0.5;
+		//float ResourcePrice = Sector->GetPreciseResourcePrice(TargetResource);
+		//float PriceRatio = (ResourcePrice - TargetResource->MinPrice) / (float)(TargetResource->MaxPrice - TargetResource->MinPrice);
 
 		if (PriceRatio > 0.5)
 		{
@@ -583,8 +586,7 @@ FText SFlareWorldEconomyMenu::GetResourceInfo() const
 			}
 			
 
-			FText Part1 = FText::Format(LOCTEXT("StockInfoFormatPart1", "\u2022Transport fee: {0} credits\n\u2022 Worldwide stock: {1}\n\u2022 Worldwide needs: {2}\n"),
-										UFlareGameTools::DisplayMoney(TargetResource->TransportFee),
+			FText Part1 = FText::Format(LOCTEXT("StockInfoFormatPart1", "\u2022Worldwide stock: {1}\n\u2022 Worldwide needs: {2}\n"),
 										FText::AsNumber(WorldStats[TargetResource].Stock),
 										FText::AsNumber(WorldStats[TargetResource].Capacity));
 			FText Part2 = FText::Format(LOCTEXT("StockInfoFormatPart2", "\u2022 Worldwide production: {0} / day\n\u2022 Worldwide usage: {1} / day\n"),
@@ -678,7 +680,8 @@ FText SFlareWorldEconomyMenu::GetResourcePriceInfo(UFlareSimulatedSector* Sector
 		FNumberFormattingOptions MoneyFormat;
 		MoneyFormat.MaximumFractionalDigits = 2;
 
-		int64 ResourcePrice = Sector->GetResourcePrice(TargetResource, EFlareResourcePriceContext::Default);
+		// TODO EV2 min and max
+		int64 ResourcePrice = SectorHelper::GetMeanResourcePrice(Sector, TargetResource);
 
 		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "{0} credits"),
 			FText::AsNumber(ResourcePrice / 100.0f, &MoneyFormat));
@@ -694,7 +697,8 @@ FText SFlareWorldEconomyMenu::GetResourcePriceVariationInfo(UFlareSimulatedSecto
 		FNumberFormattingOptions MoneyFormat;
 		MoneyFormat.MaximumFractionalDigits = 2;
 
-		int64 ResourcePrice = Sector->GetResourcePrice(TargetResource, EFlareResourcePriceContext::Default);
+		// TODO EV2
+		/*int64 ResourcePrice = Sector->GetResourcePrice(TargetResource, EFlareResourcePriceContext::Default);
 		int64 LastResourcePrice = Sector->GetResourcePrice(TargetResource, EFlareResourcePriceContext::Default, *MeanDuration);
 
 		if(ResourcePrice != LastResourcePrice)
@@ -709,7 +713,7 @@ FText SFlareWorldEconomyMenu::GetResourcePriceVariationInfo(UFlareSimulatedSecto
 									LOCTEXT("ResourceVariationFormatSignMinus","-")),
 							  FText::AsNumber(FMath::Abs(Variation) * 100.0f, &MoneyFormat));
 			}
-		}
+		}*/
 		return LOCTEXT("ResourceMainPriceNoVariationFormat", "-");
 	}
 

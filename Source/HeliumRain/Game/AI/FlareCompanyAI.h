@@ -8,6 +8,7 @@
 
 class UFlareCompany;
 class UFlareAIBehavior;
+class UFlareAIDataCache;
 
 /* Inter-sector trade deal */
 struct SectorDeal
@@ -113,7 +114,7 @@ public:
 	virtual void Tick();
 
 	/** Simulate a day */
-	virtual void Simulate();
+	virtual void Simulate(UFlareAIDataCache* AICache);
 
 	/** Try to purchase research */
 	virtual void PurchaseResearch();
@@ -286,6 +287,8 @@ protected:
 	TArray<UFlareSimulatedSector*>            SectorWithBattle;
 
 	int32 IdleCargoCapacity;
+
+	UFlareAIDataCache* AiDataCache;
 
 public:
 

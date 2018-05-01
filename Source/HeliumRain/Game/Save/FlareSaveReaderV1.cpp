@@ -216,6 +216,8 @@ void UFlareSaveReaderV1::LoadWorld(const TSharedPtr<FJsonObject> Object, FFlareW
 {
 	LoadInt64(Object, "Date", &Data->Date);
 
+	LoadInt64(Object, "FSPrice", &Data->FSPrice);
+
 	const TArray<TSharedPtr<FJsonValue>>* Companies;
 	if(Object->TryGetArrayField("Companies", Companies))
 	{
@@ -972,17 +974,6 @@ void UFlareSaveReaderV1::LoadSector(const TSharedPtr<FJsonObject> Object, FFlare
 	LoadFNameArray(Object, "FleetIdentifiers", &Data->FleetIdentifiers);
 	LoadFNameArray(Object, "SpacecraftIdentifiers", &Data->SpacecraftIdentifiers);
 
-	const TArray<TSharedPtr<FJsonValue>>* ResourcePrices;
-	if(Object->TryGetArrayField("ResourcePrices", ResourcePrices))
-	{
-		for (TSharedPtr<FJsonValue> Item : *ResourcePrices)
-		{
-			FFFlareResourcePrice ChildData;
-			LoadResourcePrice(Item->AsObject(), &ChildData);
-			Data->ResourcePrices.Add(ChildData);
-		}
-	}
-
 	if(!Object->TryGetBoolField(TEXT("IsTravelSector"), Data->IsTravelSector))
 	{
 		Data->IsTravelSector = false;
@@ -1042,15 +1033,6 @@ void UFlareSaveReaderV1::LoadBomb(const TSharedPtr<FJsonObject> Object, FFlareBo
 	LoadFloat(Object, "BurnDuration", &Data->BurnDuration);
 	LoadFName(Object, "AimTargetSpacecraft", &Data->AimTargetSpacecraft);
 }
-
-
-void UFlareSaveReaderV1::LoadResourcePrice(const TSharedPtr<FJsonObject> Object, FFFlareResourcePrice* Data)
-{
-	LoadFName(Object, "ResourceIdentifier", &Data->ResourceIdentifier);
-	LoadFloat(Object, "Price", &Data->Price);
-	LoadFloatBuffer(Object, "Prices", &Data->Prices);
-}
-
 
 void UFlareSaveReaderV1::LoadTravel(const TSharedPtr<FJsonObject> Object, FFlareTravelSave* Data)
 {

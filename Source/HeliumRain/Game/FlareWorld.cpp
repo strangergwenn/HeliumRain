@@ -14,6 +14,7 @@
 #include "FlareTravel.h"
 #include "FlareFleet.h"
 #include "FlareBattle.h"
+#include "AI/FlareAIDataCache.h"
 
 #include "../Quests/FlareQuest.h"
 #include "../Quests/FlareQuestCondition.h"
@@ -37,6 +38,8 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 	FLOG("UFlareWorld::Load");
 	Game = Cast<AFlareGame>(GetOuter());
     WorldData = Data;
+
+	AICache = NewObject<UFlareAIDataCache>(this, UFlareAIDataCache::StaticClass());
 
 	// Init planetarium
 	Planetarium = NewObject<UFlareSimulatedPlanetarium>(this, UFlareSimulatedPlanetarium::StaticClass());
@@ -484,12 +487,15 @@ void UFlareWorld::Simulate()
 
 	HasTotalWorldCombatPointCache = false;
 
+
+	AICache->Load(GetGame());
+
 	// AI. Play them in random order
 	TArray<UFlareCompany*> CompaniesToSimulateAI = Companies;
 	while(CompaniesToSimulateAI.Num())
 	{
 		int32 Index = FMath::RandRange(0, CompaniesToSimulateAI.Num() - 1);
-		CompaniesToSimulateAI[Index]->SimulateAI();
+		CompaniesToSimulateAI[Index]->SimulateAI(AICache);
 		CompaniesToSimulateAI.RemoveAt(Index);
 	}
 

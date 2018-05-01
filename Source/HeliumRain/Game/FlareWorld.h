@@ -24,7 +24,7 @@ class UFlareFleet;
 class UFlareFactory;
 class UFlareSector;
 class UFlareSimulatedSector;
-
+class UFlareAIDataCache;
 
 /** Hostility status */
 UENUM()
@@ -55,6 +55,9 @@ struct FFlareWorldSave
 
 	UPROPERTY(VisibleAnywhere, Category = Save)
 	TArray<FFlareTravelSave> TravelData;
+
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 FSPrice;
 };
 
 
@@ -200,6 +203,9 @@ protected:
 
 	bool WorldMoneyReferenceInit;
 
+	UPROPERTY()
+	UFlareAIDataCache* AICache;
+
 public:
 	int64 WorldMoneyReference;
 
@@ -269,6 +275,11 @@ public:
 	TArray<FFlareIncomingEvent> GetIncomingEvents();
 
 	int32 GetTotalWorldCombatPoint();
+
+	int64 GetFSPrice()
+	{
+		return WorldData.FSPrice;
+	}
 
 	TMap<IncomingKey, IncomingValue> GetIncomingPlayerEnemy();
 

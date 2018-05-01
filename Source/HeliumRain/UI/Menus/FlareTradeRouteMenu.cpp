@@ -8,6 +8,7 @@
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareGameTools.h"
 #include "../../Game/FlareTradeRoute.h"
+#include "../../Game/FlareSectorHelper.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
@@ -716,7 +717,7 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 			{
 				// Create deal entry
 				FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation.ResourceIdentifier);
-				TFlareResourceDeal Deal(Resource, SimulatedSector->GetPreciseResourcePrice(Resource, EFlareResourcePriceContext::Default));
+				TFlareResourceDeal Deal(Resource, SectorHelper::GetMeanResourcePrice(SimulatedSector, Resource));
 
 				// Add it
 				switch (Operation.Type)
@@ -1305,8 +1306,8 @@ TArray<TFlareResourceDeal> SFlareTradeRouteMenu::GetSellableResources(UFlareSimu
 	{
 		if (TargetSector->WantBuy(Deal.Key, MenuManager->GetPC()->GetCompany()))
 		{
-			int64 NewPrice = TargetSector->GetPreciseResourcePrice(Deal.Key, EFlareResourcePriceContext::Default);
-			int64 DiffPrice = NewPrice + Deal.Key->TransportFee - Deal.Value;
+			int64 NewPrice = SectorHelper::GetMeanResourcePrice(TargetSector,Deal.Key);
+			int64 DiffPrice = NewPrice - Deal.Value;
 			int64 BenefitRatio = FMath::RoundToInt(100.0f * (float)(DiffPrice) / (float)Deal.Value);
 			if (BenefitRatio > 1)
 			{
@@ -1327,8 +1328,8 @@ TArray<TFlareResourceDeal> SFlareTradeRouteMenu::GetBuyableResources(UFlareSimul
 	{
 		if (TargetSector->WantSell(Deal.Key, MenuManager->GetPC()->GetCompany()))
 		{
-			int64 NewPrice = TargetSector->GetPreciseResourcePrice(Deal.Key, EFlareResourcePriceContext::Default);
-			int64 DiffPrice = NewPrice - Deal.Key->TransportFee - Deal.Value;
+			int64 NewPrice = SectorHelper::GetMeanResourcePrice(TargetSector,Deal.Key);
+			int64 DiffPrice = NewPrice - Deal.Value;
 			int64 BenefitRatio = FMath::RoundToInt(100.0f * (float)(DiffPrice) / (float)Deal.Value);
 			if (BenefitRatio < 1)
 			{
@@ -1625,14 +1626,14 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 
 			if (Resource && Sector)
 			{
-
-
-				//TODO E2
+				// TODO EV2
 				int64 TransactionResourcePrice = 0;
+				int64 Fee = 0;
+				int64 BaseResourcePrice = 0;
 				/*int64 TransactionResourcePrice = Sector->GetResourcePrice(Resource,
 														  (Operation->Type == EFlareTradeRouteOperation::Sell || Operation->Type == EFlareTradeRouteOperation::UnloadOrSell ? EFlareResourcePriceContext::FactoryInput: EFlareResourcePriceContext::FactoryOutput));
-				int64 BaseResourcePrice = Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);*/
-				int64 Fee = TransactionResourcePrice - BaseResourcePrice;
+				int64 BaseResourcePrice = Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+				int64 Fee = TransactionResourcePrice - BaseResourcePrice;*/
 
 				PricePart = FText::Format(LOCTEXT("TradeUnitPriceFormat", "\n{0} credits/unit ({1} {2} {3} fee)"),
 															UFlareGameTools::DisplayMoney(TransactionResourcePrice),

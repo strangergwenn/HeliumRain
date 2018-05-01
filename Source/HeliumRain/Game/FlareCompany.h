@@ -52,7 +52,7 @@ public:
 		Gameplay
 	----------------------------------------------------*/
 
-	virtual void SimulateAI();
+	virtual void SimulateAI(UFlareAIDataCache* AICache);
 
 	virtual void TickAI();
 

@@ -225,9 +225,9 @@ FFlareCompanySave* UFlareCompany::Save()
 	Gameplay
 ----------------------------------------------------*/
 
-void UFlareCompany::SimulateAI()
+void UFlareCompany::SimulateAI(UFlareAIDataCache* AICache)
 {
-	CompanyAI->Simulate();
+	CompanyAI->Simulate(AICache);
 }
 
 void UFlareCompany::TickAI()
@@ -1067,9 +1067,9 @@ bool UFlareCompany::HasKnowResourceInput(FFlareResourceDescription* Resource)
 		{
 			FFlareResourceUsage StationResourceUsage = Station->GetResourceUseType(Resource);
 
-			if(StationResourceUsage.HasUsage(EFlareResourcePriceContext::FactoryInput) &&
-				StationResourceUsage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption) &&
-				StationResourceUsage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption))
+			if(StationResourceUsage.HasUsage(EFlareResourceUsageContext::FactoryInput) &&
+				StationResourceUsage.HasUsage(EFlareResourceUsageContext::ConsumerConsumption) &&
+				StationResourceUsage.HasUsage(EFlareResourceUsageContext::MaintenanceConsumption))
 			{
 				continue;
 			}
@@ -1093,7 +1093,7 @@ bool UFlareCompany::HasKnowResourceOutput(FFlareResourceDescription* Resource)
 		{
 			FFlareResourceUsage StationResourceUsage = Station->GetResourceUseType(Resource);
 
-			if(StationResourceUsage.HasUsage(EFlareResourcePriceContext::FactoryOutput))
+			if(StationResourceUsage.HasUsage(EFlareResourceUsageContext::FactoryOutput))
 			{
 				continue;
 			}
@@ -1584,7 +1584,7 @@ const struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* 
 				continue;
 			}
 
-			CompanyValue.StockValue += ReferenceSector->GetResourcePrice(Cargo.Resource, EFlareResourcePriceContext::Default) * Cargo.Quantity;
+			CompanyValue.StockValue += SectorHelper::GetMeanResourcePrice(ReferenceSector, Cargo.Resource) * Cargo.Quantity;
 		}
 		}
 
@@ -1599,7 +1599,7 @@ const struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* 
 				continue;
 			}
 
-			CompanyValue.StockValue += ReferenceSector->GetResourcePrice(Cargo.Resource, EFlareResourcePriceContext::Default) * Cargo.Quantity;
+			CompanyValue.StockValue += SectorHelper::GetMeanResourcePrice(ReferenceSector, Cargo.Resource) * Cargo.Quantity;
 		}
 		}
 
@@ -1616,7 +1616,7 @@ const struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* 
 				FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourceIdentifier);
 				if (Resource)
 				{
-					CompanyValue.StockValue += ReferenceSector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default) * Quantity;
+					CompanyValue.StockValue += SectorHelper::GetMeanResourcePrice(ReferenceSector, Resource) * Quantity;
 				}
 				else
 				{
