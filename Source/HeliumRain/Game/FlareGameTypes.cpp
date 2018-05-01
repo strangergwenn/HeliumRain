@@ -976,32 +976,32 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 	}
 	case EFlareTransactionLogEntry::PayRepair:
 	{
-		Comment = FText::Format(LOCTEXT("PayRepair", "Shipcraft reparations ({0} fleet supply)"), ResourceQuantity);
+		Comment = FText::Format(LOCTEXT("PayRepair", "Spacecraft repairs ({0} fleet supply)"), ResourceQuantity);
 		break;
 	}
 	case EFlareTransactionLogEntry::PayRefill:
 	{
-		Comment = FText::Format(LOCTEXT("PayRefill", "Refill weapons ({0} fleet supply)"), ResourceQuantity);
+		Comment = FText::Format(LOCTEXT("PayRefill", "Weapons refilling ({0} fleet supply)"), ResourceQuantity);
 		break;
 	}
 	case EFlareTransactionLogEntry::PaidForRepair:
 	{
-		Comment = FText::Format(LOCTEXT("PaidForRepair", "Paid for reparations ({0} fleet supply)"), ResourceQuantity);
+		Comment = FText::Format(LOCTEXT("PaidForRepair", "Paid for repairs ({0} fleet supply)"), ResourceQuantity);
 		break;
 	}
 	case EFlareTransactionLogEntry::PaidForRefill:
 	{
-		Comment = FText::Format(LOCTEXT("PaidForRefill", "Paid for refill ({0} fleet supply)"), ResourceQuantity);
+		Comment = FText::Format(LOCTEXT("PaidForRefill", "Paid for refilling ({0} fleet supply)"), ResourceQuantity);
 		break;
 	}
 	case EFlareTransactionLogEntry::SendTribute:
 	{
-		Comment = LOCTEXT("SendTribute", "Send tribute");
+		Comment = LOCTEXT("SendTribute", "Paid tribute");
 		break;
 	}
 	case EFlareTransactionLogEntry::ReceiveTribute:
 	{
-		Comment = LOCTEXT("ReceiveTribute", "Receive tribute");
+		Comment = LOCTEXT("ReceiveTribute", "Received tribute");
 		break;
 	}
 	case EFlareTransactionLogEntry::RecoveryFees:
