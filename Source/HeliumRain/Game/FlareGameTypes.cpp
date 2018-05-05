@@ -684,32 +684,32 @@ FText FFlareTransactionLogEntry::GetCategoryDescription(EFlareTransactionLogEntr
 {
 	switch (Type)
 	{		
-	case EFlareTransactionLogEntry::ManualResourcePurchase:     return LOCTEXT("ManualResourcePurchase",     "Resources purchases");        break;
-	case EFlareTransactionLogEntry::ManualResourceSell:         return LOCTEXT("ManualResourceSell",         "Resources sales");            break;
-	case EFlareTransactionLogEntry::TradeRouteResourcePurchase: return LOCTEXT("TradeRouteResourcePurchase", "Trade route purchases");      break;
-	case EFlareTransactionLogEntry::TradeRouteResourceSell:     return LOCTEXT("TradeRouteResourceSell",     "Trade route sales");          break;
-	case EFlareTransactionLogEntry::FactoryWages:               return LOCTEXT("FactoryWages",               "Factory wages");              break;
-	case EFlareTransactionLogEntry::CancelFactoryWages:         return LOCTEXT("CancelFactoryWages",         "Factory wages cancelled");    break;
-	case EFlareTransactionLogEntry::StationConstructionFees:    return LOCTEXT("StationConstructionFees",    "Station construction");       break;
-	case EFlareTransactionLogEntry::StationUpgradeFees:         return LOCTEXT("StationUpgradeFees",         "Station upgrades");           break;
-	case EFlareTransactionLogEntry::UpgradeShipPart:            return LOCTEXT("UpgradeShipPart",            "Ship upgrades");              break;
-	case EFlareTransactionLogEntry::OrderShip:                  return LOCTEXT("OrderShip",                  "Ship construction");          break;
-	case EFlareTransactionLogEntry::CancelOrderShip:            return LOCTEXT("CancelOrderShip",            "Ship construction refunds");  break;
-	case EFlareTransactionLogEntry::OrderShipAdvance:           return LOCTEXT("OrderShipAdvance",           "Ship construction advances"); break;
-	case EFlareTransactionLogEntry::PeoplePurchase:             return LOCTEXT("PeoplePurchase",             "Population purchases");       break;
-	case EFlareTransactionLogEntry::InitialMoney:               return LOCTEXT("InitialMoney",               "Initial capital");            break;
-	case EFlareTransactionLogEntry::PayRepair:                  return LOCTEXT("PayRepair",                  "Ship repairs");               break;
-	case EFlareTransactionLogEntry::PayRefill:                  return LOCTEXT("PayRefill",                  "Ship refilling");             break;
-	case EFlareTransactionLogEntry::PaidForRepair:              return LOCTEXT("PaidForRepair",              "Ship repair services");       break;
-	case EFlareTransactionLogEntry::PaidForRefill:              return LOCTEXT("PaidForRefill",              "Ship refilling services");    break;
-	case EFlareTransactionLogEntry::SendTribute:                return LOCTEXT("SendTribute",                "Tributes paid");              break;
-	case EFlareTransactionLogEntry::ReceiveTribute:             return LOCTEXT("ReceiveTribute",             "Tributes received");          break;
-	case EFlareTransactionLogEntry::RecoveryFees:               return LOCTEXT("RecoveryFees",               "Ship recovery");              break;
-	case EFlareTransactionLogEntry::ScrapGain:                  return LOCTEXT("ScrapGain",                  "Ship scrapping");             break;
-	case EFlareTransactionLogEntry::Cheat:                      return LOCTEXT("Cheat",                      "Unlawful transactions");      break;
-	case EFlareTransactionLogEntry::QuestReward:                return LOCTEXT("QuestReward",                "Contracts");                  break;
-	case EFlareTransactionLogEntry::MutualAssistance:           return LOCTEXT("MutualAssistance",           "Mutual assistance");          break;
-	case EFlareTransactionLogEntry::ScrapCost:                  return LOCTEXT("ScrapCost",                  "Ship scrapping costs");       break;
+	case EFlareTransactionLogEntry::ManualResourcePurchase:     return LOCTEXT("CategoryManualResourcePurchase",     "Resources purchases");        break;
+	case EFlareTransactionLogEntry::ManualResourceSell:         return LOCTEXT("CategoryManualResourceSell",         "Resources sales");            break;
+	case EFlareTransactionLogEntry::TradeRouteResourcePurchase: return LOCTEXT("CategoryTradeRouteResourcePurchase", "Trade route purchases");      break;
+	case EFlareTransactionLogEntry::TradeRouteResourceSell:     return LOCTEXT("CategoryTradeRouteResourceSell",     "Trade route sales");          break;
+	case EFlareTransactionLogEntry::FactoryWages:               return LOCTEXT("CategoryFactoryWages",               "Factory wages");              break;
+	case EFlareTransactionLogEntry::CancelFactoryWages:         return LOCTEXT("CategoryCancelFactoryWages",         "Factory wages cancelled");    break;
+	case EFlareTransactionLogEntry::StationConstructionFees:    return LOCTEXT("CategoryStationConstructionFees",    "Station construction");       break;
+	case EFlareTransactionLogEntry::StationUpgradeFees:         return LOCTEXT("CategoryStationUpgradeFees",         "Station upgrades");           break;
+	case EFlareTransactionLogEntry::UpgradeShipPart:            return LOCTEXT("CategoryUpgradeShipPart",            "Ship upgrades");              break;
+	case EFlareTransactionLogEntry::OrderShip:                  return LOCTEXT("CategoryOrderShip",                  "Ship construction");          break;
+	case EFlareTransactionLogEntry::CancelOrderShip:            return LOCTEXT("CategoryCancelOrderShip",            "Ship construction refunds");  break;
+	case EFlareTransactionLogEntry::OrderShipAdvance:           return LOCTEXT("CategoryOrderShipAdvance",           "Ship construction advances"); break;
+	case EFlareTransactionLogEntry::PeoplePurchase:             return LOCTEXT("CategoryPeoplePurchase",             "Population purchases");       break;
+	case EFlareTransactionLogEntry::InitialMoney:               return LOCTEXT("CategoryInitialMoney",               "Initial capital");            break;
+	case EFlareTransactionLogEntry::PayRepair:                  return LOCTEXT("CategoryPayRepair",                  "Ship repairs");               break;
+	case EFlareTransactionLogEntry::PayRefill:                  return LOCTEXT("CategoryPayRefill",                  "Ship refilling");             break;
+	case EFlareTransactionLogEntry::PaidForRepair:              return LOCTEXT("CategoryPaidForRepair",              "Ship repair services");       break;
+	case EFlareTransactionLogEntry::PaidForRefill:              return LOCTEXT("CategoryPaidForRefill",              "Ship refilling services");    break;
+	case EFlareTransactionLogEntry::SendTribute:                return LOCTEXT("CategorySendTribute",                "Tributes paid");              break;
+	case EFlareTransactionLogEntry::ReceiveTribute:             return LOCTEXT("CategoryReceiveTribute",             "Tributes received");          break;
+	case EFlareTransactionLogEntry::RecoveryFees:               return LOCTEXT("CategoryRecoveryFees",               "Ship recovery");              break;
+	case EFlareTransactionLogEntry::ScrapGain:                  return LOCTEXT("CategoryScrapGain",                  "Ship scrapping");             break;
+	case EFlareTransactionLogEntry::Cheat:                      return LOCTEXT("CategoryCheat",                      "Unlawful transactions");      break;
+	case EFlareTransactionLogEntry::QuestReward:                return LOCTEXT("CategoryQuestReward",                "Contracts");                  break;
+	case EFlareTransactionLogEntry::MutualAssistance:           return LOCTEXT("CategoryMutualAssistance",           "Mutual assistance");          break;
+	case EFlareTransactionLogEntry::ScrapCost:                  return LOCTEXT("CategoryScrapCost",                  "Ship scrapping costs");       break;
 	}
 
 	return FText();
@@ -862,7 +862,7 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 
 		if(OtherSpacecraftCache && ResourceCache)
 		{
-			FText ResourceComment = FText::Format(LOCTEXT("TradeRouteResourcePurchase", "{0} {1}"), ResourceQuantity, ResourceCache->Name);
+			FText ResourceComment = FText::Format(LOCTEXT("TradeRouteResourcePurchaseComment", "{0} {1}"), ResourceQuantity, ResourceCache->Name);
 
 			if(TradeRouteCache)
 			{

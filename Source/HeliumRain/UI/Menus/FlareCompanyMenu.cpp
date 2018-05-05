@@ -476,7 +476,7 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 							.IsDisabled(this, &SFlareCompanyMenu::IsNextYearDisabled)
 							.Icon(FFlareStyleSet::GetIcon("MoveRight"))
 							.Text(FText())
-							.HelpText(LOCTEXT("PreviousYearHelp", "Show accounting for the next year"))
+							.HelpText(LOCTEXT("NextYearHelp", "Show accounting for the next year"))
 						]
 					]
 				]
