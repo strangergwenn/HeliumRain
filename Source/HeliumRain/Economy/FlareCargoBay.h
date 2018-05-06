@@ -92,7 +92,7 @@ public:
 	int32 GetFreeCargoSpace() const;
 
 	/* If client is not null, restriction are used*/
-	int32 GetResourceQuantity(FFlareResourceDescription* Resource, UFlareCompany* Client) const;
+	int32 GetResourceQuantity(FFlareResourceDescription* Resource, UFlareCompany const* Client) const;
 
 	/* If client is not null, restriction are used*/
 	int32 GetFreeSpaceForResource(FFlareResourceDescription* Resource, UFlareCompany* Client, bool LockOnly = false) const;
@@ -114,14 +114,15 @@ public:
 	}
 
 	/* If client is not null, restriction are used*/
-	bool WantSell(FFlareResourceDescription* Resource, UFlareCompany* Client, bool RequireStock = false) const;
+	bool WantSell(FFlareResourceDescription* Resource, UFlareCompany const* Client, bool RequireStock = false) const;
 
 	/* If client is not null, restriction are used*/
-	bool WantBuy(FFlareResourceDescription* Resource, UFlareCompany* Client) const;
+	bool WantBuy(FFlareResourceDescription* Resource, UFlareCompany const* Client) const;
 
-	bool CheckRestriction(const FFlareCargo* Cargo, UFlareCompany* Client) const;
+	bool CheckRestriction(const FFlareCargo* Cargo, UFlareCompany const* Client) const;
 
 	static bool SortBySlotType(const FSortableCargoInfo& A, const FSortableCargoInfo& B);
 
+	int32 GetAvailableResourceQuantityForTrade(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, UFlareCompany const* Client);
 };
 

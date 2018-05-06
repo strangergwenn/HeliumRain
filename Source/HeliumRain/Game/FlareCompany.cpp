@@ -1584,7 +1584,7 @@ const struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* 
 				continue;
 			}
 
-			CompanyValue.StockValue += SectorHelper::GetMeanResourcePrice(ReferenceSector, Cargo.Resource) * Cargo.Quantity;
+			CompanyValue.StockValue += SectorHelper::GetMeanResourcePrice(ReferenceSector, Cargo.Resource, true, this) * Cargo.Quantity;
 		}
 		}
 
@@ -1599,7 +1599,7 @@ const struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* 
 				continue;
 			}
 
-			CompanyValue.StockValue += SectorHelper::GetMeanResourcePrice(ReferenceSector, Cargo.Resource) * Cargo.Quantity;
+			CompanyValue.StockValue += SectorHelper::GetMeanResourcePrice(ReferenceSector, Cargo.Resource, true, this) * Cargo.Quantity;
 		}
 		}
 
@@ -1616,7 +1616,7 @@ const struct CompanyValue UFlareCompany::GetCompanyValue(UFlareSimulatedSector* 
 				FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourceIdentifier);
 				if (Resource)
 				{
-					CompanyValue.StockValue += SectorHelper::GetMeanResourcePrice(ReferenceSector, Resource) * Quantity;
+					CompanyValue.StockValue += SectorHelper::GetMeanResourcePrice(ReferenceSector, Resource, true, this) * Quantity;
 				}
 				else
 				{

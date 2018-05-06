@@ -577,6 +577,17 @@ void UFlareSaveReaderV1::LoadSpacecraft(const TSharedPtr<FJsonObject> Object, FF
 		}
 	}
 
+	const TArray<TSharedPtr<FJsonValue>>* ResourcePrices;
+	if(Object->TryGetArrayField("ResourcePrices", ResourcePrices))
+	{
+		for (TSharedPtr<FJsonValue> Item : *ResourcePrices)
+		{
+			FFFlareResourcePrice ChildData;
+			LoadResourcePrice(Item->AsObject(), &ChildData);
+			Data->ResourcePrices.Add(ChildData);
+		}
+	}
+
 }
 
 
@@ -1033,6 +1044,14 @@ void UFlareSaveReaderV1::LoadBomb(const TSharedPtr<FJsonObject> Object, FFlareBo
 	LoadFloat(Object, "BurnDuration", &Data->BurnDuration);
 	LoadFName(Object, "AimTargetSpacecraft", &Data->AimTargetSpacecraft);
 }
+
+void UFlareSaveReaderV1::LoadResourcePrice(const TSharedPtr<FJsonObject> Object, FFFlareResourcePrice* Data)
+{
+	LoadFName(Object, "ResourceIdentifier", &Data->ResourceIdentifier);
+	LoadFloat(Object, "BuyPrice", &Data->BuyPrice);
+	LoadFloat(Object, "SellPrice", &Data->SellPrice);
+}
+
 
 void UFlareSaveReaderV1::LoadTravel(const TSharedPtr<FJsonObject> Object, FFlareTravelSave* Data)
 {

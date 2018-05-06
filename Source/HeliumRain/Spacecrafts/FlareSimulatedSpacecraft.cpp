@@ -270,6 +270,8 @@ void UFlareSimulatedSpacecraft::Load(const FFlareSpacecraftSave& Data)
 		ActiveSpacecraft->Load(this);
 		ActiveSpacecraft->Redock();
 	}
+
+	LoadResourcePrices();
 }
 
 void UFlareSimulatedSpacecraft::Reload()
@@ -309,6 +311,8 @@ FFlareSpacecraftSave* UFlareSimulatedSpacecraft::Save()
 			GetData().ConnectedStations.Add(Data);
 		}
 	}
+
+	SaveResourcePrices();
 
 	return &SpacecraftData;
 }
@@ -676,6 +680,52 @@ void UFlareSimulatedSpacecraft::ComputeProductionCargoBaySize(int32& CargoBaySlo
 	{
 		CargoBayCount = 0;
 		CargoBaySlotCapacity = 0;
+	}
+}
+
+void UFlareSimulatedSpacecraft::LoadResourcePrices()
+{
+	ResourcePrices.Empty();
+	for (int PriceIndex = 0; PriceIndex < SpacecraftData.ResourcePrices.Num(); PriceIndex++)
+	{
+		FFFlareResourcePrice* ResourcePrice = &SpacecraftData.ResourcePrices[PriceIndex];
+		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(ResourcePrice->ResourceIdentifier);
+		ResourcePrices.Add(Resource, *ResourcePrice);
+	}
+}
+
+void UFlareSimulatedSpacecraft::SaveResourcePrices()
+{
+	SpacecraftData.ResourcePrices.Empty();
+
+	for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+		if (ResourcePrices.Contains(Resource))
+		{
+			SpacecraftData.ResourcePrices.Add(ResourcePrices[Resource]);
+		}
+	}
+}
+
+int64 UFlareSimulatedSpacecraft::GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext)
+{
+	if(!ResourcePrices.Contains(Resource))
+	{
+		return 1;
+	}
+
+	switch (PriceContext)
+	{
+		case EFlareResourcePriceContext::BuyPrice:
+			return ResourcePrices[Resource].BuyPrice;
+		break;
+		case EFlareResourcePriceContext::SellPrice:
+			return ResourcePrices[Resource].SellPrice;
+		break;
+		default:
+			return 1;
+			break;
 	}
 }
 

@@ -391,9 +391,10 @@ int32 UFlareCargoBay::GetFreeCargoSpace() const
 	return GetCapacity() - GetUsedCargoSpace();
 }
 
-int32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource, UFlareCompany* Client) const
+int32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource, UFlareCompany const* Client) const
 {
 	int32 Quantity = 0;
+
 
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
@@ -411,6 +412,23 @@ int32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource, U
 
 	return Quantity;
 }
+
+
+int32 UFlareCargoBay::GetAvailableResourceQuantityForTrade(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, UFlareCompany const* Client)
+{
+	if(PriceContext == EFlareResourcePriceContext::BuyPrice && WantBuy(Resource, Client))
+	{
+		return GetResourceQuantity(Resource, Client);
+	}
+
+	if(PriceContext == EFlareResourcePriceContext::SellPrice && WantSell(Resource, Client))
+	{
+		return GetResourceQuantity(Resource, Client);
+	}
+
+	return 0;
+}
+
 
 int32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resource, UFlareCompany* Client, bool LockOnly) const
 {
@@ -560,7 +578,7 @@ void UFlareCargoBay::SetSlotRestriction(int32 SlotIndex, EFlareResourceRestricti
 	CargoBay[SlotIndex].Restriction = RestrictionType;
 }
 
-bool UFlareCargoBay::WantSell(FFlareResourceDescription* Resource, UFlareCompany* Client, bool RequireStock) const
+bool UFlareCargoBay::WantSell(FFlareResourceDescription* Resource, UFlareCompany const* Client, bool RequireStock) const
 {
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
@@ -591,7 +609,7 @@ bool UFlareCargoBay::WantSell(FFlareResourceDescription* Resource, UFlareCompany
 	return false;
 }
 
-bool UFlareCargoBay::WantBuy(FFlareResourceDescription* Resource, UFlareCompany* Client) const
+bool UFlareCargoBay::WantBuy(FFlareResourceDescription* Resource, UFlareCompany const* Client) const
 {
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
@@ -616,7 +634,7 @@ bool UFlareCargoBay::WantBuy(FFlareResourceDescription* Resource, UFlareCompany*
 	return false;
 }
 
-bool UFlareCargoBay::CheckRestriction(const FFlareCargo* Cargo, UFlareCompany* Client) const
+bool UFlareCargoBay::CheckRestriction(const FFlareCargo* Cargo, UFlareCompany const* Client) const
 {
 	if(Client)
 	{

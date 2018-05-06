@@ -396,6 +396,25 @@ struct FFlareFactorySave
 	FName TargetShipCompany;
 };
 
+/** Station resources prices*/
+USTRUCT()
+struct FFFlareResourcePrice
+{
+	GENERATED_USTRUCT_BODY()
+	/** Resource */
+	UPROPERTY(EditAnywhere, Category = Save)
+	FName ResourceIdentifier;
+
+	/** Sell Price */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float SellPrice;
+
+	/** Buy Price */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float BuyPrice;
+
+};
+
 /** Spacecraft save data */
 USTRUCT()
 struct FFlareSpacecraftSave
@@ -553,6 +572,8 @@ struct FFlareSpacecraftSave
 
 	/** List of connected stations */
 	TArray<FFlareConnectionSave> ConnectedStations;
+
+	TArray<FFFlareResourcePrice> ResourcePrices;
 };
 
 /** Catalog binding between FFlareSpacecraftDescription and FFlareSpacecraftComponentDescription structure */

@@ -717,7 +717,7 @@ void SFlareTradeRouteMenu::GenerateSectorList()
 			{
 				// Create deal entry
 				FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation.ResourceIdentifier);
-				TFlareResourceDeal Deal(Resource, SectorHelper::GetMeanResourcePrice(SimulatedSector, Resource));
+				TFlareResourceDeal Deal(Resource, SectorHelper::GetMeanResourcePrice(SimulatedSector, Resource, true, MenuManager->GetGame()->GetPC()->GetCompany()));
 
 				// Add it
 				switch (Operation.Type)
@@ -1306,7 +1306,7 @@ TArray<TFlareResourceDeal> SFlareTradeRouteMenu::GetSellableResources(UFlareSimu
 	{
 		if (TargetSector->WantBuy(Deal.Key, MenuManager->GetPC()->GetCompany()))
 		{
-			int64 NewPrice = SectorHelper::GetMeanResourcePrice(TargetSector,Deal.Key);
+			int64 NewPrice = SectorHelper::GetMeanResourcePrice(TargetSector,Deal.Key, true, MenuManager->GetGame()->GetPC()->GetCompany());
 			int64 DiffPrice = NewPrice - Deal.Value;
 			int64 BenefitRatio = FMath::RoundToInt(100.0f * (float)(DiffPrice) / (float)Deal.Value);
 			if (BenefitRatio > 1)
@@ -1328,7 +1328,7 @@ TArray<TFlareResourceDeal> SFlareTradeRouteMenu::GetBuyableResources(UFlareSimul
 	{
 		if (TargetSector->WantSell(Deal.Key, MenuManager->GetPC()->GetCompany()))
 		{
-			int64 NewPrice = SectorHelper::GetMeanResourcePrice(TargetSector,Deal.Key);
+			int64 NewPrice = SectorHelper::GetMeanResourcePrice(TargetSector,Deal.Key, false, MenuManager->GetGame()->GetPC()->GetCompany());
 			int64 DiffPrice = NewPrice - Deal.Value;
 			int64 BenefitRatio = FMath::RoundToInt(100.0f * (float)(DiffPrice) / (float)Deal.Value);
 			if (BenefitRatio < 1)

@@ -16,3 +16,14 @@ void UFlareAIDataCache::Load(AFlareGame* GameParam)
 {
 	Game = GameParam;
 }
+
+int64 GetInputResourcePrice(UFlareSimulatedSector* Sector, FFlareResourceDescription const* Resource)
+{
+
+}
+
+
+int64 GetOutputResourcePrice(UFlareSimulatedSector* Sector, FFlareResourceDescription const* Resource)
+{
+
+}

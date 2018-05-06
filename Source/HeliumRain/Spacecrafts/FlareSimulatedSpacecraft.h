@@ -12,6 +12,7 @@ class UFlareFleet;
 class UFlareCargoBay;
 class UFlareFactory;
 
+
 UCLASS()
 class HELIUMRAIN_API UFlareSimulatedSpacecraft : public UObject
 {
@@ -201,7 +202,11 @@ public:
 
 	void ComputeProductionCargoBaySize(int32& CargoBaySlotCapacity, int32& CargoBayCount);
 
-	int64 GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext, int32 Age = 0);
+	void LoadResourcePrices();
+
+	void SaveResourcePrices();
+
+	int64 GetResourcePrice(FFlareResourceDescription* Resource, EFlareResourcePriceContext::Type PriceContext);
 
 	/*----------------------------------------------------
 		Shipyard
@@ -283,6 +288,8 @@ protected:
 
 	UFlareSimulatedSpacecraft*								ComplexMaster;
 	TArray<UFlareSimulatedSpacecraft*>						ComplexChildren;
+
+	TMap<FFlareResourceDescription*, FFFlareResourcePrice> ResourcePrices;
 
 public:
 

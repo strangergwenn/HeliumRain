@@ -51,7 +51,7 @@ struct SectorHelper
 
 	static TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> ComputeSectorResourceStats(UFlareSimulatedSector* Sector);
 
-	static int64 GetMeanResourcePrice(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resouce);
+	static int64 GetMeanResourcePrice(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resouce, bool worlFallBack, UFlareCompany const* Client);
 
-	static int64 GetMeanWorldResourcePrice(UFlareWorld* World, FFlareResourceDescription* Resource);
+	static int64 GetMeanWorldResourcePrice(UFlareWorld* World, FFlareResourceDescription* Resource, UFlareCompany const* Client);
 };

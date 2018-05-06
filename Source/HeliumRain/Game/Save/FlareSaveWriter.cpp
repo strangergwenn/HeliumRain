@@ -420,6 +420,13 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveSpacecraft(FFlareSpacecraftSave* D
 	}
 	JsonObject->SetArrayField("CapturePoints", CapturePoints);
 
+	TArray< TSharedPtr<FJsonValue> > ResourcePrices;
+	for(int i = 0; i < Data->ResourcePrices.Num(); i++)
+	{
+		ResourcePrices.Add(MakeShareable(new FJsonValueObject(SaveResourcePrice(&Data->ResourcePrices[i]))));
+	}
+	JsonObject->SetArrayField("ResourcePrices", ResourcePrices);
+
 	return JsonObject;
 }
 
@@ -822,6 +829,17 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveBomb(FFlareBombSave* Data)
 	SaveFloat(JsonObject,"DropParentDistance", Data->DropParentDistance);
 	SaveFloat(JsonObject,"LifeTime", Data->LifeTime);
 	SaveFloat(JsonObject,"BurnDuration", Data->BurnDuration);
+
+	return JsonObject;
+}
+
+TSharedRef<FJsonObject> UFlareSaveWriter::SaveResourcePrice(FFFlareResourcePrice* Data)
+{
+	TSharedRef<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
+
+	JsonObject->SetStringField("ResourceIdentifier", Data->ResourceIdentifier.ToString());
+	SaveFloat(JsonObject,"BuyPrice", Data->BuyPrice);
+	SaveFloat(JsonObject,"SellPrice", Data->SellPrice);
 
 	return JsonObject;
 }

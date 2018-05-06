@@ -58,7 +58,7 @@ namespace EFlareResourcePriceContext
 {
 	enum Type
 	{
-		Default, /** Default price */
+		//Default, /** Default price */
 		BuyPrice,
 		SellPrice,
 	};

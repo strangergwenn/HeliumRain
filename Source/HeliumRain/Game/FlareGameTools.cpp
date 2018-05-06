@@ -2003,11 +2003,11 @@ int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSe
 		int64 ResourcePrice;
 		if(LocalPrice)
 		{
-			ResourcePrice = SectorHelper::GetMeanResourcePrice(Sector, &Resource->Resource->Data);
+			ResourcePrice = SectorHelper::GetMeanResourcePrice(Sector, &Resource->Resource->Data, true, Company);
 		}
 		else
 		{
-			ResourcePrice = SectorHelper::GetMeanWorldResourcePrice(Sector->GetGame()->GetGameWorld(), &Resource->Resource->Data);
+			ResourcePrice = SectorHelper::GetMeanWorldResourcePrice(Sector->GetGame()->GetGameWorld(), &Resource->Resource->Data, Company);
 		}
 
 		Cost += Resource->Quantity * ResourcePrice;
@@ -2020,11 +2020,11 @@ int64 UFlareGameTools::ComputeSpacecraftPrice(FName ShipClass, UFlareSimulatedSe
 		int64 ResourcePrice;
 		if(LocalPrice)
 		{
-			ResourcePrice = SectorHelper::GetMeanResourcePrice(Sector, &Resource->Resource->Data);
+			ResourcePrice = SectorHelper::GetMeanResourcePrice(Sector, &Resource->Resource->Data, true, Company);
 		}
 		else
 		{
-			ResourcePrice = SectorHelper::GetMeanWorldResourcePrice(Sector->GetGame()->GetGameWorld(), &Resource->Resource->Data);
+			ResourcePrice = SectorHelper::GetMeanWorldResourcePrice(Sector->GetGame()->GetGameWorld(), &Resource->Resource->Data, Company);
 		}
 
 		Cost -= Resource->Quantity * ResourcePrice;

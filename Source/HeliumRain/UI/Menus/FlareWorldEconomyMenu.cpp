@@ -681,7 +681,7 @@ FText SFlareWorldEconomyMenu::GetResourcePriceInfo(UFlareSimulatedSector* Sector
 		MoneyFormat.MaximumFractionalDigits = 2;
 
 		// TODO EV2 min and max
-		int64 ResourcePrice = SectorHelper::GetMeanResourcePrice(Sector, TargetResource);
+		int64 ResourcePrice = SectorHelper::GetMeanResourcePrice(Sector, TargetResource, true, MenuManager->GetPC()->GetCompany());
 
 		return FText::Format(LOCTEXT("ResourceMainPriceFormat", "{0} credits"),
 			FText::AsNumber(ResourcePrice / 100.0f, &MoneyFormat));

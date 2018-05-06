@@ -993,3 +993,71 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::
 	return WorldStats;
 
 }
+
+int64 SectorHelper::GetMeanResourcePrice(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource, bool worlFallBack, UFlareCompany const* Client)
+{
+
+	int64 QuantitySum = 0;
+	int64 PriceSum = 0;
+
+	for(UFlareSimulatedSpacecraft* Station : Sector->GetSectorStations())
+	{
+		auto AddResourcePrice = [&](EFlareResourcePriceContext::Type PriceContext)
+		{
+			int64 Price = Station->GetResourcePrice(Resource, PriceContext);
+			int64 Quantity = Station->GetActiveCargoBay()->GetAvailableResourceQuantityForTrade(Resource, PriceContext, Client);
+
+			if(Quantity > 0)
+			{
+				QuantitySum+= Quantity;
+				PriceSum += Quantity * Price;
+			}
+		};
+
+		AddResourcePrice(EFlareResourcePriceContext::BuyPrice);
+		AddResourcePrice(EFlareResourcePriceContext::SellPrice);
+	}
+
+	if(QuantitySum)
+	{
+		if(worlFallBack)
+		{
+			return GetMeanWorldResourcePrice(Sector->GetGame()->GetGameWorld(), Resource, Client);
+		}
+		else
+		{
+			return -1;
+		}
+	}
+	else
+	{
+		return PriceSum / QuantitySum;
+	}
+}
+
+int64 SectorHelper::GetMeanWorldResourcePrice(UFlareWorld* World, FFlareResourceDescription* Resource, UFlareCompany const* Client)
+{
+	int64 PriceSum = 0;
+	int64 SectorCount = 0;
+
+	for(UFlareSimulatedSector* Sector: World->GetSectors())
+	{
+		int64 MeanPrice = GetMeanResourcePrice(Sector, Resource, false, Client++);
+
+		if(MeanPrice != -1)
+		{
+			SectorCount++;
+			PriceSum += MeanPrice;
+		}
+	}
+
+	if(SectorCount > 0)
+	{
+		return PriceSum / SectorCount;
+	}
+	else
+	{
+		return 1;
+	}
+
+}
