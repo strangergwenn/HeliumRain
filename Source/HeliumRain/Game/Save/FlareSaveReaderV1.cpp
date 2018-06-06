@@ -218,6 +218,12 @@ void UFlareSaveReaderV1::LoadWorld(const TSharedPtr<FJsonObject> Object, FFlareW
 
 	LoadInt64(Object, "FSPrice", &Data->FSPrice);
 
+	// Legacy code
+	if(Data->FSPrice == 0)
+	{
+		Data->FSPrice = 1;
+	}
+
 	const TArray<TSharedPtr<FJsonValue>>* Companies;
 	if(Object->TryGetArrayField("Companies", Companies))
 	{

@@ -402,10 +402,6 @@ public:
 	void AttachStationToActor(UFlareSimulatedSpacecraft* Spacecraft, FName AttachActorName);
 	void AttachStationToComplexStation(UFlareSimulatedSpacecraft* Spacecraft, FName AttachStationName, FName AttachConnectorName);
 
-	void SimulatePriceVariation();
-
-	void SimulatePriceVariation(FFlareResourceDescription* Resource);
-
 	/** Can we load or buy this resource in this sector ? */
 	bool WantSell(FFlareResourceDescription* Resource, UFlareCompany* Client);
 

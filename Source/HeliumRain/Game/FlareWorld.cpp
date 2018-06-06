@@ -703,24 +703,11 @@ void UFlareWorld::Simulate()
 	{
 		TravelsToProcess[TravelIndex]->Simulate();
 	}
-	
-	FLOG("* Simulate > Prices");
-	// Price variation.
-	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
-	{
-		Sectors[SectorIndex]->SimulatePriceVariation();
-	}
 
 	// People money migration
 	SimulatePeopleMoneyMigration();
 
 	// Process events
-
-	// Swap Prices.
-	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
-	{
-		Sectors[SectorIndex]->SwapPrices();
-	}
 	
 	// Update reserve ships
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
