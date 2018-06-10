@@ -89,6 +89,8 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 			continue;
 		}
 
+		Spacecraft->SetCurrentSector(this);
+
 		if (Spacecraft->IsStation())
 		{
 			if(Spacecraft->IsComplexElement())
@@ -109,7 +111,7 @@ void UFlareSimulatedSector::Load(const FFlareSectorDescription* Description, con
 		{
 			SectorSpacecrafts.Add(Spacecraft);
 		}
-		Spacecraft->SetCurrentSector(this);
+
 	}
 
 
