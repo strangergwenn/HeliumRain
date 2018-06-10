@@ -148,6 +148,8 @@ class HELIUMRAIN_API UFlareQuestGeneratedResourceSale: public UFlareQuestGenerat
 public:
 	static FName GetClass() { return "resource-sale"; }
 
+	virtual int32 GetReservedCapacity(UFlareSimulatedSpacecraft* Station, FFlareResourceDescription* Resource);
+
 	/** Load the quest from description file */
 	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company);
@@ -162,6 +164,8 @@ class HELIUMRAIN_API UFlareQuestGeneratedResourcePurchase: public UFlareQuestGen
 public:
 	static FName GetClass() { return "resource-purchase"; }
 
+	virtual int32 GetReservedQuantity(UFlareSimulatedSpacecraft* Station, FFlareResourceDescription* Resource);
+
 	/** Load the quest from description file */
 	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
 	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company);
@@ -175,6 +179,10 @@ class HELIUMRAIN_API UFlareQuestGeneratedResourceTrade: public UFlareQuestGenera
 
 public:
 	static FName GetClass() { return "resource-trade"; }
+
+	virtual int32 GetReservedCapacity(UFlareSimulatedSpacecraft* Station, FFlareResourceDescription* Resource);
+
+	virtual int32 GetReservedQuantity(UFlareSimulatedSpacecraft* Station, FFlareResourceDescription* Resource);
 
 	/** Load the quest from description file */
 	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);

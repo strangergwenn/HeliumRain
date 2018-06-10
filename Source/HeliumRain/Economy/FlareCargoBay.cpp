@@ -397,6 +397,8 @@ int32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource, U
 
 	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
 	{
+
+
 		const FFlareCargo& Cargo = CargoBay[CargoIndex];
 		if (Cargo.Resource == Resource)
 		{
@@ -409,7 +411,18 @@ int32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource, U
 		}
 	}
 
-	return Quantity;
+	if(Client && !Client->IsPlayerCompany())
+	{
+		int32 ReservedQuantity = Parent->GetGame()->GetQuestManager()->GetReservedQuantity(Parent, Resource);
+		int32 QuantityAfterReservation = FMath::Max(0, Quantity - ReservedQuantity);
+		return QuantityAfterReservation;
+	}
+	else
+	{
+		return Quantity;
+	}
+
+
 }
 
 int32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resource, UFlareCompany* Client, bool LockOnly) const
@@ -440,7 +453,17 @@ int32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resourc
 		}
 	}
 
-	return Quantity;
+
+	if(Client && !Client->IsPlayerCompany())
+	{
+		int32 ReservedCapacity = Parent->GetGame()->GetQuestManager()->GetReservedCapacity(Parent, Resource);
+		int32 CapacityAfterReservation = FMath::Max(0, Quantity - ReservedCapacity);
+		return CapacityAfterReservation;
+	}
+	else
+	{
+		return Quantity;
+	}
 }
 
 bool UFlareCargoBay::HasRestrictions() const

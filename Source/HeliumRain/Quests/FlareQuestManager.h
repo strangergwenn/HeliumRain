@@ -180,6 +180,10 @@ public:
 
 	void NotifyNewQuests(TArray<UFlareQuest*>& Quests);
 
+	int32 GetReservedCapacity(UFlareSimulatedSpacecraft* Station, FFlareResourceDescription* Resource);
+
+	int32 GetReservedQuantity(UFlareSimulatedSpacecraft* Station, FFlareResourceDescription* Resource);
+
    /*----------------------------------------------------
 	   Callback
    ----------------------------------------------------*/

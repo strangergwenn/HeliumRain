@@ -77,6 +77,11 @@ public:
 
 	virtual FText FormatTags(FText Message);
 
+	virtual int32 GetReservedCapacity(UFlareSimulatedSpacecraft* Station, FFlareResourceDescription* Resource) { return 0; };
+
+	virtual int32 GetReservedQuantity(UFlareSimulatedSpacecraft* Station, FFlareResourceDescription* Resource) { return 0; };
+
+
 	/*----------------------------------------------------
 		Objective tracking
 	----------------------------------------------------*/

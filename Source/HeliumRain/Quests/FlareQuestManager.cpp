@@ -617,6 +617,39 @@ void UFlareQuestManager::OnQuestOngoing(UFlareQuest* Quest)
 	OnQuestStatusChanged(Quest);
 }
 
+int32 UFlareQuestManager::GetReservedCapacity(UFlareSimulatedSpacecraft* Station, FFlareResourceDescription* Resource)
+{
+	int32 ReservedCapacity = 0;
+
+	for(UFlareQuest* Quest: OngoingQuests)
+	{
+		ReservedCapacity += Quest->GetReservedCapacity(Station, Resource);
+	}
+
+	for(UFlareQuest* Quest: AvailableQuests)
+	{
+		ReservedCapacity += Quest->GetReservedCapacity(Station, Resource);
+	}
+
+	return ReservedCapacity;
+}
+
+int32 UFlareQuestManager::GetReservedQuantity(UFlareSimulatedSpacecraft* Station, FFlareResourceDescription* Resource)
+{
+	int32 ReservedQuantity = 0;
+
+	for(UFlareQuest* Quest: OngoingQuests)
+	{
+		ReservedQuantity += Quest->GetReservedQuantity(Station, Resource);
+	}
+
+	for(UFlareQuest* Quest: AvailableQuests)
+	{
+		ReservedQuantity += Quest->GetReservedQuantity(Station, Resource);
+	}
+
+	return ReservedQuantity;
+}
 
 /*----------------------------------------------------
 	Getters

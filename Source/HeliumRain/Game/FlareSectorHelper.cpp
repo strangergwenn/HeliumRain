@@ -282,8 +282,10 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSim
 		QuantityToTake = FMath::Min(QuantityToTake, MaxAffordableQuantity);
 	}
 	int32 ResourceCapacity = DestinationSpacecraft->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, SourceSpacecraft->GetCompany());
+	int32 AvailableQuantity = SourceSpacecraft->GetActiveCargoBay()->GetResourceQuantity(Resource, DestinationSpacecraft->GetCompany());
 
 	QuantityToTake = FMath::Min(QuantityToTake, ResourceCapacity);
+	QuantityToTake = FMath::Min(QuantityToTake, AvailableQuantity);
 	
 	int32 TakenResources = SourceSpacecraft->GetActiveCargoBay()->TakeResources(Resource, QuantityToTake, DestinationSpacecraft->GetCompany());
 	int32 GivenResources = DestinationSpacecraft->GetActiveCargoBay()->GiveResources(Resource, TakenResources, SourceSpacecraft->GetCompany());

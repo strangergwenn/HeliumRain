@@ -1032,6 +1032,24 @@ bool UFlareQuestGeneratedResourceSale::Load(UFlareQuestGenerator* Parent, const 
 	return true;
 }
 
+int32 UFlareQuestGeneratedResourceSale::GetReservedCapacity(UFlareSimulatedSpacecraft* TargetStation, FFlareResourceDescription* TargetResource)
+{
+	UFlareSimulatedSpacecraft* Station = QuestManager->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station"));
+	// TODO Cache
+
+	if (Station == TargetStation)
+	{
+		FFlareResourceDescription* Resource = QuestManager->GetGame()->GetResourceCatalog()->Get(InitData.GetName("resource"));
+		if (Resource == TargetResource)
+		{
+			int32 Quantity = InitData.GetInt32("quantity");
+			return Quantity;
+		}
+	}
+
+	return 0;
+}
+
 /*----------------------------------------------------
 	Generated resource purchase quest
 ----------------------------------------------------*/
@@ -1237,6 +1255,24 @@ bool UFlareQuestGeneratedResourcePurchase::Load(UFlareQuestGenerator* Parent, co
 	SetupGenericReward(Data);
 
 	return true;
+}
+
+int32 UFlareQuestGeneratedResourcePurchase::GetReservedQuantity(UFlareSimulatedSpacecraft* TargetStation, FFlareResourceDescription* TargetResource)
+{
+	UFlareSimulatedSpacecraft* Station = QuestManager->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station"));
+	// TODO Cache
+
+	if (Station == TargetStation)
+	{
+		FFlareResourceDescription* Resource = QuestManager->GetGame()->GetResourceCatalog()->Get(InitData.GetName("resource"));
+		if (Resource == TargetResource)
+		{
+			int32 Quantity = InitData.GetInt32("quantity");
+			return Quantity;
+		}
+	}
+
+	return 0;
 }
 
 /*----------------------------------------------------
@@ -1504,6 +1540,41 @@ bool UFlareQuestGeneratedResourceTrade::Load(UFlareQuestGenerator* Parent, const
 	return true;
 }
 
+int32 UFlareQuestGeneratedResourceTrade::GetReservedCapacity(UFlareSimulatedSpacecraft* TargetStation, FFlareResourceDescription* TargetResource)
+{
+	UFlareSimulatedSpacecraft* Station2 = QuestManager->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station2"));
+	// TODO Cache
+
+	if (Station2 == TargetStation)
+	{
+		FFlareResourceDescription* Resource = QuestManager->GetGame()->GetResourceCatalog()->Get(InitData.GetName("resource"));
+		if (Resource == TargetResource)
+		{
+			int32 Quantity = InitData.GetInt32("quantity");
+			return Quantity;
+		}
+	}
+
+	return 0;
+}
+
+int32 UFlareQuestGeneratedResourceTrade::GetReservedQuantity(UFlareSimulatedSpacecraft* TargetStation, FFlareResourceDescription* TargetResource)
+{
+	UFlareSimulatedSpacecraft* Station1 = QuestManager->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station1"));
+	// TODO Cache
+
+	if (Station1 == TargetStation)
+	{
+		FFlareResourceDescription* Resource = QuestManager->GetGame()->GetResourceCatalog()->Get(InitData.GetName("resource"));
+		if (Resource == TargetResource)
+		{
+			int32 Quantity = InitData.GetInt32("quantity");
+			return Quantity;
+		}
+	}
+
+	return 0;
+}
 /*----------------------------------------------------
 	Generated station defense quest
 ----------------------------------------------------*/

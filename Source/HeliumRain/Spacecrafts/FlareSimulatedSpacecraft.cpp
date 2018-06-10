@@ -1580,7 +1580,7 @@ void UFlareSimulatedSpacecraft::UpdateShipyardProduction()
 
 		for (const FFlareFactoryResource& InputResource : ProductionData.InputResources)
 		{
-			if(InputResource.Quantity > GetActiveCargoBay()->GetResourceQuantity(&InputResource.Resource->Data, GetCompany()))
+			if(InputResource.Quantity > GetActiveCargoBay()->GetResourceQuantity(&InputResource.Resource->Data, nullptr))
 			{
 				// Missing resources, stop all
 				MissingResource = true;
