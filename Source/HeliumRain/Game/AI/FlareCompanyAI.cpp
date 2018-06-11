@@ -53,6 +53,12 @@ DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateDiplomacy"), STAT_FlareCompanyAI_U
 
 DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading"), STAT_FlareCompanyAI_UpdateTrading, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading Ships"), STAT_FlareCompanyAI_UpdateTrading_Ships, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading BestDealLoop"), STAT_FlareCompanyAI_UpdateTrading_BestDealLoop, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading BestDealFound"), STAT_FlareCompanyAI_UpdateTrading_BestDealFound, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI FindBestDealForShipFromSector"), STAT_FlareCompanyAI_FindBestDealForShipFromSector, STATGROUP_Flare);
+
+
+
 DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading Sectors"), STAT_FlareCompanyAI_UpdateTrading_Sectors, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading Best Deal"), STAT_FlareCompanyAI_UpdateTrading_BestDeal, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareCompanyAI UpdateTrading Deal"), STAT_FlareCompanyAI_UpdateTrading_Deal, STATGROUP_Flare);
@@ -313,6 +319,8 @@ void UFlareCompanyAI::UpdateTrading()
 			
 			while (true)
 			{
+				SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_UpdateTrading_BestDealLoop);
+
 				SectorBestDeal = FindBestDealForShipFromSector(Ship, SectorA, &BestDeal);
 				if (!SectorBestDeal.Resource)
 				{
@@ -344,6 +352,8 @@ void UFlareCompanyAI::UpdateTrading()
 
 		if (BestDeal.Resource)
 		{
+			SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_UpdateTrading_BestDealFound);
+
 #ifdef DEBUG_AI_TRADING
 			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 			{
@@ -3920,6 +3930,9 @@ void UFlareCompanyAI::DumpSectorResourceVariation(UFlareSimulatedSector* Sector,
 
 SectorDeal UFlareCompanyAI::FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareCompanyAI_FindBestDealForShipFromSector);
+
+
 	SectorDeal BestDeal;
 	BestDeal.Resource = NULL;
 	BestDeal.BuyQuantity = 0;

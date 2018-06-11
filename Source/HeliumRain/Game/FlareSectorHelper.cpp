@@ -16,6 +16,10 @@
 #include "../Player/FlarePlayerController.h"
 
 
+DECLARE_CYCLE_STAT(TEXT("FlareSectorHelper RepairFleets"), STAT_FlareSectorHelper_RepairFleets, STATGROUP_Flare);
+DECLARE_CYCLE_STAT(TEXT("FlareSectorHelper RefillFleets"), STAT_FlareSectorHelper_RefillFleets, STATGROUP_Flare);
+
+
 UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Request)
 {
 	//FLOGV("FindTradeStation of %s for %s  (%d)", *Request.Resource->Acronym.ToString(), *Request.Client->GetImmatriculation().ToString(), (Request.Operation + 0));
@@ -257,7 +261,7 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSim
 {
 	FText Unused;
 
-	FLOGV("Trade for %s", *Resource->Acronym.ToString());
+	//FLOGV("Trade for %s", *Resource->Acronym.ToString());
 
 
 	if(TransactionPrice )
@@ -589,6 +593,7 @@ void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, TArr
 
 void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Company)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSectorHelper_RepairFleets);
 	int32 CurrentNeededFleetSupply;
 	int32 TotalNeededFleetSupply;
 	int32 OwnedFS;
@@ -665,6 +670,8 @@ void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 
 void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Company)
 {
+	SCOPE_CYCLE_COUNTER(STAT_FlareSectorHelper_RefillFleets);
+
 	int32 CurrentNeededFleetSupply;
 	int32 TotalNeededFleetSupply;
 	int32 OwnedFS;
