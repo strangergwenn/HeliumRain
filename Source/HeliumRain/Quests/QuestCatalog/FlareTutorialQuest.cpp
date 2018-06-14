@@ -1097,7 +1097,7 @@ void UFlareQuestTutorialBuildShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"BuildShip"
-		FText Description = LOCTEXT("BuildShipDescription","Ship construction may be long. Continue playing until your ship is ready !");
+		FText Description = LOCTEXT("BuildShipDescription","Ship construction may be long, and may require additional resources to start if they are not already in stock at the shipyard. Make sure production has started and continue playing until your ship is ready.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "build-ship", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialBuildShip::Create(this, EFlarePartSize::S));
