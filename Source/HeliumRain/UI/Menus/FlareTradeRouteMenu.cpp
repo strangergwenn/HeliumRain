@@ -1094,7 +1094,7 @@ FText SFlareTradeRouteMenu::GetFleetInfo() const
 	}
 	else
 	{
-		return LOCTEXT("NoFleetSelected", "\u2022 No assigned fleet !");
+		return LOCTEXT("NoFleetSelected", "\u2022 <WarningText>No assigned fleet, trade route won't be operating !</>");
 	}
 }
 
