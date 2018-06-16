@@ -9,16 +9,6 @@
 class UFlareCompany;
 class UFlareAIBehavior;
 
-/* Inter-sector trade deal */
-struct SectorDeal
-{
-	float Score;
-	UFlareSimulatedSector* SectorA;
-	UFlareSimulatedSector* SectorB;
-	FFlareResourceDescription* Resource;
-	int32 BuyQuantity;
-};
-
 /* Resource flow */
 struct ResourceVariation
 {
@@ -240,9 +230,6 @@ protected:
 	/** Get a list of wrecked cargos */
 	TArray<UFlareSimulatedSpacecraft*> FindIncapacitatedCargos() const;
 	
-	/** Get a list of idle cargos */
-	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos() const;
-
 	int32 GetDamagedCargosCapacity();
 
 	int32 GetCargosCapacity();
@@ -263,7 +250,6 @@ protected:
 	/** Print the resource flow */
 	void DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* Variation) const;
 
-	SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat);
 
 protected:
 
