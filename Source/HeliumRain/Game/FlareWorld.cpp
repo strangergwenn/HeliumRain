@@ -14,6 +14,7 @@
 #include "FlareTravel.h"
 #include "FlareFleet.h"
 #include "FlareBattle.h"
+#include "AI/FlareAITradeHelper.h"
 
 #include "../Quests/FlareQuest.h"
 #include "../Quests/FlareQuestCondition.h"
@@ -491,6 +492,18 @@ void UFlareWorld::Simulate()
 		int32 Index = FMath::RandRange(0, CompaniesToSimulateAI.Num() - 1);
 		CompaniesToSimulateAI[Index]->SimulateAI();
 		CompaniesToSimulateAI.RemoveAt(Index);
+	}
+
+	// AI. Merged trading
+	AITradeNeeds Needs = AITradeHelper::GenerateTradingNeeds(this);
+	AITradeSources Sources = AITradeHelper::GenerateTradingSources(this);
+	AITradeIdleShips IdleShips = AITradeHelper::GenerateIdleShips(this);
+
+	AITradeHelper::ComputeGlobalTrading(this, Needs, Sources, IdleShips);
+
+	for(UFlareCompany* Company: Companies)
+	{
+		Company->GetAI()->UpdateIdleShipsStats(IdleShips);
 	}
 
 	// Clear bombs

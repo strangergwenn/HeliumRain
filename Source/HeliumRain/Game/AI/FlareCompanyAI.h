@@ -3,41 +3,12 @@
 #include "Object.h"
 #include "../FlareGameTypes.h"
 #include "../FlareWorldHelper.h"
+#include "FlareAITradeHelper.h"
 #include "FlareCompanyAI.generated.h"
 
 
 class UFlareCompany;
 class UFlareAIBehavior;
-
-/* Resource flow */
-struct ResourceVariation
-{
-	int32 OwnedFlow;
-	int32 FactoryFlow;
-
-	int32 OwnedStock;
-	int32 FactoryStock;
-	int32 StorageStock;
-	int32 IncomingResources;
-
-	int32 OwnedCapacity;
-	int32 FactoryCapacity;
-	int32 StorageCapacity;
-	int32 MaintenanceCapacity;
-
-	int32 MinCapacity;
-	int32 ConsumerMaxStock;
-	int32 MaintenanceMaxStock;
-
-	int32 HighPriority;
-};
-
-/* Local list of resource flows */
-struct SectorVariation
-{
-	int32 IncomingCapacity;
-	TMap<FFlareResourceDescription*, ResourceVariation> ResourceVariations;
-};
 
 struct FFlareDiplomacyStats
 {
@@ -111,6 +82,7 @@ public:
 	/** Destroy a spacecraft */
 	virtual void DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
 
+	void UpdateIdleShipsStats(AITradeIdleShips& IdleShips);
 
 	/*----------------------------------------------------
 		Behavior API
@@ -243,9 +215,6 @@ protected:
 	float ComputeConstructionScoreForStation(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, FFlareFactoryDescription* FactoryDescription, UFlareSimulatedSpacecraft* Station, bool Technology) const;
 
 	float ComputeStationPrice(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, UFlareSimulatedSpacecraft* Station) const;
-
-	/** Get the resource flow in this sector */
-	SectorVariation ComputeSectorResourceVariation(UFlareSimulatedSector* Sector) const;
 
 	/** Print the resource flow */
 	void DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* Variation) const;
