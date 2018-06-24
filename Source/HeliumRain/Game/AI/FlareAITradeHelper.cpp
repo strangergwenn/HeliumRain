@@ -5,6 +5,7 @@
 #include "../FlareSectorHelper.h"
 #include "../../Economy/FlareCargoBay.h"
 #include "FlareAIBehavior.h"
+#include <functional>
 
 
 DECLARE_CYCLE_STAT(TEXT("AITradeHelper FindBestDealForShipFromSector"), STAT_AITradeHelper_FindBestDealForShipFromSector, STATGROUP_Flare);
@@ -1030,6 +1031,8 @@ inline static bool NeedComparatorComparator(const AITradeNeed& n1, const AITrade
 	return n1.Ratio > n2.Ratio;
 }
 
+#define SourceFunctionCount 14
+#define IdleShipFunctionCount 8
 
 void AITradeHelper::ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs, AITradeSources& Sources, AITradeIdleShips& IdleShips)
 {
@@ -1053,13 +1056,23 @@ void AITradeHelper::ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs
 	}
 }
 
+
+
+
 bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITradeIdleShips& IdleShips)
 {
-	AITradeSource* Source = FindBestSource(Need.Resource, Need.Sector, Need.Company);
+	AITradeSource* Source = FindBestSource(Sources, Need.Resource, Need.Sector, Need.Company, Need.Quantity, Need.SourceFunctionIndex);
 
 	if(Source == nullptr)
 	{
 		// No possible source, don't keep
+		Need.SourceFunctionIndex++;
+
+		if(Need.SourceFunctionIndex < SourceFunctionCount)
+		{
+			return true;
+		}
+
 		return false;
 	}
 
@@ -1119,14 +1132,101 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 	}
 }
 
-AITradeSource* AITradeHelper::FindBestSource(FFlareResourceDescription* Resource, UFlareSimulatedSector* Sector, UFlareCompany* Company)
+AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareResourceDescription* Resource, UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 NeededQuantity, size_t FunctionIndex)
 {
-#error TODO
+	static std::function<AITradeSource* (AITradeSourcesByResource&, UFlareSimulatedSector*, UFlareCompany*, int32)> functions[SourceFunctionCount];
+
+	AITradeSourcesByResource& SourcesByResource = Sources.GetSourcesPerResource(Resource);
+
+	// Owned local cargo
+	functions[0] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+	{
+		AITradeSourcesByResourceSector& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
+
+		TArray<AITradeSource *> SourcesByResourceSectorCompany = SourcesByResourceSector.GetSourcePerCompany(iCompany);
+
+		AITradeSource* BestSource = nullptr;
+
+		for(AITradeSource* Source : SourcesByResourceSectorCompany)
+		{
+			if(Source->Ship == nullptr)
+			{
+				// Not cargo, skip
+				continue;
+			}
+
+			if(BestSource == nullptr)
+			{
+				BestSource = Source;
+			}
+			else
+			{
+				if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+				{
+					// Closer to the needed quantiy
+					BestSource = Source;
+				}
+				else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+				{
+					// Closer to the needed quantiy
+					BestSource = Source;
+				}
+			}
+		}
+
+		return BestSource;
+	};
+
+	return functions[FunctionIndex](SourcesByResource, Sector, Company, NeededQuantity);
+
+	// Priority 1 : owned sources
+	//   Sub Priority 1 : local cargo
+	//   Sub Priority 2 : incoming cargo
+	//   Sub Priority 3 : cargo in same moon
+	//   Sub Priority 4 : cargo in world
+	//   Sub Priority 5 : local station
+	//   Sub Priority 6 : station in same moon
+	//   Sub Priority 7 : station in world
+
+
+	// Priority 2 : not owned sources
+	// Sub Priority ...
 }
 
 UFlareSimulatedSpacecraft* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimulatedSector* Sector, UFlareCompany* SourceCompany, UFlareCompany* NeedCompany)
 {
-	#error TODO
+	static std::function<AITradeSource* (AITradeIdleShips&, UFlareSimulatedSector*, UFlareCompany*, UFlareCompany*)> Functions[IdleShipFunctionCount];
+
+	for(auto & Function : Functions)
+	{
+		UFlareSimulatedSpacecraft* Ship =  Functions();
+		if(Ship != nullptr)
+		{
+			return Ship;
+		}
+	}
+
+	return nullptr;
+
+
+	// Priority 1 : owned ships
+	//   Sub Priority 1 : local cargo
+	//   Sub Priority 2 : incoming cargo
+	//   Sub Priority 3 : cargo in same moon
+	//   Sub Priority 4 : cargo in world
+
+	// Priority 2 : not owned sources
+	// Sub Priority ...
+
+	- trouver un cargo le plus adapté
+	   (adapté :
+		1 - local idle
+		2 - en voyage idle
+
+
+		3 - idle dans cette lune
+		4 - idle partout
+
 }
 
 void AITradeSources::ConsumeSource(AITradeSource*)
@@ -1140,6 +1240,21 @@ void AITradeSources::ConsumeSource(AITradeSource*, int32 Quantity)
 }
 
 void AITradeIdleShips::ConsumeShip(UFlareSimulatedSpacecraft* Ship)
+{
+	#error TODO
+}
+
+AITradeSourcesByResource& AITradeSources::GetSourcesPerResource(FFlareResourceDescription* Resource)
+{
+	#error TODO
+}
+
+AITradeSourcesByResourceSector& AITradeSourcesByResource::GetSourcesPerSector(UFlareSimulatedSector* Sector)
+{
+	#error TODO
+}
+
+TArray<AITradeSource*> AITradeSourcesByResourceSector::GetSourcePerCompany(UFlareCompany* Company)
 {
 	#error TODO
 }

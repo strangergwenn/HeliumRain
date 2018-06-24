@@ -55,6 +55,7 @@ struct AITradeNeed
 	UFlareCompany* Company;
 	UFlareSimulatedSector* Sector;
 	UFlareSimulatedSpacecraft* Station;
+	size_t SourceFunctionIndex;
 };
 
 
@@ -62,6 +63,7 @@ struct AITradeNeeds
 {
 	TArray<AITradeNeed> List;
 };
+
 
 struct AITradeSource
 {
@@ -72,11 +74,25 @@ struct AITradeSource
 	int32 Quantity;
 };
 
+struct AITradeSourcesByResourceSector
+{
+	TArray<AITradeSource*> GetSourcePerCompany(UFlareCompany* Company);
+};
+
+
+struct AITradeSourcesByResource
+{
+	AITradeSourcesByResourceSector& GetSourcesPerSector(UFlareSimulatedSector* Sector);
+};
+
+
 struct AITradeSources
 {
 	void ConsumeSource(AITradeSource*);
 
 	void ConsumeSource(AITradeSource*, int32 Quantity);
+
+	AITradeSourcesByResource& GetSourcesPerResource(FFlareResourceDescription* Resource);
 };
 
 struct AITradeIdleShips
@@ -107,7 +123,7 @@ struct AITradeHelper
 
 	static bool ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITradeIdleShips& IdleShips);
 
-	static AITradeSource* FindBestSource(FFlareResourceDescription* Resource, UFlareSimulatedSector* Sector, UFlareCompany* Company);
+	static AITradeSource* FindBestSource(AITradeSources& Sources, FFlareResourceDescription* Resource, UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 NeededQuantity, size_t FunctionIndex);
 
 	static UFlareSimulatedSpacecraft* FindBestShip(AITradeIdleShips& IdleShips, UFlareSimulatedSector* Sector, UFlareCompany* SourceCompany, UFlareCompany* NeedCompany);
 };
