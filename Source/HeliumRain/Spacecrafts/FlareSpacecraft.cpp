@@ -20,6 +20,7 @@
 
 #include "../Game/FlareGame.h"
 #include "../Game/FlareAsteroid.h"
+#include "../Game/FlareScannable.h"
 #include "../Game/FlareSkirmishManager.h"
 #include "../Game/FlareGameUserSettings.h"
 #include "../Game/FlareGameTools.h"
@@ -699,14 +700,26 @@ bool AFlareSpacecraft::IsInScanningMode()
 {
 	const FFlarePlayerObjectiveData* Objective = GetPC()->GetCurrentObjective();
 
-	// Needs a valid target objective, and weapon groups
-	if (IsPlayerShip() && Objective && Objective->TargetList.Num() > 0 && !GetWeaponsSystem()->GetActiveWeaponGroup())
+	// Look for player ship with no weapons
+	if (IsPlayerShip() && !GetWeaponsSystem()->GetActiveWeaponGroup())
 	{
-		// Are we in the correct sector ?
-		if (Objective->TargetSectors.Num() == 0 || Objective->TargetSectors.Contains(GetParent()->GetCurrentSector()))
+		// Needs a valid target objective
+		if (Objective && Objective->TargetList.Num() > 0 && Objective->TargetList[0].RequiresScan)
 		{
-			// Is this objective a scan one ?
-			if (Objective->TargetList[0].RequiresScan)
+			// Are we in the correct sector ?
+			if (Objective->TargetSectors.Num() == 0 || Objective->TargetSectors.Contains(GetParent()->GetCurrentSector()))
+			{
+				return true;
+			}
+		}
+		
+		// Look for a valid scannable
+		TArray<AActor*> ScannableCandidates;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFlareScannable::StaticClass(), ScannableCandidates);
+		for (auto ScannableCandidate : ScannableCandidates)
+		{
+			AFlareScannable* Scannable = Cast<AFlareScannable>(ScannableCandidate);
+			if (Scannable && Scannable->IsActive())
 			{
 				return true;
 			}
@@ -718,47 +731,37 @@ bool AFlareSpacecraft::IsInScanningMode()
 void AFlareSpacecraft::GetScanningProgress(bool& AngularIsActive, bool& LinearIsActive, bool& ScanningIsActive,
 	float& AngularProgress, float& LinearProgress, float& AnalyzisProgress, float& ScanningDistance, float& ScanningSpeed)
 {
-	// Look for an active "scan" target
 	if (IsInScanningMode())
 	{
-		for (auto Target : GetPC()->GetCurrentObjective()->TargetList)
+		// Look for an active "scan" objective
+		if (GetPC()->GetCurrentObjective())
 		{
-			if (Target.Active)
+			for (auto Target : GetPC()->GetCurrentObjective()->TargetList)
 			{
-				FVector TargetDisplacement = Target.Location - GetActorLocation();
-				float Distance = TargetDisplacement.Size();
-
-				// Angular alignment
-				float Alignement = FVector::DotProduct(GetFrontVector(), TargetDisplacement.GetSafeNormal());
-				if (Alignement > 0)
+				if (Target.Active)
 				{
-					AngularProgress = FMath::Max(0.f, 1.f - FMath::Acos(Alignement));
+					GetScanningProgressInternal(Target.Location, Target.Radius, AngularIsActive, LinearIsActive, ScanningIsActive,
+						AngularProgress, LinearProgress, AnalyzisProgress, ScanningDistance, ScanningSpeed);
+
+					return;
 				}
-				else
+			}
+		}
+
+		// Look for an active scannable
+		TArray<AActor*> ScannableCandidates;
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFlareScannable::StaticClass(), ScannableCandidates);
+		for (auto ScannableCandidate : ScannableCandidates)
+		{
+			AFlareScannable* Scannable = Cast<AFlareScannable>(ScannableCandidate);
+			if (Scannable && Scannable->IsActive())
+			{
+				GetScanningProgressInternal(Scannable->GetActorLocation(), 10000, AngularIsActive, LinearIsActive, ScanningIsActive,
+					AngularProgress, LinearProgress, AnalyzisProgress, ScanningDistance, ScanningSpeed);
+
+				if (AnalyzisProgress >= 1.0f)
 				{
-					AngularProgress = 0;
-				}
-
-				// Linear & full progress
-				LinearProgress = 1 - FMath::Clamp(Distance / 100000, 0.0f, 1.0f); // 1000m
-				AnalyzisProgress = FMath::Clamp(ScanningTimer / ScanningTimerDuration, 0.0f, 1.0f);
-
-				// Conditions
-				float const AlignementThreshold = 0.7f;
-				AngularIsActive = (AngularProgress > AlignementThreshold);
-				LinearIsActive = (Distance < Target.Radius);
-				ScanningSpeed = 0.f;
-				ScanningDistance = (Distance / 100);
-
-				// Active scan
-				ScanningIsActive = AngularIsActive && LinearIsActive;
-				if (ScanningIsActive)
-				{
-					float AlignementRatioB = AlignementThreshold / (1-AlignementThreshold);
-					float AlignementRatio = (1 + AlignementRatioB) *  AngularProgress - AlignementRatioB;
-					float DistanceRatio = - (1.f / Target.Radius) * Distance + 1.f;
-
-					ScanningSpeed = 1.f * AlignementRatio * DistanceRatio;
+					Scannable->OnScanned();
 				}
 
 				return;
@@ -773,6 +776,46 @@ void AFlareSpacecraft::GetScanningProgress(bool& AngularIsActive, bool& LinearIs
 	AngularProgress = 0;
 	LinearProgress = 0;
 	AnalyzisProgress = 0;
+}
+
+void AFlareSpacecraft::GetScanningProgressInternal(const FVector& Location, const float Radius, bool& AngularIsActive, bool& LinearIsActive, bool& ScanningIsActive,
+	float& AngularProgress, float& LinearProgress, float& AnalyzisProgress, float& ScanningDistance, float& ScanningSpeed)
+{
+	FVector TargetDisplacement = Location - GetActorLocation();
+	float Distance = TargetDisplacement.Size();
+
+	// Angular alignment
+	float Alignement = FVector::DotProduct(GetFrontVector(), TargetDisplacement.GetSafeNormal());
+	if (Alignement > 0)
+	{
+		AngularProgress = FMath::Max(0.f, 1.f - FMath::Acos(Alignement));
+	}
+	else
+	{
+		AngularProgress = 0;
+	}
+
+	// Linear & full progress
+	LinearProgress = 1 - FMath::Clamp(Distance / 100000, 0.0f, 1.0f); // 1000m
+	AnalyzisProgress = FMath::Clamp(ScanningTimer / ScanningTimerDuration, 0.0f, 1.0f);
+
+	// Conditions
+	float const AlignementThreshold = 0.7f;
+	AngularIsActive = (AngularProgress > AlignementThreshold);
+	LinearIsActive = (Distance < Radius);
+	ScanningSpeed = 0.f;
+	ScanningDistance = (Distance / 100);
+
+	// Active scan
+	ScanningIsActive = AngularIsActive && LinearIsActive;
+	if (ScanningIsActive)
+	{
+		float AlignementRatioB = AlignementThreshold / (1 - AlignementThreshold);
+		float AlignementRatio = (1 + AlignementRatioB) *  AngularProgress - AlignementRatioB;
+		float DistanceRatio = -(1.f / Radius) * Distance + 1.f;
+
+		ScanningSpeed = 1.f * AlignementRatio * DistanceRatio;
+	}
 }
 
 bool AFlareSpacecraft::IsScanningFinished() const

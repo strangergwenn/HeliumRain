@@ -98,6 +98,10 @@ public:
 	void GetScanningProgress(bool& AngularIsActive, bool& LinearIsActive, bool& ScanningIsActive,
 		float& AngularProgress, float& LinearProgress, float& AnalyzisProgress, float& ScanningDistance, float& ScanningSpeed);
 
+	/** Get the progress in detail for an objective or scannable */
+	void GetScanningProgressInternal(const FVector& Location, const float Radius, bool& AngularIsActive, bool& LinearIsActive, bool& ScanningIsActive,
+		float& AngularProgress, float& LinearProgress, float& AnalyzisProgress, float& ScanningDistance, float& ScanningSpeed);
+
 	/** Are we done with the scan ? */
 	bool IsScanningFinished() const;
 
