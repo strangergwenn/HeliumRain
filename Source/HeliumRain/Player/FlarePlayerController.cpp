@@ -710,6 +710,34 @@ void AFlarePlayerController::Clean()
 	MenuManager->FlushNotifications();
 }
 
+bool AFlarePlayerController::IsScannableUnlocked(FName Identifier)
+{
+	if (PlayerData.UnlockedScannables.Find(Identifier) != INDEX_NONE)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void AFlarePlayerController::UnlockScannable(FName Identifier)
+{
+	FLOGV("AFlarePlayerController::UnlockScannable : unlocking '%s'", *Identifier.ToString());
+
+	Company->GiveResearch(100);
+
+	Notify(LOCTEXT("ScannableUnlocked", "New research data"),
+		LOCTEXT("ScannableUnlockedInfo", "Target analyzis revealed valuable data for technology research."),
+		FName("scannable-unlocked"),
+		EFlareNotification::NT_Info,
+		false,
+		EFlareMenu::MENU_Technology);
+
+	PlayerData.UnlockedScannables.AddUnique(Identifier);
+}
+
 
 /*----------------------------------------------------
 	Gamepad

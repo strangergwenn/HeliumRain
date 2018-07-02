@@ -21,7 +21,11 @@ public:
 	bool IsActive();
 
 	/** Scan this target and unlock its returns */
-	void OnScanned();
+	void Unlock();
+
+	/** Unlock the scannable */
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnUnlocked();
 
 
 public:

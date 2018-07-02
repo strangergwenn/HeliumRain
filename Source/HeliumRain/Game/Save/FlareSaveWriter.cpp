@@ -49,6 +49,13 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SavePlayer(FFlarePlayerSave* Data)
 	JsonObject->SetStringField("LastFlownShipIdentifier", Data->LastFlownShipIdentifier.ToString());
 	JsonObject->SetObjectField("Quest", SaveQuest(&Data->QuestData));
 
+	TArray< TSharedPtr<FJsonValue> > UnlockedScannables;
+	for (int i = 0; i < Data->UnlockedScannables.Num(); i++)
+	{
+		UnlockedScannables.Add(MakeShareable(new FJsonValueString(Data->UnlockedScannables[i].ToString())));
+	}
+	JsonObject->SetArrayField("UnlockedScannables", UnlockedScannables);
+
 	return JsonObject;
 }
 

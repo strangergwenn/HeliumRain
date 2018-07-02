@@ -110,6 +110,10 @@ struct FFlarePlayerSave
 	/** Emblem index */
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 PlayerEmblemIndex;
+
+	/** Scannables */
+	UPROPERTY(EditAnywhere, Category = Save)
+	TArray<FName> UnlockedScannables;
 };
 
 

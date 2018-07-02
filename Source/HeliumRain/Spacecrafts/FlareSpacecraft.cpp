@@ -733,7 +733,8 @@ void AFlareSpacecraft::GetScanningProgress(bool& AngularIsActive, bool& LinearIs
 {
 	if (IsInScanningMode())
 	{
-		// Look for an active "scan" objective
+		// Look for an active "scan" objective - legacy pipeline with only one waypoint possible
+		// Should be removed, ideally, in favor of the scannable actor... TODO :) 
 		if (GetPC()->GetCurrentObjective())
 		{
 			for (auto Target : GetPC()->GetCurrentObjective()->TargetList)
@@ -742,13 +743,15 @@ void AFlareSpacecraft::GetScanningProgress(bool& AngularIsActive, bool& LinearIs
 				{
 					GetScanningProgressInternal(Target.Location, Target.Radius, AngularIsActive, LinearIsActive, ScanningIsActive,
 						AngularProgress, LinearProgress, AnalyzisProgress, ScanningDistance, ScanningSpeed);
+					
+					IsScanningWaypoint = true;
 
 					return;
 				}
 			}
 		}
 
-		// Look for an active scannable
+		// Look for active scannables and reset scanning after unlocking one
 		TArray<AActor*> ScannableCandidates;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFlareScannable::StaticClass(), ScannableCandidates);
 		for (auto ScannableCandidate : ScannableCandidates)
@@ -761,8 +764,11 @@ void AFlareSpacecraft::GetScanningProgress(bool& AngularIsActive, bool& LinearIs
 
 				if (AnalyzisProgress >= 1.0f)
 				{
-					Scannable->OnScanned();
+					ScanningTimer = 0;
+					Scannable->Unlock();
 				}
+
+				IsScanningWaypoint = false;
 
 				return;
 			}
@@ -818,9 +824,9 @@ void AFlareSpacecraft::GetScanningProgressInternal(const FVector& Location, cons
 	}
 }
 
-bool AFlareSpacecraft::IsScanningFinished() const
+bool AFlareSpacecraft::IsWaypointScanningFinished() const
 {
-	return (ScanningTimer >= ScanningTimerDuration);
+	return (IsScanningWaypoint && ScanningTimer >= ScanningTimerDuration);
 }
 
 bool AFlareSpacecraft::GetManualDockingProgress(AFlareSpacecraft*& OutStation, FFlareDockingParameters& OutParameters, FText& OutInfo) const

@@ -122,6 +122,12 @@ public:
 	/** Cleanup the PC owned stuff */
 	void Clean();
 
+	/** Check if a scannable was previously unlocked */
+	bool IsScannableUnlocked(FName Identifier);
+
+	/** Unlock a scannable */
+	void UnlockScannable(FName Identifier);
+
 
 	/*----------------------------------------------------
 		Menus

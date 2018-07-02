@@ -94,6 +94,15 @@ void UFlareSaveReaderV1::LoadPlayer(const TSharedPtr<FJsonObject> Object, FFlare
 	{
 		LoadQuest(*Quest, &Data->QuestData);
 	}
+
+	const TArray<TSharedPtr<FJsonValue>>* UnlockedScannables;
+	if (Object->TryGetArrayField("UnlockedScannables", UnlockedScannables))
+	{
+		for (TSharedPtr<FJsonValue> Scannable : *UnlockedScannables)
+		{
+			Data->UnlockedScannables.AddUnique(FName(*Scannable->AsString()));
+		}
+	}
 }
 
 

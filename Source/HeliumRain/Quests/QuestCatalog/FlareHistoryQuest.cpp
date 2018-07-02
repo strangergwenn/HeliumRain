@@ -510,7 +510,7 @@ bool UFlareQuestConditionWaypoints::IsCompleted()
 			bool HasCompletedWaypoint = false;
 			if (TargetRequiresScan)
 			{
-				if (Spacecraft->IsScanningFinished())
+				if (Spacecraft->IsWaypointScanningFinished())
 				{
 					HasCompletedWaypoint = true;
 				}

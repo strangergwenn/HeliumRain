@@ -25,12 +25,14 @@ bool AFlareScannable::IsActive()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
-	return false;
+	return !PC->IsScannableUnlocked(ScannableIdentifier);
 }
 
-void  AFlareScannable::OnScanned()
+void  AFlareScannable::Unlock()
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetWorld()->GetFirstPlayerController());
 
+	PC->UnlockScannable(ScannableIdentifier);
 
+	OnUnlocked();
 }

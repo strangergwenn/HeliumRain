@@ -103,7 +103,7 @@ public:
 		float& AngularProgress, float& LinearProgress, float& AnalyzisProgress, float& ScanningDistance, float& ScanningSpeed);
 
 	/** Are we done with the scan ? */
-	bool IsScanningFinished() const;
+	bool IsWaypointScanningFinished() const;
 
 	/** Are we currently docking ? */
 	bool GetManualDockingProgress(AFlareSpacecraft*& OutStation, FFlareDockingParameters& OutParameters, FText& OutInfo) const;
@@ -333,6 +333,7 @@ protected:
 	
 	bool                                           AttachedToParentActor;
 
+	bool                                           IsScanningWaypoint;
 	float                                          ScanningTimer;
 	float                                          ScanningTimerDuration;
 	

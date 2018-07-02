@@ -1379,7 +1379,7 @@ bool UFlareQuestConditionFollowRelativeWaypoints::IsCompleted()
 		bool HasCompletedWaypoint = false;
 		if (TargetRequiresScan)
 		{
-			if (Spacecraft->IsScanningFinished())
+			if (Spacecraft->IsWaypointScanningFinished())
 			{
 				HasCompletedWaypoint = true;
 			}
@@ -1579,7 +1579,7 @@ bool UFlareQuestConditionFollowRandomWaypoints::IsCompleted()
 		bool HasCompletedWaypoint = false;
 		if (TargetRequiresScan)
 		{
-			if (Spacecraft->IsScanningFinished())
+			if (Spacecraft->IsWaypointScanningFinished())
 			{
 				HasCompletedWaypoint = true;
 			}
