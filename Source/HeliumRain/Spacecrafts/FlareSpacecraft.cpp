@@ -704,27 +704,30 @@ bool AFlareSpacecraft::IsInScanningMode()
 	if (IsPlayerShip() && !GetWeaponsSystem()->GetActiveWeaponGroup())
 	{
 		// Needs a valid target objective
-		if (Objective && Objective->TargetList.Num() > 0 && Objective->TargetList[0].RequiresScan)
+		if (Objective && Objective->TargetList.Num() > 0 && (Objective->TargetSectors.Num() == 0 || Objective->TargetSectors.Contains(GetParent()->GetCurrentSector())))
 		{
-			// Are we in the correct sector ?
-			if (Objective->TargetSectors.Num() == 0 || Objective->TargetSectors.Contains(GetParent()->GetCurrentSector()))
+			if (Objective->TargetList[0].RequiresScan)
 			{
 				return true;
 			}
 		}
 		
 		// Look for a valid scannable
-		TArray<AActor*> ScannableCandidates;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFlareScannable::StaticClass(), ScannableCandidates);
-		for (auto ScannableCandidate : ScannableCandidates)
+		else
 		{
-			AFlareScannable* Scannable = Cast<AFlareScannable>(ScannableCandidate);
-			if (Scannable && Scannable->IsActive())
+			TArray<AActor*> ScannableCandidates;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFlareScannable::StaticClass(), ScannableCandidates);
+			for (auto ScannableCandidate : ScannableCandidates)
 			{
-				return true;
+				AFlareScannable* Scannable = Cast<AFlareScannable>(ScannableCandidate);
+				if (Scannable && Scannable->IsActive())
+				{
+					return true;
+				}
 			}
 		}
 	}
+
 	return false;
 }
 
@@ -751,6 +754,14 @@ void AFlareSpacecraft::GetScanningProgress(bool& AngularIsActive, bool& LinearIs
 			}
 		}
 
+		// Reset to default values
+		AngularIsActive = false;
+		LinearIsActive = false;
+		ScanningIsActive = false;
+		AngularProgress = 0;
+		LinearProgress = 0;
+		AnalyzisProgress = 0;
+
 		// Look for active scannables and reset scanning after unlocking one
 		TArray<AActor*> ScannableCandidates;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AFlareScannable::StaticClass(), ScannableCandidates);
@@ -775,7 +786,7 @@ void AFlareSpacecraft::GetScanningProgress(bool& AngularIsActive, bool& LinearIs
 		}
 	}
 
-	// Default values
+	// Reset to default values
 	AngularIsActive = false;
 	LinearIsActive = false;
 	ScanningIsActive = false;
