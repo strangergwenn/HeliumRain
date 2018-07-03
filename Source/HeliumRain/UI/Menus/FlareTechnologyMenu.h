@@ -71,6 +71,9 @@ protected:
 	/** The selected technology is unlocked */
 	void OnTechnologyUnlocked();
 
+	/** Count of unlocked scannables */
+	FText GetUnlockedScannableCount() const;
+
 
 protected:
 
@@ -84,6 +87,7 @@ protected:
 	
 	// Slate objects
 	TSharedPtr<SScrollBox>                          TechnologyTree;
+	TSharedPtr<SVerticalBox>                        ArtifactList;
 
 public:
 

@@ -1,12 +1,18 @@
 
 #include "FlareTechnologyMenu.h"
 #include "../../Flare.h"
+
 #include "../Components/FlareTechnologyInfo.h"
+#include "../Components/FlareTabView.h"
+
+#include "../../Data/FlareTechnologyCatalog.h"
+#include "../../Data/FlareScannableCatalog.h"
+
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareCompany.h"
 #include "../../Player/FlareMenuManager.h"
+
 #include "../../Player/FlarePlayerController.h"
-#include "../../Data/FlareTechnologyCatalog.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareTechnologyMenu"
@@ -25,25 +31,101 @@ void SFlareTechnologyMenu::Construct(const FArguments& InArgs)
 	
 	// Build structure
 	ChildSlot
-	.HAlign(HAlign_Center)
+	.HAlign(HAlign_Fill)
 	.VAlign(VAlign_Fill)
 	.Padding(FMargin(0, AFlareMenuManager::GetMainOverlayHeight(), 0, 0))
 	[
-		SNew(SBox)
-		.WidthOverride(2.2 * Theme.ContentWidth)
-		[
-			SNew(SHorizontalBox)
+		SNew(SFlareTabView)
 
-			// Info block
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Left)
-			.VAlign(VAlign_Top)
-			.AutoWidth()
+		// Technology block
+		+ SFlareTabView::Slot()
+		.Header(LOCTEXT("TechnologyMainTab", "Technologies"))
+		.HeaderHelp(LOCTEXT("TechnologyMainTabInfo", "Technology tree & research status"))
+		[
+			SNew(SBox)
+			.WidthOverride(2.2 * Theme.ContentWidth)
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Fill)
 			[
-				SNew(SBox)
-				.WidthOverride(0.75 * Theme.ContentWidth)
+				SNew(SHorizontalBox)
+
+				// Info block
+				+ SHorizontalBox::Slot()
 				.HAlign(HAlign_Left)
+				.VAlign(VAlign_Top)
+				.AutoWidth()
 				[
+					SNew(SBox)
+					.WidthOverride(0.75 * Theme.ContentWidth)
+					.HAlign(HAlign_Left)
+					[
+						SNew(SVerticalBox)
+			
+						// Title
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.TitlePadding)
+						[
+							SNew(STextBlock)
+							.Text(LOCTEXT("CompanyTechnologyTitle", "Company technology"))
+							.TextStyle(&Theme.SubTitleFont)
+						]
+			
+						// Company info
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(SRichTextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(this, &SFlareTechnologyMenu::GetCompanyTechnologyInfo)
+							.DecoratorStyleSet(&FFlareStyleSet::Get())
+							.WrapTextAt(0.7 * Theme.ContentWidth)
+						]
+			
+						// Title
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.TitlePadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.SubTitleFont)
+							.Text(this, &SFlareTechnologyMenu::GetTechnologyName)
+						]
+			
+						// Description
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(this, &SFlareTechnologyMenu::GetTechnologyDescription)
+							.WrapTextAt(0.7 * Theme.ContentWidth)
+						]
+			
+						// Button
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SNew(SFlareButton)
+							.Width(6)
+							.Icon(FFlareStyleSet::GetIcon("ResearchValue"))
+							.Text(this, &SFlareTechnologyMenu::GetTechnologyUnlockText)
+							.HelpText(this, &SFlareTechnologyMenu::GetTechnologyUnlockHintText)
+							.OnClicked(this, &SFlareTechnologyMenu::OnTechnologyUnlocked)
+							.IsDisabled(this, &SFlareTechnologyMenu::IsUnlockDisabled)
+						]
+					]
+				]
+
+				// Tree block
+				+ SHorizontalBox::Slot()
+				.HAlign(HAlign_Right)
+				.VAlign(VAlign_Top)
+				[			
 					SNew(SVerticalBox)
 			
 					// Title
@@ -52,85 +134,70 @@ void SFlareTechnologyMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.TitlePadding)
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("CompanyTechnologyTitle", "Company technology"))
+						.Text(LOCTEXT("AvailableTechnologyTitle", "Available technologies"))
 						.TextStyle(&Theme.SubTitleFont)
 					]
-			
-					// Company info
+
+					// Data
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(Theme.ContentPadding)
 					[
-						SNew(SRichTextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareTechnologyMenu::GetCompanyTechnologyInfo)
-						.DecoratorStyleSet(&FFlareStyleSet::Get())
-						.WrapTextAt(0.7 * Theme.ContentWidth)
+						SAssignNew(TechnologyTree, SScrollBox)
+						.Style(&Theme.ScrollBoxStyle)
+						.ScrollBarStyle(&Theme.ScrollBarStyle)
 					]
-			
+				]
+			]
+		]
+
+		// Scannable block
+		+ SFlareTabView::Slot()
+		.Header(LOCTEXT("TechnologyScannableTab", "Artifacts"))
+		.HeaderHelp(LOCTEXT("TechnologyScannableTabInfo", "Artifacts are found drifting in the world and unlock research data"))
+		[
+			SNew(SBox)
+			.WidthOverride(2.2 * Theme.ContentWidth)
+			.HAlign(HAlign_Center)
+			.VAlign(VAlign_Fill)
+			[
+				SNew(SBox)
+				.HAlign(HAlign_Left)
+				.WidthOverride(2.2 * Theme.ContentWidth)
+				[
+					SNew(SVerticalBox)
+
 					// Title
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(Theme.TitlePadding)
+					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
+						.Text(LOCTEXT("CompanyScannableTitle", "Artifacts found"))
 						.TextStyle(&Theme.SubTitleFont)
-						.Text(this, &SFlareTechnologyMenu::GetTechnologyName)
 					]
-			
-					// Description
-					+ SVerticalBox::Slot()
-					.AutoHeight()
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareTechnologyMenu::GetTechnologyDescription)
-						.WrapTextAt(0.7 * Theme.ContentWidth)
-					]
-			
-					// Button
+
+					// Count
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(Theme.ContentPadding)
 					.HAlign(HAlign_Left)
 					[
-						SNew(SFlareButton)
-						.Width(6)
-						.Icon(FFlareStyleSet::GetIcon("ResearchValue"))
-						.Text(this, &SFlareTechnologyMenu::GetTechnologyUnlockText)
-						.HelpText(this, &SFlareTechnologyMenu::GetTechnologyUnlockHintText)
-						.OnClicked(this, &SFlareTechnologyMenu::OnTechnologyUnlocked)
-						.IsDisabled(this, &SFlareTechnologyMenu::IsUnlockDisabled)
+						SNew(STextBlock)
+						.Text(this, &SFlareTechnologyMenu::GetUnlockedScannableCount)
+						.TextStyle(&Theme.TextFont)
+						.WrapTextAt(2 * Theme.ContentWidth)
 					]
-				]
-			]
 
-			// Tree block
-			+ SHorizontalBox::Slot()
-			.HAlign(HAlign_Right)
-			.VAlign(VAlign_Top)
-			[			
-				SNew(SVerticalBox)
-			
-				// Title
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.TitlePadding)
-				[
-					SNew(STextBlock)
-					.Text(LOCTEXT("AvailableTechnologyTitle", "Available technologies"))
-					.TextStyle(&Theme.SubTitleFont)
-				]
-
-				// Data
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				.Padding(Theme.ContentPadding)
-				[
-					SAssignNew(TechnologyTree, SScrollBox)
-					.Style(&Theme.ScrollBoxStyle)
-					.ScrollBarStyle(&Theme.ScrollBarStyle)
+					// Content
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					.HAlign(HAlign_Left)
+					[
+						SAssignNew(ArtifactList, SVerticalBox)
+					]
 				]
 			]
 		]
@@ -245,6 +312,55 @@ void SFlareTechnologyMenu::Enter()
 			];
 	}
 
+	// List artifacts
+	ArtifactList->ClearChildren();
+	for (FName UnlockedScannableIdentifier : MenuManager->GetPC()->GetUnlockedScannables())
+	{
+		auto Scannable = MenuManager->GetGame()->GetScannableCatalog()->Get(UnlockedScannableIdentifier);
+
+		ArtifactList->AddSlot()
+			.HAlign(HAlign_Fill)
+			.VAlign(VAlign_Center)
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(SVerticalBox)
+
+				// Upper line
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[						
+					SNew(SHorizontalBox)
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					.Padding(Theme.SmallContentPadding)
+					[
+						SNew(SImage)
+						.Image(FFlareStyleSet::GetIcon("OK"))
+					]
+
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(STextBlock)
+						.TextStyle(&Theme.NameFont)
+						.Text(Scannable->Name)
+					]
+				]
+
+				// Lower line
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				[						
+					SNew(STextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(Scannable->Description)
+					.WrapTextAt(Theme.ContentWidth)
+				]
+			];
+	}	
+
 	SlatePrepass(FSlateApplicationBase::Get().GetApplicationScale());
 }
 
@@ -254,6 +370,8 @@ void SFlareTechnologyMenu::Exit()
 
 	SelectedTechnology = NULL;
 	TechnologyTree->ClearChildren();
+
+	ArtifactList->ClearChildren();
 
 	SetVisibility(EVisibility::Collapsed);
 }
@@ -368,6 +486,13 @@ void SFlareTechnologyMenu::OnTechnologyUnlocked()
 	{
 		MenuManager->GetPC()->GetCompany()->UnlockTechnology(SelectedTechnology->Identifier);
 	}
+}
+
+FText SFlareTechnologyMenu::GetUnlockedScannableCount() const
+{
+	return FText::Format(LOCTEXT("ScannableCountFormat", "You have found {0} out of {1} artifacts. Explore the world and discover new sectors to unlock more research data !"),
+		FText::AsNumber(MenuManager->GetPC()->GetUnlockedScannableCount()),
+		FText::AsNumber(MenuManager->GetGame()->GetScannableCatalog()->ScannableCatalog.Num()));
 }
 
 

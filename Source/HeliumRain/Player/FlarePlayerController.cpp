@@ -730,8 +730,8 @@ void AFlarePlayerController::UnlockScannable(FName Identifier)
 
 	Company->GiveResearch(SCANNABLES_RESEARCH_GAIN);
 
-	Notify(LOCTEXT("ScannableUnlocked", "New research data"),
-		LOCTEXT("ScannableUnlockedInfo", "Target analyzis revealed valuable data for technology research."),
+	Notify(LOCTEXT("ScannableUnlocked", "Artifact found"),
+		LOCTEXT("ScannableUnlockedInfo", "Artifact analyzis revealed valuable data for technology research."),
 		FName("scannable-unlocked"),
 		EFlareNotification::NT_Info,
 		false,

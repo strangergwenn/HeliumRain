@@ -128,6 +128,18 @@ public:
 	/** Unlock a scannable */
 	void UnlockScannable(FName Identifier);
 
+	/** Get the unlocked scannable count */
+	int32 GetUnlockedScannableCount() const
+	{
+		return PlayerData.UnlockedScannables.Num();
+	}
+
+	/** Get the unlocked scannables */
+	TArray<FName>& GetUnlockedScannables()
+	{
+		return PlayerData.UnlockedScannables;
+	}
+
 
 	/*----------------------------------------------------
 		Menus
