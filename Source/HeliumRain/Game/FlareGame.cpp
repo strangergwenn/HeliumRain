@@ -21,6 +21,7 @@
 #include "../Data/FlareCompanyCatalog.h"
 #include "../Data/FlareResourceCatalog.h"
 #include "../Data/FlareTechnologyCatalog.h"
+#include "../Data/FlareScannableCatalog.h"
 #include "../Data/FlareOrbitalMap.h"
 #include "../Data/FlareQuestCatalog.h"
 #include "../Data/FlareSectorCatalogEntry.h"
@@ -103,6 +104,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	QuestCatalog = NewObject<UFlareQuestCatalog>(this, UFlareQuestCatalog::StaticClass(), TEXT("FlareQuestCatalog"));
 	ResourceCatalog = NewObject<UFlareResourceCatalog>(this, UFlareResourceCatalog::StaticClass(), TEXT("FlareResourceCatalog"));
 	TechnologyCatalog = NewObject<UFlareTechnologyCatalog>(this, UFlareTechnologyCatalog::StaticClass(), TEXT("FlareTechnologyCatalog"));
+	ScannableCatalog = NewObject<UFlareScannableCatalog>(this, UFlareScannableCatalog::StaticClass(), TEXT("FlareScannableCatalog"));
 
 	// Look for sector assets
 	TArray<FAssetData> AssetList;

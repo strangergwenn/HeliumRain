@@ -49,6 +49,8 @@ DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Sound"), STAT_FlarePlayerTick_Sound, ST
 
 #define LOCTEXT_NAMESPACE "AFlarePlayerController"
 
+#define SCANNABLES_RESEARCH_GAIN 100
+
 
 /*----------------------------------------------------
 	Constructor
@@ -726,7 +728,7 @@ void AFlarePlayerController::UnlockScannable(FName Identifier)
 {
 	FLOGV("AFlarePlayerController::UnlockScannable : unlocking '%s'", *Identifier.ToString());
 
-	Company->GiveResearch(100);
+	Company->GiveResearch(SCANNABLES_RESEARCH_GAIN);
 
 	Notify(LOCTEXT("ScannableUnlocked", "New research data"),
 		LOCTEXT("ScannableUnlockedInfo", "Target analyzis revealed valuable data for technology research."),

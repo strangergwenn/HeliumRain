@@ -120,7 +120,7 @@ namespace EFlareTechnologyCategory
 
 
 /*----------------------------------------------------
-General gameplay data
+	General gameplay data
 ----------------------------------------------------*/
 
 /** Company sector knowledge data */
@@ -159,6 +159,22 @@ struct FFlareTechnologyDescription
 
 	UPROPERTY(EditAnywhere, Category = Content)
 	TEnumAsByte<EFlareTechnologyCategory::Type> Category;
+};
+
+/** Scannable description */
+USTRUCT()
+struct FFlareScannableDescription
+{
+	GENERATED_USTRUCT_BODY()
+		
+	UPROPERTY(EditAnywhere, Category = Content)
+	FName Identifier;
+
+	UPROPERTY(EditAnywhere, Category = Content)
+	FText Name;
+
+	UPROPERTY(EditAnywhere, Category = Content)
+	FText Description;
 };
 
 /** Company reputation save data */
