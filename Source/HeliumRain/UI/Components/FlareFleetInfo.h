@@ -60,7 +60,13 @@ public:
 	
 	/** Inspect the current target */
 	void OnInspect();
-		
+
+	/** Open the trade route menu */
+	void OnOpenTradeRoute();
+
+	/** Toggle auto-trading */
+	void OnToggleAutoTrade();
+
 
 	/*----------------------------------------------------
 		Content
@@ -72,11 +78,25 @@ public:
 	/** Get the text color */
 	FSlateColor GetTextColor() const;
 
+
 	/** Get the edit hint text */
 	FText GetInspectHintText() const;
 
 	/** Can we inspect */
 	bool IsInspectDisabled() const;
+
+	/** Get the trade route hint text */
+	FText GetInspectTradeRouteHintText() const;
+
+	/** Can we inspect the trade route */
+	bool IsInspectTradeRouteDisabled() const;
+
+	/** Get the auto-trade hint text */
+	FText GetAutoTradeHintText() const;
+
+	/** Can we toggle auto trade */
+	bool IsAutoTradeDisabled() const;
+
 
 	/** Get the fleet composition */
 	FText GetComposition() const;
@@ -107,6 +127,8 @@ protected:
 
 	// Slate data (buttons)
 	TSharedPtr<SFlareButton>          InspectButton;
+	TSharedPtr<SFlareButton>          TradeRouteButton;
+	TSharedPtr<SFlareButton>          AutoTradeButton;
 
 	// Slate data (various)
 	TSharedPtr<STextBlock>            FleetName;

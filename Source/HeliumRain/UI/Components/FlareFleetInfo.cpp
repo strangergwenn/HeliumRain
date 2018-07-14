@@ -1,6 +1,7 @@
 
 #include "FlareFleetInfo.h"
 #include "../../Flare.h"
+#include "../../Game/FlareGameTools.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
@@ -131,7 +132,32 @@ void SFlareFleetInfo::Construct(const FArguments& InArgs)
 						.HelpText(this, &SFlareFleetInfo::GetInspectHintText)
 						.IsDisabled(this, &SFlareFleetInfo::IsInspectDisabled)
 						.OnClicked(this, &SFlareFleetInfo::OnInspect)
-						.Width(2.8)
+						.Width(4)
+					]
+
+					// Inspect trade route
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(TradeRouteButton, SFlareButton)
+						.Text(LOCTEXT("TradeRoute", "TRADE ROUTE"))
+						.HelpText(this, &SFlareFleetInfo::GetInspectTradeRouteHintText)
+						.IsDisabled(this, &SFlareFleetInfo::IsInspectTradeRouteDisabled)
+						.OnClicked(this, &SFlareFleetInfo::OnOpenTradeRoute)
+						.Width(6)
+					]
+
+					// Inspect trade route
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SAssignNew(AutoTradeButton, SFlareButton)
+						.Text(LOCTEXT("AutoTrade", "AUTO-TRADE"))
+						.HelpText(this, &SFlareFleetInfo::GetAutoTradeHintText)
+						.IsDisabled(this, &SFlareFleetInfo::IsAutoTradeDisabled)
+						.OnClicked(this, &SFlareFleetInfo::OnToggleAutoTrade)
+						.Toggle(true)
+						.Width(6)
 					]
 				]
 			]
@@ -188,10 +214,17 @@ void SFlareFleetInfo::Show()
 	if (Minimized)
 	{
 		InspectButton->SetVisibility(EVisibility::Collapsed);
+		TradeRouteButton->SetVisibility(EVisibility::Collapsed);
+		AutoTradeButton->SetVisibility(EVisibility::Collapsed);
 	}
 	else if (TargetFleet && TargetFleet->IsValidLowLevel())
 	{
 		InspectButton->SetVisibility(EVisibility::Visible);
+		TradeRouteButton->SetVisibility(EVisibility::Visible);
+		AutoTradeButton->SetVisibility(EVisibility::Visible);
+
+		// TODO #1047 : set the current state here
+		AutoTradeButton->SetActive(false);
 	}
 }
 
@@ -214,6 +247,27 @@ void SFlareFleetInfo::OnInspect()
 		FFlareMenuParameterData Data;
 		Data.Fleet = TargetFleet;
 		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_Fleet, Data);
+	}
+}
+
+void SFlareFleetInfo::OnOpenTradeRoute()
+{
+	if (PC && TargetFleet && TargetFleet->GetCurrentTradeRoute())
+	{
+		FLOGV("SFlareFleetInfo::OnOpenTradeRoute : TargetFleet=%p", TargetFleet);
+		FFlareMenuParameterData Data;
+		Data.Route = TargetFleet->GetCurrentTradeRoute();
+		PC->GetMenuManager()->OpenMenu(EFlareMenu::MENU_TradeRoute, Data);
+	}
+}
+
+void SFlareFleetInfo::OnToggleAutoTrade()
+{
+	if (PC && TargetFleet)
+	{
+		FLOGV("SFlareFleetInfo::OnToggleAutoTrade : TargetFleet=%p", TargetFleet);
+
+		// TODO #1047 : toggle here
 	}
 }
 
@@ -275,6 +329,64 @@ bool SFlareFleetInfo::IsInspectDisabled() const
 	}
 	else if (TargetFleet->GetCurrentSector()->IsPlayerBattleInProgress())
 	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+FText SFlareFleetInfo::GetInspectTradeRouteHintText() const
+{
+	if (TargetFleet && TargetFleet->GetCurrentTradeRoute())
+	{
+		return LOCTEXT("TradeRouteInfo", "Edit the trade route this fleet is assigned to");
+	}
+	else
+	{
+		return LOCTEXT("CantEditNoTradeRoute", "Assign a trade route to this fleet in the company menu");
+	}
+}
+
+bool SFlareFleetInfo::IsInspectTradeRouteDisabled() const
+{
+	if (TargetFleet && TargetFleet->GetCurrentTradeRoute())
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+FText SFlareFleetInfo::GetAutoTradeHintText() const
+{
+	if (TargetFleet->GetCurrentTradeRoute())
+	{
+		return LOCTEXT("CantAutoTradeOnTradeRoute", "Fleets assigned to a trade route can't do automatic trading");
+	}
+	else if (false)
+	{
+		return FText();
+		// TODO #1047 : check additional conditions, return return reason if it can't auto-trade, remove block if no other case
+	}
+	else
+	{
+		return LOCTEXT("AutoTradeInfo", "Command this fleet to start automatic trading");
+	}
+}
+
+bool SFlareFleetInfo::IsAutoTradeDisabled() const
+{
+	if (TargetFleet->GetCurrentTradeRoute())
+	{
+		return true;
+	}
+	else if (false)
+	{
+		// TODO #1047 : check additional conditions and return true if the auto-trade can't be toggled, remove block if no other case
 		return true;
 	}
 	else
