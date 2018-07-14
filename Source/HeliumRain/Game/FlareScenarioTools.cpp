@@ -214,6 +214,7 @@ void UFlareScenarioTools::SetupWorld()
 	PlayerCompany->DiscoverSector(MinersHome);
 	PlayerCompany->DiscoverSector(NightsHome);
 	PlayerCompany->DiscoverSector(TheFarm);
+	PlayerCompany->DiscoverSector(Lighthouse);
 
 	// Discover public sectors
 	SetupKnownSectors(MiningSyndicate);
@@ -459,7 +460,7 @@ void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 
 	// Adena
 	Company->DiscoverSector(Tranquility);
-	// Unknown : Serenity, Solitude
+	// Unknown : Serenity, Solitude, Pharos
 }
 
 
