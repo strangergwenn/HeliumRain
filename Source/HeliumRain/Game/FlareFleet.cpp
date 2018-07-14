@@ -220,6 +220,18 @@ FText UFlareFleet::GetStatusInfo() const
 			return FText::Format(LOCTEXT("FleetPartialTrading", "{0} of {1} ships are trading in {2}"), FText::AsNumber(GetTradingShipCount()), FText::AsNumber(GetShipCount()), GetCurrentSector()->GetSectorName());
 		}
 	}
+	else if (false)
+	{
+		// TODO #1047 : handle auto-trading conditions
+		if (IsTraveling())
+		{
+			return LOCTEXT("FleetAutoTradingTravel", "Auto-trading ");
+		}
+		else if (IsTraveling())
+		{
+			return FText::Format(LOCTEXT("FleetAutoTrading", "Auto-trading in {0}"), GetCurrentSector()->GetSectorName());
+		}
+	}
 	else
 	{
 		if (GetCurrentTradeRoute() && !GetCurrentTradeRoute()->IsPaused())
