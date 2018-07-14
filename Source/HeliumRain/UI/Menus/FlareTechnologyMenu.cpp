@@ -317,6 +317,7 @@ void SFlareTechnologyMenu::Enter()
 	for (FName UnlockedScannableIdentifier : MenuManager->GetPC()->GetUnlockedScannables())
 	{
 		auto Scannable = MenuManager->GetGame()->GetScannableCatalog()->Get(UnlockedScannableIdentifier);
+		FCHECK(Scannable);
 
 		ArtifactList->AddSlot()
 			.HAlign(HAlign_Fill)
