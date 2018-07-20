@@ -56,8 +56,6 @@ void UFlareSkirmishManager::Update(float DeltaSeconds)
 
 void UFlareSkirmishManager::StartSetup()
 {
-	FCHECK(CurrentPhase == EFlareSkirmishPhase::Idle);
-
 	Data = FFlareSkirmishData();
 	Result = FFlareSkirmishResultData();
 
