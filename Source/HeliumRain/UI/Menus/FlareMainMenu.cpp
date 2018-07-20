@@ -377,6 +377,7 @@ void SFlareMainMenu::Enter()
 	Game->ReadAllSaveSlots();
 	
 	MenuManager->GetPC()->GetSoundManager()->RequestMusicTrack(EFlareMusicTrack::Menu);
+	MenuManager->ClearHistory();
 	
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);

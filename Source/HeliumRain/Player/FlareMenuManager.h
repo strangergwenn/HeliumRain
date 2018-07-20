@@ -101,6 +101,9 @@ public:
 	/** Reload the current menu with the same parameters */
 	void Reload();
 
+	/** Remove the history */
+	void ClearHistory();
+
 	/** Show a notification to the user */
 	bool Notify(FText Text, FText Info, FName Tag, EFlareNotification::Type Type, bool Pinned = false, EFlareMenu::Type TargetMenu = EFlareMenu::MENU_None, FFlareMenuParameterData TargetInfo = FFlareMenuParameterData());
 

@@ -710,6 +710,7 @@ void AFlarePlayerController::Clean()
 	LastSectorBattleStates.Empty();
 
 	MenuManager->FlushNotifications();
+	MenuManager->ClearHistory();
 }
 
 bool AFlarePlayerController::IsScannableUnlocked(FName Identifier)

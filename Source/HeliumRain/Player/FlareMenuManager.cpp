@@ -458,6 +458,11 @@ void AFlareMenuManager::Reload()
 	}
 }
 
+void AFlareMenuManager::ClearHistory()
+{
+	MenuHistory.Empty();
+}
+
 void AFlareMenuManager::Confirm(FText Title, FText Text, FSimpleDelegate OnConfirmed, FSimpleDelegate OnCancel, FSimpleDelegate OnIgnore)
 {
 	if (Confirmation.IsValid())
