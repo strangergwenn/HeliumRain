@@ -37,7 +37,6 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 		SNew(SVerticalBox)
 
 		+ SVerticalBox::Slot()
-		.AutoHeight()
 		.HAlign(HAlign_Center)
 		[
 			SNew(SBox)
@@ -97,80 +96,6 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 			]
 		]
 	
-		// Early access warning
-		+ SVerticalBox::Slot()
-		.VAlign(VAlign_Bottom)
-		.HAlign(HAlign_Fill)
-		[
-			SNew(SBackgroundBlur)
-			.BlurRadius(Theme.BlurRadius)
-			.BlurStrength(Theme.BlurStrength)
-			.HAlign(HAlign_Fill)
-			.VAlign(VAlign_Fill)
-			.Padding(FMargin(0))
-			[
-				SNew(SVerticalBox)
-
-				// Border top
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(SBox)
-					.HeightOverride(2)
-					[
-						SNew(SImage)
-						.Image(&Theme.InvertedBrush)
-						.ColorAndOpacity(Theme.ObjectiveColor)
-					]
-				]
-
-				// Container
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(SBorder)
-					.HAlign(HAlign_Center)
-					.BorderImage(this, &SFlareMainMenu::GetBackgroundBrush)
-					.Padding(Theme.ContentPadding)
-					[
-						SNew(SVerticalBox)
-												
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.Text(LOCTEXT("EarlyAccessTitle", "Tell us what you think !"))
-							.TextStyle(&Theme.SubTitleFont)
-							.Justification(ETextJustify::Center)
-						]
-
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							SNew(STextBlock)
-							.WrapTextAt(1.5 * Theme.ContentWidth)
-							.Text(LOCTEXT("EarlyAccess", "Helium Rain is in early access and will get better with your feedback. Tell us what you like or dislike ! \nYou can report issues on the Steam discussions, or directly to us at dev.helium-rain.com. We promise we'll listen. \nThank you !"))
-							.TextStyle(&Theme.NameFont)
-							.Justification(ETextJustify::Center)
-						]
-					]
-				]
-
-				// Border bottom
-				+ SVerticalBox::Slot()
-				.AutoHeight()
-				[
-					SNew(SBox)
-					.HeightOverride(2)
-					[
-						SNew(SImage)
-						.Image(&Theme.InvertedBrush)
-						.ColorAndOpacity(Theme.ObjectiveColor)
-					]
-				]
-			]
-		]
-
 		// Bottom bar
 		+ SVerticalBox::Slot()
 		.AutoHeight()
