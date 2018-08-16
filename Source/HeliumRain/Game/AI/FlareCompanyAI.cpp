@@ -191,6 +191,18 @@ void UFlareCompanyAI::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 {
 }
 
+void UFlareCompanyAI::UpdateIdleShipsStats(AITradeIdleShips& IdleShips)
+{
+	IdleCargoCapacity = 0;
+
+	for(IdleShip& Ship : IdleShips.Ships)
+	{
+		if(Ship.Ship->GetCompany() == Company)
+		{
+			IdleCargoCapacity += Ship.Capacity;
+		}
+	}
+}
 
 /*----------------------------------------------------
 	Internal subsystems

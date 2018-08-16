@@ -104,9 +104,6 @@ void UFlareAIBehavior::SimulateGeneralBehavior()
 
 	Company->GetAI()->ProcessBudget(Company->GetAI()->AllBudgets);
 
-	// Buy ships
-	//Company->GetAI()->UpdateShipAcquisition(IdleCargoCapacity);
-
 	Company->GetAI()->UpdateMilitaryMovement();
 }
 

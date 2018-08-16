@@ -72,17 +72,34 @@ struct AITradeSource
 	UFlareCompany* Company;
 	UFlareSimulatedSector* Sector;
 	int32 Quantity;
+
+
 };
+
+inline bool operator==(const AITradeSource& lhs, const AITradeSource& rhs){
+	return lhs.Ship == rhs.Ship
+			&& lhs.Station == rhs.Station
+			&& lhs.Company == rhs.Company
+			&& lhs.Sector == rhs.Sector;
+}
 
 struct AITradeSourcesByResourceSector
 {
-	TArray<AITradeSource*> GetSourcePerCompany(UFlareCompany* Company);
+	TArray<AITradeSource*>& GetSourcePerCompany(UFlareCompany* Company);
+
+	void ConsumeSource(AITradeSource*);
+
+	TMap<UFlareCompany*, TArray<AITradeSource*>> SourcesPerCompany;
 };
 
 
 struct AITradeSourcesByResource
 {
 	AITradeSourcesByResourceSector& GetSourcesPerSector(UFlareSimulatedSector* Sector);
+
+	void ConsumeSource(AITradeSource*);
+
+	TMap<UFlareSimulatedSector*, AITradeSourcesByResourceSector> SourcesPerSector;
 };
 
 
@@ -93,11 +110,39 @@ struct AITradeSources
 	void ConsumeSource(AITradeSource*, int32 Quantity);
 
 	AITradeSourcesByResource& GetSourcesPerResource(FFlareResourceDescription* Resource);
+
+	TArray<AITradeSource> Sources;
+
+	TMap<FFlareResourceDescription*, AITradeSourcesByResource> SourcesPerResource;
+};
+
+struct IdleShip
+{
+	UFlareSimulatedSpacecraft* Ship;
+	int32 Capacity;
+
+};
+
+inline bool operator==(const IdleShip& lhs, const IdleShip& rhs){ return lhs.Ship == rhs.Ship;}
+
+struct AITradeIdleShipsBySector
+{
+	TArray<IdleShip*>& GetSourcePerCompany(UFlareCompany* Company);
+
+	void ConsumeShip(IdleShip* Ship);
+
+	TMap<UFlareCompany*, TArray<IdleShip*>> ShipsPerCompany;
 };
 
 struct AITradeIdleShips
 {
-	void ConsumeShip(UFlareSimulatedSpacecraft* Ship);
+	void ConsumeShip(IdleShip* Ship);
+
+	AITradeIdleShipsBySector& GetShipsPerSector(UFlareSimulatedSector* Sector);
+
+	TMap<UFlareSimulatedSector*, AITradeIdleShipsBySector> ShipsPerSector;
+
+	TArray<IdleShip> Ships;
 };
 
 struct AITradeHelper
@@ -125,5 +170,5 @@ struct AITradeHelper
 
 	static AITradeSource* FindBestSource(AITradeSources& Sources, FFlareResourceDescription* Resource, UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 NeededQuantity, size_t FunctionIndex);
 
-	static UFlareSimulatedSpacecraft* FindBestShip(AITradeIdleShips& IdleShips, UFlareSimulatedSector* Sector, UFlareCompany* SourceCompany, UFlareCompany* NeedCompany);
+	static IdleShip* FindBestShip(AITradeIdleShips& IdleShips, UFlareSimulatedSector* Sector, UFlareCompany* SourceCompany, UFlareCompany* NeedCompany, int32 NeedQuantity);
 };
