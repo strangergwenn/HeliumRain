@@ -1859,7 +1859,7 @@ TMap<FFlareResourceDescription*, int32> UFlareSimulatedSector::DistributeResourc
 		TArray<FFlareResourceDescription*> ResourcesToDrop;
 		for(auto Resource : Resources)
 		{
-			int32 GivenQuantity = Spacecraft->GetActiveCargoBay()->GiveResources(Resource.Key, Resource.Value, nullptr);
+			int32 GivenQuantity = Spacecraft->GetActiveCargoBay()->GiveResources(Resource.Key, Resource.Value, Spacecraft->GetCompany());
 
 			Transactions.Add(Transaction(Spacecraft, Resource.Key, GivenQuantity));
 			Resource.Value -= GivenQuantity;
@@ -1918,7 +1918,7 @@ TMap<FFlareResourceDescription*, int32> UFlareSimulatedSector::DistributeResourc
 	{
 		for(Transaction TransactionRef : Transactions)
 		{
-			TransactionRef.Spacecraft->GetActiveCargoBay()->TakeResources(TransactionRef.Resource, TransactionRef.Quantity, nullptr);
+			TransactionRef.Spacecraft->GetActiveCargoBay()->TakeResources(TransactionRef.Resource, TransactionRef.Quantity, TransactionRef.Spacecraft->GetCompany());
 		}
 	}
 

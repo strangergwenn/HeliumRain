@@ -1250,9 +1250,9 @@ void UFlareSimulatedSpacecraft::AutoFillConstructionCargoBay()
 	{
 		if(Slot.Lock == EFlareResourceLock::Input)
 		{
-			int32 MissingQuantity = Construction->GetFreeSpaceForResource(Slot.Resource, nullptr, true);
-			int32 TakenQuantity = Production->TakeResources(Slot.Resource, MissingQuantity, nullptr);
-			Construction->GiveResources(Slot.Resource, TakenQuantity, nullptr);
+			int32 MissingQuantity = Construction->GetFreeSpaceForResource(Slot.Resource, GetCompany(), true);
+			int32 TakenQuantity = Production->TakeResources(Slot.Resource, MissingQuantity, GetCompany());
+			Construction->GiveResources(Slot.Resource, TakenQuantity, GetCompany());
 		}
 	}
 }
@@ -1580,7 +1580,7 @@ void UFlareSimulatedSpacecraft::UpdateShipyardProduction()
 
 		for (const FFlareFactoryResource& InputResource : ProductionData.InputResources)
 		{
-			if(InputResource.Quantity > GetActiveCargoBay()->GetResourceQuantity(&InputResource.Resource->Data, nullptr))
+			if(InputResource.Quantity > GetActiveCargoBay()->GetResourceQuantity(&InputResource.Resource->Data, GetCompany()))
 			{
 				// Missing resources, stop all
 				MissingResource = true;
