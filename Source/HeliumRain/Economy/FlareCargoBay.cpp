@@ -411,7 +411,7 @@ int32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource, U
 		}
 	}
 
-	if(Client && !Client->IsPlayerCompany())
+	if((Client && !Client->IsPlayerCompany())  && Parent->GetGame()->GetQuestManager() != nullptr)
 	{
 		int32 ReservedQuantity = Parent->GetGame()->GetQuestManager()->GetReservedQuantity(Parent, Resource);
 		int32 QuantityAfterReservation = FMath::Max(0, Quantity - ReservedQuantity);
@@ -454,7 +454,7 @@ int32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resourc
 	}
 
 
-	if(!Client || !Client->IsPlayerCompany())
+	if((!Client || !Client->IsPlayerCompany()) && Parent->GetGame()->GetQuestManager() != nullptr)
 	{
 		int32 ReservedCapacity = Parent->GetGame()->GetQuestManager()->GetReservedCapacity(Parent, Resource);
 		int32 CapacityAfterReservation = FMath::Max(0, Quantity - ReservedCapacity);

@@ -87,32 +87,50 @@ inline bool operator==(const AITradeSource& lhs, const AITradeSource& rhs){
 			&& lhs.Sector == rhs.Sector;
 }
 
-struct AITradeSourcesByResourceSector
+struct AITradeSourcesByResourceLocation
 {
+	AITradeSourcesByResourceLocation(UFlareWorld* World);
+
 	TArray<AITradeSource*>& GetSourcePerCompany(UFlareCompany* Company);
+
+	TArray<AITradeSource*>& GetSources();
 
 	void ConsumeSource(AITradeSource*);
 
 	void Add(AITradeSource* Source);
 
 	TMap<UFlareCompany*, TArray<AITradeSource*>> SourcesPerCompany;
+	TArray<AITradeSource*> Sources;
 };
 
 
 struct AITradeSourcesByResource
 {
-	AITradeSourcesByResourceSector& GetSourcesPerSector(UFlareSimulatedSector* Sector);
+	AITradeSourcesByResource(UFlareWorld* World);
+
+	AITradeSourcesByResourceLocation& GetSourcesPerSector(UFlareSimulatedSector* Sector);
+
+	AITradeSourcesByResourceLocation& GetSourcesPerMoon(FName Moon);
+
+	TArray<AITradeSource*>& GetSourcePerCompany(UFlareCompany* Company);
+
+	TArray<AITradeSource*>& GetSources();
 
 	void ConsumeSource(AITradeSource*);
 
 	void Add(AITradeSource* Source);
 
-	TMap<UFlareSimulatedSector*, AITradeSourcesByResourceSector> SourcesPerSector;
+	TMap<UFlareSimulatedSector*, AITradeSourcesByResourceLocation> SourcesPerSector;
+	TMap<FName, AITradeSourcesByResourceLocation> SourcesPerMoon;
+	TMap<UFlareCompany*, TArray<AITradeSource*>> SourcesPerCompany;
+	TArray<AITradeSource*> Sources;
 };
 
 
 struct AITradeSources
 {
+	AITradeSources(UFlareWorld* World);
+
 	void ConsumeSource(AITradeSource*);
 
 	void ConsumeSource(AITradeSource*, int32 Quantity);
@@ -139,26 +157,41 @@ struct AIIdleShip
 
 inline bool operator==(const AIIdleShip& lhs, const AIIdleShip& rhs){ return lhs.Ship == rhs.Ship;}
 
-struct AITradeIdleShipsBySector
+struct AITradeIdleShipsByLocation
 {
-	TArray<AIIdleShip*>& GetSourcePerCompany(UFlareCompany* Company);
+	AITradeIdleShipsByLocation(UFlareWorld* World);
+
+	TArray<AIIdleShip*>& GetShipsPerCompany(UFlareCompany* Company);
+
+	TArray<AIIdleShip*>& GetShips();
 
 	void ConsumeShip(AIIdleShip* Ship);
 
 	void Add(AIIdleShip* Ship);
 
 	TMap<UFlareCompany*, TArray<AIIdleShip*>> ShipsPerCompany;
+	TArray<AIIdleShip*> Ships;
 };
 
 struct AITradeIdleShips
 {
+	AITradeIdleShips(UFlareWorld* World);
+
 	void ConsumeShip(AIIdleShip* Ship);
 
-	AITradeIdleShipsBySector& GetShipsPerSector(UFlareSimulatedSector* Sector);
+	AITradeIdleShipsByLocation& GetShipsPerSector(UFlareSimulatedSector* Sector);
 
-	TMap<UFlareSimulatedSector*, AITradeIdleShipsBySector> ShipsPerSector;
+	AITradeIdleShipsByLocation& GetShipsPerMoon(FName Moon);
+
+	TArray<AIIdleShip*>& GetShipsPerCompany(UFlareCompany* Company);
+
+	TMap<UFlareSimulatedSector*, AITradeIdleShipsByLocation> ShipsPerSector;
+	TMap<FName, AITradeIdleShipsByLocation> ShipsPerMoon;
+	TMap<UFlareCompany*, TArray<AIIdleShip*>> ShipsPerCompany;
 
 	void Add(AIIdleShip const& Ship);
+
+	TArray<AIIdleShip>& GetShips();
 
 	TArray<AIIdleShip> Ships;
 };

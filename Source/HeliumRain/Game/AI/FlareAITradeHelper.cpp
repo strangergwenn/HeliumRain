@@ -1002,7 +1002,7 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 	return SectorVariation;
 }
 
-
+// New trading
 AITradeNeeds AITradeHelper::GenerateTradingNeeds(UFlareWorld* World)
 {
 	AITradeNeeds Needs;
@@ -1041,7 +1041,7 @@ AITradeNeeds AITradeHelper::GenerateTradingNeeds(UFlareWorld* World)
 
 AITradeSources AITradeHelper::GenerateTradingSources(UFlareWorld* World)
 {
-	AITradeSources Sources;
+	AITradeSources Sources(World);
 
 	for(UFlareCompany* Company : World->GetCompanies())
 	{
@@ -1119,7 +1119,7 @@ AITradeSources AITradeHelper::GenerateTradingSources(UFlareWorld* World)
 
 AITradeIdleShips AITradeHelper::GenerateIdleShips(UFlareWorld* World)
 {
-	AITradeIdleShips Ships;
+	AITradeIdleShips Ships(World);
 
 	for(UFlareCompany* Company : World->GetCompanies())
 	{
@@ -1148,6 +1148,7 @@ AITradeIdleShips AITradeHelper::GenerateIdleShips(UFlareWorld* World)
 			bool Traveling = Ship->GetCurrentFleet()->IsTraveling();
 
 			AIIdleShip IdleShip;
+			IdleShip.Company = Ship->GetCompany();
 			IdleShip.Capacity = Ship->GetActiveCargoBay()->GetCapacity();
 			IdleShip.Ship = Ship;
 			IdleShip.Sector = Traveling ? Ship->GetCurrentFleet()->GetCurrentTravel()->GetDestinationSector() : Ship->GetCurrentSector();
@@ -1293,9 +1294,10 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		// Sub Priority ...
 
 		// Owned local cargo
-		Functions[0] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		int32 InitFunctionIndex = 0;
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
 		{
-			AITradeSourcesByResourceSector& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
 
 			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSourcePerCompany(iCompany);
 
@@ -1337,9 +1339,810 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 			return BestSource;
 		};
 
-		// TODO other funtions
-		// TODO Check Stranded
-		// TODO Check traveling
+		// Owned incoming cargo
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSourcePerCompany(iCompany);
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Ship == nullptr)
+				{
+					// Not cargo, skip
+					continue;
+				}
+
+				if(Source->Stranded)
+				{
+					continue;
+				}
+
+				if(!Source->Traveling)
+				{
+					// Not traveling
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Owned cargo in moon
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSourcePerCompany(iCompany);
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Ship == nullptr)
+				{
+					// Not cargo, skip
+					continue;
+				}
+
+				if(Source->Stranded)
+				{
+					continue;
+				}
+
+				if(Source->Traveling)
+				{
+					// Not local
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Owned incoming in moon
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSourcePerCompany(iCompany);
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Ship == nullptr)
+				{
+					// Not cargo, skip
+					continue;
+				}
+
+				if(Source->Stranded)
+				{
+					continue;
+				}
+
+				if(!Source->Traveling)
+				{
+					// Not traveling
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Owned cargo in world
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			TArray<AITradeSource *>& SourcesByResourceCompany = iSourcesByResource.GetSourcePerCompany(iCompany);
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceCompany)
+			{
+				if(Source->Ship == nullptr)
+				{
+					// Not cargo, skip
+					continue;
+				}
+
+				if(Source->Stranded)
+				{
+					continue;
+				}
+
+				if(Source->Traveling)
+				{
+					// Not local
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Owned incoming in world
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			TArray<AITradeSource *>& SourcesByResourceCompany = iSourcesByResource.GetSourcePerCompany(iCompany);
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceCompany)
+			{
+				if(Source->Ship == nullptr)
+				{
+					// Not cargo, skip
+					continue;
+				}
+
+				if(Source->Stranded)
+				{
+					continue;
+				}
+
+				if(!Source->Traveling)
+				{
+					// Not traveling
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Owned local station
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSourcePerCompany(iCompany);
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Station == nullptr)
+				{
+					// Not station, skip
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Owned moon station
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSourcePerCompany(iCompany);
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Station == nullptr)
+				{
+					// Not station, skip
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Owned world station
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = iSourcesByResource.GetSourcePerCompany(iCompany);
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Station == nullptr)
+				{
+					// Not station, skip
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Other company sources
+		// Local cargo
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSources();
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Ship == nullptr)
+				{
+					// Not cargo, skip
+					continue;
+				}
+
+				if(iCompany->GetWarState(Source->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the source
+					continue;
+				}
+
+
+				if(Source->Traveling)
+				{
+					// Not local
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Incoming cargo
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSources();
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Ship == nullptr)
+				{
+					// Not cargo, skip
+					continue;
+				}
+
+				if(iCompany->GetWarState(Source->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the source
+					continue;
+				}
+
+				if(Source->Stranded)
+				{
+					continue;
+				}
+
+				if(!Source->Traveling)
+				{
+					// Not traveling
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Cargo in moon
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSources();
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Ship == nullptr)
+				{
+					// Not cargo, skip
+					continue;
+				}
+
+				if(iCompany->GetWarState(Source->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the source
+					continue;
+				}
+
+				if(Source->Stranded)
+				{
+					continue;
+				}
+
+				if(Source->Traveling)
+				{
+					// Not local
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Incoming in moon
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSources();
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Ship == nullptr)
+				{
+					// Not cargo, skip
+					continue;
+				}
+
+				if(iCompany->GetWarState(Source->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the source
+					continue;
+				}
+
+				if(Source->Stranded)
+				{
+					continue;
+				}
+
+				if(!Source->Traveling)
+				{
+					// Not traveling
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Cargo in world
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			TArray<AITradeSource *>& SourcesByResourceCompany = iSourcesByResource.GetSources();
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceCompany)
+			{
+				if(Source->Ship == nullptr)
+				{
+					// Not cargo, skip
+					continue;
+				}
+
+				if(iCompany->GetWarState(Source->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the source
+					continue;
+				}
+
+				if(Source->Stranded)
+				{
+					continue;
+				}
+
+				if(Source->Traveling)
+				{
+					// Not local
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Icoming in world
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			TArray<AITradeSource *>& SourcesByResourceCompany = iSourcesByResource.GetSources();
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceCompany)
+			{
+				if(Source->Ship == nullptr)
+				{
+					// Not cargo, skip
+					continue;
+				}
+
+				if(iCompany->GetWarState(Source->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the source
+					continue;
+				}
+
+				if(Source->Stranded)
+				{
+					continue;
+				}
+
+				if(!Source->Traveling)
+				{
+					// Not traveling
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Local station
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSources();
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Station == nullptr)
+				{
+					// Not station, skip
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Moon station
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSources();
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Station == nullptr)
+				{
+					// Not station, skip
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// World station
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		{
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = iSourcesByResource.GetSources();
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Station == nullptr)
+				{
+					// Not station, skip
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
 	}
 
 	AITradeSourcesByResource& SourcesByResource = Sources.GetSourcesPerResource(Resource);
@@ -1363,14 +2166,12 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 		//   Sub Priority 3 : cargo in same moon
 		//   Sub Priority 4 : cargo in world
 
-		// Priority 2 : source ships
-		// Sub Priority ...
-
-		// Priority 3 : others ships
+		// Priority 2 : others ships
 		// Sub Priority ...
 
 		// Owned local ship
-		Functions[0] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->IdleShip*
+		int32 FunctionIndex = 0;
+		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
 		{
 			if(iNeedCompany->GetWarState(iSourceCompany) == EFlareHostility::Hostile)
 			{
@@ -1378,15 +2179,19 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 				return nullptr;
 			}
 
-			AITradeIdleShipsBySector& IdleShipsBySector = iIdleShips.GetShipsPerSector(iSector);
+			AITradeIdleShipsByLocation& IdleShipsBySector = iIdleShips.GetShipsPerSector(iSector);
 
-			TArray<AIIdleShip*>& IdleShipsBySectorCompany = IdleShipsBySector.GetSourcePerCompany(iNeedCompany);
+			TArray<AIIdleShip*>& IdleShipsBySectorCompany = IdleShipsBySector.GetShipsPerCompany(iNeedCompany);
 
 
 			AIIdleShip* BestShip = nullptr;
 
 			for(AIIdleShip* IdleShip : IdleShipsBySectorCompany)
 			{
+				if(IdleShip->Traveling)
+				{
+					continue;
+				}
 
 				if(BestShip == nullptr)
 				{
@@ -1409,7 +2214,589 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 
 			return BestShip;
 		};
-		// TODO others
+
+		// Owned incoming ship
+		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
+		{
+			if(iNeedCompany->GetWarState(iSourceCompany) == EFlareHostility::Hostile)
+			{
+				// Cannot trade itself as ennemy of the source
+				return nullptr;
+			}
+
+			AITradeIdleShipsByLocation& IdleShipsBySector = iIdleShips.GetShipsPerSector(iSector);
+
+			TArray<AIIdleShip*>& IdleShipsBySectorCompany = IdleShipsBySector.GetShipsPerCompany(iNeedCompany);
+
+
+			AIIdleShip* BestShip = nullptr;
+
+			for(AIIdleShip* IdleShip : IdleShipsBySectorCompany)
+			{
+				if(!IdleShip->Traveling)
+				{
+					continue;
+				}
+
+				if(IdleShip->Stranded)
+				{
+					continue;
+				}
+
+				if(BestShip == nullptr)
+				{
+					BestShip = IdleShip;
+				}
+				else
+				{
+					if(IdleShip->Capacity < iNeededQuantity && BestShip->Capacity < IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but lower
+						BestShip = IdleShip;
+					}
+					else if(IdleShip->Capacity > iNeededQuantity && BestShip->Capacity > IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but higher
+						BestShip = IdleShip;
+					}
+				}
+			}
+
+			return BestShip;
+		};
+
+		// Owned ship in same moon
+		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
+		{
+			if(iNeedCompany->GetWarState(iSourceCompany) == EFlareHostility::Hostile)
+			{
+				// Cannot trade itself as ennemy of the source
+				return nullptr;
+			}
+
+			AITradeIdleShipsByLocation& IdleShipsByMoon = iIdleShips.GetShipsPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
+
+			TArray<AIIdleShip*>& IdleShipsBySectorCompany = IdleShipsByMoon.GetShipsPerCompany(iNeedCompany);
+
+
+			AIIdleShip* BestShip = nullptr;
+
+			for(AIIdleShip* IdleShip : IdleShipsBySectorCompany)
+			{
+				if(IdleShip->Traveling)
+				{
+					continue;
+				}
+
+				if(IdleShip->Stranded)
+				{
+					continue;
+				}
+
+				if(BestShip == nullptr)
+				{
+					BestShip = IdleShip;
+				}
+				else
+				{
+					if(IdleShip->Capacity < iNeededQuantity && BestShip->Capacity < IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but lower
+						BestShip = IdleShip;
+					}
+					else if(IdleShip->Capacity > iNeededQuantity && BestShip->Capacity > IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but higher
+						BestShip = IdleShip;
+					}
+				}
+			}
+
+			return BestShip;
+		};
+
+		// Owned travelling ship in same moon
+		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
+		{
+			if(iNeedCompany->GetWarState(iSourceCompany) == EFlareHostility::Hostile)
+			{
+				// Cannot trade itself as ennemy of the source
+				return nullptr;
+			}
+
+			AITradeIdleShipsByLocation& IdleShipsByMoon = iIdleShips.GetShipsPerSector(iSector);
+
+			TArray<AIIdleShip*>& IdleShipsBySectorCompany = IdleShipsByMoon.GetShipsPerCompany(iNeedCompany);
+
+
+			AIIdleShip* BestShip = nullptr;
+
+			for(AIIdleShip* IdleShip : IdleShipsBySectorCompany)
+			{
+				if(!IdleShip->Traveling)
+				{
+					continue;
+				}
+
+				if(IdleShip->Stranded)
+				{
+					continue;
+				}
+
+				if(BestShip == nullptr)
+				{
+					BestShip = IdleShip;
+				}
+				else
+				{
+					if(IdleShip->Capacity < iNeededQuantity && BestShip->Capacity < IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but lower
+						BestShip = IdleShip;
+					}
+					else if(IdleShip->Capacity > iNeededQuantity && BestShip->Capacity > IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but higher
+						BestShip = IdleShip;
+					}
+				}
+			}
+
+			return BestShip;
+		};
+
+		// Owned ship in world
+		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
+		{
+			if(iNeedCompany->GetWarState(iSourceCompany) == EFlareHostility::Hostile)
+			{
+				// Cannot trade itself as ennemy of the source
+				return nullptr;
+			}
+
+
+			TArray<AIIdleShip*>& IdleShipsByCompany = iIdleShips.GetShipsPerCompany(iNeedCompany);
+
+
+			AIIdleShip* BestShip = nullptr;
+
+			for(AIIdleShip* IdleShip : IdleShipsByCompany)
+			{
+				if(IdleShip->Traveling)
+				{
+					continue;
+				}
+
+				if(IdleShip->Stranded)
+				{
+					continue;
+				}
+
+				if(BestShip == nullptr)
+				{
+					BestShip = IdleShip;
+				}
+				else
+				{
+					if(IdleShip->Capacity < iNeededQuantity && BestShip->Capacity < IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but lower
+						BestShip = IdleShip;
+					}
+					else if(IdleShip->Capacity > iNeededQuantity && BestShip->Capacity > IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but higher
+						BestShip = IdleShip;
+					}
+				}
+			}
+
+			return BestShip;
+		};
+
+		// Owned travelling ship in world
+		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
+		{
+			if(iNeedCompany->GetWarState(iSourceCompany) == EFlareHostility::Hostile)
+			{
+				// Cannot trade itself as ennemy of the source
+				return nullptr;
+			}
+
+
+			TArray<AIIdleShip*>& IdleShipsByCompany = iIdleShips.GetShipsPerCompany(iNeedCompany);
+
+
+			AIIdleShip* BestShip = nullptr;
+
+			for(AIIdleShip* IdleShip : IdleShipsByCompany)
+			{
+				if(!IdleShip->Traveling)
+				{
+					continue;
+				}
+
+				if(IdleShip->Stranded)
+				{
+					continue;
+				}
+
+				if(BestShip == nullptr)
+				{
+					BestShip = IdleShip;
+				}
+				else
+				{
+					if(IdleShip->Capacity < iNeededQuantity && BestShip->Capacity < IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but lower
+						BestShip = IdleShip;
+					}
+					else if(IdleShip->Capacity > iNeededQuantity && BestShip->Capacity > IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but higher
+						BestShip = IdleShip;
+					}
+				}
+			}
+
+			return BestShip;
+		};
+
+		// Others companies
+
+		// Local ship
+		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
+		{
+			AITradeIdleShipsByLocation& IdleShipsBySector = iIdleShips.GetShipsPerSector(iSector);
+
+			TArray<AIIdleShip*>& IdleShipsBySectorCompany = IdleShipsBySector.GetShips();
+
+
+			AIIdleShip* BestShip = nullptr;
+
+
+			for(AIIdleShip* IdleShip : IdleShipsBySectorCompany)
+			{
+				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the source
+					continue;
+				}
+
+				if(iNeedCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the need
+					continue;
+				}
+
+				if(IdleShip->Traveling)
+				{
+					continue;
+				}
+
+				if(BestShip == nullptr)
+				{
+					BestShip = IdleShip;
+				}
+				else
+				{
+					if(IdleShip->Capacity < iNeededQuantity && BestShip->Capacity < IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but lower
+						BestShip = IdleShip;
+					}
+					else if(IdleShip->Capacity > iNeededQuantity && BestShip->Capacity > IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but higher
+						BestShip = IdleShip;
+					}
+				}
+			}
+
+			return BestShip;
+		};
+
+		// Incoming ship
+		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
+		{
+			AITradeIdleShipsByLocation& IdleShipsBySector = iIdleShips.GetShipsPerSector(iSector);
+
+			TArray<AIIdleShip*>& IdleShipsBySectorCompany = IdleShipsBySector.GetShips();
+
+
+			AIIdleShip* BestShip = nullptr;
+
+
+			for(AIIdleShip* IdleShip : IdleShipsBySectorCompany)
+			{
+				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the source
+					continue;
+				}
+
+				if(iNeedCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the need
+					continue;
+				}
+
+				if(IdleShip->Stranded)
+				{
+					continue;
+				}
+
+				if(!IdleShip->Traveling)
+				{
+					continue;
+				}
+
+				if(BestShip == nullptr)
+				{
+					BestShip = IdleShip;
+				}
+				else
+				{
+					if(IdleShip->Capacity < iNeededQuantity && BestShip->Capacity < IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but lower
+						BestShip = IdleShip;
+					}
+					else if(IdleShip->Capacity > iNeededQuantity && BestShip->Capacity > IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but higher
+						BestShip = IdleShip;
+					}
+				}
+			}
+
+			return BestShip;
+		};
+
+		// Ship in same moon
+		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
+		{
+			AITradeIdleShipsByLocation& IdleShipsByMoon = iIdleShips.GetShipsPerSector(iSector);
+
+			TArray<AIIdleShip*>& IdleShipsBySectorCompany = IdleShipsByMoon.GetShips();
+
+
+			AIIdleShip* BestShip = nullptr;
+
+
+			for(AIIdleShip* IdleShip : IdleShipsBySectorCompany)
+			{
+				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the source
+					continue;
+				}
+
+
+
+				if(iNeedCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the need
+					continue;
+				}
+
+				if(IdleShip->Stranded)
+				{
+					continue;
+				}
+
+				if(IdleShip->Traveling)
+				{
+					continue;
+				}
+
+				if(BestShip == nullptr)
+				{
+					BestShip = IdleShip;
+				}
+				else
+				{
+					if(IdleShip->Capacity < iNeededQuantity && BestShip->Capacity < IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but lower
+						BestShip = IdleShip;
+					}
+					else if(IdleShip->Capacity > iNeededQuantity && BestShip->Capacity > IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but higher
+						BestShip = IdleShip;
+					}
+				}
+			}
+
+			return BestShip;
+		};
+
+		// Travelling ship in same moon
+		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
+		{
+			AITradeIdleShipsByLocation& IdleShipsByMoon = iIdleShips.GetShipsPerSector(iSector);
+
+			TArray<AIIdleShip*>& IdleShipsBySectorCompany = IdleShipsByMoon.GetShips();
+
+
+			AIIdleShip* BestShip = nullptr;
+
+
+			for(AIIdleShip* IdleShip : IdleShipsBySectorCompany)
+			{
+				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the source
+					continue;
+				}
+
+				if(iNeedCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the need
+					continue;
+				}
+
+				if(IdleShip->Stranded)
+				{
+					continue;
+				}
+
+				if(!IdleShip->Traveling)
+				{
+					continue;
+				}
+
+				if(BestShip == nullptr)
+				{
+					BestShip = IdleShip;
+				}
+				else
+				{
+					if(IdleShip->Capacity < iNeededQuantity && BestShip->Capacity < IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but lower
+						BestShip = IdleShip;
+					}
+					else if(IdleShip->Capacity > iNeededQuantity && BestShip->Capacity > IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but higher
+						BestShip = IdleShip;
+					}
+				}
+			}
+
+			return BestShip;
+		};
+
+		// Ship in world
+		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
+		{
+			TArray<AIIdleShip>& IdleShipsByCompany = iIdleShips.GetShips();
+
+
+			AIIdleShip* BestShip = nullptr;
+
+
+			for(AIIdleShip IdleShipRef : IdleShipsByCompany)
+			{
+				AIIdleShip* IdleShip = &IdleShipRef;
+				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the source
+					continue;
+				}
+
+				if(iNeedCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the need
+					continue;
+				}
+
+				if(IdleShip->Stranded)
+				{
+					continue;
+				}
+
+				if(IdleShip->Traveling)
+				{
+					continue;
+				}
+
+				if(BestShip == nullptr)
+				{
+					BestShip = IdleShip;
+				}
+				else
+				{
+					if(IdleShip->Capacity < iNeededQuantity && BestShip->Capacity < IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but lower
+						BestShip = IdleShip;
+					}
+					else if(IdleShip->Capacity > iNeededQuantity && BestShip->Capacity > IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but higher
+						BestShip = IdleShip;
+					}
+				}
+			}
+
+			return BestShip;
+		};
+
+		// Travelling ship in world
+		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
+		{
+			TArray<AIIdleShip>& IdleShipsByCompany = iIdleShips.GetShips();
+
+
+			AIIdleShip* BestShip = nullptr;
+
+
+			for(AIIdleShip IdleShipRef : IdleShipsByCompany)
+			{
+				AIIdleShip* IdleShip = &IdleShipRef;
+
+				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the source
+					continue;
+				}
+
+				if(iNeedCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				{
+					// Cannot trade itself as ennemy of the need
+					continue;
+				}
+
+				if(!IdleShip->Traveling)
+				{
+					continue;
+				}
+
+				if(BestShip == nullptr)
+				{
+					BestShip = IdleShip;
+				}
+				else
+				{
+					if(IdleShip->Capacity < iNeededQuantity && BestShip->Capacity < IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but lower
+						BestShip = IdleShip;
+					}
+					else if(IdleShip->Capacity > iNeededQuantity && BestShip->Capacity > IdleShip->Capacity)
+					{
+						// Closer to the needed quantiy but higher
+						BestShip = IdleShip;
+					}
+				}
+			}
+
+			return BestShip;
+		};
 	}
 
 	for(auto& Function : Functions)
@@ -1422,6 +2809,17 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 	}
 
 	return nullptr;
+}
+
+AITradeSources::AITradeSources(UFlareWorld* World)
+{
+	TArray<UFlareResourceCatalogEntry*>& Resources = World->GetGame()->GetResourceCatalog()->Resources;
+
+	for (int32 ResourceIndex = 0; ResourceIndex < Resources.Num(); ResourceIndex++)
+	{
+		FFlareResourceDescription* Resource = &Resources[ResourceIndex]->Data;
+		SourcesPerResource.Add(Resource, AITradeSourcesByResource(World));
+	}
 }
 
 void AITradeSources::ConsumeSource(AITradeSource* Source)
@@ -1447,14 +2845,28 @@ void AITradeSources::Add(AITradeSource const& Source)
 {
 	AITradeSource* NewSource = &Sources.Add_GetRef(Source);
 
-	if(!SourcesPerResource.Contains(Source.Resource))
-	{
-		SourcesPerResource.Emplace(Source.Resource);
-	}
-
 	SourcesPerResource[Source.Resource].Add(NewSource);
 }
 
+AITradeSourcesByResource::AITradeSourcesByResource(UFlareWorld* World)
+{
+	for(UFlareSimulatedSector* Sector : World->GetSectors())
+	{
+		SourcesPerSector.Add(Sector, AITradeSourcesByResourceLocation(World));
+
+		FName Moon = Sector->GetOrbitParameters()->CelestialBodyIdentifier;
+
+		if(!SourcesPerMoon.Contains(Moon))
+		{
+			SourcesPerMoon.Add(Moon, AITradeSourcesByResourceLocation(World));
+		}
+	}
+
+	for(UFlareCompany* Company : World->GetCompanies())
+	{
+		SourcesPerCompany.Emplace(Company);
+	}
+}
 
 AITradeSourcesByResource& AITradeSources::GetSourcesPerResource(FFlareResourceDescription* Resource)
 {
@@ -1463,15 +2875,17 @@ AITradeSourcesByResource& AITradeSources::GetSourcesPerResource(FFlareResourceDe
 
 void AITradeSourcesByResource::Add(AITradeSource* Source)
 {
-	if(!SourcesPerSector.Contains(Source->Sector))
-	{
-		SourcesPerSector.Emplace(Source->Sector);
-	}
-
 	SourcesPerSector[Source->Sector].Add(Source);
+
+	FName Moon = Source->Sector->GetOrbitParameters()->CelestialBodyIdentifier;
+	SourcesPerMoon[Moon].Add(Source);
+
+	SourcesPerCompany[Source->Company].Add(Source);
+
+	Sources.Add(Source);
 }
 
-AITradeSourcesByResourceSector& AITradeSourcesByResource::GetSourcesPerSector(UFlareSimulatedSector* Sector)
+AITradeSourcesByResourceLocation& AITradeSourcesByResource::GetSourcesPerSector(UFlareSimulatedSector* Sector)
 {
 	return SourcesPerSector[Sector];
 }
@@ -1482,28 +2896,78 @@ void AITradeSourcesByResource::ConsumeSource(AITradeSource* Source)
 	{
 		SourcePerSector.Value.ConsumeSource(Source);
 	}
-}
 
-void AITradeSourcesByResourceSector::Add(AITradeSource* Source)
-{
-	if(!SourcesPerCompany.Contains(Source->Company))
+	for(auto& SourcePerSector : SourcesPerMoon)
 	{
-		SourcesPerCompany.Emplace(Source->Company);
+		SourcePerSector.Value.ConsumeSource(Source);
 	}
 
-	SourcesPerCompany[Source->Company].Add(Source);
+	for(auto& SourcePerCompany : SourcesPerCompany)
+	{
+		SourcePerCompany.Value.Remove(Source);
+	}
+
+	Sources.Remove(Source);
 }
 
-TArray<AITradeSource*>& AITradeSourcesByResourceSector::GetSourcePerCompany(UFlareCompany* Company)
+AITradeSourcesByResourceLocation::AITradeSourcesByResourceLocation(UFlareWorld* World)
+{
+	for(UFlareCompany* Company : World->GetCompanies())
+	{
+		SourcesPerCompany.Emplace(Company);
+	}
+}
+
+
+void AITradeSourcesByResourceLocation::Add(AITradeSource* Source)
+{
+	SourcesPerCompany[Source->Company].Add(Source);
+
+	Sources.Add(Source);
+}
+
+
+
+TArray<AITradeSource*>& AITradeSourcesByResourceLocation::GetSourcePerCompany(UFlareCompany* Company)
 {
 	return SourcesPerCompany[Company];
 }
 
-void AITradeSourcesByResourceSector::ConsumeSource(AITradeSource* Source)
+TArray<AITradeSource*>& AITradeSourcesByResourceLocation::GetSources()
+{
+	return Sources;
+}
+
+
+void AITradeSourcesByResourceLocation::ConsumeSource(AITradeSource* Source)
 {
 	for(auto& SourcePerCompany : SourcesPerCompany)
 	{
 		SourcePerCompany.Value.Remove(Source);
+	}
+
+	Sources.Remove(Source);
+}
+
+AITradeIdleShips::AITradeIdleShips(UFlareWorld* World)
+{
+	for(UFlareSimulatedSector* Sector : World->GetSectors())
+	{
+		FLOGV(" - AITradeIdleShips sector emplace %s", *Sector->GetIdentifier().ToString());
+		ShipsPerSector.Add(Sector, AITradeIdleShipsByLocation(World));
+
+		FName Moon = Sector->GetOrbitParameters()->CelestialBodyIdentifier;
+
+		if(!ShipsPerMoon.Contains(Moon))
+		{
+			FLOGV(" - AITradeIdleShips moon emplace %s", *Moon.ToString());
+			ShipsPerMoon.Add(Moon, AITradeIdleShipsByLocation(World));
+		}
+	}
+
+	for(UFlareCompany* Company : World->GetCompanies())
+	{
+		ShipsPerCompany.Emplace(Company);
 	}
 }
 
@@ -1514,49 +2978,71 @@ void AITradeIdleShips::ConsumeShip(AIIdleShip* Ship)
 		ShipPerSector.Value.ConsumeShip(Ship);
 	}
 
+	for(auto& ShipPerSector : ShipsPerMoon)
+	{
+		ShipPerSector.Value.ConsumeShip(Ship);
+	}
+
+	for(auto& ShipPerCompany : ShipsPerCompany)
+	{
+		ShipPerCompany.Value.Remove(Ship);
+	}
+
 	Ships.Remove(*Ship);
 }
 
 void AITradeIdleShips::Add(AIIdleShip const& Ship)
 {
-	AITradeSource* NewShip = &Ships.Add_GetRef(Ship);
+	AIIdleShip* NewShip = &Ships.Add_GetRef(Ship);
 
+	ShipsPerSector[Ship.Sector].Add(NewShip);
 
-	if(!ShipsPerSector.Contains(Ship->Sector))
-	{
-		ShipsPerSector.Emplace(Ship->Sector);
-	}
+	FName Moon = Ship.Sector->GetOrbitParameters()->CelestialBodyIdentifier;
+	ShipsPerMoon[Moon].Add(NewShip);
 
-	ShipsPerSector[Ship->Sector].Add(NewShip);
+	ShipsPerCompany[NewShip->Company].Add(NewShip);
 }
 
-AITradeIdleShipsBySector& AITradeIdleShips::GetShipsPerSector(UFlareSimulatedSector* Sector)
+TArray<AIIdleShip>& AITradeIdleShips::GetShips()
+{
+	return Ships;
+}
+
+AITradeIdleShipsByLocation& AITradeIdleShips::GetShipsPerSector(UFlareSimulatedSector* Sector)
 {
 	return ShipsPerSector[Sector];
 }
 
-TArray<IdleShip*>& AITradeIdleShipsBySector::GetSourcePerCompany(UFlareCompany* Company)
+TArray<AIIdleShip*>& AITradeIdleShipsByLocation::GetShipsPerCompany(UFlareCompany* Company)
 {
 	return ShipsPerCompany[Company];
 }
 
-
-void AITradeIdleShipsBySector::Add(AIIdleShip* Ship)
+AITradeIdleShipsByLocation::AITradeIdleShipsByLocation(UFlareWorld* World)
 {
-	if(!ShipsPerCompany.Contains(Ship->Company))
+	for(UFlareCompany* Company : World->GetCompanies())
 	{
-		ShipsPerCompany.Emplace(Ship->Company);
+		FLOGV("   - AITradeIdleShipsByLocation emplace %s", *Company->GetIdentifier().ToString());
+		ShipsPerCompany.Emplace(Company);
 	}
-
-	ShipsPerCompany[Ship->Company].Add(Ship);
 }
 
-void AITradeIdleShipsBySector::ConsumeShip(AIIdleShip* Ship)
+void AITradeIdleShipsByLocation::Add(AIIdleShip* Ship)
+{
+	FLOGV("   - AITradeIdleShipsByLocation add ship from %s", *Ship->Company->GetIdentifier().ToString());
+	ShipsPerCompany[Ship->Company].Add(Ship);
+
+	Ships.Add(Ship);
+}
+
+void AITradeIdleShipsByLocation::ConsumeShip(AIIdleShip* Ship)
 {
 	for(auto& ShipPerCompany : ShipsPerCompany)
 	{
 		ShipPerCompany.Value.Remove(Ship);
 	}
+
+	Ships.Remove(Ship);
 }
 
 void AITradeNeed::Consume(int UsedQuantity)

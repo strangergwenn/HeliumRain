@@ -195,7 +195,7 @@ void UFlareCompanyAI::UpdateIdleShipsStats(AITradeIdleShips& IdleShips)
 {
 	IdleCargoCapacity = 0;
 
-	for(IdleShip& Ship : IdleShips.Ships)
+	for(AIIdleShip& Ship : IdleShips.Ships)
 	{
 		if(Ship.Ship->GetCompany() == Company)
 		{
