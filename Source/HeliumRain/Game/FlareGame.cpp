@@ -1311,18 +1311,28 @@ FText AFlareGame::PickSpacecraftName(UFlareCompany* OwnerCompany, bool IsStation
 				// Break up other name to transform "<name>-<type><number>" into "<name>-number>"
 				TArray<FString> NickNameParts;
 				OtherSpacecraft->GetNickName().ToString().ParseIntoArray(NickNameParts, TEXT("-"));
-				FString OtherName = NickNameParts[0];
+				FString OtherName;
 
-				// Extract index suffix from the candidate
-				if (OtherSpacecraft->IsStation() && NickNameParts.Num() == 3)
+				if (NickNameParts.Num())
 				{
-					OtherName += "-" + NickNameParts.Last();
-				}
-				else if (!OtherSpacecraft->IsStation() && NickNameParts.Num() == 2)
-				{
-					OtherName += "-" + NickNameParts.Last();
-				}
+					OtherName = NickNameParts[0];
+
+					// Extract index suffix from the candidate
+					if (OtherSpacecraft->IsStation() && NickNameParts.Num() == 3)
+					{
+						OtherName += "-" + NickNameParts.Last();
+					}
+					else if (!OtherSpacecraft->IsStation() && NickNameParts.Num() == 2)
+					{
+						OtherName += "-" + NickNameParts.Last();
+					}
 				
+				}
+				else
+				{
+					OtherName = OtherSpacecraft->GetNickName().ToString();
+				}
+
 				if (OtherName == CandidateName)
 				{
 					Unique = false;
