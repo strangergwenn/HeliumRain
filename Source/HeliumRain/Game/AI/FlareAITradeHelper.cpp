@@ -15,6 +15,10 @@ DECLARE_CYCLE_STAT(TEXT("AITradeHelper FindBestDealForShip Loop"), STAT_AITradeH
 DECLARE_CYCLE_STAT(TEXT("AITradeHelper ApplyDeal"), STAT_AITradeHelper_ApplyDeal, STATGROUP_Flare);
 
 
+
+
+
+
 TArray<UFlareSimulatedSpacecraft*> AITradeHelper::FindIdleCargos(UFlareCompany* Company)
 {
 	TArray<UFlareSimulatedSpacecraft*> IdleCargos;
@@ -1047,6 +1051,12 @@ void AITradeHelper::GenerateTradingSources(AITradeSources& Sources, UFlareWorld*
 
 				if(Station->GetActiveCargoBay()->WantSell(Resource, nullptr))
 				{
+					if(Station->GetActiveCargoBay()->WantBuy(Resource, nullptr))
+					{
+						// Trade to not use as source
+						continue;
+					}
+
 					int32 Quantity = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, nullptr);
 					if(Quantity > 0)
 					{
@@ -1150,6 +1160,8 @@ void AITradeHelper::GenerateIdleShips(AITradeIdleShips& Ships, UFlareWorld* Worl
 	}
 
 	Ships.GenerateCache();
+
+
 }
 
 
@@ -2820,6 +2832,22 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 	return nullptr;
 }
 
+void AITradeNeeds::Print()
+{
+	FLOGV("AITradeNeeds : %d needs", List.Num())
+	for(AITradeNeed& Need: List)
+	{
+		FLOGV(" - %s %s in %s: %d/%d %s",
+			  *Need.Company->GetCompanyName().ToString(),
+			  *Need.Station->GetImmatriculation().ToString(),
+			  *Need.Sector->GetSectorName().ToString(),
+			  Need.Quantity,
+			  Need.TotalCapacity,
+			  *Need.Resource->Name.ToString()
+			  );
+	}
+}
+
 AITradeSources::AITradeSources(UFlareWorld* World)
 {
 	TArray<UFlareResourceCatalogEntry*>& Resources = World->GetGame()->GetResourceCatalog()->Resources;
@@ -2833,12 +2861,50 @@ AITradeSources::AITradeSources(UFlareWorld* World)
 	SourceCount = 0;
 }
 
+#if DEBUG_NEW_AI_TRADING
+void AITradeSources::Print()
+{
+	FLOGV("AITradeSources : %d sources", SourcesPtr.Num())
+
+	for(AITradeSource* Source: SourcesPtr)
+	{
+		if(Source->Station)
+		{
+			FLOGV(" - %s station %s in %s: %d %s",
+				  *Source->Company->GetCompanyName().ToString(),
+				  *Source->Station->GetImmatriculation().ToString(),
+				  *Source->Sector->GetSectorName().ToString(),
+				  Source->Quantity,
+				  *Source->Resource->Name.ToString()
+				  );
+		}
+
+		if(Source->Ship)
+		{
+			FLOGV(" - %s ship %s in %s: %d %s (stranded: %d, travelling: %d)",
+				  *Source->Company->GetCompanyName().ToString(),
+				  *Source->Ship->GetImmatriculation().ToString(),
+				  *Source->Sector->GetSectorName().ToString(),
+				  Source->Quantity,
+				  *Source->Resource->Name.ToString(),
+				  Source->Stranded,
+				  Source->Traveling
+				  );
+		}
+	}
+}
+#endif
+
 void AITradeSources::ConsumeSource(AITradeSource* Source)
 {
 	for(auto& SourcePerResource : SourcesPerResource)
 	{
 		SourcePerResource.Value.ConsumeSource(Source);
 	}
+
+#if DEBUG_NEW_AI_TRADING
+	SourcesPtr.Remove(Source);
+#endif
 
 	SourceCount--;
 	//FLOGV("AITradeSources::ConsumeSource %p nbSource=%d/%d", Source, SourceCount, Sources.Num());
@@ -2864,6 +2930,9 @@ void AITradeSources::GenerateCache()
 	{
 		SourceCount++;
 		SourcesPerResource[Source.Resource].Add(&Source);
+#if DEBUG_NEW_AI_TRADING
+		SourcesPtr.Add(&Source);
+#endif
 	}
 }
 
@@ -3002,6 +3071,23 @@ AITradeIdleShips::AITradeIdleShips(UFlareWorld* World)
 	for(UFlareCompany* Company : World->GetCompanies())
 	{
 		ShipsPerCompany.Emplace(Company);
+	}
+}
+
+void AITradeIdleShips::Print()
+{
+	FLOGV("AITradeIdleShips : %d idle ships", ShipsPtr.Num())
+
+	for(AIIdleShip* Ship: ShipsPtr)
+	{
+		FLOGV(" - %s %s in %s: %d free space (stranded: %d, travelling: %d)",
+				*Ship->Company->GetCompanyName().ToString(),
+				*Ship->Ship->GetImmatriculation().ToString(),
+				*Ship->Sector->GetSectorName().ToString(),
+				Ship->Capacity,
+				Ship->Stranded,
+				Ship->Traveling
+				  );
 	}
 }
 

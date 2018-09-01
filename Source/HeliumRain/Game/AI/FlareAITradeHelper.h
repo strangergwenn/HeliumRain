@@ -3,6 +3,9 @@
 #include "Object.h"
 #include "../FlareGameTypes.h"
 
+#define DEBUG_NEW_AI_TRADING 1
+
+
 class UFlareWorld;
 
 /* Inter-sector trade deal */
@@ -65,6 +68,8 @@ struct AITradeNeed
 struct AITradeNeeds
 {
 	TArray<AITradeNeed> List;
+
+	void Print();
 };
 
 
@@ -142,7 +147,13 @@ struct AITradeSources
 
 
 	TArray<AITradeSource> Sources;
+#if DEBUG_NEW_AI_TRADING
+	TArray<AITradeSource*> SourcesPtr;
+	void Print();
+#endif
 	size_t SourceCount;
+
+
 
 	TMap<FFlareResourceDescription*, AITradeSourcesByResource> SourcesPerResource;
 };
@@ -195,6 +206,7 @@ struct AITradeIdleShips
 	void Add(AIIdleShip const& Ship);
 	void GenerateCache();
 
+	void Print();
 
 	TArray<AIIdleShip*>& GetShips();
 

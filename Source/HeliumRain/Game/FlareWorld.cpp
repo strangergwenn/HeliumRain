@@ -503,7 +503,21 @@ void UFlareWorld::Simulate()
 	AITradeHelper::GenerateTradingSources(Sources, this);
 	AITradeHelper::GenerateIdleShips(IdleShips, this);
 
+#if DEBUG_NEW_AI_TRADING
+	FLOG("Initial trading stat");
+	Needs.Print();
+	Sources.Print();
+	IdleShips.Print();
+#endif
+
 	AITradeHelper::ComputeGlobalTrading(this, Needs, Sources, IdleShips);
+
+#if DEBUG_NEW_AI_TRADING
+	FLOG("Final trading stat");
+	Needs.Print();
+	Sources.Print();
+	IdleShips.Print();
+#endif
 
 	for(UFlareCompany* Company: Companies)
 	{
