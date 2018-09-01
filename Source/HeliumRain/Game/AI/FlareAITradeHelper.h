@@ -138,8 +138,11 @@ struct AITradeSources
 	AITradeSourcesByResource& GetSourcesPerResource(FFlareResourceDescription* Resource);
 
 	void Add(AITradeSource const& Source);
+	void GenerateCache();
+
 
 	TArray<AITradeSource> Sources;
+	size_t SourceCount;
 
 	TMap<FFlareResourceDescription*, AITradeSourcesByResource> SourcesPerResource;
 };
@@ -190,9 +193,12 @@ struct AITradeIdleShips
 	TMap<UFlareCompany*, TArray<AIIdleShip*>> ShipsPerCompany;
 
 	void Add(AIIdleShip const& Ship);
+	void GenerateCache();
 
-	TArray<AIIdleShip>& GetShips();
 
+	TArray<AIIdleShip*>& GetShips();
+
+	TArray<AIIdleShip*> ShipsPtr;
 	TArray<AIIdleShip> Ships;
 };
 
@@ -209,11 +215,11 @@ struct AITradeHelper
 	/** Get the resource flow in this sector */
 	static SectorVariation ComputeSectorResourceVariation(UFlareCompany* Company, UFlareSimulatedSector* Sector);
 
-	static AITradeNeeds GenerateTradingNeeds(UFlareWorld* World);
+	static void GenerateTradingNeeds(AITradeNeeds& Needs, UFlareWorld* World);
 
-	static AITradeSources GenerateTradingSources(UFlareWorld* World);
+	static void GenerateTradingSources(AITradeSources& Sources, UFlareWorld* World);
 
-	static AITradeIdleShips GenerateIdleShips(UFlareWorld* World);
+	static void GenerateIdleShips(AITradeIdleShips& Ships, UFlareWorld* World);
 
 	static void ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs, AITradeSources& Sources, AITradeIdleShips& IdleShips);
 

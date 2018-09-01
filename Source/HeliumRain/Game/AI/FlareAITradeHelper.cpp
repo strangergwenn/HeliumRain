@@ -1003,10 +1003,8 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 }
 
 // New trading
-AITradeNeeds AITradeHelper::GenerateTradingNeeds(UFlareWorld* World)
+void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, UFlareWorld* World)
 {
-	AITradeNeeds Needs;
-
 	for(UFlareCompany* Company : World->GetCompanies())
 	{
 		for(UFlareSimulatedSpacecraft* Station : Company->GetCompanyStations())
@@ -1035,14 +1033,10 @@ AITradeNeeds AITradeHelper::GenerateTradingNeeds(UFlareWorld* World)
 			}
 		}
 	}
-
-	return Needs;
 }
 
-AITradeSources AITradeHelper::GenerateTradingSources(UFlareWorld* World)
+void AITradeHelper::GenerateTradingSources(AITradeSources& Sources, UFlareWorld* World)
 {
-	AITradeSources Sources(World);
-
 	for(UFlareCompany* Company : World->GetCompanies())
 	{
 		for(UFlareSimulatedSpacecraft* Station : Company->GetCompanyStations())
@@ -1113,14 +1107,11 @@ AITradeSources AITradeHelper::GenerateTradingSources(UFlareWorld* World)
 			}
 		}
 	}
-
-	return Sources;
+	Sources.GenerateCache();
 }
 
-AITradeIdleShips AITradeHelper::GenerateIdleShips(UFlareWorld* World)
+void AITradeHelper::GenerateIdleShips(AITradeIdleShips& Ships, UFlareWorld* World)
 {
-	AITradeIdleShips Ships(World);
-
 	for(UFlareCompany* Company : World->GetCompanies())
 	{
 		if(Company->IsPlayerCompany())
@@ -1158,7 +1149,7 @@ AITradeIdleShips AITradeHelper::GenerateIdleShips(UFlareWorld* World)
 		}
 	}
 
-	return Ships;
+	Ships.GenerateCache();
 }
 
 
@@ -1167,7 +1158,9 @@ inline static bool NeedComparatorComparator(const AITradeNeed& n1, const AITrade
 	return n1.Ratio > n2.Ratio;
 }
 
-#define SourceFunctionCount 14
+
+
+#define SourceFunctionCount 18
 #define IdleShipFunctionCount 12
 
 void AITradeHelper::ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs, AITradeSources& Sources, AITradeIdleShips& IdleShips)
@@ -1199,8 +1192,12 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 {
 	AITradeSource* Source = FindBestSource(Sources, Need.Resource, Need.Sector, Need.Company, Need.Quantity, Need.SourceFunctionIndex);
 
+
+
+
 	if(Source == nullptr)
 	{
+		//FLOG("No best source");
 		// No possible source, don't keep
 		Need.SourceFunctionIndex++;
 
@@ -1212,15 +1209,21 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 		return false;
 	}
 
+	//FLOGV("Best source %p Ship=%p Station=%p", Source, Source->Ship, Source->Station);
+
 	int32 UsedQuantity = 0;
 
 	if(Source->Ship != nullptr)
 	{
+		//FLOG("Consume source Ship");
+
 		// Source in ship, consume source and process transfer
 		Sources.ConsumeSource(Source);
 		UsedQuantity = FMath::Min(Need.Quantity, Source->Quantity);
 
 		SectorDeal Deal;
+		Deal.BuyQuantity = 0;
+		Deal.Resource = Source->Resource;
 		Deal.SectorA = Need.Sector;
 		Deal.SectorB = Need.Sector;
 		Deal.BuyStation = nullptr;
@@ -1230,7 +1233,11 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 	}
 	else
 	{
+
+
 		AIIdleShip* IdleShip = FindBestShip(IdleShips, Source->Sector, Source->Company, Need.Company, Need.Quantity);
+
+		//FLOGV("Station IdleShip=%p", IdleShip);
 
 		if(IdleShip == nullptr)
 		{
@@ -1245,6 +1252,7 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 
 
 		SectorDeal Deal;
+		Deal.Resource = Source->Resource;
 		Deal.SectorA = Source->Sector;
 		Deal.SectorB = Need.Sector;
 		Deal.BuyStation = Source->Station;
@@ -1275,6 +1283,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 	static std::function<AITradeSource* (AITradeSourcesByResource&, UFlareSimulatedSector*, UFlareCompany*, int32)> Functions[SourceFunctionCount];
 	static bool FunctionsInit = false;
 
+	//FLOGV("FindBestSource nbSource=%d FunctionIndex=%d", Sources.SourceCount, FunctionIndex);
 
 	if(!FunctionsInit)
 	{
@@ -2143,6 +2152,8 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 
 			return BestSource;
 		};
+
+		FCHECK(SourceFunctionCount == InitFunctionIndex);
 	}
 
 	AITradeSourcesByResource& SourcesByResource = Sources.GetSourcesPerResource(Resource);
@@ -2693,15 +2704,13 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 		// Ship in world
 		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
 		{
-			TArray<AIIdleShip>& IdleShipsByCompany = iIdleShips.GetShips();
+			TArray<AIIdleShip*>& IdleShipsByCompany = iIdleShips.GetShips();
 
 
 			AIIdleShip* BestShip = nullptr;
 
-
-			for(AIIdleShip IdleShipRef : IdleShipsByCompany)
+			for(AIIdleShip* IdleShip : IdleShipsByCompany)
 			{
-				AIIdleShip* IdleShip = &IdleShipRef;
 				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
@@ -2749,16 +2758,14 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 		// Travelling ship in world
 		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
 		{
-			TArray<AIIdleShip>& IdleShipsByCompany = iIdleShips.GetShips();
+			TArray<AIIdleShip*>& IdleShipsByCompany = iIdleShips.GetShips();
 
 
 			AIIdleShip* BestShip = nullptr;
 
 
-			for(AIIdleShip IdleShipRef : IdleShipsByCompany)
+			for(AIIdleShip* IdleShip : IdleShipsByCompany)
 			{
-				AIIdleShip* IdleShip = &IdleShipRef;
-
 				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
@@ -2797,6 +2804,8 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 
 			return BestShip;
 		};
+
+		FCHECK(IdleShipFunctionCount == FunctionIndex);
 	}
 
 	for(auto& Function : Functions)
@@ -2820,6 +2829,8 @@ AITradeSources::AITradeSources(UFlareWorld* World)
 		FFlareResourceDescription* Resource = &Resources[ResourceIndex]->Data;
 		SourcesPerResource.Add(Resource, AITradeSourcesByResource(World));
 	}
+
+	SourceCount = 0;
 }
 
 void AITradeSources::ConsumeSource(AITradeSource* Source)
@@ -2829,7 +2840,8 @@ void AITradeSources::ConsumeSource(AITradeSource* Source)
 		SourcePerResource.Value.ConsumeSource(Source);
 	}
 
-	Sources.Remove(*Source);
+	SourceCount--;
+	//FLOGV("AITradeSources::ConsumeSource %p nbSource=%d/%d", Source, SourceCount, Sources.Num());
 }
 
 void AITradeSources::ConsumeSource(AITradeSource* Source, int32 Quantity)
@@ -2843,10 +2855,18 @@ void AITradeSources::ConsumeSource(AITradeSource* Source, int32 Quantity)
 
 void AITradeSources::Add(AITradeSource const& Source)
 {
-	AITradeSource* NewSource = &Sources.Add_GetRef(Source);
-
-	SourcesPerResource[Source.Resource].Add(NewSource);
+	Sources.Add(Source);
 }
+
+void AITradeSources::GenerateCache()
+{
+	for(AITradeSource& Source : Sources)
+	{
+		SourceCount++;
+		SourcesPerResource[Source.Resource].Add(&Source);
+	}
+}
+
 
 AITradeSourcesByResource::AITradeSourcesByResource(UFlareWorld* World)
 {
@@ -2888,6 +2908,22 @@ void AITradeSourcesByResource::Add(AITradeSource* Source)
 AITradeSourcesByResourceLocation& AITradeSourcesByResource::GetSourcesPerSector(UFlareSimulatedSector* Sector)
 {
 	return SourcesPerSector[Sector];
+}
+
+AITradeSourcesByResourceLocation& AITradeSourcesByResource::GetSourcesPerMoon(FName Moon)
+{
+	return SourcesPerMoon[Moon];
+}
+
+
+TArray<AITradeSource*>& AITradeSourcesByResource::GetSourcePerCompany(UFlareCompany* Company)
+{
+	return SourcesPerCompany[Company];
+}
+
+TArray<AITradeSource*>& AITradeSourcesByResource::GetSources()
+{
+	return Sources;
 }
 
 void AITradeSourcesByResource::ConsumeSource(AITradeSource* Source)
@@ -2953,14 +2989,12 @@ AITradeIdleShips::AITradeIdleShips(UFlareWorld* World)
 {
 	for(UFlareSimulatedSector* Sector : World->GetSectors())
 	{
-		FLOGV(" - AITradeIdleShips sector emplace %s", *Sector->GetIdentifier().ToString());
 		ShipsPerSector.Add(Sector, AITradeIdleShipsByLocation(World));
 
 		FName Moon = Sector->GetOrbitParameters()->CelestialBodyIdentifier;
 
 		if(!ShipsPerMoon.Contains(Moon))
 		{
-			FLOGV(" - AITradeIdleShips moon emplace %s", *Moon.ToString());
 			ShipsPerMoon.Add(Moon, AITradeIdleShipsByLocation(World));
 		}
 	}
@@ -2988,24 +3022,31 @@ void AITradeIdleShips::ConsumeShip(AIIdleShip* Ship)
 		ShipPerCompany.Value.Remove(Ship);
 	}
 
-	Ships.Remove(*Ship);
+	ShipsPtr.Remove(Ship);
 }
 
 void AITradeIdleShips::Add(AIIdleShip const& Ship)
 {
-	AIIdleShip* NewShip = &Ships.Add_GetRef(Ship);
-
-	ShipsPerSector[Ship.Sector].Add(NewShip);
-
-	FName Moon = Ship.Sector->GetOrbitParameters()->CelestialBodyIdentifier;
-	ShipsPerMoon[Moon].Add(NewShip);
-
-	ShipsPerCompany[NewShip->Company].Add(NewShip);
+	Ships.Add(Ship);
 }
 
-TArray<AIIdleShip>& AITradeIdleShips::GetShips()
+void AITradeIdleShips::GenerateCache()
 {
-	return Ships;
+	for(AIIdleShip& Ship : Ships)
+	{
+		ShipsPerSector[Ship.Sector].Add(&Ship);
+
+		FName Moon = Ship.Sector->GetOrbitParameters()->CelestialBodyIdentifier;
+		ShipsPerMoon[Moon].Add(&Ship);
+
+		ShipsPerCompany[Ship.Company].Add(&Ship);
+		ShipsPtr.Add(&Ship);
+	}
+}
+
+TArray<AIIdleShip*>& AITradeIdleShips::GetShips()
+{
+	return ShipsPtr;
 }
 
 AITradeIdleShipsByLocation& AITradeIdleShips::GetShipsPerSector(UFlareSimulatedSector* Sector)
@@ -3013,23 +3054,38 @@ AITradeIdleShipsByLocation& AITradeIdleShips::GetShipsPerSector(UFlareSimulatedS
 	return ShipsPerSector[Sector];
 }
 
+AITradeIdleShipsByLocation& AITradeIdleShips::GetShipsPerMoon(FName Moon)
+{
+	return ShipsPerMoon[Moon];
+}
+
+TArray<AIIdleShip*>& AITradeIdleShips::GetShipsPerCompany(UFlareCompany* Company)
+{
+	return ShipsPerCompany[Company];
+}
+
 TArray<AIIdleShip*>& AITradeIdleShipsByLocation::GetShipsPerCompany(UFlareCompany* Company)
 {
 	return ShipsPerCompany[Company];
+}
+
+TArray<AIIdleShip*>& AITradeIdleShipsByLocation::GetShips()
+{
+	return Ships;
 }
 
 AITradeIdleShipsByLocation::AITradeIdleShipsByLocation(UFlareWorld* World)
 {
 	for(UFlareCompany* Company : World->GetCompanies())
 	{
-		FLOGV("   - AITradeIdleShipsByLocation emplace %s", *Company->GetIdentifier().ToString());
+		//FLOGV("   - AITradeIdleShipsByLocation emplace %s", *Company->GetIdentifier().ToString());
 		ShipsPerCompany.Emplace(Company);
 	}
 }
 
 void AITradeIdleShipsByLocation::Add(AIIdleShip* Ship)
 {
-	FLOGV("   - AITradeIdleShipsByLocation add ship from %s", *Ship->Company->GetIdentifier().ToString());
+	//FLOGV("   - AITradeIdleShipsByLocation add ship from %s", *Ship->Company->GetIdentifier().ToString());
 	ShipsPerCompany[Ship->Company].Add(Ship);
 
 	Ships.Add(Ship);

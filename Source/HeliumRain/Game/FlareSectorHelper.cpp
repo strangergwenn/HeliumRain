@@ -344,7 +344,7 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSim
 
 	SourceSpacecraft->GetGame()->GetQuestManager()->OnTradeDone(SourceSpacecraft, DestinationSpacecraft, Resource, GivenResources);
 
-	FLOGV("Trade GivenResources %d", GivenResources);
+	//FLOGV("Trade GivenResources %d", GivenResources);
 
 	return GivenResources;
 

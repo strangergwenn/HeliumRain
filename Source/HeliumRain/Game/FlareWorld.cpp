@@ -495,9 +495,13 @@ void UFlareWorld::Simulate()
 	}
 
 	// AI. Merged trading
-	AITradeNeeds Needs = AITradeHelper::GenerateTradingNeeds(this);
-	AITradeSources Sources = AITradeHelper::GenerateTradingSources(this);
-	AITradeIdleShips IdleShips = AITradeHelper::GenerateIdleShips(this);
+	AITradeNeeds Needs;
+	AITradeSources Sources(this);
+	AITradeIdleShips IdleShips(this);
+
+	AITradeHelper::GenerateTradingNeeds(Needs, this);
+	AITradeHelper::GenerateTradingSources(Sources, this);
+	AITradeHelper::GenerateIdleShips(IdleShips, this);
 
 	AITradeHelper::ComputeGlobalTrading(this, Needs, Sources, IdleShips);
 
