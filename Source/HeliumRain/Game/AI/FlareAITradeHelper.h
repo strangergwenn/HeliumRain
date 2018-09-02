@@ -3,7 +3,7 @@
 #include "Object.h"
 #include "../FlareGameTypes.h"
 
-#define DEBUG_NEW_AI_TRADING 1
+#define DEBUG_NEW_AI_TRADING 0
 
 
 class UFlareWorld;
@@ -64,6 +64,14 @@ struct AITradeNeed
 	void Consume(int UsedQuantity);
 };
 
+
+struct AICompaniesMoney
+{
+	void ConsumeMoney(UFlareCompany* Company, int64 Amount);
+	bool HasMoney(UFlareCompany* Company);
+
+	TMap<UFlareCompany*, int64> CompaniesMoney;
+};
 
 struct AITradeNeeds
 {
@@ -235,9 +243,9 @@ struct AITradeHelper
 
 	static void ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs, AITradeSources& Sources, AITradeIdleShips& IdleShips);
 
-	static bool ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITradeIdleShips& IdleShips);
+	static bool ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITradeIdleShips& IdleShips, AICompaniesMoney& CompaniesMoney);
 
-	static AITradeSource* FindBestSource(AITradeSources& Sources, FFlareResourceDescription* Resource, UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 NeededQuantity, size_t FunctionIndex);
+	static AITradeSource* FindBestSource(AITradeSources& Sources, FFlareResourceDescription* Resource, UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 NeededQuantity, size_t FunctionIndex, AICompaniesMoney& CompaniesMoney);
 
 	static AIIdleShip* FindBestShip(AITradeIdleShips& IdleShips, UFlareSimulatedSector* Sector, UFlareCompany* SourceCompany, UFlareCompany* NeedCompany, int32 NeedQuantity);
 };

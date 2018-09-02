@@ -1177,6 +1177,12 @@ inline static bool NeedComparatorComparator(const AITradeNeed& n1, const AITrade
 
 void AITradeHelper::ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs, AITradeSources& Sources, AITradeIdleShips& IdleShips)
 {
+	AICompaniesMoney CompaniesMoney;
+	for(UFlareCompany* Company: World->GetCompanies())
+	{
+		CompaniesMoney.CompaniesMoney.Add(Company, Company->GetMoney())	;
+	}
+
 	while(Needs.List.Num() > 0)
 	{
 		Needs.List.Sort(&NeedComparatorComparator);
@@ -1185,7 +1191,7 @@ void AITradeHelper::ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs
 
 		for(AITradeNeed& Need : Needs.List)
 		{
-			bool Keep = ProcessNeed(Need, Sources, IdleShips);
+			bool Keep = ProcessNeed(Need, Sources, IdleShips, CompaniesMoney);
 
 			if(Keep)
 			{
@@ -1198,11 +1204,9 @@ void AITradeHelper::ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs
 }
 
 
-
-
-bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITradeIdleShips& IdleShips)
+bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITradeIdleShips& IdleShips, AICompaniesMoney& CompaniesMoney)
 {
-	AITradeSource* Source = FindBestSource(Sources, Need.Resource, Need.Sector, Need.Company, Need.Quantity, Need.SourceFunctionIndex);
+	AITradeSource* Source = FindBestSource(Sources, Need.Resource, Need.Sector, Need.Company, Need.Quantity, Need.SourceFunctionIndex, CompaniesMoney);
 
 
 
@@ -1217,6 +1221,16 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 		{
 			return true;
 		}
+#if DEBUG_NEW_AI_TRADING
+		FLOGV("No source found for need : %s %s in %s: %d/%d %s",
+			  *Need.Company->GetCompanyName().ToString(),
+			  *Need.Station->GetImmatriculation().ToString(),
+			  *Need.Sector->GetSectorName().ToString(),
+			  Need.Quantity,
+			  Need.TotalCapacity,
+			  *Need.Resource->Name.ToString()
+			  );
+#endif
 
 		return false;
 	}
@@ -1232,6 +1246,32 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 		// Source in ship, consume source and process transfer
 		Sources.ConsumeSource(Source);
 		UsedQuantity = FMath::Min(Need.Quantity, Source->Quantity);
+
+		if(Source->Ship->GetCompany() != Need.Company)
+		{
+			int32 ResourcePrice = Need.Sector->GetTransfertResourcePrice(Source->Ship, Need.Station, Need.Resource);
+			CompaniesMoney.ConsumeMoney(Need.Company, UsedQuantity * ResourcePrice);
+		}
+
+#if DEBUG_NEW_AI_TRADING
+		FLOGV("Need : %s %s in %s: %d/%d %s",
+			  *Need.Company->GetCompanyName().ToString(),
+			  *Need.Station->GetImmatriculation().ToString(),
+			  *Need.Sector->GetSectorName().ToString(),
+			  Need.Quantity,
+			  Need.TotalCapacity,
+			  *Need.Resource->Name.ToString()
+			  );
+		FLOGV(" use source %s %s in %s: %d %s (stranded: %d, travelling: %d)",
+			  *Source->Company->GetCompanyName().ToString(),
+			  *Source->Ship->GetImmatriculation().ToString(),
+			  *Source->Sector->GetSectorName().ToString(),
+			  Source->Quantity,
+			  *Source->Resource->Name.ToString(),
+			  Source->Stranded,
+			  Source->Traveling
+			  );
+#endif
 
 		SectorDeal Deal;
 		Deal.BuyQuantity = 0;
@@ -1253,15 +1293,50 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 
 		if(IdleShip == nullptr)
 		{
+#if DEBUG_NEW_AI_TRADING
+			FLOGV("No idle ship found for need : %s %s in %s: %d/%d %s",
+				  *Need.Company->GetCompanyName().ToString(),
+				  *Need.Station->GetImmatriculation().ToString(),
+				  *Need.Sector->GetSectorName().ToString(),
+				  Need.Quantity,
+				  Need.TotalCapacity,
+				  *Need.Resource->Name.ToString()
+				  );
+ #endif
 			// No availble ship, don't keep
 			return false;
 		}
 
 		UFlareSimulatedSpacecraft* Ship = IdleShip->Ship;
 
+		if(Ship->GetCompany() != Need.Company)
+		{
+			if(!CompaniesMoney.HasMoney(Need.Company))
+			{
+#if DEBUG_NEW_AI_TRADING
+				FLOGV("No affordable idle ship found for need : %s %s in %s: %d/%d %s",
+					  *Need.Company->GetCompanyName().ToString(),
+					  *Need.Station->GetImmatriculation().ToString(),
+					  *Need.Sector->GetSectorName().ToString(),
+					  Need.Quantity,
+					  Need.TotalCapacity,
+					  *Need.Resource->Name.ToString()
+					  );
+#endif
+				// Not enougt money
+				return false;
+			}
+		}
+
+
 		UsedQuantity = FMath::Min(Need.Quantity, Source->Quantity);
 		UsedQuantity = FMath::Min(UsedQuantity, Ship->GetActiveCargoBay()->GetFreeSpaceForResource(Need.Resource, Ship->GetCompany()));
 
+		if(Ship->GetCompany() != Need.Company)
+		{
+			int32 ResourcePrice = Need.Sector->GetTransfertResourcePrice(Ship, Need.Station, Need.Resource);
+			CompaniesMoney.ConsumeMoney(Need.Company, UsedQuantity * ResourcePrice);
+		}
 
 		SectorDeal Deal;
 		Deal.Resource = Source->Resource;
@@ -1270,6 +1345,33 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 		Deal.BuyStation = Source->Station;
 		Deal.SellStation = Need.Station;
 		Deal.BuyQuantity = UsedQuantity;
+
+#if DEBUG_NEW_AI_TRADING
+		FLOGV("Need : %s %s in %s: %d/%d %s",
+			  *Need.Company->GetCompanyName().ToString(),
+			  *Need.Station->GetImmatriculation().ToString(),
+			  *Need.Sector->GetSectorName().ToString(),
+			  Need.Quantity,
+			  Need.TotalCapacity,
+			  *Need.Resource->Name.ToString()
+			  );
+
+			FLOGV(" use source %s station %s in %s: %d %s",
+				  *Source->Company->GetCompanyName().ToString(),
+				  *Source->Station->GetImmatriculation().ToString(),
+				  *Source->Sector->GetSectorName().ToString(),
+				  Source->Quantity,
+				  *Source->Resource->Name.ToString()
+				  );
+		FLOGV(" with ship : %s %s in %s: %d free space (stranded: %d, travelling: %d)",
+				*IdleShip->Company->GetCompanyName().ToString(),
+				*IdleShip->Ship->GetImmatriculation().ToString(),
+				*IdleShip->Sector->GetSectorName().ToString(),
+				IdleShip->Capacity,
+				IdleShip->Stranded,
+				IdleShip->Traveling
+				  );
+#endif
 
 		ApplyDeal(Ship, Deal, nullptr);
 
@@ -1290,9 +1392,9 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 	}
 }
 
-AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareResourceDescription* Resource, UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 NeededQuantity, size_t FunctionIndex)
+AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareResourceDescription* Resource, UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 NeededQuantity, size_t FunctionIndex, AICompaniesMoney& CompaniesMoney)
 {
-	static std::function<AITradeSource* (AITradeSourcesByResource&, UFlareSimulatedSector*, UFlareCompany*, int32)> Functions[SourceFunctionCount];
+	static std::function<AITradeSource* (AITradeSourcesByResource&, UFlareSimulatedSector*, UFlareCompany*, int32, AICompaniesMoney&)> Functions[SourceFunctionCount];
 	static bool FunctionsInit = false;
 
 	//FLOGV("FindBestSource nbSource=%d FunctionIndex=%d", Sources.SourceCount, FunctionIndex);
@@ -1301,22 +1403,26 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 	{
 		FunctionsInit = true;
 
-		// Priority 1 : owned sources
-		//   Sub Priority 1 : local cargo
-		//   Sub Priority 2 : incoming cargo
-		//   Sub Priority 3 : cargo in same moon
-		//   Sub Priority 4 : cargo in world
-		//   Sub Priority 5 : local station
-		//   Sub Priority 6 : station in same moon
-		//   Sub Priority 7 : station in world
+		// Priority 1 : cargo source
+		//   Priority 2 : owned source
+		//     Sub Priority 1 : local cargo
+		//     Sub Priority 2 : incoming cargo
+		//     Sub Priority 3 : cargo in same moon
+		//     Sub Priority 4 : cargo in world
+		//   Priority 2 : not owned source
 
 
-		// Priority 2 : not owned sources
-		// Sub Priority ...
+		// Priority 1 : station source
+		//   Priority 2 : owned source
+		//     Sub Priority 5 : local station
+		//     Sub Priority 6 : station in same moon
+		//     Sub Priority 7 : station in world
+
+
 
 		// Owned local cargo
 		int32 InitFunctionIndex = 0;
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
 
@@ -1361,7 +1467,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		};
 
 		// Owned incoming cargo
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
 
@@ -1411,7 +1517,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		};
 
 		// Owned cargo in moon
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
 
@@ -1461,7 +1567,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		};
 
 		// Owned incoming in moon
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
 
@@ -1511,7 +1617,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		};
 
 		// Owned cargo in world
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			TArray<AITradeSource *>& SourcesByResourceCompany = iSourcesByResource.GetSourcePerCompany(iCompany);
 
@@ -1559,7 +1665,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		};
 
 		// Owned incoming in world
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			TArray<AITradeSource *>& SourcesByResourceCompany = iSourcesByResource.GetSourcePerCompany(iCompany);
 
@@ -1606,130 +1712,22 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 			return BestSource;
 		};
 
-		// Owned local station
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
-		{
-			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
 
-			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSourcePerCompany(iCompany);
-
-			AITradeSource* BestSource = nullptr;
-
-			for(AITradeSource* Source : SourcesByResourceSectorCompany)
-			{
-				if(Source->Station == nullptr)
-				{
-					// Not station, skip
-					continue;
-				}
-
-				if(BestSource == nullptr)
-				{
-					BestSource = Source;
-				}
-				else
-				{
-					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
-					{
-						// Closer to the needed quantiy
-						BestSource = Source;
-					}
-					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
-					{
-						// Closer to the needed quantiy
-						BestSource = Source;
-					}
-				}
-			}
-
-			return BestSource;
-		};
-
-		// Owned moon station
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
-		{
-			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
-
-			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSourcePerCompany(iCompany);
-
-			AITradeSource* BestSource = nullptr;
-
-			for(AITradeSource* Source : SourcesByResourceSectorCompany)
-			{
-				if(Source->Station == nullptr)
-				{
-					// Not station, skip
-					continue;
-				}
-
-				if(BestSource == nullptr)
-				{
-					BestSource = Source;
-				}
-				else
-				{
-					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
-					{
-						// Closer to the needed quantiy
-						BestSource = Source;
-					}
-					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
-					{
-						// Closer to the needed quantiy
-						BestSource = Source;
-					}
-				}
-			}
-
-			return BestSource;
-		};
-
-		// Owned world station
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
-		{
-			TArray<AITradeSource *>& SourcesByResourceSectorCompany = iSourcesByResource.GetSourcePerCompany(iCompany);
-
-			AITradeSource* BestSource = nullptr;
-
-			for(AITradeSource* Source : SourcesByResourceSectorCompany)
-			{
-				if(Source->Station == nullptr)
-				{
-					// Not station, skip
-					continue;
-				}
-
-				if(BestSource == nullptr)
-				{
-					BestSource = Source;
-				}
-				else
-				{
-					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
-					{
-						// Closer to the needed quantiy
-						BestSource = Source;
-					}
-					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
-					{
-						// Closer to the needed quantiy
-						BestSource = Source;
-					}
-				}
-			}
-
-			return BestSource;
-		};
 
 		// Other company sources
 		// Local cargo
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
 
 			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSources();
 
 			AITradeSource* BestSource = nullptr;
+
+			if(!iCompaniesMoney.HasMoney(iCompany))
+			{
+				// No money to buy to other company
+			}
 
 			for(AITradeSource* Source : SourcesByResourceSectorCompany)
 			{
@@ -1775,7 +1773,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		};
 
 		// Incoming cargo
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
 
@@ -1831,7 +1829,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		};
 
 		// Cargo in moon
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
 
@@ -1887,7 +1885,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		};
 
 		// Incoming in moon
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
 
@@ -1943,7 +1941,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		};
 
 		// Cargo in world
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			TArray<AITradeSource *>& SourcesByResourceCompany = iSourcesByResource.GetSources();
 
@@ -1997,7 +1995,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		};
 
 		// Icoming in world
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			TArray<AITradeSource *>& SourcesByResourceCompany = iSourcesByResource.GetSources();
 
@@ -2050,8 +2048,124 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 			return BestSource;
 		};
 
+
+		// Owned local station
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSourcePerCompany(iCompany);
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Station == nullptr)
+				{
+					// Not station, skip
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Owned moon station
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
+		{
+			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
+
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSourcePerCompany(iCompany);
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Station == nullptr)
+				{
+					// Not station, skip
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
+		// Owned world station
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
+		{
+			TArray<AITradeSource *>& SourcesByResourceSectorCompany = iSourcesByResource.GetSourcePerCompany(iCompany);
+
+			AITradeSource* BestSource = nullptr;
+
+			for(AITradeSource* Source : SourcesByResourceSectorCompany)
+			{
+				if(Source->Station == nullptr)
+				{
+					// Not station, skip
+					continue;
+				}
+
+				if(BestSource == nullptr)
+				{
+					BestSource = Source;
+				}
+				else
+				{
+					if(BestSource->Quantity < iNeededQuantity && BestSource->Quantity < Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+					else if(BestSource->Quantity > iNeededQuantity && BestSource->Quantity > Source->Quantity)
+					{
+						// Closer to the needed quantiy
+						BestSource = Source;
+					}
+				}
+			}
+
+			return BestSource;
+		};
+
 		// Local station
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerSector(iSector);
 
@@ -2090,7 +2204,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		};
 
 		// Moon station
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			AITradeSourcesByResourceLocation& SourcesByResourceSector = iSourcesByResource.GetSourcesPerMoon(iSector->GetOrbitParameters()->CelestialBodyIdentifier);
 
@@ -2129,7 +2243,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 		};
 
 		// World station
-		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity)
+		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			TArray<AITradeSource *>& SourcesByResourceSectorCompany = iSourcesByResource.GetSources();
 
@@ -2169,7 +2283,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 	}
 
 	AITradeSourcesByResource& SourcesByResource = Sources.GetSourcesPerResource(Resource);
-	return Functions[FunctionIndex](SourcesByResource, Sector, Company, NeededQuantity);
+	return Functions[FunctionIndex](SourcesByResource, Sector, Company, NeededQuantity, CompaniesMoney);
 }
 
 AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimulatedSector* Sector, UFlareCompany* SourceCompany, UFlareCompany* NeedCompany, int32 NeedQuantity)
@@ -3191,4 +3305,14 @@ void AITradeNeed::Consume(int UsedQuantity)
 {
 	Quantity -= UsedQuantity;
 	Ratio = float(Quantity) / float(TotalCapacity);
+}
+
+void AICompaniesMoney::ConsumeMoney(UFlareCompany* Company, int64 Amount)
+{
+	CompaniesMoney[Company] -= Amount;
+}
+
+bool AICompaniesMoney::HasMoney(UFlareCompany* Company)
+{
+	return CompaniesMoney[Company] > 0;
 }
