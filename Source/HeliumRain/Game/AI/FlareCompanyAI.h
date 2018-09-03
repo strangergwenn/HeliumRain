@@ -93,9 +93,6 @@ public:
 	/** Update diplomacy changes */
 	void UpdateDiplomacy();
 
-	/** Update trading for the company's fleet*/
-	void UpdateTrading();
-
 	void UpdateBestScore(float Score,
 						  UFlareSimulatedSector* Sector,
 						  FFlareSpacecraftDescription* StationDescription,
