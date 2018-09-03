@@ -485,15 +485,6 @@ void UFlareWorld::Simulate()
 
 	HasTotalWorldCombatPointCache = false;
 
-	// AI. Play them in random order
-	TArray<UFlareCompany*> CompaniesToSimulateAI = Companies;
-	while(CompaniesToSimulateAI.Num())
-	{
-		int32 Index = FMath::RandRange(0, CompaniesToSimulateAI.Num() - 1);
-		CompaniesToSimulateAI[Index]->SimulateAI();
-		CompaniesToSimulateAI.RemoveAt(Index);
-	}
-
 	// AI. Merged trading
 	AITradeNeeds Needs;
 	AITradeSources Sources(this);
@@ -522,6 +513,15 @@ void UFlareWorld::Simulate()
 	for(UFlareCompany* Company: Companies)
 	{
 		Company->GetAI()->UpdateIdleShipsStats(IdleShips);
+	}
+
+	// AI. Play them in random order
+	TArray<UFlareCompany*> CompaniesToSimulateAI = Companies;
+	while(CompaniesToSimulateAI.Num())
+	{
+		int32 Index = FMath::RandRange(0, CompaniesToSimulateAI.Num() - 1);
+		CompaniesToSimulateAI[Index]->SimulateAI();
+		CompaniesToSimulateAI.RemoveAt(Index);
 	}
 
 	// Clear bombs
