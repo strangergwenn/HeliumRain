@@ -1654,9 +1654,22 @@ bool UFlareSimulatedSpacecraft::CanOrder(const FFlareSpacecraftDescription* Ship
 	{
 		if(SpacecraftData.ShipyardOrderQueue.Num() > 0)
 		{
-			if(SpacecraftData.ShipyardOrderQueue[SpacecraftData.ShipyardOrderQueue.Num()-1].Company != PlayerCompany->GetIdentifier())
+			for(int i = SpacecraftData.ShipyardOrderQueue.Num()-1; i >=0 ; i--)
 			{
-				return false;
+				FFlareShipyardOrderSave& Order = SpacecraftData.ShipyardOrderQueue[i];
+
+				FFlareSpacecraftDescription* OrderShip = GetGame()->GetSpacecraftCatalog()->Get(Order.ShipClass);
+				if(OrderShip->Size == ShipDescription->Size)
+				{
+					if(Order.Company == PlayerCompany->GetIdentifier())
+					{
+						return true;
+					}
+					else
+					{
+						return false;
+					}
+				}
 			}
 		}
 	}
