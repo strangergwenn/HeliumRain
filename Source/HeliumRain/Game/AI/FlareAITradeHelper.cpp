@@ -1006,6 +1006,8 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 	return SectorVariation;
 }
 
+#define TRADING_MIN_NEED_QUANTITY 50
+
 // New trading
 void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, UFlareWorld* World)
 {
@@ -1020,7 +1022,7 @@ void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, UFlareWorld* World
 				if(Station->GetActiveCargoBay()->WantBuy(Resource, nullptr))
 				{
 					int32 Quantity = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, nullptr);
-					if(Quantity > 0)
+					if(Quantity > TRADING_MIN_NEED_QUANTITY || (Station->IsUnderConstruction() && Quantity > 0))
 					{
 						AITradeNeed Need;
 						Need.Resource = Resource;
