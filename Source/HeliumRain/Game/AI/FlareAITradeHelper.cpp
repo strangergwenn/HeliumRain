@@ -1729,6 +1729,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 			if(!iCompaniesMoney.HasMoney(iCompany))
 			{
 				// No money to buy to other company
+				return BestSource;
 			}
 
 			for(AITradeSource* Source : SourcesByResourceSectorCompany)
@@ -1782,6 +1783,12 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 			TArray<AITradeSource *>& SourcesByResourceSectorCompany = SourcesByResourceSector.GetSources();
 
 			AITradeSource* BestSource = nullptr;
+
+			if(!iCompaniesMoney.HasMoney(iCompany))
+			{
+				// No money to buy to other company
+				return BestSource;
+			}
 
 			for(AITradeSource* Source : SourcesByResourceSectorCompany)
 			{
@@ -1839,6 +1846,12 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 
 			AITradeSource* BestSource = nullptr;
 
+			if(!iCompaniesMoney.HasMoney(iCompany))
+			{
+				// No money to buy to other company
+				return BestSource;
+			}
+
 			for(AITradeSource* Source : SourcesByResourceSectorCompany)
 			{
 				if(Source->Ship == nullptr)
@@ -1895,6 +1908,12 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 
 			AITradeSource* BestSource = nullptr;
 
+			if(!iCompaniesMoney.HasMoney(iCompany))
+			{
+				// No money to buy to other company
+				return BestSource;
+			}
+
 			for(AITradeSource* Source : SourcesByResourceSectorCompany)
 			{
 				if(Source->Ship == nullptr)
@@ -1949,6 +1968,12 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 
 			AITradeSource* BestSource = nullptr;
 
+			if(!iCompaniesMoney.HasMoney(iCompany))
+			{
+				// No money to buy to other company
+				return BestSource;
+			}
+
 			for(AITradeSource* Source : SourcesByResourceCompany)
 			{
 				if(Source->Ship == nullptr)
@@ -1996,12 +2021,18 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 			return BestSource;
 		};
 
-		// Icoming in world
+		// Incoming in world
 		Functions[InitFunctionIndex++] = [](AITradeSourcesByResource& iSourcesByResource, UFlareSimulatedSector* iSector, UFlareCompany* iCompany, int32 iNeededQuantity, AICompaniesMoney& iCompaniesMoney)
 		{
 			TArray<AITradeSource *>& SourcesByResourceCompany = iSourcesByResource.GetSources();
 
 			AITradeSource* BestSource = nullptr;
+
+			if(!iCompaniesMoney.HasMoney(iCompany))
+			{
+				// No money to buy to other company
+				return BestSource;
+			}
 
 			for(AITradeSource* Source : SourcesByResourceCompany)
 			{
