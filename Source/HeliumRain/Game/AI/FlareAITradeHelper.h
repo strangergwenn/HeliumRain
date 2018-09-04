@@ -60,6 +60,7 @@ struct AITradeNeed
 	UFlareSimulatedSector* Sector;
 	UFlareSimulatedSpacecraft* Station;
 	size_t SourceFunctionIndex;
+	bool Maintenance;
 
 	void Consume(int UsedQuantity);
 };
@@ -235,15 +236,15 @@ struct AITradeHelper
 	/** Get the resource flow in this sector */
 	static SectorVariation ComputeSectorResourceVariation(UFlareCompany* Company, UFlareSimulatedSector* Sector);
 
-	static void GenerateTradingNeeds(AITradeNeeds& Needs, UFlareWorld* World);
+	static void GenerateTradingNeeds(AITradeNeeds& Needs, AITradeNeeds& MaintenanceNeeds, UFlareWorld* World);
 
-	static void GenerateTradingSources(AITradeSources& Sources, UFlareWorld* World);
+	static void GenerateTradingSources(AITradeSources& Sources, AITradeSources& MaintenanceSources, UFlareWorld* World);
 
 	static void GenerateIdleShips(AITradeIdleShips& Ships, UFlareWorld* World);
 
-	static void ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs, AITradeSources& Sources, AITradeIdleShips& IdleShips);
+	static void ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs, AITradeSources& Sources, AITradeSources& MaintenanceSources, AITradeIdleShips& IdleShips, AICompaniesMoney& CompaniesMoney);
 
-	static bool ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITradeIdleShips& IdleShips, AICompaniesMoney& CompaniesMoney);
+	static bool ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITradeSources& MaintenanceSources, AITradeIdleShips& IdleShips, AICompaniesMoney& CompaniesMoney);
 
 	static AITradeSource* FindBestSource(AITradeSources& Sources, FFlareResourceDescription* Resource, UFlareSimulatedSector* Sector, UFlareCompany* Company, int32 NeededQuantity, size_t FunctionIndex, AICompaniesMoney& CompaniesMoney);
 

@@ -487,26 +487,40 @@ void UFlareWorld::Simulate()
 
 	// AI. Merged trading
 	AITradeNeeds Needs;
+	AITradeNeeds MaintenanceNeeds;
 	AITradeSources Sources(this);
+	AITradeSources MaintenanceSources(this);
 	AITradeIdleShips IdleShips(this);
 
-	AITradeHelper::GenerateTradingNeeds(Needs, this);
-	AITradeHelper::GenerateTradingSources(Sources, this);
+
+	AITradeHelper::GenerateTradingNeeds(Needs, MaintenanceNeeds, this);
+	AITradeHelper::GenerateTradingSources(Sources, MaintenanceSources, this);
 	AITradeHelper::GenerateIdleShips(IdleShips, this);
 
 #if DEBUG_NEW_AI_TRADING
 	FLOG("Initial trading stat");
 	Needs.Print();
+	MaintenanceNeeds.Print();
 	Sources.Print();
+	MaintenanceSources.Print();
 	IdleShips.Print();
 #endif
 
-	AITradeHelper::ComputeGlobalTrading(this, Needs, Sources, IdleShips);
+	AICompaniesMoney CompaniesMoney;
+	for(UFlareCompany* Company: GetCompanies())
+	{
+		CompaniesMoney.CompaniesMoney.Add(Company, Company->GetMoney())	;
+	}
+
+
+	AITradeHelper::ComputeGlobalTrading(this, MaintenanceNeeds, Sources, MaintenanceSources, IdleShips, CompaniesMoney);
+	AITradeHelper::ComputeGlobalTrading(this, Needs, Sources, MaintenanceSources, IdleShips, CompaniesMoney);
 
 #if DEBUG_NEW_AI_TRADING
 	FLOG("Final trading stat");
 	Needs.Print();
 	Sources.Print();
+	MaintenanceSources.Print();
 	IdleShips.Print();
 #endif
 

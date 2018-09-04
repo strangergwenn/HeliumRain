@@ -1009,8 +1009,9 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 #define TRADING_MIN_NEED_QUANTITY 50
 
 // New trading
-void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, UFlareWorld* World)
+void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, AITradeNeeds& MaintenanceNeeds, UFlareWorld* World)
 {
+	// Trading needs
 	for(UFlareCompany* Company : World->GetCompanies())
 	{
 		for(UFlareSimulatedSpacecraft* Station : Company->GetCompanyStations())
@@ -1032,6 +1033,7 @@ void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, UFlareWorld* World
 						Need.Sector = Station->GetCurrentSector();
 						Need.Station = Station;
 						Need.SourceFunctionIndex = 0;
+						Need.Maintenance = false;
 						Need.Consume(0); // Generate ratio
 						Needs.List.Add(Need);
 					}
@@ -1039,9 +1041,42 @@ void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, UFlareWorld* World
 			}
 		}
 	}
+
+	// Maintenance needs
+	for(UFlareSimulatedSector* Sector : World->GetSectors())
+	{
+		for(UFlareCompany* Company : World->GetCompanies())
+		{
+			int32 CurrentNeededFleetSupply = 0;
+			int32 RepairTotalNeededFleetSupply = 0;
+			int32 RefillTotalNeededFleetSupply = 0;
+			int64 MaxDuration = 0;
+
+			SectorHelper::GetRepairFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, RepairTotalNeededFleetSupply, MaxDuration);
+			SectorHelper::GetRefillFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, RefillTotalNeededFleetSupply, MaxDuration);
+
+			int32 TotalNeededFleetSupply = RepairTotalNeededFleetSupply + RefillTotalNeededFleetSupply;
+
+			if(TotalNeededFleetSupply > 0)
+			{
+				AITradeNeed Need;
+				Need.Resource = World->GetGame()->GetScenarioTools()->FleetSupply;
+				Need.Quantity = TotalNeededFleetSupply;
+				Need.TotalCapacity = TotalNeededFleetSupply * (MaxDuration +1);
+				Need.Company = Company;
+				Need.Sector = Sector;
+				Need.Station = nullptr;
+				Need.SourceFunctionIndex = 0;
+				Need.Maintenance = true;
+				Need.Consume(0); // Generate ratio
+				MaintenanceNeeds.List.Add(Need);
+			}
+
+		}
+	}
 }
 
-void AITradeHelper::GenerateTradingSources(AITradeSources& Sources, UFlareWorld* World)
+void AITradeHelper::GenerateTradingSources(AITradeSources& Sources, AITradeSources& MaintenanceSources, UFlareWorld* World)
 {
 	for(UFlareCompany* Company : World->GetCompanies())
 	{
@@ -1050,13 +1085,22 @@ void AITradeHelper::GenerateTradingSources(AITradeSources& Sources, UFlareWorld*
 			for(UFlareResourceCatalogEntry* ResourceEntry : World->GetGame()->GetResourceCatalog()->Resources)
 			{
 				FFlareResourceDescription* Resource = &ResourceEntry->Data;
+				bool MaintenanceSource = false;
+
 
 				if(Station->GetActiveCargoBay()->WantSell(Resource, nullptr))
 				{
 					if(Station->GetActiveCargoBay()->WantBuy(Resource, nullptr))
 					{
-						// Trade to not use as source
-						continue;
+						if(Resource == World->GetGame()->GetScenarioTools()->FleetSupply)
+						{
+							MaintenanceSource = true;
+						}
+						else
+						{
+							// Trade to not use as source
+							continue;
+						}
 					}
 
 					int32 Quantity = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, nullptr);
@@ -1069,7 +1113,14 @@ void AITradeHelper::GenerateTradingSources(AITradeSources& Sources, UFlareWorld*
 						Source.Sector = Station->GetCurrentSector();
 						Source.Station = Station;
 						Source.Ship = nullptr;
-						Sources.Add(Source);
+						if(MaintenanceSource)
+						{
+							MaintenanceSources.Add(Source);
+						}
+						else
+						{
+							Sources.Add(Source);
+						}
 					}
 				}
 			}
@@ -1120,6 +1171,7 @@ void AITradeHelper::GenerateTradingSources(AITradeSources& Sources, UFlareWorld*
 		}
 	}
 	Sources.GenerateCache();
+	MaintenanceSources.GenerateCache();
 }
 
 void AITradeHelper::GenerateIdleShips(AITradeIdleShips& Ships, UFlareWorld* World)
@@ -1177,14 +1229,8 @@ inline static bool NeedComparatorComparator(const AITradeNeed& n1, const AITrade
 #define SourceFunctionCount 18
 #define IdleShipFunctionCount 12
 
-void AITradeHelper::ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs, AITradeSources& Sources, AITradeIdleShips& IdleShips)
+void AITradeHelper::ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs, AITradeSources& Sources, AITradeSources& MaintenanceSources, AITradeIdleShips& IdleShips, AICompaniesMoney& CompaniesMoney)
 {
-	AICompaniesMoney CompaniesMoney;
-	for(UFlareCompany* Company: World->GetCompanies())
-	{
-		CompaniesMoney.CompaniesMoney.Add(Company, Company->GetMoney())	;
-	}
-
 	while(Needs.List.Num() > 0)
 	{
 		Needs.List.Sort(&NeedComparatorComparator);
@@ -1193,7 +1239,7 @@ void AITradeHelper::ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs
 
 		for(AITradeNeed& Need : Needs.List)
 		{
-			bool Keep = ProcessNeed(Need, Sources, IdleShips, CompaniesMoney);
+			bool Keep = ProcessNeed(Need, Sources, MaintenanceSources, IdleShips, CompaniesMoney);
 
 			if(Keep)
 			{
@@ -1206,10 +1252,16 @@ void AITradeHelper::ComputeGlobalTrading(UFlareWorld* World, AITradeNeeds& Needs
 }
 
 
-bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITradeIdleShips& IdleShips, AICompaniesMoney& CompaniesMoney)
+bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITradeSources& MaintenanceSources, AITradeIdleShips& IdleShips, AICompaniesMoney& CompaniesMoney)
 {
+	bool MaintenanceSource = false;
 	AITradeSource* Source = FindBestSource(Sources, Need.Resource, Need.Sector, Need.Company, Need.Quantity, Need.SourceFunctionIndex, CompaniesMoney);
 
+	if(Source == nullptr && Need.Maintenance)
+	{
+		Source = FindBestSource(MaintenanceSources, Need.Resource, Need.Sector, Need.Company, Need.Quantity, Need.SourceFunctionIndex, CompaniesMoney);
+		MaintenanceSource = true;
+	}
 
 
 
@@ -1246,19 +1298,27 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 		//FLOG("Consume source Ship");
 
 		// Source in ship, consume source and process transfer
-		Sources.ConsumeSource(Source);
+		if(MaintenanceSource)
+		{
+			MaintenanceSources.ConsumeSource(Source);
+		}
+		else
+		{
+			Sources.ConsumeSource(Source);
+		}
+
 		UsedQuantity = FMath::Min(Need.Quantity, Source->Quantity);
 
 		if(Source->Ship->GetCompany() != Need.Company)
 		{
-			int32 ResourcePrice = Need.Sector->GetTransfertResourcePrice(Source->Ship, Need.Station, Need.Resource);
+			int32 ResourcePrice = Need.Maintenance ? Need.Sector->GetResourcePrice (Need.Resource, EFlareResourcePriceContext::MaintenanceConsumption) : Need.Sector->GetTransfertResourcePrice(Source->Ship, Need.Station, Need.Resource);
 			CompaniesMoney.ConsumeMoney(Need.Company, UsedQuantity * ResourcePrice);
 		}
 
 #if DEBUG_NEW_AI_TRADING
 		FLOGV("Need : %s %s in %s: %d/%d %s",
 			  *Need.Company->GetCompanyName().ToString(),
-			  *Need.Station->GetImmatriculation().ToString(),
+		      Need.Station != nullptr ? *Need.Station->GetImmatriculation().ToString() : *FString("sector maintenance"),
 			  *Need.Sector->GetSectorName().ToString(),
 			  Need.Quantity,
 			  Need.TotalCapacity,
@@ -1298,7 +1358,7 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 #if DEBUG_NEW_AI_TRADING
 			FLOGV("No idle ship found for need : %s %s in %s: %d/%d %s",
 				  *Need.Company->GetCompanyName().ToString(),
-				  *Need.Station->GetImmatriculation().ToString(),
+			      Need.Station != nullptr ? *Need.Station->GetImmatriculation().ToString() : *FString("sector maintenance"),
 				  *Need.Sector->GetSectorName().ToString(),
 				  Need.Quantity,
 				  Need.TotalCapacity,
@@ -1318,7 +1378,7 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 #if DEBUG_NEW_AI_TRADING
 				FLOGV("No affordable idle ship found for need : %s %s in %s: %d/%d %s",
 					  *Need.Company->GetCompanyName().ToString(),
-					  *Need.Station->GetImmatriculation().ToString(),
+				      Need.Station != nullptr ? *Need.Station->GetImmatriculation().ToString() : *FString("sector maintenance"),
 					  *Need.Sector->GetSectorName().ToString(),
 					  Need.Quantity,
 					  Need.TotalCapacity,
@@ -1336,7 +1396,7 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 
 		if(Ship->GetCompany() != Need.Company)
 		{
-			int32 ResourcePrice = Need.Sector->GetTransfertResourcePrice(Ship, Need.Station, Need.Resource);
+			int32 ResourcePrice = Need.Maintenance ? Need.Sector->GetResourcePrice (Need.Resource, EFlareResourcePriceContext::MaintenanceConsumption) : Need.Sector->GetTransfertResourcePrice(Source->Ship, Need.Station, Need.Resource);
 			CompaniesMoney.ConsumeMoney(Need.Company, UsedQuantity * ResourcePrice);
 		}
 
@@ -1351,7 +1411,7 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 #if DEBUG_NEW_AI_TRADING
 		FLOGV("Need : %s %s in %s: %d/%d %s",
 			  *Need.Company->GetCompanyName().ToString(),
-			  *Need.Station->GetImmatriculation().ToString(),
+		      Need.Station != nullptr ? *Need.Station->GetImmatriculation().ToString() : *FString("sector maintenance"),
 			  *Need.Sector->GetSectorName().ToString(),
 			  Need.Quantity,
 			  Need.TotalCapacity,
@@ -1375,9 +1435,20 @@ bool AITradeHelper::ProcessNeed(AITradeNeed& Need, AITradeSources& Sources, AITr
 				  );
 #endif
 
-		ApplyDeal(Ship, Deal, nullptr);
+		if(!Need.Maintenance || IdleShip->Sector != Need.Sector)
+		{
+			ApplyDeal(Ship, Deal, nullptr);
+		}
 
-		Sources.ConsumeSource(Source, UsedQuantity);
+
+		if(MaintenanceSource)
+		{
+			MaintenanceSources.ConsumeSource(Source, UsedQuantity);
+		}
+		else
+		{
+			Sources.ConsumeSource(Source, UsedQuantity);
+		}
 		IdleShips.ConsumeShip(IdleShip);
 	}
 
@@ -2986,7 +3057,7 @@ void AITradeNeeds::Print()
 	{
 		FLOGV(" - %s %s in %s: %d/%d %s",
 			  *Need.Company->GetCompanyName().ToString(),
-			  *Need.Station->GetImmatriculation().ToString(),
+		      Need.Station != nullptr ? *Need.Station->GetImmatriculation().ToString() : *FString("sector maintenance"),
 			  *Need.Sector->GetSectorName().ToString(),
 			  Need.Quantity,
 			  Need.TotalCapacity,
