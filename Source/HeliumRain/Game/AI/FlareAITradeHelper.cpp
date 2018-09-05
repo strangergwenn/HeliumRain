@@ -1008,6 +1008,12 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 
 #define TRADING_MIN_NEED_QUANTITY 50
 
+inline static bool NeedComparatorComparator(const AITradeNeed& n1, const AITradeNeed& n2)
+{
+	return n1.Ratio > n2.Ratio;
+}
+
+
 // New trading
 void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, AITradeNeeds& MaintenanceNeeds, UFlareWorld* World)
 {
@@ -1074,6 +1080,9 @@ void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, AITradeNeeds& Main
 
 		}
 	}
+#if DEBUG_NEW_AI_TRADING
+	Needs.List.Sort(&NeedComparatorComparator);
+#endif
 }
 
 void AITradeHelper::GenerateTradingSources(AITradeSources& Sources, AITradeSources& MaintenanceSources, UFlareWorld* World)
@@ -1219,10 +1228,6 @@ void AITradeHelper::GenerateIdleShips(AITradeIdleShips& Ships, UFlareWorld* Worl
 }
 
 
-inline static bool NeedComparatorComparator(const AITradeNeed& n1, const AITradeNeed& n2)
-{
-	return n1.Ratio > n2.Ratio;
-}
 
 
 
@@ -3055,13 +3060,14 @@ void AITradeNeeds::Print()
 	FLOGV("AITradeNeeds : %d needs", List.Num())
 	for(AITradeNeed& Need: List)
 	{
-		FLOGV(" - %s %s in %s: %d/%d %s",
+		FLOGV(" - %s %s in %s: %d/%d %s (ratio: %f)",
 			  *Need.Company->GetCompanyName().ToString(),
 		      Need.Station != nullptr ? *Need.Station->GetImmatriculation().ToString() : *FString("sector maintenance"),
 			  *Need.Sector->GetSectorName().ToString(),
 			  Need.Quantity,
 			  Need.TotalCapacity,
-			  *Need.Resource->Name.ToString()
+			  *Need.Resource->Name.ToString(),
+			  Need.Ratio
 			  );
 	}
 }
@@ -3413,7 +3419,15 @@ void AITradeNeed::Consume(int UsedQuantity)
 
 void AICompaniesMoney::ConsumeMoney(UFlareCompany* Company, int64 Amount)
 {
+#if DEBUG_NEW_AI_TRADING
+	int64 OldAmount = CompaniesMoney[Company];
+#endif
+
 	CompaniesMoney[Company] -= Amount;
+#if DEBUG_NEW_AI_TRADING
+	FLOGV("> %s consume %lld (%lld -> %lld)", *Company->GetCompanyName().ToString(), Amount, OldAmount, CompaniesMoney[Company]);
+#endif
+
 }
 
 bool AICompaniesMoney::HasMoney(UFlareCompany* Company)

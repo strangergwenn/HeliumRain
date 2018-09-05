@@ -497,6 +497,12 @@ void UFlareWorld::Simulate()
 	AITradeHelper::GenerateTradingSources(Sources, MaintenanceSources, this);
 	AITradeHelper::GenerateIdleShips(IdleShips, this);
 
+	AICompaniesMoney CompaniesMoney;
+	for(UFlareCompany* Company: GetCompanies())
+	{
+		CompaniesMoney.CompaniesMoney.Add(Company, Company->GetMoney())	;
+	}
+
 #if DEBUG_NEW_AI_TRADING
 	FLOG("Initial trading stat");
 	Needs.Print();
@@ -504,14 +510,13 @@ void UFlareWorld::Simulate()
 	Sources.Print();
 	MaintenanceSources.Print();
 	IdleShips.Print();
-#endif
 
-	AICompaniesMoney CompaniesMoney;
-	for(UFlareCompany* Company: GetCompanies())
+	for(auto& CompanyMoney : CompaniesMoney.CompaniesMoney)
 	{
-		CompaniesMoney.CompaniesMoney.Add(Company, Company->GetMoney())	;
+		FLOGV("- %s start with %lld", *CompanyMoney.Key->GetCompanyName().ToString(), CompanyMoney.Value);
 	}
 
+#endif
 
 	AITradeHelper::ComputeGlobalTrading(this, MaintenanceNeeds, Sources, MaintenanceSources, IdleShips, CompaniesMoney);
 	AITradeHelper::ComputeGlobalTrading(this, Needs, Sources, MaintenanceSources, IdleShips, CompaniesMoney);
