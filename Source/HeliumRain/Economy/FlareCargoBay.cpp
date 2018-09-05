@@ -411,7 +411,7 @@ int32 UFlareCargoBay::GetResourceQuantity(FFlareResourceDescription* Resource, U
 		}
 	}
 
-	if(Client && !Client->IsPlayerCompany())
+	if((Client && !Client->IsPlayerCompany())  && Parent->GetGame()->GetQuestManager() != nullptr)
 	{
 		int32 ReservedQuantity = Parent->GetGame()->GetQuestManager()->GetReservedQuantity(Parent, Resource);
 		int32 QuantityAfterReservation = FMath::Max(0, Quantity - ReservedQuantity);
@@ -454,7 +454,7 @@ int32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resourc
 	}
 
 
-	if(Client && !Client->IsPlayerCompany())
+	if((!Client || !Client->IsPlayerCompany()) && Parent->GetGame()->GetQuestManager() != nullptr)
 	{
 		int32 ReservedCapacity = Parent->GetGame()->GetQuestManager()->GetReservedCapacity(Parent, Resource);
 		int32 CapacityAfterReservation = FMath::Max(0, Quantity - ReservedCapacity);
@@ -465,6 +465,39 @@ int32 UFlareCargoBay::GetFreeSpaceForResource(FFlareResourceDescription* Resourc
 		return Quantity;
 	}
 }
+
+
+int32 UFlareCargoBay::GetTotalCapacityForResource(FFlareResourceDescription* Resource, UFlareCompany* Client, bool LockOnly) const
+{
+	int32 Quantity = 0;
+
+	for (int CargoIndex = 0; CargoIndex < CargoBay.Num() ; CargoIndex++)
+	{
+		const FFlareCargo& Cargo = CargoBay[CargoIndex];
+
+		if(!CheckRestriction(&Cargo, Client))
+		{
+			continue;
+		}
+
+		if(LockOnly && Cargo.Lock == EFlareResourceLock::NoLock)
+		{
+			continue;
+		}
+
+		if(Cargo.Lock != EFlareResourceLock::NoLock)
+		{
+
+		}
+
+		if (Cargo.Resource == NULL || Cargo.Resource == Resource)
+		{
+			Quantity += GetSlotCapacity();
+		}
+	}
+	return Quantity;
+}
+
 
 bool UFlareCargoBay::HasRestrictions() const
 {
@@ -641,21 +674,19 @@ bool UFlareCargoBay::WantBuy(FFlareResourceDescription* Resource, UFlareCompany*
 
 bool UFlareCargoBay::CheckRestriction(const FFlareCargo* Cargo, UFlareCompany* Client) const
 {
-	if(Client)
+	// Check restrictions
+	if(Cargo->Restriction == EFlareResourceRestriction::Nobody)
 	{
-		// Check restrictions
-		if(Cargo->Restriction == EFlareResourceRestriction::Nobody)
-		{
-			// Restricted slot
-			return false;
-		}
-
-		if(Cargo->Restriction == EFlareResourceRestriction::OwnerOnly && Client != Parent->GetCompany())
-		{
-			// Restricted slot
-			return false;
-		}
+		// Restricted slot
+		return false;
 	}
+
+	if(Cargo->Restriction == EFlareResourceRestriction::OwnerOnly && Client != Parent->GetCompany())
+	{
+		// Restricted slot
+		return false;
+	}
+
 	return true;
 }
 

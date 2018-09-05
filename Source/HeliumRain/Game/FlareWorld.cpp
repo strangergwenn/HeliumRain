@@ -14,6 +14,7 @@
 #include "FlareTravel.h"
 #include "FlareFleet.h"
 #include "FlareBattle.h"
+#include "AI/FlareAITradeHelper.h"
 
 #include "../Quests/FlareQuest.h"
 #include "../Quests/FlareQuestCondition.h"
@@ -483,6 +484,55 @@ void UFlareWorld::Simulate()
 	FLOG("* Simulate > AI");
 
 	HasTotalWorldCombatPointCache = false;
+
+	// AI. Merged trading
+	AITradeNeeds Needs;
+	AITradeNeeds MaintenanceNeeds;
+	AITradeSources Sources(this);
+	AITradeSources MaintenanceSources(this);
+	AITradeIdleShips IdleShips(this);
+
+
+	AITradeHelper::GenerateTradingNeeds(Needs, MaintenanceNeeds, this);
+	AITradeHelper::GenerateTradingSources(Sources, MaintenanceSources, this);
+	AITradeHelper::GenerateIdleShips(IdleShips, this);
+
+	AICompaniesMoney CompaniesMoney;
+	for(UFlareCompany* Company: GetCompanies())
+	{
+		CompaniesMoney.CompaniesMoney.Add(Company, Company->GetMoney())	;
+	}
+
+#if DEBUG_NEW_AI_TRADING
+	FLOG("Initial trading stat");
+	Needs.Print();
+	MaintenanceNeeds.Print();
+	Sources.Print();
+	MaintenanceSources.Print();
+	IdleShips.Print();
+
+	for(auto& CompanyMoney : CompaniesMoney.CompaniesMoney)
+	{
+		FLOGV("- %s start with %lld", *CompanyMoney.Key->GetCompanyName().ToString(), CompanyMoney.Value);
+	}
+
+#endif
+
+	AITradeHelper::ComputeGlobalTrading(this, MaintenanceNeeds, Sources, MaintenanceSources, IdleShips, CompaniesMoney);
+	AITradeHelper::ComputeGlobalTrading(this, Needs, Sources, MaintenanceSources, IdleShips, CompaniesMoney);
+
+#if DEBUG_NEW_AI_TRADING
+	FLOG("Final trading stat");
+	Needs.Print();
+	Sources.Print();
+	MaintenanceSources.Print();
+	IdleShips.Print();
+#endif
+
+	for(UFlareCompany* Company: Companies)
+	{
+		Company->GetAI()->UpdateIdleShipsStats(IdleShips);
+	}
 
 	// AI. Play them in random order
 	TArray<UFlareCompany*> CompaniesToSimulateAI = Companies;

@@ -91,11 +91,14 @@ public:
 
 	int32 GetFreeCargoSpace() const;
 
-	/* If client is not null, restriction are used*/
+	/* If client is not null, consider as not identified company*/
 	int32 GetResourceQuantity(FFlareResourceDescription* Resource, UFlareCompany* Client) const;
 
-	/* If client is not null, restriction are used*/
+	/* If client is not null, consider as not identified company*/
 	int32 GetFreeSpaceForResource(FFlareResourceDescription* Resource, UFlareCompany* Client, bool LockOnly = false) const;
+
+	int32 GetTotalCapacityForResource(FFlareResourceDescription* Resource, UFlareCompany* Client, bool LockOnly = false) const;
+
 
 	bool HasRestrictions() const;
 
@@ -113,10 +116,10 @@ public:
 		return Parent;
 	}
 
-	/* If client is not null, restriction are used*/
+	/* If client is not null, consider as not identified company*/
 	bool WantSell(FFlareResourceDescription* Resource, UFlareCompany* Client, bool RequireStock = false) const;
 
-	/* If client is not null, restriction are used*/
+	/* If client is not null, consider as not identified company*/
 	bool WantBuy(FFlareResourceDescription* Resource, UFlareCompany* Client) const;
 
 	bool CheckRestriction(const FFlareCargo* Cargo, UFlareCompany* Client) const;

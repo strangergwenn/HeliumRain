@@ -3,51 +3,12 @@
 #include "Object.h"
 #include "../FlareGameTypes.h"
 #include "../FlareWorldHelper.h"
+#include "FlareAITradeHelper.h"
 #include "FlareCompanyAI.generated.h"
 
 
 class UFlareCompany;
 class UFlareAIBehavior;
-
-/* Inter-sector trade deal */
-struct SectorDeal
-{
-	float Score;
-	UFlareSimulatedSector* SectorA;
-	UFlareSimulatedSector* SectorB;
-	FFlareResourceDescription* Resource;
-	int32 BuyQuantity;
-};
-
-/* Resource flow */
-struct ResourceVariation
-{
-	int32 OwnedFlow;
-	int32 FactoryFlow;
-
-	int32 OwnedStock;
-	int32 FactoryStock;
-	int32 StorageStock;
-	int32 IncomingResources;
-
-	int32 OwnedCapacity;
-	int32 FactoryCapacity;
-	int32 StorageCapacity;
-	int32 MaintenanceCapacity;
-
-	int32 MinCapacity;
-	int32 ConsumerMaxStock;
-	int32 MaintenanceMaxStock;
-
-	int32 HighPriority;
-};
-
-/* Local list of resource flows */
-struct SectorVariation
-{
-	int32 IncomingCapacity;
-	TMap<FFlareResourceDescription*, ResourceVariation> ResourceVariations;
-};
 
 struct FFlareDiplomacyStats
 {
@@ -121,6 +82,7 @@ public:
 	/** Destroy a spacecraft */
 	virtual void DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft);
 
+	void UpdateIdleShipsStats(AITradeIdleShips& IdleShips);
 
 	/*----------------------------------------------------
 		Behavior API
@@ -130,9 +92,6 @@ public:
 
 	/** Update diplomacy changes */
 	void UpdateDiplomacy();
-
-	/** Update trading for the company's fleet*/
-	void UpdateTrading();
 
 	void UpdateBestScore(float Score,
 						  UFlareSimulatedSector* Sector,
@@ -240,9 +199,6 @@ protected:
 	/** Get a list of wrecked cargos */
 	TArray<UFlareSimulatedSpacecraft*> FindIncapacitatedCargos() const;
 	
-	/** Get a list of idle cargos */
-	TArray<UFlareSimulatedSpacecraft*> FindIdleCargos() const;
-
 	int32 GetDamagedCargosCapacity();
 
 	int32 GetCargosCapacity();
@@ -257,13 +213,9 @@ protected:
 
 	float ComputeStationPrice(UFlareSimulatedSector* Sector, FFlareSpacecraftDescription* StationDescription, UFlareSimulatedSpacecraft* Station) const;
 
-	/** Get the resource flow in this sector */
-	SectorVariation ComputeSectorResourceVariation(UFlareSimulatedSector* Sector) const;
-
 	/** Print the resource flow */
 	void DumpSectorResourceVariation(UFlareSimulatedSector* Sector, TMap<FFlareResourceDescription*, struct ResourceVariation>* Variation) const;
 
-	SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat);
 
 protected:
 
