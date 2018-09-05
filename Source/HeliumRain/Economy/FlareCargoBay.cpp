@@ -485,7 +485,15 @@ int32 UFlareCargoBay::GetTotalCapacityForResource(FFlareResourceDescription* Res
 			continue;
 		}
 
-		Quantity += GetSlotCapacity();
+		if(Cargo.Lock != EFlareResourceLock::NoLock)
+		{
+
+		}
+
+		if (Cargo.Resource == NULL || Cargo.Resource == Resource)
+		{
+			Quantity += GetSlotCapacity();
+		}
 	}
 	return Quantity;
 }
