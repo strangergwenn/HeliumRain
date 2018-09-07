@@ -15,7 +15,137 @@ DECLARE_CYCLE_STAT(TEXT("AITradeHelper FindBestDealForShip Loop"), STAT_AITradeH
 DECLARE_CYCLE_STAT(TEXT("AITradeHelper ApplyDeal"), STAT_AITradeHelper_ApplyDeal, STATGROUP_Flare);
 
 
+void AITradeHelper::CompanyAutoTrade(UFlareCompany* Company)
+{
+	TMap<UFlareSimulatedSector*, SectorVariation> WorldResourceVariation;
+	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
+		SectorVariation Variation = AITradeHelper::ComputeSectorResourceVariation(Company, Sector);
 
+		WorldResourceVariation.Add(Sector, Variation);
+		//DumpSectorResourceVariation(Sector, &Variation);
+	}
+
+	for(UFlareFleet* Fleet : Company->GetCompanyFleets())
+	{
+		if(Fleet.IsAutoTrading())
+		{
+			AutoTrade(Fleet, WorldResourceVariation);
+		}
+	}
+}
+
+void AITradeHelper::FleetAutoTrade(UFlareFleet* Fleet, TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation)
+{
+	if(Fleet->IsTrading() || Fleet->IsTraveling())
+	{
+		// Wait next day
+		return;
+	}
+
+	bool IsFleetStranded = Fleet->CanTravel();
+	// TODO use IsFleetStranded
+
+
+	// Find the master ship
+	UFlareSimulatedSpacecraft* MasterShip = nullptr;
+	int32 MasterShipCapacity = 0;
+	int32 MasterShipQuantity = 0;
+
+	for(UFlareSimulatedSpacecraft* Ship : Fleet->GetShips())
+	{
+		if(Ship->IsMilitary())
+		{
+			continue;
+		}
+
+		if(Ship->GetDamageSystem()->IsUncontrollable())
+		{
+			continue;
+		}
+
+
+		int32 ShipQuantity = Ship->GetActiveCargoBay()->GetUsedCargoSpace();
+		int32 ShipCapacity = Ship->GetActiveCargoBay()->GetUsedCargoSpace();
+
+		auto SelectMasterShip = [&]()
+		{
+			MasterShip = Ship;
+			MasterShipCapacity = ShipCapacity;
+			MasterShipQuantity = ShipQuantity;
+		};
+
+		if(MasterShip == nullptr)
+		{
+			SelectMasterShip();
+		}
+		else if(ShipQuantity > MasterShipQuantity)
+		{
+			SelectMasterShip();
+		}
+		else if(ShipQuantity == MasterShipQuantity && ShipCapacity > MasterShipCapacity)
+		{
+			SelectMasterShip();
+		}
+	}
+
+
+
+
+	bool FirstTry = true;
+	SectorDeal MasterShipBestDeal;
+
+	do
+	{
+		MasterShip = FindBestMasterShip(Fleet, ExcludeList)
+
+		if(MasterShip == nullptr)
+		{
+
+
+
+			if(FirstTry)
+			{
+
+			FFlareMenuParameterData Data;
+			Data.Fleet = Fleet;
+			PC->Notify(LOCTEXT("NoAutoTradeCapability", "No Auto Trade capability"),
+				FText::Format(LOCTEXT("NoAutoTradeCapabilityFormat", "Your fleet {0} don't have any ship suitable for trading !"), Fleet->GetFleetName()),
+				FName("no-auto-trade-capability"),
+				EFlareNotification::NT_Economy,
+				false,
+				EFlareMenu::MENU_Fleet,
+				Data);
+			}
+			return;
+		}
+
+
+		MasterShipBestDeal = FindBestDealForShip(MasterShip, WorldResourceVariation);
+		FirstTry = false;
+	}
+	while(MasterShipBestDeal.Resource == null)
+
+
+
+
+	// TODO use IsFleetStranded
+
+
+
+
+	//Find deal for the master ship
+	// TODO STRANDED FLEET
+
+	// if the master ship travel
+		// start travel
+
+	// if the master ship have sector B : search deal with save sector B
+	// if the master ship have no sector B : only local deal
+
+	// apply all deal (local part
+}
 
 
 

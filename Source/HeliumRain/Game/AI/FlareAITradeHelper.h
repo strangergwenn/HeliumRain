@@ -225,6 +225,10 @@ struct AITradeIdleShips
 
 struct AITradeHelper
 {
+	static void CompanyAutoTrade(UFlareCompany* Company);
+
+	static void FleetAutoTrade(UFlareFleet* Fleet, TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation);
+
 	static TArray<UFlareSimulatedSpacecraft*> FindIdleCargos(UFlareCompany* Company);
 
 	static SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> const& WorldResourceVariation);
