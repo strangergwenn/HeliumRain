@@ -199,7 +199,7 @@ void AITradeHelper::FleetAutoTrade(UFlareFleet* Fleet, TMap<UFlareSimulatedSecto
 
 		if(BestDeal.Resource != nullptr)
 		{
-			ApplyDeal(MasterShip, MasterShipBestDeal, &WorldResourceVariation, false);
+			ApplyDeal(Ship, BestDeal, &WorldResourceVariation, false);
 		}
 	}
 
@@ -259,7 +259,7 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 	{
 		UFlareSimulatedSector* SectorB = Company->GetVisitedSectors()[SectorBIndex];
 
-		if(SectorBRestiction != nullptr && SectorBRestiction != SectorB)
+		if(SectorBRestiction != nullptr && SectorBRestiction != SectorB & SectorA != SectorB)
 		{
 			continue;
 		}
@@ -440,6 +440,11 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 			int32 SellQuantity = FMath::Min(CapacityInBAfterTravel, CanBuyQuantity + InitialQuantity);
 			int32  BuyQuantity = FMath::Max(0, SellQuantity - InitialQuantity);
 
+			if(SectorBRestiction != nullptr && BuyQuantity == 0)
+			{
+				// Will have to wait the departure so do a better local deal
+				continue;
+			}
 			// Use price details
 
 			int32 MoneyGain = 0;
@@ -1275,7 +1280,14 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 
 inline static bool NeedComparatorComparator(const AITradeNeed& n1, const AITradeNeed& n2)
 {
-	return n1.Ratio > n2.Ratio;
+	if(n1.HighPriority == n2.HighPriority)
+	{
+		return n1.Ratio > n2.Ratio;
+	}
+	else
+	{
+		return n1.HighPriority;
+	}
 }
 
 
@@ -1306,6 +1318,7 @@ void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, AITradeNeeds& Main
 						Need.SourceFunctionIndex = 0;
 						Need.Maintenance = false;
 						Need.Consume(0); // Generate ratio
+						Need.HighPriority = Station->IsUnderConstruction();
 						Needs.List.Add(Need);
 					}
 				}
@@ -1339,6 +1352,7 @@ void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, AITradeNeeds& Main
 				Need.Station = nullptr;
 				Need.SourceFunctionIndex = 0;
 				Need.Maintenance = true;
+				Need.HighPriority = true;
 				Need.Consume(0); // Generate ratio
 				MaintenanceNeeds.List.Add(Need);
 			}
