@@ -15,19 +15,24 @@ DECLARE_CYCLE_STAT(TEXT("AITradeHelper FindBestDealForShip Loop"), STAT_AITradeH
 DECLARE_CYCLE_STAT(TEXT("AITradeHelper ApplyDeal"), STAT_AITradeHelper_ApplyDeal, STATGROUP_Flare);
 
 
-#define DEBUG_AI_TRADING
+#define DEBUG_AI_TRADING 0
 #define DEBUG_AI_TRADING_COMPANY "PLY"
-#define DEBUG_AI_TRADING_SECTOR_B ""
-#define DEBUG_AI_TRADING_RESOURCES ""
+#define DEBUG_AI_TRADING_SECTOR_FILTER 0
+#define DEBUG_AI_TRADING_SECTOR "miners-home"
+#define DEBUG_AI_TRADING_SECTOR_B_FILTER 1
+#define DEBUG_AI_TRADING_SECTOR_B "nights-home"
+#define DEBUG_AI_TRADING_RESOURCES_FILTER 1
+#define DEBUG_AI_TRADING_RESOURCES "Food"
 
 #define LOCTEXT_NAMESPACE "AITradeHelper"
 
 void AITradeHelper::CompanyAutoTrade(UFlareCompany* Company)
 {
+	Company->GetAI()->GetBehavior()->Load(Company);
 	TMap<UFlareSimulatedSector*, SectorVariation> WorldResourceVariation;
-	for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
+	for (int32 SectorIndex = 0; SectorIndex < Company->GetVisitedSectors().Num(); SectorIndex++)
 	{
-		UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
+		UFlareSimulatedSector* Sector = Company->GetVisitedSectors()[SectorIndex];
 		SectorVariation Variation = AITradeHelper::ComputeSectorResourceVariation(Company, Sector);
 
 		WorldResourceVariation.Add(Sector, Variation);
@@ -104,7 +109,7 @@ void AITradeHelper::FleetAutoTrade(UFlareFleet* Fleet, TMap<UFlareSimulatedSecto
 		return;
 	}
 
-	bool IsFleetStranded = Fleet->CanTravel();
+	bool IsFleetStranded = !Fleet->CanTravel();
 	if(IsFleetStranded)
 	{
 		AFlarePlayerController* PC = Fleet->GetGame()->GetPC();
@@ -242,15 +247,17 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 	BestDeal.Resource = NULL;
 	BestDeal.SectorA = NULL;
 	BestDeal.SectorB = NULL;
+	BestDeal.SellStation = NULL;
+	BestDeal.BuyStation = NULL;
 
 	if (SectorA->GetSectorBattleState(Company).HasDanger)
 	{
 		return BestDeal;
 	}
 
-	for (int32 SectorBIndex = 0; SectorBIndex < Company->GetKnownSectors().Num(); SectorBIndex++)
+	for (int32 SectorBIndex = 0; SectorBIndex < Company->GetVisitedSectors().Num(); SectorBIndex++)
 	{
-		UFlareSimulatedSector* SectorB = Company->GetKnownSectors()[SectorBIndex];
+		UFlareSimulatedSector* SectorB = Company->GetVisitedSectors()[SectorBIndex];
 
 		if(SectorBRestiction != nullptr && SectorBRestiction != SectorB)
 		{
@@ -289,14 +296,14 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 		int64 TravelTime = TravelTimeToA + TravelTimeToB;
 
 
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 		/*if (SectorA->GetIdentifier() != "lighthouse" || SectorB->GetIdentifier() != "boneyard")
 		{
 			continue;
 		}*/
 
 		if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
-				&& SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B)
+				&& (!DEBUG_AI_TRADING_SECTOR_B_FILTER || SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B))
 		{
 			FLOGV("Travel %s -> %s -> %s : %lld days", *Ship->GetCurrentSector()->GetSectorName().ToString(),
 			*SectorA->GetSectorName().ToString(), *SectorB->GetSectorName().ToString(), TravelTime);
@@ -312,10 +319,10 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 			struct ResourceVariation const* VariationA = &SectorVariationA->ResourceVariations[Resource];
 			struct ResourceVariation const* VariationB = &SectorVariationB->ResourceVariations[Resource];
 
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 		if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
-				&& SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B
-				&& Resource->Identifier == DEBUG_AI_TRADING_RESOURCES)
+				&& (!DEBUG_AI_TRADING_SECTOR_B_FILTER || SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B)
+				&& (!DEBUG_AI_TRADING_RESOURCES_FILTER || Resource->Identifier == DEBUG_AI_TRADING_RESOURCES))
 		{
 			FLOGV("- Check for %s", *Resource->Name.ToString());
 			FLOGV("!VariationA->OwnedFlow %d",VariationA->OwnedFlow);
@@ -385,10 +392,10 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 				+ VariationA->StorageStock
 				- (VariationA->OwnedFlow * TravelTimeToA)
 				- (VariationA->FactoryFlow * TravelTimeToA);
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
-					&& SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B
-					&& Resource->Identifier == DEBUG_AI_TRADING_RESOURCES)
+					&& (!DEBUG_AI_TRADING_SECTOR_B_FILTER || SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B)
+					&& (!DEBUG_AI_TRADING_RESOURCES_FILTER || Resource->Identifier == DEBUG_AI_TRADING_RESOURCES))
 			{
 				FLOGV("InitialQuantity %d", InitialQuantity);
 				FLOGV("StockInAAfterTravel %d", StockInAAfterTravel);
@@ -510,10 +517,10 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 			{
 				Score *= VariationB->HighPriority;
 			}
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
-					&& SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B
-					&& Resource->Identifier == DEBUG_AI_TRADING_RESOURCES)
+					&& (!DEBUG_AI_TRADING_SECTOR_B_FILTER || SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B)
+					&& (!DEBUG_AI_TRADING_RESOURCES_FILTER || Resource->Identifier == DEBUG_AI_TRADING_RESOURCES))
 			{
 				FLOGV(" -> IncomingCapacity=%d", SectorVariationA->IncomingCapacity);
 				FLOGV(" -> IncomingResources=%d", VariationA->IncomingResources);
@@ -547,16 +554,16 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 				BestDeal.Resource = Resource;
 				BestDeal.BuyQuantity = BuyQuantity;
 
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 				if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 				{
-					//FLOGV("Travel %s -> %s -> %s : %lld days", *Ship->GetCurrentSector()->GetSectorName().ToString(),
-					//*SectorA->GetSectorName().ToString(), *SectorB->GetSectorName().ToString(), TravelTime);
+
 
 					FLOGV("New Best Resource %s", *Resource->Name.ToString())
+					FLOGV("Travel %s -> %s -> %s : %lld days", *Ship->GetCurrentSector()->GetSectorName().ToString(),
+						*SectorA->GetSectorName().ToString(), *SectorB->GetSectorName().ToString(), TravelTime);
 
-
-				/*	FLOGV(" -> IncomingCapacity=%d", SectorVariationA->IncomingCapacity);
+					FLOGV(" -> IncomingCapacity=%d", SectorVariationA->IncomingCapacity);
 					FLOGV(" -> IncomingResources=%d", VariationA->IncomingResources);
 					FLOGV(" -> InitialQuantity=%d", InitialQuantity);
 					FLOGV(" -> FreeSpace=%d", FreeSpace);
@@ -573,8 +580,9 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 					FLOGV(" -> MoneyBalanceParDay=%f", MoneyBalanceParDay/100.f);
 					FLOGV(" -> Resource affility=%f", Behavior->GetResourceAffility(Resource));
 					FLOGV(" -> SectorA affility=%f", Behavior->GetSectorAffility(SectorA));
-					FLOGV(" -> SectorB affility=%f", Behavior->GetSectorAffility(SectorB));*/
-					//FLOGV(" -> Score=%f", Score);
+					FLOGV(" -> SectorB affility=%f", Behavior->GetSectorAffility(SectorB));
+					FLOGV(" -> HighPriority=%d", VariationB->HighPriority);
+					FLOGV(" -> Score=%f", Score);
 				}
 #endif
 			}
@@ -596,12 +604,14 @@ SectorDeal AITradeHelper::FindBestDealForShip(UFlareSimulatedSpacecraft* Ship, T
 	BestDeal.Resource = NULL;
 	BestDeal.SectorA = NULL;
 	BestDeal.SectorB = NULL;
+	BestDeal.SellStation = NULL;
+	BestDeal.BuyStation = NULL;
 
 	// Stay here option
-	for (int32 SectorAIndex = 0; SectorAIndex < Company->GetKnownSectors().Num(); SectorAIndex++)
+	for (int32 SectorAIndex = 0; SectorAIndex < Company->GetVisitedSectors().Num(); SectorAIndex++)
 	{
 		SCOPE_CYCLE_COUNTER(STAT_AITradeHelper_FindBestDealForShip_Sectors);
-		UFlareSimulatedSector* SectorA = Company->GetKnownSectors()[SectorAIndex];
+		UFlareSimulatedSector* SectorA = Company->GetVisitedSectors()[SectorAIndex];
 
 		if(SectorARestiction != nullptr && SectorARestiction != SectorA)
 		{
@@ -615,6 +625,8 @@ SectorDeal AITradeHelper::FindBestDealForShip(UFlareSimulatedSpacecraft* Ship, T
 		SectorBestDeal.Resource = NULL;
 		SectorBestDeal.SectorA = NULL;
 		SectorBestDeal.SectorB = NULL;
+		SectorBestDeal.SellStation = NULL;
+		SectorBestDeal.BuyStation = NULL;
 
 		while (true)
 		{
@@ -659,7 +671,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 	AFlareGame* Game = Ship->GetGame();
 
 
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 	if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 	{
 		FLOGV("UFlareCompanyAI::UpdateTrading : Best balance for %s (%s) : %f score",
@@ -679,7 +691,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 				if(AllowTravel)
 				{
 					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), Deal.SectorB);
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 					if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 					{
 						FLOGV("UFlareCompanyAI::UpdateTrading -> Travel to %s to sell", *Deal.SectorB->GetSectorName().ToString());
@@ -688,7 +700,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 				 }
 				else
 				{
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 					if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 					{
 						FLOGV("UFlareCompanyAI::UpdateTrading -> Travel to %s to sell not allowed", *Deal.SectorB->GetSectorName().ToString());
@@ -720,7 +732,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 			if (StationCandidate)
 			{
 				BroughtResource = SectorHelper::Trade(StationCandidate, Ship, Deal.Resource, Request.MaxQuantity);
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 				if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 				{
 					FLOGV("UFlareCompanyAI::UpdateTrading -> Buy %d / %d to %s", BroughtResource, Deal.BuyQuantity, *StationCandidate->GetImmatriculation().ToString());
@@ -760,7 +772,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 						VariationA->OwnedFlow = 0;
 					if (VariationA->FactoryFlow > 0)
 						VariationA->FactoryFlow = 0;
-	#ifdef DEBUG_AI_TRADING
+	#if DEBUG_AI_TRADING
 					if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 					{
 						FLOG("UFlareCompanyAI::UpdateTrading -> Buy failed, remove the deal from the list");
@@ -777,7 +789,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 			if(AllowTravel)
 			{
 				Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), Deal.SectorA);
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 				if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 				{
 					FLOGV("UFlareCompanyAI::UpdateTrading -> Travel to %s to buy", *Deal.SectorA->GetSectorName().ToString());
@@ -786,24 +798,13 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 			}
 			else
 			{
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 				if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 				{
 					FLOGV("UFlareCompanyAI::UpdateTrading -> Travel to %s to buy not allowed", *Deal.SectorA->GetSectorName().ToString());
 				}
 #endif
 			}
-		}
-		else
-		{
-			// TODO remove
-			check(false);
-#ifdef DEBUG_AI_TRADING
-			if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
-			{
-				FLOGV("UFlareCompanyAI::UpdateTrading -> Wait to %s", *Deal.SectorA->GetSectorName().ToString());
-			}
-#endif
 		}
 
 		if(WorldResourceVariation != nullptr)
@@ -832,7 +833,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 		Request.Client = Ship;
 		Request.CargoLimit = 1.f;
 		Request.MaxQuantity = Ship->GetActiveCargoBay()->GetResourceQuantity(Deal.Resource, Ship->GetCompany());
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 		if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 		{
 			FLOGV("UFlareCompanyAI::UpdateTrading -> FindTradeStation for max %d",  Request.MaxQuantity);
@@ -843,8 +844,9 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 
 		if (StationCandidate)
 		{
+
 			int32 SellQuantity = SectorHelper::Trade(Ship, StationCandidate, Deal.Resource, Request.MaxQuantity);
-#ifdef DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING
 			if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 			{
 				FLOGV("UFlareCompanyAI::UpdateTrading -> Sell %d / %d to %s", SellQuantity, Request.MaxQuantity, *StationCandidate->GetImmatriculation().ToString());
@@ -858,6 +860,16 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 {
 	AFlareGame* Game = Company->GetGame();
 	UFlareAIBehavior* Behavior = Company->GetAI()->GetBehavior();
+
+
+#if DEBUG_AI_TRADING
+				if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
+						&& (!DEBUG_AI_TRADING_SECTOR_FILTER || Sector->GetIdentifier() == DEBUG_AI_TRADING_SECTOR))
+				{
+					FLOGV("ComputeSectorResourceVariation for sector %s)"
+						  , *Sector->GetSectorName().ToString());
+				}
+#endif
 
 	SectorVariation SectorVariation;
 	for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
@@ -889,6 +901,15 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 	{
 		UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations()[StationIndex];
 
+#if DEBUG_AI_TRADING
+				if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
+						&& (!DEBUG_AI_TRADING_SECTOR_FILTER || Sector->GetIdentifier() == DEBUG_AI_TRADING_SECTOR))
+				{
+					FLOGV("Station %s)"
+						  , *Station->GetImmatriculation().ToString());
+				}
+#endif
+
 
 		if (Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
 		{
@@ -900,6 +921,16 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
 		{
 			UFlareFactory* Factory = Station->GetFactories()[FactoryIndex];
+
+#if DEBUG_AI_TRADING
+				if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
+						&& (!DEBUG_AI_TRADING_SECTOR_FILTER || Sector->GetIdentifier() == DEBUG_AI_TRADING_SECTOR))
+				{
+					FLOGV("Factory %s)"
+						  , *Factory->GetDescription()->Name.ToString());
+				}
+#endif
+
 			if ((!Factory->IsActive() || !Factory->IsNeedProduction()))
 			{
 				// No resources needed
@@ -918,7 +949,7 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 					ProductionDuration = 10;
 				}
 
-				if(Station->IsUnderConstruction())
+				if(Station->IsUnderConstruction() && !Company->IsPlayerCompany())
 				{
 					Variation->HighPriority += 1000000;
 				}
@@ -1008,6 +1039,21 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 				}
 
 				int32 Stock = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
+
+#if DEBUG_AI_TRADING
+				if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
+						&& (!DEBUG_AI_TRADING_SECTOR_FILTER || Sector->GetIdentifier() == DEBUG_AI_TRADING_SECTOR)
+						&& (!DEBUG_AI_TRADING_RESOURCES_FILTER || Resource->Identifier == DEBUG_AI_TRADING_RESOURCES))
+				{
+					FLOGV("Stock of %s in %s, factory %s (sector %s): %d"
+						  , *Resource->Name.ToString()
+						  , *Station->GetImmatriculation().ToString()
+						  , *Factory->GetDescription()->Name.ToString()
+						  , *Sector->GetSectorName().ToString()
+						  , Stock);
+					FLOGV("Behavior->TradingBuy %f", Behavior->TradingBuy);
+				}
+#endif
 
 				if (Company == Station->GetCompany())
 				{

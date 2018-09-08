@@ -271,7 +271,7 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSim
 
 	if(!SourceSpacecraft->CanTradeWith(DestinationSpacecraft, Unused))
 	{
-		FLOG("Both spacecraft cannot trade");
+		FLOGV("Both spacecraft cannot trade: %s -> %s", *SourceSpacecraft->GetImmatriculation().ToString(), *DestinationSpacecraft->GetImmatriculation().ToString());
 		return 0;
 	}
 
