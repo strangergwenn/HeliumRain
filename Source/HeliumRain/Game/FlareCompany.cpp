@@ -437,6 +437,7 @@ UFlareFleet* UFlareCompany::CreateFleet(FText FleetName, UFlareSimulatedSector* 
 	FFlareFleetSave FleetData;
 	FleetData.Identifier = FName(*(GetIdentifier().ToString() + "-" + FString::FromInt(CompanyData.FleetImmatriculationIndex++)));
 	FleetData.Name = FleetName;
+	FleetData.AutoTrade = false;
 	UFlareFleet* Fleet = LoadFleet(FleetData);
 	Fleet->SetCurrentSector(FleetSector);
 	FleetSector->AddFleet(Fleet);

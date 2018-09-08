@@ -779,6 +779,11 @@ void UFlareSaveReaderV1::LoadFleet(const TSharedPtr<FJsonObject> Object, FFlareF
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 		Data->FleetColor = Theme.NeutralColor;
 	}
+
+	if(!Object->TryGetBoolField(TEXT("AutoTrade"), Data->AutoTrade))
+	{
+		Data->AutoTrade = false;
+	}
 }
 
 

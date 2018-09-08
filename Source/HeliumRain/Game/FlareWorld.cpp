@@ -422,6 +422,9 @@ void UFlareWorld::Simulate()
 	 */
 	FLOGV("** Simulate day %d", WorldData.Date);
 
+	FLOG("* Simulate > Player autotrade");
+	AITradeHelper::CompanyAutoTrade(PlayerCompany);
+
 	FLOG("* Simulate > Battles");
 	for (int SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
 	{

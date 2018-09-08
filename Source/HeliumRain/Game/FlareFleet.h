@@ -34,6 +34,10 @@ struct FFlareFleetSave
 	/** Fleet color */
 	UPROPERTY(EditAnywhere, Category = Save)
 	FLinearColor FleetColor;
+
+	/** Fleet use autotrade */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool AutoTrade;
 };
 
 UCLASS()
@@ -95,6 +99,11 @@ public:
 		CurrentTradeRoute = TradeRoute;
 	}
 
+	void SetAutoTrading(bool Autotrading)
+	{
+		FleetData.AutoTrade = Autotrading;
+	}
+
 	virtual void InitShipList();
 
 	void RemoveImmobilizedShips();
@@ -146,6 +155,11 @@ public:
 	FName GetIdentifier() const
 	{
 		return FleetData.Identifier;
+	}
+
+	bool IsAutoTrading() const
+	{
+		return FleetData.AutoTrade;
 	}
 
 	FFlareFleetSave* GetData()

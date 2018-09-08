@@ -614,6 +614,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveFleet(FFlareFleetSave* Data)
 	}
 	JsonObject->SetArrayField("ShipImmatriculations", ShipImmatriculations);
 	JsonObject->SetStringField("FleetColor", FormatVector(UFlareGameTools::ColorToVector(Data->FleetColor)));
+	JsonObject->SetBoolField("AutoTrade", Data->AutoTrade);
 
 	return JsonObject;
 }

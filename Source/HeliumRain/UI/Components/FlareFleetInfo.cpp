@@ -222,9 +222,7 @@ void SFlareFleetInfo::Show()
 		InspectButton->SetVisibility(EVisibility::Visible);
 		TradeRouteButton->SetVisibility(EVisibility::Visible);
 		AutoTradeButton->SetVisibility(EVisibility::Visible);
-
-		// TODO #1047 : set the current state here
-		AutoTradeButton->SetActive(false);
+		AutoTradeButton->SetActive(TargetFleet->IsAutoTrading());
 	}
 }
 
@@ -266,8 +264,8 @@ void SFlareFleetInfo::OnToggleAutoTrade()
 	if (PC && TargetFleet)
 	{
 		FLOGV("SFlareFleetInfo::OnToggleAutoTrade : TargetFleet=%p", TargetFleet);
-
-		// TODO #1047 : toggle here
+		TargetFleet->SetAutoTrading(!TargetFleet->IsAutoTrading());
+		AutoTradeButton->SetActive(TargetFleet->IsAutoTrading());
 	}
 }
 
@@ -367,10 +365,9 @@ FText SFlareFleetInfo::GetAutoTradeHintText() const
 	{
 		return LOCTEXT("CantAutoTradeOnTradeRoute", "Fleets assigned to a trade route can't do automatic trading");
 	}
-	else if (false)
+	else if (TargetFleet == TargetFleet->GetGame()->GetPC()->GetPlayerFleet())
 	{
-		return FText();
-		// TODO #1047 : check additional conditions, return return reason if it can't auto-trade, remove block if no other case
+		return LOCTEXT("CantAutoTradeWithPlayerFleet", "Player fleet can't do automatic trading");
 	}
 	else
 	{
@@ -384,9 +381,8 @@ bool SFlareFleetInfo::IsAutoTradeDisabled() const
 	{
 		return true;
 	}
-	else if (false)
+	else if (TargetFleet == TargetFleet->GetGame()->GetPC()->GetPlayerFleet())
 	{
-		// TODO #1047 : check additional conditions and return true if the auto-trade can't be toggled, remove block if no other case
 		return true;
 	}
 	else
