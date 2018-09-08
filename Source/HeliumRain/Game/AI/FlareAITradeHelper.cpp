@@ -20,9 +20,11 @@ DECLARE_CYCLE_STAT(TEXT("AITradeHelper ApplyDeal"), STAT_AITradeHelper_ApplyDeal
 #define DEBUG_AI_TRADING_SECTOR_FILTER 0
 #define DEBUG_AI_TRADING_SECTOR "miners-home"
 #define DEBUG_AI_TRADING_SECTOR_B_FILTER 1
-#define DEBUG_AI_TRADING_SECTOR_B "nights-home"
+#define DEBUG_AI_TRADING_SECTOR_B "miners-home"
+//#define DEBUG_AI_TRADING_SECTOR_B "nights-home"
 #define DEBUG_AI_TRADING_RESOURCES_FILTER 1
-#define DEBUG_AI_TRADING_RESOURCES "Food"
+#define DEBUG_AI_TRADING_RESOURCES "Feo"
+//#define DEBUG_AI_TRADING_RESOURCES "Food"
 
 #define LOCTEXT_NAMESPACE "AITradeHelper"
 
@@ -297,11 +299,6 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 
 
 #if DEBUG_AI_TRADING
-		/*if (SectorA->GetIdentifier() != "lighthouse" || SectorB->GetIdentifier() != "boneyard")
-		{
-			continue;
-		}*/
-
 		if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
 				&& (!DEBUG_AI_TRADING_SECTOR_B_FILTER || SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B))
 		{
@@ -440,11 +437,12 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 			int32 SellQuantity = FMath::Min(CapacityInBAfterTravel, CanBuyQuantity + InitialQuantity);
 			int32  BuyQuantity = FMath::Max(0, SellQuantity - InitialQuantity);
 
-			if(SectorBRestiction != nullptr && BuyQuantity == 0)
+			if(SectorA != SectorB && SectorBRestiction != nullptr && BuyQuantity == 0)
 			{
 				// Will have to wait the departure so do a better local deal
 				continue;
 			}
+
 			// Use price details
 
 			int32 MoneyGain = 0;
