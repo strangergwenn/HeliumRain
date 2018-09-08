@@ -231,11 +231,14 @@ struct AITradeHelper
 
 	static TArray<UFlareSimulatedSpacecraft*> FindIdleCargos(UFlareCompany* Company);
 
-	static SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> const& WorldResourceVariation);
+	static SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> const& WorldResourceVariation, UFlareSimulatedSector* SectorBRestiction);
 
-	static SectorDeal FindBestDealForShip(UFlareSimulatedSpacecraft* Ship, TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation);
+	static SectorDeal FindBestDealForShip(UFlareSimulatedSpacecraft* Ship, TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation, UFlareSimulatedSector* SectorARestiction, UFlareSimulatedSector* SectorBRestiction);
 
-	static void ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&Deal, TMap<UFlareSimulatedSector*, SectorVariation>* WorldResourceVariation);
+	static UFlareSimulatedSpacecraft* FindBestMasterShip(int32& UsableShipCount,UFlareFleet* Fleet, TArray<UFlareSimulatedSpacecraft*>& ExcludeList);
+
+
+	static void ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&Deal, TMap<UFlareSimulatedSector*, SectorVariation>* WorldResourceVariation, bool AllowTravel = true);
 
 	/** Get the resource flow in this sector */
 	static SectorVariation ComputeSectorResourceVariation(UFlareCompany* Company, UFlareSimulatedSector* Sector);

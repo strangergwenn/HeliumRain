@@ -99,7 +99,7 @@ public:
 		CurrentTradeRoute = TradeRoute;
 	}
 
-	void IsAutoTrading(bool Autotrading)
+	void SetAutoTrading(bool Autotrading)
 	{
 		FleetData.AutoTrade = Autotrading;
 	}

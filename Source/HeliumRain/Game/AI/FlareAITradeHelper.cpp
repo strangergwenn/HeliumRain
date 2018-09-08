@@ -15,6 +15,13 @@ DECLARE_CYCLE_STAT(TEXT("AITradeHelper FindBestDealForShip Loop"), STAT_AITradeH
 DECLARE_CYCLE_STAT(TEXT("AITradeHelper ApplyDeal"), STAT_AITradeHelper_ApplyDeal, STATGROUP_Flare);
 
 
+#define DEBUG_AI_TRADING
+#define DEBUG_AI_TRADING_COMPANY "PLY"
+#define DEBUG_AI_TRADING_SECTOR_B ""
+#define DEBUG_AI_TRADING_RESOURCES ""
+
+#define LOCTEXT_NAMESPACE "AITradeHelper"
+
 void AITradeHelper::CompanyAutoTrade(UFlareCompany* Company)
 {
 	TMap<UFlareSimulatedSector*, SectorVariation> WorldResourceVariation;
@@ -29,29 +36,19 @@ void AITradeHelper::CompanyAutoTrade(UFlareCompany* Company)
 
 	for(UFlareFleet* Fleet : Company->GetCompanyFleets())
 	{
-		if(Fleet.IsAutoTrading())
+		if(Fleet->IsAutoTrading())
 		{
-			AutoTrade(Fleet, WorldResourceVariation);
+			FleetAutoTrade(Fleet, WorldResourceVariation);
 		}
 	}
 }
 
-void AITradeHelper::FleetAutoTrade(UFlareFleet* Fleet, TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation)
+UFlareSimulatedSpacecraft* AITradeHelper::FindBestMasterShip(int32& UsableShipCount,UFlareFleet* Fleet, TArray<UFlareSimulatedSpacecraft*>& ExcludeList)
 {
-	if(Fleet->IsTrading() || Fleet->IsTraveling())
-	{
-		// Wait next day
-		return;
-	}
-
-	bool IsFleetStranded = Fleet->CanTravel();
-	// TODO use IsFleetStranded
-
-
-	// Find the master ship
 	UFlareSimulatedSpacecraft* MasterShip = nullptr;
 	int32 MasterShipCapacity = 0;
 	int32 MasterShipQuantity = 0;
+	UsableShipCount = 0;
 
 	for(UFlareSimulatedSpacecraft* Ship : Fleet->GetShips())
 	{
@@ -65,6 +62,12 @@ void AITradeHelper::FleetAutoTrade(UFlareFleet* Fleet, TMap<UFlareSimulatedSecto
 			continue;
 		}
 
+		UsableShipCount++;
+
+		if(ExcludeList.Contains(Ship))
+		{
+			continue;
+		}
 
 		int32 ShipQuantity = Ship->GetActiveCargoBay()->GetUsedCargoSpace();
 		int32 ShipCapacity = Ship->GetActiveCargoBay()->GetUsedCargoSpace();
@@ -89,25 +92,45 @@ void AITradeHelper::FleetAutoTrade(UFlareFleet* Fleet, TMap<UFlareSimulatedSecto
 			SelectMasterShip();
 		}
 	}
+	return MasterShip;
+}
 
+void AITradeHelper::FleetAutoTrade(UFlareFleet* Fleet, TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation)
+{
 
+	if(Fleet->IsTrading() || Fleet->IsTraveling())
+	{
+		// Wait next day
+		return;
+	}
 
+	bool IsFleetStranded = Fleet->CanTravel();
+	if(IsFleetStranded)
+	{
+		AFlarePlayerController* PC = Fleet->GetGame()->GetPC();
+		FFlareMenuParameterData Data;
+		Data.Fleet = Fleet;
+		PC->Notify(LOCTEXT("AutoTradeStranded", "Auto Trade fleet stranded"),
+			FText::Format(LOCTEXT("NoAutoTradeCapabilityFormat", "Your fleet {0} is stranded. It's trade capbabilities will be limited."), Fleet->GetFleetName()),
+			FName("auto-trade-stranded"),
+			EFlareNotification::NT_Economy,
+			false,
+			EFlareMenu::MENU_Fleet,
+			Data);
+	}
 
-	bool FirstTry = true;
+	TArray<UFlareSimulatedSpacecraft*> ExcludeList;
+	UFlareSimulatedSpacecraft* MasterShip = nullptr;
 	SectorDeal MasterShipBestDeal;
 
 	do
 	{
-		MasterShip = FindBestMasterShip(Fleet, ExcludeList)
+		int32 UsableShipCount;
+		MasterShip = FindBestMasterShip(UsableShipCount, Fleet, ExcludeList);
 
-		if(MasterShip == nullptr)
+		if(UsableShipCount == 0)
 		{
-
-
-
-			if(FirstTry)
-			{
-
+			AFlarePlayerController* PC = Fleet->GetGame()->GetPC();
 			FFlareMenuParameterData Data;
 			Data.Fleet = Fleet;
 			PC->Notify(LOCTEXT("NoAutoTradeCapability", "No Auto Trade capability"),
@@ -117,34 +140,64 @@ void AITradeHelper::FleetAutoTrade(UFlareFleet* Fleet, TMap<UFlareSimulatedSecto
 				false,
 				EFlareMenu::MENU_Fleet,
 				Data);
-			}
 			return;
 		}
 
 
-		MasterShipBestDeal = FindBestDealForShip(MasterShip, WorldResourceVariation);
-		FirstTry = false;
+		if(MasterShip == nullptr)
+		{
+			// No deal possible
+			return;
+		}
+
+
+		if(IsFleetStranded)
+		{
+			// Search local deal only
+			MasterShipBestDeal = FindBestDealForShip(MasterShip, WorldResourceVariation, Fleet->GetCurrentSector(), Fleet->GetCurrentSector());
+		}
+		else
+		{
+			MasterShipBestDeal = FindBestDealForShip(MasterShip, WorldResourceVariation, nullptr, nullptr);
+		}
+		ExcludeList.Add(MasterShip);
 	}
-	while(MasterShipBestDeal.Resource == null)
+	while(MasterShipBestDeal.Resource == nullptr);
 
 
+	ApplyDeal(MasterShip, MasterShipBestDeal, &WorldResourceVariation);
 
+	if(Fleet->IsTraveling())
+	{
+		return;
+	}
 
-	// TODO use IsFleetStranded
+	// Find deal for others ships
+	for(UFlareSimulatedSpacecraft* Ship : Fleet->GetShips())
+	{
+		if(Ship == MasterShip)
+		{
+			continue;
+		}
 
+		if(Ship->IsMilitary())
+		{
+			continue;
+		}
 
+		if(Ship->GetDamageSystem()->IsUncontrollable())
+		{
+			continue;
+		}
 
+		SectorDeal BestDeal = FindBestDealForShip(Ship, WorldResourceVariation, MasterShipBestDeal.SectorA, MasterShipBestDeal.SectorB);
 
-	//Find deal for the master ship
-	// TODO STRANDED FLEET
+		if(BestDeal.Resource != nullptr)
+		{
+			ApplyDeal(MasterShip, MasterShipBestDeal, &WorldResourceVariation, false);
+		}
+	}
 
-	// if the master ship travel
-		// start travel
-
-	// if the master ship have sector B : search deal with save sector B
-	// if the master ship have no sector B : only local deal
-
-	// apply all deal (local part
 }
 
 
@@ -173,7 +226,7 @@ TArray<UFlareSimulatedSpacecraft*> AITradeHelper::FindIdleCargos(UFlareCompany* 
 	return IdleCargos;
 }
 
-SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> const& WorldResourceVariation)
+SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> const& WorldResourceVariation, UFlareSimulatedSector* SectorBRestiction)
 {
 	SCOPE_CYCLE_COUNTER(STAT_AITradeHelper_FindBestDealForShipFromSector);
 
@@ -198,6 +251,11 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 	for (int32 SectorBIndex = 0; SectorBIndex < Company->GetKnownSectors().Num(); SectorBIndex++)
 	{
 		UFlareSimulatedSector* SectorB = Company->GetKnownSectors()[SectorBIndex];
+
+		if(SectorBRestiction != nullptr && SectorBRestiction != SectorB)
+		{
+			continue;
+		}
 
 		int64 TravelTimeToA;
 		int64 TravelTimeToB;
@@ -526,7 +584,7 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 	return BestDeal;
 }
 
-SectorDeal AITradeHelper::FindBestDealForShip(UFlareSimulatedSpacecraft* Ship, TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation)
+SectorDeal AITradeHelper::FindBestDealForShip(UFlareSimulatedSpacecraft* Ship, TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation, UFlareSimulatedSector* SectorARestiction, UFlareSimulatedSector* SectorBRestiction)
 {
 	SCOPE_CYCLE_COUNTER(STAT_AITradeHelper_FindBestDealForShip);
 
@@ -545,6 +603,11 @@ SectorDeal AITradeHelper::FindBestDealForShip(UFlareSimulatedSpacecraft* Ship, T
 		SCOPE_CYCLE_COUNTER(STAT_AITradeHelper_FindBestDealForShip_Sectors);
 		UFlareSimulatedSector* SectorA = Company->GetKnownSectors()[SectorAIndex];
 
+		if(SectorARestiction != nullptr && SectorARestiction != SectorA)
+		{
+			continue;
+		}
+
 		SectorDeal SectorBestDeal;
 		SectorBestDeal.Resource = NULL;
 		SectorBestDeal.BuyQuantity = 0;
@@ -557,7 +620,7 @@ SectorDeal AITradeHelper::FindBestDealForShip(UFlareSimulatedSpacecraft* Ship, T
 		{
 			SCOPE_CYCLE_COUNTER(STAT_AITradeHelper_FindBestDealForShip_Loop);
 
-			SectorBestDeal = AITradeHelper::FindBestDealForShipFromSector(Ship, SectorA, &BestDeal, WorldResourceVariation);
+			SectorBestDeal = AITradeHelper::FindBestDealForShipFromSector(Ship, SectorA, &BestDeal, WorldResourceVariation, SectorBRestiction);
 			if (!SectorBestDeal.Resource)
 			{
 				// No best deal found
@@ -589,7 +652,7 @@ SectorDeal AITradeHelper::FindBestDealForShip(UFlareSimulatedSpacecraft* Ship, T
 	return BestDeal;
 }
 
-void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&Deal, TMap<UFlareSimulatedSector*, SectorVariation>* WorldResourceVariation)
+void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&Deal, TMap<UFlareSimulatedSector*, SectorVariation>* WorldResourceVariation, bool AllowTravel)
 {
 	SCOPE_CYCLE_COUNTER(STAT_AITradeHelper_ApplyDeal);
 
@@ -597,7 +660,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 
 
 #ifdef DEBUG_AI_TRADING
-	if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+	if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 	{
 		FLOGV("UFlareCompanyAI::UpdateTrading : Best balance for %s (%s) : %f score",
 			*Ship->GetImmatriculation().ToString(), *Ship->GetCurrentSector()->GetSectorName().ToString(), Deal.Score / 100);
@@ -613,13 +676,25 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 			if (Ship->GetCurrentSector() != Deal.SectorB)
 			{
 				// Already buy resources,go to B
-				Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), Deal.SectorB);
-#ifdef DEBUG_AI_TRADING
-				if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+				if(AllowTravel)
 				{
-					FLOGV("UFlareCompanyAI::UpdateTrading -> Travel to %s to sell", *Deal.SectorB->GetSectorName().ToString());
-				}
+					Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), Deal.SectorB);
+#ifdef DEBUG_AI_TRADING
+					if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+					{
+						FLOGV("UFlareCompanyAI::UpdateTrading -> Travel to %s to sell", *Deal.SectorB->GetSectorName().ToString());
+					}
 #endif
+				 }
+				else
+				{
+#ifdef DEBUG_AI_TRADING
+					if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+					{
+						FLOGV("UFlareCompanyAI::UpdateTrading -> Travel to %s to sell not allowed", *Deal.SectorB->GetSectorName().ToString());
+					}
+#endif
+				}
 			}
 		}
 		else
@@ -646,7 +721,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 			{
 				BroughtResource = SectorHelper::Trade(StationCandidate, Ship, Deal.Resource, Request.MaxQuantity);
 #ifdef DEBUG_AI_TRADING
-				if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+				if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 				{
 					FLOGV("UFlareCompanyAI::UpdateTrading -> Buy %d / %d to %s", BroughtResource, Deal.BuyQuantity, *StationCandidate->GetImmatriculation().ToString());
 				}
@@ -686,7 +761,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 					if (VariationA->FactoryFlow > 0)
 						VariationA->FactoryFlow = 0;
 	#ifdef DEBUG_AI_TRADING
-					if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+					if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 					{
 						FLOG("UFlareCompanyAI::UpdateTrading -> Buy failed, remove the deal from the list");
 					}
@@ -699,18 +774,32 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 	{
 		if (Deal.SectorA != Ship->GetCurrentSector())
 		{
-			Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), Deal.SectorA);
-#ifdef DEBUG_AI_TRADING
-			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+			if(AllowTravel)
 			{
-				FLOGV("UFlareCompanyAI::UpdateTrading -> Travel to %s to buy", *Deal.SectorA->GetSectorName().ToString());
-			}
+				Game->GetGameWorld()->StartTravel(Ship->GetCurrentFleet(), Deal.SectorA);
+#ifdef DEBUG_AI_TRADING
+				if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+				{
+					FLOGV("UFlareCompanyAI::UpdateTrading -> Travel to %s to buy", *Deal.SectorA->GetSectorName().ToString());
+				}
 #endif
+			}
+			else
+			{
+#ifdef DEBUG_AI_TRADING
+				if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+				{
+					FLOGV("UFlareCompanyAI::UpdateTrading -> Travel to %s to buy not allowed", *Deal.SectorA->GetSectorName().ToString());
+				}
+#endif
+			}
 		}
 		else
 		{
+			// TODO remove
+			check(false);
 #ifdef DEBUG_AI_TRADING
-			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+			if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 			{
 				FLOGV("UFlareCompanyAI::UpdateTrading -> Wait to %s", *Deal.SectorA->GetSectorName().ToString());
 			}
@@ -744,7 +833,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 		Request.CargoLimit = 1.f;
 		Request.MaxQuantity = Ship->GetActiveCargoBay()->GetResourceQuantity(Deal.Resource, Ship->GetCompany());
 #ifdef DEBUG_AI_TRADING
-		if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+		if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 		{
 			FLOGV("UFlareCompanyAI::UpdateTrading -> FindTradeStation for max %d",  Request.MaxQuantity);
 		}
@@ -756,7 +845,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 		{
 			int32 SellQuantity = SectorHelper::Trade(Ship, StationCandidate, Deal.Resource, Request.MaxQuantity);
 #ifdef DEBUG_AI_TRADING
-			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
+			if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 			{
 				FLOGV("UFlareCompanyAI::UpdateTrading -> Sell %d / %d to %s", SellQuantity, Request.MaxQuantity, *StationCandidate->GetImmatriculation().ToString());
 			}
@@ -3564,3 +3653,5 @@ bool AICompaniesMoney::HasMoney(UFlareCompany* Company)
 {
 	return CompaniesMoney[Company] > 0;
 }
+
+#undef LOCTEXT_NAMESPACE
