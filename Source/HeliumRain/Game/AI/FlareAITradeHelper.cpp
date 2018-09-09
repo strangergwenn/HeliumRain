@@ -57,6 +57,7 @@ void AITradeHelper::CompanyAutoTrade(UFlareCompany* Company)
 	{
 		if(Fleet->IsAutoTrading())
 		{
+			Fleet->GetData()->AutoTradeStatsDays++;
 			FleetAutoTrade(Fleet, WorldResourceVariation);
 		}
 	}
@@ -746,7 +747,11 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 			int32 BroughtResource = 0;
 			if (StationCandidate)
 			{
-				BroughtResource = SectorHelper::Trade(StationCandidate, Ship, Deal.Resource, Request.MaxQuantity);
+				int64 TransactionPrice;
+				BroughtResource = SectorHelper::Trade(StationCandidate, Ship, Deal.Resource, Request.MaxQuantity, &TransactionPrice);
+				Ship->GetCurrentFleet()->GetData()->AutoTradeStatsLoadResources += BroughtResource;
+				Ship->GetCurrentFleet()->GetData()->AutoTradeStatsMoneyBuy += TransactionPrice;
+
 #if DEBUG_AI_TRADING
 				if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 				{
@@ -859,8 +864,10 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 
 		if (StationCandidate)
 		{
-
-			int32 SellQuantity = SectorHelper::Trade(Ship, StationCandidate, Deal.Resource, Request.MaxQuantity);
+			int64 TransactionPrice;
+			int32 SellQuantity = SectorHelper::Trade(Ship, StationCandidate, Deal.Resource, Request.MaxQuantity, &TransactionPrice);
+			Ship->GetCurrentFleet()->GetData()->AutoTradeStatsUnloadResources += SellQuantity;
+			Ship->GetCurrentFleet()->GetData()->AutoTradeStatsMoneySell += TransactionPrice;
 #if DEBUG_AI_TRADING
 			if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 			{

@@ -38,6 +38,26 @@ struct FFlareFleetSave
 	/** Fleet use autotrade */
 	UPROPERTY(EditAnywhere, Category = Save)
 	bool AutoTrade;
+
+	/** Days since last stats reset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 AutoTradeStatsDays;
+
+	/** Load resource count since last stats reset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 AutoTradeStatsLoadResources;
+
+	/** Unload resource cout since last stats reset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 AutoTradeStatsUnloadResources;
+
+	/** Amount of money gain since last stats reset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 AutoTradeStatsMoneySell;
+
+	/** Amount of money spent since last stats reset */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int64 AutoTradeStatsMoneyBuy;
 };
 
 UCLASS()
@@ -102,6 +122,11 @@ public:
 	void SetAutoTrading(bool Autotrading)
 	{
 		FleetData.AutoTrade = Autotrading;
+		FleetData.AutoTradeStatsDays = 0;
+		FleetData.AutoTradeStatsLoadResources = 0;
+		FleetData.AutoTradeStatsUnloadResources = 0;
+		FleetData.AutoTradeStatsMoneySell = 0;
+		FleetData.AutoTradeStatsMoneyBuy = 0;
 	}
 
 	virtual void InitShipList();

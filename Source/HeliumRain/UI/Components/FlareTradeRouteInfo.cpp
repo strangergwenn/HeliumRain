@@ -331,7 +331,7 @@ void SFlareTradeRouteInfo::OnTogglePauseTradeRoute(UFlareTradeRoute* TradeRoute)
 
 FText SFlareTradeRouteInfo::GetFleetDetailText(UFlareFleet* Fleet) const
 {
-	int32 CreditsGain = 0; // TODO #1047
+	int32 CreditsGain = (Fleet->GetData()->AutoTradeStatsDays > 0) ? (FMath::RoundToInt(0.01f * float(Fleet->GetData()->AutoTradeStatsMoneySell - Fleet->GetData()->AutoTradeStatsMoneyBuy) / float(Fleet->GetData()->AutoTradeStatsDays))) : 0;
 	
 	// Format result
 	if (CreditsGain > 0)

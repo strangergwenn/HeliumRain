@@ -784,6 +784,12 @@ void UFlareSaveReaderV1::LoadFleet(const TSharedPtr<FJsonObject> Object, FFlareF
 	{
 		Data->AutoTrade = false;
 	}
+
+	LoadInt32(Object, "AutoTradeStatsDays", &Data->AutoTradeStatsDays);
+	LoadInt32(Object, "AutoTradeStatsLoadResources", &Data->AutoTradeStatsLoadResources);
+	LoadInt32(Object, "AutoTradeStatsUnloadResources", &Data->AutoTradeStatsUnloadResources);
+	LoadInt64(Object, "AutoTradeStatsMoneySell", &Data->AutoTradeStatsMoneySell);
+	LoadInt64(Object, "AutoTradeStatsMoneyBuy", &Data->AutoTradeStatsMoneyBuy);
 }
 
 
