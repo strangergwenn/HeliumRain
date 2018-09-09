@@ -32,10 +32,11 @@ public:
 	void Construct(const FArguments& InArgs);
 	
 	/** Generate the trade route list */
-	void UpdateTradeRouteList();
+	void Update();
 
 	/** Clear the trade route list */
 	void Clear();
+
 
 	/** Info text */
 	FText GetDetailText(UFlareTradeRoute* TradeRoute) const;
@@ -63,7 +64,14 @@ public:
 
 	/** Toggle pause */
 	void OnTogglePauseTradeRoute(UFlareTradeRoute* TradeRoute);
-		
+
+
+	/** Info text */
+	FText GetFleetDetailText(UFlareFleet* Fleet) const;
+
+	/** Inspect fleet */
+	void OnInspectFleetClicked(UFlareFleet* Fleet);
+
 
 protected:
 
@@ -76,6 +84,7 @@ protected:
 	
 	// Menu data
 	TSharedPtr<SVerticalBox>                 TradeRouteList;
+	TSharedPtr<SVerticalBox>                 AutomatedFleetList;
 
 
 };

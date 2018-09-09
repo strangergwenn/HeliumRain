@@ -62,16 +62,6 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				[
 					SNew(SVerticalBox)
 
-					// World status title
-					+ SVerticalBox::Slot()
-					.Padding(Theme.TitlePadding)
-					.AutoHeight()
-					[
-						SNew(STextBlock)
-						.Text(LOCTEXT("WorldStatus", "World status"))
-						.TextStyle(&Theme.SubTitleFont)
-					]
-
 					// World status
 					+ SVerticalBox::Slot()
 					.HAlign(HAlign_Fill)
@@ -184,41 +174,34 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 				.HAlign(HAlign_Fill)
 				.VAlign(VAlign_Fill)
 				[
-					SNew(SBox)
-					.WidthOverride(Theme.ContentWidth)
+					SNew(SScrollBox)
+					.Style(&Theme.ScrollBoxStyle)
+					.ScrollBarStyle(&Theme.ScrollBarStyle)
+
+					// Travel title
+					+ SScrollBox::Slot()
+					.Padding(Theme.ContentPadding)
 					[
-						SNew(SVerticalBox)
+						UFlareUITypes::Header(LOCTEXT("TravelsTitle", "Travels"))
+					]
 
-						// Travel list
-						+ SVerticalBox::Slot()
-						.Padding(Theme.ContentPadding)
-						[
-							SNew(SScrollBox)
-							.Style(&Theme.ScrollBoxStyle)
-							.ScrollBarStyle(&Theme.ScrollBarStyle)
-							+ SScrollBox::Slot()
-							[
-								SNew(SRichTextBlock)
-								.TextStyle(&Theme.TextFont)
-								.Text(this, &SFlareOrbitalMenu::GetTravelText)
-								.WrapTextAt(0.5 * Theme.ContentWidth)
-								.DecoratorStyleSet(&FFlareStyleSet::Get())
-							]
-						]
+					// Travel list
+					+ SScrollBox::Slot()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SRichTextBlock)
+						.TextStyle(&Theme.TextFont)
+						.Text(this, &SFlareOrbitalMenu::GetTravelText)
+						.WrapTextAt(0.5 * Theme.ContentWidth)
+						.DecoratorStyleSet(&FFlareStyleSet::Get())
+					]
 
-						// Trade route list
-						+ SVerticalBox::Slot()
-						.HAlign(HAlign_Left)
-						[
-							SNew(SScrollBox)
-							.Style(&Theme.ScrollBoxStyle)
-							.ScrollBarStyle(&Theme.ScrollBarStyle)
-							+ SScrollBox::Slot()
-							[
-								SAssignNew(TradeRouteInfo, SFlareTradeRouteInfo)
-								.MenuManager(MenuManager)
-							]
-						]
+					// Trade route list
+					+ SScrollBox::Slot()
+					.HAlign(HAlign_Left)
+					[
+						SAssignNew(TradeRouteInfo, SFlareTradeRouteInfo)
+						.MenuManager(MenuManager)
 					]
 				]
 
@@ -306,7 +289,7 @@ void SFlareOrbitalMenu::Enter()
 	// Update stuff
 	StopFastForward();
 	UpdateMap();
-	TradeRouteInfo->UpdateTradeRouteList();
+	TradeRouteInfo->Update();
 
 	Game->SaveGame(MenuManager->GetPC(), true);
 }

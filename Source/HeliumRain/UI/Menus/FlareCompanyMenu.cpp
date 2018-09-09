@@ -62,15 +62,6 @@ void SFlareCompanyMenu::Construct(const FArguments& InArgs)
 			[
 				SNew(SVerticalBox)
 
-				+ SVerticalBox::Slot()
-				.Padding(Theme.TitlePadding)
-				.AutoHeight()
-				[
-					SNew(STextBlock)
-					.TextStyle(&Theme.SubTitleFont)
-					.Text(LOCTEXT("CompanyInfoTitle", "Company"))
-				]
-
 				// Company info
 				+ SVerticalBox::Slot()
 				.Padding(Theme.ContentPadding)
@@ -570,7 +561,7 @@ void SFlareCompanyMenu::Enter(UFlareCompany* Target)
 	SetVisibility(EVisibility::Visible);
 	CompanyInfo->SetCompany(Company);
 	CompanyName->SetText(Company->GetCompanyName());
-	TradeRouteInfo->UpdateTradeRouteList();
+	TradeRouteInfo->Update();
 
 	// Date
 	int64 CurrentGameDate = MenuManager->GetGame()->GetGameWorld()->GetDate();

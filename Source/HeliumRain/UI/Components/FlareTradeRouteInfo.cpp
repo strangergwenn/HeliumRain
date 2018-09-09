@@ -24,11 +24,11 @@ void SFlareTradeRouteInfo::Construct(const FArguments& InArgs)
 	
 	// Build structure
 	ChildSlot
-	.HAlign(HAlign_Fill)
+	.HAlign(HAlign_Left)
 	.VAlign(VAlign_Fill)
 	[
 		SNew(SBox)
-		.WidthOverride(Theme.ContentWidth)
+		.WidthOverride(0.6 * Theme.ContentWidth)
 		.HAlign(HAlign_Fill)
 		[
 			SNew(SVerticalBox)
@@ -38,9 +38,7 @@ void SFlareTradeRouteInfo::Construct(const FArguments& InArgs)
 			.Padding(Theme.TitlePadding)
 			.AutoHeight()
 			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("Trade routes", "Trade routes"))
-				.TextStyle(&Theme.SubTitleFont)
+				UFlareUITypes::Header(LOCTEXT("Trade routes", "Trade routes"))
 			]
 
 			// New trade route button
@@ -50,7 +48,7 @@ void SFlareTradeRouteInfo::Construct(const FArguments& InArgs)
 			.HAlign(HAlign_Left)
 			[
 				SNew(SFlareButton)
-				.Width(8)
+				.Width(9)
 				.Text(LOCTEXT("NewTradeRouteButton", "Add new trade route"))
 				.HelpText(LOCTEXT("NewTradeRouteInfo", "Create a new trade route and edit it. You need an available fleet to create a new trade route."))
 				.Icon(FFlareStyleSet::GetIcon("New"))
@@ -63,13 +61,23 @@ void SFlareTradeRouteInfo::Construct(const FArguments& InArgs)
 			.HAlign(HAlign_Left)
 			.AutoHeight()
 			[
-				SNew(SScrollBox)
-				.Style(&Theme.ScrollBoxStyle)
-				.ScrollBarStyle(&Theme.ScrollBarStyle)
-				+ SScrollBox::Slot()
-				[
-					SAssignNew(TradeRouteList, SVerticalBox)
-				]
+				SAssignNew(TradeRouteList, SVerticalBox)
+			]
+
+			// Automated fleets title
+			+ SVerticalBox::Slot()
+			.Padding(Theme.TitlePadding)
+			.AutoHeight()
+			[
+				UFlareUITypes::Header(LOCTEXT("AutomatedFleets", "Automated fleets"))
+			]
+
+			// Automated fleets list
+			+ SVerticalBox::Slot()
+			.HAlign(HAlign_Left)
+			.AutoHeight()
+			[
+				SAssignNew(AutomatedFleetList, SVerticalBox)
 			]
 		]
 	];
@@ -80,17 +88,14 @@ void SFlareTradeRouteInfo::Construct(const FArguments& InArgs)
 	Interaction
 ----------------------------------------------------*/
 
-void SFlareTradeRouteInfo::UpdateTradeRouteList()
+void SFlareTradeRouteInfo::Update()
 {
 	Clear();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
-	TArray<UFlareTradeRoute*>& TradeRoutes = MenuManager->GetPC()->GetCompany()->GetCompanyTradeRoutes();
 
-	for (int RouteIndex = 0; RouteIndex < TradeRoutes.Num(); RouteIndex++)
+	// List trade routes
+	for (UFlareTradeRoute* TradeRoute : MenuManager->GetPC()->GetCompany()->GetCompanyTradeRoutes())
 	{
-		UFlareTradeRoute* TradeRoute = TradeRoutes[RouteIndex];
-		
-		// Add line
 		TradeRouteList->AddSlot()
 		.AutoHeight()
 		.HAlign(HAlign_Right)
@@ -155,11 +160,74 @@ void SFlareTradeRouteInfo::UpdateTradeRouteList()
 			]
 		];
 	}
+
+	// List auto-trading fleets
+	int32 AutoTradingFleetCount = 0;
+	for (UFlareFleet* Fleet : MenuManager->GetPC()->GetCompany()->GetCompanyFleets())
+	{
+		if (Fleet->IsAutoTrading())
+		{
+			AutoTradingFleetCount++;
+
+			AutomatedFleetList->AddSlot()
+			.AutoHeight()
+			.HAlign(HAlign_Right)
+			.Padding(Theme.ContentPadding)
+			[
+				SNew(SVerticalBox)
+
+				// Buttons
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				[
+					SNew(SHorizontalBox)
+
+					// Inspect
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
+					[
+						SNew(SFlareButton)
+						.Width(6)
+						.Text(Fleet->GetFleetName())
+						.HelpText(FText(LOCTEXT("InspectFleetHelp", "Inspect this fleet")))
+						.OnClicked(this, &SFlareTradeRouteInfo::OnInspectFleetClicked, Fleet)
+					]
+				]
+
+				// Infos
+				+ SVerticalBox::Slot()
+				.AutoHeight()
+				.Padding(Theme.SmallContentPadding)
+				[
+					SNew(SRichTextBlock)
+					.TextStyle(&Theme.TextFont)
+					.Text(this, &SFlareTradeRouteInfo::GetFleetDetailText, Fleet)
+					.WrapTextAt(Theme.ContentWidth / 2)
+					.DecoratorStyleSet(&FFlareStyleSet::Get())
+				]
+			];
+		}
+	}
+
+	// Default text
+	if (AutoTradingFleetCount == 0)
+	{
+		AutomatedFleetList->AddSlot()
+		.AutoHeight()
+		.HAlign(HAlign_Right)
+		.Padding(Theme.ContentPadding)
+		[
+			SNew(STextBlock)
+			.TextStyle(&Theme.TextFont)
+			.Text(LOCTEXT("NoAutoFleet", "No fleet."))
+		];
+	}
 }
 
 void SFlareTradeRouteInfo::Clear()
 {
 	TradeRouteList->ClearChildren();
+	AutomatedFleetList->ClearChildren();
 }
 
 FText SFlareTradeRouteInfo::GetDetailText(UFlareTradeRoute* TradeRoute) const
@@ -183,7 +251,7 @@ FText SFlareTradeRouteInfo::GetDetailText(UFlareTradeRoute* TradeRoute) const
 	}
 	else
 	{
-		return UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("TradeRouteDetailsLoss", "<WarningText>{0} credits per day</>, {1}% OK"),
+		return UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("TradeRouteDetailsLoss", "<WarningText>{0} credits per day, {1}% OK</>"),
 			FText::AsNumber(CreditsGain),
 			FText::AsNumber(SuccessPercentage)),
 			3);
@@ -234,7 +302,7 @@ void SFlareTradeRouteInfo::OnDeleteTradeRouteConfirmed(UFlareTradeRoute* TradeRo
 {
 	FCHECK(TradeRoute);
 	TradeRoute->Dissolve();
-	UpdateTradeRouteList();
+	Update();
 }
 
 FText SFlareTradeRouteInfo::GetTradeRouteName(UFlareTradeRoute* TradeRoute) const
@@ -259,6 +327,32 @@ const FSlateBrush* SFlareTradeRouteInfo::GetTogglePauseTradeRouteIcon(UFlareTrad
 void SFlareTradeRouteInfo::OnTogglePauseTradeRoute(UFlareTradeRoute* TradeRoute)
 {
 	TradeRoute->SetPaused(!TradeRoute->IsPaused());
+}
+
+FText SFlareTradeRouteInfo::GetFleetDetailText(UFlareFleet* Fleet) const
+{
+	int32 CreditsGain = 0; // TODO #1047
+	
+	// Format result
+	if (CreditsGain > 0)
+	{
+		return UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("FleetDetailsGain", "<TradeText>{0} credits per day</>"),
+			FText::AsNumber(CreditsGain)),
+			3);
+	}
+	else
+	{
+		return UFlareGameTools::AddLeadingSpace(FText::Format(LOCTEXT("FleetDetailsLoss", "<WarningText>{0} credits per day</>"),
+			FText::AsNumber(CreditsGain)),
+			3);
+	}
+}
+
+void SFlareTradeRouteInfo::OnInspectFleetClicked(UFlareFleet* Fleet)
+{
+	FFlareMenuParameterData Data;
+	Data.Fleet = Fleet;
+	MenuManager->OpenMenu(EFlareMenu::MENU_Fleet, Data);
 }
 
 

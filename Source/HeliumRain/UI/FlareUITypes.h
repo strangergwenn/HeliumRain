@@ -128,6 +128,12 @@ DECLARE_DELEGATE_OneParam(FOrderDelegate, FFlareSpacecraftDescription*)
 UCLASS()
 class HELIUMRAIN_API UFlareUITypes : public UObject
 {
+public:
+
 	GENERATED_UCLASS_BODY()
+
+
+	/** Add a header */
+	static TSharedRef<SWidget> Header(FText Title);
 
 };
