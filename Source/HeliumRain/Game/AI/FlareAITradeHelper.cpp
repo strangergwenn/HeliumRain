@@ -1,9 +1,21 @@
 #include "FlareAITradeHelper.h"
 
-#include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
+#include "../FlareGame.h"
 #include "../FlareCompany.h"
 #include "../FlareSectorHelper.h"
+#include "../FlareScenarioTools.h"
+
+#include "../../Data/FlareResourceCatalog.h"
+
+#include "../../Economy/FlareFactory.h"
 #include "../../Economy/FlareCargoBay.h"
+
+#include "../../Player/FlarePlayerController.h"
+#include "../../Player/FlareMenuManager.h"
+
+#include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
+#include "../../Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
+
 #include "FlareAIBehavior.h"
 #include <functional>
 
@@ -261,7 +273,7 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 	{
 		UFlareSimulatedSector* SectorB = Company->GetVisitedSectors()[SectorBIndex];
 
-		if(SectorBRestiction != nullptr && SectorBRestiction != SectorB & SectorA != SectorB)
+		if(SectorBRestiction != nullptr && SectorBRestiction != SectorB && SectorA != SectorB)
 		{
 			continue;
 		}
