@@ -753,7 +753,8 @@ void UFlareSimulatedSpacecraft::SetTrading(bool Trading)
 	if (!Trading
 		&& SpacecraftData.IsTrading
 		&& GetCompany() == GetGame()->GetPC()->GetCompany()
-		&& (GetCurrentTradeRoute() == NULL || GetCurrentTradeRoute()->IsPaused()))
+		&& (GetCurrentTradeRoute() == NULL || GetCurrentTradeRoute()->IsPaused())
+		&& !GetCurrentFleet()->IsAutoTrading())
 	{
 		FFlareMenuParameterData Data;
 		Data.Spacecraft = this;

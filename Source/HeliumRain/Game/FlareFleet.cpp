@@ -211,7 +211,7 @@ FText UFlareFleet::GetStatusInfo() const
 	}
 	else if (IsTrading())
 	{
-		if(GetTradingShipCount() == GetShipCount())
+		if (GetTradingShipCount() == GetShipCount())
 		{
 			return FText::Format(LOCTEXT("FleetTrading", "Trading in {0}"), GetCurrentSector()->GetSectorName());
 		}
@@ -226,7 +226,7 @@ FText UFlareFleet::GetStatusInfo() const
 		{
 			return LOCTEXT("FleetAutoTradingTravel", "Auto-trading ");
 		}
-		else if (IsTraveling())
+		else
 		{
 			return FText::Format(LOCTEXT("FleetAutoTrading", "Auto-trading in {0}"), GetCurrentSector()->GetSectorName());
 		}
