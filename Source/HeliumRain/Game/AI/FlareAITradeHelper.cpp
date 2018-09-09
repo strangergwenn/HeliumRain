@@ -129,8 +129,8 @@ void AITradeHelper::FleetAutoTrade(UFlareFleet* Fleet, TMap<UFlareSimulatedSecto
 		AFlarePlayerController* PC = Fleet->GetGame()->GetPC();
 		FFlareMenuParameterData Data;
 		Data.Fleet = Fleet;
-		PC->Notify(LOCTEXT("AutoTradeStranded", "Auto Trade fleet stranded"),
-			FText::Format(LOCTEXT("NoAutoTradeCapabilityFormat", "Your fleet {0} is stranded. It's trade capbabilities will be limited."), Fleet->GetFleetName()),
+		PC->Notify(LOCTEXT("AutoTradeStranded", "Stranded fleet"),
+			FText::Format(LOCTEXT("StrandedAutoTradeFormat", "Your fleet {0} is stranded and has limited trading capabilities."), Fleet->GetFleetName()),
 			FName("auto-trade-stranded"),
 			EFlareNotification::NT_Economy,
 			false,
@@ -152,8 +152,8 @@ void AITradeHelper::FleetAutoTrade(UFlareFleet* Fleet, TMap<UFlareSimulatedSecto
 			AFlarePlayerController* PC = Fleet->GetGame()->GetPC();
 			FFlareMenuParameterData Data;
 			Data.Fleet = Fleet;
-			PC->Notify(LOCTEXT("NoAutoTradeCapability", "No Auto Trade capability"),
-				FText::Format(LOCTEXT("NoAutoTradeCapabilityFormat", "Your fleet {0} don't have any ship suitable for trading !"), Fleet->GetFleetName()),
+			PC->Notify(LOCTEXT("NoAutoTradeCapability", "No auto-trading capability"),
+				FText::Format(LOCTEXT("NoAutoTradeCapabilityFormat", "Your fleet {0} doesn't have any trading ship."), Fleet->GetFleetName()),
 				FName("no-auto-trade-capability"),
 				EFlareNotification::NT_Economy,
 				false,

@@ -1,6 +1,7 @@
 
 #include "FlareFleetInfo.h"
 #include "../../Flare.h"
+#include "../../Game/FlareGame.h"
 #include "../../Game/FlareGameTools.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
@@ -367,7 +368,7 @@ FText SFlareFleetInfo::GetAutoTradeHintText() const
 	}
 	else if (TargetFleet == TargetFleet->GetGame()->GetPC()->GetPlayerFleet())
 	{
-		return LOCTEXT("CantAutoTradeWithPlayerFleet", "Player fleet can't do automatic trading");
+		return LOCTEXT("CantAutoTradeWithPlayerFleet", "Your personal fleet can't trade automatically");
 	}
 	else
 	{
