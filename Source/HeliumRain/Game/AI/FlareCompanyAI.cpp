@@ -26,10 +26,14 @@
 
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 
+#define AI_DEBUG_AUTOSCRAP 0
 
 #define STATION_CONSTRUCTION_PRICE_BONUS 1.2
 
 // TODO, make it depend on company's nature
+#define AI_MAX_SHIP_COUNT 200
+#define AI_CARGO_L_ONLY_THRESHOLD 50
+
 #define AI_CARGO_DIVERSITY_THRESHOLD 1
 #define AI_CARGO_SIZE_DIVERSITY_THRESHOLD 5
 #define AI_CARGO_SIZE_DIVERSITY_THRESHOLD_BASE 15
@@ -37,6 +41,11 @@
 #define AI_MILITARY_DIVERSITY_THRESHOLD 1
 #define AI_MILITARY_SIZE_DIVERSITY_THRESHOLD 5
 #define AI_MILITARY_SIZE_DIVERSITY_THRESHOLD_BASE 5
+
+
+#define AI_MAX_SHIP_BEFORE_SCRAP  60
+#define AI_MIN_S_CARGO_SHIP_COUNT 10
+#define AI_MIN_S_MILITARY_SHIP_COUNT 10
 
 // TODO, make it depend on company's nature
 #define AI_CARGO_PEACE_MILILTARY_THRESHOLD 10
@@ -100,6 +109,9 @@ void UFlareCompanyAI::Simulate()
 {
 	if (Game && Company != Game->GetPC()->GetCompany())
 	{
+		AutoScrap();
+
+
 		Behavior->Load(Company);
 
 		CheckBattleResolution();
@@ -153,6 +165,155 @@ void UFlareCompanyAI::Simulate()
 
 	}
 }
+
+void UFlareCompanyAI::AutoScrap()
+{
+	int32 TotalShipCount = 0;
+	int32 SCargoShipCount = 0;
+	int32 SMilitaryShipCount = 0;
+
+	for(UFlareSimulatedSpacecraft* ShipCandidate : Company->GetCompanyShips())
+	{
+		TotalShipCount++;
+		if (ShipCandidate->GetSize() != EFlarePartSize::S)
+		{
+			continue;
+		}
+
+		if(ShipCandidate->IsMilitary())
+		{
+			SMilitaryShipCount++;
+		}
+		else
+		{
+			SCargoShipCount++;
+		}
+
+	}
+
+
+
+	while(true)
+	{
+
+		int32 ExtraCargo = SCargoShipCount - AI_MIN_S_CARGO_SHIP_COUNT;
+		int32 ExtraMilitary = SMilitaryShipCount - AI_MIN_S_MILITARY_SHIP_COUNT;
+
+
+		if(TotalShipCount < AI_MAX_SHIP_BEFORE_SCRAP || (ExtraCargo < 0 && ExtraMilitary < 0)  )
+		{
+			return;
+		}
+
+		bool ScrapMilitary = ExtraMilitary >= ExtraCargo;
+
+#if AI_DEBUG_AUTOSCRAP
+		FLOGV("UFlareCompanyAI::AutoScrap %s need autoscrap : %d/%d ships. %d/%d cargo S ships, %d/%d military S ships. Scrap military ? %d ",
+			  *Company->GetCompanyName().ToString(),
+			  TotalShipCount,
+			  AI_MAX_SHIP_BEFORE_SCRAP,
+			  SCargoShipCount,
+			  AI_MIN_S_CARGO_SHIP_COUNT,
+			  SMilitaryShipCount,
+			  AI_MIN_S_MILITARY_SHIP_COUNT,
+			  ScrapMilitary);
+#endif
+
+
+
+		// Find scrap candidate
+		UFlareSimulatedSpacecraft* BestScrapCandidate = nullptr;
+		int32 BestScrapCandidateResourceCount;
+		int32 BestScrapCandidateCapacity;
+
+		for(UFlareSimulatedSpacecraft* ShipCandidate : Company->GetCompanyShips())
+		{
+			if(ShipCandidate->IsMilitary() != ScrapMilitary)
+			{
+				continue;
+			}
+
+			if (ShipCandidate->GetSize() == EFlarePartSize::L)
+			{
+				continue;
+			}
+
+			if(!ShipCandidate->GetCurrentSector()->CanUpgrade(ShipCandidate->GetCompany()))
+			{
+				continue;
+			}
+
+			int32 ResourceCount = ShipCandidate->GetActiveCargoBay()->GetUsedCargoSpace();
+			int32 Capacity = ShipCandidate->GetActiveCargoBay()->GetCapacity();
+
+			if(BestScrapCandidate == nullptr
+			   || ResourceCount < BestScrapCandidateResourceCount
+			   || Capacity < BestScrapCandidateCapacity)
+			{
+				BestScrapCandidate = ShipCandidate;
+				BestScrapCandidateCapacity = Capacity;
+				BestScrapCandidateResourceCount = ResourceCount;
+			}
+		}
+
+		if(BestScrapCandidate == nullptr)
+		{
+			break;
+		}
+
+#if AI_DEBUG_AUTOSCRAP
+		FLOGV("UFlareCompanyAI::AutoScrap %s can be scraped",
+			  *BestScrapCandidate->GetImmatriculation().ToString());
+#endif
+
+		UFlareSimulatedSpacecraft* TargetStation = NULL;
+		TArray<UFlareSimulatedSpacecraft*> SectorStations = BestScrapCandidate->GetCurrentSector()->GetSectorStations();
+
+		// Find a suitable station
+		for (int Index = 0; Index < SectorStations.Num(); Index++)
+		{
+			if (SectorStations[Index]->GetCompany() == BestScrapCandidate->GetCompany())
+			{
+				TargetStation = SectorStations[Index];
+#if AI_DEBUG_AUTOSCRAP
+				FLOGV("UFlareCompanyAI::AutoScrap : found company station '%s'", *TargetStation->GetImmatriculation().ToString());
+#endif
+				break;
+			}
+			else if (TargetStation == NULL)
+			{
+				TargetStation = SectorStations[Index];
+			}
+		}
+
+		// Scrap
+		if (TargetStation)
+		{
+#if AI_DEBUG_AUTOSCRAP
+			FLOGV("UFlareCompanyAI::AutoScrap : scrapping at '%s'", *TargetStation->GetImmatriculation().ToString());
+#endif
+			TargetStation->GetGame()->Scrap(BestScrapCandidate->GetImmatriculation(), TargetStation->GetImmatriculation());
+			TotalShipCount--;
+			if(ScrapMilitary)
+			{
+				SMilitaryShipCount--;
+			}
+			else
+			{
+				SCargoShipCount--;
+			}
+			;
+		}
+		else
+		{
+#if AI_DEBUG_AUTOSCRAP
+			FLOGV("UFlareCompanyAI::AutoScrap : fail to find scrap station in '%s'", *BestScrapCandidate->GetCurrentSector()->GetSectorName().ToString());
+#endif
+			break;
+		}
+	}
+}
+
 
 void UFlareCompanyAI::PurchaseResearch()
 {
@@ -2371,6 +2532,13 @@ const FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Mil
 	int32 ShipSCount = 0;
 	int32 ShipLCount = 0;
 
+	int32 TotalCompanyShipCount = Company->GetCompanyShips().Num();
+
+	if(TotalCompanyShipCount > AI_MAX_SHIP_COUNT)
+	{
+		return nullptr;
+	}
+
 	// Count owned ships
 	TMap<const FFlareSpacecraftDescription*, int32> OwnedShipSCount;
 	TMap<const FFlareSpacecraftDescription*, int32> OwnedShipLCount;
@@ -2461,7 +2629,7 @@ const FFlareSpacecraftDescription* UFlareCompanyAI::FindBestShipToBuild(bool Mil
 	int32 SizeDiversity = (Military ? AI_MILITARY_SIZE_DIVERSITY_THRESHOLD : AI_CARGO_SIZE_DIVERSITY_THRESHOLD);
 	int32 SizeDiversityBase = (Military ? AI_MILITARY_SIZE_DIVERSITY_THRESHOLD_BASE : AI_CARGO_SIZE_DIVERSITY_THRESHOLD_BASE);
 	bool PickLShip = true;
-	if (SizeDiversityBase + (ShipLCount) * SizeDiversity > ShipSCount)
+	if (TotalCompanyShipCount < AI_CARGO_L_ONLY_THRESHOLD && SizeDiversityBase + (ShipLCount) * SizeDiversity > ShipSCount)
 	{
 		PickLShip = false;
 	}

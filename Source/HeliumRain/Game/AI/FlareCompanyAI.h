@@ -180,6 +180,8 @@ protected:
 	/** Buy cargos ships */
 	int64 UpdateCargoShipAcquisition();
 
+	void AutoScrap();
+
 	
 	/*----------------------------------------------------
 		Helpers

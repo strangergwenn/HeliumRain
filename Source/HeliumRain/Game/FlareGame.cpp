@@ -321,7 +321,11 @@ void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatricula
 		FLOG("Scrap failed: ship and station not in the same sector");
 		return;
 	}
-	DeactivateSector();
+
+	if(ShipToScrap->GetCompany()->IsPlayerCompany())
+	{
+		DeactivateSector();
+	}
 
 
 	UFlareSimulatedSector* CurrentSector = ShipToScrap->GetCurrentSector();
@@ -363,7 +367,10 @@ void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatricula
 	}
 
 	ShipToScrap->GetCompany()->DestroySpacecraft(ShipToScrap);
-	ActivateCurrentSector();
+	if(ShipToScrap->GetCompany()->IsPlayerCompany())
+	{
+		ActivateCurrentSector();
+	}
 }
 
 void AFlareGame::ScrapStation(UFlareSimulatedSpacecraft* StationToScrap)
