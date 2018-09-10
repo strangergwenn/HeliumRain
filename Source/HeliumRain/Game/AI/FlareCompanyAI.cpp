@@ -223,22 +223,20 @@ void UFlareCompanyAI::AutoScrap()
 
 		// Find scrap candidate
 		UFlareSimulatedSpacecraft* BestScrapCandidate = nullptr;
-		int32 BestScrapCandidateResourceCount;
-		int32 BestScrapCandidateCapacity;
+		int32 BestScrapCandidateResourceCount = 0;
+		int32 BestScrapCandidateCapacity = 0;
 
-		for(UFlareSimulatedSpacecraft* ShipCandidate : Company->GetCompanyShips())
+		for (UFlareSimulatedSpacecraft* ShipCandidate : Company->GetCompanyShips())
 		{
-			if(ShipCandidate->IsMilitary() != ScrapMilitary)
+			if (ShipCandidate->IsMilitary() != ScrapMilitary)
 			{
 				continue;
 			}
-
-			if (ShipCandidate->GetSize() == EFlarePartSize::L)
+			else if (ShipCandidate->GetSize() == EFlarePartSize::L)
 			{
 				continue;
 			}
-
-			if(!ShipCandidate->GetCurrentSector()->CanUpgrade(ShipCandidate->GetCompany()))
+			else if (!ShipCandidate->GetCurrentSector()->CanUpgrade(ShipCandidate->GetCompany()))
 			{
 				continue;
 			}
@@ -246,7 +244,7 @@ void UFlareCompanyAI::AutoScrap()
 			int32 ResourceCount = ShipCandidate->GetActiveCargoBay()->GetUsedCargoSpace();
 			int32 Capacity = ShipCandidate->GetActiveCargoBay()->GetCapacity();
 
-			if(BestScrapCandidate == nullptr
+			if (BestScrapCandidate == nullptr
 			   || ResourceCount < BestScrapCandidateResourceCount
 			   || Capacity < BestScrapCandidateCapacity)
 			{
@@ -256,7 +254,7 @@ void UFlareCompanyAI::AutoScrap()
 			}
 		}
 
-		if(BestScrapCandidate == nullptr)
+		if (BestScrapCandidate == nullptr)
 		{
 			break;
 		}
