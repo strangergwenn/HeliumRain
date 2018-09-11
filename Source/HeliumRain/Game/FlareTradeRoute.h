@@ -272,6 +272,8 @@ public:
 
 	UFlareSimulatedSector* GetNextTradeSector(UFlareSimulatedSector* Sector);
 
+	bool IsUsefulSector(UFlareSimulatedSector* Sector);
+
     bool IsVisiting(UFlareSimulatedSector *Sector);
 
     int32 GetSectorIndex(UFlareSimulatedSector *Sector);

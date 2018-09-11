@@ -104,7 +104,16 @@ void UFlareTradeRoute::Simulate()
 		if (TradeRouteData.CurrentOperationIndex >= SectorOrder->Operations.Num())
 		{
 			// Sector operations finished
-			TargetSector = GetNextTradeSector(TargetSector);
+
+			for(int i = 0; i < TradeRouteData.Sectors.Num(); i++)
+			{
+				TargetSector = GetNextTradeSector(TargetSector);
+				if(IsUsefulSector(TargetSector))
+				{
+					break;
+				}
+			}
+
 			SetTargetSector(TargetSector);
 		}
 	}
@@ -800,6 +809,95 @@ UFlareSimulatedSector* UFlareTradeRoute::GetNextTradeSector(UFlareSimulatedSecto
 	return Game->GetGameWorld()->FindSector(TradeRouteData.Sectors[NextSectorId].SectorIdentifier);
 }
 
+bool UFlareTradeRoute::IsUsefulSector(UFlareSimulatedSector* Sector)
+{
+	FFlareTradeRouteSectorSave* SectorOrder = GetSectorOrders(Sector);
+
+
+	auto GetResourceCount = [this](FFlareResourceDescription* Resource) -> int32
+	{
+		int32 Quantity = 0;
+		for(UFlareSimulatedSpacecraft* Ship : GetFleet()->GetShips())
+		{
+			Quantity += Ship->GetActiveCargoBay()->GetResourceQuantity(Resource, Ship->GetCompany());
+		}
+		return Quantity;
+	};
+
+	auto IsUseful = [](FFlareResourceUsage Usage, EFlareTradeRouteOperation::Type OperationType, bool Owned)
+	{
+		if(Owned && (OperationType == EFlareTradeRouteOperation::Buy || OperationType == EFlareTradeRouteOperation::Sell))
+		{
+			return false;
+		}
+
+		if(!Owned && (OperationType == EFlareTradeRouteOperation::Load || OperationType == EFlareTradeRouteOperation::Unload))
+		{
+			return false;
+		}
+
+		bool LoadOperation = (OperationType == EFlareTradeRouteOperation::Load
+							  || OperationType == EFlareTradeRouteOperation::Buy
+							  || OperationType == EFlareTradeRouteOperation::LoadOrBuy);
+
+		if(LoadOperation && Usage.HasUsage(EFlareResourcePriceContext::FactoryOutput))
+		{
+			return true;
+		}
+
+		bool UnloadOperation = (OperationType == EFlareTradeRouteOperation::Unload
+							  || OperationType == EFlareTradeRouteOperation::Sell
+							  || OperationType == EFlareTradeRouteOperation::UnloadOrSell);
+
+		if(UnloadOperation && (Usage.HasUsage(EFlareResourcePriceContext::FactoryInput)
+							   || Usage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption)
+							   || Usage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption)))
+		{
+			return true;
+		}
+
+		return false;
+	};
+
+	for(FFlareTradeRouteSectorOperationSave& Operation : SectorOrder->Operations)
+	{
+		FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(Operation.ResourceIdentifier);
+
+
+		bool UnloadOperation = (Operation.Type == EFlareTradeRouteOperation::Unload
+							  || Operation.Type == EFlareTradeRouteOperation::Sell
+							  || Operation.Type == EFlareTradeRouteOperation::UnloadOrSell);
+
+
+		int32 ResourceCount = GetResourceCount(Resource);
+		if(UnloadOperation && ResourceCount == 0)
+		{
+			// Cannot be usefull because nothing to exchange
+			continue;
+		}
+
+
+		// Find if there is a station to exchange
+		for(UFlareSimulatedSpacecraft* Station : Sector->GetSectorStations())
+		{
+
+			if (Station->GetCompany()->GetWarState(TradeRouteCompany) == EFlareHostility::Hostile)
+			{
+				continue;
+			}
+
+			FFlareResourceUsage Usage = Station->GetResourceUseType(Resource);
+
+			if(IsUseful(Usage, Operation.Type, TradeRouteCompany == Station->GetCompany()))
+			{
+					return true;
+			}
+
+		}
+	}
+
+	return false;
+}
 
 bool UFlareTradeRoute::IsVisiting(UFlareSimulatedSector *Sector)
 {
