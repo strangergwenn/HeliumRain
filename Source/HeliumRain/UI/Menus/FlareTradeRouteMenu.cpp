@@ -428,15 +428,13 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 								]
 							]
 					
-							// Resource setup
+							// Resource limits setup
 							+ SVerticalBox::Slot()
 							.AutoHeight()
 							[
-								SNew(SHorizontalBox)
-
-								// Left field
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
+								SNew(SBox)
+								.WidthOverride(0.5 * Theme.ContentWidth)
+								.HAlign(HAlign_Left)
 								[
 									SNew(SVerticalBox)
 
@@ -450,6 +448,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 										.HelpText(LOCTEXT("QuantityLimitInfo", "Skip to the next operation after a certain amount is is reached"))
 										.Toggle(true)
 										.OnClicked(this, &SFlareTradeRouteMenu::OnQuantityLimitToggle)
+										.Width(10)
 									]
 
 									// Quantity
@@ -482,14 +481,6 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 											.Visibility(this, &SFlareTradeRouteMenu::GetQuantityLimitVisibility)
 										]
 									]
-								]
-					
-
-								// TODO #1119 Center field
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
-								[
-									SNew(SVerticalBox)
 
 									// Inventory limit
 									+ SVerticalBox::Slot()
@@ -497,14 +488,15 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 									.Padding(Theme.SmallContentPadding)
 									[
 										SAssignNew(InventoryLimitButton, SFlareButton)
-										.Text(LOCTEXT("InventoryLimit", "Limit min/max inventory"))
-										.HelpText(LOCTEXT("InventoryLimitInfo", "Skip to the next operation after a certain inventory is is reached"))
+										.Text(LOCTEXT("InventoryLimit", "Limit inventory"))
+										.HelpText(LOCTEXT("InventoryLimitInfo", "Skip this operation after an inventory threshold is reached"))
 										.Toggle(true)
 										.OnClicked(this, &SFlareTradeRouteMenu::OnInventoryLimitToggle)
+										.Width(10)
 									]
 
 
-									// Inventory
+									// Inventory threshold
 									+ SVerticalBox::Slot()
 									.AutoHeight()
 									[
@@ -534,14 +526,6 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 											.Visibility(this, &SFlareTradeRouteMenu::GetInventoryLimitVisibility)
 										]
 									]
-								]
-
-
-								// Right field
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
-								[
-									SNew(SVerticalBox)
 
 									// Wait limit
 									+ SVerticalBox::Slot()
@@ -553,6 +537,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 										.HelpText(LOCTEXT("WaitLimitInfo", "Skip to the next operation after some time has passed"))
 										.Toggle(true)
 										.OnClicked(this, &SFlareTradeRouteMenu::OnWaitLimitToggle)
+										.Width(10)
 									]
 
 									// Wait limit slider
@@ -1795,7 +1780,7 @@ EVisibility SFlareTradeRouteMenu::GetQuantityLimitVisibility() const
 		return EVisibility::Visible;
 	}
 
-	return EVisibility::Hidden;
+	return EVisibility::Collapsed;
 }
 
 EVisibility SFlareTradeRouteMenu::GetInventoryLimitVisibility() const
@@ -1805,7 +1790,7 @@ EVisibility SFlareTradeRouteMenu::GetInventoryLimitVisibility() const
 		return EVisibility::Visible;
 	}
 
-	return EVisibility::Hidden;
+	return EVisibility::Collapsed;
 }
 
 
@@ -1816,7 +1801,7 @@ EVisibility SFlareTradeRouteMenu::GetWaitLimitVisibility() const
 		return EVisibility::Visible;
 	}
 
-	return EVisibility::Hidden;
+	return EVisibility::Collapsed;
 }
 
 
@@ -2164,11 +2149,11 @@ void SFlareTradeRouteMenu::OnInventoryLimitEntered(const FText& TextValue)
 
 		if (ResourceMaxInventory == 1)
 		{
-			QuantityLimitSlider->SetValue(1.0f);
+			InventoryLimitSlider->SetValue(1.0f);
 		}
 		else
 		{
-			QuantityLimitSlider->SetValue((float)(InventoryLimit - 1) / (float)(ResourceMaxInventory - 1));
+			InventoryLimitSlider->SetValue((float)(InventoryLimit - 1) / (float)(ResourceMaxInventory - 1));
 		}
 
 		SelectedOperation->InventoryLimit = InventoryLimit;
