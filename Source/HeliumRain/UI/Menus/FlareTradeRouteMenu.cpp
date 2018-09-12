@@ -484,6 +484,59 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 									]
 								]
 					
+
+								// TODO #1119 Center field
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								[
+									SNew(SVerticalBox)
+
+									// Inventory limit
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									.Padding(Theme.SmallContentPadding)
+									[
+										SAssignNew(InventoryLimitButton, SFlareButton)
+										.Text(LOCTEXT("InventoryLimit", "Limit min/max inventory"))
+										.HelpText(LOCTEXT("InventoryLimitInfo", "Skip to the next operation after a certain inventory is is reached"))
+										.Toggle(true)
+										.OnClicked(this, &SFlareTradeRouteMenu::OnInventoryLimitToggle)
+									]
+
+
+									// Inventory
+									+ SVerticalBox::Slot()
+									.AutoHeight()
+									[
+										SNew(SHorizontalBox)
+
+										// Inventory limit slider
+										+ SHorizontalBox::Slot()
+										.HAlign(HAlign_Fill)
+										.Padding(Theme.SmallContentPadding)
+										[
+											SAssignNew(InventoryLimitSlider, SSlider)
+											.Style(&Theme.SliderStyle)
+											.Value(0)
+											.OnValueChanged(this, &SFlareTradeRouteMenu::OnInventoryLimitChanged)
+											.Visibility(this, &SFlareTradeRouteMenu::GetInventoryLimitVisibility)
+										]
+
+										// Text box
+										+ SHorizontalBox::Slot()
+										.AutoWidth()
+										.HAlign(HAlign_Right)
+										.Padding(Theme.ContentPadding)
+										[
+											SAssignNew(InventoryLimitText, SEditableText)
+											.Style(&Theme.TextInputStyle)
+											.OnTextChanged(this, &SFlareTradeRouteMenu::OnInventoryLimitEntered)
+											.Visibility(this, &SFlareTradeRouteMenu::GetInventoryLimitVisibility)
+										]
+									]
+								]
+
+
 								// Right field
 								+ SHorizontalBox::Slot()
 								.AutoWidth()
@@ -1745,6 +1798,17 @@ EVisibility SFlareTradeRouteMenu::GetQuantityLimitVisibility() const
 	return EVisibility::Hidden;
 }
 
+EVisibility SFlareTradeRouteMenu::GetInventoryLimitVisibility() const
+{
+	if (InventoryLimitButton->IsActive())
+	{
+		return EVisibility::Visible;
+	}
+
+	return EVisibility::Hidden;
+}
+
+
 EVisibility SFlareTradeRouteMenu::GetWaitLimitVisibility() const
 {
 	if (WaitLimitButton->IsActive())
@@ -1893,6 +1957,24 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 			}
 		}
 
+		// Inventory limit
+		if (SelectedOperation->InventoryLimit == -1)
+		{
+			InventoryLimitButton->SetActive(false);
+			InventoryLimitSlider->SetValue(0);
+			InventoryLimitText->SetText(FText::AsNumber(0));
+		}
+		else
+		{
+			InventoryLimitButton->SetActive(true);
+			if(TargetTradeRoute->GetFleet())
+			{
+				int32 Value = (float) (SelectedOperation->InventoryLimit - 1) / (float) TargetTradeRoute->GetFleet()->GetFleetCapacity();
+				InventoryLimitSlider->SetValue(Value);
+				InventoryLimitText->SetText(FText::AsNumber(SelectedOperation->InventoryLimit));
+			}
+		}
+
 		// Max wait
 		if (SelectedOperation->MaxWait == -1)
 		{
@@ -1989,6 +2071,23 @@ void SFlareTradeRouteMenu::OnQuantityLimitToggle()
 	}
 }
 
+void SFlareTradeRouteMenu::OnInventoryLimitToggle()
+{
+	if (SelectedOperation && TargetTradeRoute && TargetTradeRoute->GetFleet())
+	{
+		if (InventoryLimitButton->IsActive())
+		{
+			int32 Value = InventoryLimitSlider->GetValue() * TargetTradeRoute->GetFleet()->GetFleetCapacity();
+			SelectedOperation->InventoryLimit = Value;
+			InventoryLimitText->SetText(FText::AsNumber(Value));
+		}
+		else
+		{
+			SelectedOperation->InventoryLimit = -1;
+		}
+	}
+}
+
 void SFlareTradeRouteMenu::OnWaitLimitToggle()
 {
 	if (SelectedOperation && TargetTradeRoute)
@@ -2011,6 +2110,16 @@ void SFlareTradeRouteMenu::OnQuantityLimitChanged(float Value)
 		int32 NewValue = QuantityLimitSlider->GetValue() * TargetTradeRoute->GetFleet()->GetFleetCapacity();
 		SelectedOperation->MaxQuantity = NewValue;
 		QuantityLimitText->SetText(FText::AsNumber(NewValue));
+	}
+}
+
+void SFlareTradeRouteMenu::OnInventoryLimitChanged(float Value)
+{
+	if (SelectedOperation && TargetTradeRoute->GetFleet())
+	{
+		int32 NewValue = InventoryLimitSlider->GetValue() * TargetTradeRoute->GetFleet()->GetFleetCapacity();
+		SelectedOperation->InventoryLimit = NewValue;
+		InventoryLimitText->SetText(FText::AsNumber(NewValue));
 	}
 }
 
@@ -2037,6 +2146,32 @@ void SFlareTradeRouteMenu::OnQuantityLimitEntered(const FText& TextValue)
 		}
 
 		SelectedOperation->MaxQuantity = TransactionQuantity;
+	}
+}
+
+void SFlareTradeRouteMenu::OnInventoryLimitEntered(const FText& TextValue)
+{
+	if (TargetTradeRoute && SelectedOperation && SelectedOperation->InventoryLimit != -1 && TextValue.ToString().IsNumeric())
+	{
+		int32 ResourceMaxInventory = 1000;
+
+		if(TargetTradeRoute->GetFleet())
+		{
+			ResourceMaxInventory = TargetTradeRoute->GetFleet()->GetFleetCapacity();
+		}
+
+		int32 InventoryLimit = FMath::Clamp(FCString::Atoi(*TextValue.ToString()), 0, ResourceMaxInventory);
+
+		if (ResourceMaxInventory == 1)
+		{
+			QuantityLimitSlider->SetValue(1.0f);
+		}
+		else
+		{
+			QuantityLimitSlider->SetValue((float)(InventoryLimit - 1) / (float)(ResourceMaxInventory - 1));
+		}
+
+		SelectedOperation->InventoryLimit = InventoryLimit;
 	}
 }
 

@@ -136,6 +136,8 @@ protected:
 	
 	EVisibility GetQuantityLimitVisibility() const;
 
+	EVisibility GetInventoryLimitVisibility() const;
+
 	EVisibility GetWaitLimitVisibility() const;
 
 
@@ -180,10 +182,14 @@ protected:
 	void OnOperationUpClicked();
 	void OnOperationDownClicked();
 	void OnQuantityLimitToggle();
+	void OnInventoryLimitToggle();
 	void OnWaitLimitToggle();
 	void OnQuantityLimitChanged(float Value);
+	void OnInventoryLimitChanged(float Value);
 	void OnQuantityLimitEntered(const FText& TextValue);
+	void OnInventoryLimitEntered(const FText& TextValue);
 	void OnWaitLimitChanged(float Value);
+
 	
 	/** Load the current resource */
 	void OnAddOperationClicked(UFlareSimulatedSector* Sector);
@@ -229,10 +235,13 @@ protected:
 	TSharedPtr<SVerticalBox>                           TradeFleetList;
 
 	TSharedPtr<SFlareButton>                           QuantityLimitButton;
+	TSharedPtr<SFlareButton>                           InventoryLimitButton;
 	TSharedPtr<SFlareButton>                           WaitLimitButton;
 	TSharedPtr<SSlider>                                QuantityLimitSlider;
+	TSharedPtr<SSlider>                                InventoryLimitSlider;
 	TSharedPtr<SSlider>                                WaitLimitSlider;
 	TSharedPtr<SEditableText>                          QuantityLimitText;
+	TSharedPtr<SEditableText>                          InventoryLimitText;
 
 	// Deals
 	TSharedPtr<SHorizontalBox>                         EditSuggestedPurchasesBox;

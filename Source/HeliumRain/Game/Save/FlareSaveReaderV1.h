@@ -78,7 +78,7 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	void LoadInt32(TSharedPtr< FJsonObject > Object, FString Key, int32* Data);
+	void LoadInt32(TSharedPtr< FJsonObject > Object, FString Key, int32* Data, int32 DefaultValue = 0);
 	void LoadInt64(TSharedPtr< FJsonObject > Object, FString Key, int64* Data);
 	void LoadFloat(TSharedPtr< FJsonObject > Object, FString Key, float* Data);
 	void LoadFName(TSharedPtr< FJsonObject > Object, FString Key, FName* Data);

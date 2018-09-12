@@ -583,4 +583,15 @@ TArray<UFlareSimulatedSpacecraft*>& UFlareFleet::GetShips()
 	return FleetShips;
 }
 
+int32 UFlareFleet::GetFleetResourceQuantity(FFlareResourceDescription* Resource)
+{
+	int32 Quantity = 0;
+	for(UFlareSimulatedSpacecraft* Ship : GetShips())
+	{
+		Quantity += Ship->GetActiveCargoBay()->GetResourceQuantity(Resource, Ship->GetCompany());
+	}
+	return Quantity;
+}
+
+
 #undef LOCTEXT_NAMESPACE

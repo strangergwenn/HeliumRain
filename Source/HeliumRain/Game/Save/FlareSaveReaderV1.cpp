@@ -695,6 +695,7 @@ void UFlareSaveReaderV1::LoadTradeOperation(const TSharedPtr<FJsonObject> Object
 {
 	LoadFName(Object, "ResourceIdentifier", &Data->ResourceIdentifier);
 	LoadInt32(Object, "MaxQuantity", (int32*) &Data->MaxQuantity);
+	LoadInt32(Object, "InventoryLimit", (int32*) &Data->InventoryLimit, -1);
 	LoadInt32(Object, "MaxWait", (int32*) &Data->MaxWait);
 	Data->Type = LoadEnum<EFlareTradeRouteOperation::Type>(Object, "Type", "EFlareTradeRouteOperation");
 }
@@ -1101,7 +1102,7 @@ static bool ParseInt32(const FString& DataString, int32* Data)
 	return true;
 }
 
-void UFlareSaveReaderV1::LoadInt32(TSharedPtr< FJsonObject > Object, FString Key, int32* Data)
+void UFlareSaveReaderV1::LoadInt32(TSharedPtr< FJsonObject > Object, FString Key, int32* Data, int32 DefaultValue)
 {
 	FString DataString;
 	if(Object->TryGetStringField(Key, DataString))
@@ -1111,7 +1112,7 @@ void UFlareSaveReaderV1::LoadInt32(TSharedPtr< FJsonObject > Object, FString Key
 	else
 	{
 		FLOGV("WARNING: Fail to load int32 key '%s'. Save corrupted", *Key);
-		*Data = 0;
+		*Data = DefaultValue;
 	}
 }
 

@@ -47,6 +47,10 @@ struct FFlareTradeRouteSectorOperationSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 MaxWait;
 
+	/** Max/min inventory in fleet on buy/sell before next operation. -1 Mean no limit */
+	UPROPERTY(EditAnywhere, Category = Save)
+	int32 InventoryLimit;
+
 };
 
 
@@ -176,6 +180,10 @@ public:
 
 	bool IsOperationQuantityLimitReach(FFlareTradeRouteSectorOperationSave* Operation);
 
+	int32 GetOperationRemainingInventoryQuantity(FFlareTradeRouteSectorOperationSave* Operation);
+
+	bool IsOperationInventoryLimitReach(FFlareTradeRouteSectorOperationSave* Operation);
+
 	void SetTargetSector(UFlareSimulatedSector* Sector);
 
 	virtual void AssignFleet(UFlareFleet* Fleet);
@@ -286,4 +294,18 @@ public:
 	{
 		return TradeRouteData.IsPaused;
 	}
+
+	static bool IsLoadKindOperation(EFlareTradeRouteOperation::Type OperationType)
+	{
+		return (OperationType == EFlareTradeRouteOperation::Load
+				|| OperationType == EFlareTradeRouteOperation::Buy
+				|| OperationType == EFlareTradeRouteOperation::LoadOrBuy);
+	}
+
+	static bool IsUnloadKindOperation(EFlareTradeRouteOperation::Type OperationType)
+	{
+		return !IsLoadKindOperation(OperationType);
+	}
+
+
 };

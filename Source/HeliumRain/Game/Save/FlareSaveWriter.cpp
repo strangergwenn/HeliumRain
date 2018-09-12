@@ -529,6 +529,7 @@ TSharedRef<FJsonObject> UFlareSaveWriter::SaveTradeOperation(FFlareTradeRouteSec
 
 	JsonObject->SetStringField("ResourceIdentifier", Data->ResourceIdentifier.ToString());
 	JsonObject->SetStringField("MaxQuantity", FormatInt32(Data->MaxQuantity));
+	JsonObject->SetStringField("InventoryLimit", FormatInt32(Data->InventoryLimit));
 	JsonObject->SetStringField("MaxWait", FormatInt32(Data->MaxWait));
 	JsonObject->SetStringField("Type", FormatEnum<EFlareTradeRouteOperation::Type>("EFlareTradeRouteOperation",Data->Type));
 

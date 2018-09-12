@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Object.h"
+#include "../Data/FlareResourceCatalogEntry.h"
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareFleet.generated.h"
 
@@ -238,4 +239,7 @@ public:
 	bool IsRefilling() const;
 
 	int32 GetTransportCapacity();
+
+	int32 GetFleetResourceQuantity(FFlareResourceDescription* Resource);
+
 };

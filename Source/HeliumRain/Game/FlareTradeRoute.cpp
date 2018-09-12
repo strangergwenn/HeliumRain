@@ -288,6 +288,11 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 			Request.MaxQuantity = FMath::Min(Request.MaxQuantity, GetOperationRemainingQuantity(Operation));
 		}
 
+		if (Operation->InventoryLimit !=-1)
+		{
+			Request.MaxQuantity = FMath::Min(Request.MaxQuantity, GetOperationRemainingInventoryQuantity(Operation));
+		}
+
 		UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
 
 
@@ -315,7 +320,7 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 			StatFail = true;
 		}
 
-		if (IsOperationQuantityLimitReach(Operation))
+		if (IsOperationQuantityLimitReach(Operation) || IsOperationInventoryLimitReach(Operation))
 		{
 			// Operation limit reach : operation done
 			UpdateOperationStats();
@@ -398,6 +403,11 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 			Request.MaxQuantity = FMath::Min(Request.MaxQuantity, GetOperationRemainingQuantity(Operation));
 		}
 
+		if (Operation->InventoryLimit !=-1)
+		{
+			Request.MaxQuantity = FMath::Min(Request.MaxQuantity, GetOperationRemainingInventoryQuantity(Operation));
+		}
+
 		UFlareSimulatedSpacecraft* StationCandidate = SectorHelper::FindTradeStation(Request);
 
 		if (StationCandidate)
@@ -424,7 +434,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 			StatFail = true;
 		}
 
-		if (IsOperationQuantityLimitReach(Operation))
+		if (IsOperationQuantityLimitReach(Operation) || IsOperationInventoryLimitReach(Operation))
 		{
 			// Operation limit reach : operation done
 			UpdateOperationStats();
@@ -454,6 +464,37 @@ bool UFlareTradeRoute::IsOperationQuantityLimitReach(FFlareTradeRouteSectorOpera
 		return true;
 	}
 	return false;
+}
+
+int32 UFlareTradeRoute::GetOperationRemainingInventoryQuantity(FFlareTradeRouteSectorOperationSave* Operation)
+{
+	check(Operation->InventoryLimit != -1);
+
+	FFlareResourceDescription* Resource = Game->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
+	int32 ResourceQuantity = TradeRouteFleet->GetFleetResourceQuantity(Resource);
+
+
+
+	if(IsLoadKindOperation(Operation->Type))
+	{
+		return Operation->InventoryLimit - ResourceQuantity;
+	}
+	else
+	{
+		return ResourceQuantity - Operation->InventoryLimit;
+	}
+}
+
+bool UFlareTradeRoute::IsOperationInventoryLimitReach(FFlareTradeRouteSectorOperationSave* Operation)
+{
+	if(Operation->InventoryLimit == -1)
+	{
+		return false;
+	}
+	else
+	{
+		return GetOperationRemainingInventoryQuantity(Operation) <= 0;
+	}
 }
 
 void UFlareTradeRoute::SetTargetSector(UFlareSimulatedSector* Sector)
@@ -813,17 +854,6 @@ bool UFlareTradeRoute::IsUsefulSector(UFlareSimulatedSector* Sector)
 {
 	FFlareTradeRouteSectorSave* SectorOrder = GetSectorOrders(Sector);
 
-
-	auto GetResourceCount = [this](FFlareResourceDescription* Resource) -> int32
-	{
-		int32 Quantity = 0;
-		for(UFlareSimulatedSpacecraft* Ship : GetFleet()->GetShips())
-		{
-			Quantity += Ship->GetActiveCargoBay()->GetResourceQuantity(Resource, Ship->GetCompany());
-		}
-		return Quantity;
-	};
-
 	auto IsUseful = [](FFlareResourceUsage Usage, EFlareTradeRouteOperation::Type OperationType, bool Owned)
 	{
 		if(Owned && (OperationType == EFlareTradeRouteOperation::Buy || OperationType == EFlareTradeRouteOperation::Sell))
@@ -836,18 +866,14 @@ bool UFlareTradeRoute::IsUsefulSector(UFlareSimulatedSector* Sector)
 			return false;
 		}
 
-		bool LoadOperation = (OperationType == EFlareTradeRouteOperation::Load
-							  || OperationType == EFlareTradeRouteOperation::Buy
-							  || OperationType == EFlareTradeRouteOperation::LoadOrBuy);
+		bool LoadOperation = IsLoadKindOperation(OperationType);
 
 		if(LoadOperation && Usage.HasUsage(EFlareResourcePriceContext::FactoryOutput))
 		{
 			return true;
 		}
 
-		bool UnloadOperation = (OperationType == EFlareTradeRouteOperation::Unload
-							  || OperationType == EFlareTradeRouteOperation::Sell
-							  || OperationType == EFlareTradeRouteOperation::UnloadOrSell);
+		bool UnloadOperation = IsUnloadKindOperation(OperationType);
 
 		if(UnloadOperation && (Usage.HasUsage(EFlareResourcePriceContext::FactoryInput)
 							   || Usage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption)
@@ -869,7 +895,7 @@ bool UFlareTradeRoute::IsUsefulSector(UFlareSimulatedSector* Sector)
 							  || Operation.Type == EFlareTradeRouteOperation::UnloadOrSell);
 
 
-		int32 ResourceCount = GetResourceCount(Resource);
+		int32 ResourceCount = TradeRouteFleet->GetFleetResourceQuantity(Resource);
 		if(UnloadOperation && ResourceCount == 0)
 		{
 			// Cannot be usefull because nothing to exchange
@@ -906,7 +932,7 @@ bool UFlareTradeRoute::IsVisiting(UFlareSimulatedSector *Sector)
         if (TradeRouteData.Sectors[SectorIndex].SectorIdentifier == Sector->GetIdentifier())
         {
             return true;
-        }
+		}
     }
     return false;
 }
