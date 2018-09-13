@@ -444,7 +444,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 									.Padding(Theme.SmallContentPadding)
 									[
 										SAssignNew(QuantityLimitButton, SFlareButton)
-										.Text(LOCTEXT("QuantityLimit", "Limit max quantity"))
+										.Text(LOCTEXT("QuantityLimit", "Limit traded quantity"))
 										.HelpText(LOCTEXT("QuantityLimitInfo", "Skip to the next operation after a certain amount is is reached"))
 										.Toggle(true)
 										.OnClicked(this, &SFlareTradeRouteMenu::OnQuantityLimitToggle)
@@ -1615,12 +1615,11 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 {
 	if (TargetTradeRoute && Operation)
 	{
-		FText WaitText;
-		FText QuantityText;
 		FFlareResourceDescription* Resource = MenuManager->GetGame()->GetResourceCatalog()->Get(Operation->ResourceIdentifier);
 		FCHECK(Resource);
 		
 		// Time limit
+		FText WaitText;
 		if (Operation->MaxWait == -1)
 		{
 			WaitText = LOCTEXT("Forever", "forever");
@@ -1632,9 +1631,10 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 		}
 
 		// Quantity limit
+		FText QuantityText;
 		if (Operation->MaxQuantity > -1)
 		{
-			QuantityText = FText::Format(LOCTEXT("OperationStatusActiveQuantityFormat", "{0} {1}"),
+			QuantityText = FText::Format(LOCTEXT("OperationStatusActiveQuantityFormat", "{0} {1} traded"),
 				FText::AsNumber(Operation->MaxQuantity),
 				Resource->Acronym);
 		}
@@ -1652,12 +1652,21 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 			}
 		}
 
-		FText PricePart;
+		// Inventory limit
+		FText InventoryText;
+		if (Operation->InventoryLimit > -1)
+		{
+			InventoryText = FText::Format(LOCTEXT("OperationStatusActiveInventoryFormat", ", up to {0} {1}"),
+				FText::AsNumber(Operation->InventoryLimit),
+				Resource->Acronym);
+		}
 
+		// Price text
+		FText PriceText;
 		if (Operation->Type == EFlareTradeRouteOperation::LoadOrBuy
 		 || Operation->Type == EFlareTradeRouteOperation::UnloadOrSell
-		|| Operation->Type == EFlareTradeRouteOperation::Buy
-		|| Operation->Type == EFlareTradeRouteOperation::Sell)
+		 || Operation->Type == EFlareTradeRouteOperation::Buy
+		 || Operation->Type == EFlareTradeRouteOperation::Sell)
 		{
 			UFlareSimulatedSector* Sector = MenuManager->GetGame()->GetGameWorld()->FindSector(SectorName);
 
@@ -1670,7 +1679,7 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 				int64 BaseResourcePrice = Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
 				int64 Fee = TransactionResourcePrice - BaseResourcePrice;
 
-				PricePart = FText::Format(LOCTEXT("TradeUnitPriceFormat", "\n{0} credits/unit ({1} {2} {3} fee)"),
+				PriceText = FText::Format(LOCTEXT("TradeUnitPriceFormat", "\n{0} credits/unit ({1} {2} {3} fee)"),
 															UFlareGameTools::DisplayMoney(TransactionResourcePrice),
 															UFlareGameTools::DisplayMoney(BaseResourcePrice),
 															(Fee < 0 ? LOCTEXT("Minus", "-"): LOCTEXT("Plus", "+")),
@@ -1678,10 +1687,11 @@ FText SFlareTradeRouteMenu::GetOperationStatusText(FFlareTradeRouteSectorOperati
 			}
 		}
 
-		FText CommonPart = FText::Format(LOCTEXT("OtherOperationStatusFormat", "Wait {0} or {1}{2}"),
+		FText CommonPart = FText::Format(LOCTEXT("OtherOperationStatusFormat", "Wait {0} or {1}{2}{3}"),
 			WaitText,
 			QuantityText,
-			PricePart);
+			InventoryText,
+			PriceText);
 
 		// This is the active operation, add current progress
 		if (TargetTradeRoute->GetActiveOperation() == Operation)
