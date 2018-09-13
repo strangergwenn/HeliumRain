@@ -1735,4 +1735,14 @@ UFlareSimulatedSpacecraft* UFlareCompany::FindChildStation(FName StationImmatric
 	return nullptr;
 }
 
+void UFlareCompany::AddRetaliation(float Retaliation)
+{
+	CompanyData.Retaliation += Retaliation;
+}
+
+void UFlareCompany::RemoveRetaliation(float Retaliation)
+{
+	CompanyData.Retaliation -= Retaliation;
+}
+
 #undef LOCTEXT_NAMESPACE

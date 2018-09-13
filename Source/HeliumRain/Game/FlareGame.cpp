@@ -851,6 +851,7 @@ UFlareCompany* AFlareGame::CreateCompany(int32 CatalogIdentifier)
 	CompanyData.ResearchRatio = 1.0;
 	CompanyData.ResearchAmount = 0;
 	CompanyData.ResearchSpent = 0;
+	CompanyData.Retaliation = 0.f;
 	CompanyData.AI.BudgetMilitary = 0;
 	CompanyData.AI.BudgetStation = 0;
 	CompanyData.AI.BudgetTechnology = 0;

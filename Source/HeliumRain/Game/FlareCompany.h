@@ -140,6 +140,9 @@ public:
 	void StopCapture(UFlareSimulatedSpacecraft* Station);
 	bool CanStartCapture(UFlareSimulatedSpacecraft* Station);
 
+	void AddRetaliation(float Retaliation);
+	void RemoveRetaliation(float Retaliation);
+
 	/*----------------------------------------------------
 		Customization
 	----------------------------------------------------*/
@@ -463,6 +466,11 @@ public:
 	TArray<FFlareTransactionLogEntry> const& GetTransactionLog() const
 	{
 		return CompanyData.TransactionLog;
+	}
+
+	float GetRetaliation() const
+	{
+		return CompanyData.Retaliation;
 	}
 
 };

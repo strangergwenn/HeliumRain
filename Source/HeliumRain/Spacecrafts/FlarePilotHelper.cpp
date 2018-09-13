@@ -388,7 +388,15 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 
 		if (ShipCandidate->GetParent()->IsStation())
 		{
-			StateScore *= Preferences.IsStation;
+			if (Ship->GetCompany()->IsPlayerCompany() || (ShipCandidate->GetCompany()->IsPlayerCompany() && ShipCandidate->GetCompany()->GetRetaliation() > 0))
+			{
+				// All non player company, attack player station if there is retaliation
+				StateScore *= Preferences.IsStation;
+			}
+			else
+			{
+				StateScore *= 0;
+			}
 		}
 		else
 		{

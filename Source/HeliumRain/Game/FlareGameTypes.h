@@ -395,6 +395,10 @@ struct FFlareCompanySave
 	/** List of company transactions */
 	UPROPERTY(EditAnywhere, Category = Save)
 	TArray<FFlareTransactionLogEntry> TransactionLog;
+
+	/** Quantity of damage deal to others companies */
+	UPROPERTY(EditAnywhere, Category = Save)
+	float Retaliation;
 };
 
 /** Catalog data */

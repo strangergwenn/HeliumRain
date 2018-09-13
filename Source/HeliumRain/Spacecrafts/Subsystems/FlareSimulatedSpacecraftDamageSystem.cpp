@@ -403,6 +403,7 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 		// This ship has been damaged and someone is to blame
 		if (DamageSource != NULL && DamageSource->GetCompany() != Spacecraft->GetCompany())
 		{
+			UFlareCompany* PlayerCompany = Spacecraft->GetGame()->GetPC()->GetCompany();
 			float ReputationCost = 0.f;
 
 			if (Spacecraft->IsStation())
@@ -411,14 +412,22 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 				{
 					ReputationCost = -InflictedDamageRatio * 100;
 				}
+				// Retaliation
+				if(DamageSource->GetCompany() == PlayerCompany)
+				{
+					PlayerCompany->AddRetaliation(EffectiveEnergy);
+				}
+				else if(Spacecraft->GetCompany() == PlayerCompany)
+				{
+					PlayerCompany->RemoveRetaliation(EffectiveEnergy);
+				}
 			}
 			else
 			{
 				ReputationCost = -InflictedDamageRatio * 2;
 			}
-			
-			UFlareCompany* PlayerCompany = Spacecraft->GetGame()->GetPC()->GetCompany();
-			
+
+
 			if (ReputationCost != 0
 				&& DamageSource->IsResponsible(DamageType)
 				&& !Spacecraft->GetGame()->IsSkirmish()

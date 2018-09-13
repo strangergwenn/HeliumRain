@@ -1245,7 +1245,7 @@ void UFlareShipPilot::FindBestHostileTarget(EFlareCombatTactic::Type Tactic)
 	struct PilotHelper::TargetPreferences TargetPreferences;
 	TargetPreferences.IsLarge = 1;
 	TargetPreferences.IsSmall = 1;
-	TargetPreferences.IsStation = 0;
+	TargetPreferences.IsStation = Ship->GetCompany()->IsPlayerCompany() ? 0.f : 1.f;
 	TargetPreferences.IsNotStation = 1;
 	TargetPreferences.IsMilitary = 1;
 	TargetPreferences.IsNotMilitary = 0.1;

@@ -390,6 +390,12 @@ UFlareSimulatedSpacecraft* UFlareBattle::GetBestTarget(UFlareSimulatedSpacecraft
 			continue;
 		}
 
+		if (ShipCandidate->IsStation() && (!ShipCandidate->GetCompany()->IsPlayerCompany() || ShipCandidate->GetCompany()->GetRetaliation() <= 0))
+		{
+			// Ignore company without retaliation
+			continue;
+		}
+
 		float Score;
 		float StateScore;
 		float DistanceScore;
