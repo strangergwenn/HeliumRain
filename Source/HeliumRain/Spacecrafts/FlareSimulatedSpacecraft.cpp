@@ -608,6 +608,38 @@ void UFlareSimulatedSpacecraft::LockResources()
 				AddLockInMap(Resource, EFlareResourceLock::Trade);
 			}
 		}
+
+		if (HasCapability(EFlareSpacecraftCapability::Storage))
+		{
+			// Lock resource with usage as Trade
+			for (int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+			{
+				FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+
+				if(GetCurrentSector())
+				{
+					for(UFlareSimulatedSpacecraft* Station : GetCurrentSector()->GetSectorStations())
+					{
+						 FFlareResourceUsage Usage = Station->GetResourceUseType(Resource);
+
+
+						 if(Usage.HasAnyUsage())
+						 {
+							 AddLockInMap(Resource, EFlareResourceLock::Trade);
+							 break;
+						 }
+					}
+				}
+
+				// Lock resource with stock in cargo bay as Output
+				int32 ResourceQuantity = GetActiveCargoBay()->GetResourceQuantity(Resource, GetCompany());
+
+				if(ResourceQuantity > 0)
+				{
+					AddLockInMap(Resource, EFlareResourceLock::Output);
+				}
+			}
+		}
 	}
 
 	for(auto Entry : LockMap)
@@ -665,6 +697,12 @@ void UFlareSimulatedSpacecraft::ComputeProductionCargoBaySize(int32& CargoBaySlo
 					CargoBaySlotCapacity = LocalCapacity;
 				}
 			}
+		}
+		else if(HasCapability(EFlareSpacecraftCapability::Storage))
+		{
+			UFlareResourceCatalog* Catalog = GetGame()->GetResourceCatalog();
+			CargoBayCount = Catalog->GetResourceList().Num();
+			CargoBaySlotCapacity = GetDescription()->CargoBayCapacity * GetLevel();
 		}
 		else
 		{

@@ -143,6 +143,8 @@ public:
 
 	void CheckAIBattleState();
 
+	void UpdateStorageLocks();
+
 	void ProcessIncomingPlayerEnemy();
 
 	/** Simulate world for a day */

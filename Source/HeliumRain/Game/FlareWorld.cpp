@@ -105,6 +105,8 @@ void UFlareWorld::Load(const FFlareWorldSave& Data)
 		LoadSector(SectorDescription, *SectorSave, OrbitParameters);
 	}
 
+	UpdateStorageLocks();
+
 	// Load all travels
 	for (int32 i = 0; i < WorldData.TravelData.Num(); i++)
 	{
@@ -775,6 +777,9 @@ void UFlareWorld::Simulate()
 		Sectors[SectorIndex]->UpdateReserveShips();
 	}
 
+	// Update storage station reservation
+	UpdateStorageLocks();
+
 	// Player being attacked ?
 	ProcessIncomingPlayerEnemy();
 
@@ -874,6 +879,20 @@ void UFlareWorld::CheckAIBattleState()
 	for (UFlareCompany* Company : Companies)
 	{
 		Company->GetAI()->CheckBattleState();
+	}
+}
+
+void UFlareWorld::UpdateStorageLocks()
+{
+	for (UFlareSimulatedSector* Sector : Sectors)
+	{
+		for(UFlareSimulatedSpacecraft* Station : Sector->GetSectorStations())
+		{
+			if(Station->HasCapability(EFlareSpacecraftCapability::Storage))
+			{
+				Station->LockResources();
+			}
+		}
 	}
 }
 
