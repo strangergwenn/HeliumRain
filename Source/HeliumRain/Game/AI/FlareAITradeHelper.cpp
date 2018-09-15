@@ -1447,7 +1447,7 @@ void AITradeHelper::GenerateTradingSources(AITradeSources& Sources, AITradeSourc
 
 				if(Station->GetActiveCargoBay()->WantSell(Resource, nullptr))
 				{
-					if(Station->GetActiveCargoBay()->WantBuy(Resource, nullptr) && Station->HasCapability(EFlareSpacecraftCapability::Storage))
+					if(Station->GetActiveCargoBay()->WantBuy(Resource, nullptr) && !Station->HasCapability(EFlareSpacecraftCapability::Storage))
 					{
 						if(Resource == World->GetGame()->GetScenarioTools()->FleetSupply)
 						{
