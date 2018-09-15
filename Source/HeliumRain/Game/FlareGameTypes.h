@@ -6,6 +6,8 @@
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareGameTypes.generated.h"
 
+#define AI_MAX_STATION_PER_SECTOR 30
+
 class AFlareSpacecraft;
 
 /*----------------------------------------------------
@@ -61,6 +63,8 @@ namespace EFlareResourcePriceContext
 		Default, /** Default price */
 		FactoryInput, /** Price selling to a factory needing the resource */
 		FactoryOutput, /** Price buying the resource to a factory */
+		HubInput, /** Price selling to a hub needing the resource */
+		HubOutput, /** Price buying the resource to a hub */
 		ConsumerConsumption, /** Price selling to a the people */
 		MaintenanceConsumption, /** Price selling to company using maintenance */
 	};

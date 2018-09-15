@@ -484,7 +484,7 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 			QuantityToSell -= FactorySellQuantity;
 
 			int32 StorageSellQuantity = FMath::Min(StorageCapacity, QuantityToSell);
-			MoneyGain += StorageSellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+			MoneyGain += StorageSellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::HubInput);
 			QuantityToSell -= StorageSellQuantity;
 
 			int32 MoneySpend = 0;
@@ -504,7 +504,7 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 			QuantityToBuy -= FactoryBuyQuantity;
 
 			int32 StorageBuyQuantity = FMath::Min(StorageStock, QuantityToBuy);
-			MoneySpend += StorageBuyQuantity * SectorA->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
+			MoneySpend += StorageBuyQuantity * SectorA->GetResourcePrice(Resource, EFlareResourcePriceContext::HubOutput);
 			QuantityToBuy -= StorageBuyQuantity;
 
 
@@ -1184,6 +1184,51 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 
 			}
 		}
+
+		// Storage
+		if (!Station->IsUnderConstruction() && Station->HasCapability(EFlareSpacecraftCapability::Storage))
+		{
+			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+			{
+				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
+
+				int32 ResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
+				int32 MaxCapacity = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, Company);
+
+				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::HubInput));
+				int32 Capacity = FMath::Min(MaxCapacity, (InitialSlotCapacity - ResourceQuantity));
+				int32 SlotCapacity = InitialSlotCapacity;
+
+
+				float BaseSlotCapacity = SlotCapacity / Station->GetLevel();
+
+				if (ResourceQuantity < SlotCapacity)
+				{
+
+					if (Company == Station->GetCompany())
+					{
+						Variation->OwnedCapacity += Capacity;
+					}
+					else
+					{
+						Capacity = FMath::Min(Capacity, CanBuyQuantity);
+						Variation->FactoryCapacity += Capacity * Behavior->TradingSell;
+					}
+				}
+				Variation->MaintenanceMaxStock += Station->GetActiveCargoBay()->GetSlotCapacity();
+
+				// The owned resell its own FS
+
+				int32 Stock = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
+
+				if (Company == Station->GetCompany())
+				{
+					Variation->OwnedStock += Stock;
+				}
+
+			}
+		}
 	}
 
 	if (OwnedCustomerStation || NotOwnedCustomerStation)
@@ -1309,7 +1354,7 @@ inline static bool NeedComparatorComparator(const AITradeNeed& n1, const AITrade
 
 
 // New trading
-void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, AITradeNeeds& MaintenanceNeeds, UFlareWorld* World)
+void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, AITradeNeeds& MaintenanceNeeds, AITradeNeeds& StorageNeeds, UFlareWorld* World)
 {
 	// Trading needs
 	for(UFlareCompany* Company : World->GetCompanies())
@@ -1336,7 +1381,14 @@ void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, AITradeNeeds& Main
 						Need.Maintenance = false;
 						Need.Consume(0); // Generate ratio
 						Need.HighPriority = Station->IsUnderConstruction();
-						Needs.List.Add(Need);
+						if(Station->HasCapability(EFlareSpacecraftCapability::Storage) && !Station->IsUnderConstruction())
+						{
+							StorageNeeds.List.Add(Need);
+						}
+						else
+						{
+							Needs.List.Add(Need);
+						}
 					}
 				}
 			}
@@ -1395,7 +1447,7 @@ void AITradeHelper::GenerateTradingSources(AITradeSources& Sources, AITradeSourc
 
 				if(Station->GetActiveCargoBay()->WantSell(Resource, nullptr))
 				{
-					if(Station->GetActiveCargoBay()->WantBuy(Resource, nullptr))
+					if(Station->GetActiveCargoBay()->WantBuy(Resource, nullptr) && Station->HasCapability(EFlareSpacecraftCapability::Storage))
 					{
 						if(Resource == World->GetGame()->GetScenarioTools()->FleetSupply)
 						{

@@ -98,7 +98,8 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		FFlareResourceUsage StationResourceUsage = Station->GetResourceUseType(Request.Resource);
 
 		if(NeedOutput && (!StationResourceUsage.HasUsage(EFlareResourcePriceContext::FactoryOutput) &&
-						  !StationResourceUsage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption)))
+						  !StationResourceUsage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption) &&
+						  !StationResourceUsage.HasUsage(EFlareResourcePriceContext::HubOutput)))
 		{
 			//FLOG(" need output but dont provide it");
 			continue;
@@ -106,7 +107,8 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 
 		if(NeedInput && (!StationResourceUsage.HasUsage(EFlareResourcePriceContext::FactoryInput) &&
 						 !StationResourceUsage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption) &&
-						 !StationResourceUsage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption)))
+						 !StationResourceUsage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption) &&
+						 !StationResourceUsage.HasUsage(EFlareResourcePriceContext::HubInput)))
 		{
 			//FLOG(" need input but dont provide it");
 			continue;
@@ -195,6 +197,10 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 				  Score,
 				  BestScore)*/
 		}
+		else if(Station->HasCapability(EFlareSpacecraftCapability::Storage))
+		{
+			Score *= 0.001;
+		}
 
 		if(Score > 0 && Score > BestScore)
 		{
@@ -219,6 +225,12 @@ int64 SectorHelper::GetSellResourcePrice(UFlareSimulatedSector* Sector, FFlareRe
 			return Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput);
 		 }
 	}
+
+	if(Usage.HasUsage(EFlareResourcePriceContext::HubInput))
+	{
+		return Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::HubInput);
+	}
+
 	return Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::Default);
 }
 
@@ -251,6 +263,11 @@ int64 SectorHelper::GetBuyResourcePrice(UFlareSimulatedSector* Sector, FFlareRes
 	if(Usage.HasUsage(EFlareResourcePriceContext::FactoryOutput))
 	{
 		MaxPrice = FMath::Max(MaxPrice, Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryOutput));
+	}
+
+	if(Usage.HasUsage(EFlareResourcePriceContext::HubOutput))
+	{
+		return Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::HubOutput);
 	}
 
 	return MaxPrice;
@@ -888,12 +905,12 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::
 
 			FFlareResourceUsage Usage = Spacecraft->GetResourceUseType(Cargo.Resource);
 
-			if(Usage.HasUsage(EFlareResourcePriceContext::FactoryInput) || Usage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption) || Usage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption))
+			if(Usage.HasUsage(EFlareResourcePriceContext::FactoryInput) || Usage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption) || Usage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption) || Usage.HasUsage(EFlareResourcePriceContext::HubInput))
 			{
 				ResourceStats->Capacity += Spacecraft->GetActiveCargoBay()->GetSlotCapacity() - Cargo.Quantity;
 			}
 
-			if(Usage.HasUsage(EFlareResourcePriceContext::FactoryOutput) || Usage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption))
+			if(Usage.HasUsage(EFlareResourcePriceContext::FactoryOutput) || Usage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption) || Usage.HasUsage(EFlareResourcePriceContext::HubOutput))
 			{
 				ResourceStats->Stock += Cargo.Quantity;
 			}

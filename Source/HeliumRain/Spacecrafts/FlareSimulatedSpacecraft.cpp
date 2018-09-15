@@ -525,6 +525,45 @@ FFlareResourceUsage UFlareSimulatedSpacecraft::GetResourceUseType(FFlareResource
 		Usage.AddUsage(EFlareResourcePriceContext::MaintenanceConsumption);
 	}
 
+	// Maintenance resource ?
+	if (HasCapability(EFlareSpacecraftCapability::Storage))
+	{
+		bool Input = false;
+		bool Output = false;
+
+		for(FFlareCargo& Slot : GetActiveCargoBay()->GetSlots())
+		{
+			if(Slot.Lock == EFlareResourceLock::Input || Slot.Lock == EFlareResourceLock::Trade)
+			{
+				Input = true;
+				if(Output)
+				{
+					break;
+				}
+			}
+
+			if(Slot.Lock == EFlareResourceLock::Output || Slot.Lock == EFlareResourceLock::Trade)
+			{
+				Output = true;
+				if(Input)
+				{
+					break;
+				}
+			}
+		}
+
+		if(Input)
+		{
+			Usage.AddUsage(EFlareResourcePriceContext::HubInput);
+		}
+
+		if(Output)
+		{
+			Usage.AddUsage(EFlareResourcePriceContext::HubOutput);
+		}
+	}
+
+
 	return Usage;
 }
 

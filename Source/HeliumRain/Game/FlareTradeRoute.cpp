@@ -868,7 +868,7 @@ bool UFlareTradeRoute::IsUsefulSector(UFlareSimulatedSector* Sector)
 
 		bool LoadOperation = IsLoadKindOperation(OperationType);
 
-		if(LoadOperation && Usage.HasUsage(EFlareResourcePriceContext::FactoryOutput))
+		if(LoadOperation && (Usage.HasUsage(EFlareResourcePriceContext::FactoryOutput) || Usage.HasUsage(EFlareResourcePriceContext::HubOutput)))
 		{
 			return true;
 		}
@@ -876,6 +876,7 @@ bool UFlareTradeRoute::IsUsefulSector(UFlareSimulatedSector* Sector)
 		bool UnloadOperation = IsUnloadKindOperation(OperationType);
 
 		if(UnloadOperation && (Usage.HasUsage(EFlareResourcePriceContext::FactoryInput)
+							   || Usage.HasUsage(EFlareResourcePriceContext::HubInput)
 							   || Usage.HasUsage(EFlareResourcePriceContext::MaintenanceConsumption)
 							   || Usage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption)))
 		{

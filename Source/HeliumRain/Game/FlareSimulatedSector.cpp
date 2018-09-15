@@ -30,7 +30,6 @@ DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorFriendlyness"), STAT_FlareSector_G
 DECLARE_CYCLE_STAT(TEXT("FlareSector GetSectorBattleState"), STAT_FlareSector_GetSectorBattleState, STATGROUP_Flare);
 
 #define FLEET_SUPPLY_CONSUMPTION_STATS 50
-#define AI_MAX_STATION_PER_SECTOR 30
 
 #define LOCTEXT_NAMESPACE "FlareSimulatedSector"
 
@@ -2071,6 +2070,13 @@ int64 UFlareSimulatedSector::GetResourcePrice(FFlareResourceDescription* Resourc
 		case EFlareResourcePriceContext::FactoryInput:
 			return DefaultPrice + Resource->TransportFee;
 		break;
+		case EFlareResourcePriceContext::HubInput:
+			return DefaultPrice - Resource->TransportFee * 0.2f;
+		break;
+		case EFlareResourcePriceContext::HubOutput:
+			return DefaultPrice + Resource->TransportFee * 0.2f;
+		break;
+
 		case EFlareResourcePriceContext::ConsumerConsumption:
 			return DefaultPrice * 1.1 + Resource->TransportFee; // TODO dynamic
 		break;

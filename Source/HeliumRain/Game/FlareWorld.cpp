@@ -493,12 +493,13 @@ void UFlareWorld::Simulate()
 	// AI. Merged trading
 	AITradeNeeds Needs;
 	AITradeNeeds MaintenanceNeeds;
+	AITradeNeeds StorageNeeds;
 	AITradeSources Sources(this);
 	AITradeSources MaintenanceSources(this);
 	AITradeIdleShips IdleShips(this);
 
 
-	AITradeHelper::GenerateTradingNeeds(Needs, MaintenanceNeeds, this);
+	AITradeHelper::GenerateTradingNeeds(Needs, MaintenanceNeeds, StorageNeeds, this);
 	AITradeHelper::GenerateTradingSources(Sources, MaintenanceSources, this);
 	AITradeHelper::GenerateIdleShips(IdleShips, this);
 
@@ -512,6 +513,7 @@ void UFlareWorld::Simulate()
 	FLOG("Initial trading stat");
 	Needs.Print();
 	MaintenanceNeeds.Print();
+	StorageNeeds.Print();
 	Sources.Print();
 	MaintenanceSources.Print();
 	IdleShips.Print();
@@ -526,6 +528,13 @@ void UFlareWorld::Simulate()
 	AITradeHelper::ComputeGlobalTrading(this, MaintenanceNeeds, Sources, MaintenanceSources, IdleShips, CompaniesMoney);
 	AITradeHelper::ComputeGlobalTrading(this, Needs, Sources, MaintenanceSources, IdleShips, CompaniesMoney);
 
+	for(UFlareCompany* Company: Companies)
+	{
+		Company->GetAI()->UpdateIdleShipsStats(IdleShips);
+	}
+
+	AITradeHelper::ComputeGlobalTrading(this, StorageNeeds, Sources, MaintenanceSources, IdleShips, CompaniesMoney);
+
 #if DEBUG_NEW_AI_TRADING
 	FLOG("Final trading stat");
 	Needs.Print();
@@ -533,11 +542,6 @@ void UFlareWorld::Simulate()
 	MaintenanceSources.Print();
 	IdleShips.Print();
 #endif
-
-	for(UFlareCompany* Company: Companies)
-	{
-		Company->GetAI()->UpdateIdleShipsStats(IdleShips);
-	}
 
 	// AI. Play them in random order
 	TArray<UFlareCompany*> CompaniesToSimulateAI = Companies;

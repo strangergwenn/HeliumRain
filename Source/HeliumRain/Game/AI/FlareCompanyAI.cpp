@@ -711,6 +711,29 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool Technology, 
 			}
 
 
+			if(StationDescription->Capabilities.Contains(EFlareSpacecraftCapability::Storage))
+			{
+				int32 StorageStationCount = 0;
+				int32 StationCount = 0;
+				// TODO
+
+				for(UFlareSimulatedSpacecraft* Station : Sector->GetSectorStations())
+				{
+					if(Station->HasCapability(EFlareSpacecraftCapability::Storage))
+					{
+						StorageStationCount++;
+					}
+					StationCount++;
+				}
+
+				if(StorageStationCount < 1 && StationCount > AI_MAX_STATION_PER_SECTOR/2)
+				{
+					UpdateBestScore(1e18f, Sector, StationDescription, NULL, &BestScore, &BestStationDescription, &BestStation, &BestSector);
+					break;
+				}
+
+			}
+
 			//FLOGV("> Analyse build %s in %s", *StationDescription->Name.ToString(), *Sector->GetSectorName().ToString());
 
 			// Count factories for the company, compute rentability in each sector for each station
@@ -778,6 +801,42 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool Technology, 
 			}
 
 			//FLOGV("> Analyse upgrade %s in %s", *Station->GetImmatriculation().ToString(), *Sector->GetSectorName().ToString());
+
+
+			if(Station->HasCapability(EFlareSpacecraftCapability::Storage))
+			{
+				int32 StationLevelSum = 0;
+				int32 StationCount = 0;
+
+				for(UFlareSimulatedSpacecraft* OtherStation : Sector->GetSectorStations())
+				{
+					if (OtherStation->GetCompany() != Company)
+					{
+						// Only AI company station
+						continue;
+					}
+
+					if(OtherStation->HasCapability(EFlareSpacecraftCapability::Storage))
+					{
+						continue;
+					}
+
+					StationLevelSum = OtherStation->GetLevel();
+					StationCount++;
+				}
+
+
+				if(StationCount > 0)
+				{
+					int32 StationLevelMean = StationLevelSum / StationCount;
+
+					if(Station->GetLevel() < StationLevelMean)
+					{
+						UpdateBestScore(1e17f, Sector, Station->GetDescription(), Station, &BestScore, &BestStationDescription, &BestStation, &BestSector);
+						break;
+					}
+				}
+			}
 
 			// Count factories for the company, compute rentability in each sector for each station
 			for (int32 FactoryIndex = 0; FactoryIndex < Station->GetDescription()->Factories.Num(); FactoryIndex++)
