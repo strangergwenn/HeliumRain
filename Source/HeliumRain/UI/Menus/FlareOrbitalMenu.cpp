@@ -182,7 +182,7 @@ void SFlareOrbitalMenu::Construct(const FArguments& InArgs)
 					+ SScrollBox::Slot()
 					.Padding(Theme.ContentPadding)
 					[
-						UFlareUITypes::Header(LOCTEXT("TravelsTitle", "Travels"))
+						UFlareUITypes::Header(LOCTEXT("TravelsTitle", "Events"))
 					]
 
 					// Travel list
@@ -584,7 +584,7 @@ FText SFlareOrbitalMenu::GetTravelText() const
 			}
 			if (Result.Len() == 0)
 			{
-				Result = LOCTEXT("NoTravel", "No travel.").ToString();
+				Result = LOCTEXT("NoTravel", "No event.").ToString();
 			}
 
 			return FText::FromString(Result);
