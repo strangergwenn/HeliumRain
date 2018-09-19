@@ -177,7 +177,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 							.AutoHeight()
 							[
 								SNew(STextBlock)
-								.Text(LOCTEXT("DONT-TRANSLATE-Special-Thanks", "Special thanks to Johanna and all our nerd friends ! This game took us more than three years to create. We hope you'll have as much fun playing it as we did creating it !"))
+								.Text(LOCTEXT("DONT-TRANSLATE-Special-Thanks", "Special thanks to Johanna and all our nerd friends ! This game took us more than four years to create. We hope you'll have as much fun playing it as we did creating it !"))
 								.TextStyle(&Theme.NameFont)
 								.WrapTextAt(TextWidth / 2)
 							]
