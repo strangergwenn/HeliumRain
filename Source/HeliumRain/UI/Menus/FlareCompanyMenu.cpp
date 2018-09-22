@@ -686,7 +686,7 @@ void SFlareCompanyMenu::ShowProperty(UFlareCompany* Target)
 void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 {
 	CompanyLog->ClearChildren();
-
+	
 	// Compute balances
 	TMap<int64, int64> DayBalances;
 	for (const FFlareTransactionLogEntry& Entry : Target->GetTransactionLog())
@@ -720,6 +720,10 @@ void SFlareCompanyMenu::ShowCompanyLog(UFlareCompany* Target)
 			continue;
 		}
 		else if (CurrentCompanyFilter && CurrentCompanyFilter != Other)
+		{
+			continue;
+		}
+		else if (MenuManager->GetGame()->GetGameWorld()->GetDate() - Entry.Date > 30)
 		{
 			continue;
 		}
