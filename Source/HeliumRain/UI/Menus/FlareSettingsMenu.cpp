@@ -181,7 +181,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						[
 							SAssignNew(AnticollisionButton, SFlareButton)
 							.Text(LOCTEXT("Anticollision", "Use anticollision"))
-							.HelpText(LOCTEXT("AnticollisionInfo", "Anti-collision will prevent your ship from crahsing into objects and forbid close fly-bys."))
+							.HelpText(LOCTEXT("AnticollisionInfo", "Anti-collision will prevent your ship from crashing into objects and forbid close fly-bys."))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnAnticollisionToggle)
 						]
