@@ -49,7 +49,7 @@ DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Sound"), STAT_FlarePlayerTick_Sound, ST
 
 #define LOCTEXT_NAMESPACE "AFlarePlayerController"
 
-#define SCANNABLES_RESEARCH_GAIN 100
+#define SCANNABLES_RESEARCH_GAIN 40
 
 
 /*----------------------------------------------------
