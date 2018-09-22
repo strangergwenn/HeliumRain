@@ -204,7 +204,7 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
-						.Text(LOCTEXT("DONT-TRANSLATE-Engine-Info2", "Unreal\u00AE Engine, Copyright 1998 - 2017, Epic Games, Inc. All rights reserved."))
+						.Text(LOCTEXT("DONT-TRANSLATE-Engine-Info2", "Unreal\u00AE Engine, Copyright 1998 - 2018, Epic Games, Inc. All rights reserved."))
 						.TextStyle(&Theme.NameFont)
 						.WrapTextAt(TextWidth)
 					]
