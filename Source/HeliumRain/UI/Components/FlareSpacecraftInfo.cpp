@@ -426,6 +426,7 @@ void SFlareSpacecraftInfo::Show()
 
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
+	MessageBox->ClearChildren();
 
 	if (Minimized)
 	{
@@ -591,12 +592,11 @@ void SFlareSpacecraftInfo::Show()
 			}
 			ScrapButton->SetDisabled(true);
 		}
-	}
 
-	// Update message box
-	MessageBox->ClearChildren();
-	UpdateCaptureList();
-	UpdateCapabilitiesInfo();
+		// Update message box
+		UpdateCaptureList();
+		UpdateCapabilitiesInfo();
+	}
 
 	if (PC->GetMenuManager()->GetCurrentMenu() == EFlareMenu::MENU_Trade)
 	{
