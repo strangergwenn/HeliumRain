@@ -49,7 +49,7 @@ DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Sound"), STAT_FlarePlayerTick_Sound, ST
 
 #define LOCTEXT_NAMESPACE "AFlarePlayerController"
 
-#define SCANNABLES_RESEARCH_GAIN 40
+#define SCANNABLES_RESEARCH_GAIN 10
 
 
 /*----------------------------------------------------
@@ -729,7 +729,11 @@ void AFlarePlayerController::UnlockScannable(FName Identifier)
 {
 	FLOGV("AFlarePlayerController::UnlockScannable : unlocking '%s'", *Identifier.ToString());
 
-	Company->GiveResearch(SCANNABLES_RESEARCH_GAIN);
+	PlayerData.UnlockedScannables.AddUnique(Identifier);
+
+	int32 ArtefactCount = PlayerData.UnlockedScannables.Num();
+
+	Company->GiveResearch(SCANNABLES_RESEARCH_GAIN * FMath::Square(ArtefactCount));
 
 	Notify(LOCTEXT("ScannableUnlocked", "Artifact found"),
 		LOCTEXT("ScannableUnlockedInfo", "Artifact analyzis revealed valuable data for technology research."),
@@ -738,7 +742,7 @@ void AFlarePlayerController::UnlockScannable(FName Identifier)
 		false,
 		EFlareMenu::MENU_Technology);
 
-	PlayerData.UnlockedScannables.AddUnique(Identifier);
+
 }
 
 
