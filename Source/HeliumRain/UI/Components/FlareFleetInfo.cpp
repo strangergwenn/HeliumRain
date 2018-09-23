@@ -362,7 +362,11 @@ bool SFlareFleetInfo::IsInspectTradeRouteDisabled() const
 
 FText SFlareFleetInfo::GetAutoTradeHintText() const
 {
-	if (TargetFleet->GetCurrentTradeRoute())
+	if (!TargetFleet->GetFleetCompany()->IsTechnologyUnlocked("auto-trade"))
+	{
+		return LOCTEXT("CantAutoTradeNoTech", "The Auto-Trade technology is needed");
+	}
+	else if (TargetFleet->GetCurrentTradeRoute())
 	{
 		return LOCTEXT("CantAutoTradeOnTradeRoute", "Fleets assigned to a trade route can't do automatic trading");
 	}
@@ -378,7 +382,12 @@ FText SFlareFleetInfo::GetAutoTradeHintText() const
 
 bool SFlareFleetInfo::IsAutoTradeDisabled() const
 {
-	if (TargetFleet->GetCurrentTradeRoute())
+
+	if (!TargetFleet->GetFleetCompany()->IsTechnologyUnlocked("auto-trade"))
+	{
+		return true;
+	}
+	else if (TargetFleet->GetCurrentTradeRoute())
 	{
 		return true;
 	}
