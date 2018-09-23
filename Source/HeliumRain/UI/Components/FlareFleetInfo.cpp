@@ -220,10 +220,20 @@ void SFlareFleetInfo::Show()
 	}
 	else if (TargetFleet && TargetFleet->IsValidLowLevel())
 	{
-		InspectButton->SetVisibility(EVisibility::Visible);
-		TradeRouteButton->SetVisibility(EVisibility::Visible);
-		AutoTradeButton->SetVisibility(EVisibility::Visible);
-		AutoTradeButton->SetActive(TargetFleet->IsAutoTrading());
+		if (TargetFleet->GetFleetCompany() == TargetFleet->GetGame()->GetPC()->GetCompany())
+		{
+			InspectButton->SetVisibility(EVisibility::Visible);
+			TradeRouteButton->SetVisibility(EVisibility::Visible);
+			AutoTradeButton->SetVisibility(EVisibility::Visible);
+
+			AutoTradeButton->SetActive(TargetFleet->IsAutoTrading());
+		}
+		else
+		{
+			InspectButton->SetVisibility(EVisibility::Collapsed);
+			TradeRouteButton->SetVisibility(EVisibility::Collapsed);
+			AutoTradeButton->SetVisibility(EVisibility::Collapsed);
+		}
 	}
 }
 
@@ -364,7 +374,7 @@ FText SFlareFleetInfo::GetAutoTradeHintText() const
 {
 	if (!TargetFleet->GetFleetCompany()->IsTechnologyUnlocked("auto-trade"))
 	{
-		return LOCTEXT("CantAutoTradeNoTech", "The Auto-Trade technology is needed");
+		return LOCTEXT("CantAutoTradeNoTech", "The Automated Trading technology is required");
 	}
 	else if (TargetFleet->GetCurrentTradeRoute())
 	{
@@ -382,7 +392,6 @@ FText SFlareFleetInfo::GetAutoTradeHintText() const
 
 bool SFlareFleetInfo::IsAutoTradeDisabled() const
 {
-
 	if (!TargetFleet->GetFleetCompany()->IsTechnologyUnlocked("auto-trade"))
 	{
 		return true;
