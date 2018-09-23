@@ -764,7 +764,6 @@ UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenera
 	Data.PutName("sector-1", Station1->GetCurrentSector()->GetIdentifier());
 	Data.PutName("sector-2", Station2->GetCurrentSector()->GetIdentifier());
 	Data.PutName("client", Station1->GetCompany()->GetIdentifier());
-	Data.PutInt32("duration", 10 + TravelDuration + 1);
 	Data.PutTag(Parent->GenerateVipTag(Station1));
 	CreateGenericReward(Data, QuestValue, Station1->GetCompany());
 
@@ -781,7 +780,6 @@ bool UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 	UFlareSimulatedSector* Sector2 = Parent->GetGame()->GetGameWorld()->FindSector(InitData.GetName("sector-2"));
 	UFlareSimulatedSpacecraft* Station1 = Parent->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station-1"));
 	UFlareSimulatedSpacecraft* Station2 = Parent->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station-2"));
-	int32 Duration = InitData.GetInt32("duration");
 
 	FText VIPName = FText::FromString(Data.GetString("vip-name"));
 
@@ -823,7 +821,6 @@ bool UFlareQuestGeneratedVipTransport::Load(UFlareQuestGenerator* Parent, const 
 	}
 
 	AddGlobalFailCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station2));
-	AddGlobalFailCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, Duration));
 
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionSpacecraftNoMoreExist::Create(this, Station1));
