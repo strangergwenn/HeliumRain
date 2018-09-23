@@ -712,6 +712,23 @@ void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpace
 		{
 			for(UFlareQuestCondition* Condition : SelectedQuest->GetCurrentConditions())
 			{
+				UFlareQuestConditionBuyAtStation* BuyAtStationCondition = Cast<UFlareQuestConditionBuyAtStation>(Condition);
+				if (BuyAtStationCondition && BuyAtStationCondition->GetResource() == Resource && BuyAtStationCondition->GetTargetStation() == TransactionSourceSpacecraft)
+				{
+					int32 MissingQuantity = BuyAtStationCondition->GetTargetQuantity() - BuyAtStationCondition->GetCurrentProgression();
+					auto PlayerShip = (SourceSpacecraft->IsStation() ? DestinationSpacecraft : SourceSpacecraft);
+					int32 PreferredQuantity = MissingQuantity - PlayerShip->GetActiveCargoBay()->GetResourceQuantity(Resource, PlayerShip->GetCompany());
+
+					if (TransactionDestinationSpacecraft == PlayerShip)
+					{
+						PreferredQuantity = MissingQuantity;
+					}
+
+					int32 AssignedQuantity = SetSliderQuantity(PreferredQuantity);
+					QuantityText->SetText(FText::AsNumber(AssignedQuantity));
+					break;
+				}
+
 				UFlareQuestConditionSellAtStation* SellAtStationCondition = Cast<UFlareQuestConditionSellAtStation>(Condition);
 				if (SellAtStationCondition && SellAtStationCondition->GetResource() == Resource)
 				{
@@ -726,7 +743,12 @@ void SFlareTradeMenu::OnTransferResources(UFlareSimulatedSpacecraft* SourceSpace
 
 					int32 AssignedQuantity = SetSliderQuantity(PreferredQuantity);
 					QuantityText->SetText(FText::AsNumber(AssignedQuantity));
+					break;
 				}
+
+
+
+
 			}
 		}
 	}

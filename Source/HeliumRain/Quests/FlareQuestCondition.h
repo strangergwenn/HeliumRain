@@ -678,6 +678,26 @@ protected:
 	FFlareResourceDescription* Resource;
 	int32 Quantity;
 	int32 CurrentProgression;
+public:
+	int32 GetTargetQuantity()
+	{
+		return Quantity;
+	}
+
+	int32 GetCurrentProgression()
+	{
+		return CurrentProgression;
+	}
+
+	FFlareResourceDescription* GetResource()
+	{
+		return Resource;
+	}
+
+	UFlareSimulatedSpacecraft* GetTargetStation()
+	{
+		return TargetStation;
+	}
 };
 
 //////////////////////////////////////////////////////
