@@ -1288,7 +1288,7 @@ void UFlareQuestTutorialRepairShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"StartRepair"
-		FText Description = LOCTEXT("StartRepairDescription","You have a damaged ship, you need to repair it. Go to the sector menu (<input-action:SectorMenu>) and click on the repair button, at the top right of the menu.\nRepairing requires Fleet Supply in a station or cargo in the sector.");
+		FText Description = LOCTEXT("StartRepairDescription","You have a damaged ship, you need to repair it. Go to the sector menu (<input-action:SectorMenu>) and click on the repair button, on the left of the menu.\nRepairing requires Fleet Supply in a station or cargo in the sector.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-repair", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialRepairRefill::Create(this, false, false));
@@ -1340,7 +1340,7 @@ void UFlareQuestTutorialRefillShip::Load(UFlareQuestManager* Parent)
 	{
 		#undef QUEST_STEP_TAG
 		#define QUEST_STEP_TAG QUEST_TAG"StartRefill"
-		FText Description = LOCTEXT("StartRefillDescription","One of your ships used ammunition and needs to refill.\nGo to the sector menu (<input-action:SectorMenu>) and click on the refill button at the top right of the menu. Refilling requires Fleet Supply in a station or cargo in the same sector.");
+		FText Description = LOCTEXT("StartRefillDescription","One of your ships used ammunition and needs to refill.\nGo to the sector menu (<input-action:SectorMenu>) and click on the refill button on the left of the menu. Refilling requires Fleet Supply in a station or cargo in the same sector.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "start-refill", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialRepairRefill::Create(this, true, false));
