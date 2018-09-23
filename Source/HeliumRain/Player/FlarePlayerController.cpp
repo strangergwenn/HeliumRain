@@ -49,8 +49,8 @@ DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Sound"), STAT_FlarePlayerTick_Sound, ST
 
 #define LOCTEXT_NAMESPACE "AFlarePlayerController"
 
-#define SCANNABLES_RESEARCH_GAIN 10
-
+#define SCANNABLES_RESEARCH_GAIN_A 0.2f
+#define SCANNABLES_RESEARCH_GAIN_B 9.8f
 
 /*----------------------------------------------------
 	Constructor
@@ -733,7 +733,7 @@ void AFlarePlayerController::UnlockScannable(FName Identifier)
 
 	int32 ArtefactCount = PlayerData.UnlockedScannables.Num();
 
-	Company->GiveResearch(SCANNABLES_RESEARCH_GAIN * FMath::Square(ArtefactCount));
+	Company->GiveResearch(SCANNABLES_RESEARCH_GAIN_A * FMath::Pow(ArtefactCount, 4) + SCANNABLES_RESEARCH_GAIN_B);
 
 	Notify(LOCTEXT("ScannableUnlocked", "Artifact found"),
 		LOCTEXT("ScannableUnlockedInfo", "Artifact analyzis revealed valuable data for technology research."),
