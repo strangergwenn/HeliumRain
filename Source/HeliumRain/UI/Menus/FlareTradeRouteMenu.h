@@ -178,7 +178,8 @@ protected:
 	/** Pause current operation */
 	void OnPauseTradeRouteClicked();
 
-	/** Limits */
+	/** Step controls */
+	void OnOperationTradeWithHubsToggle();
 	void OnOperationUpClicked();
 	void OnOperationDownClicked();
 	void OnQuantityLimitToggle();
@@ -234,6 +235,7 @@ protected:
 	TSharedPtr<SHorizontalBox>                         TradeSectorList;
 	TSharedPtr<SVerticalBox>                           TradeFleetList;
 
+	TSharedPtr<SFlareButton>                           TradeWithHubsButton;
 	TSharedPtr<SFlareButton>                           QuantityLimitButton;
 	TSharedPtr<SFlareButton>                           InventoryLimitButton;
 	TSharedPtr<SFlareButton>                           WaitLimitButton;

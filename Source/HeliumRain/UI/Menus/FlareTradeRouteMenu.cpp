@@ -401,7 +401,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 								]
 							]
 					
-							// Operation order
+							// Include hubs
 							+ SVerticalBox::Slot()
 							.AutoHeight()
 							[
@@ -412,19 +412,12 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 								.AutoWidth()
 								.Padding(Theme.SmallContentPadding)
 								[
-									SNew(SFlareButton)
-									.OnClicked(this, &SFlareTradeRouteMenu::OnOperationUpClicked)
-									.Text(LOCTEXT("MoveUpOperation", "Move up"))
-								]
-
-								// Move down
-								+ SHorizontalBox::Slot()
-								.AutoWidth()
-								.Padding(Theme.SmallContentPadding)
-								[
-									SNew(SFlareButton)
-									.OnClicked(this, &SFlareTradeRouteMenu::OnOperationDownClicked)
-									.Text(LOCTEXT("MoveDownOperation", "Move down"))
+									SAssignNew(TradeWithHubsButton, SFlareButton)
+									.OnClicked(this, &SFlareTradeRouteMenu::OnOperationTradeWithHubsToggle)
+									.Text(LOCTEXT("IncludeHubOperation", "Trade with Hubs"))
+									.HelpText(LOCTEXT("IncludeHubOperationInfo", "Check this option to allow trading with Trading Hub stations"))
+									.Toggle(true)
+									.Width(10)
 								]
 							]
 					
@@ -551,6 +544,47 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 										.OnValueChanged(this, &SFlareTradeRouteMenu::OnWaitLimitChanged)
 										.Visibility(this, &SFlareTradeRouteMenu::GetWaitLimitVisibility)
 									]
+								]
+							]
+
+							// Operation title
+							+ SVerticalBox::Slot()
+							.Padding(Theme.ContentPadding)
+							.VAlign(VAlign_Center)
+							[
+								SNew(STextBlock)
+								.Text(LOCTEXT("OperationControls", "Operation controls"))
+								.TextStyle(&Theme.TextFont)
+								.ColorAndOpacity(Theme.ObjectiveColor)
+								.WrapTextAt(0.6 * Theme.ContentWidth)
+							]
+					
+							// Operation order
+							+ SVerticalBox::Slot()
+							.AutoHeight()
+							[
+								SNew(SHorizontalBox)
+
+								// Move up
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.Padding(Theme.SmallContentPadding)
+								[
+									SNew(SFlareButton)
+									.OnClicked(this, &SFlareTradeRouteMenu::OnOperationUpClicked)
+									.Text(LOCTEXT("MoveUpOperation", "Move up"))
+									.Icon(FFlareStyleSet::GetIcon("MoveUp"))
+								]
+
+								// Move down
+								+ SHorizontalBox::Slot()
+								.AutoWidth()
+								.Padding(Theme.SmallContentPadding)
+								[
+									SNew(SFlareButton)
+									.OnClicked(this, &SFlareTradeRouteMenu::OnOperationDownClicked)
+									.Text(LOCTEXT("MoveDownOperation", "Move down"))
+									.Icon(FFlareStyleSet::GetIcon("MoveDown"))
 								]
 							]
 
@@ -1934,6 +1968,9 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 		int32 OperationTypeIndex = OperationList.Find(Operation->Type);
 		OperationSelector->SetSelectedItem(OperationNameList[OperationTypeIndex]);
 		
+		// Trade with hubs
+		TradeWithHubsButton->SetActive(false); // TODO
+
 		// Max quantity
 		if (SelectedOperation->MaxQuantity == -1)
 		{
@@ -2028,6 +2065,15 @@ void SFlareTradeRouteMenu::OnDeleteOperationClicked(FFlareTradeRouteSectorOperat
 
 		TargetTradeRoute->DeleteOperation(Operation);
 		GenerateSectorList();
+	}
+}
+
+void SFlareTradeRouteMenu::OnOperationTradeWithHubsToggle()
+{
+	if (SelectedOperation && TargetTradeRoute && TargetTradeRoute->GetFleet())
+	{
+		// TODO
+		// TradeWithHubsButton->IsActive()
 	}
 }
 
