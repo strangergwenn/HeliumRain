@@ -210,7 +210,7 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		}
 		else if(Station->HasCapability(EFlareSpacecraftCapability::Storage))
 		{
-			Score *= 0.001;
+			Score *= 0.01;
 		}
 
 		if(Score > 0 && Score > BestScore)
