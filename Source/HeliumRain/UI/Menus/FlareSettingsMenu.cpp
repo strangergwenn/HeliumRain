@@ -2427,28 +2427,29 @@ void SFlareSettingsMenu::CreateBinds()
 		->AddActionMapping("OrbitMenu")
 		->AddDefaults(EKeys::F3)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open economy menu", "Open economy menu")))
-		->AddActionMapping("EconomyMenu")));
+		->AddActionMapping("EconomyMenu")
+		->AddDefaults(EKeys::F4)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open company menu", "Open company menu")))
 		->AddActionMapping("CompanyMenu")
-		->AddDefaults(EKeys::F4)));
+		->AddDefaults(EKeys::F5)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open fleet menu", "Open fleet menu")))
 		->AddActionMapping("FleetMenu")
-		->AddDefaults(EKeys::F5)));
+		->AddDefaults(EKeys::F6)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open leaderboard", "Open diplomacy menu")))
 		->AddActionMapping("LeaderboardMenu")
-		->AddDefaults(EKeys::F6)));
+		->AddDefaults(EKeys::F7)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open technology menu", "Open technology menu")))
 		->AddActionMapping("TechnologyMenu")
-		->AddDefaults(EKeys::F7)));
+		->AddDefaults(EKeys::F8)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open quest menu", "Open quest menu")))
 		->AddActionMapping("QuestMenu")
-		->AddDefaults(EKeys::F8)));
+		->AddDefaults(EKeys::F9)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open main menu", "Open main menu")))
 		->AddActionMapping("MainMenu")
-		->AddDefaults(EKeys::F9)));
+		->AddDefaults(EKeys::F10)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open settings menu", "Open settings menu")))
 		->AddActionMapping("SettingsMenu")
-		->AddDefaults(EKeys::F10)));
+		->AddDefaults(EKeys::F12)));
 	Binds2.Add(MakeShareable((new FSimpleBind(LOCTEXT("Open trade menu", "Open trade menu")))
 		->AddActionMapping("TradeMenu")
 		->AddDefaults(EKeys::T)));

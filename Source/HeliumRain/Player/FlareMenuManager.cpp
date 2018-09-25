@@ -1317,6 +1317,7 @@ FString AFlareMenuManager::GetMenuKey(EFlareMenu::Type MenuType)
 		case EFlareMenu::MENU_Sector:         Key = "SectorMenu";       break;
 		case EFlareMenu::MENU_Orbit:          Key = "OrbitMenu";        break;
 		case EFlareMenu::MENU_Leaderboard:    Key = "LeaderboardMenu";  break;
+		case EFlareMenu::MENU_WorldEconomy:   Key = "EconomyMenu";      break;
 		case EFlareMenu::MENU_Company:        Key = "CompanyMenu";      break;
 		case EFlareMenu::MENU_Fleet:          Key = "FleetMenu";        break;
 		case EFlareMenu::MENU_Technology:     Key = "TechnologyMenu";   break;
