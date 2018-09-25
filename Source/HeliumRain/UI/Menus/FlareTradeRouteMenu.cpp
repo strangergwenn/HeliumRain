@@ -591,7 +591,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 							// Done editing
 							+ SVerticalBox::Slot()
 							.AutoHeight()
-							.Padding(Theme.ContentPadding)
+							.Padding(Theme.SmallContentPadding)
 							.HAlign(HAlign_Left)
 							[
 								SNew(SFlareButton)
