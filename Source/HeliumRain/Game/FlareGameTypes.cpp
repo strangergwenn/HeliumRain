@@ -756,11 +756,11 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 	FText Comment;
 
 
-	FLOGV("--- Type %d", int(Type));
-	FLOGV("  Spacecraft %s", *Spacecraft.ToString());
-	FLOGV("  Sector %s", *Sector.ToString());
-	FLOGV("  ExtraIdentifier1 %s", *ExtraIdentifier1.ToString());
-	FLOGV("  ExtraIdentifier2 %s", *ExtraIdentifier2.ToString());
+//	FLOGV("--- Type %d", int(Type));
+//	FLOGV("  Spacecraft %s", *Spacecraft.ToString());
+//	FLOGV("  Sector %s", *Sector.ToString());
+//	FLOGV("  ExtraIdentifier1 %s", *ExtraIdentifier1.ToString());
+//	FLOGV("  ExtraIdentifier2 %s", *ExtraIdentifier2.ToString());
 
 
 	UFlareSimulatedSpacecraft* SpacecraftCache = nullptr;
