@@ -119,10 +119,37 @@ namespace EFlareNotification
 	};
 }
 
+/** Possible sort types in economy menus */
+UENUM()
+namespace EFlareEconomySort
+{
+	enum Type
+	{
+		ES_Sector,
+		ES_Resource,
+		ES_Production,
+		ES_Consumption,
+		ES_Stock,
+		ES_Needs,
+		ES_Price,
+		ES_Variation,
+		ES_Transport
+	};
+}
+
+
+// Economy table width sizes
+#define ECONOMY_TABLE_WIDTH_SMALL    0.2f
+#define ECONOMY_TABLE_BUTTON_SMALL   3.65f
+#define ECONOMY_TABLE_WIDTH_MEDIUM   0.3f
+#define ECONOMY_TABLE_BUTTON_MEDIUM  4.0f
+#define ECONOMY_TABLE_WIDTH_LARGE    0.40f
+#define ECONOMY_TABLE_BUTTON_LARGE   6.5f
+#define ECONOMY_TABLE_WIDTH_FULL     2.1f
+
 
 // Delegates
 DECLARE_DELEGATE_OneParam(FOrderDelegate, FFlareSpacecraftDescription*)
-
 
 
 UCLASS()

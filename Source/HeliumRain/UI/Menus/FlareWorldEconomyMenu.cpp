@@ -30,13 +30,13 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 	[
 		SNew(SVerticalBox)
 
-		// Resource selector and info
+		// Selector and info
 		+ SVerticalBox::Slot()
 		.AutoHeight()
 		.HAlign(HAlign_Center)
 		[
 			SNew(SBox)
-			.WidthOverride(2 * Theme.ContentWidth)
+			.WidthOverride(ECONOMY_TABLE_WIDTH_FULL * Theme.ContentWidth)
 			.Padding(FMargin(0))
 			.HAlign(HAlign_Fill)
 			[
@@ -157,7 +157,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 			.Padding(Theme.ContentPadding)
 			[
 				SNew(SBox)
-				.WidthOverride(2 * Theme.ContentWidth)
+				.WidthOverride(ECONOMY_TABLE_WIDTH_FULL * Theme.ContentWidth)
 				.Padding(FMargin(0))
 				[
 					SNew(SVerticalBox)
@@ -173,12 +173,15 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.35 * Theme.ContentWidth)
+							.WidthOverride(ECONOMY_TABLE_WIDTH_LARGE * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("SectorNameColumnTitleInfo", "Sector"))
+								SNew(SFlareButton)
+								.Text(LOCTEXT("SectorNameColumnTitle", "Sector"))
+								.Width(ECONOMY_TABLE_BUTTON_LARGE)
+								.Transparent(true)
+								.Icon(this, &SFlareWorldEconomyMenu::GetSortIcon, EFlareEconomySort::ES_Sector)
+								.OnClicked(this, &SFlareWorldEconomyMenu::ToggleSortType, EFlareEconomySort::ES_Sector)
 							]
 						]
 
@@ -188,12 +191,15 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.2 * Theme.ContentWidth)
+							.WidthOverride(ECONOMY_TABLE_WIDTH_SMALL * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
+								SNew(SFlareButton)
 								.Text(LOCTEXT("ResourceProductionColumnTitleInfo", "Production"))
+								.Width(ECONOMY_TABLE_BUTTON_SMALL)
+								.Transparent(true)
+								.Icon(this, &SFlareWorldEconomyMenu::GetSortIcon, EFlareEconomySort::ES_Production)
+								.OnClicked(this, &SFlareWorldEconomyMenu::ToggleSortType, EFlareEconomySort::ES_Production)
 							]
 						]
 
@@ -203,12 +209,15 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.2 * Theme.ContentWidth)
+							.WidthOverride(ECONOMY_TABLE_WIDTH_SMALL * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
-								.Text(LOCTEXT("ResourceConsumptionColumnTitleInfo", "Consumption"))
+								SNew(SFlareButton)
+								.Text(LOCTEXT("ResourceConsumptionColumnTitleInfo", "Usage"))
+								.Width(ECONOMY_TABLE_BUTTON_SMALL)
+								.Transparent(true)
+								.Icon(this, &SFlareWorldEconomyMenu::GetSortIcon, EFlareEconomySort::ES_Consumption)
+								.OnClicked(this, &SFlareWorldEconomyMenu::ToggleSortType, EFlareEconomySort::ES_Consumption)
 							]
 						]
 
@@ -218,12 +227,15 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.2 * Theme.ContentWidth)
+							.WidthOverride(ECONOMY_TABLE_WIDTH_SMALL * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
+								SNew(SFlareButton)
 								.Text(LOCTEXT("ResourceStockColumnTitleInfo", "Stock"))
+								.Width(ECONOMY_TABLE_BUTTON_SMALL)
+								.Transparent(true)
+								.Icon(this, &SFlareWorldEconomyMenu::GetSortIcon, EFlareEconomySort::ES_Stock)
+								.OnClicked(this, &SFlareWorldEconomyMenu::ToggleSortType, EFlareEconomySort::ES_Stock)
 							]
 						]
 
@@ -233,12 +245,15 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.2 * Theme.ContentWidth)
+							.WidthOverride(ECONOMY_TABLE_WIDTH_SMALL * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
+								SNew(SFlareButton)
 								.Text(LOCTEXT("ResourceCapacityColumnTitleInfo", "Needs"))
+								.Width(ECONOMY_TABLE_BUTTON_SMALL)
+								.Transparent(true)
+								.Icon(this, &SFlareWorldEconomyMenu::GetSortIcon, EFlareEconomySort::ES_Needs)
+								.OnClicked(this, &SFlareWorldEconomyMenu::ToggleSortType, EFlareEconomySort::ES_Needs)
 							]
 						]
 
@@ -248,12 +263,15 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.2 * Theme.ContentWidth)
+							.WidthOverride(ECONOMY_TABLE_WIDTH_SMALL * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
+								SNew(SFlareButton)
 								.Text(LOCTEXT("ResourcePriceColumnTitleInfo", "Price"))
+								.Width(ECONOMY_TABLE_BUTTON_SMALL)
+								.Transparent(true)
+								.Icon(this, &SFlareWorldEconomyMenu::GetSortIcon, EFlareEconomySort::ES_Price)
+								.OnClicked(this, &SFlareWorldEconomyMenu::ToggleSortType, EFlareEconomySort::ES_Price)
 							]
 						]
 
@@ -263,13 +281,15 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 						.Padding(Theme.ContentPadding)
 						[
 							SNew(SBox)
-							.WidthOverride(0.2 * Theme.ContentWidth)
+							.WidthOverride(ECONOMY_TABLE_WIDTH_SMALL * Theme.ContentWidth)
 							.HAlign(HAlign_Left)
 							[
-								SNew(STextBlock)
-								.TextStyle(&Theme.NameFont)
+								SNew(SFlareButton)
 								.Text(LOCTEXT("ResourcePriceVariationAveragedColumnTitleInfo", "Variation"))
-								.WrapTextAt(0.5 * Theme.ContentWidth)
+								.Width(ECONOMY_TABLE_BUTTON_SMALL)
+								.Transparent(true)
+								.Icon(this, &SFlareWorldEconomyMenu::GetSortIcon, EFlareEconomySort::ES_Variation)
+								.OnClicked(this, &SFlareWorldEconomyMenu::ToggleSortType, EFlareEconomySort::ES_Variation)
 							]
 						]
 					]
@@ -309,6 +329,9 @@ void SFlareWorldEconomyMenu::Enter(FFlareResourceDescription* Resource, UFlareSi
 	}
 	WorldStats = WorldHelper::ComputeWorldResourceStats(MenuManager->GetGame());
 
+	IsCurrentSortDescending = false;
+	CurrentSortType = EFlareEconomySort::ES_Sector;
+
 	// Update resource selector
 	ResourceSelector->RefreshOptions();
 	if (TargetResource)
@@ -325,17 +348,60 @@ void SFlareWorldEconomyMenu::Enter(FFlareResourceDescription* Resource, UFlareSi
 
 void SFlareWorldEconomyMenu::GenerateSectorList()
 {
+	SectorList->ClearChildren();
 	const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-	SectorList->ClearChildren();
-
-	if(TargetResource == NULL)
+	if (TargetResource == NULL)
 	{
 		return;
 	}
 
-	// Natural order is sorted by discovery
+	// Get the sector list
 	TArray<UFlareSimulatedSector*>& Sectors = MenuManager->GetPC()->GetCompany()->GetVisitedSectors();
+
+	// Apply the current sort
+	Sectors.Sort([this](UFlareSimulatedSector& S1, UFlareSimulatedSector& S2)
+	{
+		bool Result = false;
+
+		// Get sorting data
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats1 = SectorHelper::ComputeSectorResourceStats(&S1);
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats2 = SectorHelper::ComputeSectorResourceStats(&S2);
+		int64 ResourcePrice1 = S1.GetResourcePrice(TargetResource, EFlareResourcePriceContext::Default);
+		int64 ResourcePrice2 = S2.GetResourcePrice(TargetResource, EFlareResourcePriceContext::Default);
+		int64 LastResourcePrice1 = S1.GetResourcePrice(TargetResource, EFlareResourcePriceContext::Default, 30);
+		int64 LastResourcePrice2 = S2.GetResourcePrice(TargetResource, EFlareResourcePriceContext::Default, 30);
+		float Variation1 = (((float)ResourcePrice1) / ((float)LastResourcePrice1) - 1);
+		float Variation2 = (((float)ResourcePrice2) / ((float)LastResourcePrice2) - 1);
+
+		// Apply sort
+		switch (this->CurrentSortType)
+		{
+		case EFlareEconomySort::ES_Sector:
+			Result = S1.GetSectorName().ToString() > S2.GetSectorName().ToString();
+			break;
+		case EFlareEconomySort::ES_Production:
+			Result = (Stats1[this->TargetResource].Production > Stats2[this->TargetResource].Production);
+			break;
+		case EFlareEconomySort::ES_Consumption:
+			Result = (Stats1[this->TargetResource].Consumption > Stats2[this->TargetResource].Consumption);
+			break;
+		case EFlareEconomySort::ES_Stock:
+			Result = (Stats1[this->TargetResource].Stock > Stats2[this->TargetResource].Stock);
+			break;
+		case EFlareEconomySort::ES_Needs:
+			Result = (Stats1[this->TargetResource].Capacity > Stats2[this->TargetResource].Capacity);
+			break;
+		case EFlareEconomySort::ES_Price:
+			Result = ResourcePrice1 > ResourcePrice2;
+			break;
+		case EFlareEconomySort::ES_Variation:
+			Result = Variation1 > Variation2;
+			break;
+		}
+
+		return this->IsCurrentSortDescending ? Result : !Result;
+	});
 
 	// Sector list
 	for (int32 SectorIndex = 0; SectorIndex < Sectors.Num(); SectorIndex++)
@@ -358,11 +424,11 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.35 * Theme.ContentWidth)
+					.WidthOverride(ECONOMY_TABLE_WIDTH_LARGE * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(SFlareButton)
-						.Width(7)
+						.Width(ECONOMY_TABLE_BUTTON_LARGE)
 						.Text(this, &SFlareWorldEconomyMenu::GetSectorText, Sector)
 						.Color(this, &SFlareWorldEconomyMenu::GetSectorTextColor, Sector)
 						.Icon(FFlareStyleSet::GetIcon("Travel"))
@@ -377,7 +443,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
+					.WidthOverride(ECONOMY_TABLE_WIDTH_SMALL * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -393,7 +459,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
+					.WidthOverride(ECONOMY_TABLE_WIDTH_SMALL * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -409,7 +475,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
+					.WidthOverride(ECONOMY_TABLE_WIDTH_SMALL * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -425,7 +491,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
+					.WidthOverride(ECONOMY_TABLE_WIDTH_SMALL * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -441,7 +507,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
+					.WidthOverride(ECONOMY_TABLE_WIDTH_SMALL * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -458,7 +524,7 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
+					.WidthOverride(ECONOMY_TABLE_WIDTH_SMALL * Theme.ContentWidth)
 					.HAlign(HAlign_Left)
 					[
 						SNew(STextBlock)
@@ -473,12 +539,13 @@ void SFlareWorldEconomyMenu::GenerateSectorList()
 				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
-					.WidthOverride(0.2 * Theme.ContentWidth)
+					.WidthOverride(ECONOMY_TABLE_WIDTH_MEDIUM * Theme.ContentWidth)
 					[
 						SNew(SFlareButton)
 						.Text(LOCTEXT("DetailButton", "Details"))
 						.Icon(FFlareStyleSet::GetIcon("Travel"))
 						.OnClicked(this, &SFlareWorldEconomyMenu::OnOpenSectorPrices, Sector)
+						.Width(4)
 					]
 				]
 			]
@@ -499,6 +566,40 @@ void SFlareWorldEconomyMenu::Exit()
 /*----------------------------------------------------
 	Callbacks
 ----------------------------------------------------*/
+
+const FSlateBrush* SFlareWorldEconomyMenu::GetSortIcon(EFlareEconomySort::Type Type) const
+{
+	if (Type == CurrentSortType)
+	{
+		if (IsCurrentSortDescending)
+		{
+			return FFlareStyleSet::GetIcon("MoveDown");
+		}
+		else
+		{
+			return FFlareStyleSet::GetIcon("MoveUp");
+		}
+	}
+	else
+	{
+		return FFlareStyleSet::GetIcon("MoveUpDown");
+	}
+}
+
+void SFlareWorldEconomyMenu::ToggleSortType(EFlareEconomySort::Type Type)
+{
+	if (Type == CurrentSortType)
+	{
+		IsCurrentSortDescending = !IsCurrentSortDescending;
+	}
+	else
+	{
+		IsCurrentSortDescending = true;
+		CurrentSortType = Type;
+	}
+
+	GenerateSectorList();
+}
 
 FSlateColor SFlareWorldEconomyMenu::GetPriceColor(UFlareSimulatedSector* Sector) const
 {

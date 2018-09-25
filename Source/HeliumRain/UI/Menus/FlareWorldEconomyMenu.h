@@ -46,11 +46,18 @@ public:
 
 	void GenerateSectorList();
 
+
 protected:
 
 	/*----------------------------------------------------
 		Callbacks
 	----------------------------------------------------*/
+
+	/** Get the current sort icon to use */
+	const FSlateBrush* GetSortIcon(EFlareEconomySort::Type Type) const;
+
+	/** Set the current sort type to use */
+	void ToggleSortType(EFlareEconomySort::Type Type);
 
 	FSlateColor GetPriceColor(UFlareSimulatedSector* Sector) const;
 
@@ -113,5 +120,9 @@ protected:
 	// Slate data
 	TSharedPtr<SVerticalBox>                        SectorList;
 	TSharedPtr<SFlareDropList<UFlareResourceCatalogEntry*>> ResourceSelector;
+
+	// Data
+	bool                                            IsCurrentSortDescending;
+	TEnumAsByte<EFlareEconomySort::Type>            CurrentSortType;
 
 };

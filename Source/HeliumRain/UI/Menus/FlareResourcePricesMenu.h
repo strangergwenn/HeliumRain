@@ -3,6 +3,7 @@
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
 #include "../Components/FlareDropList.h"
+#include "../FlareUITypes.h"
 
 
 class AFlareMenuManager;
@@ -51,6 +52,12 @@ protected:
 		Callbacks
 	----------------------------------------------------*/
 
+	/** Get the current sort icon to use */
+	const FSlateBrush* GetSortIcon(EFlareEconomySort::Type Type) const;
+
+	/** Set the current sort type to use */
+	void ToggleSortType(EFlareEconomySort::Type Type);
+
 	FText GetSectorName() const;
 
 	FSlateColor GetPriceColor(FFlareResourceDescription* Resource) const;
@@ -98,5 +105,9 @@ protected:
 	// Slate data
 	TSharedPtr<SVerticalBox>                        ResourcePriceList;
 	TSharedPtr<SFlareDropList<UFlareSimulatedSector*>> SectorSelector;
+
+	// Data
+	bool                                            IsCurrentSortDescending;
+	TEnumAsByte<EFlareEconomySort::Type>            CurrentSortType;
 
 };
