@@ -14,6 +14,7 @@ struct SectorHelper
 		int32 MaxQuantity;
 		float CargoLimit;
 		UFlareSimulatedSpacecraft *Client;
+		bool AllowStorage = false;
 	};
 
 	static UFlareSimulatedSpacecraft*  FindTradeStation(FlareTradeRequest Request);

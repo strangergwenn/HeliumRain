@@ -95,7 +95,14 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 			//FLOG(" cannot trade with");
 			continue;
 		}
+
+		if(!Request.AllowStorage && Station->HasCapability(EFlareSpacecraftCapability::Storage))
+		{
+			continue;
+		}
+
 		FFlareResourceUsage StationResourceUsage = Station->GetResourceUseType(Request.Resource);
+
 
 		if(NeedOutput && (!StationResourceUsage.HasUsage(EFlareResourcePriceContext::FactoryOutput) &&
 						  !StationResourceUsage.HasUsage(EFlareResourcePriceContext::ConsumerConsumption) &&
@@ -142,6 +149,10 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 			{
 				continue;
 			}
+		}
+		else if (Station->HasCapability(EFlareSpacecraftCapability::Storage))
+		{
+			continue;
 		}
 
 		if(Station->GetActiveCargoBay()->WantBuy(Request.Resource, Request.Client->GetCompany()))

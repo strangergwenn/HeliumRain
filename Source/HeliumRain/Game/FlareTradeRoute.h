@@ -51,6 +51,11 @@ struct FFlareTradeRouteSectorOperationSave
 	UPROPERTY(EditAnywhere, Category = Save)
 	int32 InventoryLimit;
 
+	/** Max/min inventory in fleet on buy/sell before next operation. -1 Mean no limit */
+	UPROPERTY(EditAnywhere, Category = Save)
+	bool CanTradeWithStorages;
+
+
 };
 
 

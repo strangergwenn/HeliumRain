@@ -1969,7 +1969,7 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 		OperationSelector->SetSelectedItem(OperationNameList[OperationTypeIndex]);
 		
 		// Trade with hubs
-		TradeWithHubsButton->SetActive(false); // TODO
+		TradeWithHubsButton->SetActive(SelectedOperation->CanTradeWithStorages);
 
 		// Max quantity
 		if (SelectedOperation->MaxQuantity == -1)
@@ -2072,8 +2072,7 @@ void SFlareTradeRouteMenu::OnOperationTradeWithHubsToggle()
 {
 	if (SelectedOperation && TargetTradeRoute && TargetTradeRoute->GetFleet())
 	{
-		// TODO
-		// TradeWithHubsButton->IsActive()
+		SelectedOperation->CanTradeWithStorages = TradeWithHubsButton->IsActive();
 	}
 }
 

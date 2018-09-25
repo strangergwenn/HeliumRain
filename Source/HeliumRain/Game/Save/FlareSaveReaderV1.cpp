@@ -699,6 +699,8 @@ void UFlareSaveReaderV1::LoadTradeOperation(const TSharedPtr<FJsonObject> Object
 	LoadInt32(Object, "InventoryLimit", (int32*) &Data->InventoryLimit, -1);
 	LoadInt32(Object, "MaxWait", (int32*) &Data->MaxWait);
 	Data->Type = LoadEnum<EFlareTradeRouteOperation::Type>(Object, "Type", "EFlareTradeRouteOperation");
+	Data->CanTradeWithStorages = false;
+	Object->TryGetBoolField(TEXT("CanTradeWithStorages"), Data->CanTradeWithStorages);
 }
 
 void UFlareSaveReaderV1::LoadCargo(const TSharedPtr<FJsonObject> Object, FFlareCargoSave* Data)

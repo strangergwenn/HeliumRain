@@ -272,6 +272,7 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 	Request.Operation = Operation->Type;
 	Request.CargoLimit = -1;
 	Request.MaxQuantity = Operation->MaxQuantity;
+	Request.AllowStorage = Operation->CanTradeWithStorages;
 
 	for (UFlareSimulatedSpacecraft* Ship : UsefullShips)
 	{
@@ -386,6 +387,7 @@ bool UFlareTradeRoute::ProcessUnloadOperation(FFlareTradeRouteSectorOperationSav
 	Request.Operation = Operation->Type;
 	Request.CargoLimit = -1;
 	Request.MaxQuantity = Operation->MaxQuantity;
+	Request.AllowStorage = Operation->CanTradeWithStorages;
 
 	for (UFlareSimulatedSpacecraft* Ship : UsefullShips)
 	{
@@ -635,6 +637,8 @@ FFlareTradeRouteSectorOperationSave* UFlareTradeRoute::AddSectorOperation(int32 
 	Operation.ResourceIdentifier = Resource->Identifier;
 	Operation.MaxQuantity = -1;
 	Operation.MaxWait = -1;
+	Operation.InventoryLimit = -1;
+	Operation.CanTradeWithStorages = false;
 
 	Sector->Operations.Add(Operation);
 

@@ -484,7 +484,17 @@ SectorDeal AITradeHelper::FindBestDealForShipFromSector(UFlareSimulatedSpacecraf
 			QuantityToSell -= FactorySellQuantity;
 
 			int32 StorageSellQuantity = FMath::Min(StorageCapacity, QuantityToSell);
-			MoneyGain += StorageSellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::HubInput);
+
+			// If has some resource, consider that storage make gain nothing to prefer any solution except sell to a hub
+			if(InitialQuantity > 0)
+			{
+				MoneyGain += 1;
+			}
+			else
+			{
+				MoneyGain += StorageSellQuantity * SectorB->GetResourcePrice(Resource, EFlareResourcePriceContext::HubInput);
+			}
+
 			QuantityToSell -= StorageSellQuantity;
 
 			int32 MoneySpend = 0;
@@ -733,6 +743,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 			Request.Operation = EFlareTradeRouteOperation::LoadOrBuy;
 			Request.Client = Ship;
 			Request.CargoLimit = 0.f;
+			Request.AllowStorage = true;
 			if(Deal.Resource == Game->GetScenarioTools()->FleetSupply)
 			{
 				Request.MaxQuantity = FMath::Min(Deal.BuyQuantity, Ship->GetActiveCargoBay()->GetFreeSpaceForResource(Deal.Resource, Ship->GetCompany()));
@@ -853,6 +864,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 		Request.Client = Ship;
 		Request.CargoLimit = 1.f;
 		Request.MaxQuantity = Ship->GetActiveCargoBay()->GetResourceQuantity(Deal.Resource, Ship->GetCompany());
+		Request.AllowStorage = true;
 #if DEBUG_AI_TRADING
 		if (Ship->GetCompany()->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 		{
