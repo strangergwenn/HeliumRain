@@ -120,6 +120,7 @@ protected:
 	// Slate data
 	TSharedPtr<SVerticalBox>                        SectorList;
 	TSharedPtr<SFlareDropList<UFlareResourceCatalogEntry*>> ResourceSelector;
+	TSharedPtr<SFlareButton>                        IncludeTradingHubsButton;
 
 	// Data
 	bool                                            IsCurrentSortDescending;

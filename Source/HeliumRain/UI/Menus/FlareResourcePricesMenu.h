@@ -105,6 +105,7 @@ protected:
 	// Slate data
 	TSharedPtr<SVerticalBox>                        ResourcePriceList;
 	TSharedPtr<SFlareDropList<UFlareSimulatedSector*>> SectorSelector;
+	TSharedPtr<SFlareButton>                        IncludeTradingHubsButton;
 
 	// Data
 	bool                                            IsCurrentSortDescending;

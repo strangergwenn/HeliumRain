@@ -55,27 +55,46 @@ void SFlareResourcePricesMenu::Construct(const FArguments& InArgs)
 				// Sector picker
 				+ SVerticalBox::Slot()
 				.AutoHeight()
-				[
-					SNew(SBox)
-					.WidthOverride(Theme.ContentWidth / 2)
-					.Padding(FMargin(0))
-					.HAlign(HAlign_Left)
+				.HAlign(HAlign_Fill)
+				.VAlign(VAlign_Top)
+			[
+					SNew(SHorizontalBox)
+
+					// Sector picker
+					+ SHorizontalBox::Slot()
+					.AutoWidth()
 					[
-						SAssignNew(SectorSelector, SFlareDropList<UFlareSimulatedSector*>)
-						.OptionsSource(&KnownSectors)
-						.OnGenerateWidget(this, &SFlareResourcePricesMenu::OnGenerateSectorComboLine)
-						.OnSelectionChanged(this, &SFlareResourcePricesMenu::OnSectorComboLineSelectionChanged)
-						.HeaderWidth(5)
-						.ItemWidth(5)
+						SNew(SBox)
+						.WidthOverride(Theme.ContentWidth / 2)
+						.Padding(FMargin(0))
+						.HAlign(HAlign_Left)
 						[
-							SNew(SBox)
-							.Padding(Theme.ListContentPadding)
+							SAssignNew(SectorSelector, SFlareDropList<UFlareSimulatedSector*>)
+							.OptionsSource(&KnownSectors)
+							.OnGenerateWidget(this, &SFlareResourcePricesMenu::OnGenerateSectorComboLine)
+							.OnSelectionChanged(this, &SFlareResourcePricesMenu::OnSectorComboLineSelectionChanged)
+							.HeaderWidth(5)
+							.ItemWidth(5)
 							[
-								SNew(STextBlock)
-								.Text(this, &SFlareResourcePricesMenu::OnGetCurrentSectorComboLine)
-								.TextStyle(&Theme.TextFont)
+								SNew(SBox)
+								.Padding(Theme.ListContentPadding)
+								[
+									SNew(STextBlock)
+									.Text(this, &SFlareResourcePricesMenu::OnGetCurrentSectorComboLine)
+									.TextStyle(&Theme.TextFont)
+								]
 							]
 						]
+					]
+
+					// Include hubs
+					+ SHorizontalBox::Slot()
+					.HAlign(HAlign_Right)
+					[
+						SAssignNew(IncludeTradingHubsButton, SFlareButton)
+						.Text(LOCTEXT("IncludeHubs", "Include Trading Hubs"))
+						.Toggle(true)
+						.Width(6)
 					]
 				]
 			]
@@ -286,9 +305,12 @@ void SFlareResourcePricesMenu::Enter(UFlareSimulatedSector* Sector)
 	SetEnabled(true);
 	SetVisibility(EVisibility::Visible);
 
+	// Defaults
 	IsCurrentSortDescending = false;
 	CurrentSortType = EFlareEconomySort::ES_Resource;
+	IncludeTradingHubsButton->SetActive(false);
 
+	// Fill sector list
 	TargetSector = Sector;
 	KnownSectors = MenuManager->GetPC()->GetCompany()->GetKnownSectors();
 	SectorSelector->RefreshOptions();

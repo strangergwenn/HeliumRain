@@ -125,21 +125,40 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 					]
 				]
 
-				// Resource List
+				// Resource info
 				+ SHorizontalBox::Slot()
 				.VAlign(VAlign_Center)
 				.HAlign(HAlign_Right)
 				.AutoWidth()
-				.Padding(Theme.ContentPadding)
 				[
 					SNew(SBox)
 					.WidthOverride(Theme.ContentWidth / 2)
 					.Padding(FMargin(0))
 					[
-						SNew(STextBlock)
-						.TextStyle(&Theme.TextFont)
-						.Text(this, &SFlareWorldEconomyMenu::GetResourceInfo)
-						.WrapTextAt(Theme.ContentWidth / 2)
+						SNew(SVerticalBox)
+
+						// Resource info
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.TextStyle(&Theme.TextFont)
+							.Text(this, &SFlareWorldEconomyMenu::GetResourceInfo)
+							.WrapTextAt(Theme.ContentWidth / 2)
+						]
+
+						// Include hubs
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.Padding(Theme.ContentPadding)
+						.HAlign(HAlign_Left)
+						[
+							SAssignNew(IncludeTradingHubsButton, SFlareButton)
+							.Text(LOCTEXT("IncludeHubs", "Include Trading Hubs"))
+							.Toggle(true)
+							.Width(6)
+						]
 					]
 				]
 			]
@@ -329,8 +348,10 @@ void SFlareWorldEconomyMenu::Enter(FFlareResourceDescription* Resource, UFlareSi
 	}
 	WorldStats = WorldHelper::ComputeWorldResourceStats(MenuManager->GetGame());
 
+	// Default state
 	IsCurrentSortDescending = false;
 	CurrentSortType = EFlareEconomySort::ES_Sector;
+	IncludeTradingHubsButton->SetActive(false);
 
 	// Update resource selector
 	ResourceSelector->RefreshOptions();
