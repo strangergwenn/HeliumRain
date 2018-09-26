@@ -30,6 +30,7 @@ struct ResourceVariation
 	int32 FactoryStock;
 	int32 StorageStock;
 	int32 IncomingResources;
+	int32 ProviderCount;
 
 	int32 OwnedCapacity;
 	int32 FactoryCapacity;
@@ -233,6 +234,8 @@ struct AITradeHelper
 	static TArray<UFlareSimulatedSpacecraft*> FindIdleCargos(UFlareCompany* Company);
 
 	static SectorDeal FindBestDealForShipFromSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> const& WorldResourceVariation, UFlareSimulatedSector* SectorBRestiction);
+
+	static SectorDeal FindBestDealForShipToSector(UFlareSimulatedSpacecraft* Ship, UFlareSimulatedSector* SectorA, UFlareSimulatedSector* SectorB, SectorDeal* DealToBeat, TMap<UFlareSimulatedSector*, SectorVariation> const& WorldResourceVariation, UFlareSimulatedSector* SectorBRestiction);
 
 	static SectorDeal FindBestDealForShip(UFlareSimulatedSpacecraft* Ship, TMap<UFlareSimulatedSector*, SectorVariation>& WorldResourceVariation, UFlareSimulatedSector* SectorARestiction, UFlareSimulatedSector* SectorBRestiction);
 
