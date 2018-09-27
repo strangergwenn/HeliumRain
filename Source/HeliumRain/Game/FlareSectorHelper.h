@@ -50,7 +50,7 @@ struct SectorHelper
 
 	static int32 GetCompanyArmyCombatPoints(UFlareSimulatedSector* Sector, UFlareCompany* Company, bool ReduceByDamage);
 
-	static TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> ComputeSectorResourceStats(UFlareSimulatedSector* Sector);
+	static TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> ComputeSectorResourceStats(UFlareSimulatedSector* Sector, bool IncludeStorage);
 
 	static int64 GetSellResourcePrice(UFlareSimulatedSector* Sector, FFlareResourceDescription* Resource, FFlareResourceUsage Usage);
 

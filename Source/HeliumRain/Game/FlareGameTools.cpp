@@ -376,7 +376,7 @@ void UFlareGameTools::PrintEconomyStatus()
 	FLOG("");
 
 	TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldStats;
-	WorldStats = WorldHelper::ComputeWorldResourceStats(GetGame());
+	WorldStats = WorldHelper::ComputeWorldResourceStats(GetGame(), true);
 
 
 	TArray<UFlareResourceCatalogEntry*> ResourceEntries = GetGame()->GetResourceCatalog()->Resources;

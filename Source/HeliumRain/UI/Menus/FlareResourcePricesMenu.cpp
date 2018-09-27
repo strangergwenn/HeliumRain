@@ -287,6 +287,7 @@ void SFlareResourcePricesMenu::Construct(const FArguments& InArgs)
 			]
 		]
 	];
+	IncludeTradingHubsButton->SetActive(false);
 }
 
 
@@ -309,7 +310,6 @@ void SFlareResourcePricesMenu::Enter(UFlareSimulatedSector* Sector)
 	// Defaults
 	IsCurrentSortDescending = false;
 	CurrentSortType = EFlareEconomySort::ES_Resource;
-	IncludeTradingHubsButton->SetActive(false);
 
 	// Fill sector list
 	TargetSector = Sector;
@@ -334,7 +334,7 @@ void SFlareResourcePricesMenu::GenerateResourceList()
 		bool Result = false;
 
 		// Get sorting data
-		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(this->TargetSector);
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(this->TargetSector, IncludeTradingHubsButton->IsActive());
 		int64 ResourcePrice1 = this->TargetSector->GetResourcePrice(&R1.Data, EFlareResourcePriceContext::Default);
 		int64 ResourcePrice2 = this->TargetSector->GetResourcePrice(&R2.Data, EFlareResourcePriceContext::Default);
 		int64 LastResourcePrice1 = this->TargetSector->GetResourcePrice(&R1.Data, EFlareResourcePriceContext::Default, 30);
@@ -637,7 +637,7 @@ FText SFlareResourcePricesMenu::GetResourceProductionInfo(FFlareResourceDescript
 		FNumberFormattingOptions Format;
 		Format.MaximumFractionalDigits = 1;
 
-		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(TargetSector);
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(TargetSector, IncludeTradingHubsButton->IsActive());
 		return FText::Format(LOCTEXT("ResourceMainProductionFormat", "{0}"),
 			FText::AsNumber(Stats[Resource].Production, &Format));
 	}
@@ -652,7 +652,7 @@ FText SFlareResourcePricesMenu::GetResourceConsumptionInfo(FFlareResourceDescrip
 		FNumberFormattingOptions Format;
 		Format.MaximumFractionalDigits = 1;
 
-		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(TargetSector);
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(TargetSector, IncludeTradingHubsButton->IsActive());
 		return FText::Format(LOCTEXT("ResourceMainConsumptionFormat", "{0}"),
 			FText::AsNumber(Stats[Resource].Consumption, &Format));
 	}
@@ -664,7 +664,7 @@ FText SFlareResourcePricesMenu::GetResourceStockInfo(FFlareResourceDescription* 
 {
 	if (TargetSector)
 	{
-		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(TargetSector);
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(TargetSector, IncludeTradingHubsButton->IsActive());
 		return FText::Format(LOCTEXT("ResourceMainStockFormat", "{0}"),
 			FText::AsNumber(Stats[Resource].Stock));
 	}
@@ -678,7 +678,7 @@ FText SFlareResourcePricesMenu::GetResourceCapacityInfo(FFlareResourceDescriptio
 	if (TargetSector)
 	{
 
-		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(TargetSector);
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats = SectorHelper::ComputeSectorResourceStats(TargetSector, IncludeTradingHubsButton->IsActive());
 		return FText::Format(LOCTEXT("ResourceMainCapacityFormat", "{0}"),
 			FText::AsNumber(Stats[Resource].Capacity));
 	}

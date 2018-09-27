@@ -117,7 +117,7 @@ void UFlareCompanyAI::Simulate()
 		CheckBattleResolution();
 		UpdateDiplomacy();
 
-		WorldStats = WorldHelper::ComputeWorldResourceStats(Game);
+		WorldStats = WorldHelper::ComputeWorldResourceStats(Game, true);
 		Shipyards = FindShipyards();
 
 		// Compute input and output ressource equation (ex: 100 + 10/ day)

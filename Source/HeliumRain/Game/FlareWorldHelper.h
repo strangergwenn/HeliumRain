@@ -13,7 +13,7 @@ struct WorldHelper
 		int32 Capacity;
 	};
 
-	static TMap<FFlareResourceDescription*, FlareResourceStats> ComputeWorldResourceStats(AFlareGame* Game);
+	static TMap<FFlareResourceDescription*, FlareResourceStats> ComputeWorldResourceStats(AFlareGame* Game, bool IncludeStorage);
 
 
 private:

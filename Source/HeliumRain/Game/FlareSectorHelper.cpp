@@ -879,7 +879,7 @@ int32 SectorHelper::GetCompanyArmyCombatPoints(UFlareSimulatedSector* Sector, UF
 }
 
 
-TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::ComputeSectorResourceStats(UFlareSimulatedSector* Sector)
+TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::ComputeSectorResourceStats(UFlareSimulatedSector* Sector, bool IncludeStorage)
 {
 	TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldStats;
 
@@ -900,6 +900,11 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorHelper::
 	for (int SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+
+		if(!IncludeStorage && Spacecraft->HasCapability(EFlareSpacecraftCapability::Storage))
+		{
+			continue;
+		}
 
 		// Stock
 		TArray<FFlareCargo>& CargoBaySlots = Spacecraft->GetActiveCargoBay()->GetSlots();

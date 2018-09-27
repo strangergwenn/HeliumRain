@@ -15,7 +15,7 @@
 DECLARE_CYCLE_STAT(TEXT("WorldHelper ComputeWorldResourceStats"), STAT_WorldHelper_ComputeWorldResourceStats, STATGROUP_Flare);
 
 
-TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::ComputeWorldResourceStats(AFlareGame* Game)
+TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::ComputeWorldResourceStats(AFlareGame* Game, bool IncludeStorage)
 {
 	SCOPE_CYCLE_COUNTER(STAT_WorldHelper_ComputeWorldResourceStats);
 
@@ -42,7 +42,7 @@ TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> WorldHelper::C
 
 		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> SectorStats;
 
-		SectorStats = SectorHelper::ComputeSectorResourceStats(Sector);
+		SectorStats = SectorHelper::ComputeSectorResourceStats(Sector, IncludeStorage);
 
 
 		for(int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
