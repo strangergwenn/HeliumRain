@@ -1,6 +1,9 @@
 # Helium Rain source code
 
-Helium Rain is a realistic space opera for PC. [Check out our website !](http://helium-rain.com)
+Helium Rain is a realistic space opera for PC, now available on Steam.
+
+ - [Website](http://helium-rain.com)
+ - [Store page](https://store.steampowered.com/app/681330)
 
 ![Game screenshot](http://helium-rain.com/gallery_data/blueheart.jpg)
 
@@ -8,11 +11,14 @@ Helium Rain is a realistic space opera for PC. [Check out our website !](http://
 
 Helium Rain is a single-player space sim that places you at the helm of a spacefaring company. Exploration, trading, station-building, piracy are all options. Helium Rain relies on both spaceflight and strategy gameplay, mixed together in a creative way. Destroying a freighter has a direct impact on the economy, while declaring war will make your environment more hostile.
 
- - Realistic economy model with dynamic pricing, supply and demand
+ - Realistic economy model with supply and demand
  - Strategy gameplay with procedural quests, world exploration, technology upgrades
  - 12 playable ships with weapon and engine upgrades
  - Fast-paced combat with a Newtonian flight model
  - Localized damage model for spacecrafts
+ - Quick-play skirmish mode
+
+![Game screenshot](http://helium-rain.com/gallery_data/orbits.jpg)
 
 ## About this repository
 
