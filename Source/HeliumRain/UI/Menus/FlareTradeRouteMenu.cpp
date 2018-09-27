@@ -415,7 +415,7 @@ void SFlareTradeRouteMenu::Construct(const FArguments& InArgs)
 									SAssignNew(TradeWithHubsButton, SFlareButton)
 									.OnClicked(this, &SFlareTradeRouteMenu::OnOperationTradeWithHubsToggle)
 									.Text(LOCTEXT("IncludeHubOperation", "Trade with Hubs"))
-									.HelpText(LOCTEXT("IncludeHubOperationInfo", "Check this option to allow trading with Trading Hub stations"))
+									.HelpText(LOCTEXT("IncludeHubOperationInfo", "Check this option to allow trading with Storage Hub stations"))
 									.Toggle(true)
 									.Width(10)
 								]

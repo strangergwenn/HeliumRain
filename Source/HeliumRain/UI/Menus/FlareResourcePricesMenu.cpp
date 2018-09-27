@@ -92,7 +92,7 @@ void SFlareResourcePricesMenu::Construct(const FArguments& InArgs)
 					.HAlign(HAlign_Right)
 					[
 						SAssignNew(IncludeTradingHubsButton, SFlareButton)
-						.Text(LOCTEXT("IncludeHubs", "Include Trading Hubs"))
+						.Text(LOCTEXT("IncludeHubs", "Include Storage Hubs"))
 						.Toggle(true)
 						.Width(6)
 						.OnClicked(this, &SFlareResourcePricesMenu::OnIncludeTradingHubsToggle)
