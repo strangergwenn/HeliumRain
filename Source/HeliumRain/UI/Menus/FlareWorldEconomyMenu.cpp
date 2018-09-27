@@ -158,6 +158,7 @@ void SFlareWorldEconomyMenu::Construct(const FArguments& InArgs)
 							.Text(LOCTEXT("IncludeHubs", "Include Trading Hubs"))
 							.Toggle(true)
 							.Width(6)
+							.OnClicked(this, &SFlareWorldEconomyMenu::OnIncludeTradingHubsToggle)
 						]
 					]
 				]
@@ -900,5 +901,9 @@ void SFlareWorldEconomyMenu::OnOpenSectorPrices(UFlareSimulatedSector* Sector)
 	MenuManager->OpenMenu(EFlareMenu::MENU_ResourcePrices, Data);
 }
 
-#undef LOCTEXT_NAMESPACE
+void SFlareWorldEconomyMenu::OnIncludeTradingHubsToggle()
+{
+	GenerateSectorList();
+}
 
+#undef LOCTEXT_NAMESPACE

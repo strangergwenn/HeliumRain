@@ -105,6 +105,8 @@ protected:
 
 	void OnOpenSectorPrices(UFlareSimulatedSector* Sector);
 
+	void OnIncludeTradingHubsToggle();
+
 
 protected:
 

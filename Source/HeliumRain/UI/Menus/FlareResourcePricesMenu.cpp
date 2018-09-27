@@ -95,6 +95,7 @@ void SFlareResourcePricesMenu::Construct(const FArguments& InArgs)
 						.Text(LOCTEXT("IncludeHubs", "Include Trading Hubs"))
 						.Toggle(true)
 						.Width(6)
+						.OnClicked(this, &SFlareResourcePricesMenu::OnIncludeTradingHubsToggle)
 					]
 				]
 			]
@@ -780,6 +781,11 @@ FText SFlareResourcePricesMenu::OnGetCurrentSectorComboLine() const
 	{
 		return LOCTEXT("SelectSector", "Select a sector");
 	}
+}
+
+void SFlareResourcePricesMenu::OnIncludeTradingHubsToggle()
+{
+	GenerateResourceList();
 }
 
 #undef LOCTEXT_NAMESPACE

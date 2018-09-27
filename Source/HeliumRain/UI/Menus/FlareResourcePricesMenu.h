@@ -90,6 +90,8 @@ protected:
 	void OnSectorComboLineSelectionChanged(UFlareSimulatedSector* Sector, ESelectInfo::Type SelectInfo);
 	FText OnGetCurrentSectorComboLine() const;
 
+	void OnIncludeTradingHubsToggle();
+
 
 protected:
 
