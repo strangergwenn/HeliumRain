@@ -562,14 +562,14 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 	// Too many stations
 	int32 StationCount = GetSectorCompanyStationCount(Company, true);
 
-	if (StationCount >= GetMaxStationsPerCompany()/2 && !Company->IsTechnologyUnlocked("dense-sectors"))
+	if (!InComplex && StationCount >= GetMaxStationsPerCompany()/2 && !Company->IsTechnologyUnlocked("dense-sectors"))
 	{
 		OutReasons.Add(LOCTEXT("BuildNeedDenseSectors", "You have too many stations. Unlock 'dense sectors' technology to build more stations"));
 		Result = false;
 	}
 
 	// Too many stations
-	if (StationCount >= GetMaxStationsPerCompany())
+	if (!InComplex && StationCount >= GetMaxStationsPerCompany())
 	{
 		OutReasons.Add(LOCTEXT("BuildTooManyStations", "You have too many stations"));
 		Result = false;
@@ -652,7 +652,9 @@ bool UFlareSimulatedSector::CanBuildStation(FFlareSpacecraftDescription* Station
 UFlareSimulatedSpacecraft* UFlareSimulatedSector::BuildStation(FFlareSpacecraftDescription* StationDescription, UFlareCompany* Company,	FFlareStationSpawnParameters SpawnParameters)
 {
 	TArray<FText> Reasons;
-	if (!CanBuildStation(StationDescription, Company, Reasons))
+	bool IsChildStation = (SpawnParameters.AttachComplexStationName != NAME_None);
+
+	if (!CanBuildStation(StationDescription, Company, Reasons, true, IsChildStation))
 	{
 		FLOGV("UFlareSimulatedSector::BuildStation : Failed to build station '%s' for company '%s' (%s)",
 			*StationDescription->Identifier.ToString(),
