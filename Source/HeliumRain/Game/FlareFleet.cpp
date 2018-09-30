@@ -249,13 +249,13 @@ FText UFlareFleet::GetStatusInfo() const
 
 int32 UFlareFleet::GetFleetCapacity() const
 {
-	int32 FreeCargoSpace = 0;
+	int32 CargoCapacity = 0;
 
 	for (int ShipIndex = 0; ShipIndex < FleetShips.Num(); ShipIndex++)
 	{
-		FreeCargoSpace += FleetShips[ShipIndex]->GetActiveCargoBay()->GetCapacity();
+		CargoCapacity += FleetShips[ShipIndex]->GetActiveCargoBay()->GetCapacity();
 	}
-	return FreeCargoSpace;
+	return CargoCapacity;
 }
 
 int32 UFlareFleet::GetFleetFreeCargoSpace() const

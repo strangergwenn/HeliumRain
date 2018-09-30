@@ -959,8 +959,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 
 
 
-	int32 MaxPlayerTransportCapacity = FMath::Max(100, PlayerCompany->GetTransportCapacity());
-	int32 PlayerFleetTransportCapacity = Parent->GetGame()->GetPC()->GetPlayerFleet()->GetTransportCapacity();
+	int32 PlayerFleetTransportCapacity = Parent->GetGame()->GetPC()->GetPlayerFleet()->GetFleetCapacity();
 	int32 PreferedCapacity = FMath::RandRange(PlayerFleetTransportCapacity / 5, PlayerFleetTransportCapacity / 2);
 
 	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, PreferedCapacity);
@@ -1183,8 +1182,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 	}
 
 
-	int32 MaxPlayerTransportCapacity = FMath::Max(100, PlayerCompany->GetTransportCapacity());
-	int32 PlayerFleetTransportCapacity = Parent->GetGame()->GetPC()->GetPlayerFleet()->GetTransportCapacity();
+	int32 PlayerFleetTransportCapacity = Parent->GetGame()->GetPC()->GetPlayerFleet()->GetFleetCapacity();
 	int32 PreferedCapacity = FMath::RandRange(PlayerFleetTransportCapacity / 5, PlayerFleetTransportCapacity / 2);
 
 
@@ -1429,10 +1427,8 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	int32 BestSellResourceQuantity = FMath::Min(Station2->GetActiveCargoBay()->GetSlotCapacity() - Station2->GetActiveCargoBay()->GetResourceQuantity(BestResource, PlayerCompany), int32(Station2->GetActiveCargoBay()->GetSlotCapacity() * 0.5));
 
 	int32 BestResourceQuantity = FMath::Min(BestBuyResourceQuantity, BestSellResourceQuantity);
-	int32 MaxPlayerTransportCapacity = FMath::Max(100, PlayerCompany->GetTransportCapacity());
-	int32 PlayerFleetTransportCapacity = Parent->GetGame()->GetPC()->GetPlayerFleet()->GetTransportCapacity();
+	int32 PlayerFleetTransportCapacity = Parent->GetGame()->GetPC()->GetPlayerFleet()->GetFleetCapacity();
 	int32 PreferedCapacity = FMath::RandRange(PlayerFleetTransportCapacity / 5, PlayerFleetTransportCapacity / 2);
-
 
 	int32 QuestResourceQuantity = FMath::Min(BestResourceQuantity, PreferedCapacity);
 
