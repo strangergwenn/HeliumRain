@@ -118,6 +118,10 @@ public:
 	virtual void SetCurrentTradeRoute(UFlareTradeRoute* TradeRoute)
 	{
 		CurrentTradeRoute = TradeRoute;
+		if(CurrentTradeRoute != nullptr)
+		{
+			SetAutoTrading(false);
+		}
 	}
 
 	void SetAutoTrading(bool Autotrading)
