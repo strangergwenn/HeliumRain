@@ -3700,8 +3700,8 @@ void UFlareQuestConditionTutorialUnlockTechnology::AddConditionObjectives(FFlare
 	FFlarePlayerObjectiveCondition ObjectiveCondition;
 	ObjectiveCondition.InitialLabel = GetInitialLabel();
 	ObjectiveCondition.TerminalLabel = FText();
-	ObjectiveCondition.Progress = 0;
-	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Progress = IsCompleted() ? 1 : 0;
+	ObjectiveCondition.MaxProgress = 1;
 	ObjectiveCondition.Counter = 0;
 	ObjectiveCondition.MaxCounter = 0;
 
