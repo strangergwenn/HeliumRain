@@ -405,7 +405,7 @@ SectorDeal AITradeHelper::FindBestDealForShipToSector(UFlareSimulatedSpacecraft*
 			!VariationB->MaintenanceCapacity &&
 			!VariationB->MinCapacity)
 		{
-			return BestDeal;
+			continue;
 		}
 
 
@@ -430,7 +430,7 @@ SectorDeal AITradeHelper::FindBestDealForShipToSector(UFlareSimulatedSpacecraft*
 
 		if (StockInAAfterTravel <= 0 && InitialQuantity == 0)
 		{
-			return BestDeal;
+			continue;
 		}
 
 		int32 CanBuyQuantity = FMath::Min(FreeSpace, StockInAAfterTravel);
@@ -469,7 +469,7 @@ SectorDeal AITradeHelper::FindBestDealForShipToSector(UFlareSimulatedSpacecraft*
 		if(SectorA != SectorB && SectorBRestiction != nullptr && BuyQuantity == 0)
 		{
 			// Will have to wait the departure so do a better local deal
-			return BestDeal;
+			continue;
 		}
 
 		// Use price details
