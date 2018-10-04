@@ -353,17 +353,24 @@ void AFlareGame::Scrap(FName ShipImmatriculation, FName TargetStationImmatricula
 	{
 		ScrapingStation->GetCompany()->TakeMoney(ScrapRevenue, false, FFlareTransactionLogEntry::LogScrapCost(ShipToScrap->GetCompany()));
 		ShipToScrap->GetCompany()->GiveMoney(ScrapRevenue, FFlareTransactionLogEntry::LogScrapGain(ShipToScrap, ScrapingStation->GetCompany()));
-		GetPC()->Notify(LOCTEXT("ShipSellScrap", "Ship scrap complete"),
-			FText::Format(LOCTEXT("ShipSellScrapFormat", "Your ship {0} has been scrapped for {1} credits!"), UFlareGameTools::DisplaySpacecraftName(ShipToScrap), FText::AsNumber(UFlareGameTools::DisplayMoney(ScrapRevenue))),
-			FName("ship-own-scraped"),
-			EFlareNotification::NT_Economy);
+
+		if(ShipToScrap->GetCompany()->IsPlayerCompany())
+		{
+			GetPC()->Notify(LOCTEXT("ShipSellScrap", "Ship scrap complete"),
+				FText::Format(LOCTEXT("ShipSellScrapFormat", "Your ship {0} has been scrapped for {1} credits!"), UFlareGameTools::DisplaySpacecraftName(ShipToScrap), FText::AsNumber(UFlareGameTools::DisplayMoney(ScrapRevenue))),
+				FName("ship-own-scraped"),
+				EFlareNotification::NT_Economy);
+		}
 	}
 	else
 	{
-		GetPC()->Notify(LOCTEXT("ShipOwnScrap", "Ship scrap complete"),
-			FText::Format(LOCTEXT("ShipOwnScrapFormat", "Your ship {0} has been scrapped !"), UFlareGameTools::DisplaySpacecraftName(ShipToScrap)),
-			FName("ship-own-scraped"),
-			EFlareNotification::NT_Economy);
+		if(ShipToScrap->GetCompany()->IsPlayerCompany())
+		{
+			GetPC()->Notify(LOCTEXT("ShipOwnScrap", "Ship scrap complete"),
+				FText::Format(LOCTEXT("ShipOwnScrapFormat", "Your ship {0} has been scrapped !"), UFlareGameTools::DisplaySpacecraftName(ShipToScrap)),
+				FName("ship-own-scraped"),
+				EFlareNotification::NT_Economy);
+		}
 	}
 
 	ShipToScrap->GetCompany()->DestroySpacecraft(ShipToScrap);
