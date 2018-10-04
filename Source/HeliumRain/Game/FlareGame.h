@@ -10,6 +10,8 @@
 #include "GameFramework/GameMode.h"
 #include "FlareGame.generated.h"
 
+#define DEBUG_AI_TRADING_STATS 0
+
 
 class UFlareSpacecraftCatalog;
 class UFlareSpacecraftComponentsCatalog;

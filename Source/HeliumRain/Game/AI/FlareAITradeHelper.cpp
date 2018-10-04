@@ -807,6 +807,19 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 					FLOGV("UFlareCompanyAI::UpdateTrading -> Buy %d / %d to %s", BroughtResource, Deal.BuyQuantity, *StationCandidate->GetImmatriculation().ToString());
 				}
 #endif
+#if DEBUG_AI_TRADING_STATS
+				if(Ship->GetCurrentFleet()->IsAutoTrading())
+				{
+					FLOGV("Auto trading %s buy %d / %d to %s for %lld", *Ship->GetImmatriculation().ToString(), BroughtResource, Request.MaxQuantity, *StationCandidate->GetImmatriculation().ToString(), TransactionPrice);
+					FLOGV("AutoTradeStatsDays=%d LoadResources=%d UnloadResources=%d MoneyBuy=%lld MoneySell=%lld",
+						  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsDays,
+						  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsLoadResources,
+						  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsUnloadResources,
+						  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsMoneyBuy,
+						  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsMoneySell);
+				}
+#endif
+
 			}
 
 			// TODO reduce computed sector stock
@@ -924,6 +937,19 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 				FLOGV("UFlareCompanyAI::UpdateTrading -> Sell %d / %d to %s", SellQuantity, Request.MaxQuantity, *StationCandidate->GetImmatriculation().ToString());
 			}
 #endif
+#if DEBUG_AI_TRADING_STATS
+			if(Ship->GetCurrentFleet()->IsAutoTrading())
+			{
+				FLOGV("Auto trading %s sell %d / %d to %s for %lld", *Ship->GetImmatriculation().ToString(), SellQuantity, Request.MaxQuantity, *StationCandidate->GetImmatriculation().ToString(), TransactionPrice);
+				FLOGV("AutoTradeStatsDays=%d LoadResources=%d UnloadResources=%d MoneyBuy=%lld MoneySell=%lld",
+					  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsDays,
+					  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsLoadResources,
+					  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsUnloadResources,
+					  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsMoneyBuy,
+					  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsMoneySell);
+			}
+#endif
+
 		}
 	}
 }
@@ -1379,11 +1405,19 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 			int64 MaxDuration;
 			int32 NeededFSSum = 0;
 
-			SectorHelper::GetRefillFleetSupplyNeeds(Sector, OtherCompany, NeededFS, TotalNeededFS, MaxDuration);
+
+
+			SectorHelper::GetRefillFleetSupplyNeeds(Sector, OtherCompany, NeededFS, TotalNeededFS, MaxDuration, true);
 			NeededFSSum += TotalNeededFS;
 
-			SectorHelper::GetRepairFleetSupplyNeeds(Sector, OtherCompany, NeededFS, TotalNeededFS, MaxDuration);
+			SectorHelper::GetRepairFleetSupplyNeeds(Sector, OtherCompany, NeededFS, TotalNeededFS, MaxDuration, true);
 			NeededFSSum += TotalNeededFS;
+
+			if(Company->IsPlayerCompany() && OtherCompany->IsPlayerCompany())
+			{
+				// Player don't always want to repair
+				continue;
+			}
 
 			if(OtherCompany == Company)
 			{
@@ -1393,10 +1427,19 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 			{
 				FFlareResourceDescription* FleetSupply = Sector->GetGame()->GetScenarioTools()->FleetSupply;
 				int32 CanBuyQuantity =  (int32) (OtherCompany->GetMoney() / Sector->GetResourcePrice(FleetSupply, EFlareResourcePriceContext::FactoryInput));
+				CanBuyQuantity = FMath::Max(CanBuyQuantity, 0);
 
 				Variation->MaintenanceCapacity += FMath::Min(CanBuyQuantity, NeededFSSum);
 			}
 		}
+
+		// Remove available FS
+		int32 AvailableFS;
+		int32 OwnedFS;
+		int32 AffordableFS;
+		// Use own company to have a pessimitic estimation
+		SectorHelper::GetAvailableFleetSupplyCount(Sector, Company, OwnedFS, AvailableFS, AffordableFS);
+		Variation->MaintenanceCapacity -= AvailableFS;
 	}
 
 	return SectorVariation;
@@ -1469,8 +1512,8 @@ void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, AITradeNeeds& Main
 			int32 RefillTotalNeededFleetSupply = 0;
 			int64 MaxDuration = 0;
 
-			SectorHelper::GetRepairFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, RepairTotalNeededFleetSupply, MaxDuration);
-			SectorHelper::GetRefillFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, RefillTotalNeededFleetSupply, MaxDuration);
+			SectorHelper::GetRepairFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, RepairTotalNeededFleetSupply, MaxDuration, true);
+			SectorHelper::GetRefillFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, RefillTotalNeededFleetSupply, MaxDuration, true);
 
 			int32 TotalNeededFleetSupply = RepairTotalNeededFleetSupply + RefillTotalNeededFleetSupply;
 

@@ -466,25 +466,32 @@ bool SectorHelper::HasShipRepairing(UFlareSimulatedSector* TargetSector, UFlareC
 	return false;
 }
 
-void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration)
+void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration, bool OnlyPossible)
 {
 	TArray<UFlareSimulatedSpacecraft*> CompanySpacecraft;
 
-	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+	if(OnlyPossible && Sector->IsInDangerousBattle(Company))
 	{
-		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+		// Don't add any spacecraft
+	}
+	else
+	{
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+		{
+			UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
 
-		if (Company != Spacecraft->GetCompany()) {
-			continue;
+			if (Company != Spacecraft->GetCompany()) {
+				continue;
+			}
+
+			CompanySpacecraft.Add(Spacecraft);
 		}
-
-		CompanySpacecraft.Add(Spacecraft);
 	}
 
-	GetRepairFleetSupplyNeeds(Sector, CompanySpacecraft, CurrentNeededFleetSupply, TotalNeededFleetSupply, MaxDuration);
+	GetRepairFleetSupplyNeeds(Sector, CompanySpacecraft, CurrentNeededFleetSupply, TotalNeededFleetSupply, MaxDuration, OnlyPossible);
 }
 
-void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector,  TArray<UFlareSimulatedSpacecraft*>& ships, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration)
+void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector,  TArray<UFlareSimulatedSpacecraft*>& ships, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration, bool OnlyPossible)
 {
 	float PreciseCurrentNeededFleetSupply = 0;
 	float PreciseTotalNeededFleetSupply = 0;
@@ -495,6 +502,11 @@ void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector,  TAr
 	for(UFlareSimulatedSpacecraft* Spacecraft: ships)
 	{
 		if (!Spacecraft->GetDamageSystem()->IsAlive()) {
+			continue;
+		}
+
+		if(OnlyPossible && Sector->IsInDangerousBattle(Spacecraft->GetCompany()))
+		{
 			continue;
 		}
 
@@ -546,25 +558,32 @@ void SectorHelper::GetRepairFleetSupplyNeeds(UFlareSimulatedSector* Sector,  TAr
 }
 
 
-void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration)
+void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, UFlareCompany* Company, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration, bool OnlyPossible)
 {
 	TArray<UFlareSimulatedSpacecraft*> CompanySpacecraft;
 
-	for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+	if(OnlyPossible && Sector->IsInDangerousBattle(Company))
 	{
-		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
+		// Don't add any spacecraft
+	}
+	else
+	{
+		for (int32 SpacecraftIndex = 0; SpacecraftIndex < Sector->GetSectorSpacecrafts().Num(); SpacecraftIndex++)
+		{
+			UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
 
-		if (Company != Spacecraft->GetCompany()) {
-			continue;
+			if (Company != Spacecraft->GetCompany()) {
+				continue;
+			}
+
+			CompanySpacecraft.Add(Spacecraft);
 		}
-
-		CompanySpacecraft.Add(Spacecraft);
 	}
 
-	GetRefillFleetSupplyNeeds(Sector, CompanySpacecraft, CurrentNeededFleetSupply, TotalNeededFleetSupply, MaxDuration);
+	GetRefillFleetSupplyNeeds(Sector, CompanySpacecraft, CurrentNeededFleetSupply, TotalNeededFleetSupply, MaxDuration, OnlyPossible);
 }
 
-void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, TArray<UFlareSimulatedSpacecraft*>& ships, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration)
+void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, TArray<UFlareSimulatedSpacecraft*>& ships, int32& CurrentNeededFleetSupply, int32& TotalNeededFleetSupply, int64& MaxDuration, bool OnlyPossible)
 {
 	float PreciseCurrentNeededFleetSupply = 0;
 	float PreciseTotalNeededFleetSupply = 0;
@@ -574,6 +593,11 @@ void SectorHelper::GetRefillFleetSupplyNeeds(UFlareSimulatedSector* Sector, TArr
 	for(UFlareSimulatedSpacecraft* Spacecraft: ships)
 	{
 		if (!Spacecraft->GetDamageSystem()->IsAlive()) {
+			continue;
+		}
+
+		if(OnlyPossible && Sector->IsInDangerousBattle(Spacecraft->GetCompany()))
+		{
 			continue;
 		}
 
@@ -630,7 +654,7 @@ void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 	int64 MaxDuration;
 
 
-	GetRepairFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, TotalNeededFleetSupply, MaxDuration);
+	GetRepairFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, TotalNeededFleetSupply, MaxDuration, true);
 	GetAvailableFleetSupplyCount(Sector, Company, OwnedFS, AvailableFS, AffordableFS);
 
 
@@ -642,6 +666,7 @@ void SectorHelper::RepairFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 	if(Sector->IsInDangerousBattle(Company) || AffordableFS == 0 || TotalNeededFleetSupply == 0)
 	{
 		// No repair possible
+		//FLOGV("No repair possible for %s in %s", *Company->GetCompanyName().ToString(), *Sector->GetSectorName().ToString())
 		return;
 	}
 
@@ -707,7 +732,7 @@ void SectorHelper::RefillFleets(UFlareSimulatedSector* Sector, UFlareCompany* Co
 	int32 AffordableFS;
 	int64 MaxDuration;
 
-	GetRefillFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, TotalNeededFleetSupply, MaxDuration);
+	GetRefillFleetSupplyNeeds(Sector, Company, CurrentNeededFleetSupply, TotalNeededFleetSupply, MaxDuration, true);
 	GetAvailableFleetSupplyCount(Sector, Company, OwnedFS, AvailableFS, AffordableFS);
 
 
@@ -826,6 +851,24 @@ void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompa
 			int64 Cost = TakenQuantity * ResourcePrice;
 			Company->TakeMoney(Cost, true, FFlareTransactionLogEntry::LogPayMaintenance(Spacecraft, TakenQuantity, ForRepair));
 			Spacecraft->GetCompany()->GiveMoney(Cost, FFlareTransactionLogEntry::LogPaidForMaintenance(Spacecraft, Company, TakenQuantity, ForRepair));
+
+			if(Spacecraft->GetCurrentFleet() && Spacecraft->GetCurrentFleet()->IsAutoTrading())
+			{
+				Spacecraft->GetCurrentFleet()->GetData()->AutoTradeStatsUnloadResources += TakenQuantity;
+				Spacecraft->GetCurrentFleet()->GetData()->AutoTradeStatsMoneySell += Cost;
+
+#if DEBUG_AI_TRADING_STATS
+
+			FLOGV("Auto trading %s sell %d to %s for %lld", *Spacecraft->GetImmatriculation().ToString(), TakenQuantity, *Company->GetCompanyName().ToString(), Cost);
+			FLOGV("AutoTradeStatsDays=%d LoadResources=%d UnloadResources=%d MoneyBuy=%lld MoneySell=%lld",
+				  Spacecraft->GetCurrentFleet()->GetData()->AutoTradeStatsDays,
+				  Spacecraft->GetCurrentFleet()->GetData()->AutoTradeStatsLoadResources,
+				  Spacecraft->GetCurrentFleet()->GetData()->AutoTradeStatsUnloadResources,
+				  Spacecraft->GetCurrentFleet()->GetData()->AutoTradeStatsMoneyBuy,
+				  Spacecraft->GetCurrentFleet()->GetData()->AutoTradeStatsMoneySell);
+
+#endif
+			}
 
 			ConsumedFS -= TakenQuantity;
 

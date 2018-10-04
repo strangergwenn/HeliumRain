@@ -1804,10 +1804,10 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 
 		TArray<UFlareSimulatedSpacecraft*> MovableShips = GenerateWarShipList(WarContext, Sector.Sector, Sector.PrisonersKeeper);
 
-		SectorHelper::GetRefillFleetSupplyNeeds(Sector.Sector, MovableShips, NeededFS, TotalNeededFS, MaxDuration);
+		SectorHelper::GetRefillFleetSupplyNeeds(Sector.Sector, MovableShips, NeededFS, TotalNeededFS, MaxDuration, true);
 		CumulatedTotalNeededFS += TotalNeededFS;
 
-		SectorHelper::GetRepairFleetSupplyNeeds(Sector.Sector, MovableShips, NeededFS, TotalNeededFS, MaxDuration);
+		SectorHelper::GetRepairFleetSupplyNeeds(Sector.Sector, MovableShips, NeededFS, TotalNeededFS, MaxDuration, true);
 		CumulatedTotalNeededFS += TotalNeededFS;
 
 		if (CumulatedTotalNeededFS > 0)
