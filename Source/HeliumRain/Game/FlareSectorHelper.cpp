@@ -121,8 +121,18 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 			continue;
 		}
 
-		uint32 StationFreeSpace = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Request.Resource, Request.Client->GetCompany());
-		uint32 StationResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Request.Resource, Request.Client->GetCompany());
+		int32 StationFreeSpace = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Request.Resource, Request.Client->GetCompany());
+		int32 StationResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Request.Resource, Request.Client->GetCompany());
+
+		if (!Station->IsUnderConstruction() && Station->IsComplex())
+		{
+			if(Station->GetActiveCargoBay()->WantBuy(Request.Resource, Request.Client->GetCompany()) && Station->GetActiveCargoBay()->WantSell(Request.Resource, Request.Client->GetCompany()))
+			{
+				int32 TotalCapacity = Station->GetActiveCargoBay()->GetTotalCapacityForResource(Request.Resource, Request.Client->GetCompany());
+				StationFreeSpace = FMath::Max(0, StationFreeSpace - TotalCapacity / 2);
+				StationResourceQuantity = FMath::Max(0, StationResourceQuantity - TotalCapacity / 2);
+			}
+		}
 
 		if (StationFreeSpace == 0 && StationResourceQuantity == 0)
 		{
@@ -859,7 +869,7 @@ void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompa
 
 #if DEBUG_AI_TRADING_STATS
 
-			FLOGV("Auto trading %s sell %d to %s for %lld", *Spacecraft->GetImmatriculation().ToString(), TakenQuantity, *Company->GetCompanyName().ToString(), Cost);
+			FLOGV("Auto trading %s sell %d %s to %s for %lld", *Spacecraft->GetImmatriculation().ToString(), TakenQuantity, *FleetSupply->Name.ToString(), *Company->GetCompanyName().ToString(), Cost);
 			FLOGV("AutoTradeStatsDays=%d LoadResources=%d UnloadResources=%d MoneyBuy=%lld MoneySell=%lld",
 				  Spacecraft->GetCurrentFleet()->GetData()->AutoTradeStatsDays,
 				  Spacecraft->GetCurrentFleet()->GetData()->AutoTradeStatsLoadResources,

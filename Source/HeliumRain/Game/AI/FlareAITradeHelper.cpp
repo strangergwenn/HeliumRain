@@ -27,15 +27,19 @@ DECLARE_CYCLE_STAT(TEXT("AITradeHelper FindBestDealForShip Loop"), STAT_AITradeH
 DECLARE_CYCLE_STAT(TEXT("AITradeHelper ApplyDeal"), STAT_AITradeHelper_ApplyDeal, STATGROUP_Flare);
 
 
-#define DEBUG_AI_TRADING 0
+
+#define DEBUG_AI_TRADING 1
+#define DEBUG_AI_TRADING_FIND_DEAL 0
 #define DEBUG_AI_TRADING_COMPANY "PLY"
 #define DEBUG_AI_TRADING_SECTOR_FILTER 0
 #define DEBUG_AI_TRADING_SECTOR "miners-home"
-#define DEBUG_AI_TRADING_SECTOR_B_FILTER 1
+#define DEBUG_AI_TRADING_SECTOR_B_FILTER 0
 #define DEBUG_AI_TRADING_SECTOR_B "miners-home"
 //#define DEBUG_AI_TRADING_SECTOR_B "nights-home"
-#define DEBUG_AI_TRADING_RESOURCES_FILTER 1
-#define DEBUG_AI_TRADING_RESOURCES "Feo"
+#define DEBUG_AI_TRADING_RESOURCES_FILTER 0
+#define DEBUG_AI_TRADING_RESOURCES "fleet-supply"
+//#define DEBUG_AI_TRADING_RESOURCES "Fuel"
+//#define DEBUG_AI_TRADING_RESOURCES "Feo"
 //#define DEBUG_AI_TRADING_RESOURCES "Food"
 
 #define LOCTEXT_NAMESPACE "AITradeHelper"
@@ -326,7 +330,7 @@ SectorDeal AITradeHelper::FindBestDealForShipToSector(UFlareSimulatedSpacecraft*
 	int64 TravelTime = TravelTimeToA + TravelTimeToB;
 
 
-#if DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING && DEBUG_AI_TRADING_FIND_DEAL
 	if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
 			&& (!DEBUG_AI_TRADING_SECTOR_B_FILTER || SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B))
 	{
@@ -344,7 +348,9 @@ SectorDeal AITradeHelper::FindBestDealForShipToSector(UFlareSimulatedSpacecraft*
 		struct ResourceVariation const* VariationA = &SectorVariationA->ResourceVariations[Resource];
 		struct ResourceVariation const* VariationB = &SectorVariationB->ResourceVariations[Resource];
 
-#if DEBUG_AI_TRADING
+		//FLOGV("- Check for %s", *Resource->Name.ToString());
+
+#if DEBUG_AI_TRADING && DEBUG_AI_TRADING_FIND_DEAL
 	if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
 			&& (!DEBUG_AI_TRADING_SECTOR_B_FILTER || SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B)
 			&& (!DEBUG_AI_TRADING_RESOURCES_FILTER || Resource->Identifier == DEBUG_AI_TRADING_RESOURCES))
@@ -418,7 +424,7 @@ SectorDeal AITradeHelper::FindBestDealForShipToSector(UFlareSimulatedSpacecraft*
 			+ VariationA->StorageStock
 			- (VariationA->OwnedFlow * TravelTimeToA)
 			- (VariationA->FactoryFlow * TravelTimeToA);
-#if DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING && DEBUG_AI_TRADING_FIND_DEAL
 		if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
 				&& (!DEBUG_AI_TRADING_SECTOR_B_FILTER || SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B)
 				&& (!DEBUG_AI_TRADING_RESOURCES_FILTER || Resource->Identifier == DEBUG_AI_TRADING_RESOURCES))
@@ -518,7 +524,7 @@ SectorDeal AITradeHelper::FindBestDealForShipToSector(UFlareSimulatedSpacecraft*
 
 		if(BuyQuantity / (VariationA->ProviderCount > 0 ? VariationA->ProviderCount : 1) < InitialQuantity / 8)
 		{
-#if DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING && DEBUG_AI_TRADING_FIND_DEAL
 			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
 					&& (!DEBUG_AI_TRADING_SECTOR_B_FILTER || SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B)
 					&& (!DEBUG_AI_TRADING_RESOURCES_FILTER || Resource->Identifier == DEBUG_AI_TRADING_RESOURCES))
@@ -575,7 +581,7 @@ SectorDeal AITradeHelper::FindBestDealForShipToSector(UFlareSimulatedSpacecraft*
 		{
 			Score *= VariationB->HighPriority;
 		}
-#if DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING && DEBUG_AI_TRADING_FIND_DEAL
 		if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
 				&& (!DEBUG_AI_TRADING_SECTOR_B_FILTER || SectorB->GetIdentifier() == DEBUG_AI_TRADING_SECTOR_B)
 				&& (!DEBUG_AI_TRADING_RESOURCES_FILTER || Resource->Identifier == DEBUG_AI_TRADING_RESOURCES))
@@ -613,7 +619,7 @@ SectorDeal AITradeHelper::FindBestDealForShipToSector(UFlareSimulatedSpacecraft*
 			BestDeal.Resource = Resource;
 			BestDeal.BuyQuantity = BuyQuantity;
 
-#if DEBUG_AI_TRADING
+#if DEBUG_AI_TRADING && DEBUG_AI_TRADING_FIND_DEAL
 			if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY)
 			{
 
@@ -796,6 +802,17 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 			int32 BroughtResource = 0;
 			if (StationCandidate)
 			{
+				if (!StationCandidate->IsUnderConstruction() && StationCandidate->IsComplex())
+				{
+					if(StationCandidate->GetActiveCargoBay()->WantBuy(Deal.Resource, Ship->GetCompany()) && StationCandidate->GetActiveCargoBay()->WantSell(Deal.Resource, Ship->GetCompany()))
+					{
+						int32 TotalCapacity = StationCandidate->GetActiveCargoBay()->GetTotalCapacityForResource(Deal.Resource, Ship->GetCompany());
+						int32 Stock = StationCandidate->GetActiveCargoBay()->GetResourceQuantity(Deal.Resource, Ship->GetCompany());
+						Stock = FMath::Max(0, Stock - TotalCapacity / 2);
+						Request.MaxQuantity = FMath::Min(Stock, Request.MaxQuantity);
+					}
+				}
+
 				int64 TransactionPrice;
 				BroughtResource = SectorHelper::Trade(StationCandidate, Ship, Deal.Resource, Request.MaxQuantity, &TransactionPrice);
 				Ship->GetCurrentFleet()->GetData()->AutoTradeStatsLoadResources += BroughtResource;
@@ -810,7 +827,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 #if DEBUG_AI_TRADING_STATS
 				if(Ship->GetCurrentFleet()->IsAutoTrading())
 				{
-					FLOGV("Auto trading %s buy %d / %d to %s for %lld", *Ship->GetImmatriculation().ToString(), BroughtResource, Request.MaxQuantity, *StationCandidate->GetImmatriculation().ToString(), TransactionPrice);
+					FLOGV("Auto trading %s buy %d / %d %s to %s for %lld", *Ship->GetImmatriculation().ToString(), BroughtResource, Request.MaxQuantity, *Deal.Resource->Name.ToString(), *StationCandidate->GetImmatriculation().ToString(), TransactionPrice);
 					FLOGV("AutoTradeStatsDays=%d LoadResources=%d UnloadResources=%d MoneyBuy=%lld MoneySell=%lld",
 						  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsDays,
 						  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsLoadResources,
@@ -927,6 +944,17 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 
 		if (StationCandidate)
 		{
+			if (!StationCandidate->IsUnderConstruction() && StationCandidate->IsComplex())
+			{
+				if(StationCandidate->GetActiveCargoBay()->WantBuy(Deal.Resource, Ship->GetCompany()) && StationCandidate->GetActiveCargoBay()->WantSell(Deal.Resource, Ship->GetCompany()))
+				{
+					int32 TotalCapacity = StationCandidate->GetActiveCargoBay()->GetTotalCapacityForResource(Deal.Resource, Ship->GetCompany());
+					int32 Capacity = StationCandidate->GetActiveCargoBay()->GetFreeSpaceForResource(Deal.Resource, Ship->GetCompany());
+					Capacity = FMath::Max(0, Capacity - TotalCapacity / 2);
+					Request.MaxQuantity = FMath::Min(Capacity, Request.MaxQuantity);
+				}
+			}
+
 			int64 TransactionPrice;
 			int32 SellQuantity = SectorHelper::Trade(Ship, StationCandidate, Deal.Resource, Request.MaxQuantity, &TransactionPrice);
 			Ship->GetCurrentFleet()->GetData()->AutoTradeStatsUnloadResources += SellQuantity;
@@ -940,7 +968,7 @@ void AITradeHelper::ApplyDeal(UFlareSimulatedSpacecraft* Ship, SectorDeal const&
 #if DEBUG_AI_TRADING_STATS
 			if(Ship->GetCurrentFleet()->IsAutoTrading())
 			{
-				FLOGV("Auto trading %s sell %d / %d to %s for %lld", *Ship->GetImmatriculation().ToString(), SellQuantity, Request.MaxQuantity, *StationCandidate->GetImmatriculation().ToString(), TransactionPrice);
+				FLOGV("Auto trading %s sell %d / %d %s to %s for %lld", *Ship->GetImmatriculation().ToString(), SellQuantity, Request.MaxQuantity, *Deal.Resource->Name.ToString(), *StationCandidate->GetImmatriculation().ToString(), TransactionPrice);
 				FLOGV("AutoTradeStatsDays=%d LoadResources=%d UnloadResources=%d MoneyBuy=%lld MoneySell=%lld",
 					  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsDays,
 					  Ship->GetCurrentFleet()->GetData()->AutoTradeStatsLoadResources,
@@ -1015,6 +1043,86 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 			continue;
 		}
 
+
+		for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+		{
+			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+			struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
+
+			int32 Stock = 0;
+			int32 Capacity = 0;
+
+			UFlareCargoBay* CargoBay = Station->GetActiveCargoBay();
+
+			if(CargoBay->WantBuy(Resource, Company))
+			{
+				Capacity = CargoBay->GetFreeSpaceForResource(Resource, Company);
+			}
+
+			if(CargoBay->WantSell(Resource, Company))
+			{
+				Stock = CargoBay->GetResourceQuantity(Resource, Company);
+
+
+				if (Company != Station->GetCompany() && Station->HasCapability(EFlareSpacecraftCapability::Maintenance) && Resource == Sector->GetGame()->GetScenarioTools()->FleetSupply)
+				{
+					Stock = 0;
+				}
+
+				if(Stock > 0)
+				{
+					Variation->ProviderCount++;
+				}
+#if DEBUG_AI_TRADING
+				if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
+						&& (!DEBUG_AI_TRADING_SECTOR_FILTER || Sector->GetIdentifier() == DEBUG_AI_TRADING_SECTOR)
+						&& (!DEBUG_AI_TRADING_RESOURCES_FILTER || Resource->Identifier == DEBUG_AI_TRADING_RESOURCES))
+				{
+					FLOGV("Stock of %s in %s, (sector %s): %d"
+						  , *Resource->Name.ToString()
+						  , *Station->GetImmatriculation().ToString()
+						  , *Sector->GetSectorName().ToString()
+						  , Stock);
+					FLOGV("Behavior->TradingBuy %f", Behavior->TradingBuy);
+				}
+#endif
+			}
+
+			if (!Station->IsUnderConstruction() && Station->HasCapability(EFlareSpacecraftCapability::Storage))
+			{
+				// Don't buy to hub
+				Capacity = 0;
+			}
+
+			if (!Station->IsUnderConstruction() && Station->IsComplex())
+			{
+				if(Station->GetActiveCargoBay()->WantBuy(Resource, Company) && Station->GetActiveCargoBay()->WantSell(Resource, Company))
+				{
+					int32 TotalCapacity = CargoBay->GetTotalCapacityForResource(Resource, Company);
+					Capacity = FMath::Max(0, Capacity - TotalCapacity / 2);
+					Stock = FMath::Max(0, Stock - TotalCapacity / 2);
+				}
+			}
+
+			if (Company == Station->GetCompany())
+			{
+				Variation->OwnedStock += Stock;
+				Variation->OwnedCapacity += Capacity;
+
+			}
+			else
+			{
+				Variation->FactoryStock += Stock * Behavior->TradingBuy;
+
+				int32 CanBuyQuantity =  FMath::Max(0, (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput)));
+				Capacity = FMath::Min(Capacity, CanBuyQuantity);
+				Variation->FactoryCapacity += Capacity * Behavior->TradingSell;
+			}
+		}
+
+
+
+
 		int32 InitialSlotCapacity = Station->GetActiveCargoBay()->GetSlotCapacity();
 
 		for (int32 FactoryIndex = 0; FactoryIndex < Station->GetFactories().Num(); FactoryIndex++)
@@ -1075,32 +1183,6 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 						Variation->FactoryFlow += Flow;
 					}
 				}
-
-				int32 ResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
-				int32 MaxCapacity = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, Company);
-
-				float BaseSlotCapacity = InitialSlotCapacity / Station->GetLevel();
-
-				int32 SlotCapacity = InitialSlotCapacity;
-
-				int32 Capacity = FMath::Min(MaxCapacity, (SlotCapacity - ResourceQuantity));
-
-				if (ResourceQuantity < SlotCapacity)
-				{
-					if (Company == Station->GetCompany())
-					{
-
-						Variation->OwnedCapacity += Capacity;
-					}
-					else
-					{
-						Capacity = FMath::Min(Capacity, CanBuyQuantity);
-						Variation->FactoryCapacity += Capacity * Behavior->TradingSell;
-					}
-
-
-
-				}
 			}
 
 			// Ouput flow
@@ -1136,43 +1218,7 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 						Variation->FactoryFlow -= Flow;
 					}
 				}
-
-				int32 Stock = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
-
-#if DEBUG_AI_TRADING
-				if (Company->GetShortName() == DEBUG_AI_TRADING_COMPANY
-						&& (!DEBUG_AI_TRADING_SECTOR_FILTER || Sector->GetIdentifier() == DEBUG_AI_TRADING_SECTOR)
-						&& (!DEBUG_AI_TRADING_RESOURCES_FILTER || Resource->Identifier == DEBUG_AI_TRADING_RESOURCES))
-				{
-					FLOGV("Stock of %s in %s, factory %s (sector %s): %d"
-						  , *Resource->Name.ToString()
-						  , *Station->GetImmatriculation().ToString()
-						  , *Factory->GetDescription()->Name.ToString()
-						  , *Sector->GetSectorName().ToString()
-						  , Stock);
-					FLOGV("Behavior->TradingBuy %f", Behavior->TradingBuy);
-				}
-#endif
-
-				if (Company == Station->GetCompany())
-				{
-					Variation->OwnedStock += Stock;
-				}
-				else
-				{
-					Variation->FactoryStock += Stock * Behavior->TradingBuy;
-				}
-
-				if(Stock > 0)
-				{
-					Variation->ProviderCount++;
-				}
-
 			}
-
-
-			// TODO storage
-
 		}
 
 		// Customer flow
@@ -1192,32 +1238,7 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
-				int32 ResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
-				int32 MaxCapacity = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, Company);
-
-				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
-
-				float BaseSlotCapacity = InitialSlotCapacity / Station->GetLevel();
-				int32 SlotCapacity = InitialSlotCapacity;
-
-				int32 Capacity = FMath::Min(MaxCapacity, (SlotCapacity - ResourceQuantity));
-
-				// Dept are allowed for sell to customers
-				if (ResourceQuantity < SlotCapacity)
-				{
-					if (Company == Station->GetCompany())
-					{
-						Variation->OwnedCapacity += Capacity;
-					}
-					else
-					{
-						Capacity = FMath::Min(Capacity, CanBuyQuantity);
-						Variation->FactoryCapacity += Capacity * Behavior->TradingSell;
-					}
-				}
-
 				Variation->ConsumerMaxStock += Station->GetActiveCargoBay()->GetSlotCapacity();
-
 			}
 		}
 
@@ -1229,46 +1250,8 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
 				struct ResourceVariation* Variation = &SectorVariation.ResourceVariations[Resource];
 
-				int32 ResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
-				int32 MaxCapacity = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, Company);
 
-				int32 CanBuyQuantity =  (int32) (Station->GetCompany()->GetMoney() / Sector->GetResourcePrice(Resource, EFlareResourcePriceContext::FactoryInput));
-				int32 Capacity = FMath::Min(MaxCapacity, (InitialSlotCapacity - ResourceQuantity));
-				int32 SlotCapacity = InitialSlotCapacity;
-
-
-				float BaseSlotCapacity = SlotCapacity / Station->GetLevel();
-
-				if (ResourceQuantity < SlotCapacity)
-				{
-
-					if (Company == Station->GetCompany())
-					{
-						Variation->OwnedCapacity += Capacity;
-					}
-					else
-					{
-						Capacity = FMath::Min(Capacity, CanBuyQuantity);
-						Variation->FactoryCapacity += Capacity * Behavior->TradingSell;
-					}
-				}
 				Variation->MaintenanceMaxStock += Station->GetActiveCargoBay()->GetSlotCapacity();
-
-				// The owned resell its own FS
-
-				int32 Stock = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
-
-
-				if (Company == Station->GetCompany())
-				{
-					Variation->OwnedStock += Stock;
-				}
-
-				if(Stock > 0)
-				{
-					Variation->ProviderCount++;
-				}
-
 			}
 		}
 
@@ -1304,19 +1287,6 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 					}
 				}
 				Variation->MaintenanceMaxStock += Station->GetActiveCargoBay()->GetSlotCapacity();
-
-				// The owned resell its own FS
-
-				int32 Stock = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, Company);
-
-				if (Company == Station->GetCompany())
-				{
-					Variation->OwnedStock += Stock;
-				}
-				else
-				{
-					Variation->StorageStock += Stock;
-				}
 			}
 		}
 	}
@@ -1475,6 +1445,16 @@ void AITradeHelper::GenerateTradingNeeds(AITradeNeeds& Needs, AITradeNeeds& Main
 				if(Station->GetActiveCargoBay()->WantBuy(Resource, nullptr))
 				{
 					int32 Quantity = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Resource, nullptr);
+
+					if (!Station->IsUnderConstruction() && Station->IsComplex())
+					{
+						if(Station->GetActiveCargoBay()->WantBuy(Resource, Company) && Station->GetActiveCargoBay()->WantSell(Resource, Company))
+						{
+							int32 TotalCapacity = Station->GetActiveCargoBay()->GetTotalCapacityForResource(Resource, Company);
+							Quantity = FMath::Max(0, Quantity - TotalCapacity / 2);
+						}
+					}
+
 					if(Quantity > TRADING_MIN_NEED_QUANTITY || (Station->IsUnderConstruction() && Quantity > 0))
 					{
 						AITradeNeed Need;
@@ -1562,12 +1542,24 @@ void AITradeHelper::GenerateTradingSources(AITradeSources& Sources, AITradeSourc
 						}
 						else
 						{
+							FLOGV("DEBUG : %d", Station->IsComplex());
+							check(Station->IsComplex() == true);
 							// Trade to not use as source
-							continue;
+							//continue;
 						}
 					}
 
 					int32 Quantity = Station->GetActiveCargoBay()->GetResourceQuantity(Resource, nullptr);
+
+					if (!Station->IsUnderConstruction() && Station->IsComplex())
+					{
+						if(Station->GetActiveCargoBay()->WantBuy(Resource, Company) && Station->GetActiveCargoBay()->WantSell(Resource, Company))
+						{
+							int32 TotalCapacity = Station->GetActiveCargoBay()->GetTotalCapacityForResource(Resource, Company);
+							Quantity = FMath::Max(0, Quantity - TotalCapacity / 2);
+						}
+					}
+
 					if(Quantity > 0)
 					{
 						AITradeSource Source;

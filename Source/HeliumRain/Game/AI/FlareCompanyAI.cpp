@@ -160,8 +160,9 @@ void UFlareCompanyAI::Simulate()
 		}
 
 		AIData.Pacifism = FMath::Clamp(AIData.Pacifism, 0.f,100.f);
-
+#if 0
 		FLOGV("Pacifism for %s : %f (IdleCargoCapacity=%d)", *Company->GetCompanyName().ToString(), AIData.Pacifism, IdleCargoCapacity);
+#endif
 
 	}
 }

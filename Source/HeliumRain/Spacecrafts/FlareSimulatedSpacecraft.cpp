@@ -1651,8 +1651,9 @@ void UFlareSimulatedSpacecraft::UpdateShipyardProduction()
 	int32 Index = 0;
 	for (FFlareShipyardOrderSave& Order : SpacecraftData.ShipyardOrderQueue)
 	{
+#if 0
 		FLOGV("Order %s for %s", *Order.ShipClass.ToString(), *Order.Company.ToString())
-
+#endif
 		bool MissingResource = false;
 		const FFlareProductionData& ProductionData = GetCycleDataForShipClass(Order.ShipClass);
 
@@ -1668,7 +1669,9 @@ void UFlareSimulatedSpacecraft::UpdateShipyardProduction()
 
 		if(MissingResource)
 		{
+#if 0
 			FLOG("- Missing resource");
+#endif
 			break;
 		}
 
