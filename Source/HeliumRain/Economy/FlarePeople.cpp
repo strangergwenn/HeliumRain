@@ -16,6 +16,12 @@
 #define LOCTEXT_NAMESPACE "FlarePeopleInfo"
 
 
+#define DEBUG_PEOPLE 0
+#define DEBUG_PEOPLE_SECTOR_FILTER 1
+#define DEBUG_PEOPLE_SECTOR "blue-heart"
+
+
+
 /*----------------------------------------------------
 	Constructor
 ----------------------------------------------------*/
@@ -519,10 +525,15 @@ void UFlarePeople::GiveBirth(uint32 BirthCount)
 		return;
 	}
 
-	//FLOGV("Give birth %u people for sector %s", BirthCount, *Parent->GetSectorName().ToString());
-
 	// Increase population
 	PeopleData.Population += BirthCount;
+
+#if DEBUG_PEOPLE
+		if ((!DEBUG_PEOPLE_SECTOR_FILTER || Parent->GetIdentifier() == DEBUG_PEOPLE_SECTOR))
+		{
+			FLOGV("Give birth %u people for sector %s", BirthCount, *Parent->GetSectorName().ToString());
+		}
+#endif
 
 	// Money creation
 	uint32 NewMoney = BirthCount * MONETARY_CREATION;
@@ -565,8 +576,15 @@ void UFlarePeople::KillPeople(uint32 KillCount)
 	}
 
 
+#if DEBUG_PEOPLE
+				if ((!DEBUG_PEOPLE_SECTOR_FILTER || Parent->GetIdentifier() == DEBUG_PEOPLE_SECTOR))
+				{
+					FLOGV("Kill %u people for sector %s", KillCount, *Parent->GetSectorName().ToString());
+				}
+#endif
 
-	//FLOGV("Kill %u people for sector %s", KillCount, *Parent->GetSectorName().ToString());
+
+
 
 
 	float KillRatio = (float) PeopleToKill / (float)PeopleData.Population;
@@ -600,19 +618,39 @@ void UFlarePeople::Migrate(UFlareSimulatedSector* DestinationSector, int32 ShipC
 	}
 
 	if (DestinationPeople->GetPopulation() == 0
-	 || (DestinationPeople->GetWealth() > GetWealth() &&
-			DestinationPeople->GetHappiness() > GetHappiness()))
+	 || (DestinationPeople->GetWealth() > GetWealth() * 1.1f &&
+			DestinationPeople->GetHappiness() > GetHappiness() * 1.1f))
 	{
 		// Migrate
 		int32 MigratingPopulation = FMath::Min(ShipCount * 10, (int32) PeopleData.Population / 2);
 
 		int32 MigratingHappiness = MigratingPopulation * GetHappiness();
 
-		PeopleData.HappinessPoint -= MigratingHappiness;
+#if DEBUG_PEOPLE
+		float InitialHappiness = GetHappiness();
+		float InitialWealth = GetWealth();
+		float DestinationInitialHappiness = DestinationPeople->GetHappiness();
+		float DestinationInitialWealth = DestinationPeople->GetWealth();
+#endif
+
+		//PeopleData.HappinessPoint -= MigratingHappiness;
 		PeopleData.Population -= MigratingPopulation;
 
+
 		DestinationPeople->GetData()->Population += MigratingPopulation;
-		DestinationPeople->GetData()->HappinessPoint += MigratingHappiness;
+		//DestinationPeople->GetData()->HappinessPoint += MigratingHappiness;
+
+#if DEBUG_PEOPLE
+
+		if ((!DEBUG_PEOPLE_SECTOR_FILTER || Parent->GetIdentifier() == DEBUG_PEOPLE_SECTOR || DestinationSector->GetIdentifier() == DEBUG_PEOPLE_SECTOR))
+		{
+			FLOGV("Migrate %u people from sector %s (h:%f->%f w:%f->%f) to %s (h:%f->%f w:%f->%f)",
+				  MigratingPopulation,
+				  *Parent->GetSectorName().ToString(), InitialHappiness, GetHappiness(), InitialWealth, GetWealth(),
+				  *DestinationSector->GetSectorName().ToString(), DestinationInitialHappiness, DestinationPeople->GetHappiness(), DestinationInitialWealth, DestinationPeople->GetWealth());
+		}
+#endif
+
 	}
 }
 
