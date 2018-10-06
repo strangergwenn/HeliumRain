@@ -577,6 +577,11 @@ void UFlareSimulatedSpacecraft::LockResources()
 	{
 		if(LockMap.Contains(Resource))
 		{
+			if(LockType == EFlareResourceLock::Hidden)
+			{
+				return;
+			}
+
 			EFlareResourceLock::Type OldLockType = LockMap[Resource];
 			if(OldLockType != LockType)
 			{
@@ -677,6 +682,17 @@ void UFlareSimulatedSpacecraft::LockResources()
 				{
 					AddLockInMap(Resource, EFlareResourceLock::Output);
 				}
+			}
+		}
+
+		if(IsComplex())
+		{
+			// Lock resource with usage as Trade
+			for (int32 ResourceIndex = 0; ResourceIndex < GetGame()->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+			{
+				FFlareResourceDescription* Resource = &GetGame()->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+				AddLockInMap(Resource, EFlareResourceLock::Hidden);
+
 			}
 		}
 	}

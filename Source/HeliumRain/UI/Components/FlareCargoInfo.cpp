@@ -240,7 +240,7 @@ FText SFlareCargoInfo::GetResourceQuantity() const
 	}
 	else if (Cargo->Lock == EFlareResourceLock::Hidden)
 	{
-		LockText = LOCTEXT("HiddenCargoFormat", "(Hidden)\n");
+		LockText = LOCTEXT("HiddenCargoFormat", "(Overflow)\n");
 	}
 	
 	// Format the current capacity info
