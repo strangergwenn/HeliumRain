@@ -653,8 +653,10 @@ UFlareSimulatedSpacecraft* UFlareSimulatedSector::BuildStation(FFlareSpacecraftD
 {
 	TArray<FText> Reasons;
 	bool IsChildStation = (SpawnParameters.AttachComplexStationName != NAME_None);
+	bool IsComplexSlotSpecial = (IsChildStation) && UFlareSimulatedSpacecraft::IsSpecialComplexSlot(SpawnParameters.AttachComplexConnectorName);
 
-	if (!CanBuildStation(StationDescription, Company, Reasons, true, IsChildStation))
+
+	if (!CanBuildStation(StationDescription, Company, Reasons, true, IsChildStation, IsComplexSlotSpecial))
 	{
 		FLOGV("UFlareSimulatedSector::BuildStation : Failed to build station '%s' for company '%s' (%s)",
 			*StationDescription->Identifier.ToString(),
