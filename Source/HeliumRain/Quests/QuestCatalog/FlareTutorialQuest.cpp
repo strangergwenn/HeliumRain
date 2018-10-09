@@ -2051,7 +2051,7 @@ void UFlareQuestTutorialDistantFleet::Load(UFlareQuestManager* Parent)
 
 
 	{
-		FText Description = LOCTEXT("CompanyMenuDescription","You have multiple fleets. You can see your ship's locations and fleet assignments in the company menu. Open the company menu with (<input-action:CompanyMenu>).");
+		FText Description = LOCTEXT("CompanyMenuDescription","You have multiple fleets. You can see your ship's locations and fleet assignments in the company menu. Open the company menu with (<input-action:CompanyMenu>) and go to the Property tab.");
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "open-company-menu", Description);
 
 		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(UFlareQuestConditionTutorialOpenMenu::Create(this, EFlareMenu::MENU_Company));

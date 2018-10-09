@@ -621,6 +621,10 @@ FText SFlareSectorMenu::GetBuildStationHelpText() const
 	{
 		return LOCTEXT("CantBuildStationTechInfo", "You need to unlock station technology first");
 	}
+	else if (TargetSector->IsTravelSector())
+	{
+		return LOCTEXT("CantBuildStationTravelInfo", "Can't build stations during travels");
+	}
 	else if (!PC->GetCompany()->HasVisitedSector(TargetSector))
 	{
 		return LOCTEXT("CantBuildStationUnknownInfo", "Can't build stations in unknown sectors");
