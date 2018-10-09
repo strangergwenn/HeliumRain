@@ -1983,7 +1983,7 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 			QuantityLimitButton->SetActive(true);
 			if(TargetTradeRoute->GetFleet())
 			{
-				int32 Value = (float) (SelectedOperation->MaxQuantity - 1) / (float) TargetTradeRoute->GetFleet()->GetFleetCapacity();
+				float Value = (float) (SelectedOperation->MaxQuantity - 1) / (float) TargetTradeRoute->GetFleet()->GetFleetCapacity();
 				QuantityLimitSlider->SetValue(Value);
 				QuantityLimitText->SetText(FText::AsNumber(SelectedOperation->MaxQuantity));
 			}
@@ -2001,7 +2001,7 @@ void SFlareTradeRouteMenu::OnEditOperationClicked(FFlareTradeRouteSectorOperatio
 			InventoryLimitButton->SetActive(true);
 			if(TargetTradeRoute->GetFleet())
 			{
-				int32 Value = (float) (SelectedOperation->InventoryLimit - 1) / (float) TargetTradeRoute->GetFleet()->GetFleetCapacity();
+				float Value = (float) (SelectedOperation->InventoryLimit - 1) / (float) TargetTradeRoute->GetFleet()->GetFleetCapacity();
 				InventoryLimitSlider->SetValue(Value);
 				InventoryLimitText->SetText(FText::AsNumber(SelectedOperation->InventoryLimit));
 			}
