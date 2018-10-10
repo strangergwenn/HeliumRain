@@ -273,6 +273,7 @@ bool UFlareTradeRoute::ProcessLoadOperation(FFlareTradeRouteSectorOperationSave*
 	Request.CargoLimit = -1;
 	Request.MaxQuantity = Operation->MaxQuantity;
 	Request.AllowStorage = Operation->CanTradeWithStorages;
+	Request.AllowFullStock = true;
 
 	for (UFlareSimulatedSpacecraft* Ship : UsefullShips)
 	{

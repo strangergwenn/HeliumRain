@@ -15,6 +15,7 @@ struct SectorHelper
 		float CargoLimit;
 		UFlareSimulatedSpacecraft *Client;
 		bool AllowStorage = false;
+		bool AllowFullStock = false;
 	};
 
 	static UFlareSimulatedSpacecraft*  FindTradeStation(FlareTradeRequest Request);

@@ -124,7 +124,7 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		int32 StationFreeSpace = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Request.Resource, Request.Client->GetCompany());
 		int32 StationResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Request.Resource, Request.Client->GetCompany());
 
-		if (!Station->IsUnderConstruction() && Station->IsComplex())
+		if (!Station->IsUnderConstruction() && Station->IsComplex() && !Request.AllowFullStock)
 		{
 			if(Station->GetActiveCargoBay()->WantBuy(Request.Resource, Request.Client->GetCompany()) && Station->GetActiveCargoBay()->WantSell(Request.Resource, Request.Client->GetCompany()))
 			{
