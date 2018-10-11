@@ -133,17 +133,17 @@ void AFlarePlayerController::BeginPlay()
 	
 	// Get online subsystem
 	OnlineSub = IOnlineSubsystem::Get();
-	FCHECK(OnlineSub);
-	FCHECK(OnlineSub->GetIdentityInterface().IsValid());
+	if (OnlineSub && OnlineSub->GetIdentityInterface().IsValid())
+	{
+		// Get online user
+		ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+		UserId = OnlineSub->GetIdentityInterface()->GetUniquePlayerId(0);
+		FCHECK(UserId->IsValid());
 
-	// Get online user
-	ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
-	UserId = OnlineSub->GetIdentityInterface()->GetUniquePlayerId(0);
-	FCHECK(UserId->IsValid());
-
-	// Query achievements
-	IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
-	Achievements->QueryAchievements(*UserId.Get(), FOnQueryAchievementsCompleteDelegate::CreateUObject(this, &AFlarePlayerController::OnQueryAchievementsComplete));
+		// Query achievements
+		IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
+		Achievements->QueryAchievements(*UserId.Get(), FOnQueryAchievementsCompleteDelegate::CreateUObject(this, &AFlarePlayerController::OnQueryAchievementsComplete));
+	}
 
 	// Get settings, ensure settings added in updates have the default value
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
