@@ -186,7 +186,7 @@ protected:
 	/** Get upgrade info */
 	static FText GetUpgradeInfo(UFlareSimulatedSpacecraft* Spacecraft);
 
-	bool IsUpgradeStationDisabled() const;
+	bool IsUpgradeStationDisabled(UFlareSimulatedSpacecraft* Spacecraft) const;
 
 
 	/*----------------------------------------------------

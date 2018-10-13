@@ -751,7 +751,7 @@ void SFlareShipMenu::UpdateUpgradeBox()
 			.TextStyle(&Theme.TextFont)
 			.Text(LOCTEXT("CurrentLevelInfo", "Levels act as a multiplier to all station characteristics - a level 2 station acts like two level 1 stations."))
 		];
-
+		
 		UFlareSimulatedSpacecraft* KeepMenuTarget = NULL;
 		
 		// Upgrade button
@@ -765,7 +765,7 @@ void SFlareShipMenu::UpdateUpgradeBox()
 			.Text(GetUpgradeInfo(TargetSpacecraft))
 			.Icon(FFlareStyleSet::GetIcon("Travel"))
 			.OnClicked(this, &SFlareShipMenu::OnUpgradeStationClicked, KeepMenuTarget)
-			.IsDisabled(this, &SFlareShipMenu::IsUpgradeStationDisabled)
+			.IsDisabled(this, &SFlareShipMenu::IsUpgradeStationDisabled, KeepMenuTarget)
 		];
 	}
 }
@@ -783,7 +783,7 @@ void SFlareShipMenu::UpdateComplexList()
 	ComplexList->ClearChildren();
 	SelectedComplexStation = NAME_None;
 	SelectedComplexConnector = NAME_None;
-
+	
 	if (TargetSpacecraft && TargetSpacecraft->IsComplex())
 	{
 		// Complex is under construction, can't build
@@ -879,6 +879,7 @@ void SFlareShipMenu::UpdateComplexList()
 							.Text(GetUpgradeInfo(ComplexElement))
 							.HelpText(LOCTEXT("UpgradeComplexStationInfo", "Upgrade this station element"))
 							.OnClicked(this, &SFlareShipMenu::OnUpgradeStationClicked, ComplexElement)
+							.IsDisabled(this, &SFlareShipMenu::IsUpgradeStationDisabled, ComplexElement)
 							.Width(10)
 						];
 					}
@@ -1579,14 +1580,19 @@ FText SFlareShipMenu::GetUpgradeInfo(UFlareSimulatedSpacecraft* Spacecraft)
 	return ProductionCost;
 }
 
-bool SFlareShipMenu::IsUpgradeStationDisabled() const
+bool SFlareShipMenu::IsUpgradeStationDisabled(UFlareSimulatedSpacecraft* Spacecraft) const
 {
 	AFlarePlayerController* PC = MenuManager->GetPC();
 
-	if (TargetSpacecraft)
+	UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
+	if (Sector)
 	{
-		UFlareSimulatedSector* Sector = TargetSpacecraft->GetCurrentSector();
-		if (Sector)
+		if (Spacecraft)
+		{
+			TArray<FText> Reasons;
+			return !Sector->CanUpgradeStation(Spacecraft, Reasons);
+		}
+		else if (TargetSpacecraft)
 		{
 			TArray<FText> Reasons;
 			return !Sector->CanUpgradeStation(TargetSpacecraft, Reasons);
