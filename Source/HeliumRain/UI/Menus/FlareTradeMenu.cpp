@@ -370,19 +370,20 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 			}
 		}
 
+		// #1208 : don't trade between ships
 		// Add ships
-		for (int32 SpacecraftIndex = 0; SpacecraftIndex < ParentSector->GetSectorShips().Num(); SpacecraftIndex++)
-		{
-			// Don't allow trade with other
-			UFlareSimulatedSpacecraft* ShipCandidate = ParentSector->GetSectorShips()[SpacecraftIndex];
-			if (ShipCandidate && ShipCandidate != LeftSpacecraft && ShipCandidate != RightSpacecraft
-			 && ShipCandidate->GetActiveCargoBay()->GetSlotCount() > 0
-			 && ShipCandidate->GetDamageSystem()->IsAlive()
-			 && ShipCandidate->GetCompany() == MenuManager->GetPC()->GetCompany())
-			{
-				ShipList->AddShip(ShipCandidate);
-			}
-		}
+		//for (int32 SpacecraftIndex = 0; SpacecraftIndex < ParentSector->GetSectorShips().Num(); SpacecraftIndex++)
+		//{
+		//	// Don't allow trade with other
+		//	UFlareSimulatedSpacecraft* ShipCandidate = ParentSector->GetSectorShips()[SpacecraftIndex];
+		//	if (ShipCandidate && ShipCandidate != LeftSpacecraft && ShipCandidate != RightSpacecraft
+		//	 && ShipCandidate->GetActiveCargoBay()->GetSlotCount() > 0
+		//	 && ShipCandidate->GetDamageSystem()->IsAlive()
+		//	 && ShipCandidate->GetCompany() == MenuManager->GetPC()->GetCompany())
+		//	{
+		//		ShipList->AddShip(ShipCandidate);
+		//	}
+		//}
 	}
 
 	// Setup widgets
