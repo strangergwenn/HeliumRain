@@ -254,6 +254,7 @@ protected:
 	UTexture2D*                             HUDObjectiveIcon;
 	UTexture2D*                             HUDCombatMouseIcon;
 	UTexture2D*                             HUDSearchArrowIcon;
+	UTexture2D*                             HUDSearchDockArrowIcon;
 	UTexture2D*                             HUDHighlightSearchArrowTexture;
 	UTexture2D*                             HUDDesignatorCornerTexture;
 	UTexture2D*                             HUDDesignatorMilCornerTexture;
@@ -262,6 +263,7 @@ protected:
 	UTexture2D*                             HUDDockingCircleTexture;
 	UTexture2D*                             HUDDockingAxisTexture;
 	UTexture2D*                             HUDDockingForbiddenTexture;
+	UTexture2D*                             HUDDockingMonitorIcon;
 
 	// Ship status content
 	UTexture2D*                             HUDTemperatureIcon;

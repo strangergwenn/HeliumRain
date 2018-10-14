@@ -64,10 +64,12 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDockingCircleObj       (TEXT("/Game/Gameplay/HUD/TX_DockingCircle.TX_DockingCircle"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDockingAxisObj         (TEXT("/Game/Gameplay/HUD/TX_DockingAxis.TX_DockingAxis"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDockingForbiddenObj    (TEXT("/Game/Slate/Icons/TX_Icon_Delete.TX_Icon_Delete"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDockingMonitorIconObj  (TEXT("/Game/Gameplay/HUD/TX_DockingMonitorIcon.TX_DockingMonitorIcon"));
 
 	// Load content (designator icons)
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDCombatMouseIconObj     (TEXT("/Game/Gameplay/HUD/TX_CombatCursor.TX_CombatCursor"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDSearchArrowIconObj     (TEXT("/Game/Gameplay/HUD/TX_SearchArrow.TX_SearchArrow"));
+	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDSearchDockArrowIconObj (TEXT("/Game/Gameplay/HUD/TX_DockArrow.TX_DockArrow"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorCornerObj    (TEXT("/Game/Gameplay/HUD/TX_DesignatorCorner.TX_DesignatorCorner"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDHighlightSearchArrowObj(TEXT("/Game/Gameplay/HUD/TX_HighlightSearchArrow.TX_HighlightSearchArrow"));
 	static ConstructorHelpers::FObjectFinder<UTexture2D> HUDDesignatorMilCornerObj (TEXT("/Game/Gameplay/HUD/TX_DesignatorMilitaryCorner.TX_DesignatorMilitaryCorner"));
@@ -112,10 +114,12 @@ AFlareHUD::AFlareHUD(const class FObjectInitializer& PCIP)
 	HUDDockingCircleTexture = HUDDockingCircleObj.Object;
 	HUDDockingAxisTexture = HUDDockingAxisObj.Object;
 	HUDDockingForbiddenTexture = HUDDockingForbiddenObj.Object;
+	HUDDockingMonitorIcon = HUDDockingMonitorIconObj.Object;
 
 	// Load content (designator icons)
 	HUDCombatMouseIcon = HUDCombatMouseIconObj.Object;
 	HUDSearchArrowIcon = HUDSearchArrowIconObj.Object;
+	HUDSearchDockArrowIcon = HUDSearchDockArrowIconObj.Object;
 	HUDHighlightSearchArrowTexture = HUDHighlightSearchArrowObj.Object;
 	HUDDesignatorCornerTexture = HUDDesignatorCornerObj.Object;
 	HUDDesignatorMilCornerTexture = HUDDesignatorMilCornerObj.Object;
@@ -673,6 +677,10 @@ void AFlareHUD::DrawCockpitEquipment(AFlareSpacecraft* PlayerShip)
 			FText::AsNumber(FMath::RoundToInt(AngularError)));
 		FText LinearText = FText::Format(LOCTEXT("DockingOffsetFormat", "Lateral error : {0}m"),
 			FText::AsNumber(FMath::RoundToInt(LinearError)));
+
+		// Draw helper
+		int32 DockingIconSize = 80;
+		DrawHUDIcon(RightInstrument + FVector2D(InstrumentSize.X - DockingIconSize, 0), DockingIconSize, HUDDockingMonitorIcon, Theme.FriendlyColor);
 
 		// Draw panel
 		FlareDrawText(DockingText, CurrentPos, Theme.FriendlyColor, false, true);
@@ -1788,7 +1796,7 @@ FVector2D AFlareHUD::DrawHUDDesignatorStatusIcon(FVector2D Position, float Desig
 void AFlareHUD::DrawDockingHelper()
 {
 	int32 DockingIconSize = 96;
-	int32 DockingRollIconSize = 32;
+	int32 DockingRollIconSize = 64;
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(GetOwner());
 
 	// Docking info
@@ -1837,7 +1845,7 @@ void AFlareHUD::DrawDockingHelper()
 					float Rotation = -FMath::RadiansToDegrees(FMath::Atan2(DockAxis.X, DockAxis.Y)) + 90;
 					FVector2D TopPosition = CameraTargetScreenPosition - DockAxis * 24;
 
-					DrawHUDIconRotated(TopPosition, DockingRollIconSize, HUDSearchArrowIcon, HelperColor, Rotation);
+					DrawHUDIconRotated(TopPosition, DockingRollIconSize, HUDSearchDockArrowIcon, HelperColor, Rotation);
 				}
 			
 				// Axis icon
