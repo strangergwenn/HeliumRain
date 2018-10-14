@@ -54,7 +54,7 @@ UFlareSpacecraftComponent::UFlareSpacecraftComponent(const class FObjectInitiali
 	// Physics setup
 	PrimaryComponentTick.bCanEverTick = true;
 	SetNotifyRigidBodyCollision(true);
-	bGenerateOverlapEvents = false;
+	SetGenerateOverlapEvents(false);
 	bCanEverAffectNavigation = false;
 	bTraceComplexOnMove = false;
 

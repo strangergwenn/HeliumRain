@@ -68,9 +68,9 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 	int32 LabelSize = 200;
 	int32 ValueSize = 100;
 
-	TArray<FCultureRef> CultureRefList;
-	FInternationalization::Get().GetCulturesWithAvailableLocalization(FPaths::GetGameLocalizationPaths(), CultureRefList, false);
-
+	// Build culture list
+	TArray<FString> CultureNames = FTextLocalizationManager::Get().GetLocalizedCultureNames(ELocalizationLoadFlags::Game);
+	TArray<FCultureRef> CultureRefList = FInternationalization::Get().GetAvailableCultures(CultureNames, false);
 	for(FCultureRef Culture: CultureRefList)
 	{
 		CultureList.Add(MakeShareable(new FString(Culture->GetName())));

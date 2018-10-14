@@ -13,20 +13,11 @@
 	Dynamic brush
 ----------------------------------------------------*/
 
-struct FFlareLoadingScreenBrush : public FSlateDynamicImageBrush, public FGCObject
+struct FFlareLoadingScreenBrush : public FSlateDynamicImageBrush
 {
 	FFlareLoadingScreenBrush( const FName InTextureName, const FVector2D& InImageSize )
 		: FSlateDynamicImageBrush( InTextureName, InImageSize )
 	{
-		ResourceObject = LoadObject<UObject>( NULL, *InTextureName.ToString() );
-	}
-
-	virtual void AddReferencedObjects(FReferenceCollector& Collector)
-	{
-		if (ResourceObject)
-		{
-			Collector.AddReferencedObject(ResourceObject);
-		}
 	}
 };
 

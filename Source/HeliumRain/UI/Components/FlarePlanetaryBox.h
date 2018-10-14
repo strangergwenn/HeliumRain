@@ -229,6 +229,8 @@ protected:
 public:
 
 	SFlarePlanetaryBox()
+		: SPanel()
+		, Children(this)
 	{
 	}
 
