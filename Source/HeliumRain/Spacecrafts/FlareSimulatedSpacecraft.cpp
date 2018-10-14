@@ -1922,6 +1922,27 @@ bool UFlareSimulatedSpacecraft::IsAllowExternalOrder()
 void UFlareSimulatedSpacecraft::SetAllowExternalOrder(bool Allow)
 {
 	SpacecraftData.AllowExternalOrder = Allow;
+
+	if(!Allow)
+	{
+		// Cancel others companies order
+		bool ok = false;
+		while(!ok)
+		{
+			ok = true;
+			int Index = 0;
+			for (FFlareShipyardOrderSave& Order : GetShipyardOrderQueue())
+			{
+				if(Order.Company != GetCompany()->GetIdentifier())
+				{
+					CancelShipyardOrder(Index);
+					ok = false;
+					break;
+				}
+				Index++;
+			}
+		}
+	}
 }
 
 const FFlareProductionData* UFlareSimulatedSpacecraft::GetNextOrderShipProductionData(EFlarePartSize::Type Size)

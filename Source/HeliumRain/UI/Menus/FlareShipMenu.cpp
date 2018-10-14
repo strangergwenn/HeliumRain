@@ -1334,6 +1334,7 @@ void SFlareShipMenu::OnToggleAllowExternalOrders()
 	{
 		bool NewStatus = AllowExternalOrdersButton->IsActive();
 		TargetSpacecraft->SetAllowExternalOrder(NewStatus);
+		UpdateShipyard();
 	}
 }
 
