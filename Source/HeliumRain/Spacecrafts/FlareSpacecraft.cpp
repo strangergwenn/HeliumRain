@@ -87,6 +87,7 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	StateManager = NULL;
 	NavigationSystem = NULL;
 	TimeSinceUncontrollable = FLT_MAX;
+	PreviousJoystickThrottle = 0;
 }
 
 
@@ -1875,6 +1876,11 @@ void AFlareSpacecraft::JoystickThrustInput(float Val)
 {
 	if (NavigationSystem)
 	{
+		if (FMath::Abs(Val - PreviousJoystickThrottle) < 0.02)
+		{
+			return;
+		}
+
 		float TargetSpeed = 0;
 		float Exponent = 2;
 		float ZeroSpeed = 0.1f;
@@ -1905,6 +1911,7 @@ void AFlareSpacecraft::JoystickThrustInput(float Val)
 		}
 
 		StateManager->SetPlayerXLinearVelocityJoystick(TargetSpeed);
+		PreviousJoystickThrottle = Val;
 	}
 }
 

@@ -363,6 +363,9 @@ protected:
 	// Max time between target selections before "prev" or "next" resets to center
 	float                                          MaxTimeBeforeSelectionReset;
 
+	// Throttle memory
+	float                                          PreviousJoystickThrottle;
+
 	TArray<FFlareScreenTarget> Targets;
 
 	TArray<FFlareScreenTarget>& GetCurrentTargets();
