@@ -16,6 +16,7 @@ struct SectorHelper
 		UFlareSimulatedSpacecraft *Client;
 		bool AllowStorage = false;
 		bool AllowFullStock = false;
+		bool AllowUseNoTradeForMe = true;
 	};
 
 	static UFlareSimulatedSpacecraft*  FindTradeStation(FlareTradeRequest Request);

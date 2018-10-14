@@ -126,12 +126,11 @@ void UFlareCompanyAI::Simulate()
 		for (int32 SectorIndex = 0; SectorIndex < Company->GetKnownSectors().Num(); SectorIndex++)
 		{
 			UFlareSimulatedSector* Sector = Company->GetKnownSectors()[SectorIndex];
-			SectorVariation Variation = AITradeHelper::ComputeSectorResourceVariation(Company, Sector);
+			SectorVariation Variation = AITradeHelper::ComputeSectorResourceVariation(Company, Sector, true);
 
 			WorldResourceVariation.Add(Sector, Variation);
 			//DumpSectorResourceVariation(Sector, &Variation);
 		}
-
 		Behavior->Simulate();
 
 		PurchaseResearch();

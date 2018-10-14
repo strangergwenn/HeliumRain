@@ -30,6 +30,9 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 		return NULL;
 	}
 
+	UFlareCompany* ClientCompany = Request.AllowUseNoTradeForMe ? Request.Client->GetCompany() : nullptr;
+
+
 	UFlareSimulatedSector* Sector = Request.Client->GetCurrentSector();
 	TArray<UFlareSimulatedSpacecraft*>& SectorStations = Sector->GetSectorStations();
 
@@ -80,8 +83,8 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 
 	float BestScore = 0;
 	UFlareSimulatedSpacecraft* BestStation = NULL;
-	uint32 AvailableQuantity = Request.Client->GetActiveCargoBay()->GetResourceQuantity(Request.Resource, Request.Client->GetCompany());
-	uint32 FreeSpace = Request.Client->GetActiveCargoBay()->GetFreeSpaceForResource(Request.Resource, Request.Client->GetCompany());
+	uint32 AvailableQuantity = Request.Client->GetActiveCargoBay()->GetResourceQuantity(Request.Resource, ClientCompany);
+	uint32 FreeSpace = Request.Client->GetActiveCargoBay()->GetFreeSpaceForResource(Request.Resource, ClientCompany);
 
 	for (int32 StationIndex = 0; StationIndex < SectorStations.Num(); StationIndex++)
 	{
@@ -121,14 +124,14 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 			continue;
 		}
 
-		int32 StationFreeSpace = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Request.Resource, Request.Client->GetCompany());
-		int32 StationResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Request.Resource, Request.Client->GetCompany());
+		int32 StationFreeSpace = Station->GetActiveCargoBay()->GetFreeSpaceForResource(Request.Resource, ClientCompany);
+		int32 StationResourceQuantity = Station->GetActiveCargoBay()->GetResourceQuantity(Request.Resource, ClientCompany);
 
 		if (!Station->IsUnderConstruction() && Station->IsComplex() && !Request.AllowFullStock)
 		{
-			if(Station->GetActiveCargoBay()->WantBuy(Request.Resource, Request.Client->GetCompany()) && Station->GetActiveCargoBay()->WantSell(Request.Resource, Request.Client->GetCompany()))
+			if(Station->GetActiveCargoBay()->WantBuy(Request.Resource, ClientCompany) && Station->GetActiveCargoBay()->WantSell(Request.Resource, ClientCompany))
 			{
-				int32 TotalCapacity = Station->GetActiveCargoBay()->GetTotalCapacityForResource(Request.Resource, Request.Client->GetCompany());
+				int32 TotalCapacity = Station->GetActiveCargoBay()->GetTotalCapacityForResource(Request.Resource, ClientCompany);
 				StationFreeSpace = FMath::Max(0, StationFreeSpace - TotalCapacity / 2);
 				StationResourceQuantity = FMath::Max(0, StationResourceQuantity - TotalCapacity / 2);
 			}
@@ -165,13 +168,13 @@ UFlareSimulatedSpacecraft*  SectorHelper::FindTradeStation(FlareTradeRequest Req
 			continue;
 		}
 
-		if(Station->GetActiveCargoBay()->WantBuy(Request.Resource, Request.Client->GetCompany()))
+		if(Station->GetActiveCargoBay()->WantBuy(Request.Resource, ClientCompany))
 		{
 			UnloadMaxQuantity = StationFreeSpace;
 			UnloadMaxQuantity  = FMath::Min(UnloadMaxQuantity , AvailableQuantity);
 		}
 
-		if(Station->GetActiveCargoBay()->WantSell(Request.Resource, Request.Client->GetCompany()))
+		if(Station->GetActiveCargoBay()->WantSell(Request.Resource, ClientCompany))
 		{
 			LoadMaxQuantity = StationResourceQuantity;
 			LoadMaxQuantity = FMath::Min(LoadMaxQuantity , FreeSpace);
