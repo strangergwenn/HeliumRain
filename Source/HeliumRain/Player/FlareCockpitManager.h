@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GameFramework/Actor.h"
 #include "Components/PointLightComponent.h"
 #include "FlareCockpitManager.generated.h"
 
@@ -103,6 +104,8 @@ protected:
 	float                                    CockpitHealthLightPeriod;
 	float                                    CockpitTargetLightTimer;
 	float                                    CockpitTargetLightPeriod;
+	float                                    CockpitScannableLightTimer;
+	float                                    CockpitScannableLightPeriod;
 	float                                    CockpitPowerTimer;
 	float                                    CockpitPowerPeriod;
 	float                                    CameraSwitchTimer;

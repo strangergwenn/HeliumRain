@@ -29,6 +29,8 @@ AFlareCockpitManager::AFlareCockpitManager(const class FObjectInitializer& PCIP)
 	, CockpitHealthLightPeriod(1.58)
 	, CockpitTargetLightTimer(0)
 	, CockpitTargetLightPeriod(0.8)
+	, CockpitScannableLightTimer(0)
+	, CockpitScannableLightPeriod(2.0)
 	, CockpitPowerTimer(0)
 	, CockpitPowerPeriod(0.7)
 	, CameraSwitchTimer(0)
@@ -350,25 +352,49 @@ void AFlareCockpitManager::UpdateInfo(float DeltaSeconds)
 	FLinearColor IndicatorColor = Theme.FriendlyColor;
 	float IndicatorIntensity = 0.0f;
 
-	// Lights are enabled on powered military ships
-	if (PlayerShipIsPowered() && PlayerShip->GetParent()->IsMilitary())
+	// Update light timer
+	CockpitScannableLightTimer += DeltaSeconds;
+	if (CockpitScannableLightTimer > CockpitScannableLightPeriod)
 	{
-		// Fighter
-		if (PlayerShip->GetParent()->GetDescription()->Size == EFlarePartSize::S)
+		CockpitScannableLightTimer = 0;
+	}
+
+	if (PlayerShipIsPowered())
+	{
+		// Scanning in progress
+		if (PlayerShip->IsInScanningMode())
 		{
-			FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
-			if (WeaponGroup)
+			IndicatorIntensity = (CockpitScannableLightTimer > CockpitScannableLightPeriod / 2) ? 1.0f : 0.0f;
+		}
+
+		// Lights are enabled on powered military ships
+		else if (PlayerShip->GetParent()->IsMilitary())
+		{
+			// Fighter
+			if (PlayerShip->GetParent()->GetDescription()->Size == EFlarePartSize::S)
+			{
+				FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
+				if (WeaponGroup)
+				{
+					IndicatorIntensity = 1.0f;
+					IndicatorColor = PlayerShip->GetParent()->GetDamageSystem()->IsDisarmed() ? Theme.DamageColor : Theme.FriendlyColor;
+				}
+			}
+
+			// Capital
+			else
 			{
 				IndicatorIntensity = 1.0f;
-				IndicatorColor = PlayerShip->GetParent()->GetDamageSystem()->IsDisarmed() ? Theme.DamageColor : Theme.FriendlyColor;
 			}
 		}
 
-		// Capital
+
+		// Freighter
 		else
 		{
 			IndicatorIntensity = 1.0f;
 		}
+
 	}
 
 	GetCurrentFrameMaterial()->SetVectorParameterValue("IndicatorColorRight", IndicatorColor);
