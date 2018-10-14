@@ -888,11 +888,11 @@ void SFlareCompanyMenu::AddTransactionLog(const FFlareTransactionLogEntry& Entry
 	FText Debit;
 	if (Entry.Amount >= 0)
 	{
-		Debit = FText::AsNumber(UFlareGameTools::DisplayMoney(Entry.Amount));
+		Credit = FText::AsNumber(UFlareGameTools::DisplayMoney(Entry.Amount));
 	}
 	else
 	{
-		Credit = FText::AsNumber(UFlareGameTools::DisplayMoney(Entry.Amount));
+		Debit = FText::AsNumber(UFlareGameTools::DisplayMoney(Entry.Amount));
 	}
 
 	// Add structure
@@ -930,7 +930,7 @@ void SFlareCompanyMenu::AddTransactionLog(const FFlareTransactionLogEntry& Entry
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.ColorAndOpacity(Theme.FriendlyColor)
+					.ColorAndOpacity(Theme.EnemyColor)
 					.Text(Debit)
 				]
 			]
@@ -946,7 +946,7 @@ void SFlareCompanyMenu::AddTransactionLog(const FFlareTransactionLogEntry& Entry
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.ColorAndOpacity(Theme.EnemyColor)
+					.ColorAndOpacity(Theme.FriendlyColor)
 					.Text(Credit)
 				]
 			]
@@ -1092,11 +1092,11 @@ int64 SFlareCompanyMenu::AddAccountingCategory(EFlareTransactionLogEntry::Type T
 	FText Debit;
 	if (Balances[Type] >= 0)
 	{
-		Debit = FText::AsNumber(UFlareGameTools::DisplayMoney(Balances[Type]));
+		Credit = FText::AsNumber(UFlareGameTools::DisplayMoney(Balances[Type]));
 	}
 	else
 	{
-		Credit = FText::AsNumber(UFlareGameTools::DisplayMoney(Balances[Type]));
+		Debit = FText::AsNumber(UFlareGameTools::DisplayMoney(Balances[Type]));
 	}
 
 	// Add structure
@@ -1119,6 +1119,7 @@ int64 SFlareCompanyMenu::AddAccountingCategory(EFlareTransactionLogEntry::Type T
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
+					.ColorAndOpacity(Theme.EnemyColor)
 					.Text(Category)
 				]
 			]
@@ -1134,7 +1135,6 @@ int64 SFlareCompanyMenu::AddAccountingCategory(EFlareTransactionLogEntry::Type T
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.ColorAndOpacity(Theme.FriendlyColor)
 					.Text(Debit)
 				]
 			]
@@ -1150,7 +1150,7 @@ int64 SFlareCompanyMenu::AddAccountingCategory(EFlareTransactionLogEntry::Type T
 				[
 					SNew(STextBlock)
 					.TextStyle(&Theme.TextFont)
-					.ColorAndOpacity(Theme.EnemyColor)
+					.ColorAndOpacity(Theme.FriendlyColor)
 					.Text(Credit)
 				]
 			]
