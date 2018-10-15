@@ -75,6 +75,9 @@ protected:
 	/** Show ship filters when ships are present */
 	EVisibility GetShipFiltersVisibility() const;
 
+	/** Show fleet filters when ships are present and not in fleet menu */
+	EVisibility GetFleetFilterVisibility() const;
+
 	/** Target item generator */
 	TSharedRef<ITableRow> GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable);
 

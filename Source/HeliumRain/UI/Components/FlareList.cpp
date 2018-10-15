@@ -101,7 +101,7 @@ void SFlareList::Construct(const FArguments& InArgs)
 					.Text(LOCTEXT("GroupFleets", "Fleets"))
 					.HelpText(LOCTEXT("GroupFleetsInfo", "Group vessels by fleet"))
 					.OnClicked(this, &SFlareList::OnToggleShowFlags)
-					.Visibility(this, &SFlareList::GetShipFiltersVisibility)
+					.Visibility(this, &SFlareList::GetFleetFilterVisibility)
 					.Small(true)
 					.Transparent(true)
 					.Toggle(true)
@@ -382,6 +382,11 @@ EVisibility SFlareList::GetNoObjectsVisibility() const
 EVisibility SFlareList::GetShipFiltersVisibility() const
 {
 	return (HasShips ? EVisibility::Visible : EVisibility::Hidden);
+}
+
+EVisibility SFlareList::GetFleetFilterVisibility() const
+{
+	return (HasShips && MenuManager->GetCurrentMenu() != EFlareMenu::MENU_Fleet ? EVisibility::Visible : EVisibility::Hidden);
 }
 
 TSharedRef<ITableRow> SFlareList::GenerateTargetInfo(TSharedPtr<FInterfaceContainer> Item, const TSharedRef<STableViewBase>& OwnerTable)
