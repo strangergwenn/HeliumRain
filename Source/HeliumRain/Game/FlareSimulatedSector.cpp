@@ -1726,13 +1726,13 @@ void UFlareSimulatedSector::GenerateMeteorites()
 {
 	for(UFlareSimulatedSpacecraft* Station : SectorStations)
 	{
-		float Probability = 0.0004;
+		float Probability = 0.0003;
 		if(FMath::FRand() >  Probability)
 		{
 			continue;
 		}
 
-		float PowerRatio = 1 + .002f * GetGame()->GetGameWorld()->GetDate();
+		float PowerRatio = 1 + FMath::Log2(0.002f * GetGame()->GetGameWorld()->GetDate());
 		GenerateMeteoriteGroup(Station, PowerRatio);
 	}
 
@@ -1751,35 +1751,27 @@ void UFlareSimulatedSector::GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* Ta
 
 	float Velocity = FMath::Abs(VelocityGen(e2))+ 1.f;
 	float VelocityRatio = Velocity / VelocityMean;
-
 	bool IsMetal = Velocity > VelocityMean;
 
-
-	float BaseResistance = 15000;
+	float BaseResistance = 5000;
 	float ResistanceMean = BaseResistance * PowerRatio / VelocityRatio; // Power use for velocity is not use for resistance
 	float ResistanceSD = ResistanceMean / 4;
 	std::normal_distribution<> ResistanceGen(ResistanceMean, ResistanceSD);
-
 	float Resistance = FMath::Abs(ResistanceGen(e2)+ 1.f);
-
-
+	
 	float ResistancePerMeteoriteMean = 3000 + (1 + (1-PowerRatio) *0.5);
 	float ResistancePerMeteoriteSD = ResistancePerMeteoriteMean / 10;
 	std::normal_distribution<> ResistancePerMeteoriteGen(ResistancePerMeteoriteMean, ResistancePerMeteoriteSD);
-
 	float ResistancePerMeteorite = FMath::Abs(ResistancePerMeteoriteGen(e2)) + 1.f;
 
 	int32 Count = FMath::Max(1, FMath::RoundToInt(Resistance / ResistancePerMeteorite));
-
-
+	
 	std::normal_distribution<> MeteoriteResistanceGen(ResistancePerMeteorite, ResistancePerMeteorite/6);
-
 
 	int32 MeshCount = IsMetal ? GetGame()->GetMeteoriteCatalog()->RockMeteorites.Num() : GetGame()->GetMeteoriteCatalog()->RockMeteorites.Num();
 
-
 	std::normal_distribution<> AngularVelocityGen(0.f, 1.f);
-	std::normal_distribution<> DaysGen(15.f, 3.f);
+	std::normal_distribution<> DaysGen(20.f, 5.f);
 
 	FVector BaseLocation = TargetStation->GetData().Location + FMath::VRand() * FMath::FRandRange(1000000.f,1200000);
 
@@ -1807,9 +1799,6 @@ void UFlareSimulatedSector::GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* Ta
 
 		Data.Location = BaseLocation + Data.TargetOffset;
 
-
-
-
 		Data.DaysBeforeImpact = DaysBeforeImpact;
 		Data.Damage = 0;
 		Data.HasMissed = false;
@@ -1818,7 +1807,6 @@ void UFlareSimulatedSector::GenerateMeteoriteGroup(UFlareSimulatedSpacecraft* Ta
 
 		TotalEffectiveResistance += Data.BrokenDamage;
 	}
-
 
 	float EffectivePowerRatio = (TotalEffectiveResistance / BaseResistance) * (Velocity / BaseVelocity);
 
