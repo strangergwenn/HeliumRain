@@ -306,43 +306,6 @@ void AFlareHUD::DrawHUD()
 		// Look for a spacecraft to draw the context menu on
 		AFlareSpacecraft* PlayerShip = PC->GetShipPawn();
 		UpdateContextMenu(PlayerShip);
-
-		// Draw nose
-		if (HUDVisible && ShouldDrawHUD())
-		{
-			bool IsExternalCamera = PlayerShip->GetStateManager()->IsExternalCamera();
-			EFlareWeaponGroupType::Type WeaponType = PlayerShip->GetWeaponsSystem()->GetActiveWeaponType();
-			if (HUDVisible && !IsExternalCamera)
-			{
-				// Color
-				FLinearColor HUDNosePowerColor = HudColorNeutral;
-				HUDNosePowerColor.A = CurrentPowerTime / PowerTransitionTime;
-
-				// Nose texture
-				UTexture2D* NoseIcon = HUDNoseIcon;
-				if (WeaponType == EFlareWeaponGroupType::WG_GUN)
-				{
-					NoseIcon = (HasPlayerHit) ? HUDAimHitIcon : HUDAimIcon;
-				}
-
-				// Nose drawing
-				if (WeaponType != EFlareWeaponGroupType::WG_TURRET)
-				{
-					DrawHUDIcon(
-						CurrentViewportSize / 2,
-						IconSize,
-						NoseIcon,
-						HUDNosePowerColor,
-						true);
-				}
-
-				// Speed indication
-				FVector ShipSmoothedVelocity = PlayerShip->GetSmoothedLinearVelocity() * 100;
-				int32 SpeedMS = (ShipSmoothedVelocity.Size() + 10.) / 100.0f;
-				FText VelocityText = FText::FromString(FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s"));
-				FlareDrawText(VelocityText, FVector2D(0, 70), HUDNosePowerColor, true);
-			}
-		}
 	}
 
 	// Player hit management
@@ -1414,13 +1377,15 @@ void AFlareHUD::DrawHUDInternal()
 		}
 	}
 
-	if(ActiveSector->GetMeteorites().Num())
+	// Draw meteorites
+	if (ActiveSector->GetMeteorites().Num())
 	{
 		bool PreciseMeteoriteAim = false;
 
 		float Range = 0;
 		float AmmoLifeTime = 0;
 
+		// Define ammo time
 		if (PlayerShip && (PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_GUN || PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_TURRET|| PlayerShip->GetWeaponsSystem()->GetActiveWeaponType() == EFlareWeaponGroupType::WG_BOMB))
 		{
 			FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
@@ -1430,27 +1395,24 @@ void AFlareHUD::DrawHUDInternal()
 				Range = WeaponGroup->Weapons[0]->GetDescription()->WeaponCharacteristics.GunCharacteristics.AmmoRange;
 				float AmmoVelocity = WeaponGroup->Weapons[0]->GetAmmoVelocity();
 				AmmoLifeTime = Range / AmmoVelocity;
-
 			}
 		}
 
+		// List meteorites
 		for (AFlareMeteorite* Meteorite : ActiveSector->GetMeteorites())
 		{
-			if(Meteorite->IsBroken())
+			if (Meteorite->IsBroken())
 			{
 				continue;
 			}
-			FVector2D ScreenPosition;
-
-			FVector AimLocation =  Meteorite->GetActorLocation();
 
 			float InterceptTime = 0;
-
-			if(PreciseMeteoriteAim)
+			FVector AimLocation =  Meteorite->GetActorLocation();
+			if (PreciseMeteoriteAim)
 			{
 				UPrimitiveComponent* MeteoriteRootComponent = Cast<UPrimitiveComponent>(Meteorite->GetRootComponent());
 
-				if(MeteoriteRootComponent)
+				if (MeteoriteRootComponent)
 				{
 					FVector AmmoIntersectionLocation;
 					FFlareWeaponGroup* WeaponGroup = PlayerShip->GetWeaponsSystem()->GetActiveWeaponGroup();
@@ -1465,9 +1427,10 @@ void AFlareHUD::DrawHUDInternal()
 					}
 				}
 			}
+			
+			// Decide whether to draw marker
 			bool ShouldDrawMarker = true;
-
-
+			FVector2D ScreenPosition;
 			if (Meteorite && ProjectWorldLocationToCockpit(AimLocation, ScreenPosition))
 			{
 				if (IsInScreen(ScreenPosition))
@@ -1483,11 +1446,7 @@ void AFlareHUD::DrawHUDInternal()
 					}
 					ShouldDrawMarker = false;
 				}
-
-
-
 			}
-
 
 			// Draw objective
 			if (ShouldDrawMarker)
@@ -1496,6 +1455,37 @@ void AFlareHUD::DrawHUDInternal()
 			}
 
 		}
+	}
+
+	// Draw nose
+	if (HUDVisible && !IsExternalCamera)
+	{
+		// Color
+		FLinearColor HUDNosePowerColor = HudColorNeutral;
+		HUDNosePowerColor.A = CurrentPowerTime / PowerTransitionTime;
+
+		// Nose texture
+		UTexture2D* NoseIcon = HUDNoseIcon;
+		if (WeaponType == EFlareWeaponGroupType::WG_GUN)
+		{
+			NoseIcon = (HasPlayerHit) ? HUDAimHitIcon : HUDAimIcon;
+		}
+
+		// Nose drawing
+		if (WeaponType != EFlareWeaponGroupType::WG_TURRET)
+		{
+			DrawHUDIcon(
+				CurrentViewportSize / 2,
+				IconSize,
+				NoseIcon,
+				HUDNosePowerColor,
+				true);
+		}
+
+		// Speed indication
+		int32 SpeedMS = (ShipSmoothedVelocity.Size() + 10.) / 100.0f;
+		FText VelocityText = FText::FromString(FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s"));
+		FlareDrawText(VelocityText, FVector2D(0, 70), HUDNosePowerColor, true);
 	}
 }
 
