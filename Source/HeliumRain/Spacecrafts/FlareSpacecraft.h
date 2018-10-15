@@ -346,6 +346,9 @@ protected:
 
 	float										   TimeSinceUncontrollable;
 
+	FFlareMovingAverage<float>                     JoystickRollInputVal;
+	FFlareMovingAverage<float>                     JoystickThrustInputVal;
+
 
 	/*----------------------------------------------------
 		Target selection

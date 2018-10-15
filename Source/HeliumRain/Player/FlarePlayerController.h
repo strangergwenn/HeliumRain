@@ -502,6 +502,11 @@ protected:
 	bool                                     HasCurrentObjective;
 	bool                                     IsBusy;
 
+	FFlareMovingAverage<float>               JoystickHorizontalInputVal;
+	FFlareMovingAverage<float>               JoystickVerticalInputVal;
+	FFlareMovingAverage<float>               JoystickPitchInputVal;
+	FFlareMovingAverage<float>               JoystickYawInputVal;
+
 	FFlareSectorBattleState                  LastBattleState;
 	TMap<UFlareSimulatedSector*, FFlareSectorBattleState> LastSectorBattleStates;
 

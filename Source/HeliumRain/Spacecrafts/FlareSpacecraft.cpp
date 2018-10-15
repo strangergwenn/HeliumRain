@@ -74,6 +74,11 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	CameraContainerYaw->AttachToComponent(Airframe, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 	CameraMaxPitch = 80;
 	CameraPanSpeed = 200;
+
+	// Joystick smoothing
+	int32 SmoothFrames = 15;
+	JoystickRollInputVal.SetSize(SmoothFrames);
+	JoystickThrustInputVal.SetSize(SmoothFrames);
 	
 	// Gameplay
 	HasExitedSector = false;
@@ -1869,6 +1874,9 @@ void AFlareSpacecraft::JoystickRollInput(float Val)
 		Val = 0;
 	}
 
+	JoystickRollInputVal.Add(Val);
+	Val = JoystickRollInputVal.Get();
+
 	StateManager->SetPlayerRollAngularVelocityJoystick(-Val * NavigationSystem->GetAngularMaxVelocity());
 }
 
@@ -1880,6 +1888,9 @@ void AFlareSpacecraft::JoystickThrustInput(float Val)
 		{
 			return;
 		}
+
+		JoystickThrustInputVal.Add(Val);
+		Val = JoystickThrustInputVal.Get();
 
 		float TargetSpeed = 0;
 		float Exponent = 2;

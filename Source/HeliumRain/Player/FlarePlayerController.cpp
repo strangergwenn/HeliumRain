@@ -113,6 +113,13 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	ShipPawn = NULL;
 	PlayerShip = NULL;
 
+	// Joystick smoothing
+	int32 SmoothFrames = 15;
+	JoystickHorizontalInputVal.SetSize(SmoothFrames);
+	JoystickVerticalInputVal.SetSize(SmoothFrames);
+	JoystickPitchInputVal.SetSize(SmoothFrames);
+	JoystickYawInputVal.SetSize(SmoothFrames);
+
 	// Default colors
 	CompanyData.CustomizationBasePaintColor = FLinearColor(0.147932,0.167765,0.185); //3
 	CompanyData.CustomizationPaintColor = FLinearColor(0.952941, 0.043137, 0.007843); //7
@@ -2453,6 +2460,9 @@ void AFlarePlayerController::JoystickMoveHorizontalInput(float Val)
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	Val *= MyGameSettings->InputSensitivity;
 
+	JoystickHorizontalInputVal.Add(Val);
+	Val = JoystickHorizontalInputVal.Get();
+
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
@@ -2475,6 +2485,9 @@ void AFlarePlayerController::JoystickMoveVerticalInput(float Val)
 {
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	Val *= MyGameSettings->InputSensitivity;
+
+	JoystickVerticalInputVal.Add(Val);
+	Val = JoystickVerticalInputVal.Get();
 
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
@@ -2503,6 +2516,9 @@ void AFlarePlayerController::JoystickYawInput(float Val)
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	Val *= MyGameSettings->InputSensitivity;
 
+	JoystickYawInputVal.Add(Val);
+	Val = JoystickYawInputVal.Get();
+
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
@@ -2521,6 +2537,9 @@ void AFlarePlayerController::JoystickPitchInput(float Val)
 {
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	Val *= MyGameSettings->InputSensitivity;
+
+	JoystickPitchInputVal.Add(Val);
+	Val = JoystickPitchInputVal.Get();
 
 	if (GetNavHUD()->IsWheelMenuOpen())
 	{
