@@ -32,6 +32,7 @@ void UFlareGameUserSettings::SetToDefaults()
 	// Gameplay
 	InvertY = false;
 	UseCockpit = true;
+	ShowLateralVelocity = false;
 	UseAnticollision = false;
 	PauseGameInMenus = false;
 	MaxShipsInSector = 50;

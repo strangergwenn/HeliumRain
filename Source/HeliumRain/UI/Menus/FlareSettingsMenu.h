@@ -172,6 +172,7 @@ protected:
 	void OnInvertYToggle();
 	void OnAnticollisionToggle();
 	void OnCockpitToggle();
+	void OnLateralVelocityToggle();
 	void OnForwardOnlyThrustToggle();
 	
 	// Dead zone sliders
@@ -241,6 +242,7 @@ protected:
 #if !UE_BUILD_SHIPPING
 	TSharedPtr<SFlareButton>                    CockpitButton;
 #endif
+	TSharedPtr<SFlareButton>                    LateralVelocityButton;
 	TSharedPtr<SFlareButton>                    AnticollisionButton;
 	TSharedPtr<SSlider>                         ShipCountSlider;
 	TSharedPtr<STextBlock>	        			ShipCountLabel;

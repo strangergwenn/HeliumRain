@@ -1421,7 +1421,7 @@ void AFlareHUD::DrawHUDInternal()
 
 					InterceptTime = SpacecraftHelper::GetIntersectionPosition(Meteorite->GetActorLocation(), MeteoriteRootComponent->GetPhysicsLinearVelocity(), CameraLocation, PlayerShip->GetLinearVelocity() * 100, AmmoVelocity * 100, 0.0, &AmmoIntersectionLocation);
 
-					if(InterceptTime > 0 && InterceptTime < 40)
+					if (InterceptTime > 0 && InterceptTime < 40)
 					{
 						AimLocation = AmmoIntersectionLocation;
 					}
@@ -1453,7 +1453,6 @@ void AFlareHUD::DrawHUDInternal()
 			{
 				DrawSearchArrow(AimLocation, HudColorObjective, false);
 			}
-
 		}
 	}
 
@@ -1482,36 +1481,29 @@ void AFlareHUD::DrawHUDInternal()
 				true);
 		}
 
+		// Speed data
+		UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+		FVector LocalShipSmoothedVelocity = PlayerShip->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(ShipSmoothedVelocity);
+		
 		// Speed indication
-				FVector LocalShipSmoothedVelocity = PlayerShip->Airframe->GetComponentToWorld().Inverse().GetRotation().RotateVector(ShipSmoothedVelocity);
+		float FrontVelocity = FMath::Abs(LocalShipSmoothedVelocity.X);
+		int32 SpeedMS = (FrontVelocity + 10.) / 100.0f;
+		FVector2D BaseSpeedLocation(0, 100);
+		FText VelocityText = FText::FromString(FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s"));
+		FlareDrawText(VelocityText, BaseSpeedLocation, HUDNosePowerColor, true);
 
+		// Lateral speed indication
+		FVector LateralVelocity = FVector(0, LocalShipSmoothedVelocity.Y, LocalShipSmoothedVelocity.Z);
+		int32 SpeedLateralMS = (LateralVelocity.Size() + 10.) / 100.0f;
+		if (SpeedLateralMS > 1.f && MyGameSettings->ShowLateralVelocity)
+		{
+			FVector LateralVelocityAxis = LateralVelocity.GetSafeNormal();
+			FVector2D LateralSpeedLocation = BaseSpeedLocation + FVector2D(LateralVelocityAxis.Y, -LateralVelocityAxis.Z) * 60;
 
-				FVector LateralVelocity = FVector(0, LocalShipSmoothedVelocity.Y,LocalShipSmoothedVelocity.Z);
-				float FrontVelocity = FMath::Abs(LocalShipSmoothedVelocity.X);
-
-
-				int32 SpeedMS = (FrontVelocity + 10.) / 100.0f;
-				int32 SpeedLateralMS = (LateralVelocity.Size() + 10.) / 100.0f;
-				FText VelocityText = FText::FromString(FString::FromInt(PlayerShip->IsMovingForward() ? SpeedMS : -SpeedMS) + FString(" m/s"));
-				FText LateralVelocityText = FText::FromString(FString::FromInt(SpeedLateralMS) + FString(" m/s"));
-
-				FVector2D BaseSpeedLocation(0, 100);
-				FlareDrawText(VelocityText, BaseSpeedLocation, HUDNosePowerColor, true);
-
-
-
-				if(SpeedLateralMS > 1.f)
-				{
-					FVector LateralVelocityAxis = LateralVelocity.GetSafeNormal();
-					FVector2D LateralSpeedLocation = BaseSpeedLocation + FVector2D(LateralVelocityAxis.Y, -LateralVelocityAxis.Z) * 60;
-
-					FLinearColor HUDLateraSpeedColor = HUDNosePowerColor;
-					HUDLateraSpeedColor.R *= 0.5f;
-					HUDLateraSpeedColor.G *= 0.5f;
-					HUDLateraSpeedColor.B *= 0.5f;
-
-					FlareDrawText(LateralVelocityText, LateralSpeedLocation, HUDLateraSpeedColor, true);
-				}
+			FLinearColor HUDLateralSpeedColor = 0.67f * HUDNosePowerColor;
+			FText LateralVelocityText = FText::FromString(FString::FromInt(SpeedLateralMS) + FString(" m/s"));
+			FlareDrawText(LateralVelocityText, LateralSpeedLocation, HUDLateralSpeedColor, true);
+		}
 	}
 }
 
