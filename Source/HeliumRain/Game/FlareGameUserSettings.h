@@ -80,6 +80,10 @@ public:
 	/** Whether to use the 3D cockpit */
 	UPROPERTY(Config)
 	bool                                     UseCockpit;
+
+	/** Whether to show lateral velocity */
+	UPROPERTY(Config)
+	bool                                     ShowLateralVelocity;
 		
 	/** Whether to invert Y axis */
 	UPROPERTY(Config)

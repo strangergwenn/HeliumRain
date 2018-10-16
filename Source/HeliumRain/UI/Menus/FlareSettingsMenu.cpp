@@ -205,6 +205,18 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnAnticollisionToggle)
 						]
+
+						// Lateral velocity
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(LateralVelocityButton, SFlareButton)
+							.Text(LOCTEXT("LateralVelocity", "Show drift"))
+							.HelpText(LOCTEXT("LateralVelocityInfo", "Show the current drift velocity of your ship on the HUD."))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnLateralVelocityToggle)
+						]
 					]
 
 					// FOV box
@@ -1092,6 +1104,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 #if !UE_BUILD_SHIPPING
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
 #endif
+	LateralVelocityButton->SetActive(MyGameSettings->ShowLateralVelocity);
 	AnticollisionButton->SetActive(MyGameSettings->UseAnticollision);
 
 	float MaxShipRatio = ((float) MyGameSettings->MaxShipsInSector - MIN_MAX_SHIPS) / ((float) MAX_MAX_SHIPS - MIN_MAX_SHIPS);
@@ -1973,6 +1986,15 @@ void SFlareSettingsMenu::OnCockpitToggle()
 	MyGameSettings->UseCockpit = New;
 	MyGameSettings->ApplySettings(false);
 #endif
+}
+
+void SFlareSettingsMenu::OnLateralVelocityToggle()
+{
+	bool New = LateralVelocityButton->IsActive();
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->ShowLateralVelocity = New;
+	MyGameSettings->ApplySettings(false);
 }
 
 void SFlareSettingsMenu::OnForwardOnlyThrustToggle()

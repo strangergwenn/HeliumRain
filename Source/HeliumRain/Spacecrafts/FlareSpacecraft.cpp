@@ -1783,17 +1783,17 @@ void AFlareSpacecraft::RollInput(float Val)
 
 void AFlareSpacecraft::ThrustInput(float Val)
 {
-	StateManager->SetPlayerXLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
+	StateManager->SetPlayerXLinearVelocity(Val);
 }
 
 void AFlareSpacecraft::MoveVerticalInput(float Val)
 {
-	StateManager->SetPlayerZLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
+	StateManager->SetPlayerZLinearVelocity(Val);
 }
 
 void AFlareSpacecraft::MoveHorizontalInput(float Val)
 {
-	StateManager->SetPlayerYLinearVelocity(Val * NavigationSystem->GetLinearMaxVelocity());
+	StateManager->SetPlayerYLinearVelocity(Val);
 }
 
 
