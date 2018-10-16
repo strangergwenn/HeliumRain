@@ -158,6 +158,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.HelpText(LOCTEXT("InvertYInfo", "Invert the vertical axis of the mouse while flying"))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnInvertYToggle)
+							.Width(6)
 						]
 					
 						// Disable mouse
@@ -170,6 +171,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.HelpText(LOCTEXT("DisableMouseInfo", "Disable mouse input while flying to avoid unwanted input with a joystick or gamepad "))
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnDisableMouseToggle)
+							.Width(6)
 						]
 					]
 				
@@ -179,6 +181,32 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(SHorizontalBox)
+					
+						// Anticollision
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(AnticollisionButton, SFlareButton)
+							.Text(LOCTEXT("Anticollision", "Use anticollision"))
+							.HelpText(LOCTEXT("AnticollisionInfo", "Anti-collision will prevent your ship from crashing into objects and forbid close fly-bys."))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnAnticollisionToggle)
+							.Width(6)
+						]
+
+						// Lateral velocity
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(LateralVelocityButton, SFlareButton)
+							.Text(LOCTEXT("LateralVelocity", "Show drift"))
+							.HelpText(LOCTEXT("LateralVelocityInfo", "Show the current drift velocity of your ship on the HUD."))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnLateralVelocityToggle)
+							.Width(6)
+						]
 
 #if !UE_BUILD_SHIPPING
 						// Cockpit
@@ -193,30 +221,6 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.OnClicked(this, &SFlareSettingsMenu::OnCockpitToggle)
 						]
 #endif
-					
-						// Anticollision
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(AnticollisionButton, SFlareButton)
-							.Text(LOCTEXT("Anticollision", "Use anticollision"))
-							.HelpText(LOCTEXT("AnticollisionInfo", "Anti-collision will prevent your ship from crashing into objects and forbid close fly-bys."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnAnticollisionToggle)
-						]
-
-						// Lateral velocity
-						+ SHorizontalBox::Slot()
-						.AutoWidth()
-						.Padding(Theme.SmallContentPadding)
-						[
-							SAssignNew(LateralVelocityButton, SFlareButton)
-							.Text(LOCTEXT("LateralVelocity", "Show drift"))
-							.HelpText(LOCTEXT("LateralVelocityInfo", "Show the current drift velocity of your ship on the HUD."))
-							.Toggle(true)
-							.OnClicked(this, &SFlareSettingsMenu::OnLateralVelocityToggle)
-						]
 					]
 
 					// FOV box
