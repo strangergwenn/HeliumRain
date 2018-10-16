@@ -141,7 +141,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 						]
 					]
 				
-					// Options
+					// Options line 1
 					+ SVerticalBox::Slot()
 					.AutoHeight()
 					.Padding(Theme.ContentPadding)
@@ -159,6 +159,26 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 							.Toggle(true)
 							.OnClicked(this, &SFlareSettingsMenu::OnInvertYToggle)
 						]
+					
+						// Disable mouse
+						+ SHorizontalBox::Slot()
+						.AutoWidth()
+						.Padding(Theme.SmallContentPadding)
+						[
+							SAssignNew(DisableMouseButton, SFlareButton)
+							.Text(LOCTEXT("DisableMouse", "Disable mouse"))
+							.HelpText(LOCTEXT("DisableMouseInfo", "Disable mouse input while flying to avoid unwanted input with a joystick or gamepad "))
+							.Toggle(true)
+							.OnClicked(this, &SFlareSettingsMenu::OnDisableMouseToggle)
+						]
+					]
+				
+					// Options line 2
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(SHorizontalBox)
 
 #if !UE_BUILD_SHIPPING
 						// Cockpit
@@ -1068,6 +1088,7 @@ void SFlareSettingsMenu::Construct(const FArguments& InArgs)
 
 	// Gameplay defaults
 	InvertYButton->SetActive(MyGameSettings->InvertY);
+	DisableMouseButton->SetActive(MyGameSettings->DisableMouse);
 #if !UE_BUILD_SHIPPING
 	CockpitButton->SetActive(MyGameSettings->UseCockpit);
 #endif
@@ -1930,6 +1951,15 @@ void SFlareSettingsMenu::OnInvertYToggle()
 
 	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
 	MyGameSettings->InvertY = New;
+	MyGameSettings->ApplySettings(false);
+}
+
+void SFlareSettingsMenu::OnDisableMouseToggle()
+{
+	bool New = DisableMouseButton->IsActive();
+
+	UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
+	MyGameSettings->DisableMouse = New;
 	MyGameSettings->ApplySettings(false);
 }
 

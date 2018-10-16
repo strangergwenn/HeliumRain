@@ -170,6 +170,7 @@ protected:
 	void OnTemporalAAToggle();
 	void OnSupersamplingToggle();	
 	void OnInvertYToggle();
+	void OnDisableMouseToggle();
 	void OnAnticollisionToggle();
 	void OnCockpitToggle();
 	void OnForwardOnlyThrustToggle();
@@ -238,6 +239,7 @@ protected:
 
 	// Gameplay
 	TSharedPtr<SFlareButton>                    InvertYButton;
+	TSharedPtr<SFlareButton>                    DisableMouseButton;
 #if !UE_BUILD_SHIPPING
 	TSharedPtr<SFlareButton>                    CockpitButton;
 #endif

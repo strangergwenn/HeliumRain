@@ -31,6 +31,7 @@ void UFlareGameUserSettings::SetToDefaults()
 
 	// Gameplay
 	InvertY = false;
+	DisableMouse = false;
 	UseCockpit = true;
 	UseAnticollision = false;
 	PauseGameInMenus = false;

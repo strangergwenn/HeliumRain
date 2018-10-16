@@ -2300,7 +2300,7 @@ void AFlarePlayerController::MouseInputX(float Val)
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(Val, 0));
 	}
-	else if (ShipPawn && !RightMousePressed)
+	else if (ShipPawn && !RightMousePressed && !MyGameSettings->DisableMouse)
 	{
 		ShipPawn->YawInput(Val);
 	}
@@ -2324,7 +2324,7 @@ void AFlarePlayerController::MouseInputY(float Val)
 	{
 		GetNavHUD()->SetWheelCursorMove(FVector2D(0, -Val));
 	}
-	else if (ShipPawn && !RightMousePressed)
+	else if (ShipPawn && !RightMousePressed && !MyGameSettings->DisableMouse)
 	{
 		ShipPawn->PitchInput(Val);
 	}

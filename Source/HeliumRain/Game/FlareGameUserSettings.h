@@ -84,6 +84,10 @@ public:
 	/** Whether to invert Y axis */
 	UPROPERTY(Config)
 	bool                                     InvertY;
+
+	/** Whether to remove mouse flying */
+	UPROPERTY(Config)
+	bool                                     DisableMouse;
 	
 	/** Whether to use anti collision */
 	UPROPERTY(Config)
