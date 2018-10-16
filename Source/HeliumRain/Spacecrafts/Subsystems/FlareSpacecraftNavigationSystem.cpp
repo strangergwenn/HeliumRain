@@ -1375,6 +1375,7 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 		FLOGV("PhysicSubTick LinearEngineTarget.YVelocityControl=%d", LinearEngineTarget.YVelocityControl);
 		FLOGV("PhysicSubTick LinearEngineTarget.ZVelocityControl=%d", LinearEngineTarget.ZVelocityControl);
 		FLOGV("PhysicSubTick LinearEngineTarget.Target=%s", *LinearEngineTarget.Target.ToString());
+		FLOGV("PhysicSubTick UseOrbitalBoost=%d", UseOrbitalBoost);
 	}
 
 
@@ -1392,6 +1393,8 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 
 		TArray<int>& UsefulEngines = DeltaV > 0 ? AxisEngines.Key: AxisEngines.Value;
 
+		//FLOGV("    - UsefulEngines=%d", UsefulEngines.Num());
+
 		float LinearMasterAlpha = 0.f;
 		float LinearMasterBoostAlpha = 0.f;
 
@@ -1401,7 +1404,11 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 			// First, try without using the boost
 			float Acceleration = SharableBoostAcceleration + GetTotalMaxThrustWithEngines(Engines, UsefulEngines, false) / Spacecraft->GetSpacecraftMass();
 
+			//FLOGV("    - Acceleration=%f", Acceleration);
+
+
 			float AccelerationDeltaV = Acceleration * DeltaSeconds;
+			//FLOGV("    - AccelerationDeltaV=%f", AccelerationDeltaV);
 
 			LinearMasterAlpha = FMath::Clamp(FMath::Abs(DeltaV)/ AccelerationDeltaV, 0.0f, 1.0f);
 			// Second, if the not enought trust check with the boost
@@ -1418,13 +1425,13 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 
 					LinearMasterBoostAlpha = FMath::Clamp(DeltaVAfterClassicalAcceleration/ BoostDeltaV, 0.0f, 1.0f);
 
-					SharableBoostAcceleration += (AccelerationWithBoost - Acceleration) * LinearMasterBoostAlpha * 0.2;
+					SharableBoostAcceleration += (AccelerationWithBoost - Acceleration) * 1;
 
 					Acceleration = AccelerationWithBoost;
 
-					/*FLOGV("    - Acceleration=%f", Acceleration);
-					FLOGV("    - AccelerationWithBoost=%f", AccelerationWithBoost);
-					FLOGV("    - LinearMasterBoostAlpha=%f", LinearMasterBoostAlpha);*/
+					/*FLOGV("    - boost Acceleration=%f", Acceleration);
+					FLOGV("    - boost AccelerationWithBoost=%f", AccelerationWithBoost);
+					FLOGV("    - boost LinearMasterBoostAlpha=%f", LinearMasterBoostAlpha);*/
 				}
 			}
 
@@ -1474,13 +1481,15 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 		if (!FMath::IsNearlyZero(ClampedAccelerationTargetInAxis))
 		{
 			// First, try without using the boost
+			// TODO
 			float MaxAcceleration = SharableBoostAcceleration + GetTotalMaxThrustWithEngines(Engines, UsefulEngines, true) / Spacecraft->GetSpacecraftMass();
 
 			if(Axis.X == 1.f)
 			{
-				SharableBoostAcceleration += MaxAcceleration * 0.2;
+				SharableBoostAcceleration += MaxAcceleration * 1;
 			}
 
+			//FLOGV("ProcessAccelerationEngineAxis SharableBoostAcceleration=%f MaxAcceleration=%f", SharableBoostAcceleration, MaxAcceleration);
 
 
 			// Apply alpha
@@ -1632,14 +1641,16 @@ float UFlareSpacecraftNavigationSystem::GetTotalMaxThrustWithEngines(TArray<UAct
 	{
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[i]);
 
-		TotalMaxThrust += Engine->GetMaxThrust();
-
 		if (Engine->IsA(UFlareOrbitalEngine::StaticClass()))
 		{
 			if(WithOrbitalEngines)
 			{
 				TotalMaxThrust += Engine->GetMaxThrust();
 			}
+		}
+		else
+		{
+			TotalMaxThrust += Engine->GetMaxThrust();
 		}
 	}
 
