@@ -248,6 +248,33 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 	TArray<UFlareCompany*> CompaniesToProcess =  Game->GetGameWorld()->GetCompanies();
 	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
 
+	TArray<FFlareResourceDescription*> AvailableResources;
+
+	for (int32 SectorIndex = 0; SectorIndex < PlayerCompany->GetKnownSectors().Num(); SectorIndex++)
+	{
+		UFlareSimulatedSector* KnownSector = PlayerCompany->GetKnownSectors()[SectorIndex];
+		TMap<FFlareResourceDescription*, WorldHelper::FlareResourceStats> Stats1 = SectorHelper::ComputeSectorResourceStats(KnownSector, false);
+
+		for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->Resources.Num(); ResourceIndex++)
+		{
+			FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->Resources[ResourceIndex]->Data;
+
+
+			if(AvailableResources.Contains(Resource))
+			{
+				continue;
+			}
+
+			if(Stats1[Resource].Production > 0)
+			{
+				AvailableResources.Add(Resource);
+				//FLOGV("%s is available in %s %d", *Resource->Identifier.ToString(), *KnownSector->GetSectorName().ToString(),
+				//	Stats1[Resource].Production);
+			}
+		}
+	}
+
+
 	// For each company in random order
 	while (CompaniesToProcess.Num() > 0)
 	{
@@ -287,7 +314,7 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 
 			if (!Quest)
 			{
-				Quest = UFlareQuestGeneratedResourcePurchase::Create(this, Sector, Company);
+				Quest = UFlareQuestGeneratedResourcePurchase::Create(this, Sector, Company, AvailableResources);
 			}
 
 			if (!Quest)
@@ -1056,7 +1083,7 @@ UFlareQuestGeneratedResourcePurchase::UFlareQuestGeneratedResourcePurchase(const
 {
 }
 
-UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company)
+UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company, TArray<FFlareResourceDescription*>& AvailableResources)
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
 
@@ -1108,8 +1135,9 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 				continue;
 			}
 
+
 			// Check if player kwown at least one seller of this resource
-			if(!PlayerCompany->HasKnowResourceOutput(Slot.Resource))
+			if(!AvailableResources.Contains(Slot.Resource))
 			{
 				continue;
 			}
@@ -1160,7 +1188,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 		}
 
 		// Check if player kwown at least one seller of this resource
-		if(!PlayerCompany->HasKnowResourceOutput(Slot.Resource))
+		if(!AvailableResources.Contains(Slot.Resource))
 		{
 			continue;
 		}

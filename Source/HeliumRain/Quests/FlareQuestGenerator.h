@@ -168,7 +168,7 @@ public:
 
 	/** Load the quest from description file */
 	virtual bool Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data);
-	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company);
+	static UFlareQuestGenerated* Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company, TArray<FFlareResourceDescription*>& AvailableResources);
 };
 
 //////////////////////////////////////////////////////
