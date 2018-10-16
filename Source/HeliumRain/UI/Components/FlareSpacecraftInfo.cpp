@@ -621,8 +621,10 @@ void SFlareSpacecraftInfo::Hide()
 
 void SFlareSpacecraftInfo::Hotkey(int32 Index)
 {
-	FCHECK(TargetSpacecraft);
-	FCHECK(TargetSpacecraftDesc);
+	if (!TargetSpacecraft || !TargetSpacecraftDesc)
+	{
+		return;
+	}
 
 	switch (Index)
 	{
