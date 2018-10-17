@@ -74,30 +74,43 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 		FFlareShipCommandData CurrentCommand;
 		if (CommandData.Peek(CurrentCommand))
 		{
+			bool KeepCommand = true;
 			if (CurrentCommand.Type == EFlareCommandDataType::CDT_Location)
 			{
-				if (UpdateLinearAttitudeAuto(DeltaSeconds, CurrentCommand.LocationTarget, FVector::ZeroVector, (CurrentCommand.PreciseApproach ? LinearMaxDockingVelocity : LinearMaxVelocity), 1.0))
-				{
-					ClearCurrentCommand();
-				}
+				KeepCommand = UpdateLinearAttitudeAuto(DeltaSeconds, CurrentCommand.LocationTarget, FVector::ZeroVector, (CurrentCommand.PreciseApproach ? LinearMaxDockingVelocity : LinearMaxVelocity), 1.0);
+
 				//TODO
 				CurrentCommand.VelocityTarget = PilotHelper::AnticollisionCorrection(Spacecraft, CurrentCommand.VelocityTarget, Spacecraft->GetPreferedAnticollisionTime(), PilotHelper::AnticollisionConfig(), 0.f);
 			}
 			else if (CurrentCommand.Type == EFlareCommandDataType::CDT_BrakeLocation)
 			{
-				UpdateLinearBraking(DeltaSeconds, CurrentCommand.VelocityTarget);
+				KeepCommand = UpdateLinearBraking(CurrentCommand, DeltaSeconds, CurrentCommand.VelocityTarget);
+
+				FVector RotationTarget = -Spacecraft->Airframe->GetPhysicsLinearVelocity();
+
+				if (RotationTarget.SizeSquared() > FMath::Square(10000))
+				{
+					CurrentCommand.RotationTarget = RotationTarget;
+					CurrentCommand.LocalShipAxis = FVector(1, 0, 0);
+					KeepCommand |= UpdateAngularAttitudeAuto(CurrentCommand, DeltaSeconds);
+				}
 			}
 			else if (CurrentCommand.Type == EFlareCommandDataType::CDT_Rotation)
 			{
-				UpdateAngularAttitudeAuto(DeltaSeconds);
+				KeepCommand = UpdateAngularAttitudeAuto(CurrentCommand, DeltaSeconds);
 			}
 			else if (CurrentCommand.Type == EFlareCommandDataType::CDT_BrakeRotation)
 			{
-				UpdateAngularBraking(DeltaSeconds);
+				KeepCommand = UpdateAngularBraking(DeltaSeconds);
 			}
 			else if (CurrentCommand.Type == EFlareCommandDataType::CDT_Dock)
 			{
 				DockingAutopilot(Cast<AFlareSpacecraft>(CurrentCommand.ActionTarget), CurrentCommand.ActionTargetParam, DeltaSeconds);
+			}
+
+			if(!KeepCommand)
+			{
+				ClearCurrentCommand();
 			}
 		}
 
@@ -1147,24 +1160,26 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 	if (Distance < LinearDeadDistance && DeltaVelocity.Size() < NegligibleSpeedRatio * MaxVelocity)
 	{
 		LinearEngineTarget.SetVelocity(Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(TargetVelocity));
-		return true;
+		return false;
 	}
 	//FLOGV("RelativeResultSpeed %s", *RelativeResultSpeed.ToString());
 	LinearEngineTarget.SetVelocity(Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(RelativeResultSpeed));
-	return false;
+	return true;
 }
 
-void UFlareSpacecraftNavigationSystem::UpdateLinearBraking(float DeltaSeconds, FVector TargetVelocity)
+bool UFlareSpacecraftNavigationSystem::UpdateLinearBraking(FFlareShipCommandData& Command, float DeltaSeconds, FVector TargetVelocity)
 {
 	LinearEngineTarget.SetVelocity(Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(TargetVelocity));
 	FVector DeltaLinearVelocity = TargetVelocity*100 - Spacecraft->Airframe->GetPhysicsLinearVelocity();
 
+	bool KeepCommand = true;
 	// Null speed detection
 	if (DeltaLinearVelocity.Size() < NegligibleSpeedRatio * LinearMaxVelocity)
 	{
 		Spacecraft->Airframe->SetAllPhysicsLinearVelocity(TargetVelocity*100);
-		ClearCurrentCommand();
+		KeepCommand = false;
 	}
+	return KeepCommand;
 }
 
 
@@ -1172,15 +1187,13 @@ void UFlareSpacecraftNavigationSystem::UpdateLinearBraking(float DeltaSeconds, F
 	Attitude control : angular version
 ----------------------------------------------------*/
 
-void UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(float DeltaSeconds)
+bool UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(FFlareShipCommandData& Command, float DeltaSeconds)
 {
 	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_UpdateAngularAttitudeAuto);
 
 	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
 
 	// Rotation data
-	FFlareShipCommandData Command;
-	CommandData.Peek(Command);
 	FVector TargetAxis = Command.RotationTarget;
 	FVector LocalShipAxis = Command.LocalShipAxis;
 
@@ -1239,14 +1252,18 @@ void UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(float DeltaSeco
 		RelativeResultSpeed *= MaxPreciseSpeed;
 	}
 
+	bool KeepCommand = true;
+
 	// Under this angle we consider the variation negligible, and ensure null delta + null speed
 	if (angle < AngularDeadAngle && DeltaVelocity.Size() < AngularDeadAngle)
 	{
 		Spacecraft->Airframe->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector, false); // TODO remove
-		ClearCurrentCommand();
+		KeepCommand = false;
 		RelativeResultSpeed = FVector::ZeroVector;
 	}
 	AngularTargetVelocity = RelativeResultSpeed;
+
+	return KeepCommand;
 }
 
 
@@ -1307,17 +1324,22 @@ FVector UFlareSpacecraftNavigationSystem::GetAngularVelocityToAlignAxis(FVector 
 	return RelativeResultSpeed;
 }
 
-void UFlareSpacecraftNavigationSystem::UpdateAngularBraking(float DeltaSeconds)
+bool UFlareSpacecraftNavigationSystem::UpdateAngularBraking(float DeltaSeconds)
 {
 	AngularTargetVelocity = FVector::ZeroVector;
 	FVector AngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocityInDegrees();
 	// Null speed detection
+
+	bool KeepCommand = true;
+
 	if (AngularVelocity.Size() < NegligibleSpeedRatio * AngularMaxVelocity)
 	{
 		AngularTargetVelocity = FVector::ZeroVector;
 		Spacecraft->Airframe->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector, false); // TODO remove
-		ClearCurrentCommand();
+		KeepCommand = false;
 	}
+
+	return KeepCommand;
 }
 
 

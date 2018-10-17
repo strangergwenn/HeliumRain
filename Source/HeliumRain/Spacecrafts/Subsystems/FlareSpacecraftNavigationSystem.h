@@ -234,13 +234,13 @@ public:
 	bool UpdateLinearAttitudeAuto(float DeltaSeconds, FVector TargetLocation, FVector TargetVelocity, float MaxVelocity, float SecurityRatio);
 
 	/** Brake */
-	void UpdateLinearBraking(float DeltaSeconds, FVector TargetVelocity);
+	bool UpdateLinearBraking(FFlareShipCommandData& Command, float DeltaSeconds, FVector TargetVelocity);
 
 	/** Automatically update the current angular attitude */
-	void UpdateAngularAttitudeAuto(float DeltaSeconds);
+	bool UpdateAngularAttitudeAuto(FFlareShipCommandData& Command, float DeltaSeconds);
 
 	/** Brake */
-	void UpdateAngularBraking(float DeltaSeconds);
+	bool UpdateAngularBraking(float DeltaSeconds);
 
 	/** Return the angular velocity need to align the local ship axis to the target axis */
 	virtual FVector GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, FVector TargetAngularVelocity, float DeltaSeconds) const;
