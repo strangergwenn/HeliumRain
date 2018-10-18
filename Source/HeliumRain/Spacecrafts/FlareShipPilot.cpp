@@ -1057,40 +1057,49 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 	}
 
 	// If not, and outside the player fleet, find a leader and follow it
-	else if (Ship->GetCompany() != Ship->GetGame()->GetPC()->GetCompany())
+	else// if (Ship->GetCompany() != Ship->GetGame()->GetPC()->GetCompany())
 	{
 		AFlareSpacecraft* LeaderShip = Ship;
 
-		TArray<AFlareSpacecraft*> Spacecrafts = Ship->GetGame()->GetActiveSector()->GetCompanySpacecrafts(Ship->GetCompany());
-		for (int ShipIndex = 0; ShipIndex < Spacecrafts.Num() ; ShipIndex++)
+
+		if (Ship->GetCompany() != Ship->GetGame()->GetPC()->GetCompany())
 		{
-			AFlareSpacecraft* CandidateShip = Spacecrafts[ShipIndex];
-			float LeaderMass = LeaderShip->GetSpacecraftMass();
-			float CandidateMass = CandidateShip->GetSpacecraftMass();
 
-			if (Ship == CandidateShip)
+			TArray<AFlareSpacecraft*> Spacecrafts = Ship->GetGame()->GetActiveSector()->GetCompanySpacecrafts(Ship->GetCompany());
+			for (int ShipIndex = 0; ShipIndex < Spacecrafts.Num() ; ShipIndex++)
 			{
-				continue;
-			}
+				AFlareSpacecraft* CandidateShip = Spacecrafts[ShipIndex];
+				float LeaderMass = LeaderShip->GetSpacecraftMass();
+				float CandidateMass = CandidateShip->GetSpacecraftMass();
 
-			if (!CandidateShip->IsMilitary())
-			{
-				continue;
-			}
+				if (Ship == CandidateShip)
+				{
+					continue;
+				}
 
-            if (LeaderMass == CandidateMass)
-			{
-                if (LeaderShip->GetImmatriculation() < CandidateShip->GetImmatriculation())
-                {
-                    continue;
-                }
-			}
-            else if (LeaderMass > CandidateMass)
-            {
-                continue;
-            }
+				if (!CandidateShip->IsMilitary())
+				{
+					continue;
+				}
 
-            LeaderShip = CandidateShip;
+				if (LeaderMass == CandidateMass)
+				{
+					if (LeaderShip->GetImmatriculation() < CandidateShip->GetImmatriculation())
+					{
+						continue;
+					}
+				}
+				else if (LeaderMass > CandidateMass)
+				{
+					continue;
+				}
+
+				LeaderShip = CandidateShip;
+			}
+		}
+		else
+		{
+			LeaderShip = Ship->GetGame()->GetPC()->GetShipPawn();
 		}
 
 		// If is the leader, find a location in a 10 km radius and patrol
@@ -1139,7 +1148,10 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 
 
 	// Exit avoidance
-	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.5);
+	if (Ship->GetCompany() != Ship->GetGame()->GetPC()->GetCompany())
+	{
+		LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.5);
+	}
 
 	AlignToTargetVelocityWithThrust(DeltaSeconds);
 
