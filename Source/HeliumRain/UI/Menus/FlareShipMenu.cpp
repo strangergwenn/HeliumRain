@@ -10,6 +10,8 @@
 #include "../../Data/FlareSpacecraftComponentsCatalog.h"
 #include "../../Data/FlareResourceCatalog.h"
 
+#include "../../Economy/FlareCargoBay.h"
+
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlarePlayerController.h"
@@ -729,18 +731,68 @@ void SFlareShipMenu::UpdateUpgradeBox()
 			FText::AsNumber(TargetSpacecraft->GetDescription()->MaxLevel)))
 	];
 
+	// Look for upgrade
+	bool IsBeingUpgraded = TargetSpacecraft->IsUnderConstruction(true) && TargetSpacecraft->GetLevel() > 1;
+	if (!IsBeingUpgraded && TargetSpacecraft->IsComplex())
+	{
+		for (UFlareSimulatedSpacecraft* Substation : TargetSpacecraft->GetComplexChildren())
+		{
+			if (Substation->IsUnderConstruction(false) && Substation->GetLevel() > 1)
+			{
+				IsBeingUpgraded = true;
+				break;
+			}
+		}
+	}
+
+	// Cancel upgrade
+	if (IsBeingUpgraded)
+	{
+		if (TargetSpacecraft->GetConstructionCargoBay()->GetUsedCargoSpace() == 0)
+		{
+			UpgradeBox->AddSlot()
+			.AutoHeight()
+			.Padding(Theme.TitlePadding)
+			.HAlign(HAlign_Left)
+			[
+				SNew(SFlareButton)
+				.Text(LOCTEXT("ShipCancelUpgradeFly", "Cancel upgrade"))
+				.HelpText(LOCTEXT("ShipCancelUpgradeFlyInfo", "Cancel the upgrade process for this station"))
+				.OnClicked(this, &SFlareShipMenu::OnCancelUpgrade)
+				.Width(12)
+			];
+		}
+		else
+		{
+			UpgradeBox->AddSlot()
+			.AutoHeight()
+			.Padding(Theme.TitlePadding)
+			.HAlign(HAlign_Left)
+			[
+				SNew(SFlareButton)
+				.Text(LOCTEXT("ShipCancelUpgradeFly", "Cancel upgrade"))
+				.HelpText(LOCTEXT("CantShipCancelUpgradeFlyInfo", "Empty the cargo bays to allow cancelling the upgrade process"))
+				.IsDisabled(true)
+				.Width(12)
+			];
+		}
+	}
+
 	// Max level
-	if (TargetSpacecraft->GetLevel() >= TargetSpacecraft->GetDescription()->MaxLevel)
+	else if (TargetSpacecraft->GetLevel() >= TargetSpacecraft->GetDescription()->MaxLevel)
 	{
 		UpgradeBox->AddSlot()
 		.AutoHeight()
 		.Padding(Theme.TitlePadding)
+		.HAlign(HAlign_Left)
 		[
 			SNew(STextBlock)
 			.TextStyle(&Theme.TextFont)
 			.Text(LOCTEXT("MaxLevelInfo", "This station has reached the maximum level."))
 		];
 	}
+
+	// Upgrade
 	else
 	{
 		UpgradeBox->AddSlot()
@@ -1805,5 +1857,11 @@ void SFlareShipMenu::OnPartCancelled()
 	LoadTargetSpacecraft();
 	MenuManager->GetPC()->ClientPlaySound(MenuManager->GetPC()->GetSoundManager()->NegativeClickSound);
 }
+
+void SFlareShipMenu::OnCancelUpgrade()
+{
+
+}
+
 
 #undef LOCTEXT_NAMESPACE

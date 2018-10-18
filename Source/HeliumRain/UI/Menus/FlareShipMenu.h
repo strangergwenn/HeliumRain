@@ -214,6 +214,9 @@ protected:
 	/** Cancelled a part */
 	void OnPartCancelled();
 
+	/** Cancelled an upgrade */
+	void OnCancelUpgrade();
+
 	/** Upgrade station */
 	void OnUpgradeStationClicked(UFlareSimulatedSpacecraft* Spacecraft);
 
