@@ -737,7 +737,7 @@ void SFlareShipMenu::UpdateUpgradeBox()
 	{
 		for (UFlareSimulatedSpacecraft* Substation : TargetSpacecraft->GetComplexChildren())
 		{
-			if (Substation->IsUnderConstruction(false) && Substation->GetLevel() > 1)
+			if (Substation->IsUnderConstruction(true) && Substation->GetLevel() > 1)
 			{
 				IsBeingUpgraded = true;
 				break;
