@@ -501,6 +501,7 @@ protected:
 	bool                                     RightMousePressed;
 	bool                                     HasCurrentObjective;
 	bool                                     IsBusy;
+	float                                    LastSimulateTime;
 
 	FFlareMovingAverage<float>               JoystickHorizontalInputVal;
 	FFlareMovingAverage<float>               JoystickVerticalInputVal;

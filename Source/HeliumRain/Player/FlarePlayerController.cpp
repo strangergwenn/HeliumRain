@@ -104,6 +104,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	MissileWarningSound = MissileWarningSoundObj.Object;	
 
 	// Gameplay
+	LastSimulateTime = 0;
 	QuickSwitchNextOffset = 0;
 	HasCurrentObjective = false;
 	RightMousePressed = false;
@@ -1926,13 +1927,16 @@ void AFlarePlayerController::Simulate()
 {
 	if (!GetGame()->IsSkirmish()
 	 && GetGame()->IsLoadedOrCreated() && !GetNavHUD()->IsWheelMenuOpen() && !IsTyping()
-	 && GetGame()->IsLoadedOrCreated() && !MenuManager->IsSwitchingMenu() && !GetNavHUD()->IsWheelMenuOpen() && !IsTyping())
+	 && GetGame()->IsLoadedOrCreated() && !MenuManager->IsSwitchingMenu() && !GetNavHUD()->IsWheelMenuOpen() && !IsTyping()
+	 && GetWorld()->TimeSeconds - LastSimulateTime > 0.5f)
 	{
 		FLOG("AFlarePlayerController::Simulate");
 		bool CanGoAhead = ConfirmFastForward(FSimpleDelegate::CreateUObject(this, &AFlarePlayerController::SimulateConfirmed), FSimpleDelegate(), false);
 		if (CanGoAhead)
 		{
 			SimulateConfirmed();
+
+			LastSimulateTime = GetWorld()->TimeSeconds;
 		}
 	}
 }
