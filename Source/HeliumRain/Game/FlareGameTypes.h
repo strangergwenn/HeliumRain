@@ -227,6 +227,7 @@ namespace EFlareTransactionLogEntry
 		CancelFactoryWages,
 		StationConstructionFees,
 		StationUpgradeFees,
+		CancelStationUpgradeFees,
 		UpgradeShipPart,
 		OrderShip,
 		CancelOrderShip,
@@ -274,6 +275,7 @@ struct FFlareTransactionLogEntry
 	static FFlareTransactionLogEntry LogRecoveryFees();
 	static FFlareTransactionLogEntry LogBuildStationFees(FFlareSpacecraftDescription* StationDescription, UFlareSimulatedSector* Sector);
 	static FFlareTransactionLogEntry LogUpgradeStationFees(UFlareSimulatedSpacecraft* Station);
+	static FFlareTransactionLogEntry LogCancelUpgradeStationFees(UFlareSimulatedSpacecraft* Station);
 	static FFlareTransactionLogEntry LogScrapCost(UFlareCompany* Company);
 	static FFlareTransactionLogEntry LogScrapGain(UFlareSimulatedSpacecraft* ScrappedShip, UFlareCompany* Company);
 	static FFlareTransactionLogEntry LogMutualAssistance();

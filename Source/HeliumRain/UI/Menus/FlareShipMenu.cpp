@@ -1860,7 +1860,8 @@ void SFlareShipMenu::OnPartCancelled()
 
 void SFlareShipMenu::OnCancelUpgrade()
 {
-
+	TargetSpacecraft->CancelUpgrade();
+	MenuManager->Reload();
 }
 
 

@@ -633,6 +633,16 @@ FFlareTransactionLogEntry FFlareTransactionLogEntry::LogUpgradeStationFees(UFlar
 	return Entry;
 }
 
+FFlareTransactionLogEntry FFlareTransactionLogEntry::LogCancelUpgradeStationFees(UFlareSimulatedSpacecraft* Station)
+{
+	FFlareTransactionLogEntry Entry;
+	Entry.Type = EFlareTransactionLogEntry::CancelStationUpgradeFees;
+	Entry.Spacecraft = Station->GetImmatriculation();
+	Entry.Sector = Station->GetCurrentSector()->GetIdentifier();
+
+	return Entry;
+}
+
 FFlareTransactionLogEntry FFlareTransactionLogEntry::LogScrapCost(UFlareCompany* Company)
 {
 	FFlareTransactionLogEntry Entry;
@@ -692,6 +702,7 @@ FText FFlareTransactionLogEntry::GetCategoryDescription(EFlareTransactionLogEntr
 	case EFlareTransactionLogEntry::CancelFactoryWages:         return LOCTEXT("CategoryCancelFactoryWages",         "Factory wages cancelled");    break;
 	case EFlareTransactionLogEntry::StationConstructionFees:    return LOCTEXT("CategoryStationConstructionFees",    "Station construction");       break;
 	case EFlareTransactionLogEntry::StationUpgradeFees:         return LOCTEXT("CategoryStationUpgradeFees",         "Station upgrades");           break;
+	case EFlareTransactionLogEntry::CancelStationUpgradeFees:   return LOCTEXT("CategoryCancelStationUpgradeFees",   "Station upgrades refunds");   break;
 	case EFlareTransactionLogEntry::UpgradeShipPart:            return LOCTEXT("CategoryUpgradeShipPart",            "Ship upgrades");              break;
 	case EFlareTransactionLogEntry::OrderShip:                  return LOCTEXT("CategoryOrderShip",                  "Ship construction");          break;
 	case EFlareTransactionLogEntry::CancelOrderShip:            return LOCTEXT("CategoryCancelOrderShip",            "Ship construction refunds");  break;
@@ -924,6 +935,11 @@ FText FFlareTransactionLogEntry::GetComment(AFlareGame* Game) const
 	case EFlareTransactionLogEntry::StationUpgradeFees:
 	{
 		Comment = LOCTEXT("StationUpgradeFees", "Station upgrade fees");
+		break;
+	}
+	case EFlareTransactionLogEntry::CancelStationUpgradeFees:
+	{
+		Comment = LOCTEXT("CancelStationUpgradeFees", "Cancelled station upgrade fees");
 		break;
 	}
 	case EFlareTransactionLogEntry::UpgradeShipPart:

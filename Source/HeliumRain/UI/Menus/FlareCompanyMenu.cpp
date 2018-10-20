@@ -787,7 +787,8 @@ void SFlareCompanyMenu::ShowCompanyAccounting(UFlareCompany* Target)
 	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::CancelFactoryWages, Balances, Target, false);
 	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::FactoryWages, Balances, Target, true);
 	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::StationUpgradeFees, Balances, Target, false);
-	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::StationConstructionFees, Balances, Target, true);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::CancelStationUpgradeFees, Balances, Target, true);
+	CurrentTotal += AddAccountingCategory(EFlareTransactionLogEntry::StationConstructionFees, Balances, Target, false);
 	AddAccountingHeader(LOCTEXT("AccountingHeaderStations", "Stations"), CurrentTotal);
 
 	// Ships

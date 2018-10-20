@@ -87,6 +87,8 @@ public:
 
 	void Upgrade();
 
+	void CancelUpgrade();
+
 	void SetActiveSpacecraft(AFlareSpacecraft* Spacecraft)
 	{
 		if(Spacecraft)

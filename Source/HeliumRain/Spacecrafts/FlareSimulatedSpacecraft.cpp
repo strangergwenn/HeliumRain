@@ -827,6 +827,39 @@ void UFlareSimulatedSpacecraft::Upgrade()
 }
 
 
+void UFlareSimulatedSpacecraft::CancelUpgrade()
+{
+	if (IsComplex())
+	{
+		for (UFlareSimulatedSpacecraft* Substation : GetComplexChildren())
+		{
+			if (Substation->IsUnderConstruction(true) && Substation->GetLevel() > 1)
+			{
+				Substation->CancelUpgrade();
+				break;
+			}
+		}
+	}
+	else
+	{
+		if(!SpacecraftData.IsUnderConstruction)
+		{
+			return;
+		}
+
+		SpacecraftData.Level--;
+
+
+		int64 ProductionCost = GetStationUpgradeFee();
+
+		// Refund station cost
+		Company->GiveMoney(ProductionCost, FFlareTransactionLogEntry::LogCancelUpgradeStationFees(this));
+		GetCurrentSector()->GetPeople()->TakeMoney(ProductionCost);
+
+		FinishConstruction();
+	}
+}
+
 
 void UFlareSimulatedSpacecraft::ForceUndock()
 {
