@@ -416,6 +416,7 @@ protected:
 	UPROPERTY() USoundCue*                   NotificationTradingSound;
 	UPROPERTY() USoundCue*                   CrashSound;
 	UPROPERTY() USoundCue*                   MissileWarningSound;
+	UPROPERTY() USoundCue*                   DockingSound;
 
 	// Sound manager
 	UPROPERTY()

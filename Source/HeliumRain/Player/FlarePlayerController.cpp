@@ -94,6 +94,7 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	static ConstructorHelpers::FObjectFinder<USoundCue> NotificationTradingSoundObj(TEXT("/Game/Sound/Game/A_NotificationEconomy"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> CrashSoundObj(TEXT("/Game/Sound/Impacts/A_Collision"));
 	static ConstructorHelpers::FObjectFinder<USoundCue> MissileWarningSoundObj(TEXT("/Game/Sound/Game/A_MissileWarning"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> DockingSoundObj(TEXT("/Game/Sound/Impacts/A_Dock"));
 	
 	// Sound
 	NotificationInfoSound = NotificationInfoSoundObj.Object;
@@ -101,7 +102,8 @@ AFlarePlayerController::AFlarePlayerController(const class FObjectInitializer& P
 	NotificationQuestSound = NotificationQuestSoundObj.Object;
 	NotificationTradingSound = NotificationTradingSoundObj.Object;
 	CrashSound = CrashSoundObj.Object;
-	MissileWarningSound = MissileWarningSoundObj.Object;	
+	MissileWarningSound = MissileWarningSoundObj.Object;
+	DockingSound = DockingSoundObj.Object;
 
 	// Gameplay
 	LastSimulateTime = 0;
@@ -1526,6 +1528,8 @@ void AFlarePlayerController::NotifyDockingComplete(AFlareSpacecraft* DockStation
 
 	if (TellUser)
 	{
+		ClientPlaySound(DockingSound);
+
 		Notify(
 			LOCTEXT("DockingSuccess", "Docking successful"),
 			FText::Format(LOCTEXT("DockingSuccessInfoFormat", "Your ship is now docked at {0}"), UFlareGameTools::DisplaySpacecraftName(DockStation->GetParent())),
