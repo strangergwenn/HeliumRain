@@ -1,0 +1,6 @@
+{
+	"user": "user",
+	"project": "projectName",
+	"branches": ["windows64", "linux64"],
+	"directories": ["WindowsNoEditor", "LinuxNoEditor"]
+}

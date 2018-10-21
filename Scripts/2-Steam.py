@@ -13,7 +13,7 @@ steamUser = steamConfig["user"]
 steamPassword = steamConfig["password"]
 steamData.close()
 
-# Upload all platforms
+# Upload all platforms (Steam)
 for appFile in steamAppFiles:
 
 	# Generate paths
