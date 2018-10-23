@@ -506,6 +506,7 @@ void UFlareSpacecraftStateManager::SetPlayerAimJoystickYaw(float Val)
 	{
 		LastPlayerAimJoystick.X = Val;
 		PlayerAim.X = Val;
+		EnablePilot(false);
 	}
 }
 
@@ -515,6 +516,7 @@ void UFlareSpacecraftStateManager::SetPlayerAimJoystickPitch(float Val)
 	{
 		LastPlayerAimJoystick.Y = Val;
 		PlayerAim.Y = Val;
+		EnablePilot(false);
 	}
 }
 
