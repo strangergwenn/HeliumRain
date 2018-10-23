@@ -167,8 +167,6 @@ protected:
 	FVector                                  LastPlayerLinearVelocityJoystick;
 	FVector                                  LastPlayerLinearVelocityGamepad;
 	TEnumAsByte<EFlareInputSource::Type>     LinearVelocitySource;
-	bool                                     LinearVelocityIsJoystick;
-	bool                                     LinearVelocityIsGamepad;
 
 	// Roll state
 	float	                                 LastPlayerAngularRollKeyboard;

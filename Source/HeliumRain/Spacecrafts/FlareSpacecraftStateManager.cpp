@@ -725,14 +725,6 @@ FFlareEngineTarget UFlareSpacecraftStateManager::GetLinearEngineTarget() const
 
 		FVector FinalLinearVelocity = PlayerForwardVelocity;
 
-		// TODO
-/*		if(LinearVelocityIsJoystick)
-		{
-			if(FinalLinearVelocity.
-			LastPlayerLinearVelocityJoystick.X = Val;
-		}
-		*/
-
 		if (Spacecraft->IsPlayerShip())
 		{
 			UFlareGameUserSettings* MyGameSettings = Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings());
@@ -740,9 +732,9 @@ FFlareEngineTarget UFlareSpacecraftStateManager::GetLinearEngineTarget() const
 			{
 				PilotHelper::AnticollisionConfig IgnoreConfig;
 
-				if(Spacecraft->GetIsManualDocking())
+				if (Spacecraft->GetIsManualDocking())
 				{
-					if(Spacecraft->GetVelocity().SizeSquared() < 2000 * 2000)
+					if (Spacecraft->GetVelocity().SizeSquared() < 2000 * 2000)
 					{
 						IgnoreConfig.IgnoreAllStations = true;
 					}
@@ -763,25 +755,24 @@ FFlareEngineTarget UFlareSpacecraftStateManager::GetLinearEngineTarget() const
 
 		FFlareEngineTarget Target;
 		Target.SetVelocity(Spacecraft->Airframe->GetComponentToWorld().GetRotation().Inverse().RotateVector(FinalLinearVelocity));
-
-		if(!LinearVelocityIsJoystick && PlayerManualLinearVelocity.X != 0)
+		
+		if (LinearVelocitySource != EFlareInputSource::Joystick && PlayerManualLinearVelocity.X != 0)
 		{
 			Target.XVelocityControl = false;
 			Target.Target.X = PlayerManualLinearVelocity.X;
 		}
 
-		if(PlayerManualLinearVelocity.Y != 0)
+		if (PlayerManualLinearVelocity.Y != 0)
 		{
 			Target.YVelocityControl = false;
 			Target.Target.Y = PlayerManualLinearVelocity.Y;
 		}
 
-		if(PlayerManualLinearVelocity.Z != 0)
+		if (PlayerManualLinearVelocity.Z != 0)
 		{
 			Target.ZVelocityControl = false;
 			Target.Target.Z = PlayerManualLinearVelocity.Z;
 		}
-
 
 		return Target;
 	}
