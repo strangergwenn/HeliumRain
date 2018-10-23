@@ -12,6 +12,9 @@
 #include "FlareSpacecraft.h"
 #include "FlareShipPilot.h"
 
+#include "Engine.h"
+
+
 DECLARE_CYCLE_STAT(TEXT("FlareStateManager Tick"), STAT_FlareStateManager_Tick, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareStateManager Camera"), STAT_FlareStateManager_Camera, STATGROUP_Flare);
 

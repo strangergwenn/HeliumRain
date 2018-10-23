@@ -78,7 +78,6 @@ AFlareSpacecraft::AFlareSpacecraft(const class FObjectInitializer& PCIP)
 	// Joystick smoothing
 	int32 SmoothFrames = 15;
 	JoystickRollInputVal.SetSize(SmoothFrames);
-	JoystickThrustInputVal.SetSize(SmoothFrames);
 	
 	// Gameplay
 	HasExitedSector = false;
@@ -1882,21 +1881,25 @@ void AFlareSpacecraft::JoystickRollInput(float Val)
 
 void AFlareSpacecraft::JoystickThrustInput(float Val)
 {
-	if (NavigationSystem)
-	{
-		if (FMath::Abs(Val - PreviousJoystickThrottle) < 0.02)
-		{
-			return;
-		}
-
-		JoystickThrustInputVal.Add(Val);
-		Val = JoystickThrustInputVal.Get();
-
 		float TargetSpeed = 0;
 		float Exponent = 2;
 		float ZeroSpeed = 0.1f;
 		float MinSpeed = -0.5f * NavigationSystem->GetLinearMaxVelocity();
 		float MaxSpeed = 2.0f * NavigationSystem->GetLinearMaxVelocity();
+	float JoystickThrottleThreshold = 0.005f;
+
+	if (NavigationSystem)
+	{
+		// Throttle-specific deadzone control
+		if (FMath::Abs(Val) < JoystickThrottleThreshold)
+		{
+			Val = 0;
+		}
+		if (FMath::Abs(Val - PreviousJoystickThrottle) < JoystickThrottleThreshold)
+		{
+			return;
+		}
+		PreviousJoystickThrottle = Val;
 
 		// Forward only
 		if (Cast<UFlareGameUserSettings>(GEngine->GetGameUserSettings())->ForwardOnlyThrust)
@@ -1922,7 +1925,6 @@ void AFlareSpacecraft::JoystickThrustInput(float Val)
 		}
 
 		StateManager->SetPlayerXLinearVelocityJoystick(TargetSpeed);
-		PreviousJoystickThrottle = Val;
 	}
 }
 
