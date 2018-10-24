@@ -22,25 +22,25 @@ Helium Rain is a single-player space sim that places you at the helm of a spacef
 
 ## Building Helium Rain from source
 
-We provide these sources for our customers, and as a reference for Unreal Engine developers. *You won't be able to run the game from this repository alone*, as the game contents are not included. Building from source is only useful if you want to replace the game executable with your modifications.
+We provide these sources for our customers, and as a reference for Unreal Engine developers. **You won't be able to run the game from this repository alone**, as the game contents are not included. Building from source is only useful if you want to replace the game executable with your modifications.
 
 Building and modifying the source code for Helium Rain requires a few steps: getting the Unreal Engine 4 and other required tools, and building the game. We recommend you use the **release** branch of the game, but you can also keep the default **master** branch if you want to keep up with our changes.
 
 ### Required dependencies
 You will need the following tools to build Helium Rain from the sources:
 
-* Helium Rain uses UE4 as a game engine. You can get it for free [http://unrealengine.com at unrealengine.com]. You will need to sign up and download the Epic Games launcher. In the launcher library for Unreal Engine, install version 4.19.
-* Visual Studio Community 2017 will be used to build the sources: https://www.visualstudio.com/downloads/ . Don't forget to select the C++ development environment, since this is optional.
-* The Windows 8.1 SDK is required for Unreal Engine 4: https://developer.microsoft.com/en-us/windows/downloads/windows-8-1-sdk .
-* The DirectX SDK is required for the joystick plugin: https://www.microsoft.com/en-us/download/details.aspx?id=6812 .
-* CMake is required for the joystick plugin: https://cmake.org/download . When prompted to add to the system PATH, please do it.
-* TortoiseHg is required for the joystick plugin: https://tortoisehg.bitbucket.io/ .
+* Helium Rain uses UE4 as a game engine. You can get it for free [http://unrealengine.com](at unrealengine.com). You will need to sign up and download the Epic Games launcher. In the launcher library for Unreal Engine, install version 4.19.
+* [Visual Studio Community 2017](https://www.visualstudio.com/downloads/) will be used to build the sources. Don't forget to select the C++ development environment, since this is optional.
+* The [Windows 8.1 SDK](https://developer.microsoft.com/en-us/windows/downloads/windows-8-1-sdk) is required for Unreal Engine 4.
+* The [DirectX SDK](https://www.microsoft.com/en-us/download/details.aspx?id=6812) is required for the joystick plugin.
+* [CMake](https://cmake.org/download) is required for the joystick plugin. When prompted to add to the system PATH, please do it.
+* [TortoiseHg](https://tortoisehg.bitbucket.io/) is required for the joystick plugin.
 
 ### Build process
 We will now build the Helium Rain game executable. Follow these steps.
 
 * Open a Windows console (Windows + R ; "cmd" ; Enter).
-* Navigate to the Plugins\JoystickPlugin\ThirdParty\SDL2 folder in the Helium Rain archive.
+* Navigate to the *Plugins\JoystickPlugin\ThirdParty\SDL2 folder* in the Helium Rain archive.
 * Run setup.bat and wait for it to complete without errors.
 * Run build.bat and wait for it to complete without errors.
 * In the Windows explorer, right-click HeliumRain.uproject and pick "Generate Visual Studio Project Files".
@@ -48,4 +48,4 @@ We will now build the Helium Rain game executable. Follow these steps.
 * Select the "Shipping" build type.
 * You can now build Helium Rain by hitting F7 or using the Build menu. This should take from 5 to 10 minutes.
 
-The resulting binary will be generated as Binaries\Win64\HeliumRain-Win64-Shipping.exe and can replace the equivalent file in your existing game folder.
+The resulting binary will be generated as *Binaries\Win64\HeliumRain-Win64-Shipping.exe* and can replace the equivalent file in your existing game folder.
