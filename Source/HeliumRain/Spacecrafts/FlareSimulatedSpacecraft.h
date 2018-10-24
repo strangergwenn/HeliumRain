@@ -2,6 +2,7 @@
 
 #include "Object.h"
 #include "../Game/FlareSimulatedSector.h"
+#include "../Economy/FlareCargoBay.h"
 #include "../Economy/FlareResource.h"
 #include "Subsystems/FlareSpacecraftDockingSystem.h"
 #include "FlareSimulatedSpacecraft.generated.h"
@@ -9,7 +10,6 @@
 
 class UFlareSimulatedSector;
 class UFlareFleet;
-class UFlareCargoBay;
 class UFlareFactory;
 
 UCLASS()

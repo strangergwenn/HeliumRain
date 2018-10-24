@@ -5,6 +5,9 @@
 #include "../FlareStationDock.h"
 #include "../FlareStationConnector.h"
 #include "../FlareSpacecraft.h"
+
+#include "../../Player/FlarePlayerController.h"
+
 #include "../../Game/FlareGame.h"
 #include "../../Quests/FlareQuestManager.h"
 

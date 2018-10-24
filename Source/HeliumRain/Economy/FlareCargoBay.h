@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
+#include "FlareResource.h"
 #include "FlareCargoBay.generated.h"
 
 
-struct FFlareCargo;
 struct FFlareResourceDescription;
 class AFlareGame;
 class UFlareCompany;
@@ -15,6 +15,7 @@ struct FSortableCargoInfo
 	FFlareCargo*    Cargo;
 	int32           CargoInitialIndex;
 };
+
 
 UCLASS()
 class HELIUMRAIN_API UFlareCargoBay : public UObject

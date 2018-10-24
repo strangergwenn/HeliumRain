@@ -163,9 +163,6 @@ public:
 		Getters
 	----------------------------------------------------*/
 
-	inline AFlarePlayerController* GetPC() const
-	{
-		return Cast<AFlarePlayerController>(GetController());
-	}
+	AFlarePlayerController* GetPC() const;
 
 };

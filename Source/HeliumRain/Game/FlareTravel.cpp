@@ -10,6 +10,7 @@
 #include "FlareWorld.h"
 #include "FlareGame.h"
 #include "FlareGameTools.h"
+#include "FlareSectorHelper.h"
 
 #include "../Player/FlarePlayerController.h"
 

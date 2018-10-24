@@ -2,6 +2,7 @@
 #include "FlareMenuPawn.h"
 #include "../Flare.h"
 #include "FlarePlayerController.h"
+#include "FlareHUD.h"
 #include "../Game/FlareGameUserSettings.h"
 
 
@@ -357,4 +358,14 @@ void AFlareMenuPawn::PitchInput(float Val)
 void AFlareMenuPawn::YawInput(float Val)
 {
 	UpdateExternalCameraTarget();
+}
+
+
+/*----------------------------------------------------
+	Getters
+----------------------------------------------------*/
+
+AFlarePlayerController* AFlareMenuPawn::GetPC() const
+{
+	return Cast<AFlarePlayerController>(GetController());
 }

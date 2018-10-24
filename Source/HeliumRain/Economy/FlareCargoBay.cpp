@@ -7,6 +7,7 @@
 #include "../Data/FlareResourceCatalog.h"
 
 #include "../Game/FlareGame.h"
+#include "../Quests/FlareQuestManager.h"
 
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
