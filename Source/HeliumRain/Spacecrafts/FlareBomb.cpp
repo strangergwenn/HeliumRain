@@ -186,7 +186,7 @@ void AFlareBomb::Tick(float DeltaSeconds)
 				//DrawDebugSphere(GetWorld(), GetActorLocation(), 1000, 32, FColor::Red, true);
 
 				// Test Player ship avoidance
-				if(WeaponDescription->WeaponCharacteristics.BombCharacteristics.MaxBurnDuration > 0 && TargetSpacecraft == PlayerShip && ParentWeapon->GetSpacecraft()->GetCompany()->IsAtWar(PC->GetCompany()))
+				if(WeaponDescription->WeaponCharacteristics.BombCharacteristics.MaxBurnDuration > 0 && TargetSpacecraft == PlayerShip && ParentWeapon->GetSpacecraft()->IsPlayerHostile())
 				{
 					PC->SetAchievementProgression("ACHIEVEMENT_MISSILE_ESCAPE", 1);
 				}
@@ -464,7 +464,7 @@ void AFlareBomb::NotifyHit(class UPrimitiveComponent* MyComp, class AActor* Othe
 		Spacecraft->Airframe->AddImpulseAtLocation(ImpulseForce * ImpulseDirection, HitLocation);
 		if(!Spacecraft->IsStation() && WeaponDescription->WeaponCharacteristics.BombCharacteristics.MaxBurnDuration == 0 && ParentWeapon->GetSpacecraft()->GetParent() == Spacecraft->GetPC()->GetPlayerShip())
 		{
-			if(!Spacecraft->GetParent()->GetDamageSystem()->IsUncontrollable() && Spacecraft->GetCompany()->GetPlayerWarState() == EFlareHostility::Hostile)
+			if(!Spacecraft->GetParent()->GetDamageSystem()->IsUncontrollable() && Spacecraft->IsPlayerHostile())
 			{
 				if(Spacecraft->GetSize() == EFlarePartSize::S)
 				{

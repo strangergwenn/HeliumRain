@@ -82,6 +82,27 @@ void UFlareQuestGenerator::LoadQuests(const FFlareQuestSave& Data)
 		{
 			Quest = NewObject<UFlareQuestGeneratedMilitaryHunt>(this, UFlareQuestGeneratedMilitaryHunt::StaticClass());
 		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedStationDefense2::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedStationDefense2>(this, UFlareQuestGeneratedStationDefense2::StaticClass());
+		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedSectorDefense2::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedSectorDefense2>(this, UFlareQuestGeneratedSectorDefense2::StaticClass());
+		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedJoinAttack2::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedJoinAttack2>(this, UFlareQuestGeneratedJoinAttack2::StaticClass());
+		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedCargoHunt2::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedCargoHunt2>(this, UFlareQuestGeneratedCargoHunt2::StaticClass());
+		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedMilitaryHunt2::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedMilitaryHunt2>(this, UFlareQuestGeneratedMilitaryHunt2::StaticClass());
+		}
+
 		else if(QuestData.QuestClass == UFlareQuestGeneratedMeteoriteInterception::GetClass())
 		{
 			Quest = NewObject<UFlareQuestGeneratedMeteoriteInterception>(this, UFlareQuestGeneratedMeteoriteInterception::StaticClass());
@@ -408,7 +429,7 @@ void UFlareQuestGenerator::GenerateAttackQuests(UFlareCompany* AttackCompany, in
 	// Attack quest
 	if (FMath::FRand() <= ComputeQuestProbability(AttackCompany))
 	{
-		RegisterQuest(UFlareQuestGeneratedJoinAttack::Create(this, AttackCompany, AttackCombatPoints, Target, TravelDuration));
+		RegisterQuest(UFlareQuestGeneratedJoinAttack2::Create(this, AttackCompany, AttackCombatPoints, Target, TravelDuration));
 	}
 
 	// Defense quest
@@ -421,7 +442,7 @@ void UFlareQuestGenerator::GenerateAttackQuests(UFlareCompany* AttackCompany, in
 
 		if (FMath::FRand() <= ComputeQuestProbability(DefenseCompany))
 		{
-			RegisterQuest(UFlareQuestGeneratedSectorDefense::Create(this, DefenseCompany, AttackCompany, AttackCombatPoints, Target, TravelDuration));
+			RegisterQuest(UFlareQuestGeneratedSectorDefense2::Create(this, DefenseCompany, AttackCompany, AttackCombatPoints, Target, TravelDuration));
 		}
 	}
 }
@@ -469,7 +490,7 @@ void UFlareQuestGenerator::GenerateMilitaryQuests()
 
 				if (Station->GetCapturePoint(HostileCompany) * 10 > Station->GetCapturePointThreshold())
 				{
-					RegisterQuest(UFlareQuestGeneratedStationDefense::Create(this, Station->GetCurrentSector(), Station->GetCompany(), HostileCompany));
+					RegisterQuest(UFlareQuestGeneratedStationDefense2::Create(this, Station->GetCurrentSector(), Station->GetCompany(), HostileCompany));
 				}
 			}
 		}
@@ -689,9 +710,9 @@ UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenera
 		}
 
 		// Check friendlyness
-		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
+		if (CandidateStation->IsHostile(PlayerCompany) || CandidateStation->GetCompany()->GetWarStateTODO(PlayerCompany) != EFlareHostility::Neutral)
 		{
-			// Me or at war company
+			// Me or at war company or is target of a mission
 			continue;
 		}
 
@@ -892,7 +913,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 		}
 
 		// Check friendlyness
-		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
+		if (CandidateStation->IsHostile(PlayerCompany) || CandidateStation->GetCompany()->GetWarStateTODO(PlayerCompany) != EFlareHostility::Neutral)
 		{
 			// Me or at war company
 			continue;
@@ -1107,7 +1128,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 		}
 
 		// Check friendlyness
-		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
+		if (CandidateStation->IsHostile(PlayerCompany) || CandidateStation->GetCompany()->GetWarStateTODO(PlayerCompany) != EFlareHostility::Neutral)
 		{
 			// Me or at war company
 			continue;
@@ -1312,7 +1333,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
 
-	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	if (Company->GetWarStateTODO(PlayerCompany) == EFlareHostility::Hostile)
 	{
 		return NULL;
 	}
@@ -1326,7 +1347,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	for (UFlareSimulatedSpacecraft* CandidateStation : Sector->GetSectorStations())
 	{
 		// Check friendlyness
-		if (CandidateStation->GetCompany()->GetWarState(Company) != EFlareHostility::Owned)
+		if (CandidateStation->IsHostile(PlayerCompany) || CandidateStation->GetCompany()->GetWarStateTODO(Company) != EFlareHostility::Owned)
 		{
 			continue;
 		}
@@ -1377,7 +1398,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 
 	for(UFlareCompany* Company2: Parent->GetGame()->GetGameWorld()->GetCompanies())
 	{
-		if (Company2 == PlayerCompany || Company2->GetWarState(Company) == EFlareHostility::Hostile)
+		if (Company2 == PlayerCompany || Company2->GetWarStateTODO(Company) == EFlareHostility::Hostile)
 		{
 			continue;
 		}
@@ -1610,7 +1631,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGene
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
 
-	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	if (Company->GetWarStateTODO(PlayerCompany) == EFlareHostility::Hostile)
 	{
 		return NULL;
 	}
@@ -1623,7 +1644,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGene
 
 	int64 WarPrice;
 
-	if (HostileCompany->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	if (HostileCompany->GetWarStateTODO(PlayerCompany) == EFlareHostility::Hostile)
 	{
 		WarPrice = 0;
 	}
@@ -1791,7 +1812,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedJoinAttack::Create(UFlareQuestGenerato
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
 
-	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	if (Company->GetWarStateTODO(PlayerCompany) == EFlareHostility::Hostile)
 	{
 		return NULL;
 	}
@@ -1806,7 +1827,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedJoinAttack::Create(UFlareQuestGenerato
 
 	for(UFlareCompany* HostileCompany : Target.ArmedDefenseCompanies)
 	{
-		if (HostileCompany->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
+		if (HostileCompany->GetWarStateTODO(PlayerCompany) != EFlareHostility::Hostile)
 		{
 			WarPrice += 2000 * (HostileCompany->GetPlayerReputation() + 100);
 		}
@@ -2015,7 +2036,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedSectorDefense::Create(UFlareQuestGener
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
 
-	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	if (Company->GetWarStateTODO(PlayerCompany) == EFlareHostility::Hostile)
 	{
 		return NULL;
 	}
@@ -2029,7 +2050,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedSectorDefense::Create(UFlareQuestGener
 	int64 WarPrice = 0;
 
 
-	if (HostileCompany->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
+	if (HostileCompany->GetWarStateTODO(PlayerCompany) != EFlareHostility::Hostile)
 	{
 		WarPrice += 2000 * (HostileCompany->GetPlayerReputation() + 100);
 	}
@@ -2221,7 +2242,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt::Create(UFlareQuestGenerator
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
 
-	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	if (Company->GetWarStateTODO(PlayerCompany) == EFlareHostility::Hostile)
 	{
 		return NULL;
 	}
@@ -2234,7 +2255,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt::Create(UFlareQuestGenerator
 
 	int64 WarPrice;
 
-	if (HostileCompany->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	if (HostileCompany->GetWarStateTODO(PlayerCompany) == EFlareHostility::Hostile)
 	{
 		WarPrice = 0;
 	}
@@ -2406,7 +2427,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt::Create(UFlareQuestGenera
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
 
-	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	if (Company->GetWarStateTODO(PlayerCompany) == EFlareHostility::Hostile)
 	{
 		return NULL;
 	}
@@ -2419,7 +2440,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt::Create(UFlareQuestGenera
 
 	int64 WarPrice;
 
-	if (HostileCompany->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	if (HostileCompany->GetWarStateTODO(PlayerCompany) == EFlareHostility::Hostile)
 	{
 		WarPrice = 0;
 	}

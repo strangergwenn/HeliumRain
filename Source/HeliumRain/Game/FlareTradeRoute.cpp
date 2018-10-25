@@ -913,7 +913,7 @@ bool UFlareTradeRoute::IsUsefulSector(UFlareSimulatedSector* Sector)
 		for(UFlareSimulatedSpacecraft* Station : Sector->GetSectorStations())
 		{
 
-			if (Station->GetCompany()->GetWarState(TradeRouteCompany) == EFlareHostility::Hostile)
+			if (Station->IsHostile(TradeRouteCompany))
 			{
 				continue;
 			}

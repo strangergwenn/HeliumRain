@@ -170,7 +170,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 	if(MakeUncontrolableDestroyed)
 	{
 		// Player kill
-		if (PC && LastDamageCause.Spacecraft == PC->GetPlayerShip() && Spacecraft != PC->GetShipPawn() && Spacecraft->GetCompany()->IsAtWar(PC->GetCompany()))
+		if (PC && LastDamageCause.Spacecraft == PC->GetPlayerShip() && Spacecraft != PC->GetShipPawn() && Spacecraft->IsPlayerHostile())
 		{
 			if (LastDamageCause.DamageType == EFlareDamage::DAM_Collision)
 			{
@@ -204,7 +204,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 			}
 		}
 
-		if(Spacecraft->IsMilitary() && Spacecraft->GetCompany()->IsAtWar(PC->GetCompany()) && Spacecraft->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(PC->GetCompany()).BattleWon)
+		if(Spacecraft->IsMilitary() && Spacecraft->IsPlayerHostile() && Spacecraft->GetGame()->GetActiveSector()->GetSimulatedSector()->GetSectorBattleState(PC->GetCompany()).BattleWon)
 		{
 			PC->SetAchievementProgression("ACHIEVEMENT_BATTLE", 1);
 		}
@@ -343,7 +343,7 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 		&& LastDamageCause.Spacecraft->IsResponsible(LastDamageCause.DamageType))
 	{
 		// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
-		if (Spacecraft->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
+		if (!Spacecraft->IsHostile(PlayerCompany))
 		{
 			float ReputationCost = -40;
 
@@ -450,7 +450,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 		&& LastDamageCause.Spacecraft == PlayerShip)
 	{
 		// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
-		if (Spacecraft->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
+		if (!Spacecraft->IsHostile(PlayerCompany))
 		{
 			float ReputationCost = -30;
 
@@ -485,7 +485,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 	if (PC->GetGame()->GetQuestManager()
 		&& PC->GetPlayerShip()->IsActive()
 		&& LastDamageCause.Spacecraft == PC->GetPlayerShip()
-		&& Spacecraft->GetCompany()->GetWarState(PlayerCompany) == EFlareHostility::Hostile
+		&& Spacecraft->IsHostile(PlayerCompany)
 		&& Spacecraft->IsMilitary())
 	{
 		PC->GetGame()->GetQuestManager()->OnEvent(FFlareBundle().PutTag("enemy-uncontrollable"));

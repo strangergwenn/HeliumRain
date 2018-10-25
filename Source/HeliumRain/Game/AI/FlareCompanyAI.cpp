@@ -2836,7 +2836,7 @@ TArray<UFlareSimulatedSpacecraft*> UFlareCompanyAI::FindShipyards()
 		{
 			UFlareSimulatedSpacecraft* Station = Sector->GetSectorStations()[StationIndex];
 
-			if (Company->GetWarState(Station->GetCompany()) == EFlareHostility::Hostile)
+			if (Station->IsHostile(Company))
 			{
 				continue;
 			}

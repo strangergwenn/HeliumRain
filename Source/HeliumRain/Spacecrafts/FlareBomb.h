@@ -209,5 +209,7 @@ public:
 		return Paused;
 	}
 
+	bool IsHostile(UFlareCompany* Company) const;
+
 	bool IsActive() const;
 };

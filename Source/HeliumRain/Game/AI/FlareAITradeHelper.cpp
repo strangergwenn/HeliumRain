@@ -1044,7 +1044,7 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 #endif
 
 
-		if (Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
+		if (Station->IsHostile(Company))
 		{
 			continue;
 		}
@@ -1371,7 +1371,7 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 		{
 			UFlareCompany* OtherCompany = Game->GetGameWorld()->GetCompanies()[CompanyIndex];
 
-			if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
+			if (OtherCompany->GetWarStateTODO(Company) == EFlareHostility::Hostile)
 			{
 				continue;
 			}
@@ -2269,7 +2269,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 					continue;
 				}
 
-				if(iCompany->GetWarState(Source->Company) == EFlareHostility::Hostile)
+				if(iCompany->GetWarStateTODO(Source->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
 					continue;
@@ -2327,7 +2327,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 					continue;
 				}
 
-				if(iCompany->GetWarState(Source->Company) == EFlareHostility::Hostile)
+				if(iCompany->GetWarStateTODO(Source->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
 					continue;
@@ -2389,7 +2389,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 					continue;
 				}
 
-				if(iCompany->GetWarState(Source->Company) == EFlareHostility::Hostile)
+				if(iCompany->GetWarStateTODO(Source->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
 					continue;
@@ -2451,7 +2451,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 					continue;
 				}
 
-				if(iCompany->GetWarState(Source->Company) == EFlareHostility::Hostile)
+				if(iCompany->GetWarStateTODO(Source->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
 					continue;
@@ -2511,7 +2511,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 					continue;
 				}
 
-				if(iCompany->GetWarState(Source->Company) == EFlareHostility::Hostile)
+				if(iCompany->GetWarStateTODO(Source->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
 					continue;
@@ -2571,7 +2571,7 @@ AITradeSource* AITradeHelper::FindBestSource(AITradeSources& Sources, FFlareReso
 					continue;
 				}
 
-				if(iCompany->GetWarState(Source->Company) == EFlareHostility::Hostile)
+				if(iCompany->GetWarStateTODO(Source->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
 					continue;
@@ -2872,7 +2872,7 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 		int32 FunctionIndex = 0;
 		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
 		{
-			if(iNeedCompany->GetWarState(iSourceCompany) == EFlareHostility::Hostile)
+			if(iNeedCompany->GetWarStateTODO(iSourceCompany) == EFlareHostility::Hostile)
 			{
 				// Cannot trade itself as ennemy of the source
 				return nullptr;
@@ -2917,7 +2917,7 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 		// Owned incoming ship
 		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
 		{
-			if(iNeedCompany->GetWarState(iSourceCompany) == EFlareHostility::Hostile)
+			if(iNeedCompany->GetWarStateTODO(iSourceCompany) == EFlareHostility::Hostile)
 			{
 				// Cannot trade itself as ennemy of the source
 				return nullptr;
@@ -2967,7 +2967,7 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 		// Owned ship in same moon
 		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
 		{
-			if(iNeedCompany->GetWarState(iSourceCompany) == EFlareHostility::Hostile)
+			if(iNeedCompany->GetWarStateTODO(iSourceCompany) == EFlareHostility::Hostile)
 			{
 				// Cannot trade itself as ennemy of the source
 				return nullptr;
@@ -3017,7 +3017,7 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 		// Owned travelling ship in same moon
 		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
 		{
-			if(iNeedCompany->GetWarState(iSourceCompany) == EFlareHostility::Hostile)
+			if(iNeedCompany->GetWarStateTODO(iSourceCompany) == EFlareHostility::Hostile)
 			{
 				// Cannot trade itself as ennemy of the source
 				return nullptr;
@@ -3067,7 +3067,7 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 		// Owned ship in world
 		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
 		{
-			if(iNeedCompany->GetWarState(iSourceCompany) == EFlareHostility::Hostile)
+			if(iNeedCompany->GetWarStateTODO(iSourceCompany) == EFlareHostility::Hostile)
 			{
 				// Cannot trade itself as ennemy of the source
 				return nullptr;
@@ -3116,7 +3116,7 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 		// Owned travelling ship in world
 		Functions[FunctionIndex++] = [](AITradeIdleShips& iIdleShips, UFlareSimulatedSector* iSector, UFlareCompany* iSourceCompany, UFlareCompany* iNeedCompany, int32 iNeededQuantity) ->AIIdleShip*
 		{
-			if(iNeedCompany->GetWarState(iSourceCompany) == EFlareHostility::Hostile)
+			if(iNeedCompany->GetWarStateTODO(iSourceCompany) == EFlareHostility::Hostile)
 			{
 				// Cannot trade itself as ennemy of the source
 				return nullptr;
@@ -3177,13 +3177,13 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 
 			for(AIIdleShip* IdleShip : IdleShipsBySectorCompany)
 			{
-				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				if(iSourceCompany->GetWarStateTODO(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
 					continue;
 				}
 
-				if(iNeedCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				if(iNeedCompany->GetWarStateTODO(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the need
 					continue;
@@ -3229,13 +3229,13 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 
 			for(AIIdleShip* IdleShip : IdleShipsBySectorCompany)
 			{
-				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				if(iSourceCompany->GetWarStateTODO(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
 					continue;
 				}
 
-				if(iNeedCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				if(iNeedCompany->GetWarStateTODO(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the need
 					continue;
@@ -3286,7 +3286,7 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 
 			for(AIIdleShip* IdleShip : IdleShipsBySectorCompany)
 			{
-				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				if(iSourceCompany->GetWarStateTODO(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
 					continue;
@@ -3294,7 +3294,7 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 
 
 
-				if(iNeedCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				if(iNeedCompany->GetWarStateTODO(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the need
 					continue;
@@ -3345,13 +3345,13 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 
 			for(AIIdleShip* IdleShip : IdleShipsBySectorCompany)
 			{
-				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				if(iSourceCompany->GetWarStateTODO(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
 					continue;
 				}
 
-				if(iNeedCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				if(iNeedCompany->GetWarStateTODO(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the need
 					continue;
@@ -3399,13 +3399,13 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 
 			for(AIIdleShip* IdleShip : IdleShipsByCompany)
 			{
-				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				if(iSourceCompany->GetWarStateTODO(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
 					continue;
 				}
 
-				if(iNeedCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				if(iNeedCompany->GetWarStateTODO(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the need
 					continue;
@@ -3454,13 +3454,13 @@ AIIdleShip* AITradeHelper::FindBestShip(AITradeIdleShips& IdleShips, UFlareSimul
 
 			for(AIIdleShip* IdleShip : IdleShipsByCompany)
 			{
-				if(iSourceCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				if(iSourceCompany->GetWarStateTODO(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the source
 					continue;
 				}
 
-				if(iNeedCompany->GetWarState(IdleShip->Company) == EFlareHostility::Hostile)
+				if(iNeedCompany->GetWarStateTODO(IdleShip->Company) == EFlareHostility::Hostile)
 				{
 					// Cannot trade itself as ennemy of the need
 					continue;

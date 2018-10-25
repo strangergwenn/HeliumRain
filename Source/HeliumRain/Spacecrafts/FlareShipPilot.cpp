@@ -1584,7 +1584,7 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestHostileShip(bool DangerousOnly, EFl
 		{
 			// don't skip
 		}
-		else if (Ship->GetCompany()->GetWarState(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
+		else if (!ShipCandidate->IsHostile(Ship->GetCompany()))
 		{
 			continue;
 		}
@@ -1751,7 +1751,7 @@ TArray<AFlareSpacecraft*> UFlareShipPilot::GetFriendlyStations() const
 		if (StationCandidate->GetDockingSystem()->GetDockCount() > 0)
 		{
 
-			if (StationCandidate->GetWarState(Ship->GetCompany()) == EFlareHostility::Hostile)
+			if (StationCandidate->IsHostile(Ship->GetCompany()) == EFlareHostility::Hostile)
 			{
 				continue;
 			}

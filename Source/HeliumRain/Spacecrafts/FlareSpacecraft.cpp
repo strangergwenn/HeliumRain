@@ -328,7 +328,7 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 								ManualDockingInfo = DockingPort;
 
 								// Auto-dock when ready
-								if (Spacecraft->GetCompany()->GetPlayerWarState() != EFlareHostility::Hostile								
+								if (!Spacecraft->IsPlayerHostile()
 									&& (DockingParameters.DockingPhase == EFlareDockingPhase::Dockable
 									 || DockingParameters.DockingPhase == EFlareDockingPhase::FinalApproach
 									 || DockingParameters.DockingPhase == EFlareDockingPhase::Approach)
@@ -868,7 +868,7 @@ bool AFlareSpacecraft::GetManualDockingProgress(AFlareSpacecraft*& OutStation, F
 		}
 
 		// Enemy station, draw as enemy
-		else if (ManualDockingTarget->GetCompany()->GetPlayerWarState() < EFlareHostility::Neutral)
+		else if (ManualDockingTarget->IsPlayerHostile())
 		{
 			OutInfo = LOCTEXT("ManualDockingEnemy", "This station is hostile");
 			OutStation = ManualDockingTarget;
@@ -2226,5 +2226,9 @@ bool AFlareSpacecraft::IsComplexElement() const
 	return GetConstData().AttachComplexStationName != NAME_None;
 }
 
+bool AFlareSpacecraft::IsPlayerHostile() const
+{
+	return IsHostile(GetPC()->GetCompany());
+}
 
 #undef LOCTEXT_NAMESPACE

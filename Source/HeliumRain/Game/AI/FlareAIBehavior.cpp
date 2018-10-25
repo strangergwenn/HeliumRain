@@ -144,7 +144,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 		{
 			if (MaxCombatPointCompany == OtherCompany && Company->GetCompanyValue().ArmyCurrentCombatPoints > 0)
 			{
-				if (Company->GetWarState(OtherCompany) != EFlareHostility::Hostile)
+				if (Company->GetWarStateTODO(OtherCompany) != EFlareHostility::Hostile)
 				{
 					NewWar = true;
 				}
@@ -183,7 +183,7 @@ void UFlareAIBehavior::UpdateDiplomacy()
 
 			TArray<UFlareCompany*> Allies;
 
-			if (Company->GetWarState(OtherCompany) == EFlareHostility::Hostile && Company->GetConfidenceLevel(OtherCompany, Allies) < PayTributeConfidence)
+			if (Company->GetWarStateTODO(OtherCompany) == EFlareHostility::Hostile && Company->GetConfidenceLevel(OtherCompany, Allies) < PayTributeConfidence)
 			{
 				if (OtherCompany == PlayerCompany)
 				{

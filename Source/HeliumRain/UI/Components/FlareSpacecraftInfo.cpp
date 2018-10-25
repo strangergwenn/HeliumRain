@@ -349,7 +349,7 @@ void SFlareSpacecraftInfo::SetSpacecraft(UFlareSimulatedSpacecraft* Target)
 		TArray<FSortableCargoInfo> SortedCargoBay;
 
 		// Fill the cargo bay
-		if (Company->GetPlayerWarState() != EFlareHostility::Hostile)
+		if (!TargetSpacecraft->IsPlayerHostile())
 		{
 			// Get slots
 			for (int32 CargoIndex = 0; CargoIndex < TargetSpacecraft->GetActiveCargoBay()->GetSlotCount() ; CargoIndex++)
@@ -457,7 +457,7 @@ void SFlareSpacecraftInfo::Show()
 		// Helpers
 		bool Owned = TargetSpacecraft->GetCompany()->GetPlayerHostility() == EFlareHostility::Owned;
 		bool OwnedAndNotSelf = Owned && TargetSpacecraft != PlayerShip;
-		bool IsFriendly = TargetSpacecraft->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral;
+		bool IsFriendly = !TargetSpacecraft->IsPlayerHostile();
 		bool IsOutsidePlayerFleet = (TargetSpacecraft->GetCurrentFleet() != PlayerShip->GetCurrentFleet()) || !ActiveTargetSpacecraft;
 		bool IsDocked = ActiveTargetSpacecraft && (DockedStation || ActiveTargetSpacecraft->GetDockingSystem()->IsDockedShip(PlayerShip->GetActive()));
 		bool IsStation = TargetSpacecraft->IsStation();
@@ -1152,7 +1152,7 @@ FSlateColor SFlareSpacecraftInfo::GetTextColor() const
 		{
 			return Theme.FriendlyColor;
 		}
-		else if (TargetSpacecraft->GetCompany()->GetWarState(PC->GetCompany()) == EFlareHostility::Hostile)
+		else if (TargetSpacecraft->IsPlayerHostile())
 		{
 			return Theme.EnemyColor;
 		}
@@ -1433,7 +1433,7 @@ FSlateColor SFlareSpacecraftInfo::GetAdditionalTextColor() const
 
 	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel() && TargetSpacecraft->GetCurrentFleet())
 	{
-		if (TargetSpacecraft->GetCompany()->GetWarState(PC->GetCompany()) == EFlareHostility::Owned)
+		if (TargetSpacecraft->GetCompany()->GetWarStateTODO(PC->GetCompany()) == EFlareHostility::Owned)
 		{
 			return TargetSpacecraft->GetCurrentFleet()->GetFleetColor();
 		}

@@ -406,7 +406,11 @@ public:
 
 	bool HasCapability(EFlareSpacecraftCapability::Type Capability) const;
 
-	EFlareHostility::Type GetPlayerWarState() const;
+	EFlareHostility::Type GetPlayerWarStateTODO() const;
+
+	bool IsPlayerHostile() const;
+
+	bool IsHostile(UFlareCompany* Company) const;
 
 	int32 GetCapturePoint(UFlareCompany* Company) const;
 

@@ -435,7 +435,7 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 				&& Spacecraft->GetCompany() != Spacecraft->GetGame()->GetScenarioTools()->Pirates)
 			{
 				// Being shot by enemies is pretty much expected
-				if (Spacecraft->GetCompany()->GetWarState(DamageSource->GetCompany()) != EFlareHostility::Hostile)
+				if (!Spacecraft->IsHostile(DamageSource->GetCompany()))
 				{
 					// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
 

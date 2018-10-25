@@ -1849,7 +1849,7 @@ void UFlareQuestConditionAtWar::Load(UFlareQuest* ParentQuest, UFlareCompany* Co
 
 bool UFlareQuestConditionAtWar::IsCompleted()
 {
-	return TargetCompany1->GetWarState(TargetCompany2) == EFlareHostility::Hostile;
+	return TargetCompany1->GetWarStateTODO(TargetCompany2) == EFlareHostility::Hostile;
 }
 
 void UFlareQuestConditionAtWar::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
@@ -1907,7 +1907,7 @@ void UFlareQuestConditionAtPeace::Load(UFlareQuest* ParentQuest, UFlareCompany* 
 
 bool UFlareQuestConditionAtPeace::IsCompleted()
 {
-	return TargetCompany1->GetWarState(TargetCompany2) != EFlareHostility::Hostile;
+	return TargetCompany1->GetWarStateTODO(TargetCompany2) != EFlareHostility::Hostile;
 }
 
 void UFlareQuestConditionAtPeace::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)

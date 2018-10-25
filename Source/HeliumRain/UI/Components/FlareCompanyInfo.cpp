@@ -605,7 +605,7 @@ FSlateColor SFlareCompanyInfo::GetWarColor() const
 	{
 		const FFlareStyleCatalog& Theme = FFlareStyleSet::GetDefaultTheme();
 
-		if (Company->GetPlayerWarState() == EFlareHostility::Hostile)
+		if (Company->GetPlayerWarStateTODO() == EFlareHostility::Hostile)
 		{
 			return Theme.EnemyColor;
 		}
@@ -638,7 +638,7 @@ FText SFlareCompanyInfo::GetCompanyHostility() const
 				break;
 
 			case EFlareHostility::Neutral:
-				if (Company->GetPlayerWarState() == EFlareHostility::Hostile)
+				if (Company->GetPlayerWarStateTODO() == EFlareHostility::Hostile)
 				{
 					Result = LOCTEXT("NeutralSeekPeace", "This company is seeking peace");
 				}

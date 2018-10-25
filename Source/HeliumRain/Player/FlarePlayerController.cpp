@@ -2693,7 +2693,7 @@ void AFlarePlayerController::WheelPressed()
 					// Dock
 					if (Target->GetDockingSystem()->HasCompatibleDock(GetShipPawn())
 						&& GetCompany()->IsTechnologyUnlocked("auto-docking")
-						&& Target->GetParent()->GetCompany()->GetPlayerWarState() >= EFlareHostility::Neutral)
+						&& !Target->IsPlayerHostile())
 					{
 						Text = FText::Format(LOCTEXT("DockAtTargetFormat", "Dock at {0}"), UFlareGameTools::DisplaySpacecraftName(Target->GetParent()));
 						MouseMenu->AddWidget("Mouse_DockAt", Text, FFlareMouseMenuClicked::CreateUObject(this, &AFlarePlayerController::DockAtTargetSpacecraft));

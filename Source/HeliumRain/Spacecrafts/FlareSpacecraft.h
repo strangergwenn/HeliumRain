@@ -455,6 +455,13 @@ public:
 		return Parent->IsStation();
 	}
 
+	bool IsHostile(UFlareCompany* Company) const
+	{
+		return Parent->IsHostile(Company);
+	}
+
+	bool IsPlayerHostile() const;
+
 	/*inline FText GetNickName() const override
 	{
 		return ShipData.NickName;

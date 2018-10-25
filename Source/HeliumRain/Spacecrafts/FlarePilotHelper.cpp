@@ -33,7 +33,7 @@ bool PilotHelper::CheckFriendlyFire(UFlareSector* Sector, UFlareCompany* MyCompa
 
 		if (SpacecraftCandidate)
 		{
-			if (MyCompany->GetWarState(SpacecraftCandidate->GetParent()->GetCompany()) == EFlareHostility::Hostile)
+			if (SpacecraftCandidate->IsHostile(MyCompany))
 			{
 				//FLOG("  hostile, skip");
 				continue;
@@ -102,7 +102,7 @@ bool PilotHelper::FindMostDangerousCollision(AActor*& MostDangerousCandidateActo
 		 && !(Ship->GetSize() == EFlarePartSize::L
 			  && SpacecraftCandidate->GetSize() == EFlarePartSize::S
 			  && IsTargetDangerous(PilotTarget(SpacecraftCandidate))
-			  && Ship->GetWarState(SpacecraftCandidate->GetCompany()) == EFlareHostility::Hostile)
+			  && SpacecraftCandidate->IsHostile(Ship->GetCompany()))
 		&& !(IgnoreConfig.SpacecraftToIgnore && IgnoreConfig.SpacecraftToIgnore->IsStation() && IgnoreConfig.SpacecraftToIgnore->GetParent()->IsComplexElement() && SpacecraftCandidate->GetParent() == IgnoreConfig.SpacecraftToIgnore->GetParent()->GetComplexMaster())
 		&& !(IgnoreConfig.SpacecraftToIgnore && IgnoreConfig.SpacecraftToIgnore->IsStation() && IgnoreConfig.SpacecraftToIgnore->GetParent()->IsComplex() && SpacecraftCandidate->GetParent()->GetComplexMaster() == IgnoreConfig.SpacecraftToIgnore->GetParent())
 		)
@@ -350,7 +350,7 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 			continue;
 		}
 
-		if (Ship->GetParent()->GetCompany()->GetWarState(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
+		if (!ShipCandidate->IsHostile(Ship->GetCompany()))
 		{
 			// Ignore not hostile ships
 			continue;
@@ -558,7 +558,7 @@ PilotHelper::PilotTarget PilotHelper::GetBestTarget(AFlareSpacecraft* Ship, stru
 			continue;
 		}
 
-		if (Ship->GetParent()->GetCompany()->GetWarState(BombCandidate->GetFiringSpacecraft()->GetCompany()) != EFlareHostility::Hostile)
+		if (!BombCandidate->IsHostile(Ship->GetCompany()))
 		{
 			// Ignore not hostile bomb
 			continue;
