@@ -397,7 +397,17 @@ void AFlareHUD::Tick(float DeltaSeconds)
 	{
 		FLOGV("AFlareHUD::Tick : Reallocating HUD target to %dx%d", (int)ViewportSize.X, (int)ViewportSize.Y);
 
-		HUDRenderTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), ViewportSize.X, ViewportSize.Y);
+		FVector2D HUDRenderSize = ViewportSize;
+
+		// Scale HUD down for high resolutions
+		float MaxVerticalSize = 1080;
+		if (ViewportSize.Y > MaxVerticalSize)
+		{
+			HUDRenderSize *= (MaxVerticalSize / ViewportSize.Y);
+		}
+
+		// Create render target
+		HUDRenderTarget = UCanvasRenderTarget2D::CreateCanvasRenderTarget2D(this, UCanvasRenderTarget2D::StaticClass(), HUDRenderSize.X, HUDRenderSize.Y);
 		if (HUDRenderTarget)
 		{
 			HUDRenderTarget->OnCanvasRenderTargetUpdate.AddDynamic(this, &AFlareHUD::DrawHUDTexture);
@@ -1270,7 +1280,7 @@ void AFlareHUD::DrawHUDInternal()
 
 				// Draw turret reticle
 				FLinearColor TurretColor = HudColorNeutral;
-				TurretColor.A = GetFadeAlpha(ScreenPosition, ViewportSize / 2);
+				TurretColor.A = GetFadeAlpha(ScreenPosition, CurrentViewportSize / 2);
 				DrawHUDIcon(ScreenPosition, IconSize, HUDAimIcon, TurretColor, true);
 			}
 		}
@@ -1546,7 +1556,7 @@ void AFlareHUD::DrawSpeed(AFlarePlayerController* PC, AActor* Object, UTexture2D
 		
 		// Icon
 		FLinearColor DrawColor = HudColorNeutral;
-		DrawColor.A = GetFadeAlpha(ScreenPosition, ViewportSize / 2);
+		DrawColor.A = GetFadeAlpha(ScreenPosition, CurrentViewportSize / 2);
 		FVector2D IndicatorPosition = ScreenPosition - CurrentViewportSize / 2 - FVector2D(0, 30);
 		DrawHUDIcon(ScreenPosition, IconSize, Icon, DrawColor, true);
 	}
@@ -2012,7 +2022,7 @@ float AFlareHUD::GetFadeAlpha(FVector2D A, FVector2D B)
 {
 	float FadePower = 2.0f;
 	float FadeDistance = 100.0f;
-	float CenterDistance = FMath::Clamp(FadeDistance * (A - B).Size() / ViewportSize.Y, 0.0f, 1.0f);
+	float CenterDistance = FMath::Clamp(FadeDistance * (A - B).Size() / CurrentViewportSize.Y, 0.0f, 1.0f);
 	return FMath::Pow(CenterDistance, FadePower);
 }
 
@@ -2070,7 +2080,7 @@ bool AFlareHUD::ProjectWorldLocationToCockpit(FVector World, FVector2D& Cockpit)
 	}
 	else if (PC->ProjectWorldLocationToScreen(World, Screen))
 	{
-		Cockpit = Screen;
+		Cockpit = (CurrentViewportSize / ViewportSize) * Screen;
 		return true;
 	}
 	else
