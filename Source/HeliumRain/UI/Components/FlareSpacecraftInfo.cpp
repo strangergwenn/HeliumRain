@@ -1433,7 +1433,7 @@ FSlateColor SFlareSpacecraftInfo::GetAdditionalTextColor() const
 
 	if (TargetSpacecraft && TargetSpacecraft->IsValidLowLevel() && TargetSpacecraft->GetCurrentFleet())
 	{
-		if (TargetSpacecraft->GetCompany()->GetWarStateTODO(PC->GetCompany()) == EFlareHostility::Owned)
+		if (TargetSpacecraft->GetCompany()->GetWarState(PC->GetCompany()) == EFlareHostility::Owned)
 		{
 			return TargetSpacecraft->GetCurrentFleet()->GetFleetColor();
 		}

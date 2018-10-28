@@ -289,7 +289,7 @@ void AFlareGame::Recovery()
 		}
 
 		// Make peace
-		if(OtherCompany->GetWarStateTODO(PlayerCompany) == EFlareHostility::Hostile)
+		if(OtherCompany->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
 		{
 			OtherCompany->SetHostilityTo(PlayerCompany, false);
 			PlayerCompany->SetHostilityTo(OtherCompany, false);

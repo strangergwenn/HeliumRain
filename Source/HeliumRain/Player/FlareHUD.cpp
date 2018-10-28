@@ -2038,7 +2038,7 @@ FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpac
 		return HudColorObjective;
 	}
 
-	EFlareHostility::Type Hostility = Target->GetParent()->GetPlayerWarStateTODO();
+	EFlareHostility::Type Hostility = Target->GetParent()->GetPlayerWarState();
 	if(Target->IsPlayerHostile())
 	{
 		Hostility = EFlareHostility::Hostile;

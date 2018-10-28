@@ -199,11 +199,11 @@ public:
 	}
 
 
-	inline EFlareHostility::Type GetWarStateTODO(UFlareCompany* TargetCompany) const
+	inline EFlareHostility::Type GetWarState(UFlareCompany* TargetCompany) const
 	{
 		if (Company)
 		{
-			return Company->GetWarStateTODO(TargetCompany);
+			return Company->GetWarState(TargetCompany);
 		}
 		else
 		{

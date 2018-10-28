@@ -267,13 +267,13 @@ EFlareHostility::Type UFlareCompany::GetPlayerWarStateTODO() const
 
 	if (PC)
 	{
-		return GetWarStateTODO(PC->GetCompany());
+		return GetWarState(PC->GetCompany());
 	}
 
 	return EFlareHostility::Neutral;
 }
 
-EFlareHostility::Type UFlareCompany::GetWarStateTODO(const UFlareCompany* TargetCompany) const
+EFlareHostility::Type UFlareCompany::GetWarState(const UFlareCompany* TargetCompany) const
 {
 	if (TargetCompany == this)
 	{
@@ -289,7 +289,7 @@ EFlareHostility::Type UFlareCompany::GetWarStateTODO(const UFlareCompany* Target
 
 bool UFlareCompany::IsAtWar(const UFlareCompany* TargetCompany) const
 {
-	return GetWarStateTODO(TargetCompany) == EFlareHostility::Hostile;
+	return GetWarState(TargetCompany) == EFlareHostility::Hostile;
 }
 
 void UFlareCompany::ClearLastWarDate()
@@ -1012,7 +1012,7 @@ bool UFlareCompany::AtWar()
 			continue;
 		}
 
-		if(GetWarStateTODO(OtherCompany) == EFlareHostility::Hostile)
+		if(GetWarState(OtherCompany) == EFlareHostility::Hostile)
 		{
 			return true;
 		}
@@ -1206,7 +1206,7 @@ bool UFlareCompany::CanStartCapture(UFlareSimulatedSpacecraft* Station)
 		return false;
 	}
 
-	if ((GetWarStateTODO(Station->GetCompany()) != EFlareHostility::Hostile)
+	if ((GetWarState(Station->GetCompany()) != EFlareHostility::Hostile)
 		|| !Station->GetCurrentSector()->GetSectorBattleState(this).BattleWon)
 	{
 		// Friend don't capture and not winner don't capture

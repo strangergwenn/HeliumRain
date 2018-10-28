@@ -64,10 +64,10 @@ public:
 	virtual EFlareHostility::Type GetHostility(const UFlareCompany* TargetCompany) const;
 
 	/** Check if we are friend or foe toward this target company. Hostile if at least one company is hostile */
-	virtual EFlareHostility::Type GetPlayerWarStateTODO() const;
+	virtual EFlareHostility::Type GetPlayerWarState() const;
 
 	/** Check if we are friend or foe toward this target company.  Hostile if at least one company is hostile */
-	virtual EFlareHostility::Type GetWarStateTODO(const UFlareCompany* TargetCompany) const;
+	virtual EFlareHostility::Type GetWarState(const UFlareCompany* TargetCompany) const;
 
 	bool IsAtWar(const UFlareCompany* TargetCompany) const;
 

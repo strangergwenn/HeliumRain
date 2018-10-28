@@ -297,11 +297,11 @@ FSlateColor SFlareFleetInfo::GetTextColor() const
 
 	if (TargetFleet && TargetFleet->IsValidLowLevel())
 	{
-		if (TargetFleet->GetFleetCompany()->GetWarStateTODO(PC->GetCompany()) == EFlareHostility::Owned)
+		if (TargetFleet->GetFleetCompany()->GetWarState(PC->GetCompany()) == EFlareHostility::Owned)
 		{
 			return TargetFleet->GetFleetColor();
 		}
-		else if (TargetFleet->GetFleetCompany()->GetWarStateTODO(PC->GetCompany()) == EFlareHostility::Hostile)
+		else if (TargetFleet->GetFleetCompany()->GetWarState(PC->GetCompany()) == EFlareHostility::Hostile)
 		{
 			return Theme.EnemyColor;
 		}
