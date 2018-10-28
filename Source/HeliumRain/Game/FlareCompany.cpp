@@ -261,7 +261,7 @@ EFlareHostility::Type UFlareCompany::GetHostility(const UFlareCompany* TargetCom
 	return EFlareHostility::Neutral;
 }
 
-EFlareHostility::Type UFlareCompany::GetPlayerWarStateTODO() const
+EFlareHostility::Type UFlareCompany::GetPlayerWarState() const
 {
 	AFlarePlayerController* PC = Cast<AFlarePlayerController>(Game->GetWorld()->GetFirstPlayerController());
 
@@ -1680,7 +1680,7 @@ FText UFlareCompany::GetPlayerHostilityText() const
 {
 	FText Status;
 
-	switch (GetPlayerWarStateTODO())
+	switch (GetPlayerWarState())
 	{
 		case EFlareHostility::Neutral:
 			Status = LOCTEXT("Neutral", "Neutral");

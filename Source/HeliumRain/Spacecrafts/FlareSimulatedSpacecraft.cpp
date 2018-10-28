@@ -466,7 +466,7 @@ bool UFlareSimulatedSpacecraft::CanTradeWith(UFlareSimulatedSpacecraft* OtherSpa
 	}
 
 	// Check if both spacecraft are not at war
-	if (GetCompany()->GetWarStateTODO(OtherSpacecraft->GetCompany()) == EFlareHostility::Hostile)
+	if (GetCompany()->GetWarState(OtherSpacecraft->GetCompany()) == EFlareHostility::Hostile)
 	{
 		Reason = LOCTEXT("CantTradeWar", "Can't trade between enemies");
 		return false;
@@ -1752,7 +1752,7 @@ bool UFlareSimulatedSpacecraft::CanOrder(const FFlareSpacecraftDescription* Ship
 		return false;
 	}
 
-	if(GetCompany()->GetWarStateTODO(OrderCompany) == EFlareHostility::Hostile)
+	if(GetCompany()->GetWarState(OrderCompany) == EFlareHostility::Hostile)
 	{
 		// Not possible to buy ship to hostile company
 		return false;
@@ -2040,9 +2040,9 @@ bool UFlareSimulatedSpacecraft::HasCapability(EFlareSpacecraftCapability::Type C
 	}
 }
 
-EFlareHostility::Type UFlareSimulatedSpacecraft::GetPlayerWarStateTODO() const
+EFlareHostility::Type UFlareSimulatedSpacecraft::GetPlayerWarState() const
 {
-	return GetCompany()->GetPlayerWarStateTODO();
+	return GetCompany()->GetPlayerWarState();
 }
 
 TArray<UFlareFactory*>& UFlareSimulatedSpacecraft::GetFactories()
@@ -2465,7 +2465,7 @@ bool UFlareSimulatedSpacecraft::IsHostile(UFlareCompany* OtherCompany) const
 		}
 	}
 
-	return GetCompany()->GetWarStateTODO(OtherCompany) == EFlareHostility::Hostile;
+	return GetCompany()->GetWarState(OtherCompany) == EFlareHostility::Hostile;
 }
 
 #undef LOCTEXT_NAMESPACE

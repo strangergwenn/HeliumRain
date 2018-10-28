@@ -406,7 +406,7 @@ public:
 
 	bool HasCapability(EFlareSpacecraftCapability::Type Capability) const;
 
-	EFlareHostility::Type GetPlayerWarStateTODO() const;
+	EFlareHostility::Type GetPlayerWarState() const;
 
 	bool IsPlayerHostile() const;
 
