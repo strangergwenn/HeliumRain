@@ -322,4 +322,8 @@ public:
 
 
 	bool IsTradeQuestUseStation(UFlareSimulatedSpacecraft* Station);
+
+	bool IsUnderMilitaryContract(UFlareSimulatedSector* Sector,  UFlareCompany* Company);
+
+	bool IsMilitaryTarget(UFlareSimulatedSpacecraft const* Spacecraft);
 };

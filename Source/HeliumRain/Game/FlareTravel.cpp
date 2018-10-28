@@ -533,4 +533,43 @@ void UFlareTravel::InitTravelSector(FFlareSectorSave& NewSectorData)
 	NewSectorData.PeopleData.Dept = 0;
 }
 
+bool UFlareTravel::IsPlayerHostile()
+{
+	if(Fleet->GetFleetCompany()->IsPlayerCompany())
+	{
+		return false;
+	}
+
+	bool CanBeHostile = Game->GetQuestManager()->IsUnderMilitaryContract(GetDestinationSector(), Fleet->GetFleetCompany());
+
+	if(!CanBeHostile)
+	{
+		for (UFlareSimulatedSpacecraft* Ship :Fleet->GetShips())
+		{
+			if(Game->GetQuestManager()->IsMilitaryTarget(Ship))
+			{
+				CanBeHostile = true;
+				break;
+			}
+		}
+	}
+
+	if(!CanBeHostile)
+	{
+		return false;
+	}
+
+	bool HasMilitaryShip = false;
+	for (UFlareSimulatedSpacecraft* Ship :Fleet->GetShips())
+	{
+		if (Ship->IsMilitary() && !Ship->GetDamageSystem()->IsDisarmed() && !Ship->GetDamageSystem()->IsUncontrollable())
+		{
+			HasMilitaryShip = true;
+			break;
+		}
+	}
+
+	return HasMilitaryShip;
+}
+
 #undef LOCTEXT_NAMESPACE

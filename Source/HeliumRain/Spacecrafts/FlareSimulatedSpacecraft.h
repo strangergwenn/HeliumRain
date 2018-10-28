@@ -36,7 +36,7 @@ public:
 	virtual UFlareCompany* GetCompany() const;
 
 	/** Get the ship size class */
-	virtual EFlarePartSize::Type GetSize();
+	virtual EFlarePartSize::Type GetSize() const;
 
 	virtual FName GetImmatriculation() const;
 
