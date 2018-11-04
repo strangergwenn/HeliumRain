@@ -540,13 +540,13 @@ bool UFlareTravel::IsPlayerHostile()
 		return false;
 	}
 
-	bool CanBeHostile = Game->GetQuestManager()->IsUnderMilitaryContract(GetDestinationSector(), Fleet->GetFleetCompany());
+	bool CanBeHostile = Game->GetQuestManager()->IsUnderMilitaryContract(GetDestinationSector(), Fleet->GetFleetCompany(), false);
 
 	if(!CanBeHostile)
 	{
 		for (UFlareSimulatedSpacecraft* Ship :Fleet->GetShips())
 		{
-			if(Game->GetQuestManager()->IsMilitaryTarget(Ship))
+			if(Game->GetQuestManager()->IsMilitaryTarget(Ship, false))
 			{
 				CanBeHostile = true;
 				break;

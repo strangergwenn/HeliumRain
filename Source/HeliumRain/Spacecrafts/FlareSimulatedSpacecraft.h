@@ -410,7 +410,7 @@ public:
 
 	bool IsPlayerHostile() const;
 
-	bool IsHostile(UFlareCompany* Company) const;
+	bool IsHostile(UFlareCompany* Company, bool UseCache = false) const;
 
 	int32 GetCapturePoint(UFlareCompany* Company) const;
 

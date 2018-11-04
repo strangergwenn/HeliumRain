@@ -343,7 +343,7 @@ void UFlareSpacecraftDamageSystem::OnSpacecraftDestroyed()
 		&& LastDamageCause.Spacecraft->IsResponsible(LastDamageCause.DamageType))
 	{
 		// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
-		if (!Spacecraft->IsHostile(PlayerCompany))
+		if (!Spacecraft->IsHostile(PlayerCompany, true))
 		{
 			float ReputationCost = -40;
 
@@ -450,7 +450,7 @@ void UFlareSpacecraftDamageSystem::OnControlLost()
 		&& LastDamageCause.Spacecraft == PlayerShip)
 	{
 		// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
-		if (!Spacecraft->IsHostile(PlayerCompany))
+		if (!Spacecraft->IsHostile(PlayerCompany, true))
 		{
 			float ReputationCost = -30;
 

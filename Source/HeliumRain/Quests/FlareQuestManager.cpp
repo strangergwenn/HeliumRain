@@ -852,7 +852,105 @@ bool UFlareQuestManager::IsTradeQuestUseStation(UFlareSimulatedSpacecraft* Stati
 	return false;
 }
 
-bool UFlareQuestManager::IsUnderMilitaryContract(UFlareSimulatedSector* Sector,  UFlareCompany* Company)
+bool UFlareQuestManager::IsUnderMilitaryContract(UFlareSimulatedSector* Sector,  UFlareCompany* Company, bool IncludeCache)
+{
+	if(IsUnderMilitaryContractNoCache(Sector, Company))
+	{
+		for(IsUnderMilitaryContractCacheEntry& CacheEntry : IsUnderMilitaryContractCache)
+		{
+			if(CacheEntry.Sector == Sector && CacheEntry.Company == Company)
+			{
+				CacheEntry.ExpireTime = FPlatformTime::Seconds() + 10.f;
+				return true;
+			}
+		}
+
+		IsUnderMilitaryContractCacheEntry NewEntry;
+		NewEntry.ExpireTime = FPlatformTime::Seconds() + 10.f;
+		NewEntry.Sector = Sector;
+		NewEntry.Company = Company;
+		IsUnderMilitaryContractCache.Add(NewEntry);
+
+		return true;
+	}
+	else if(!IncludeCache)
+	{
+		return false;
+	}
+	else
+	{
+		int Index = 0;
+
+		for(IsUnderMilitaryContractCacheEntry& CacheEntry : IsUnderMilitaryContractCache)
+		{
+			if(CacheEntry.Sector == Sector && CacheEntry.Company == Company)
+			{
+				if(CacheEntry.ExpireTime > FPlatformTime::Seconds())
+				{
+					return true;
+				}
+				else
+				{
+					IsUnderMilitaryContractCache.RemoveAt(Index);
+					break;
+				}
+			}
+			Index++;
+		}
+
+
+		return false;
+	}
+}
+
+bool UFlareQuestManager::IsMilitaryTarget(UFlareSimulatedSpacecraft const* Spacecraft, bool IncludeCache)
+{
+	if(IsMilitaryTargetNoCache(Spacecraft))
+	{
+		for(IsMilitaryTargetCacheEntry& CacheEntry : IsMilitaryTargetCache)
+		{
+			if(CacheEntry.Spacecraft == Spacecraft)
+			{
+				CacheEntry.ExpireTime = FPlatformTime::Seconds() + 10.f;
+				return true;
+			}
+		}
+
+		IsMilitaryTargetCacheEntry NewEntry;
+		NewEntry.ExpireTime = FPlatformTime::Seconds();
+		NewEntry.Spacecraft = Spacecraft;
+		IsMilitaryTargetCache.Add(NewEntry);
+
+		return true;
+	}
+	else if(!IncludeCache)
+	{
+		return false;
+	}
+	else
+	{
+		int Index = 0;
+		for(IsMilitaryTargetCacheEntry& CacheEntry : IsMilitaryTargetCache)
+		{
+			if(CacheEntry.Spacecraft == Spacecraft)
+			{
+				if(CacheEntry.ExpireTime > FPlatformTime::Seconds())
+				{
+					return true;
+				}
+				else
+				{
+					IsMilitaryTargetCache.RemoveAt(Index);
+					break;
+				}
+			}
+			Index++;
+		}
+		return false;
+	}
+}
+
+bool UFlareQuestManager::IsUnderMilitaryContractNoCache(UFlareSimulatedSector* Sector,  UFlareCompany* Company)
 {
 	for(UFlareQuest* OngoingQuest : GetOngoingQuests())
 	{
@@ -968,7 +1066,7 @@ bool UFlareQuestManager::IsUnderMilitaryContract(UFlareSimulatedSector* Sector, 
 	return false;
 }
 
-bool UFlareQuestManager::IsMilitaryTarget(UFlareSimulatedSpacecraft const* Spacecraft)
+bool UFlareQuestManager::IsMilitaryTargetNoCache(UFlareSimulatedSpacecraft const* Spacecraft)
 {
 	for(UFlareQuest* OngoingQuest : GetOngoingQuests())
 	{
