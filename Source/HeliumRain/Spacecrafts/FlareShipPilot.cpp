@@ -735,8 +735,8 @@ void UFlareShipPilot::FighterPilot(float DeltaSeconds)
 	}
 
 	// Exit avoidance
-	if (PilotTarget.IsEmpty()
-			||
+	if (PilotTarget.IsEmpty() ||
+			Distance > 2000 ||
 			(PilotTarget.SpacecraftTarget && !PilotTarget.SpacecraftTarget->GetParent()->GetDamageSystem()->IsUncontrollable()
 			&& PilotTarget.SpacecraftTarget != Ship->GetGame()->GetPC()->GetShipPawn()))
 	{
@@ -809,6 +809,10 @@ void UFlareShipPilot::BomberPilot(float DeltaSeconds)
 		else
 		{
 			LinearTargetVelocity = TargetAxis * PreferedVelocity;
+			// Exit avoidance
+			LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.5);
+
+
 			AngularTargetVelocity = GetAngularVelocityToAlignAxis(FVector(1,0,0), TargetAxis, FVector::ZeroVector, DeltaSeconds);
 			UseOrbitalBoost = true;
 		}
@@ -1011,7 +1015,12 @@ void UFlareShipPilot::MissilePilot(float DeltaSeconds)
 				TimeBeforeNextDrop = TimeBetweenDrop;
 			}
 		}
+
 	}
+
+	// Exit avoidance
+	LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.5);
+
 
 	// Anticollision
 	PilotHelper::AnticollisionConfig IgnoreConfig;
@@ -1206,6 +1215,8 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 	// TODO Bomb avoid
 
 	FVector DeltaLocation = PilotTarget.GetActorLocation() - Ship->GetActorLocation();
+	float Distance = DeltaLocation.Size() * 0.01f; // Distance in meters
+
 
 	//FLOGV("DeltaLocation %f", DeltaLocation.Size());
 
@@ -1216,7 +1227,7 @@ void UFlareShipPilot::FlagShipPilot(float DeltaSeconds)
 	//FLOGV("AngularVelocity: %s", *Ship->Airframe->GetPhysicsAngularVelocity().ToString())
 
 	// Exit avoidance
-	if(PilotTarget.IsEmpty() || (!PilotTarget.Is(Ship->GetGame()->GetPC()->GetShipPawn())))
+	if(PilotTarget.IsEmpty() || Distance > 2000 || (!PilotTarget.Is(Ship->GetGame()->GetPC()->GetShipPawn())))
 	{
 		LinearTargetVelocity = ExitAvoidance(Ship, LinearTargetVelocity, 0.7);
 	}
