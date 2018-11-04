@@ -380,7 +380,7 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 				// 1% per day per negative reputation point
 				float ValueRatio = float(OtherValue.TotalValue) / TotalValue;
 
-				float CargoHuntQuestProbability = FMath::Clamp(ValueRatio * 0.0001f, 0.f, 1.f);
+				float CargoHuntQuestProbability = FMath::Clamp(FMath::Square(ValueRatio) * 0.5f, 0.f, 1.f);
 
 				// No luck, no quest this time
 				if (FMath::FRand() > CargoHuntQuestProbability)
@@ -397,8 +397,8 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 				float ValueRatio = float(OtherValue.ArmyCurrentCombatPoints) / TotalCombatValue;
 				
 				// 1% per day per negative reputation point
-				float MilitaryHuntQuestProbability = FMath::Clamp(ValueRatio * 0.001f, 0.f, 1.f);
-								
+				float MilitaryHuntQuestProbability = FMath::Clamp(FMath::Square(ValueRatio) * 0.5f, 0.f, 1.f);
+
 				// No luck, no quest this time
 				if (FMath::FRand() > MilitaryHuntQuestProbability)
 				{
