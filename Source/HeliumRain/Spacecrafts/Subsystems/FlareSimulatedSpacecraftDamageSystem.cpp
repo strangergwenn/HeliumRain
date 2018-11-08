@@ -450,7 +450,7 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 
 
 				}
-				else if(Spacecraft->IsActive() && Spacecraft->GetActive()->GetTimeSinceUncontrollable() > 5.f)
+				else if(Spacecraft->IsActive() && Spacecraft->GetActive()->GetTimeSinceUncontrollable() > 5.f && !Spacecraft->GetGame()->GetQuestManager()->IsAllowedToDestroy(Spacecraft))
 				{
 					// If an attack on a prisoner, lower attacker's reputation on everyone, give rep to victim
 

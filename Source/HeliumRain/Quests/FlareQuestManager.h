@@ -346,4 +346,7 @@ public:
 	bool IsUnderMilitaryContractNoCache(UFlareSimulatedSector* Sector,  UFlareCompany* Company);
 
 	bool IsMilitaryTargetNoCache(UFlareSimulatedSpacecraft const* Spacecraft);
+
+	bool IsAllowedToDestroy(UFlareSimulatedSpacecraft const* Spacecraft);
+
 };

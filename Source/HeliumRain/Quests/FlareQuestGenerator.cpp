@@ -2718,7 +2718,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt2::Create(UFlareQuestGenerato
 
 	int32 PreferredPlayerCombatPoints= int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints);
 
-	bool RequestDestroyTarget = FMath::RandBool();
+	bool RequestDestroyTarget = FMath::Rand() > 0.9f;
 
 
 	int32 SmallCargoCount = 0;
@@ -2790,7 +2790,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt2::Create(UFlareQuestGenerato
 	int64 ArmyPrice = RequestedArmyCombatPoints  * 3000;
 
 	// Setup reward
-	int64 QuestValue = WarPrice + ArmyPrice;
+	int64 QuestValue = WarPrice + ArmyPrice * (RequestDestroyTarget ? 1.5f: 1.f);
 
 	// Create the quest
 	UFlareQuestGeneratedCargoHunt2* Quest = NewObject<UFlareQuestGeneratedCargoHunt2>(Parent, UFlareQuestGeneratedCargoHunt2::StaticClass());
@@ -2903,7 +2903,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt2::Create(UFlareQuestGener
 
 	int32 PreferredPlayerCombatPoints= int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints);
 
-	bool RequestDestroyTarget = FMath::RandBool();
+	bool RequestDestroyTarget = FMath::Rand() > 0.9;
 
 
 	int32 NeedArmyCombatPoints = HostileCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.1,0.5);
@@ -2924,7 +2924,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt2::Create(UFlareQuestGener
 	int64 ArmyPrice = RequestedArmyCombatPoints  * 20000;
 
 	// Setup reward
-	int64 QuestValue = WarPrice + ArmyPrice;
+	int64 QuestValue = WarPrice + ArmyPrice * (RequestDestroyTarget ? 1.5f: 1.f);
 
 	// Create the quest
 	UFlareQuestGeneratedMilitaryHunt2* Quest = NewObject<UFlareQuestGeneratedMilitaryHunt2>(Parent, UFlareQuestGeneratedMilitaryHunt2::StaticClass());
