@@ -213,6 +213,15 @@ void SFlareCreditsMenu::Construct(const FArguments& InArgs)
 					.Padding(Theme.ContentPadding)
 					[
 						SNew(STextBlock)
+						.Text(LOCTEXT("DONT-TRANSLATE-Russian-Translation", "Russian translation by Alexander Pyrov."))
+						.TextStyle(&Theme.NameFont)
+						.WrapTextAt(TextWidth)
+					]
+
+					+ SScrollBox::Slot()
+					.Padding(Theme.ContentPadding)
+					[
+						SNew(STextBlock)
 						.Text(LOCTEXT("DONT-TRANSLATE-Sound-Info", "Some sound resources were provided by FreeSFX (http://www.freesfx.co.uk)."))
 						.TextStyle(&Theme.NameFont)
 						.WrapTextAt(TextWidth)
