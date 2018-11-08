@@ -684,7 +684,10 @@ void UFlareCompany::DestroySpacecraft(UFlareSimulatedSpacecraft* Spacecraft)
 
 void UFlareCompany::DiscoverSector(UFlareSimulatedSector* Sector)
 {
-	KnownSectors.AddUnique(Sector);
+	if (Sector)
+	{
+		KnownSectors.AddUnique(Sector);
+	}
 }
 
 void UFlareCompany::VisitSector(UFlareSimulatedSector* Sector)

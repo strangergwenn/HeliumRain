@@ -140,7 +140,7 @@ void UFlareScenarioTools::Init(UFlareCompany* Company, FFlarePlayerSave* Player)
 void UFlareScenarioTools::PostLoad()
 {
 	// Add the Farm as a world update if it didn't exist yet
-	if (TheFarm->GetSectorStations().Num() == 0)
+	if (TheFarm && TheFarm->GetSectorStations().Num() == 0)
 	{
 		CreateTheFarm();
 		PlayerCompany->DiscoverSector(TheFarm);
@@ -291,12 +291,30 @@ void UFlareScenarioTools::SetupWorld()
 	Quantalium->UnlockTechnology("metallurgy", false, true);
 
 	// Population setup
-	BlueHeart->GetPeople()->GiveBirth(4000);
-	NightsHome->GetPeople()->GiveBirth(2000);
-	FrozenRealm->GetPeople()->GiveBirth(2000);
-	MinersHome->GetPeople()->GiveBirth(2000);
-	TheForge->GetPeople()->GiveBirth(2000);
-	BlueShores->GetPeople()->GiveBirth(1000);
+	if (BlueHeart)
+	{
+		BlueHeart->GetPeople()->GiveBirth(4000);
+	}
+	if (NightsHome)
+	{
+		NightsHome->GetPeople()->GiveBirth(2000);
+	}
+	if (FrozenRealm)
+	{
+		FrozenRealm->GetPeople()->GiveBirth(2000);
+	}
+	if (MinersHome)
+	{
+		MinersHome->GetPeople()->GiveBirth(2000);
+	}
+	if (TheForge)
+	{
+		TheForge->GetPeople()->GiveBirth(2000);
+	}
+	if (BlueShores)
+	{
+		BlueShores->GetPeople()->GiveBirth(1000);
+	}
 	
 	// The Depths (ice mines)
 	CreateStations(StationIceMine, MiningSyndicate, TheDepths, 4);
@@ -431,36 +449,40 @@ void UFlareScenarioTools::SetupAsteroids()
 
 	CreateAsteroids(Serenity, 27, FVector(42, 9, 7));
 }
+
 void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 {
-	// Nema
-	Company->DiscoverSector(TheDepths);
-	Company->DiscoverSector(MinersHome);
-	Company->DiscoverSector(BlueHeart);
-	Company->DiscoverSector(Lighthouse);
-	Company->DiscoverSector(BlueShores);
-	Company->DiscoverSector(TheSpire);
-	Company->DiscoverSector(TheFarm);
-	// Unknown : FirstLight, Anomaly, Pendulum
+	if (Company)
+	{
+		// Nema
+		Company->DiscoverSector(TheDepths);
+		Company->DiscoverSector(MinersHome);
+		Company->DiscoverSector(BlueHeart);
+		Company->DiscoverSector(Lighthouse);
+		Company->DiscoverSector(BlueShores);
+		Company->DiscoverSector(TheSpire);
+		Company->DiscoverSector(TheFarm);
+		// Unknown : FirstLight, Anomaly, Pendulum
 
-	// Anka
-	Company->DiscoverSector(Crossroads);
-	Company->DiscoverSector(TheDig);
-	Company->DiscoverSector(TheForge);
-	// Unknown : Colossus, Outpost
+		// Anka
+		Company->DiscoverSector(Crossroads);
+		Company->DiscoverSector(TheDig);
+		Company->DiscoverSector(TheForge);
+		// Unknown : Colossus, Outpost
 
-	// Hela
-	Company->DiscoverSector(NightsHome);
-	Company->DiscoverSector(FrozenRealm);
-	Company->DiscoverSector(WinterJunction);
-	// Unknown : Ruins, ShoreOfIce
+		// Hela
+		Company->DiscoverSector(NightsHome);
+		Company->DiscoverSector(FrozenRealm);
+		Company->DiscoverSector(WinterJunction);
+		// Unknown : Ruins, ShoreOfIce
 
-	// Asta
-	// Unknown : Decay, Boneyard, Daedalus
+		// Asta
+		// Unknown : Decay, Boneyard, Daedalus
 
-	// Adena
-	Company->DiscoverSector(Tranquility);
-	// Unknown : Serenity, Solitude, Pharos
+		// Adena
+		Company->DiscoverSector(Tranquility);
+		// Unknown : Serenity, Solitude, Pharos
+	}
 }
 
 
@@ -470,275 +492,299 @@ void UFlareScenarioTools::SetupKnownSectors(UFlareCompany* Company)
 
 UFlareSimulatedSpacecraft* UFlareScenarioTools::CreatePlayerShip(UFlareSimulatedSector* Sector, FName Class)
 {
-	UFlareSimulatedSpacecraft* InitialShip = Sector->CreateSpacecraft(Class, PlayerCompany, FVector::ZeroVector);
-	PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
-	PlayerData->PlayerFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
+	UFlareSimulatedSpacecraft* InitialShip = nullptr;
+
+	if (Sector)
+	{
+		InitialShip = Sector->CreateSpacecraft(Class, PlayerCompany, FVector::ZeroVector);
+		PlayerData->LastFlownShipIdentifier = InitialShip->GetImmatriculation();
+		PlayerData->PlayerFleetIdentifier = InitialShip->GetCurrentFleet()->GetIdentifier();
+	}
+
 	return InitialShip;
 }
 
 void UFlareScenarioTools::CreateAsteroids(UFlareSimulatedSector* Sector, int32 Count, FVector DistributionShape)
 {
-	FLOGV("UFlareScenarioTools::CreateAsteroids : Trying to spawn %d asteroids", Count);
-	FCHECK(Sector);
-
-	// Compute parameters
-	float MaxAsteroidDistance = 15000;
-	int32 AsteroidCount = 0;
-	int32 CellCount = DistributionShape.X * DistributionShape.Y * DistributionShape.Z * 4;
-	int32 FailCount = 0;
-
-	while (AsteroidCount < Count && FailCount < 5000)
+	if (Sector)
 	{
-		for (int32 X = -DistributionShape.X; X <= DistributionShape.X; X++)
+		FLOGV("UFlareScenarioTools::CreateAsteroids : Trying to spawn %d asteroids", Count);
+
+		// Compute parameters
+		float MaxAsteroidDistance = 15000;
+		int32 AsteroidCount = 0;
+		int32 CellCount = DistributionShape.X * DistributionShape.Y * DistributionShape.Z * 4;
+		int32 FailCount = 0;
+
+		while (AsteroidCount < Count && FailCount < 5000)
 		{
-			for (int32 Y = -DistributionShape.Y; Y <= DistributionShape.Y; Y++)
+			for (int32 X = -DistributionShape.X; X <= DistributionShape.X; X++)
 			{
-				for (int32 Z = -DistributionShape.Z; Z <= DistributionShape.Z; Z++)
+				for (int32 Y = -DistributionShape.Y; Y <= DistributionShape.Y; Y++)
 				{
-					if (FMath::RandHelper(CellCount) <= Count)
+					for (int32 Z = -DistributionShape.Z; Z <= DistributionShape.Z; Z++)
 					{
-						bool CanSpawn = true;
-						FVector AsteroidLocation = MaxAsteroidDistance * FVector(X, Y, Z);
-
-						// Check for collision
-						TArray<FFlareAsteroidSave> Asteroids = Sector->Save()->AsteroidData;
-						for (int32 Index = 0; Index < Asteroids.Num(); Index++)
+						if (FMath::RandHelper(CellCount) <= Count)
 						{
-							if ((Asteroids[Index].Location - AsteroidLocation).Size() < MaxAsteroidDistance)
+							bool CanSpawn = true;
+							FVector AsteroidLocation = MaxAsteroidDistance * FVector(X, Y, Z);
+
+							// Check for collision
+							TArray<FFlareAsteroidSave> Asteroids = Sector->Save()->AsteroidData;
+							for (int32 Index = 0; Index < Asteroids.Num(); Index++)
 							{
-								CanSpawn = false;
-								break;
+								if ((Asteroids[Index].Location - AsteroidLocation).Size() < MaxAsteroidDistance)
+								{
+									CanSpawn = false;
+									break;
+								}
 							}
-						}
 
-						// Spawn the asteroid
-						if (CanSpawn)
-						{
-							FString AsteroidName = FString("asteroid") + FString::FromInt(AsteroidCount);
-							int32 AsteroidCatalogCount = Game->GetAsteroidCatalog() ? Game->GetAsteroidCatalog()->Asteroids.Num() : 0;
-							Sector->CreateAsteroid(FMath::RandRange(0, AsteroidCatalogCount - 1), FName(*AsteroidName), AsteroidLocation);
-							AsteroidCount++;
-						}
-						else
-						{
-							FailCount++;
+							// Spawn the asteroid
+							if (CanSpawn)
+							{
+								FString AsteroidName = FString("asteroid") + FString::FromInt(AsteroidCount);
+								int32 AsteroidCatalogCount = Game->GetAsteroidCatalog() ? Game->GetAsteroidCatalog()->Asteroids.Num() : 0;
+								Sector->CreateAsteroid(FMath::RandRange(0, AsteroidCatalogCount - 1), FName(*AsteroidName), AsteroidLocation);
+								AsteroidCount++;
+							}
+							else
+							{
+								FailCount++;
+							}
 						}
 					}
 				}
 			}
 		}
-	}
 
-	FLOGV("UFlareScenarioTools::CreateAsteroids : Spawned %d asteroids", AsteroidCount);
+		FLOGV("UFlareScenarioTools::CreateAsteroids : Spawned %d asteroids", AsteroidCount);
+	}
 }
 
 void UFlareScenarioTools::CreateShips(FName ShipClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count)
 {
-	for (uint32 Index = 0; Index < Count; Index++)
+	if (Sector && Company)
 	{
-		Sector->CreateSpacecraft(ShipClass, Company, FVector::ZeroVector);
+		for (uint32 Index = 0; Index < Count; Index++)
+		{
+			Sector->CreateSpacecraft(ShipClass, Company, FVector::ZeroVector);
+		}
 	}
 }
 
 void UFlareScenarioTools::CreateStations(FName StationClass, UFlareCompany* Company, UFlareSimulatedSector* Sector, uint32 Count, int32 Level, FFlareStationSpawnParameters SpawnParameters)
 {
-	for (uint32 Index = 0; Index < Count; Index++)
+	if (Sector && Company)
 	{
-		UFlareSimulatedSpacecraft* Station = Sector->CreateStation(StationClass, Company, false, SpawnParameters);
-
-		if (!Station)
+		for (uint32 Index = 0; Index < Count; Index++)
 		{
-			continue;
-		}
+			UFlareSimulatedSpacecraft* Station = Sector->CreateStation(StationClass, Company, false, SpawnParameters);
 
-		Station->GetData().Level = Level;
-
-		if (Station->GetFactories().Num() > 0)
-		{
-			UFlareFactory* ActiveFactory = Station->GetFactories()[0];
-
-			// Give input resources
-			for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
+			if (!Station)
 			{
-				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.InputResources[ResourceIndex];
-				float StartRatio = FMath::FRandRange(0.25,0.75);
-				Station->GetActiveCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetActiveCargoBay()->GetSlotCapacity() * StartRatio, Company);
+				continue;
 			}
 
-			// Give output resources
-			for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.OutputResources.Num(); ResourceIndex++)
+			Station->GetData().Level = Level;
+
+			if (Station->GetFactories().Num() > 0)
 			{
-				const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.OutputResources[ResourceIndex];
-				float StartRatio = FMath::FRandRange(0.25,0.75);
-				Station->GetActiveCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetActiveCargoBay()->GetSlotCapacity() * StartRatio, Company);
+				UFlareFactory* ActiveFactory = Station->GetFactories()[0];
+
+				// Give input resources
+				for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.InputResources.Num(); ResourceIndex++)
+				{
+					const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.InputResources[ResourceIndex];
+					float StartRatio = FMath::FRandRange(0.25, 0.75);
+					Station->GetActiveCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetActiveCargoBay()->GetSlotCapacity() * StartRatio, Company);
+				}
+
+				// Give output resources
+				for (int32 ResourceIndex = 0; ResourceIndex < ActiveFactory->GetDescription()->CycleCost.OutputResources.Num(); ResourceIndex++)
+				{
+					const FFlareFactoryResource* Resource = &ActiveFactory->GetDescription()->CycleCost.OutputResources[ResourceIndex];
+					float StartRatio = FMath::FRandRange(0.25, 0.75);
+					Station->GetActiveCargoBay()->GiveResources(&Resource->Resource->Data, Station->GetActiveCargoBay()->GetSlotCapacity() * StartRatio, Company);
+				}
+			}
+
+			// Give customer resources
+			if (Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+			{
+				for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
+				{
+					FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
+					float StartRatio = FMath::FRandRange(0.25, 0.75);
+					Station->GetActiveCargoBay()->GiveResources(Resource, Station->GetActiveCargoBay()->GetSlotCapacity() * StartRatio, Company);
+				}
+			}
+
+			// Give customer resources
+			if (Station->HasCapability(EFlareSpacecraftCapability::Maintenance))
+			{
+				for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
+				{
+					FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
+					float StartRatio = FMath::FRandRange(0.25, 0.75);
+					Station->GetActiveCargoBay()->GiveResources(Resource, Station->GetActiveCargoBay()->GetSlotCapacity() * StartRatio, Company);
+				}
 			}
 		}
-		
-		// Give customer resources
-		if (Station->HasCapability(EFlareSpacecraftCapability::Consumer))
-		{
-			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->ConsumerResources.Num(); ResourceIndex++)
-			{
-				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->ConsumerResources[ResourceIndex]->Data;
-				float StartRatio = FMath::FRandRange(0.25,0.75);
-				Station->GetActiveCargoBay()->GiveResources(Resource, Station->GetActiveCargoBay()->GetSlotCapacity() * StartRatio, Company);
-			}
-		}
-
-		// Give customer resources
-		if (Station->HasCapability(EFlareSpacecraftCapability::Maintenance))
-		{
-			for (int32 ResourceIndex = 0; ResourceIndex < Game->GetResourceCatalog()->MaintenanceResources.Num(); ResourceIndex++)
-			{
-				FFlareResourceDescription* Resource = &Game->GetResourceCatalog()->MaintenanceResources[ResourceIndex]->Data;
-				float StartRatio = FMath::FRandRange(0.25,0.75);
-				Station->GetActiveCargoBay()->GiveResources(Resource, Station->GetActiveCargoBay()->GetSlotCapacity() * StartRatio, Company);
-			}
-		}
-
-
 	}
 }
 
 void UFlareScenarioTools::CreateBlueHeart()
 {
-	float StationRadius = 50000;
-	FVector UpVector(0, 0, 1);
-	FVector BaseLocation = FVector(-200000.0, 0, 0);
-	FFlareStationSpawnParameters StationParams;
-	StationParams.AttachActorName = FName("BlueHeartCore");
+	if (BlueHeart && NemaHeavyWorks && UnitedFarmsChemicals && AxisSupplies)
+	{
+		float StationRadius = 50000;
+		FVector UpVector(0, 0, 1);
+		FVector BaseLocation = FVector(-200000.0, 0, 0);
+		FFlareStationSpawnParameters StationParams;
+		StationParams.AttachActorName = FName("BlueHeartCore");
 
-	// BH Shipyard
-	StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0);
-	StationParams.Rotation = FRotator::ZeroRotator;
-	CreateStations("station-bh-shipyard", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
+		// BH Shipyard
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0);
+		StationParams.Rotation = FRotator::ZeroRotator;
+		CreateStations("station-bh-shipyard", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
 
-	// BH Arsenal
-	StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(30, UpVector);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 30));
-	CreateStations("station-bh-arsenal", AxisSupplies, BlueHeart, 1, 1, StationParams);
+		// BH Arsenal
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(30, UpVector);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 30));
+		CreateStations("station-bh-arsenal", AxisSupplies, BlueHeart, 1, 1, StationParams);
 
-	// BH Hub
-	StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(-30, UpVector);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -30));
-	CreateStations("station-bh-hub", IonLane, BlueHeart, 1, 1, StationParams);
+		// BH Hub
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(-30, UpVector);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -30));
+		CreateStations("station-bh-hub", IonLane, BlueHeart, 1, 1, StationParams);
 
-	// BH Habitation 1
-	StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, 7168);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, 0));
-	CreateStations("station-bh-habitation", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
+		// BH Habitation 1
+		StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, 7168);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, 0));
+		CreateStations("station-bh-habitation", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
 
-	// BH Habitation 2
-	StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, -7168);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 0));
-	CreateStations("station-bh-habitation", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
+		// BH Habitation 2
+		StationParams.Location = BaseLocation + FVector(StationRadius + 600, 0, -7168);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 0));
+		CreateStations("station-bh-habitation", NemaHeavyWorks, BlueHeart, 1, 1, StationParams);
 
-	CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, BlueHeart, 1);
-	CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, BlueHeart, 1, 2);
+		CreateStations(StationCarbonRefinery, UnitedFarmsChemicals, BlueHeart, 1);
+		CreateStations(StationPlasticsRefinery, UnitedFarmsChemicals, BlueHeart, 1, 2);
+	}
 }
 
 void UFlareScenarioTools::CreateBoneyard()
 {
-	float CoreLength = 4096;
-	float BoneLength = -16384;
-	float BoneHeight = 8192;
-	FVector FrontVector(1, 0, 0);
-	FVector BaseLocation = FVector(-200000.0, 0, 0);
-	FFlareStationSpawnParameters StationParams;
-	StationParams.AttachActorName = FName("BoneyardCore");
+	if (Boneyard && Pirates)
+	{
+		float CoreLength = 4096;
+		float BoneLength = -16384;
+		float BoneHeight = 8192;
+		FVector FrontVector(1, 0, 0);
+		FVector BaseLocation = FVector(-200000.0, 0, 0);
+		FFlareStationSpawnParameters StationParams;
+		StationParams.AttachActorName = FName("BoneyardCore");
 
-	// BY Shipyard
-	StationParams.Location = BaseLocation + FVector(CoreLength, 0, 0);
-	StationParams.Rotation = FRotator::ZeroRotator;
-	CreateStations("station-by-shipyard", Pirates, Boneyard, 1, 1, StationParams);
+		// BY Shipyard
+		StationParams.Location = BaseLocation + FVector(CoreLength, 0, 0);
+		StationParams.Rotation = FRotator::ZeroRotator;
+		CreateStations("station-by-shipyard", Pirates, Boneyard, 1, 1, StationParams);
 
-	// BY Arsenal
-	StationParams.Location = BaseLocation + FVector(BoneLength, 0, BoneHeight).RotateAngleAxis(120, FrontVector);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 210, 90));
-	CreateStations("station-by-arsenal", Pirates, Boneyard, 1, 1, StationParams);
+		// BY Arsenal
+		StationParams.Location = BaseLocation + FVector(BoneLength, 0, BoneHeight).RotateAngleAxis(120, FrontVector);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 210, 90));
+		CreateStations("station-by-arsenal", Pirates, Boneyard, 1, 1, StationParams);
 
-	// BY Hub
-	StationParams.Location = BaseLocation + FVector(2 * BoneLength, 0, BoneHeight).RotateAngleAxis(-120, FrontVector);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, -150, -90));
-	CreateStations("station-by-hub", Pirates, Boneyard, 1, 1, StationParams);
+		// BY Hub
+		StationParams.Location = BaseLocation + FVector(2 * BoneLength, 0, BoneHeight).RotateAngleAxis(-120, FrontVector);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, -150, -90));
+		CreateStations("station-by-hub", Pirates, Boneyard, 1, 1, StationParams);
 
-	// BY Habitation
-	StationParams.Location = BaseLocation + FVector(3 * BoneLength, 0, BoneHeight);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 90, 0));
-	CreateStations("station-by-habitation", Pirates, Boneyard, 1, 1, StationParams);
+		// BY Habitation
+		StationParams.Location = BaseLocation + FVector(3 * BoneLength, 0, BoneHeight);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 90, 0));
+		CreateStations("station-by-habitation", Pirates, Boneyard, 1, 1, StationParams);
+	}
 }
 
 void UFlareScenarioTools::CreateNightsHome()
 {
-	float StationRadius = 22480;
-	FVector UpVector(0, 0, 1);
-	FVector BaseLocation = FVector(-3740, 0, -153600);
-	FFlareStationSpawnParameters StationParams;
-	StationParams.AttachActorName = FName("NightsHomeCore");
+	if (NightsHome && GhostWorksShipyards && AxisSupplies)
+	{
+		float StationRadius = 22480;
+		FVector UpVector(0, 0, 1);
+		FVector BaseLocation = FVector(-3740, 0, -153600);
+		FFlareStationSpawnParameters StationParams;
+		StationParams.AttachActorName = FName("NightsHomeCore");
 
-	// NH Arsenal
-	StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(-135, UpVector);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(90, 0, -135));
-	CreateStations("station-nh-arsenal", AxisSupplies, NightsHome, 1, 2, StationParams);
+		// NH Arsenal
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(-135, UpVector);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(90, 0, -135));
+		CreateStations("station-nh-arsenal", AxisSupplies, NightsHome, 1, 2, StationParams);
 
-	// NH Shipyard
-	StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(180, UpVector);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 180));
-	CreateStations("station-nh-shipyard", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
+		// NH Shipyard
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(180, UpVector);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 180));
+		CreateStations("station-nh-shipyard", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
 
-	// NH Habitation
-	StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(135, UpVector);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(-90, 0, 135));
-	CreateStations("station-nh-habitation", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
+		// NH Habitation
+		StationParams.Location = BaseLocation + FVector(StationRadius, 0, 0).RotateAngleAxis(135, UpVector);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(-90, 0, 135));
+		CreateStations("station-nh-habitation", GhostWorksShipyards, NightsHome, 1, 1, StationParams);
+	}
 }
 
 void UFlareScenarioTools::CreateTheFarm()
 {
-	float StationLength = 48640 + 2048 + 2000; // cap base + cap offset + station offset
-	float StationRadius = 24576;
-	FVector BaseLocation = FVector(-200000.0, 0, 0);
-	FFlareStationSpawnParameters StationParams;
-	StationParams.AttachActorName = FName("FarmCore");
+	if (TheFarm && UnitedFarmsChemicals && AxisSupplies && Sunwatch)
+	{
+		float StationLength = 48640 + 2048 + 2000; // cap base + cap offset + station offset
+		float StationRadius = 24576;
+		FVector BaseLocation = FVector(-200000.0, 0, 0);
+		FFlareStationSpawnParameters StationParams;
+		StationParams.AttachActorName = FName("FarmCore");
 
-	// TF Arsenal
-	StationParams.Location = BaseLocation + FVector(StationRadius, StationLength, 0);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(-90, 0, 90));
-	CreateStations("station-tf-arsenal", AxisSupplies, TheFarm, 1, 1, StationParams);
+		// TF Arsenal
+		StationParams.Location = BaseLocation + FVector(StationRadius, StationLength, 0);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(-90, 0, 90));
+		CreateStations("station-tf-arsenal", AxisSupplies, TheFarm, 1, 1, StationParams);
 
-	// TF Hub
-	StationParams.Location = BaseLocation + FVector(-StationRadius, StationLength, 0);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(90, 0, 90));
-	CreateStations("station-tf-hub", AxisSupplies, TheFarm, 1, 1, StationParams);
+		// TF Hub
+		StationParams.Location = BaseLocation + FVector(-StationRadius, StationLength, 0);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(90, 0, 90));
+		CreateStations("station-tf-hub", AxisSupplies, TheFarm, 1, 1, StationParams);
 
-	// TF Habitation
-	StationParams.Location = BaseLocation + FVector(0, StationLength, StationRadius);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 90));
-	CreateStations("station-tf-habitation", UnitedFarmsChemicals, TheFarm, 1, 1, StationParams);
+		// TF Habitation
+		StationParams.Location = BaseLocation + FVector(0, StationLength, StationRadius);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, 90));
+		CreateStations("station-tf-habitation", UnitedFarmsChemicals, TheFarm, 1, 1, StationParams);
 
-	// TF Power plant
-	StationParams.Location = BaseLocation + FVector(0, StationLength, -StationRadius);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, 90));
-	CreateStations("station-tf-solar-plant", Sunwatch, TheFarm, 1, 1, StationParams);
+		// TF Power plant
+		StationParams.Location = BaseLocation + FVector(0, StationLength, -StationRadius);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, 90));
+		CreateStations("station-tf-solar-plant", Sunwatch, TheFarm, 1, 1, StationParams);
 
-	// TF Farm 1
-	StationParams.Location = BaseLocation + FVector(0, -StationLength, StationRadius);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -90));
-	CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
+		// TF Farm 1
+		StationParams.Location = BaseLocation + FVector(0, -StationLength, StationRadius);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(0, 0, -90));
+		CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
 
-	// TF Farm 2
-	StationParams.Location = BaseLocation + FVector(0, -StationLength, -StationRadius);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, -90));
-	CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
+		// TF Farm 2
+		StationParams.Location = BaseLocation + FVector(0, -StationLength, -StationRadius);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(180, 0, -90));
+		CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
 
-	// TF Farm 3
-	StationParams.Location = BaseLocation + FVector(StationRadius, -StationLength, 0);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(90, 0, -90));
-	CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
+		// TF Farm 3
+		StationParams.Location = BaseLocation + FVector(StationRadius, -StationLength, 0);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(90, 0, -90));
+		CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
 
-	// TF Farm 4
-	StationParams.Location = BaseLocation + FVector(-StationRadius, -StationLength, 0);
-	StationParams.Rotation = FRotator::MakeFromEuler(FVector(-90, 0, -90));
-	CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
+		// TF Farm 4
+		StationParams.Location = BaseLocation + FVector(-StationRadius, -StationLength, 0);
+		StationParams.Rotation = FRotator::MakeFromEuler(FVector(-90, 0, -90));
+		CreateStations("station-tf-farm", Sunwatch, TheFarm, 1, 1, StationParams);
+	}
 }
 
 #undef LOCTEXT_NAMESPACE
