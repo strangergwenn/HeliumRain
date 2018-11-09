@@ -42,3 +42,4 @@ Scripts/steam.json
 Config/Localization/Game_Compile.ini
 Build/LinuxNoEditor/
 Scripts/itch.json
+Plugins/ExampleMod/Build/
