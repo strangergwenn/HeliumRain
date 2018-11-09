@@ -1,0 +1,19 @@
+{
+	"FileVersion" : 3,
+	
+	"FriendlyName" : "ExampleMod",
+	"Version" : 1,
+	"VersionName" : "1.0",
+	"CreatedBy" : "Deimos Games",
+	"CreatedByURL" : "http://helium-rain.com",
+	"EngineVersion" : "4.19.0",
+	"Description" : "Example mod for the Helium Rain Mod Kit",
+	"Category" : "User Mod",
+	"EnabledByDefault" : true,
+
+	"Modules" :
+	[
+	],
+
+	"CanContainContent" : true
+}
