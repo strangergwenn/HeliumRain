@@ -1719,6 +1719,7 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 			// Send random ships
 			int32 MinShipToSend = FMath::Max(Target.EnemyCargoCount, Target.EnemyStationCount);
 			int32 SentShips = 0;
+			int32 SentCombatPoints = 0;
 
 #ifdef DEBUG_AI_WAR_MILITARY_MOVEMENT
 			FLOGV("- MovableShips= %d",MovableShips.Num());
@@ -1767,6 +1768,12 @@ void UFlareCompanyAI::UpdateWarMilitaryMovement()
 
 				Game->GetGameWorld()->StartTravel(SelectedShip->GetCurrentFleet(), Target.Sector);
 				SentShips++;
+				SentCombatPoints+=ShipCombatPoints;
+			}
+
+			if(SentShips > 0 && TravelDuration > 1)
+			{
+				Game->GetQuestManager()->GetQuestGenerator()->GenerateAttackQuests(Company, SentCombatPoints, Target, TravelDuration);
 			}
 
 			if (Sector.CombatPoints == 0)
