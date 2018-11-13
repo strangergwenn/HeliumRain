@@ -42,10 +42,102 @@
 #include "AssetRegistryModule.h"
 #include "Log/FlareLogWriter.h"
 
+#include "Runtime/PakFile/Public/IPlatformFilePak.h"
+#include "HAL/PlatformFile.h"
 #include "Engine/PostProcessVolume.h"
 #include "Engine.h"
 
 #define LOCTEXT_NAMESPACE "FlareGame"
+
+
+/*----------------------------------------------------
+	PAK helpers
+----------------------------------------------------*/
+
+class FPakFileVisitor : public IPlatformFile::FDirectoryVisitor
+{
+public:
+	virtual bool Visit(const TCHAR* FilenameOrDirectory, bool bIsDirectory) override
+	{
+		if (!bIsDirectory)
+		{
+			Files.Add(FilenameOrDirectory);
+		}
+		return true;
+	}
+
+	TArray<FString> Files;
+};
+
+
+TArray<FString> MountPak(const FString &PakFileName)
+{
+	FPakPlatformFile* PakPlatformFile = nullptr;
+
+	IPlatformFile* ExistingPakPlatformFile = FPlatformFileManager::Get().FindPlatformFile(TEXT("PakFile"));
+	if (ExistingPakPlatformFile)
+	{
+		PakPlatformFile = static_cast<FPakPlatformFile*>(ExistingPakPlatformFile);
+		FLOG("Using existing PakPlatformFile");
+	}
+	else
+	{
+		PakPlatformFile = new FPakPlatformFile();
+		IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+
+		if (!PakPlatformFile->Initialize(&PlatformFile, TEXT("")))
+		{
+			FLOG("Failed to initialize PakPlatformFile");
+		}
+		PakPlatformFile->InitializeNewAsyncIO();
+
+		FPlatformFileManager::Get().SetPlatformFile(*PakPlatformFile);
+	}
+
+	FPakFile* PakFile = new FPakFile(PakPlatformFile, *PakFileName, false);
+	FLOGV("Target mount point %s", *PakFile->GetMountPoint());
+
+	if (!PakPlatformFile->Mount(*PakFileName, 0, *PakFile->GetMountPoint()))
+	{
+		FLOGV("Failed to mount %s", *PakFileName);
+	}
+	else
+	{
+		FLOGV("Mounted pak file %s at %s", *PakFileName, *PakFile->GetMountPoint());
+	}
+
+	FPakFileVisitor Visitor;
+	PakPlatformFile->IterateDirectoryRecursively(*PakFile->GetMountPoint(), Visitor);
+
+	return Visitor.Files;
+}
+
+void LoadModAssets(FString ModPath, TArray<FString> AssetList)
+{
+	for (FString AssetName : AssetList)
+	{
+		if (AssetName.EndsWith(FPackageName::GetAssetPackageExtension()) || AssetName.EndsWith(FPackageName::GetMapPackageExtension()))
+		{
+			FLOGV("LoadModAssets : found asset %s", *AssetName);
+
+			// Build asset reference from real path
+			FString AssetShortName = FPackageName::GetShortName(AssetName);
+			FString LeftStr;
+			FString RightStr;
+			AssetShortName.Split(TEXT("."), &LeftStr, &RightStr);
+			AssetName = ModPath + LeftStr + TEXT(".") + LeftStr;
+			FStringAssetReference Reference = AssetName;
+
+			// Load
+			FStreamableManager* AssetLoader = new FStreamableManager();
+			UObject* LoadObject = Cast<UStaticMesh>(AssetLoader->LoadSynchronous(Reference, true));
+			if (!LoadObject)
+			{
+				FLOGV("LoadModAssets : couldn't load %s", *AssetName);
+			}
+		}
+	}
+}
 
 
 /*----------------------------------------------------
@@ -74,19 +166,19 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	// Data catalogs
 	struct FConstructorStatics
 	{
-		ConstructorHelpers::FObjectFinder<UFlareCustomizationCatalog> CustomizationCatalog;
-		ConstructorHelpers::FObjectFinder<UFlareMeteoriteCatalog> MeteoriteCatalog;
-		ConstructorHelpers::FObjectFinder<UFlareAsteroidCatalog> AsteroidCatalog;
-		ConstructorHelpers::FObjectFinder<UFlareCompanyCatalog> CompanyCatalog;
-		ConstructorHelpers::FObjectFinder<UFlareOrbitalMap> OrbitalBodies;
+ConstructorHelpers::FObjectFinder<UFlareCustomizationCatalog> CustomizationCatalog;
+ConstructorHelpers::FObjectFinder<UFlareMeteoriteCatalog> MeteoriteCatalog;
+ConstructorHelpers::FObjectFinder<UFlareAsteroidCatalog> AsteroidCatalog;
+ConstructorHelpers::FObjectFinder<UFlareCompanyCatalog> CompanyCatalog;
+ConstructorHelpers::FObjectFinder<UFlareOrbitalMap> OrbitalBodies;
 
-		FConstructorStatics()
-			: CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog.CustomizationCatalog"))
-			, MeteoriteCatalog(TEXT("/Game/Gameplay/Catalog/MeteoriteCatalog.MeteoriteCatalog"))
-			, AsteroidCatalog(TEXT("/Game/ThirdParty/Asteroids/AsteroidCatalog.AsteroidCatalog"))
-			, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog.CompanyCatalog"))
-			, OrbitalBodies(TEXT("/Game/Gameplay/Catalog/OrbitalMap.OrbitalMap"))
-		{}
+FConstructorStatics()
+	: CustomizationCatalog(TEXT("/Game/Gameplay/Catalog/CustomizationCatalog.CustomizationCatalog"))
+	, MeteoriteCatalog(TEXT("/Game/Gameplay/Catalog/MeteoriteCatalog.MeteoriteCatalog"))
+	, AsteroidCatalog(TEXT("/Game/ThirdParty/Asteroids/AsteroidCatalog.AsteroidCatalog"))
+	, CompanyCatalog(TEXT("/Game/Gameplay/Catalog/CompanyCatalog.CompanyCatalog"))
+	, OrbitalBodies(TEXT("/Game/Gameplay/Catalog/OrbitalMap.OrbitalMap"))
+{}
 	};
 	static FConstructorStatics ConstructorStatics;
 
@@ -105,21 +197,6 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 	ResourceCatalog = NewObject<UFlareResourceCatalog>(this, UFlareResourceCatalog::StaticClass(), TEXT("FlareResourceCatalog"));
 	TechnologyCatalog = NewObject<UFlareTechnologyCatalog>(this, UFlareTechnologyCatalog::StaticClass(), TEXT("FlareTechnologyCatalog"));
 	ScannableCatalog = NewObject<UFlareScannableCatalog>(this, UFlareScannableCatalog::StaticClass(), TEXT("FlareScannableCatalog"));
-
-	// Look for sector assets
-	TArray<FAssetData> AssetList;
-	IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
-	Registry.SearchAllAssets(true);
-	Registry.GetAssetsByClass(UFlareSectorCatalogEntry::StaticClass()->GetFName(), AssetList);
-
-	// Do the orbital map setup
-	for (int32 Index = 0; Index < AssetList.Num(); Index++)
-	{
-		//FLOGV("AFlareGame::AFlareGame : Found '%s'", *AssetList[Index].GetFullName());
-		UFlareSectorCatalogEntry* Sector = Cast<UFlareSectorCatalogEntry>(AssetList[Index].GetAsset());
-		FCHECK(Sector);
-		SectorList.Add(Sector);
-	}
 }
 
 
@@ -130,7 +207,7 @@ AFlareGame::AFlareGame(const class FObjectInitializer& PCIP)
 void AFlareGame::StartPlay()
 {
 	FLOG("AFlareGame::StartPlay");
-	
+
 	// Setup the post process 
 	TArray<AActor*> PostProcessCandidates;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APostProcessVolume::StaticClass(), PostProcessCandidates);
@@ -161,6 +238,54 @@ void AFlareGame::StartPlay()
 
 	// Spawn skirmish manager
 	SkirmishManager = NewObject<UFlareSkirmishManager>(this, UFlareSkirmishManager::StaticClass());
+
+	const FString PakFilename = TEXT("D:/Dock/SteamLibrary/SteamApps/workshop/content/681330/1560623971/Windows/ExampleMod.pak");
+
+#if 0
+
+	TArray<FString> ModFiles = MountPak(PakFilename);
+
+#else
+
+	TArray<FString> ModFiles;
+
+	// Mount the pak file
+	FPakFileVisitor Visitor;
+	if (FCoreDelegates::OnMountPak.IsBound())
+	{
+		if (FCoreDelegates::OnMountPak.Execute(PakFilename, 0, &Visitor))
+		{
+			FLOGV("AFlareGame::StartPlay : Successfully mounted pak file '%s'", *PakFilename);
+			ModFiles = Visitor.Files;
+		}
+		else
+		{
+			FLOGV("AFlareGame::StartPlay : Failed to mount pak file '%s'", *PakFilename);
+		}
+	}
+	else
+	{
+		FLOGV("AFlareGame::StartPlay : FCoreDelegates::OnMountPak isn't bound");
+	}
+
+#endif
+
+	LoadModAssets("../../../ExampleMod/", ModFiles);
+
+	// Setup registry
+	IAssetRegistry& Registry = FModuleManager::LoadModuleChecked<FAssetRegistryModule>("AssetRegistry").Get();
+	Registry.SearchAllAssets(true);
+
+	// Look for sector assets
+	TArray<FAssetData> AssetList;
+	Registry.GetAssetsByClass(UFlareSectorCatalogEntry::StaticClass()->GetFName(), AssetList);
+	for (FAssetData AssetEntry : AssetList)
+	{
+		FLOGV("AFlareGame::StartPlay : Found sector '%s'", *AssetEntry.GetFullName());
+		UFlareSectorCatalogEntry* Sector = Cast<UFlareSectorCatalogEntry>(AssetEntry.GetAsset());
+		FCHECK(Sector);
+		SectorList.Add(Sector);
+	}
 }
 
 void AFlareGame::PostLogin(APlayerController* Player)
@@ -902,6 +1027,16 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 		// Load the player
 		PC->Load(Save->PlayerData);
 		PC->GetCompany()->SetupEmblem();
+
+		// Discover new sectors
+		for (UFlareSimulatedSector* Sector : World->GetSectors())
+		{
+			if (Sector->GetDescription()->IsAutoDiscovered && !PC->GetCompany()->HasVisitedSector(Sector))
+			{
+				FLOGV("AFlareGame::LoadGame : discovering new sector %s", *Sector->GetSectorName().ToString());
+				PC->GetCompany()->DiscoverSector(Sector);
+			}
+		}
 
 		// Create world tools
 		ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());

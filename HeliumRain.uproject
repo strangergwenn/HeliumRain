@@ -152,5 +152,9 @@
 	"TargetPlatforms": [
 		"WindowsNoEditor",
 		"LinuxNoEditor"
-	]
+	],
+	 "AdditionalDependencies": [
+		 "Engine",
+		 "PakFile"
+	 ]
 }

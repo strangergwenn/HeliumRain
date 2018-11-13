@@ -188,6 +188,10 @@ struct FFlareSectorDescription
 	UPROPERTY(EditAnywhere, Category = Content)
 	bool IsHiddenFromTelescopes;
 
+	/** Auto-discovered from the start */
+	UPROPERTY(EditAnywhere, Category = Content)
+	bool IsAutoDiscovered;
+
 	/** Level to load for this sector */
 	UPROPERTY(EditAnywhere, Category = Content)
 	FName LevelName;

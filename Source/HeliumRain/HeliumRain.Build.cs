@@ -29,7 +29,9 @@ public class HeliumRain : ModuleRules
 				"Slate",
 				"SlateCore",
 				"HeliumRainLoadingScreen",
-                "AppFramework"
+                "AppFramework",
+                "PakFile",
+                "Projects"
             }
         );
         
