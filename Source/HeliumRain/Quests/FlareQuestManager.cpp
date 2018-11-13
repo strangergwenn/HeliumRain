@@ -1034,6 +1034,12 @@ bool UFlareQuestManager::IsUnderMilitaryContractNoCache(UFlareSimulatedSector* S
 				continue;
 			}
 
+			int32 AttackDate = JoinAttack->GetInitData()->GetInt32("attack-date");
+			if(GetGame()->GetGameWorld()->GetDate() != AttackDate)
+			{
+				continue;
+			}
+
 			TArray<FName> HostileCompanyNames = JoinAttack->GetInitData()->GetNameArray("hostile-companies");
 			for(FName HostileCompanyName : HostileCompanyNames)
 			{
@@ -1050,6 +1056,12 @@ bool UFlareQuestManager::IsUnderMilitaryContractNoCache(UFlareSimulatedSector* S
 		if(SectorDefense)
 		{
 			if(SectorDefense->GetInitData()->GetName("hostile-company") != Company->GetIdentifier())
+			{
+				continue;
+			}
+
+			int32 AttackDate = SectorDefense->GetInitData()->GetInt32("attack-date");
+			if(GetGame()->GetGameWorld()->GetDate() != AttackDate)
 			{
 				continue;
 			}
