@@ -459,7 +459,7 @@ void UFlareQuestGenerator::GenerateAttackQuests(UFlareCompany* AttackCompany, in
 			continue;
 		}
 
-		if (true || FMath::FRand() <= ComputeQuestProbability(DefenseCompany))
+		if (FMath::FRand() <= ComputeQuestProbability(DefenseCompany))
 		{
 			RegisterQuest(UFlareQuestGeneratedSectorDefense2::Create(this, DefenseCompany, AttackCompany, AttackCombatPoints, Target, TravelDuration));
 		}
@@ -2239,7 +2239,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedStationDefense2::Create(UFlareQuestGen
 		return NULL;
 	}
 
-	int64 ArmyPrice = RequestedArmyCombatPoints  * 60000;
+	int64 ArmyPrice = RequestedArmyCombatPoints  * 40000;
 
 	// Setup reward
 	int64 QuestValue = WarPrice + ArmyPrice;
