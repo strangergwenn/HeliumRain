@@ -440,7 +440,7 @@ void UFlareQuestGenerator::GenerateAttackQuests(UFlareCompany* AttackCompany, in
 			continue;
 		}
 
-		if (FMath::FRand() <= ComputeQuestProbability(DefenseCompany))
+		if (true || FMath::FRand() <= ComputeQuestProbability(DefenseCompany))
 		{
 			RegisterQuest(UFlareQuestGeneratedSectorDefense2::Create(this, DefenseCompany, AttackCompany, AttackCombatPoints, Target, TravelDuration));
 		}
@@ -2322,6 +2322,9 @@ bool UFlareQuestGeneratedStationDefense2::Load(UFlareQuestGenerator* Parent, con
 
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionStationLostInSector::Create(this,  Sector, FriendlyCompany));
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionNoCapturingStationInSector::Create(this,  Sector, FriendlyCompany, HostileCompany));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+
+	AddGlobalFailCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
 
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);
@@ -2391,6 +2394,8 @@ UFlareQuestGenerated* UFlareQuestGeneratedJoinAttack2::Create(UFlareQuestGenerat
 		HostileCompanies.Add(HostileCompany->GetIdentifier());
 	}
 
+
+
 	FFlareBundle Data;
 	Parent->GenerateIdentifer(UFlareQuestGeneratedJoinAttack2::GetClass(), Data);
 	Data.PutName("sector", Target.Sector->GetIdentifier());
@@ -2434,7 +2439,7 @@ bool UFlareQuestGeneratedJoinAttack2::Load(UFlareQuestGenerator* Parent, const F
 		FriendlyCompany->GetCompanyName(),
 		Sector->GetSectorName(),
 		FText::AsNumber(ArmyCombatPoints),
-		UFlareGameTools::GetDisplayDate(AttackDate + 1));
+		UFlareGameTools::GetDisplayDate(AttackDate));
 
 	QuestCategory = EFlareQuestCategory::SECONDARY;
 
@@ -2446,7 +2451,7 @@ bool UFlareQuestGeneratedJoinAttack2::Load(UFlareQuestGenerator* Parent, const F
 		Description = FText::Format(LOCTEXT("GeneratedJoinAttackDescriptionBringForce", "Attack {0} with at least {1} combat value on {2}"),
 			Sector->GetSectorName(),
 			FText::AsNumber(ArmyCombatPoints ),
-			UFlareGameTools::GetDisplayDate(AttackDate + 1));
+			UFlareGameTools::GetDisplayDate(AttackDate));
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
 		{
@@ -2499,6 +2504,14 @@ bool UFlareQuestGeneratedJoinAttack2::Load(UFlareQuestGenerator* Parent, const F
 
 
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAfterDate::Create(this, AttackDate));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionPlayerTravelTooLong::Create(this, Sector, AttackDate));
+
+	for(UFlareCompany* HostileCompany : HostileCompanies)
+	{
+		Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+		AddGlobalFailCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+	}
+
 
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);
@@ -2608,7 +2621,7 @@ bool UFlareQuestGeneratedSectorDefense2::Load(UFlareQuestGenerator* Parent, cons
 		FriendlyCompany->GetCompanyName(),
 		Sector->GetSectorName(),
 		FText::AsNumber(ArmyCombatPoints),
-		UFlareGameTools::GetDisplayDate(AttackDate + 1));
+		UFlareGameTools::GetDisplayDate(AttackDate));
 
 	QuestCategory = EFlareQuestCategory::SECONDARY;
 
@@ -2620,7 +2633,7 @@ bool UFlareQuestGeneratedSectorDefense2::Load(UFlareQuestGenerator* Parent, cons
 		Description = FText::Format(LOCTEXT("GeneratedSectorDefenseDescriptionBringForce", "Attack {0} with at least {1} combat value on {2}"),
 			Sector->GetSectorName(),
 			FText::AsNumber(ArmyCombatPoints),
-			UFlareGameTools::GetDisplayDate(AttackDate + 1));
+			UFlareGameTools::GetDisplayDate(AttackDate));
 
 		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
 		{
@@ -2672,9 +2685,14 @@ bool UFlareQuestGeneratedSectorDefense2::Load(UFlareQuestGenerator* Parent, cons
 	}
 
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAfterDate::Create(this, AttackDate));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionPlayerTravelTooLong::Create(this, Sector, AttackDate));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+	AddGlobalFailCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+
 
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);
+
 
 	return true;
 }
@@ -2858,6 +2876,9 @@ bool UFlareQuestGeneratedCargoHunt2::Load(UFlareQuestGenerator* Parent, const FF
 	}
 
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+	AddGlobalFailCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+
 
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);
@@ -2995,6 +3016,9 @@ bool UFlareQuestGeneratedMilitaryHunt2::Load(UFlareQuestGenerator* Parent, const
 	}
 
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+	AddGlobalFailCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+
 
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);

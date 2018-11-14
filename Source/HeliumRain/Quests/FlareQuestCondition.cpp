@@ -2300,11 +2300,71 @@ FText UFlareQuestConditionAfterDate::GetInitialLabel()
 
 bool UFlareQuestConditionAfterDate::IsCompleted()
 {
-	float AvailabilityDate = Quest->GetAvailableDate();
 	return GetGame()->GetGameWorld()->GetDate() > DateLimit;
 }
 
 void UFlareQuestConditionAfterDate::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+	FFlarePlayerObjectiveCondition ObjectiveCondition;
+	ObjectiveCondition.InitialLabel = GetInitialLabel();
+	ObjectiveCondition.TerminalLabel = FText();
+	ObjectiveCondition.Progress = 0;
+	ObjectiveCondition.MaxProgress = 0;
+	ObjectiveCondition.Counter = (IsCompleted()) ? 1 : 0;
+	ObjectiveCondition.MaxCounter = 1;
+
+	ObjectiveData->ConditionList.Add(ObjectiveCondition);
+}
+
+/*----------------------------------------------------
+	Player travel too long
+----------------------------------------------------*/
+UFlareQuestConditionPlayerTravelTooLong::UFlareQuestConditionPlayerTravelTooLong(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionPlayerTravelTooLong* UFlareQuestConditionPlayerTravelTooLong::Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, int64 Date)
+{
+	UFlareQuestConditionPlayerTravelTooLong*Condition = NewObject<UFlareQuestConditionPlayerTravelTooLong>(ParentQuest, UFlareQuestConditionPlayerTravelTooLong::StaticClass());
+	Condition->Load(ParentQuest, TargetSectorParam, Date);
+	return Condition;
+}
+
+void UFlareQuestConditionPlayerTravelTooLong::Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, int64 Date)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::NEXT_DAY);
+	DateLimit = Date;
+	TargetSector = TargetSectorParam;
+}
+
+FText UFlareQuestConditionPlayerTravelTooLong::GetInitialLabel()
+{
+	int64 RemainingDuration = DateLimit - GetGame()->GetGameWorld()->GetDate();
+
+	return FText::Format(LOCTEXT("AfterDateRemainingDurationFormat", "{0} remaining"), UFlareGameTools::FormatDate(RemainingDuration+1, 2));
+}
+
+bool UFlareQuestConditionPlayerTravelTooLong::IsCompleted()
+{
+	int64 PlayerTravelDuration = 0;
+	UFlareFleet* PlayerFleet = GetGame()->GetPC()->GetPlayerFleet();
+
+	if(PlayerFleet->IsTraveling())
+	{
+		PlayerTravelDuration +=	PlayerFleet->GetCurrentTravel()->GetRemainingTravelDuration();
+		PlayerTravelDuration +=	UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), PlayerFleet->GetCurrentTravel()->GetDestinationSector(), TargetSector, GetGame()->GetPC()->GetCompany());
+	}
+	else
+	{
+		PlayerTravelDuration +=	UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), PlayerFleet->GetCurrentSector(), TargetSector, GetGame()->GetPC()->GetCompany());
+	}
+
+	return GetGame()->GetGameWorld()->GetDate() + PlayerTravelDuration > DateLimit;
+}
+
+void UFlareQuestConditionPlayerTravelTooLong::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
 {
 	FFlarePlayerObjectiveCondition ObjectiveCondition;
 	ObjectiveCondition.InitialLabel = GetInitialLabel();
@@ -2676,6 +2736,48 @@ void UFlareQuestConditionNoCapturingStationInSector::AddConditionObjectives(FFla
 	ObjectiveData->TargetSectors.Add(TargetSector);
 }
 
+
+/*----------------------------------------------------
+	Work for condition
+----------------------------------------------------*/
+UFlareQuestConditionWorkFor::UFlareQuestConditionWorkFor(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestConditionWorkFor* UFlareQuestConditionWorkFor::Create(UFlareQuest* ParentQuest, UFlareCompany* TargetCompanyParam)
+{
+	UFlareQuestConditionWorkFor* Condition = NewObject<UFlareQuestConditionWorkFor>(ParentQuest, UFlareQuestConditionWorkFor::StaticClass());
+	Condition->Load(ParentQuest, TargetCompanyParam);
+	return Condition;
+}
+
+void UFlareQuestConditionWorkFor::Load(UFlareQuest* ParentQuest, UFlareCompany* TargetCompanyParam)
+{
+	LoadInternal(ParentQuest);
+	Callbacks.AddUnique(EFlareQuestCallback::QUEST_CHANGED);
+	TargetCompany = TargetCompanyParam;
+
+	FText InitialLabelText = LOCTEXT("WorkFor", "Don't work for {0}");
+	InitialLabel = FText::Format(InitialLabelText, TargetCompany->GetCompanyName());
+}
+
+bool UFlareQuestConditionWorkFor::IsCompleted()
+{
+	for(UFlareQuest* Quest : Quest->GetQuestManager()->GetOngoingQuests())
+	{
+		if(Quest->GetClient() == TargetCompany)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void UFlareQuestConditionWorkFor::AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData)
+{
+}
 
 /*----------------------------------------------------
 	Retreat dangerous ships condition
