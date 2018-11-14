@@ -435,7 +435,7 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 				&& Spacecraft->GetCompany() != Spacecraft->GetGame()->GetScenarioTools()->Pirates)
 			{
 				// Being shot by enemies is pretty much expected
-				if (Spacecraft->GetCompany()->GetWarState(DamageSource->GetCompany()) != EFlareHostility::Hostile)
+				if (!Spacecraft->IsHostile(DamageSource->GetCompany(), true))
 				{
 					// If it's a betrayal, lower attacker's reputation on everyone, give rep to victim
 
@@ -450,7 +450,7 @@ float UFlareSimulatedSpacecraftDamageSystem::ApplyDamage(FFlareSpacecraftCompone
 
 
 				}
-				else if(Spacecraft->IsActive() && Spacecraft->GetActive()->GetTimeSinceUncontrollable() > 5.f)
+				else if(Spacecraft->IsActive() && Spacecraft->GetActive()->GetTimeSinceUncontrollable() > 5.f && !Spacecraft->GetGame()->GetQuestManager()->IsAllowedToDestroy(Spacecraft))
 				{
 					// If an attack on a prisoner, lower attacker's reputation on everyone, give rep to victim
 

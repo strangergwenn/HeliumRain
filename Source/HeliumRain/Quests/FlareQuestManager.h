@@ -266,6 +266,22 @@ protected:
 
 	TArray<UFlareQuest*>					 NewQuestAccumulator;
 
+	struct IsUnderMilitaryContractCacheEntry
+	{
+		UFlareSimulatedSector const* Sector;
+		UFlareCompany const* Company;
+		float ExpireTime;
+	};
+
+	struct IsMilitaryTargetCacheEntry
+	{
+		UFlareSimulatedSpacecraft const* Spacecraft;
+		float ExpireTime;
+	};
+
+	TArray<IsUnderMilitaryContractCacheEntry> IsUnderMilitaryContractCache;
+	TArray<IsMilitaryTargetCacheEntry> IsMilitaryTargetCache;
+
 public:
 
 	/*----------------------------------------------------
@@ -322,4 +338,15 @@ public:
 
 
 	bool IsTradeQuestUseStation(UFlareSimulatedSpacecraft* Station);
+
+	bool IsUnderMilitaryContract(UFlareSimulatedSector* Sector,  UFlareCompany* Company, bool IncludeCache);
+
+	bool IsMilitaryTarget(UFlareSimulatedSpacecraft const* Spacecraft, bool IncludeCache);
+
+	bool IsUnderMilitaryContractNoCache(UFlareSimulatedSector* Sector,  UFlareCompany* Company);
+
+	bool IsMilitaryTargetNoCache(UFlareSimulatedSpacecraft const* Spacecraft);
+
+	bool IsAllowedToDestroy(UFlareSimulatedSpacecraft const* Spacecraft);
+
 };

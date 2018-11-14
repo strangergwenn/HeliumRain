@@ -866,7 +866,7 @@ void AFlareHUD::DrawCockpitTarget(AFlareSpacecraft* PlayerShip)
 			{
 				TargetColor = Theme.ObjectiveColor;
 			}
-			else if (TargetShip->GetParent()->GetPlayerWarState() == EFlareHostility::Hostile)
+			else if (TargetShip->IsPlayerHostile())
 			{
 				TargetColor = Theme.EnemyColor;
 			}
@@ -2049,6 +2049,10 @@ FLinearColor AFlareHUD::GetHostilityColor(AFlarePlayerController* PC, AFlareSpac
 	}
 
 	EFlareHostility::Type Hostility = Target->GetParent()->GetPlayerWarState();
+	if(Target->IsPlayerHostile())
+	{
+		Hostility = EFlareHostility::Hostile;
+	}
 	switch (Hostility)
 	{
 		case EFlareHostility::Hostile:

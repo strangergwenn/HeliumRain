@@ -925,7 +925,7 @@ void UFlareWorld::ProcessShipCapture()
 
 
 				if(HarpoonOwner
-						&& HarpoonOwner->GetWarState(Spacecraft->GetCompany()) == EFlareHostility::Hostile
+						&& Spacecraft->IsHostile(HarpoonOwner)
 						&& !HarpoonOwnerBattleState.HasDanger)
 				{
 					// If battle won state, this mean the Harpoon owner has at least one dangerous ship
@@ -1063,7 +1063,7 @@ void UFlareWorld::ProcessStationCapture()
 					continue;
 				}
 
-				if ((Company->GetWarState(Spacecraft->GetCompany()) != EFlareHostility::Hostile)
+				if (!Spacecraft->IsHostile(Company)
 					|| Sector->GetSectorBattleState(Company).HasDanger)
 				{
 					// Friend don't capture and not winner don't capture
@@ -1279,7 +1279,7 @@ TMap<IncomingKey, IncomingValue> UFlareWorld::GetIncomingPlayerEnemy()
 	// List dangerous travels
 	for (UFlareTravel* Travel : GetTravels())
 	{
-		if(Travel->GetFleet()->GetFleetCompany()->GetPlayerWarState() != EFlareHostility::Hostile)
+		if(!Travel->IsPlayerHostile())
 		{
 			continue;
 		}

@@ -174,4 +174,6 @@ public:
 		return OldNeedNotification;
 	}
 
+	bool IsPlayerHostile();
+
 };

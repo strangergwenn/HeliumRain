@@ -1044,7 +1044,7 @@ SectorVariation AITradeHelper::ComputeSectorResourceVariation(UFlareCompany* Com
 #endif
 
 
-		if (Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
+		if (Station->IsHostile(Company))
 		{
 			continue;
 		}

@@ -852,6 +852,322 @@ bool UFlareQuestManager::IsTradeQuestUseStation(UFlareSimulatedSpacecraft* Stati
 	return false;
 }
 
+bool UFlareQuestManager::IsUnderMilitaryContract(UFlareSimulatedSector* Sector,  UFlareCompany* Company, bool IncludeCache)
+{
+	if(IsUnderMilitaryContractNoCache(Sector, Company))
+	{
+		for(IsUnderMilitaryContractCacheEntry& CacheEntry : IsUnderMilitaryContractCache)
+		{
+			if(CacheEntry.Sector == Sector && CacheEntry.Company == Company)
+			{
+				CacheEntry.ExpireTime = FPlatformTime::Seconds() + 10.f;
+				return true;
+			}
+		}
 
+		IsUnderMilitaryContractCacheEntry NewEntry;
+		NewEntry.ExpireTime = FPlatformTime::Seconds() + 10.f;
+		NewEntry.Sector = Sector;
+		NewEntry.Company = Company;
+		IsUnderMilitaryContractCache.Add(NewEntry);
+
+		return true;
+	}
+	else if(!IncludeCache)
+	{
+		return false;
+	}
+	else
+	{
+		int Index = 0;
+
+		for(IsUnderMilitaryContractCacheEntry& CacheEntry : IsUnderMilitaryContractCache)
+		{
+			if(CacheEntry.Sector == Sector && CacheEntry.Company == Company)
+			{
+				if(CacheEntry.ExpireTime > FPlatformTime::Seconds())
+				{
+					return true;
+				}
+				else
+				{
+					IsUnderMilitaryContractCache.RemoveAt(Index);
+					break;
+				}
+			}
+			Index++;
+		}
+
+
+		return false;
+	}
+}
+
+bool UFlareQuestManager::IsMilitaryTarget(UFlareSimulatedSpacecraft const* Spacecraft, bool IncludeCache)
+{
+	if(IsMilitaryTargetNoCache(Spacecraft))
+	{
+		for(IsMilitaryTargetCacheEntry& CacheEntry : IsMilitaryTargetCache)
+		{
+			if(CacheEntry.Spacecraft == Spacecraft)
+			{
+				CacheEntry.ExpireTime = FPlatformTime::Seconds() + 10.f;
+				return true;
+			}
+		}
+
+		IsMilitaryTargetCacheEntry NewEntry;
+		NewEntry.ExpireTime = FPlatformTime::Seconds();
+		NewEntry.Spacecraft = Spacecraft;
+		IsMilitaryTargetCache.Add(NewEntry);
+
+		return true;
+	}
+	else if(!IncludeCache)
+	{
+		return false;
+	}
+	else
+	{
+		int Index = 0;
+		for(IsMilitaryTargetCacheEntry& CacheEntry : IsMilitaryTargetCache)
+		{
+			if(CacheEntry.Spacecraft == Spacecraft)
+			{
+				if(CacheEntry.ExpireTime > FPlatformTime::Seconds())
+				{
+					return true;
+				}
+				else
+				{
+					IsMilitaryTargetCache.RemoveAt(Index);
+					break;
+				}
+			}
+			Index++;
+		}
+		return false;
+	}
+}
+
+bool UFlareQuestManager::IsUnderMilitaryContractNoCache(UFlareSimulatedSector* Sector,  UFlareCompany* Company)
+{
+	for(UFlareQuest* OngoingQuest : GetOngoingQuests())
+	{
+		UFlareQuestGeneratedCargoHunt2* CargoHunt = Cast<UFlareQuestGeneratedCargoHunt2>(OngoingQuest);
+		if(CargoHunt)
+		{
+
+			if(CargoHunt->GetInitData()->GetName("hostile-company") != Company->GetIdentifier())
+			{
+				continue;
+			}
+
+			bool TargetLargeCargo = CargoHunt->GetInitData()->GetInt32("large-cargo") > 0;
+
+			for(UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
+			{
+				if(Ship->GetCompany() != Company)
+				{
+					continue;
+				}
+
+				if(Ship->IsMilitary())
+				{
+					continue;
+				}
+
+				if(TargetLargeCargo == (Ship->GetSize() == EFlarePartSize::L))
+				{
+					return true;
+				}
+			}
+		}
+
+		UFlareQuestGeneratedMilitaryHunt2* MilitaryHunt = Cast<UFlareQuestGeneratedMilitaryHunt2>(OngoingQuest);
+		if(MilitaryHunt)
+		{
+			if(MilitaryHunt->GetInitData()->GetName("hostile-company") != Company->GetIdentifier())
+			{
+				continue;
+			}
+
+
+			for(UFlareSimulatedSpacecraft* Ship : Sector->GetSectorShips())
+			{
+				if(Ship->GetCompany() != Company)
+				{
+					continue;
+				}
+
+				if(!Ship->IsMilitary())
+				{
+					continue;
+				}
+
+				return true;
+			}
+		}
+
+		UFlareQuestGeneratedStationDefense2* StationDefense = Cast<UFlareQuestGeneratedStationDefense2>(OngoingQuest);
+		if(StationDefense)
+		{
+			if(StationDefense->GetInitData()->GetName("hostile-company") != Company->GetIdentifier())
+			{
+				continue;
+			}
+
+			if(StationDefense->GetInitData()->GetName("sector") != Sector->GetIdentifier())
+			{
+				continue;
+			}
+
+			return true;
+		}
+
+		UFlareQuestGeneratedJoinAttack2* JoinAttack = Cast<UFlareQuestGeneratedJoinAttack2>(OngoingQuest);
+		if(JoinAttack)
+		{
+
+			if(JoinAttack->GetInitData()->GetName("sector") != Sector->GetIdentifier())
+			{
+				continue;
+			}
+
+			int32 AttackDate = JoinAttack->GetInitData()->GetInt32("attack-date");
+			if(GetGame()->GetGameWorld()->GetDate() != AttackDate)
+			{
+				continue;
+			}
+
+			TArray<FName> HostileCompanyNames = JoinAttack->GetInitData()->GetNameArray("hostile-companies");
+			for(FName HostileCompanyName : HostileCompanyNames)
+			{
+				if(HostileCompanyName  == Company->GetIdentifier())
+				{
+					return true;
+				}
+			}
+
+			continue;
+		}
+
+		UFlareQuestGeneratedSectorDefense2* SectorDefense = Cast<UFlareQuestGeneratedSectorDefense2>(OngoingQuest);
+		if(SectorDefense)
+		{
+			if(SectorDefense->GetInitData()->GetName("hostile-company") != Company->GetIdentifier())
+			{
+				continue;
+			}
+
+			int32 AttackDate = SectorDefense->GetInitData()->GetInt32("attack-date");
+			if(GetGame()->GetGameWorld()->GetDate() != AttackDate)
+			{
+				continue;
+			}
+
+			if(SectorDefense->GetInitData()->GetName("sector") != Sector->GetIdentifier())
+			{
+				continue;
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UFlareQuestManager::IsMilitaryTargetNoCache(UFlareSimulatedSpacecraft const* Spacecraft)
+{
+	for(UFlareQuest* OngoingQuest : GetOngoingQuests())
+	{
+		UFlareQuestGeneratedCargoHunt2* CargoHunt = Cast<UFlareQuestGeneratedCargoHunt2>(OngoingQuest);
+		if(CargoHunt)
+		{
+			if(Spacecraft->IsMilitary())
+			{
+		continue;
+			}
+
+			if(CargoHunt->GetInitData()->GetName("hostile-company") != Spacecraft->GetCompany()->GetIdentifier())
+			{
+				continue;
+			}
+
+			bool TargetLargeCargo = CargoHunt->GetInitData()->GetInt32("large-cargo") > 0;
+
+			if(TargetLargeCargo == (Spacecraft->GetSize() == EFlarePartSize::L))
+			{
+				return true;
+			}
+		}
+
+		UFlareQuestGeneratedMilitaryHunt2* MilitaryHunt = Cast<UFlareQuestGeneratedMilitaryHunt2>(OngoingQuest);
+		if(MilitaryHunt)
+		{
+			if(!Spacecraft->IsMilitary())
+			{
+				continue;
+			}
+
+			if(MilitaryHunt->GetInitData()->GetName("hostile-company") != Spacecraft->GetCompany()->GetIdentifier())
+			{
+				continue;
+			}
+
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UFlareQuestManager::IsAllowedToDestroy(UFlareSimulatedSpacecraft const* Spacecraft)
+{
+	for(UFlareQuest* OngoingQuest : GetOngoingQuests())
+	{
+		UFlareQuestGeneratedCargoHunt2* CargoHunt = Cast<UFlareQuestGeneratedCargoHunt2>(OngoingQuest);
+		if(CargoHunt)
+		{
+			if(Spacecraft->IsMilitary())
+			{
+		continue;
+			}
+
+			if(CargoHunt->GetInitData()->GetName("hostile-company") != Spacecraft->GetCompany()->GetIdentifier())
+			{
+				continue;
+			}
+
+			bool TargetLargeCargo = CargoHunt->GetInitData()->GetInt32("large-cargo") > 0;
+			bool RequestDestroyTarget = CargoHunt->GetInitData()->GetInt32("destroy-cargo") > 0;
+
+
+			if(RequestDestroyTarget && TargetLargeCargo == (Spacecraft->GetSize() == EFlarePartSize::L))
+			{
+				return true;
+			}
+		}
+
+		UFlareQuestGeneratedMilitaryHunt2* MilitaryHunt = Cast<UFlareQuestGeneratedMilitaryHunt2>(OngoingQuest);
+		if(MilitaryHunt)
+		{
+			if(!Spacecraft->IsMilitary())
+			{
+				continue;
+			}
+
+			if(MilitaryHunt->GetInitData()->GetName("hostile-company") != Spacecraft->GetCompany()->GetIdentifier())
+			{
+				continue;
+			}
+
+			bool RequestDestroyTarget =  MilitaryHunt->GetInitData()->GetInt32("destroy") > 0;
+
+			return RequestDestroyTarget;
+		}
+	}
+	return false;
+}
 
 #undef LOCTEXT_NAMESPACE

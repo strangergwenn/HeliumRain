@@ -402,7 +402,7 @@ void SectorHelper::GetAvailableFleetSupplyCount(UFlareSimulatedSector* Sector, U
 	{
 		UFlareSimulatedSpacecraft* Spacecraft = Sector->GetSectorSpacecrafts()[SpacecraftIndex];
 
-		if (Company->GetWarState(Spacecraft->GetCompany()) == EFlareHostility::Hostile)
+		if (Spacecraft->IsHostile(Company))
 		{
 			// At war, no trade possible
 			continue;
@@ -849,7 +849,7 @@ void SectorHelper::ConsumeFleetSupply(UFlareSimulatedSector* Sector, UFlareCompa
 			continue;
 		}
 
-		if (Company->GetWarState(Spacecraft->GetCompany()) == EFlareHostility::Hostile)
+		if (Spacecraft->IsHostile(Company))
 		{
 			// At war, no trade possible
 			continue;
@@ -910,7 +910,7 @@ int32 SectorHelper::GetHostileArmyCombatPoints(UFlareSimulatedSector* Sector, UF
 
 	for(UFlareSimulatedSpacecraft* Spacecraft: Sector->GetSectorSpacecrafts())
 	{
-		if(Spacecraft->GetCompany()->GetWarState(Company) != EFlareHostility::Hostile)
+		if(!Spacecraft->IsHostile(Company))
 		{
 			continue;
 		}

@@ -36,7 +36,7 @@ public:
 	virtual UFlareCompany* GetCompany() const;
 
 	/** Get the ship size class */
-	virtual EFlarePartSize::Type GetSize();
+	virtual EFlarePartSize::Type GetSize() const;
 
 	virtual FName GetImmatriculation() const;
 
@@ -407,6 +407,10 @@ public:
 	bool HasCapability(EFlareSpacecraftCapability::Type Capability) const;
 
 	EFlareHostility::Type GetPlayerWarState() const;
+
+	bool IsPlayerHostile() const;
+
+	bool IsHostile(UFlareCompany* Company, bool UseCache = false) const;
 
 	int32 GetCapturePoint(UFlareCompany* Company) const;
 

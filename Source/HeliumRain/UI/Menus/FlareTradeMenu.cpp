@@ -364,7 +364,7 @@ void SFlareTradeMenu::Enter(UFlareSimulatedSector* ParentSector, UFlareSimulated
 			UFlareSimulatedSpacecraft* StationCandidate = ParentSector->GetSectorStations()[SpacecraftIndex];
 			if (StationCandidate && StationCandidate != LeftSpacecraft && StationCandidate != RightSpacecraft
 			 && StationCandidate->GetActiveCargoBay()->GetSlotCount() > 0
-			 && StationCandidate->GetCompany()->GetPlayerWarState() != EFlareHostility::Hostile)
+			 && !StationCandidate->IsPlayerHostile())
 			{
 				ShipList->AddShip(StationCandidate);
 			}

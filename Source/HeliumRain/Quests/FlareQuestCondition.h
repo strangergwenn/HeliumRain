@@ -763,7 +763,6 @@ protected:
 	int64 DurationLimit;
 };
 
-
 //////////////////////////////////////////////////////
 UCLASS()
 class HELIUMRAIN_API UFlareQuestConditionAfterDate: public UFlareQuestCondition
@@ -785,6 +784,26 @@ protected:
 	int64 DateLimit;
 };
 
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionPlayerTravelTooLong: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+
+public:
+
+	static UFlareQuestConditionPlayerTravelTooLong* Create(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, int64 Date);
+	void Load(UFlareQuest* ParentQuest, UFlareSimulatedSector* TargetSectorParam, int64 Date);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+	virtual FText GetInitialLabel();
+
+protected:
+	UFlareSimulatedSector* TargetSector;
+	int64 DateLimit;
+};
 
 //////////////////////////////////////////////////////
 UCLASS()
@@ -893,6 +912,23 @@ protected:
 	bool HasInitialCapturingStations;
 };
 
+//////////////////////////////////////////////////////
+UCLASS()
+class HELIUMRAIN_API UFlareQuestConditionWorkFor: public UFlareQuestCondition
+{
+	GENERATED_UCLASS_BODY()
+
+public:
+	static UFlareQuestConditionWorkFor* Create(UFlareQuest* ParentQuest, UFlareCompany* TargetCompanyParam);
+	void Load(UFlareQuest* ParentQuest, UFlareCompany* TargetCompanyParam);
+
+	virtual bool IsCompleted();
+	virtual void AddConditionObjectives(FFlarePlayerObjectiveData* ObjectiveData);
+
+
+protected:
+	UFlareCompany* TargetCompany;
+};
 
 //////////////////////////////////////////////////////
 UCLASS()

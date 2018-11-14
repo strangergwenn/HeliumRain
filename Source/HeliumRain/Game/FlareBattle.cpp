@@ -372,7 +372,7 @@ UFlareSimulatedSpacecraft* UFlareBattle::GetBestTarget(UFlareSimulatedSpacecraft
 			continue;
 		}
 
-		if (Ship->GetCompany()->GetWarState(ShipCandidate->GetCompany()) != EFlareHostility::Hostile)
+		if (!ShipCandidate->IsHostile(Ship->GetCompany()))
 		{
 			// Ignore not hostile ships
 			continue;

@@ -318,7 +318,7 @@ UFlareCompany* UFlareSimulatedSpacecraft::GetCompany() const
 	return Company;
 }
 
-EFlarePartSize::Type UFlareSimulatedSpacecraft::GetSize()
+EFlarePartSize::Type UFlareSimulatedSpacecraft::GetSize() const
 {
 	return SpacecraftDescription->Size;
 }
@@ -2423,6 +2423,49 @@ const FSlateBrush* FFlareSpacecraftDescription::GetIcon(FFlareSpacecraftDescript
 		}
 	}
 	return NULL;
+}
+
+bool UFlareSimulatedSpacecraft::IsPlayerHostile() const
+{
+	UFlareCompany* PlayerCompany = Game->GetPC()->GetCompany();
+	return IsHostile(PlayerCompany);
+}
+
+bool UFlareSimulatedSpacecraft::IsHostile(UFlareCompany* OtherCompany, bool UseCache) const
+{
+	if(GetCompany() == OtherCompany)
+	{
+		return false;
+	}
+
+
+	if(GetCompany()->IsPlayerCompany())
+	{
+		// Is player ship hostile ?
+
+		if (IsMilitary()
+				&& Game->GetQuestManager()->IsUnderMilitaryContract(GetCurrentSector(), OtherCompany, UseCache)
+				&& !GetDamageSystem()->IsDisarmed() && !GetDamageSystem()->IsUncontrollable())
+		{
+			return true;
+		}
+	}
+	else if (OtherCompany->IsPlayerCompany())
+	{
+		// Is non player ship hostile to player ?
+		if(IsMilitary() &&
+			Game->GetQuestManager()->IsUnderMilitaryContract(GetCurrentSector(), GetCompany(), UseCache))
+		{
+			return true;
+		}
+
+		if(Game->GetQuestManager()->IsMilitaryTarget(this, UseCache))
+		{
+			return true;
+		}
+	}
+
+	return GetCompany()->GetWarState(OtherCompany) == EFlareHostility::Hostile;
 }
 
 #undef LOCTEXT_NAMESPACE

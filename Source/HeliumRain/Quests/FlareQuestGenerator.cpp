@@ -82,6 +82,27 @@ void UFlareQuestGenerator::LoadQuests(const FFlareQuestSave& Data)
 		{
 			Quest = NewObject<UFlareQuestGeneratedMilitaryHunt>(this, UFlareQuestGeneratedMilitaryHunt::StaticClass());
 		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedStationDefense2::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedStationDefense2>(this, UFlareQuestGeneratedStationDefense2::StaticClass());
+		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedSectorDefense2::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedSectorDefense2>(this, UFlareQuestGeneratedSectorDefense2::StaticClass());
+		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedJoinAttack2::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedJoinAttack2>(this, UFlareQuestGeneratedJoinAttack2::StaticClass());
+		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedCargoHunt2::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedCargoHunt2>(this, UFlareQuestGeneratedCargoHunt2::StaticClass());
+		}
+		else if(QuestData.QuestClass == UFlareQuestGeneratedMilitaryHunt2::GetClass())
+		{
+			Quest = NewObject<UFlareQuestGeneratedMilitaryHunt2>(this, UFlareQuestGeneratedMilitaryHunt2::StaticClass());
+		}
+
 		else if(QuestData.QuestClass == UFlareQuestGeneratedMeteoriteInterception::GetClass())
 		{
 			Quest = NewObject<UFlareQuestGeneratedMeteoriteInterception>(this, UFlareQuestGeneratedMeteoriteInterception::StaticClass());
@@ -359,7 +380,7 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 				// 1% per day per negative reputation point
 				float ValueRatio = float(OtherValue.TotalValue) / TotalValue;
 
-				float CargoHuntQuestProbability = FMath::Clamp(ValueRatio * 0.0001f, 0.f, 1.f);
+				float CargoHuntQuestProbability = FMath::Clamp(FMath::Square(ValueRatio) * 0.5f, 0.f, 1.f);
 
 				// No luck, no quest this time
 				if (FMath::FRand() > CargoHuntQuestProbability)
@@ -367,7 +388,7 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 					continue;
 				}
 
-				RegisterQuest(UFlareQuestGeneratedCargoHunt::Create(this, Company, OtherCompany));
+				RegisterQuest(UFlareQuestGeneratedCargoHunt2::Create(this, Company, OtherCompany));
 			}
 
 			// Military hunt
@@ -376,15 +397,15 @@ void UFlareQuestGenerator::GenerateSectorQuest(UFlareSimulatedSector* Sector)
 				float ValueRatio = float(OtherValue.ArmyCurrentCombatPoints) / TotalCombatValue;
 				
 				// 1% per day per negative reputation point
-				float MilitaryHuntQuestProbability = FMath::Clamp(ValueRatio * 0.001f, 0.f, 1.f);
-								
+				float MilitaryHuntQuestProbability = FMath::Clamp(FMath::Square(ValueRatio) * 0.5f, 0.f, 1.f);
+
 				// No luck, no quest this time
 				if (FMath::FRand() > MilitaryHuntQuestProbability)
 				{
 					continue;
 				}
 
-				RegisterQuest(UFlareQuestGeneratedMilitaryHunt::Create(this, Company, OtherCompany));
+				RegisterQuest(UFlareQuestGeneratedMilitaryHunt2::Create(this, Company, OtherCompany));
 			}
 		}
 	}
@@ -405,10 +426,29 @@ void UFlareQuestGenerator::GenerateAttackQuests(UFlareCompany* AttackCompany, in
 		return;
 	}
 
+
+	int64 PlayerTravelDuration = 0;
+	UFlareFleet* PlayerFleet = GetGame()->GetPC()->GetPlayerFleet();
+
+	if(PlayerFleet->IsTraveling())
+	{
+		PlayerTravelDuration +=	PlayerFleet->GetCurrentTravel()->GetRemainingTravelDuration();
+		PlayerTravelDuration +=	UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), PlayerFleet->GetCurrentTravel()->GetDestinationSector(), Target.Sector, PlayerCompany);
+	}
+	else
+	{
+		PlayerTravelDuration +=	UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), PlayerFleet->GetCurrentSector(), Target.Sector, PlayerCompany);
+	}
+
+	if(PlayerTravelDuration > TravelDuration)
+	{
+		return;
+	}
+
 	// Attack quest
 	if (FMath::FRand() <= ComputeQuestProbability(AttackCompany))
 	{
-		RegisterQuest(UFlareQuestGeneratedJoinAttack::Create(this, AttackCompany, AttackCombatPoints, Target, TravelDuration));
+		RegisterQuest(UFlareQuestGeneratedJoinAttack2::Create(this, AttackCompany, AttackCombatPoints, Target, TravelDuration));
 	}
 
 	// Defense quest
@@ -421,7 +461,7 @@ void UFlareQuestGenerator::GenerateAttackQuests(UFlareCompany* AttackCompany, in
 
 		if (FMath::FRand() <= ComputeQuestProbability(DefenseCompany))
 		{
-			RegisterQuest(UFlareQuestGeneratedSectorDefense::Create(this, DefenseCompany, AttackCompany, AttackCombatPoints, Target, TravelDuration));
+			RegisterQuest(UFlareQuestGeneratedSectorDefense2::Create(this, DefenseCompany, AttackCompany, AttackCombatPoints, Target, TravelDuration));
 		}
 	}
 }
@@ -469,7 +509,7 @@ void UFlareQuestGenerator::GenerateMilitaryQuests()
 
 				if (Station->GetCapturePoint(HostileCompany) * 10 > Station->GetCapturePointThreshold())
 				{
-					RegisterQuest(UFlareQuestGeneratedStationDefense::Create(this, Station->GetCurrentSector(), Station->GetCompany(), HostileCompany));
+					RegisterQuest(UFlareQuestGeneratedStationDefense2::Create(this, Station->GetCurrentSector(), Station->GetCompany(), HostileCompany));
 				}
 			}
 		}
@@ -689,9 +729,9 @@ UFlareQuestGenerated* UFlareQuestGeneratedVipTransport::Create(UFlareQuestGenera
 		}
 
 		// Check friendlyness
-		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
+		if (CandidateStation->IsHostile(PlayerCompany) || CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
 		{
-			// Me or at war company
+			// Me or at war company or is target of a mission
 			continue;
 		}
 
@@ -892,7 +932,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceSale::Create(UFlareQuestGenera
 		}
 
 		// Check friendlyness
-		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
+		if (CandidateStation->IsHostile(PlayerCompany) || CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
 		{
 			// Me or at war company
 			continue;
@@ -1107,7 +1147,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 		}
 
 		// Check friendlyness
-		if (CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
+		if (CandidateStation->IsHostile(PlayerCompany) || CandidateStation->GetCompany()->GetWarState(PlayerCompany) != EFlareHostility::Neutral)
 		{
 			// Me or at war company
 			continue;
@@ -1326,7 +1366,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 	for (UFlareSimulatedSpacecraft* CandidateStation : Sector->GetSectorStations())
 	{
 		// Check friendlyness
-		if (CandidateStation->GetCompany()->GetWarState(Company) != EFlareHostility::Owned)
+		if (CandidateStation->IsHostile(PlayerCompany) || CandidateStation->GetCompany()->GetWarState(Company) != EFlareHostility::Owned)
 		{
 			continue;
 		}
@@ -1606,66 +1646,6 @@ UFlareQuestGeneratedStationDefense::UFlareQuestGeneratedStationDefense(const FOb
 {
 }
 
-UFlareQuestGenerated* UFlareQuestGeneratedStationDefense::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company, UFlareCompany* HostileCompany)
-{
-	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
-
-	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
-	{
-		return NULL;
-	}
-
-	// Check unicity
-	if (Parent->FindUniqueTag(Parent->GenerateDefenseTag(Sector, HostileCompany)))
-	{
-		return NULL;
-	}
-
-	int64 WarPrice;
-
-	if (HostileCompany->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
-	{
-		WarPrice = 0;
-	}
-	else
-	{
-		WarPrice = 2000 * (HostileCompany->GetPlayerReputation() + 100);
-	}
-
-	int32 PreferredPlayerCombatPoints = int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5));
-
-
-	int32 NeedArmyCombatPoints= FMath::Max(0, SectorHelper::GetHostileArmyCombatPoints(Sector, Company, true) - SectorHelper::GetCompanyArmyCombatPoints(Sector, Company, true) /4);
-
-
-	int32 RequestedArmyCombatPoints = FMath::Min(PreferredPlayerCombatPoints, NeedArmyCombatPoints);
-
-	if(RequestedArmyCombatPoints <= 0)
-	{
-		return NULL;
-	}
-
-	int64 ArmyPrice = RequestedArmyCombatPoints  * 60000;
-
-	// Setup reward
-	int64 QuestValue = WarPrice + ArmyPrice;
-
-	// Create the quest
-	UFlareQuestGeneratedStationDefense* Quest = NewObject<UFlareQuestGeneratedStationDefense>(Parent, UFlareQuestGeneratedStationDefense::StaticClass());
-
-	FFlareBundle Data;
-	Parent->GenerateIdentifer(UFlareQuestGeneratedStationDefense::GetClass(), Data);
-	Data.PutName("sector", Sector->GetIdentifier());
-	Data.PutInt32("army-combat-points", RequestedArmyCombatPoints );
-	Data.PutName("friendly-company", Company->GetIdentifier());
-	Data.PutName("hostile-company", HostileCompany->GetIdentifier());
-	Data.PutTag(Parent->GenerateDefenseTag(Sector, HostileCompany));
-	CreateGenericReward(Data, QuestValue, Company);
-
-	Quest->Load(Parent, Data);
-
-	return Quest;
-}
 
 bool UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
@@ -1785,73 +1765,6 @@ bool UFlareQuestGeneratedStationDefense::Load(UFlareQuestGenerator* Parent, cons
 UFlareQuestGeneratedJoinAttack::UFlareQuestGeneratedJoinAttack(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-}
-
-UFlareQuestGenerated* UFlareQuestGeneratedJoinAttack::Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, int32 AttackCombatPoints, WarTarget& Target, int64 TravelDuration)
-{
-	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
-
-	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
-	{
-		return NULL;
-	}
-
-	// Check unicity
-	if (Parent->FindUniqueTag(Parent->GenerateAttackTag(Target.Sector, Company)))
-	{
-		return NULL;
-	}
-
-	int64 WarPrice = 0;
-
-	for(UFlareCompany* HostileCompany : Target.ArmedDefenseCompanies)
-	{
-		if (HostileCompany->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
-		{
-			WarPrice += 2000 * (HostileCompany->GetPlayerReputation() + 100);
-		}
-	}
-
-	int32 PreferredPlayerCombatPoints= int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5));
-
-
-	int32 NeedArmyCombatPoints= FMath::Max(0, Target.EnemyArmyCombatPoints - AttackCombatPoints /4);
-
-
-	int32 RequestedArmyCombatPoints = FMath::Min(PreferredPlayerCombatPoints, NeedArmyCombatPoints);
-
-	if(RequestedArmyCombatPoints <= 0)
-	{
-		return NULL;
-	}
-
-	int64 ArmyPrice = RequestedArmyCombatPoints  * 60000;
-
-	// Setup reward
-	int64 QuestValue = WarPrice + ArmyPrice;
-
-	// Create the quest
-	UFlareQuestGeneratedJoinAttack* Quest = NewObject<UFlareQuestGeneratedJoinAttack>(Parent, UFlareQuestGeneratedJoinAttack::StaticClass());
-
-	TArray<FName> HostileCompanies;
-	for(UFlareCompany* HostileCompany : Target.ArmedDefenseCompanies)
-	{
-		HostileCompanies.Add(HostileCompany->GetIdentifier());
-	}
-
-	FFlareBundle Data;
-	Parent->GenerateIdentifer(UFlareQuestGeneratedJoinAttack::GetClass(), Data);
-	Data.PutName("sector", Target.Sector->GetIdentifier());
-	Data.PutInt32("army-combat-points", RequestedArmyCombatPoints );
-	Data.PutInt32("attack-date", Parent->GetGame()->GetGameWorld()->GetDate() + TravelDuration);
-	Data.PutName("friendly-company", Company->GetIdentifier());
-	Data.PutNameArray("hostile-companies", HostileCompanies);
-	Data.PutTag(Parent->GenerateAttackTag(Target.Sector, Company));
-	CreateGenericReward(Data, QuestValue, Company);
-
-	Quest->Load(Parent, Data);
-
-	return Quest;
 }
 
 bool UFlareQuestGeneratedJoinAttack::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
@@ -2011,73 +1924,6 @@ UFlareQuestGeneratedSectorDefense::UFlareQuestGeneratedSectorDefense(const FObje
 {
 }
 
-UFlareQuestGenerated* UFlareQuestGeneratedSectorDefense::Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany, int32 AttackCombatPoints, WarTarget& Target, int64 TravelDuration)
-{
-	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
-
-	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
-	{
-		return NULL;
-	}
-
-	// Check unicity
-	if (Parent->FindUniqueTag(Parent->GenerateDefenseTag(Target.Sector, HostileCompany)))
-	{
-		return NULL;
-	}
-
-	int64 WarPrice = 0;
-
-
-	if (HostileCompany->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
-	{
-		WarPrice += 2000 * (HostileCompany->GetPlayerReputation() + 100);
-	}
-
-	int32 PreferredPlayerCombatPoints = int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5));
-
-
-	int32 NeedArmyCombatPoints= FMath::Max(0, AttackCombatPoints - Target.EnemyArmyCombatPoints /4);
-
-
-	FLOGV("PreferredPlayerCombatPoints %d", PreferredPlayerCombatPoints);
-	FLOGV("Target.OwnedArmyCombatPoints %d", Target.OwnedArmyCombatPoints);
-	FLOGV("Target.EnemyArmyCombatPoints %d", Target.EnemyArmyCombatPoints);
-	FLOGV("NeedArmyCombatPoints %d", NeedArmyCombatPoints);
-
-	int32 RequestedArmyCombatPoints = FMath::Min(PreferredPlayerCombatPoints, NeedArmyCombatPoints);
-
-	FLOGV("RequestedArmyCombatPoints %d", RequestedArmyCombatPoints);
-
-	if(RequestedArmyCombatPoints <= 0)
-	{
-		return NULL;
-	}
-
-	int64 ArmyPrice = RequestedArmyCombatPoints  * 60000;
-
-	// Setup reward
-	int64 QuestValue = WarPrice + ArmyPrice;
-
-	// Create the quest
-	UFlareQuestGeneratedSectorDefense* Quest = NewObject<UFlareQuestGeneratedSectorDefense>(Parent, UFlareQuestGeneratedSectorDefense::StaticClass());
-
-
-	FFlareBundle Data;
-	Parent->GenerateIdentifer(UFlareQuestGeneratedSectorDefense::GetClass(), Data);
-	Data.PutName("sector", Target.Sector->GetIdentifier());
-	Data.PutInt32("army-combat-points", RequestedArmyCombatPoints );
-	Data.PutInt32("attack-date", Parent->GetGame()->GetGameWorld()->GetDate() + TravelDuration);
-	Data.PutName("friendly-company", Company->GetIdentifier());
-	Data.PutName("hostile-company", HostileCompany->GetIdentifier());
-	Data.PutTag(Parent->GenerateDefenseTag(Target.Sector, HostileCompany));
-	CreateGenericReward(Data, QuestValue, Company);
-
-	Quest->Load(Parent, Data);
-
-	return Quest;
-}
-
 bool UFlareQuestGeneratedSectorDefense::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
@@ -2217,7 +2063,671 @@ UFlareQuestGeneratedCargoHunt::UFlareQuestGeneratedCargoHunt(const FObjectInitia
 {
 }
 
-UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt::Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany)
+
+bool UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+{
+	UFlareQuestGenerated::Load(Parent, Data);
+
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	UFlareCompany* FriendlyCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("friendly-company"));
+	UFlareCompany* HostileCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("hostile-company"));
+	int32 CargoCount = InitData.GetInt32("cargo-count");
+	bool RequestDestroyTarget = InitData.GetInt32("destroy-cargo") > 0;
+	bool TargetLargeCargo = InitData.GetInt32("large-cargo") > 0;
+
+	QuestClass = UFlareQuestGeneratedCargoHunt::GetClass();
+	Identifier = InitData.GetName("identifier");
+
+	QuestName = FText::Format(LOCTEXT("GeneratedCargoHuntNameLocal","Attack {0}'s cargos"), HostileCompany->GetCompanyName());
+
+	QuestDescription = FText::Format(LOCTEXT("GeneratedCargoHuntDescriptionLocalFormat","{0} {1} {2} cargos to {3}."),
+								 RequestDestroyTarget? LOCTEXT("RequestDestroyTarget","Destroy") : LOCTEXT("RequestUncotrollableTarget","Make uncontrollable"),
+									 FText::AsNumber(CargoCount),
+									 TargetLargeCargo? LOCTEXT("TargetLargeCargo","large") : LOCTEXT("TargetSmallCargo","small"),
+									 HostileCompany->GetCompanyName());
+
+	QuestCategory = EFlareQuestCategory::SECONDARY;
+
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"CargoHarass"
+		FText Description;
+
+		Description = LOCTEXT("GeneratedCargoHuntHarass", "Attack unarmed, defenseless cargos");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "harass", Description);
+
+
+		UFlareQuestConditionDestroySpacecraft* Condition = UFlareQuestConditionDestroySpacecraft::Create(this,
+																										 QUEST_TAG"cond1",
+																										 HostileCompany,
+																										 CargoCount,
+																										 false,
+																										 TargetLargeCargo ? EFlarePartSize::L : EFlarePartSize::S,
+																										 RequestDestroyTarget);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+
+		Steps.Add(Step);
+	}
+
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+
+	SetupQuestGiver(FriendlyCompany, true);
+	SetupGenericReward(Data);
+
+	return true;
+}
+
+/*----------------------------------------------------
+	Generated military hunt quest
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "GeneratedMilitaryHunt"
+UFlareQuestGeneratedMilitaryHunt::UFlareQuestGeneratedMilitaryHunt(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+bool UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+{
+	UFlareQuestGenerated::Load(Parent, Data);
+
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	UFlareCompany* FriendlyCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("friendly-company"));
+	UFlareCompany* HostileCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("hostile-company"));
+	int32 RequestedArmyCombatPoints = InitData.GetInt32("army-combat-points");
+	bool RequestDestroyTarget = InitData.GetInt32("destroy") > 0;
+
+	QuestClass = UFlareQuestGeneratedMilitaryHunt::GetClass();
+	Identifier = InitData.GetName("identifier");
+
+	QuestName = FText::Format(LOCTEXT("GeneratedMilitaryHuntNameLocal", "Attack {0}'s military ships"), HostileCompany->GetCompanyName());
+	if (RequestDestroyTarget)
+	{
+		QuestDescription = FText::Format(LOCTEXT("GeneratedMilitaryHuntDescriptionLocalFormat1", "Destroy some of {0}'s ships to lower its combat value by {1} combats points"),
+			HostileCompany->GetCompanyName(),
+			FText::AsNumber(RequestedArmyCombatPoints));
+	}
+	else
+	{
+		QuestDescription = FText::Format(LOCTEXT("GeneratedMilitaryHuntDescriptionLocalFormat2", "Render some of {0}'s ships uncontrollable to lower its combat value by {1} combats points"),
+			HostileCompany->GetCompanyName(),
+			FText::AsNumber(RequestedArmyCombatPoints));
+	}
+
+
+	QuestCategory = EFlareQuestCategory::SECONDARY;
+
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"CargoMilitaryHarass"
+		FText Description;
+
+		Description = LOCTEXT("GeneratedMilitaryHuntHarass", "Attack military ships");
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "harass", Description);
+
+
+		UFlareQuestConditionDestroyCombatValue* Condition = UFlareQuestConditionDestroyCombatValue::Create(this,
+																										 QUEST_TAG"cond1",
+																										 HostileCompany,
+																										 RequestedArmyCombatPoints,
+																										 RequestDestroyTarget);
+		Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+
+		Steps.Add(Step);
+	}
+
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+
+	SetupQuestGiver(FriendlyCompany, true);
+	SetupGenericReward(Data);
+
+	return true;
+}
+
+// New military contracts
+
+/*----------------------------------------------------
+	Generated station defense quest
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "GeneratedStationDefense2"
+UFlareQuestGeneratedStationDefense2::UFlareQuestGeneratedStationDefense2(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestGenerated* UFlareQuestGeneratedStationDefense2::Create(UFlareQuestGenerator* Parent, UFlareSimulatedSector* Sector, UFlareCompany* Company, UFlareCompany* HostileCompany)
+{
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	{
+		return NULL;
+	}
+
+	// Check unicity
+	if (Parent->FindUniqueTag(Parent->GenerateDefenseTag(Sector, HostileCompany)))
+	{
+		return NULL;
+	}
+
+	int64 WarPrice;
+
+	if (HostileCompany->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	{
+		WarPrice = 0;
+	}
+	else
+	{
+		WarPrice = 200 * (HostileCompany->GetPlayerReputation() + 100);
+	}
+
+	int32 PreferredPlayerCombatPoints = int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5));
+
+
+	int32 NeedArmyCombatPoints= FMath::Max(0, SectorHelper::GetHostileArmyCombatPoints(Sector, Company, true) - SectorHelper::GetCompanyArmyCombatPoints(Sector, Company, true) /4);
+
+
+	int32 RequestedArmyCombatPoints = FMath::Min(PreferredPlayerCombatPoints, NeedArmyCombatPoints);
+
+	if(RequestedArmyCombatPoints <= 0)
+	{
+		return NULL;
+	}
+
+	int64 ArmyPrice = RequestedArmyCombatPoints  * 40000;
+
+	// Setup reward
+	int64 QuestValue = WarPrice + ArmyPrice;
+
+	// Create the quest
+	UFlareQuestGeneratedStationDefense2* Quest = NewObject<UFlareQuestGeneratedStationDefense2>(Parent, UFlareQuestGeneratedStationDefense2::StaticClass());
+
+	FFlareBundle Data;
+	Parent->GenerateIdentifer(UFlareQuestGeneratedStationDefense2::GetClass(), Data);
+	Data.PutName("sector", Sector->GetIdentifier());
+	Data.PutInt32("army-combat-points", RequestedArmyCombatPoints );
+	Data.PutName("friendly-company", Company->GetIdentifier());
+	Data.PutName("hostile-company", HostileCompany->GetIdentifier());
+	Data.PutTag(Parent->GenerateDefenseTag(Sector, HostileCompany));
+	CreateGenericReward(Data, QuestValue, Company);
+
+	Quest->Load(Parent, Data);
+
+	return Quest;
+}
+
+bool UFlareQuestGeneratedStationDefense2::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+{
+	UFlareQuestGenerated::Load(Parent, Data);
+
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+	UFlareSimulatedSector* Sector = Parent->GetGame()->GetGameWorld()->FindSector(InitData.GetName("sector"));
+
+	UFlareCompany* FriendlyCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("friendly-company"));
+	UFlareCompany* HostileCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("hostile-company"));
+	int32 ArmyCombatPoints = InitData.GetInt32("army-combat-points");
+
+	QuestClass = UFlareQuestGeneratedStationDefense2::GetClass();
+	Identifier = InitData.GetName("identifier");
+
+	QuestName = FText::Format(LOCTEXT("GeneratedStationDefenseNameLocal","Defend stations of {0} against {1}"), Sector->GetSectorName(), HostileCompany->GetCompanyName());
+	QuestDescription = FText::Format(LOCTEXT("GeneratedStationDefenseDescriptionLocalFormat","Defend stations of {0} in {1} against {2} with at least {3} combat value."),
+								 FriendlyCompany->GetCompanyName(), Sector->GetSectorName(), HostileCompany->GetCompanyName(), FText::AsNumber(ArmyCombatPoints ));
+
+	QuestCategory = EFlareQuestCategory::SECONDARY;
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"Attack"
+		FText Description;
+
+		Description = FText::Format(LOCTEXT("GeneratedStationDefenseDescriptionBringForce", "Attack {0} in {1} with at least {2} combat value"),
+										  HostileCompany->GetCompanyName(), Sector->GetSectorName(), FText::AsNumber(ArmyCombatPoints ));
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
+		{
+			// First case : the player bring forces
+			UFlareQuestConditionMinArmyCombatPointsInSector* Condition = UFlareQuestConditionMinArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, ArmyCombatPoints);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+
+		}
+
+		{
+			// Failed to defend
+			UFlareQuestConditionStationLostInSector* FailCondition = UFlareQuestConditionStationLostInSector::Create(this, Sector, FriendlyCompany);
+			Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition);
+		}
+
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
+
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"Defend"
+		FText Description;
+
+		Description = FText::Format(LOCTEXT("GeneratedStationDefenseDescriptionDefendStation", "Defend {0} in {1} against {2}"),
+										  FriendlyCompany->GetCompanyName(), Sector->GetSectorName(), HostileCompany->GetCompanyName());
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "defend", Description);
+
+		// OR root
+		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));
+
+		{
+			UFlareQuestConditionNoCapturingStationInSector* Condition = UFlareQuestConditionNoCapturingStationInSector::Create(this, Sector, FriendlyCompany, HostileCompany);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+		}
+
+		// OR
+		{
+			UFlareQuestConditionMaxArmyCombatPointsInSector* Condition = UFlareQuestConditionMaxArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, 0);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+		}
+
+		UFlareQuestConditionRetreatDangerousShip* FailCondition1 = UFlareQuestConditionRetreatDangerousShip::Create(this, Sector, PlayerCompany);
+		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition1);
+
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
+
+		Steps.Add(Step);
+	}
+
+
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionStationLostInSector::Create(this,  Sector, FriendlyCompany));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionNoCapturingStationInSector::Create(this,  Sector, FriendlyCompany, HostileCompany));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+
+	AddGlobalFailCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+
+	SetupQuestGiver(FriendlyCompany, true);
+	SetupGenericReward(Data);
+
+	return true;
+}
+
+/*----------------------------------------------------
+	Generated joint attack quest
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "GeneratedJointAttack2"
+UFlareQuestGeneratedJoinAttack2::UFlareQuestGeneratedJoinAttack2(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestGenerated* UFlareQuestGeneratedJoinAttack2::Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, int32 AttackCombatPoints, WarTarget& Target, int64 TravelDuration)
+{
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	{
+		return NULL;
+	}
+
+	// Check unicity
+	if (Parent->FindUniqueTag(Parent->GenerateAttackTag(Target.Sector, Company)))
+	{
+		return NULL;
+	}
+
+	int64 WarPrice = 0;
+
+	for(UFlareCompany* HostileCompany : Target.ArmedDefenseCompanies)
+	{
+		if (HostileCompany->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
+		{
+			WarPrice += 200 * (HostileCompany->GetPlayerReputation() + 100);
+		}
+	}
+
+	int32 PreferredPlayerCombatPoints= int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5));
+
+
+	int32 NeedArmyCombatPoints= FMath::Max(0, Target.EnemyArmyCombatPoints - AttackCombatPoints /4);
+
+
+	int32 RequestedArmyCombatPoints = FMath::Min(PreferredPlayerCombatPoints, NeedArmyCombatPoints);
+
+	if(RequestedArmyCombatPoints <= 0)
+	{
+		return NULL;
+	}
+
+	int64 ArmyPrice = RequestedArmyCombatPoints  * 60000;
+
+	// Setup reward
+	int64 QuestValue = WarPrice + ArmyPrice;
+
+	// Create the quest
+	UFlareQuestGeneratedJoinAttack2* Quest = NewObject<UFlareQuestGeneratedJoinAttack2>(Parent, UFlareQuestGeneratedJoinAttack2::StaticClass());
+
+	TArray<FName> HostileCompanies;
+	for(UFlareCompany* HostileCompany : Target.ArmedDefenseCompanies)
+	{
+		HostileCompanies.Add(HostileCompany->GetIdentifier());
+	}
+
+
+
+	FFlareBundle Data;
+	Parent->GenerateIdentifer(UFlareQuestGeneratedJoinAttack2::GetClass(), Data);
+	Data.PutName("sector", Target.Sector->GetIdentifier());
+	Data.PutInt32("army-combat-points", RequestedArmyCombatPoints );
+	Data.PutInt32("attack-date", Parent->GetGame()->GetGameWorld()->GetDate() + TravelDuration);
+	Data.PutName("friendly-company", Company->GetIdentifier());
+	Data.PutNameArray("hostile-companies", HostileCompanies);
+	Data.PutTag(Parent->GenerateAttackTag(Target.Sector, Company));
+	CreateGenericReward(Data, QuestValue, Company);
+
+	Quest->Load(Parent, Data);
+
+	return Quest;
+}
+
+bool UFlareQuestGeneratedJoinAttack2::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+{
+	UFlareQuestGenerated::Load(Parent, Data);
+
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+	UFlareSimulatedSector* Sector = Parent->GetGame()->GetGameWorld()->FindSector(InitData.GetName("sector"));
+
+	UFlareCompany* FriendlyCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("friendly-company"));
+	TArray<UFlareCompany*> HostileCompanies;
+	TArray<FName> HostileCompanyNames = InitData.GetNameArray("hostile-companies");
+	for(FName HostileCompanyName : HostileCompanyNames)
+	{
+		HostileCompanies.Add(Parent->GetGame()->GetGameWorld()->FindCompany(HostileCompanyName));
+	}
+	int32 ArmyCombatPoints = InitData.GetInt32("army-combat-points");
+	int32 AttackDate = InitData.GetInt32("attack-date");
+
+	QuestClass = UFlareQuestGeneratedJoinAttack2::GetClass();
+	Identifier = InitData.GetName("identifier");
+
+	QuestName = FText::Format(LOCTEXT("GeneratedJoinAttackNameLocal","Attack {0} with {1}"),
+		Sector->GetSectorName(),
+		FriendlyCompany->GetCompanyName());
+
+	QuestDescription = FText::Format(LOCTEXT("GeneratedJoinAttackDescriptionLocalFormat","Follow {0} in {1} with at least {2} combat value, and attack on {3}."),
+		FriendlyCompany->GetCompanyName(),
+		Sector->GetSectorName(),
+		FText::AsNumber(ArmyCombatPoints),
+		UFlareGameTools::GetDisplayDate(AttackDate));
+
+	QuestCategory = EFlareQuestCategory::SECONDARY;
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"Attack"
+		FText Description;
+
+		Description = FText::Format(LOCTEXT("GeneratedJoinAttackDescriptionBringForce", "Attack {0} with at least {1} combat value on {2}"),
+			Sector->GetSectorName(),
+			FText::AsNumber(ArmyCombatPoints ),
+			UFlareGameTools::GetDisplayDate(AttackDate));
+
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
+		{
+			// First case : the player bring forces
+			UFlareQuestConditionMinArmyCombatPointsInSector* Condition = UFlareQuestConditionMinArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, ArmyCombatPoints);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+
+		}
+
+		{
+			// Failed to attack at time
+			UFlareQuestConditionAfterDate* FailCondition = UFlareQuestConditionAfterDate::Create(this, AttackDate);
+			Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition);
+		}
+
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
+
+
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"Fight"
+		FText Description;
+
+		Description = FText::Format(LOCTEXT("FightAlongsideFormat", "Fight alongside {0} in {1}"),
+										  FriendlyCompany->GetCompanyName(), Sector->GetSectorName());
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "fight", Description);
+
+		// OR root
+		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));
+
+		{
+			UFlareQuestConditionAfterDate* Condition = UFlareQuestConditionAfterDate::Create(this, AttackDate);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+		}
+
+		// OR
+		{
+			UFlareQuestConditionMaxArmyCombatPointsInSector* Condition = UFlareQuestConditionMaxArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, 0);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+		}
+
+		UFlareQuestConditionRetreatDangerousShip* FailCondition1 = UFlareQuestConditionRetreatDangerousShip::Create(this, Sector, PlayerCompany);
+		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition1);
+
+		Steps.Add(Step);
+	}
+
+
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAfterDate::Create(this, AttackDate));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionPlayerTravelTooLong::Create(this, Sector, AttackDate));
+
+	for(UFlareCompany* HostileCompany : HostileCompanies)
+	{
+		Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+		AddGlobalFailCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+	}
+
+
+	SetupQuestGiver(FriendlyCompany, true);
+	SetupGenericReward(Data);
+
+	return true;
+}
+
+
+
+/*----------------------------------------------------
+	Generated sector defense quest
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "GeneratedSectorDefense2"
+UFlareQuestGeneratedSectorDefense2::UFlareQuestGeneratedSectorDefense2(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestGenerated* UFlareQuestGeneratedSectorDefense2::Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany, int32 AttackCombatPoints, WarTarget& Target, int64 TravelDuration)
+{
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+
+	if (Company->GetWarState(PlayerCompany) == EFlareHostility::Hostile)
+	{
+		return NULL;
+	}
+
+	// Check unicity
+	if (Parent->FindUniqueTag(Parent->GenerateDefenseTag(Target.Sector, HostileCompany)))
+	{
+		return NULL;
+	}
+
+	int64 WarPrice = 0;
+
+
+	if (HostileCompany->GetWarState(PlayerCompany) != EFlareHostility::Hostile)
+	{
+		WarPrice += 200 * (HostileCompany->GetPlayerReputation() + 100);
+	}
+
+	int32 PreferredPlayerCombatPoints = int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.2,0.5));
+
+
+	int32 NeedArmyCombatPoints= FMath::Max(0, AttackCombatPoints - Target.EnemyArmyCombatPoints /4);
+
+
+	FLOGV("PreferredPlayerCombatPoints %d", PreferredPlayerCombatPoints);
+	FLOGV("Target.OwnedArmyCombatPoints %d", Target.OwnedArmyCombatPoints);
+	FLOGV("Target.EnemyArmyCombatPoints %d", Target.EnemyArmyCombatPoints);
+	FLOGV("NeedArmyCombatPoints %d", NeedArmyCombatPoints);
+
+	int32 RequestedArmyCombatPoints = FMath::Min(PreferredPlayerCombatPoints, NeedArmyCombatPoints);
+
+	FLOGV("RequestedArmyCombatPoints %d", RequestedArmyCombatPoints);
+
+	if(RequestedArmyCombatPoints <= 0)
+	{
+		return NULL;
+	}
+
+	int64 ArmyPrice = RequestedArmyCombatPoints  * 60000;
+
+	// Setup reward
+	int64 QuestValue = WarPrice + ArmyPrice;
+
+	// Create the quest
+	UFlareQuestGeneratedSectorDefense2* Quest = NewObject<UFlareQuestGeneratedSectorDefense2>(Parent, UFlareQuestGeneratedSectorDefense2::StaticClass());
+
+
+	FFlareBundle Data;
+	Parent->GenerateIdentifer(UFlareQuestGeneratedSectorDefense2::GetClass(), Data);
+	Data.PutName("sector", Target.Sector->GetIdentifier());
+	Data.PutInt32("army-combat-points", RequestedArmyCombatPoints );
+	Data.PutInt32("attack-date", Parent->GetGame()->GetGameWorld()->GetDate() + TravelDuration);
+	Data.PutName("friendly-company", Company->GetIdentifier());
+	Data.PutName("hostile-company", HostileCompany->GetIdentifier());
+	Data.PutTag(Parent->GenerateDefenseTag(Target.Sector, HostileCompany));
+	CreateGenericReward(Data, QuestValue, Company);
+
+	Quest->Load(Parent, Data);
+
+	return Quest;
+}
+
+bool UFlareQuestGeneratedSectorDefense2::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+{
+	UFlareQuestGenerated::Load(Parent, Data);
+
+	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
+	UFlareSimulatedSector* Sector = Parent->GetGame()->GetGameWorld()->FindSector(InitData.GetName("sector"));
+
+	UFlareCompany* FriendlyCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("friendly-company"));
+	UFlareCompany* HostileCompany = Parent->GetGame()->GetGameWorld()->FindCompany(InitData.GetName("hostile-company"));
+	int32 ArmyCombatPoints = InitData.GetInt32("army-combat-points");
+	int32 AttackDate = InitData.GetInt32("attack-date");
+
+	QuestClass = UFlareQuestGeneratedSectorDefense2::GetClass();
+	Identifier = InitData.GetName("identifier");
+
+	QuestName = FText::Format(LOCTEXT("GeneratedSectorDefenseNameLocal","Defend {0} against {1}'s attack"),
+		Sector->GetSectorName(),
+		HostileCompany->GetCompanyName());
+
+	QuestDescription = FText::Format(LOCTEXT("GeneratedSectorDefenseDescriptionLocalFormat","Defend {0} in {1} with at least {2} combat value on {3}."),
+		FriendlyCompany->GetCompanyName(),
+		Sector->GetSectorName(),
+		FText::AsNumber(ArmyCombatPoints),
+		UFlareGameTools::GetDisplayDate(AttackDate));
+
+	QuestCategory = EFlareQuestCategory::SECONDARY;
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"Attack"
+		FText Description;
+
+		Description = FText::Format(LOCTEXT("GeneratedSectorDefenseDescriptionBringForce", "Attack {0} with at least {1} combat value on {2}"),
+			Sector->GetSectorName(),
+			FText::AsNumber(ArmyCombatPoints),
+			UFlareGameTools::GetDisplayDate(AttackDate));
+
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "attack", Description);
+		{
+			// First case : the player bring forces
+			UFlareQuestConditionMinArmyCombatPointsInSector* Condition = UFlareQuestConditionMinArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, ArmyCombatPoints);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+
+		}
+
+		{
+			// Failed to attack at time
+			UFlareQuestConditionAfterDate* FailCondition = UFlareQuestConditionAfterDate::Create(this, AttackDate);
+			Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition);
+		}
+
+		Step->GetInitActions().Add(UFlareQuestActionDiscoverSector::Create(this, Sector));
+
+
+		Steps.Add(Step);
+	}
+
+	{
+		#undef QUEST_STEP_TAG
+		#define QUEST_STEP_TAG QUEST_TAG"Defend"
+		FText Description;
+
+		Description = FText::Format(LOCTEXT("GeneratedSectorDefenseDescriptionDefendStation", "Defend {0} in {1}"),
+										  FriendlyCompany->GetCompanyName(), Sector->GetSectorName());
+		UFlareQuestStep* Step = UFlareQuestStep::Create(this, "defend", Description);
+
+		// OR root
+		Step->SetEndCondition(UFlareQuestConditionOrGroup::Create(this, true));
+
+		{
+			UFlareQuestConditionAfterDate* Condition = UFlareQuestConditionAfterDate::Create(this, AttackDate);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+		}
+
+		// OR
+		{
+			UFlareQuestConditionMaxArmyCombatPointsInSector* Condition = UFlareQuestConditionMaxArmyCombatPointsInSector::Create(this, Sector, PlayerCompany, 0);
+			Cast<UFlareQuestConditionGroup>(Step->GetEndCondition())->AddChildCondition(Condition);
+		}
+
+		UFlareQuestConditionRetreatDangerousShip* FailCondition1 = UFlareQuestConditionRetreatDangerousShip::Create(this, Sector, PlayerCompany);
+		Cast<UFlareQuestConditionGroup>(Step->GetFailCondition())->AddChildCondition(FailCondition1);
+
+		Steps.Add(Step);
+	}
+
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionAfterDate::Create(this, AttackDate));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionPlayerTravelTooLong::Create(this, Sector, AttackDate));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+	AddGlobalFailCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+
+
+	SetupQuestGiver(FriendlyCompany, true);
+	SetupGenericReward(Data);
+
+
+	return true;
+}
+
+
+/*----------------------------------------------------
+	Generated cargo hunt quest
+----------------------------------------------------*/
+#undef QUEST_TAG
+#define QUEST_TAG "GeneratedCargoHunt2"
+UFlareQuestGeneratedCargoHunt2::UFlareQuestGeneratedCargoHunt2(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
+{
+}
+
+UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt2::Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany)
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
 
@@ -2240,12 +2750,12 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt::Create(UFlareQuestGenerator
 	}
 	else
 	{
-		WarPrice = 500 * (HostileCompany->GetPlayerReputation() + 100);
+		WarPrice = 200 * (HostileCompany->GetPlayerReputation() + 100);
 	}
 
 	int32 PreferredPlayerCombatPoints= int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints);
 
-	bool RequestDestroyTarget = FMath::RandBool();
+	bool RequestDestroyTarget = FMath::Rand() > 0.9f;
 
 
 	int32 SmallCargoCount = 0;
@@ -2317,13 +2827,13 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt::Create(UFlareQuestGenerator
 	int64 ArmyPrice = RequestedArmyCombatPoints  * 3000;
 
 	// Setup reward
-	int64 QuestValue = WarPrice + ArmyPrice;
+	int64 QuestValue = WarPrice + ArmyPrice * (RequestDestroyTarget ? 1.5f: 1.f);
 
 	// Create the quest
-	UFlareQuestGeneratedCargoHunt* Quest = NewObject<UFlareQuestGeneratedCargoHunt>(Parent, UFlareQuestGeneratedCargoHunt::StaticClass());
+	UFlareQuestGeneratedCargoHunt2* Quest = NewObject<UFlareQuestGeneratedCargoHunt2>(Parent, UFlareQuestGeneratedCargoHunt2::StaticClass());
 
 	FFlareBundle Data;
-	Parent->GenerateIdentifer(UFlareQuestGeneratedCargoHunt::GetClass(), Data);
+	Parent->GenerateIdentifer(UFlareQuestGeneratedCargoHunt2::GetClass(), Data);
 	Data.PutInt32("cargo-count", CargoCount );
 	Data.PutInt32("destroy-cargo", RequestDestroyTarget);
 	Data.PutInt32("large-cargo", TargetLargeCargo);
@@ -2337,7 +2847,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedCargoHunt::Create(UFlareQuestGenerator
 	return Quest;
 }
 
-bool UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGeneratedCargoHunt2::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
@@ -2349,7 +2859,7 @@ bool UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFl
 	bool RequestDestroyTarget = InitData.GetInt32("destroy-cargo") > 0;
 	bool TargetLargeCargo = InitData.GetInt32("large-cargo") > 0;
 
-	QuestClass = UFlareQuestGeneratedCargoHunt::GetClass();
+	QuestClass = UFlareQuestGeneratedCargoHunt2::GetClass();
 	Identifier = InitData.GetName("identifier");
 
 	QuestName = FText::Format(LOCTEXT("GeneratedCargoHuntNameLocal","Attack {0}'s cargos"), HostileCompany->GetCompanyName());
@@ -2385,6 +2895,9 @@ bool UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFl
 	}
 
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+	AddGlobalFailCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+
 
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);
@@ -2396,13 +2909,13 @@ bool UFlareQuestGeneratedCargoHunt::Load(UFlareQuestGenerator* Parent, const FFl
 	Generated military hunt quest
 ----------------------------------------------------*/
 #undef QUEST_TAG
-#define QUEST_TAG "GeneratedMilitaryHunt"
-UFlareQuestGeneratedMilitaryHunt::UFlareQuestGeneratedMilitaryHunt(const FObjectInitializer& ObjectInitializer)
+#define QUEST_TAG "GeneratedMilitaryHunt2"
+UFlareQuestGeneratedMilitaryHunt2::UFlareQuestGeneratedMilitaryHunt2(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
 }
 
-UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt::Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany)
+UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt2::Create(UFlareQuestGenerator* Parent, UFlareCompany* Company, UFlareCompany* HostileCompany)
 {
 	UFlareCompany* PlayerCompany = Parent->GetGame()->GetPC()->GetCompany();
 
@@ -2425,12 +2938,12 @@ UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt::Create(UFlareQuestGenera
 	}
 	else
 	{
-		WarPrice = 500 * (HostileCompany->GetPlayerReputation() + 100);
+		WarPrice = 200 * (HostileCompany->GetPlayerReputation() + 100);
 	}
 
 	int32 PreferredPlayerCombatPoints= int32(PlayerCompany->GetCompanyValue().ArmyCurrentCombatPoints);
 
-	bool RequestDestroyTarget = FMath::RandBool();
+	bool RequestDestroyTarget = FMath::Rand() > 0.9;
 
 
 	int32 NeedArmyCombatPoints = HostileCompany->GetCompanyValue().ArmyCurrentCombatPoints * FMath::FRandRange(0.1,0.5);
@@ -2451,13 +2964,13 @@ UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt::Create(UFlareQuestGenera
 	int64 ArmyPrice = RequestedArmyCombatPoints  * 20000;
 
 	// Setup reward
-	int64 QuestValue = WarPrice + ArmyPrice;
+	int64 QuestValue = WarPrice + ArmyPrice * (RequestDestroyTarget ? 1.5f: 1.f);
 
 	// Create the quest
-	UFlareQuestGeneratedMilitaryHunt* Quest = NewObject<UFlareQuestGeneratedMilitaryHunt>(Parent, UFlareQuestGeneratedMilitaryHunt::StaticClass());
+	UFlareQuestGeneratedMilitaryHunt2* Quest = NewObject<UFlareQuestGeneratedMilitaryHunt2>(Parent, UFlareQuestGeneratedMilitaryHunt2::StaticClass());
 
 	FFlareBundle Data;
-	Parent->GenerateIdentifer(UFlareQuestGeneratedMilitaryHunt::GetClass(), Data);
+	Parent->GenerateIdentifer(UFlareQuestGeneratedMilitaryHunt2::GetClass(), Data);
 	Data.PutInt32("army-combat-points", RequestedArmyCombatPoints );
 	Data.PutInt32("destroy", RequestDestroyTarget);
 	Data.PutName("friendly-company", Company->GetIdentifier());
@@ -2470,7 +2983,7 @@ UFlareQuestGenerated* UFlareQuestGeneratedMilitaryHunt::Create(UFlareQuestGenera
 	return Quest;
 }
 
-bool UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
+bool UFlareQuestGeneratedMilitaryHunt2::Load(UFlareQuestGenerator* Parent, const FFlareBundle& Data)
 {
 	UFlareQuestGenerated::Load(Parent, Data);
 
@@ -2481,7 +2994,7 @@ bool UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const 
 	int32 RequestedArmyCombatPoints = InitData.GetInt32("army-combat-points");
 	bool RequestDestroyTarget = InitData.GetInt32("destroy") > 0;
 
-	QuestClass = UFlareQuestGeneratedMilitaryHunt::GetClass();
+	QuestClass = UFlareQuestGeneratedMilitaryHunt2::GetClass();
 	Identifier = InitData.GetName("identifier");
 
 	QuestName = FText::Format(LOCTEXT("GeneratedMilitaryHuntNameLocal", "Attack {0}'s military ships"), HostileCompany->GetCompanyName());
@@ -2522,6 +3035,9 @@ bool UFlareQuestGeneratedMilitaryHunt::Load(UFlareQuestGenerator* Parent, const 
 	}
 
 	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionTimeAfterAvailableDate::Create(this, 10));
+	Cast<UFlareQuestConditionGroup>(ExpirationCondition)->AddChildCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+	AddGlobalFailCondition(UFlareQuestConditionWorkFor::Create(this, HostileCompany));
+
 
 	SetupQuestGiver(FriendlyCompany, true);
 	SetupGenericReward(Data);

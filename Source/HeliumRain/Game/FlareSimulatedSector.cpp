@@ -1027,7 +1027,7 @@ void UFlareSimulatedSector::GetSectorBalance(UFlareCompany* Company, int32& Play
 			continue;
 		}
 
-		if (SectorShips[ShipIndex]->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile
+		if (SectorShips[ShipIndex]->IsHostile(Company)
 		 && SectorShips[ShipIndex]->IsMilitary() && !SectorShips[ShipIndex]->GetDamageSystem()->IsDisarmed())
 		{
 			EnemyShips++;
@@ -1101,7 +1101,7 @@ uint32 UFlareSimulatedSector::GetResourceCount(UFlareCompany* Company, FFlareRes
 	{
 		UFlareSimulatedSpacecraft* Station = (*SpacecraftList)[StationIndex];
 
-		if ((!AllowTrade && Station->GetCompany() != Company) || Station->GetCompany()->GetWarState(Company) == EFlareHostility::Hostile)
+		if ((!AllowTrade && Station->GetCompany() != Company) || Station->IsHostile(Company))
 		{
 			continue;
 		}
@@ -1272,7 +1272,7 @@ FFlareSectorBattleState UFlareSimulatedSector::GetSectorBattleState(UFlareCompan
 			}
 
 		}
-		else if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
+		else if (Spacecraft->IsHostile(Company))
 		{
 			HostileSpacecraftCount++;
 			if (!Spacecraft->GetDamageSystem()->IsDisarmed())
@@ -1309,7 +1309,7 @@ FFlareSectorBattleState UFlareSimulatedSector::GetSectorBattleState(UFlareCompan
 				FriendlyStationInCaptureCount++;
 			}
 		}
-		else if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
+		else if (Spacecraft->IsHostile(Company))
 		{
 			HostileSpacecraftCount++;
 		}
@@ -1329,7 +1329,7 @@ FFlareSectorBattleState UFlareSimulatedSector::GetSectorBattleState(UFlareCompan
 				{
 					DangerousFriendlyActiveMissileCount++;
 				}
-				else if (OtherCompany->GetWarState(Company) == EFlareHostility::Hostile)
+				else if (Bomb->IsHostile(Company))
 				{
 					DangerousHostileActiveMissileCount++;
 				}
@@ -2130,7 +2130,7 @@ bool UFlareSimulatedSector::CanUpgrade(UFlareCompany* Company)
 	for (int StationIndex = 0 ; StationIndex < GetSectorStations().Num(); StationIndex ++ )
 	{
 		UFlareSimulatedSpacecraft* StationInterface = GetSectorStations()[StationIndex];
-		if (StationInterface->GetCompany()->GetWarState(Company) != EFlareHostility::Hostile
+		if (!StationInterface->IsHostile(Company)
 			&& StationInterface->HasCapability(EFlareSpacecraftCapability::Upgrade))
 		{
 			return true;
