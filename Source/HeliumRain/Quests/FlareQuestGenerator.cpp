@@ -426,6 +426,25 @@ void UFlareQuestGenerator::GenerateAttackQuests(UFlareCompany* AttackCompany, in
 		return;
 	}
 
+
+	int64 PlayerTravelDuration = 0;
+	UFlareFleet* PlayerFleet = GetGame()->GetPC()->GetPlayerFleet();
+
+	if(PlayerFleet->IsTraveling())
+	{
+		PlayerTravelDuration +=	PlayerFleet->GetCurrentTravel()->GetRemainingTravelDuration();
+		PlayerTravelDuration +=	UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), PlayerFleet->GetCurrentTravel()->GetDestinationSector(), Target.Sector, PlayerCompany);
+	}
+	else
+	{
+		PlayerTravelDuration +=	UFlareTravel::ComputeTravelDuration(GetGame()->GetGameWorld(), PlayerFleet->GetCurrentSector(), Target.Sector, PlayerCompany);
+	}
+
+	if(PlayerTravelDuration > TravelDuration)
+	{
+		return;
+	}
+
 	// Attack quest
 	if (FMath::FRand() <= ComputeQuestProbability(AttackCompany))
 	{
