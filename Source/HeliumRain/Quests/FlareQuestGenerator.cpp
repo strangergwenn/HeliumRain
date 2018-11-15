@@ -1095,7 +1095,7 @@ bool UFlareQuestGeneratedResourceSale::Load(UFlareQuestGenerator* Parent, const 
 	return true;
 }
 
-int32 UFlareQuestGeneratedResourceSale::GetReservedCapacity(UFlareSimulatedSpacecraft* TargetStation, FFlareResourceDescription* TargetResource)
+int32 UFlareQuestGeneratedResourceSale::GetReservedQuantity(UFlareSimulatedSpacecraft* TargetStation, FFlareResourceDescription* TargetResource)
 {
 	UFlareSimulatedSpacecraft* Station = QuestManager->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station"));
 	// TODO Cache
@@ -1320,7 +1320,7 @@ bool UFlareQuestGeneratedResourcePurchase::Load(UFlareQuestGenerator* Parent, co
 	return true;
 }
 
-int32 UFlareQuestGeneratedResourcePurchase::GetReservedQuantity(UFlareSimulatedSpacecraft* TargetStation, FFlareResourceDescription* TargetResource)
+int32 UFlareQuestGeneratedResourcePurchase::GetReservedCapacity(UFlareSimulatedSpacecraft* TargetStation, FFlareResourceDescription* TargetResource)
 {
 	UFlareSimulatedSpacecraft* Station = QuestManager->GetGame()->GetGameWorld()->FindSpacecraft(InitData.GetName("station"));
 	// TODO Cache
