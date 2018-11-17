@@ -653,6 +653,17 @@ void AFlareGame::CreateGame(FFlareCompanyDescription CompanyData, int32 Scenario
 	ScenarioTools->Init(PlayerCompany, &PlayerData);
 	World->PostLoad();
 
+	// Discover new sectors
+	for (UFlareSimulatedSector* Sector : World->GetSectors())
+	{
+		if (Sector->GetDescription()->IsAutoDiscovered && !PlayerController->GetCompany()->HasVisitedSector(Sector))
+		{
+			FLOGV("AFlareGame::CreateGame : discovering new sector %s", *Sector->GetSectorName().ToString());
+			PlayerController->GetCompany()->DiscoverSector(Sector);
+		}
+	}
+
+
 	// Create scenario
 	switch (ScenarioIndex)
 	{
@@ -903,6 +914,13 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 		PC->Load(Save->PlayerData);
 		PC->GetCompany()->SetupEmblem();
 
+		// Create world tools
+		ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
+		ScenarioTools->Init(PC->GetCompany(), &Save->PlayerData);
+		World->PostLoad();
+		World->CheckIntegrity();
+		ScenarioTools->PostLoad();
+
 		// Discover new sectors
 		for (UFlareSimulatedSector* Sector : World->GetSectors())
 		{
@@ -912,13 +930,6 @@ bool AFlareGame::LoadGame(AFlarePlayerController* PC)
 				PC->GetCompany()->DiscoverSector(Sector);
 			}
 		}
-
-		// Create world tools
-		ScenarioTools = NewObject<UFlareScenarioTools>(this, UFlareScenarioTools::StaticClass());
-		ScenarioTools->Init(PC->GetCompany(), &Save->PlayerData);
-		World->PostLoad();
-		World->CheckIntegrity();
-		ScenarioTools->PostLoad();
 
 		// Init the quest manager
 		QuestManager = NewObject<UFlareQuestManager>(this, UFlareQuestManager::StaticClass());
