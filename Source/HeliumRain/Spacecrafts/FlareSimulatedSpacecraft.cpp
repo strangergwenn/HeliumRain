@@ -2443,7 +2443,7 @@ bool UFlareSimulatedSpacecraft::IsHostile(UFlareCompany* OtherCompany, bool UseC
 	{
 		// Is player ship hostile ?
 
-		if (IsMilitary()
+		if (IsMilitary() && Game->GetQuestManager()
 				&& Game->GetQuestManager()->IsUnderMilitaryContract(GetCurrentSector(), OtherCompany, UseCache)
 				&& !GetDamageSystem()->IsDisarmed() && !GetDamageSystem()->IsUncontrollable())
 		{
@@ -2453,13 +2453,13 @@ bool UFlareSimulatedSpacecraft::IsHostile(UFlareCompany* OtherCompany, bool UseC
 	else if (OtherCompany->IsPlayerCompany())
 	{
 		// Is non player ship hostile to player ?
-		if(IsMilitary() &&
+		if(IsMilitary() && Game->GetQuestManager() &&
 			Game->GetQuestManager()->IsUnderMilitaryContract(GetCurrentSector(), GetCompany(), UseCache))
 		{
 			return true;
 		}
 
-		if(Game->GetQuestManager()->IsMilitaryTarget(this, UseCache))
+		if(Game->GetQuestManager() && Game->GetQuestManager()->IsMilitaryTarget(this, UseCache))
 		{
 			return true;
 		}
