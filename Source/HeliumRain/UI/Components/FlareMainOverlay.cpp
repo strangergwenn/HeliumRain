@@ -563,10 +563,6 @@ FText SFlareMainOverlay::GetCurrentMenuName() const
 		}
 	}
 
-	if (MenuManager->GetGame() && MenuManager->GetGame()->GetGameWorld())
-		return FText::AsNumber(MenuManager->GetGame()->GetGameWorld()->GetSectors().Num());
-
-
 	if (Name.ToString().Len() == 0)
 	{
 		Name = LOCTEXT("FlyingText", "FLYING");

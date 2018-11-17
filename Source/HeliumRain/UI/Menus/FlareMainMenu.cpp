@@ -10,6 +10,8 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
+#include "Runtime/Projects/Public/Interfaces/IPluginManager.h"
+
 #include "SBackgroundBlur.h"
 
 
@@ -172,10 +174,21 @@ void SFlareMainMenu::Construct(const FArguments& InArgs)
 							.Padding(Theme.ContentPadding)
 							[
 								SNew(STextBlock)
-								.Text(FText::Format(LOCTEXT("Dont-Translate-Version", "HELIUM RAIN / 1.2 / {0} / \u00A9 DEIMOS GAMES 2018"),
+								.Text(FText::Format(LOCTEXT("Dont-Translate-Version", "HELIUM RAIN / 1.3 / {0} / \u00A9 DEIMOS GAMES 2018"),
 									MenuManager->GetGame()->GetBuildDate())) // FString neded here
 								.TextStyle(&Theme.TextFont)
 							]
+						]
+
+						// Mod info
+						+ SVerticalBox::Slot()
+						.AutoHeight()
+						.HAlign(HAlign_Center)
+						.Padding(Theme.ContentPadding)
+						[
+							SNew(STextBlock)
+							.Text(this, &SFlareMainMenu::GetModInfo)
+							.TextStyle(&Theme.TextFont)
 						]
 					]
 				]
@@ -357,6 +370,28 @@ EVisibility SFlareMainMenu::GetDeleteButtonVisibility(int32 Index) const
 FText SFlareMainMenu::GetButtonText(int32 Index) const
 {
 	return (Game->DoesSaveSlotExist(Index) ? LOCTEXT("Load", "Load game") : LOCTEXT("Create", "New game"));
+}
+
+FText SFlareMainMenu::GetModInfo() const
+{
+	FString ModString;
+
+	for (TSharedRef<IPlugin> Plugin : IPluginManager::Get().GetEnabledPlugins())
+	{
+		if (Plugin->GetType() == EPluginType::Mod)
+		{
+			ModString += Plugin->GetName() + " ";
+		}
+	}
+
+	if (ModString.Len())
+	{
+		return FText::Format(LOCTEXT("ModInfo", "Mods : {0}"), FText::FromString(ModString));
+	}
+	else
+	{
+		return FText();
+	}
 }
 
 const FSlateBrush* SFlareMainMenu::GetButtonIcon(int32 Index) const

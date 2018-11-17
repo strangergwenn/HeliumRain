@@ -61,6 +61,9 @@ protected:
 	/** Get a button text */
 	FText GetButtonText(int32 Index) const;
 
+	/** Get mod info */
+	FText GetModInfo() const;
+
 	/** Get a button icon */
 	const FSlateBrush* GetButtonIcon(int32 Index) const;
 

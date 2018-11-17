@@ -19,7 +19,8 @@ public class HeliumRain : ModuleRules
                 "RenderCore",
                 "Http",
                 "Json",
-                "JsonUtilities"
+                "JsonUtilities",
+                "Projects"
             }
         );
 
