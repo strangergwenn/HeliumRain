@@ -510,7 +510,7 @@ SectorDeal AITradeHelper::FindBestDealForShipToSector(UFlareSimulatedSpacecraft*
 		int32 StorageSellQuantity = FMath::Min(StorageCapacity, QuantityToSell);
 
 		// If has some resource, consider that storage make gain nothing to prefer any solution except sell to a hub
-		if(InitialQuantity > 0)
+		if(InitialQuantity > 0 && StorageSellQuantity > 0)
 		{
 			MoneyGain += 1;
 		}
