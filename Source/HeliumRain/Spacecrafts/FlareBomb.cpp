@@ -686,4 +686,10 @@ bool AFlareBomb::IsActive() const
 	return BombData.BurnDuration < WeaponDescription->WeaponCharacteristics.BombCharacteristics.MaxBurnDuration;
 }
 
+bool AFlareBomb::IsHostile(UFlareCompany* Company) const
+{
+	return ParentWeapon->GetSpacecraft()->IsHostile(Company);
+}
+
+
 #undef LOCTEXT_NAMESPACE
