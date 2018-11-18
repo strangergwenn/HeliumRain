@@ -2,6 +2,7 @@
 import os
 import sys
 import json
+import shutil
 import subprocess
 
 # Get project settings
@@ -63,3 +64,16 @@ for platform in buildPlatforms:
 
 	# Call
 	os.system(commandLine)
+	
+	# Copy Boiler files and other tools
+	if sys.platform.startswith('linux'):
+		buildOutputDir = outputDir + "/LinuxNoEditor"
+		shutil.copyfile("../HeliumRainLauncher", buildOutputDir + "/HeliumRainLauncher")
+		shutil.copyfile("../libsteam_api.so", buildOutputDir + "/libsteam_api.so")
+		shutil.copyfile("../steam_appid.txt", buildOutputDir + "/steam_appid.txt")
+		shutil.copyfile("../Icons", buildOutputDir + "/Icons")
+	else:
+		buildOutputDir = outputDir + "/WindowsNoEditor"
+		shutil.copyfile("../HeliumRainLauncher.exe", buildOutputDir + "/HeliumRainLauncher.exe")
+		shutil.copyfile("../steam_api64.dll", buildOutputDir + "/steam_api64.dll")
+		shutil.copyfile("../steam_appid.txt", buildOutputDir + "/steam_appid.txt")
