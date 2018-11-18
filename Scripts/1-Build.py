@@ -66,12 +66,11 @@ for platform in buildPlatforms:
 	os.system(commandLine)
 	
 	# Copy Boiler files and other tools
-	if sys.platform.startswith('linux'):
+	if platform == 'Linux':
 		buildOutputDir = outputDir + "/LinuxNoEditor"
 		shutil.copyfile("../HeliumRainLauncher", buildOutputDir + "/HeliumRainLauncher")
-		shutil.copyfile("../libsteam_api.so", buildOutputDir + "/libsteam_api.so")
 		shutil.copyfile("../steam_appid.txt", buildOutputDir + "/steam_appid.txt")
-		shutil.copyfile("../Icons", buildOutputDir + "/Icons")
+		shutil.copytree("../Icons", buildOutputDir + "/Icons")
 	else:
 		buildOutputDir = outputDir + "/WindowsNoEditor"
 		shutil.copyfile("../HeliumRainLauncher.exe", buildOutputDir + "/HeliumRainLauncher.exe")
