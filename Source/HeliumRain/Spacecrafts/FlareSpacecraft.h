@@ -454,9 +454,9 @@ public:
 		return Parent->IsStation();
 	}
 
-	bool IsHostile(UFlareCompany* Company, bool UseCache = false) const
+	bool IsHostile(UFlareCompany* TargetCompany, bool UseCache = false) const
 	{
-		return Parent->IsHostile(Company, UseCache);
+		return Parent->IsHostile(TargetCompany, UseCache);
 	}
 
 	bool IsPlayerHostile() const;

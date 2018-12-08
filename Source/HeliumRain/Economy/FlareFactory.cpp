@@ -742,11 +742,17 @@ void UFlareFactory::PerformBuildStationAction(const FFlareFactoryAction* Action)
 	{
 		// Get data
 		FFlareMenuParameterData Data;
-		Data.Spacecraft = Parent;
-
+		if (Parent->IsComplexElement())
+		{
+			Data.Spacecraft = Parent->GetComplexMaster();
+		}
+		else
+		{
+			Data.Spacecraft = Parent;
+		}
 
 		PC->Notify(LOCTEXT("StationBuild", "Station build"),
-			FText::Format(LOCTEXT("StationBuiltFormat", "Your station {0} is ready to use !"), UFlareGameTools::DisplaySpacecraftName(Parent)),
+			FText::Format(LOCTEXT("StationBuiltFormat", "Your station {0} is ready to use !"), UFlareGameTools::DisplaySpacecraftName(Data.Spacecraft)),
 			FName("station-production-complete"),
 			EFlareNotification::NT_Economy,
 			false,
