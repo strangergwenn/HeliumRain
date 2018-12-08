@@ -29,7 +29,7 @@ Building and modifying the source code for Helium Rain requires a few steps: get
 ### Required dependencies
 You will need the following tools to build Helium Rain from the sources:
 
-* Helium Rain uses UE4 as a game engine. You can get it for free at [unrealengine.com](http://unrealengine.com). You will need to sign up and download the Epic Games launcher. In the launcher library for Unreal Engine, install version 4.19.
+* Helium Rain uses UE4 as a game engine. You can get it for free at [unrealengine.com](http://unrealengine.com). You will need to sign up and download the Epic Games launcher. In the launcher library for Unreal Engine, install version 4.20.
 * [Visual Studio Community 2017](https://www.visualstudio.com/downloads/) will be used to build the sources. Don't forget to select the C++ development environment, since this is optional.
 * The [Windows 8.1 SDK](https://developer.microsoft.com/en-us/windows/downloads/windows-8-1-sdk) is required for Unreal Engine 4.
 * The [DirectX SDK](https://www.microsoft.com/en-us/download/details.aspx?id=6812) is required for the joystick plugin.
