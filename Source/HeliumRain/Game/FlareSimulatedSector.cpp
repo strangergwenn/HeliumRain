@@ -1848,7 +1848,7 @@ TMap<FFlareResourceDescription*, int32> UFlareSimulatedSector::DistributeResourc
 	auto FillSpacecraft = [&Resources, &Transactions](UFlareSimulatedSpacecraft* Spacecraft)
 	{
 		TArray<FFlareResourceDescription*> ResourcesToDrop;
-		for(auto Resource : Resources)
+		for(auto& Resource : Resources)
 		{
 			int32 GivenQuantity = Spacecraft->GetActiveCargoBay()->GiveResources(Resource.Key, Resource.Value, Spacecraft->GetCompany());
 
