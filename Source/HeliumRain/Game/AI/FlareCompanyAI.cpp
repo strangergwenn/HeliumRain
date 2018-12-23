@@ -763,7 +763,7 @@ void UFlareCompanyAI::ProcessBudgetStation(int64 BudgetAmount, bool Technology, 
 				continue;
 			}
 
-			if (GetGame()->GetQuestManager()->IsTradeQuestUseStation(Station))
+			if (GetGame()->GetQuestManager()->IsTradeQuestUseStation(Station, true))
 			{
 				// Do not update stations used by quests
 				continue;

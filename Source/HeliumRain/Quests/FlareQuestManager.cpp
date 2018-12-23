@@ -802,7 +802,7 @@ bool UFlareQuestManager::IsInterestingMeteorite(FFlareMeteoriteSave& Meteorite)
 	return false;
 }
 
-bool UFlareQuestManager::IsTradeQuestUseStation(UFlareSimulatedSpacecraft* Station)
+bool UFlareQuestManager::IsTradeQuestUseStation(UFlareSimulatedSpacecraft* Station, bool IncludeAvailableQuests)
 {
 	if(!Station)
 	{
@@ -841,11 +841,14 @@ bool UFlareQuestManager::IsTradeQuestUseStation(UFlareSimulatedSpacecraft* Stati
 		}
 	}
 
-	for(UFlareQuest* AvailableQuest : GetAvailableQuests())
+	if(IncludeAvailableQuests)
 	{
-		if(IsUseStation(AvailableQuest))
+		for(UFlareQuest* AvailableQuest : GetAvailableQuests())
 		{
-			return true;
+			if(IsUseStation(AvailableQuest))
+			{
+				return true;
+			}
 		}
 	}
 

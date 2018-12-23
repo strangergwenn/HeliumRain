@@ -1215,7 +1215,13 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 
 		int32 MissingResourceQuantity = Station->GetActiveCargoBay()->GetSlotCapacity() * 0.5 - Slot.Quantity;
 
-		if (MissingResourceQuantity <= 0)
+		int32 ResourcePrice = Station->GetCurrentSector()->GetTransfertResourcePrice(nullptr, Station, Slot.Resource);
+		int32 MaxAffordableQuantity = FMath::Max(0, int32(Company->GetMoney() / ResourcePrice));
+
+
+		int32 MissingResourceAffordableQuantity = FMath::Min(MissingResourceQuantity, MaxAffordableQuantity);
+
+		if (MissingResourceAffordableQuantity <= 0)
 		{
 			// Enought resources
 			continue;
@@ -1233,9 +1239,9 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourcePurchase::Create(UFlareQuestGe
 			continue;
 		}
 
-		if (MissingResourceQuantity > BestResourceQuantity)
+		if (MissingResourceAffordableQuantity > BestResourceQuantity)
 		{
-			BestResourceMissingQuantity = MissingResourceQuantity;
+			BestResourceMissingQuantity = MissingResourceAffordableQuantity;
 			BestResourceQuantity = FMath::Min(Station->GetActiveCargoBay()->GetSlotCapacity() - Slot.Quantity, int32(Station->GetActiveCargoBay()->GetSlotCapacity() * 0.5));
 			BestResource = Slot.Resource;
 		}
@@ -1441,7 +1447,14 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 
 				int32 MissingResourceQuantity = CandidateStation->GetActiveCargoBay()->GetSlotCapacity() * 0.5 - Slot.Quantity;
 
-				if (MissingResourceQuantity <= 0)
+				int32 ResourcePrice = CandidateStation->GetCurrentSector()->GetTransfertResourcePrice(nullptr, CandidateStation, Slot.Resource);
+				int32 MaxAffordableQuantity = FMath::Max(0, int32(Company->GetMoney() / ResourcePrice));
+
+
+				int32 MissingResourceAffordableQuantity = FMath::Min(MissingResourceQuantity, MaxAffordableQuantity);
+
+
+				if (MissingResourceAffordableQuantity <= 0)
 				{
 					// Enought resources
 					continue;
@@ -1454,10 +1467,10 @@ UFlareQuestGenerated* UFlareQuestGeneratedResourceTrade::Create(UFlareQuestGener
 				}
 
 				// It's a good candidate
-				if(!BestQuantityToSellPerResource.Contains(Slot.Resource) || BestQuantityToSellPerResource[Slot.Resource] > MissingResourceQuantity)
+				if(!BestQuantityToSellPerResource.Contains(Slot.Resource) || BestQuantityToSellPerResource[Slot.Resource] > MissingResourceAffordableQuantity)
 				{
 					// Best candidate
-					BestQuantityToSellPerResource.Add(Slot.Resource, MissingResourceQuantity);
+					BestQuantityToSellPerResource.Add(Slot.Resource, MissingResourceAffordableQuantity);
 					BestStationToSellPerResource.Add(Slot.Resource, CandidateStation);
 				}
 			}

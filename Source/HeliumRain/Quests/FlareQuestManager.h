@@ -337,7 +337,7 @@ public:
 	bool IsInterestingMeteorite(FFlareMeteoriteSave& Meteorite);
 
 
-	bool IsTradeQuestUseStation(UFlareSimulatedSpacecraft* Station);
+	bool IsTradeQuestUseStation(UFlareSimulatedSpacecraft* Station, bool IncludeAvailableQuests);
 
 	bool IsUnderMilitaryContract(UFlareSimulatedSector* Sector,  UFlareCompany* Company, bool IncludeCache);
 

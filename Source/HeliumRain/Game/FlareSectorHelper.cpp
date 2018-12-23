@@ -318,7 +318,7 @@ int32 SectorHelper::Trade(UFlareSimulatedSpacecraft* SourceSpacecraft, UFlareSim
 
 	int32 ResourcePrice = SourceSpacecraft->GetCurrentSector()->GetTransfertResourcePrice(SourceSpacecraft, DestinationSpacecraft, Resource);
 	int32 QuantityToTake = MaxQuantity;
-	bool AllowDepts = SourceSpacecraft->GetGame()->GetQuestManager()->IsTradeQuestUseStation(DestinationSpacecraft) && SourceSpacecraft->GetCompany()->IsPlayerCompany();
+	bool AllowDepts = SourceSpacecraft->GetGame()->GetQuestManager()->IsTradeQuestUseStation(DestinationSpacecraft, false) && SourceSpacecraft->GetCompany()->IsPlayerCompany();
 
 	if (SourceSpacecraft->GetCompany() != DestinationSpacecraft->GetCompany() && !AllowDepts)
 	{
