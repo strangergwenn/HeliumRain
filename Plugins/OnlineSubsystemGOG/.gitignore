@@ -1,0 +1,16 @@
+# UE4 generated folders
+Binaries/
+Build/
+Intermediate/
+Saved/
+
+# SDK files
+Source/ThirdParty/GalaxySDK/Include
+Source/ThirdParty/GalaxySDK/Libraries
+Source/ThirdParty/GalaxySDK/Licenses
+
+# VS generated files
+*.sdf
+*.sln
+*.vs
+*.VC.opendb

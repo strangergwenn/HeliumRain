@@ -43,3 +43,9 @@ Config/Localization/Game_Compile.ini
 Build/LinuxNoEditor/
 Scripts/itch.json
 Plugins/ExampleMod/Build/
+Plugins/OnlineSubsystemGOG/Source/ThirdParty/GalaxySDK/Docs/
+Plugins/OnlineSubsystemGOG/Source/ThirdParty/GalaxySDK/Include/
+Plugins/OnlineSubsystemGOG/Source/ThirdParty/GalaxySDK/Libraries/
+Plugins/OnlineSubsystemGOG/Source/ThirdParty/GalaxySDK/Libraries_CSharp/
+Plugins/OnlineSubsystemGOG/Source/ThirdParty/GalaxySDK/Licenses/
+Plugins/OnlineSubsystemGOG/Source/ThirdParty/GalaxySDK/Documentation.html

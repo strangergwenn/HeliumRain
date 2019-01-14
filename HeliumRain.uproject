@@ -25,6 +25,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "OnlineSubsystemGOG",
+			"Enabled": true
+		},
+		{
 			"Name": "Paper2D",
 			"Enabled": false
 		},
