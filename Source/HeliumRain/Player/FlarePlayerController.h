@@ -4,7 +4,9 @@
 #include "../Game/FlareSaveGame.h"
 #include "../Game/FlareGameTypes.h"
 #include "../UI/FlareUITypes.h"
+
 #include "Engine/CanvasRenderTarget2D.h"
+#include "OnlineIdentityInterface.h"
 #include "FlarePlayerController.generated.h"
 
 
@@ -60,6 +62,20 @@ public:
 	/** Discover or visit a sector */
 	void DiscoverSector(UFlareSimulatedSector* Sector, bool MarkedAsVisited, bool NotifyPlayer);
 
+
+	/*----------------------------------------------------
+			Achievements
+	----------------------------------------------------*/
+
+	/** GOG login complete */
+	void OnGOGLoginComplete(int32, bool, const FUniqueNetId&, const FString&);
+
+	/** Get the current progress of achievements */
+	void QueryAchievementProgression();
+
+	/** Achievements are available now */
+	void OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);
+
 	/** Set the current progress of an achievement */
 	void SetAchievementProgression(FName Name, float CompletionRatio);
 
@@ -68,9 +84,6 @@ public:
 
 	/** Clear the current progress of achievements */
 	void ClearAchievementProgression();
-
-	/** Achievements are available now */
-	void OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful);
 	
 
 	/*----------------------------------------------------
@@ -487,6 +500,10 @@ protected:
 	FFlarePlayerObjectiveData                CurrentObjective;
 
 	const FSlateBrush*                       BackgroundDecorator;
+
+	// GOG login
+	FOnlineAccountCredentials                GOGAccountCredentials;
+	FDelegateHandle                          OnGOGLoginCompleteDelegateHandle;
 
 	// Achievements
 	TSharedPtr<const class FUniqueNetId>     UserId;

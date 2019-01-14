@@ -140,20 +140,30 @@ void AFlarePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	EnableCheats();
-	
+
+	FLOG("AFlarePlayerController::BeginPlay");
+
 	// Get online subsystem
 	OnlineSub = IOnlineSubsystem::Get();
 	if (OnlineSub && OnlineSub->GetIdentityInterface().IsValid())
 	{
-		// Get online user
-		ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
-		UserId = OnlineSub->GetIdentityInterface()->GetUniquePlayerId(0);
-
-		// Query achievements
-		if (UserId->IsValid())
+		// GOG
+		if (OnlineSub->GetSubsystemName() == TEXT("GOG"))
 		{
-			IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
-			Achievements->QueryAchievements(*UserId.Get(), FOnQueryAchievementsCompleteDelegate::CreateUObject(this, &AFlarePlayerController::OnQueryAchievementsComplete));
+			FLOG("AFlarePlayerController::BeginPlay : GOG OSS");
+
+			OnGOGLoginCompleteDelegateHandle = OnlineSub->GetIdentityInterface()->AddOnLoginCompleteDelegate_Handle(0,
+				FOnLoginCompleteDelegate::CreateUObject(this, &AFlarePlayerController::OnGOGLoginComplete));
+
+			OnlineSub->GetIdentityInterface()->Login(0, GOGAccountCredentials);
+		}
+
+		// Steam
+		else
+		{
+			FLOG("AFlarePlayerController::BeginPlay : Steam OSS");
+
+			QueryAchievementProgression();
 		}
 	}
 
@@ -1353,6 +1363,74 @@ void AFlarePlayerController::DiscoverSector(UFlareSimulatedSector* Sector, bool 
 	}
 }
 
+
+/*----------------------------------------------------
+		Achievements
+----------------------------------------------------*/
+
+void AFlarePlayerController::OnGOGLoginComplete(int32 LocalUserNum, bool Success, const FUniqueNetId& UserID, const FString& Error)
+{
+	OnlineSub->GetIdentityInterface()->ClearOnLoginCompleteDelegate_Handle(0, OnGOGLoginCompleteDelegateHandle);
+
+	if (Success)
+	{
+		FLOGV("AFlarePlayerController::OnGOGLoginComplete : Login succeeded for %s", *GOGAccountCredentials.ToDebugString());
+		QueryAchievementProgression();
+	}
+	else
+	{
+		FLOGV("AFlarePlayerController::OnGOGLoginComplete : Login failed : %s", *Error);
+	}
+}
+
+void AFlarePlayerController::QueryAchievementProgression()
+{
+	FLOG("AFlarePlayerController::QueryAchievementProgression");
+
+	if (OnlineSub && OnlineSub->GetIdentityInterface().IsValid())
+	{
+		// Get online user
+		ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+		UserId = OnlineSub->GetIdentityInterface()->GetUniquePlayerId(0);
+
+		// Query achievements
+		if (UserId->IsValid())
+		{
+			IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
+			Achievements->QueryAchievements(*UserId.Get(), FOnQueryAchievementsCompleteDelegate::CreateUObject(this, &AFlarePlayerController::OnQueryAchievementsComplete));
+		}
+	}
+}
+
+void AFlarePlayerController::OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful)
+{
+	if (bWasSuccessful)
+	{
+		FLOG("AFlarePlayerController::OnQueryAchievementsComplete");
+
+		TArray<FOnlineAchievement> PlayerAchievements;
+		IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
+		if (Achievements->GetCachedAchievements(*UserId.Get(), PlayerAchievements) != EOnlineCachedResult::Success || PlayerAchievements.Num() == 0)
+		{
+			FLOG("AFlarePlayerController::OnQueryAchievementsComplete : no achievements available");
+		}
+		else
+		{
+			AchievementsAvailable = true;
+
+			for (int32 Idx = 0; Idx < PlayerAchievements.Num(); ++Idx)
+			{
+				FLOGV("AFlarePlayerController::OnQueryAchievementsComplete : Achievement %d : %s",
+					Idx, *PlayerAchievements[Idx].ToDebugString());
+			}
+		}
+	}
+	else
+	{
+		FLOG("AFlarePlayerController::OnQueryAchievementsComplete : failed to query achievements");
+	}
+}
+
 void AFlarePlayerController::SetAchievementProgression(FName Name, float CompletionRatio)
 {
 	if (AchievementsAvailable)
@@ -1405,35 +1483,6 @@ void AFlarePlayerController::ClearAchievementProgression()
 #endif // !UE_BUILD_SHIPPING
 	{
 		FLOG("AFlarePlayerController::ClearAchievementProgression : can't clear achievements");
-	}
-}
-
-void AFlarePlayerController::OnQueryAchievementsComplete(const FUniqueNetId& PlayerId, const bool bWasSuccessful)
-{
-	if (bWasSuccessful)
-	{
-		FLOG("AFlarePlayerController::OnQueryAchievementsComplete");
-
-		TArray<FOnlineAchievement> PlayerAchievements;
-		IOnlineAchievementsPtr Achievements = OnlineSub->GetAchievementsInterface();
-		if (Achievements->GetCachedAchievements(*UserId.Get(), PlayerAchievements) != EOnlineCachedResult::Success || PlayerAchievements.Num() == 0)
-		{
-			FLOG("AFlarePlayerController::OnQueryAchievementsComplete : no achievements available");
-		}
-		else
-		{
-			AchievementsAvailable = true;
-
-			for (int32 Idx = 0; Idx < PlayerAchievements.Num(); ++Idx)
-			{
-				FLOGV("AFlarePlayerController::OnQueryAchievementsComplete : Achievement %d : %s",
-					Idx, *PlayerAchievements[Idx].ToDebugString());
-			}
-		}
-	}
-	else
-	{
-		FLOG("AFlarePlayerController::OnQueryAchievementsComplete : failed to query achievements");
 	}
 }
 
