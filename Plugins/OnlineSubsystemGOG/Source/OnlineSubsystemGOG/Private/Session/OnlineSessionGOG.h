@@ -22,6 +22,8 @@ public:
 
 	bool CreateSession(const FUniqueNetId& InHostingPlayerId, FName InSessionName, const FOnlineSessionSettings& InSessionSettings) override;
 
+	TSharedPtr<const FUniqueNetId> CreateSessionIdFromString(const FString& SessionIdStr) override;
+
 	FNamedOnlineSession* GetNamedSession(FName InSessionName) override;
 
 	const FNamedOnlineSession* GetNamedSession(FName InSessionName) const;

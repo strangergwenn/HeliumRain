@@ -333,6 +333,15 @@ bool FOnlineSessionGOG::CreateSession(const FUniqueNetId& InHostingPlayerId, FNa
 	return CreateSession(LOCAL_USER_NUM, MoveTemp(InSessionName), InSessionSettings);
 }
 
+TSharedPtr<const FUniqueNetId> FOnlineSessionGOG::CreateSessionIdFromString(const FString& SessionIdStr)
+{
+	UE_LOG_ONLINE(Display, TEXT("FOnlineSessionGOG::CreateSessionIdFromString('%s')"), *SessionIdStr);
+
+	/* NYI */
+	TSharedPtr<const FUniqueNetId> SessionId;
+	return SessionId;
+}
+
 FNamedOnlineSession* FOnlineSessionGOG::AddNamedSession(FName InSessionName, const FOnlineSessionSettings& InSessionSettings)
 {
 	UE_LOG_ONLINE(Display, TEXT("FOnlineSessionGOG::AddNamedSession('%s')"), *InSessionName.ToString());
@@ -1153,7 +1162,7 @@ void FOnlineSessionGOG::OnLobbyLeft(const galaxy::api::GalaxyID& InLobbyID, bool
 		return;
 	}
 
-	subsystemGOG.TriggerOnConnectionStatusChangedDelegates(EOnlineServerConnectionStatus::Normal, EOnlineServerConnectionStatus::ConnectionDropped);
+	subsystemGOG.TriggerOnConnectionStatusChangedDelegates(TEXT("GOG"), EOnlineServerConnectionStatus::Normal, EOnlineServerConnectionStatus::ConnectionDropped);
 
 	// Not sure if we have to clean this up, or developer/Engine will manage everything, but let's do it
 	DestroySession(storedSession->SessionName);

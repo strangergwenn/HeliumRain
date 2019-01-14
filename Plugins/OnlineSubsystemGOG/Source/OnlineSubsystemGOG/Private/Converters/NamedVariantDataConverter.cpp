@@ -10,7 +10,6 @@ namespace NamedVariantDataConverter
 	namespace
 	{
 
-		constexpr auto CONVERTED_NAME_FORMAT = TEXT("%c_%s");
 		constexpr uint32 NAME_TYPE_PREFIX_LENGTH = 2;
 		constexpr uint32 NAME_TYPE_PREFIX_POSITION = 0;
 
@@ -80,7 +79,7 @@ namespace NamedVariantDataConverter
 		}
 
 		return MakeTuple(
-			FString::Printf(CONVERTED_NAME_FORMAT,
+			FString::Printf(TEXT("%c_%s"),
 				static_cast<TCHAR>(GetKeyPrefixFromType(InData.GetType())),
 				*InName.ToString()),
 			InData.ToString());

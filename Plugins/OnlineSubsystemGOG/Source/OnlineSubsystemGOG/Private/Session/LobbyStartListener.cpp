@@ -35,9 +35,14 @@ void FLobbyStartListener::OnLobbyDataUpdateFailure(const galaxy::api::GalaxyID& 
 
 	checkf(lobbyID == InLobbyID, TEXT("Unknown lobby (lobbyID=%llu). This shall never happen. Please contact GalaxySDK team"), InLobbyID.ToUint64());
 
-	UE_LOG_ONLINE(Error, InFailureReason == galaxy::api::ILobbyDataUpdateListener::FAILURE_REASON_LOBBY_DOES_NOT_EXIST
-		? TEXT("Specified lobby does not exists")
-		: TEXT("Unknown error"));
+	if (InFailureReason == galaxy::api::ILobbyDataUpdateListener::FAILURE_REASON_LOBBY_DOES_NOT_EXIST)
+	{
+		UE_LOG_ONLINE(Error, TEXT("Specified lobby does not exists"));
+	}
+	else
+	{
+		UE_LOG_ONLINE(Error, TEXT("Unknown error"));
+	}
 
 	TriggerOnStartSessionCompleteDelegates(false);
 }
