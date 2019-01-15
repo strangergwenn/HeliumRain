@@ -154,8 +154,8 @@ void AFlarePlayerController::BeginPlay()
 
 			OnGOGLoginCompleteDelegateHandle = OnlineSub->GetIdentityInterface()->AddOnLoginCompleteDelegate_Handle(0,
 				FOnLoginCompleteDelegate::CreateUObject(this, &AFlarePlayerController::OnGOGLoginComplete));
-
-			OnlineSub->GetIdentityInterface()->Login(0, GOGAccountCredentials);
+			
+			OnlineSub->GetIdentityInterface()->Login(0, { OnlineSub->GetIdentityInterface()->GetAuthType(), FString(), FString() });
 		}
 
 		// Steam
@@ -1374,7 +1374,7 @@ void AFlarePlayerController::OnGOGLoginComplete(int32 LocalUserNum, bool Success
 
 	if (Success)
 	{
-		FLOGV("AFlarePlayerController::OnGOGLoginComplete : Login succeeded for %s", *GOGAccountCredentials.ToDebugString());
+		FLOGV("AFlarePlayerController::OnGOGLoginComplete : Login succeeded");
 		QueryAchievementProgression();
 	}
 	else

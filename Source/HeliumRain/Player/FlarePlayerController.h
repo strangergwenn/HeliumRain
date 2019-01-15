@@ -501,13 +501,10 @@ protected:
 
 	const FSlateBrush*                       BackgroundDecorator;
 
-	// GOG login
-	FOnlineAccountCredentials                GOGAccountCredentials;
-	FDelegateHandle                          OnGOGLoginCompleteDelegateHandle;
-
 	// Achievements
 	TSharedPtr<const class FUniqueNetId>     UserId;
 	class IOnlineSubsystem*                  OnlineSub;
+	FDelegateHandle                          OnGOGLoginCompleteDelegateHandle;
 	bool                                     AchievementsAvailable;
 
 	int32                                    QuickSwitchNextOffset;
