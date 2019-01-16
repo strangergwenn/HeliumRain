@@ -1374,7 +1374,7 @@ void AFlarePlayerController::OnGOGLoginComplete(int32 LocalUserNum, bool Success
 
 	if (Success)
 	{
-		FLOGV("AFlarePlayerController::OnGOGLoginComplete : Login succeeded");
+		FLOG("AFlarePlayerController::OnGOGLoginComplete : Login succeeded");
 		QueryAchievementProgression();
 	}
 	else
