@@ -72,7 +72,7 @@ bool FOnlineIdentityGOG::Login(int32 InLocalUserNum, const FOnlineAccountCredent
 	}
 
 	UE_LOG_ONLINE(Display, TEXT("Trying to log in with Galaxy Client"));
-	galaxy::api::User()->SignIn(true);
+	galaxy::api::User()->SignIn();
 	auto err = galaxy::api::GetError();
 	if (err)
 	{
