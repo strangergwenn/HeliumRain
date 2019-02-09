@@ -769,12 +769,6 @@ void UFlareCompany::GiveResearch(int64 Amount)
 		return;
 	}
 
-	// Instruments technology
-	if (IsTechnologyUnlocked("instruments"))
-	{
-		Amount *= 1.5;
-	}
-
 	CompanyData.ResearchAmount += Amount;
 
 
