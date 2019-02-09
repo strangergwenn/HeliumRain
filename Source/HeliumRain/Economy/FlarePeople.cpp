@@ -312,7 +312,7 @@ uint32 UFlarePeople::BuyResourcesInSector(FFlareResourceDescription* Resource, u
 	{
 		UFlareSimulatedSpacecraft* Station = Parent->GetSectorStations()[SpacecraftIndex];
 
-		if(!Station->HasCapability(EFlareSpacecraftCapability::Consumer))
+		if(!Station->HasCapability(EFlareSpacecraftCapability::Consumer) || Station->IsUnderConstruction())
 		{
 			continue;
 		}
