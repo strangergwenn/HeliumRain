@@ -70,6 +70,7 @@ for platform in buildPlatforms:
 		if platform == 'Linux':
 			buildOutputDir = outputDir + "/LinuxNoEditor"
 			shutil.copyfile("../HeliumRainLauncher", buildOutputDir + "/HeliumRainLauncher")
+			shutil.copyfile("../HeliumRainLauncher.sh", buildOutputDir + "/HeliumRainLauncher.sh")
 			shutil.copyfile("../libsteam_api.so", buildOutputDir + "/libsteam_api.so")
 			shutil.copyfile("../steam_appid.txt", buildOutputDir + "/steam_appid.txt")
 			shutil.copytree("../Icons", buildOutputDir + "/Icons")
