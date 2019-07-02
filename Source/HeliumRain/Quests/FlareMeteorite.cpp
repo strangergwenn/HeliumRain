@@ -29,7 +29,6 @@ AFlareMeteorite::AFlareMeteorite(const class FObjectInitializer& PCIP) : Super(P
 	// Physics
 	Meteorite->SetMobility(EComponentMobility::Movable);
 	Meteorite->SetCollisionProfileName("BlockAllDynamic");
-	Meteorite->GetBodyInstance()->SetUseAsyncScene(false);
 	Meteorite->GetBodyInstance()->SetInstanceSimulatePhysics(true);
 	Meteorite->SetNotifyRigidBodyCollision(true);
 

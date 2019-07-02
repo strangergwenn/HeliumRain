@@ -2764,9 +2764,9 @@ void UFlareQuestConditionWorkFor::Load(UFlareQuest* ParentQuest, UFlareCompany* 
 
 bool UFlareQuestConditionWorkFor::IsCompleted()
 {
-	for(UFlareQuest* Quest : Quest->GetQuestManager()->GetOngoingQuests())
+	for(UFlareQuest* CandidateQuest : Quest->GetQuestManager()->GetOngoingQuests())
 	{
-		if(Quest->GetClient() == TargetCompany)
+		if(CandidateQuest->GetClient() == TargetCompany)
 		{
 			return true;
 		}
