@@ -392,7 +392,8 @@ AFlareBomb* UFlareSector::LoadBomb(const FFlareBombSave& BombData)
     if (ParentSpacecraft)
     {
         UFlareWeapon* ParentWeapon = NULL;
-        TArray<UActorComponent*> Components = ParentSpacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+        TArray<UActorComponent*> Components;
+        ParentSpacecraft->GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
         for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
         {
             UFlareWeapon* WeaponCandidate = Cast<UFlareWeapon>(Components[ComponentIndex]);

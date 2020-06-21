@@ -1093,7 +1093,7 @@ void UFlareShipPilot::IdlePilot(float DeltaSeconds)
 
 				if (LeaderMass == CandidateMass)
 				{
-					if (LeaderShip->GetImmatriculation() < CandidateShip->GetImmatriculation())
+					if (LeaderShip->GetImmatriculation().FastLess(CandidateShip->GetImmatriculation()))
 					{
 						continue;
 					}
@@ -1460,7 +1460,8 @@ FVector UFlareShipPilot::ExitAvoidance(AFlareSpacecraft* TargetShip, FVector Ini
 		FVector CurrentVelocityAxis = CurrentVelocity.GetUnsafeNormal();
 
 		// TODO Cache
-		TArray<UActorComponent*> Engines = Ship->GetComponentsByClass(UFlareEngine::StaticClass());
+		TArray<UActorComponent*> Engines;
+		Ship->GetComponents(UFlareEngine::StaticClass(), Engines);
 
 
 		FVector Acceleration = Ship->GetNavigationSystem()->GetTotalMaxThrustInAxis(Engines, CurrentVelocityAxis, false) / Ship->GetSpacecraftMass();
@@ -1656,7 +1657,8 @@ AFlareSpacecraft* UFlareShipPilot::GetNearestShip(bool IgnoreDockingShip) const
 
 FVector UFlareShipPilot::GetAngularVelocityToAlignAxis(FVector LocalShipAxis, FVector TargetAxis, FVector TargetAngularVelocity, float DeltaSeconds) const
 {
-	TArray<UActorComponent*> Engines = Ship->GetComponentsByClass(UFlareEngine::StaticClass());
+	TArray<UActorComponent*> Engines;
+	Ship->GetComponents(UFlareEngine::StaticClass(), Engines);
 
 	FVector AngularVelocity = Ship->Airframe->GetPhysicsAngularVelocityInDegrees();
 	FVector WorldShipAxis = Ship->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalShipAxis);

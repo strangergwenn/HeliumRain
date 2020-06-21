@@ -432,7 +432,8 @@ void AFlareShell::DetonateAt(FVector DetonatePoint)
 		FLOGV("ExposedSurfaceRatio %f",ExposedSurfaceRatio);
 		FLOGV("FragmentCount %d",FragmentCount);*/
 
-		TArray<UActorComponent*> Components = Target.GetActor()->GetComponentsByClass(UPrimitiveComponent::StaticClass());
+		TArray<UActorComponent*> Components;
+		Target.GetActor()->GetComponents(UPrimitiveComponent::StaticClass(), Components);
 
 		//FLOGV("Component cont %d",Components.Num());
 		for (int i = 0; i < FragmentCount; i ++)

@@ -215,7 +215,7 @@ void UFlareSoundManager::Setup(AFlarePlayerController* Player)
 		SectorExitWarningPlayer.Sound->SetSound(SectorExitWarningSound);
 		
 		// Device
-		FAudioDevice* AudioDevice = Player->GetWorld()->GetAudioDevice();
+		FAudioDeviceHandle AudioDevice = Player->GetWorld()->GetAudioDevice();
 		if (AudioDevice)
 		{
 			FCHECK(MasterSoundMix);
@@ -231,7 +231,7 @@ void UFlareSoundManager::SetMusicVolume(int32 Volume)
 	MusicVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
 
 	// Update
-	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
+	FAudioDeviceHandle AudioDevice = PC->GetWorld()->GetAudioDevice();
 	if (AudioDevice)
 	{
 		AudioDevice->SetSoundMixClassOverride(MasterSoundMix, MusicSoundClass, MusicVolume, 1.0f, 0.5f, true);
@@ -245,7 +245,7 @@ void UFlareSoundManager::SetMasterVolume(int32 Volume)
 	MasterVolume = FMath::Clamp(Volume / 10.0f, 0.0f, 1.0f);
 
 	// Update
-	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
+	FAudioDeviceHandle AudioDevice = PC->GetWorld()->GetAudioDevice();
 	if (AudioDevice)
 	{
 		FCHECK(MasterSoundMix);
@@ -294,7 +294,8 @@ void UFlareSoundManager::Update(float DeltaSeconds)
 		int32 EngineCount = 0;
 
 		// Check all engines for engine alpha values
-		TArray<UActorComponent*> Engines = ShipPawn->GetComponentsByClass(UFlareEngine::StaticClass());
+		TArray<UActorComponent*> Engines;
+		ShipPawn->GetComponents(UFlareEngine::StaticClass(), Engines);
 		for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
 		{
 			UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
@@ -412,7 +413,7 @@ void UFlareSoundManager::UpdateEffectsVolume(float DeltaSeconds)
 	}
 
 	// Get device and update
-	FAudioDevice* AudioDevice = PC->GetWorld()->GetAudioDevice();
+	FAudioDeviceHandle AudioDevice = PC->GetWorld()->GetAudioDevice();
 	if (AudioDevice)
 	{
 		AudioDevice->SetSoundMixClassOverride(MasterSoundMix, EffectsSoundClass, EffectsVolume, 1.0f, 0.0f, true);

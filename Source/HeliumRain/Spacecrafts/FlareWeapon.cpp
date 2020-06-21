@@ -493,7 +493,7 @@ void UFlareWeapon::FillBombs()
 		
 		float Roll = 0;
 
-		bool NegativeZScale = RelativeScale3D.Z < 0;
+		bool NegativeZScale = GetRelativeScale3D().Z < 0;
 
 		//FLOGV("Bomb %d NegativeZScale=%d", BombIndex, NegativeZScale);
 		//FLOGV("Bomb %d RelativeScale3D=%s", BombIndex, *RelativeScale3D.ToString());

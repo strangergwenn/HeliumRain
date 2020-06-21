@@ -384,9 +384,9 @@ FText UFlareQuest::FormatTags(FText Message)
 
 				UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
 
-				for (int32 i = 0; i < InputSettings->AxisMappings.Num(); i++)
+				for (int32 i = 0; i < InputSettings->GetAxisMappings().Num(); i++)
 				{
-					FInputAxisKeyMapping Axis = InputSettings->AxisMappings[i];
+					FInputAxisKeyMapping Axis = InputSettings->GetAxisMappings()[i];
 					if (Axis.AxisName == AxisName && Axis.Scale == Scale && !Axis.Key.IsGamepadKey())
 					{
 						Mapping = Axis.Key.ToString();

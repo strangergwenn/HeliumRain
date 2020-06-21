@@ -130,7 +130,7 @@ void UFlareSpacecraftNavigationSystem::TickSystem(float DeltaSeconds)
 void UFlareSpacecraftNavigationSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft, FFlareSpacecraftSave* OwnerData)
 {
 	Spacecraft = OwnerSpacecraft;
-	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	Spacecraft->GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
 	Description = Spacecraft->GetParent()->GetDescription();
 	Data = OwnerData;
 
@@ -149,7 +149,8 @@ void UFlareSpacecraftNavigationSystem::Initialize(AFlareSpacecraft* OwnerSpacecr
 	YEngines.Value.Empty();
 	ZEngines.Value.Empty();
 
-	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
+	TArray<UActorComponent*> Engines;
+	Spacecraft->GetComponents(UFlareEngine::StaticClass(), Engines);
 	for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
 	{
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
@@ -904,7 +905,8 @@ void UFlareSpacecraftNavigationSystem::ConfirmDock(AFlareSpacecraft* DockStation
 	DockConstraint->SetConstrainedComponents(Spacecraft->Airframe, NAME_None, AttachStation->Airframe,NAME_None);
 
 	// Cut engines
-	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
+	TArray<UActorComponent*> Engines;
+	Spacecraft->GetComponents(UFlareEngine::StaticClass(), Engines);
 	for (int32 EngineIndex = 0; EngineIndex < Engines.Num(); EngineIndex++)
 	{
 		UFlareEngine* Engine = Cast<UFlareEngine>(Engines[EngineIndex]);
@@ -1102,7 +1104,8 @@ bool UFlareSpacecraftNavigationSystem::UpdateLinearAttitudeAuto(float DeltaSecon
 {
 	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_UpdateLinearAttitudeAuto);
 
-	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
+	TArray<UActorComponent*> Engines;
+	Spacecraft->GetComponents(UFlareEngine::StaticClass(), Engines);
 
 	FVector DeltaPosition = (TargetLocation - Spacecraft->GetActorLocation()) / 100; // Distance in meters
 	FVector DeltaPositionDirection = DeltaPosition;
@@ -1191,7 +1194,8 @@ bool UFlareSpacecraftNavigationSystem::UpdateAngularAttitudeAuto(FFlareShipComma
 {
 	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_UpdateAngularAttitudeAuto);
 
-	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
+	TArray<UActorComponent*> Engines;
+	Spacecraft->GetComponents(UFlareEngine::StaticClass(), Engines);
 
 	// Rotation data
 	FVector TargetAxis = Command.RotationTarget;
@@ -1271,7 +1275,8 @@ FVector UFlareSpacecraftNavigationSystem::GetAngularVelocityToAlignAxis(FVector 
 {
 	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_GetAngularVelocityToAlignAxis);
 
-	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
+	TArray<UActorComponent*> Engines;
+	Spacecraft->GetComponents(UFlareEngine::StaticClass(), Engines);
 
 	FVector AngularVelocity = Spacecraft->Airframe->GetPhysicsAngularVelocityInDegrees();
 	FVector WorldShipAxis = Spacecraft->Airframe->GetComponentToWorld().GetRotation().RotateVector(LocalShipAxis);
@@ -1351,7 +1356,8 @@ void UFlareSpacecraftNavigationSystem::PhysicSubTick(float DeltaSeconds)
 {
 	SCOPE_CYCLE_COUNTER(STAT_NavigationSystem_Physics);
 
-	TArray<UActorComponent*> Engines = Spacecraft->GetComponentsByClass(UFlareEngine::StaticClass());
+	TArray<UActorComponent*> Engines;
+	Spacecraft->GetComponents(UFlareEngine::StaticClass(), Engines);
 
 	if(Spacecraft->GetParent()->GetDamageSystem()->IsUncontrollable())
 	{

@@ -771,7 +771,8 @@ UFlareSpacecraftComponent* PilotHelper::GetBestTargetComponent(AFlareSpacecraft*
 
 	TArray<UFlareSpacecraftComponent*> ComponentSelection;
 
-	TArray<UActorComponent*> Components = TargetSpacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	TArray<UActorComponent*> Components;
+	TargetSpacecraft->GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);

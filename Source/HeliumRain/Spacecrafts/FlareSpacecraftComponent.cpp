@@ -710,7 +710,7 @@ bool UFlareSpacecraftComponent::IsComponentVisible() const
 	// Show if it belongs to the player (to avoid issue when going external)
 	if (Spacecraft)
 	{
-		return (Spacecraft->IsPlayerShip() || (GetWorld()->TimeSeconds - LastRenderTime) < 0.2);
+		return (Spacecraft->IsPlayerShip() || (GetWorld()->TimeSeconds - GetLastRenderTime()) < 0.2);
 	}
 	else
 	{

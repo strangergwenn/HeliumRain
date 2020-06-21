@@ -1335,9 +1335,9 @@ FString AFlareMenuManager::GetKeyNameFromActionName(FName ActionName)
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
 	FCHECK(InputSettings);
 
-	for (int32 i = 0; i < InputSettings->ActionMappings.Num(); i++)
+	for (int32 i = 0; i < InputSettings->GetActionMappings().Num(); i++)
 	{
-		FInputActionKeyMapping Action = InputSettings->ActionMappings[i];
+		FInputActionKeyMapping Action = InputSettings->GetActionMappings()[i];
 		if (Action.ActionName == ActionName && !Action.Key.IsGamepadKey())
 		{
 			FString KeyName = Action.Key.ToString();
