@@ -919,7 +919,7 @@ void AFlarePlayerController::SetupCockpit()
 	{
 		FActorSpawnParameters SpawnInfo;
 		SpawnInfo.Owner = this;
-		SpawnInfo.Instigator = Instigator;
+		SpawnInfo.Instigator = GetInstigator();
 		SpawnInfo.ObjectFlags |= RF_Transient;
 		CockpitManager = GetWorld()->SpawnActor<AFlareCockpitManager>(AFlareCockpitManager::StaticClass(), SpawnInfo);
 	}
@@ -949,7 +949,7 @@ void AFlarePlayerController::SetupMenu()
 	BackgroundDecorator = FFlareStyleSet::Get().GetBrush("/Brushes/SB_DefaultBackgroundDecorator");
 	FActorSpawnParameters SpawnInfo;
 	SpawnInfo.Owner = this;
-	SpawnInfo.Instigator = Instigator;
+	SpawnInfo.Instigator = GetInstigator();
 	SpawnInfo.ObjectFlags |= RF_Transient;
 	MenuManager = GetWorld()->SpawnActor<AFlareMenuManager>(AFlareMenuManager::StaticClass(), SpawnInfo);
 

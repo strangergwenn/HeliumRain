@@ -1513,7 +1513,7 @@ void SFlareSettingsMenu::OnResolutionComboLineSelectionChanged(TSharedPtr<FScree
 FText SFlareSettingsMenu::OnGetCurrentJoystickKeyName(FName AxisName) const
 {
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-	for (auto& Bind : InputSettings->AxisMappings)
+	for (auto& Bind : InputSettings->GetAxisMappings())
 	{
 		if (Bind.AxisName == AxisName)
 		{
@@ -1550,11 +1550,11 @@ void SFlareSettingsMenu::OnJoystickComboLineSelectionChanged(TSharedPtr<FKey> Ke
 
 		// Remove the original binding
 		UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-		for (int i = 0; i < InputSettings->AxisMappings.Num();)
+		for (int i = 0; i < InputSettings->GetAxisMappings().Num();)
 		{
-			if (InputSettings->AxisMappings[i].AxisName == AxisName)
+			if (InputSettings->GetAxisMappings()[i].AxisName == AxisName)
 			{
-				InputSettings->RemoveAxisMapping(InputSettings->AxisMappings[i]);
+				InputSettings->RemoveAxisMapping(InputSettings->GetAxisMappings()[i]);
 			}
 			else
 			{
@@ -2047,12 +2047,12 @@ const FSlateBrush* SFlareSettingsMenu::GetGamepadDrawing() const
 void SFlareSettingsMenu::OnInvertAxisClicked(FName AxisName)
 {
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-	for (int i = 0; i < InputSettings->AxisMappings.Num(); i++)
+	for (int i = 0; i < InputSettings->GetAxisMappings().Num(); i++)
 	{
-		if (InputSettings->AxisMappings[i].AxisName == AxisName && i != InputSettings->AxisMappings.Num() - 1)
+		if (InputSettings->GetAxisMappings()[i].AxisName == AxisName && i != InputSettings->GetAxisMappings().Num() - 1)
 		{
 			// Remove the original binding
-			FInputAxisKeyMapping Bind = InputSettings->AxisMappings[i];
+			FInputAxisKeyMapping Bind = InputSettings->GetAxisMappings()[i];
 			InputSettings->RemoveAxisMapping(Bind);
 
 			// Re-add to force update
@@ -2067,11 +2067,11 @@ void SFlareSettingsMenu::OnInvertAxisClicked(FName AxisName)
 void SFlareSettingsMenu::OnUnbindAxisClicked(FName AxisName)
 {
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-	for (int i = 0; i < InputSettings->AxisMappings.Num(); i++)
+	for (int i = 0; i < InputSettings->GetAxisMappings().Num(); i++)
 	{
-		if (InputSettings->AxisMappings[i].AxisName == AxisName && i != InputSettings->AxisMappings.Num() - 1)
+		if (InputSettings->GetAxisMappings()[i].AxisName == AxisName && i != InputSettings->GetAxisMappings().Num() - 1)
 		{
-			FInputAxisKeyMapping Bind = InputSettings->AxisMappings[i];
+			FInputAxisKeyMapping Bind = InputSettings->GetAxisMappings()[i];
 			InputSettings->RemoveAxisMapping(Bind);
 		}
 	}
@@ -2080,9 +2080,9 @@ void SFlareSettingsMenu::OnUnbindAxisClicked(FName AxisName)
 bool SFlareSettingsMenu::IsAxisControlsDisabled(FName AxisName) const
 {
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
-	for (int i = 0; i < InputSettings->AxisMappings.Num(); i++)
+	for (int i = 0; i < InputSettings->GetAxisMappings().Num(); i++)
 	{
-		if (InputSettings->AxisMappings[i].AxisName == AxisName && i != InputSettings->AxisMappings.Num() - 1)
+		if (InputSettings->GetAxisMappings()[i].AxisName == AxisName && i != InputSettings->GetAxisMappings().Num() - 1)
 		{
 			return false;
 		}
@@ -2561,9 +2561,9 @@ FSimpleBind* FSimpleBind::AddActionMapping(const FName& Mapping)
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
 	
 	bool bFound = false;
-	for (int32 i = 0; i < InputSettings->ActionMappings.Num(); i++)
+	for (int32 i = 0; i < InputSettings->GetActionMappings().Num(); i++)
 	{
-		FInputActionKeyMapping Action = InputSettings->ActionMappings[i];
+		FInputActionKeyMapping Action = InputSettings->GetActionMappings()[i];
 		bool IsJoystickKey = Action.Key.GetDisplayName().ToString().StartsWith("Joystick");
 		bool IsGamePadKey = Action.Key.IsGamepadKey() && !IsJoystickKey;
 
@@ -2598,9 +2598,9 @@ FSimpleBind* FSimpleBind::AddAxisMapping(const FName& Mapping, float Scale)
 	UInputSettings* InputSettings = UInputSettings::StaticClass()->GetDefaultObject<UInputSettings>();
 
 	bool bFound = false;
-	for (int32 i = 0; i < InputSettings->AxisMappings.Num(); i++)
+	for (int32 i = 0; i < InputSettings->GetAxisMappings().Num(); i++)
 	{
-		FInputAxisKeyMapping Axis = InputSettings->AxisMappings[i];
+		FInputAxisKeyMapping Axis = InputSettings->GetAxisMappings()[i];
 		if (Mapping == Axis.AxisName && Axis.Scale == Scale && !Axis.Key.IsGamepadKey())
 		{
 			AxisMappings.Add(Axis);

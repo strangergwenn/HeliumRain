@@ -180,7 +180,7 @@ void UFlareSpacecraftWeaponsSystem::TickSystem(float DeltaSeconds)
 void UFlareSpacecraftWeaponsSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft, FFlareSpacecraftSave* OwnerData)
 {
 	Spacecraft = OwnerSpacecraft;
-	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	Spacecraft->GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
 	Description = Spacecraft->GetParent()->GetDescription();
 	Data = OwnerData;
 }
@@ -201,7 +201,8 @@ void UFlareSpacecraftWeaponsSystem::Start()
 	}
 	WeaponGroupList.Empty();
 
-	TArray<UActorComponent*> Weapons = Spacecraft->GetComponentsByClass(UFlareWeapon::StaticClass());
+	TArray<UActorComponent*> Weapons;
+	Spacecraft->GetComponents(UFlareWeapon::StaticClass(), Weapons);
 	for (int32 ComponentIndex = 0; ComponentIndex < Weapons.Num(); ComponentIndex++)
 	{
 		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Weapons[ComponentIndex]);

@@ -104,7 +104,8 @@ void AFlareSpacecraft::BeginPlay()
 	Super::BeginPlay();
 
 	// Setup asteroid components, if any
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareAsteroidComponent::StaticClass());
+	TArray<UActorComponent*> Components;
+	GetComponents(UFlareAsteroidComponent::StaticClass(), Components);
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareAsteroidComponent* AsteroidComponent = Cast<UFlareAsteroidComponent>(Components[ComponentIndex]);
@@ -191,7 +192,8 @@ void AFlareSpacecraft::Tick(float DeltaSeconds)
 		}
 
 		// Lights
-		TArray<UActorComponent*> LightComponents = GetComponentsByClass(USpotLightComponent::StaticClass());
+		TArray<UActorComponent*> LightComponents;
+		GetComponents(USpotLightComponent::StaticClass(), LightComponents);
 		for (int32 ComponentIndex = 0; ComponentIndex < LightComponents.Num(); ComponentIndex++)
 		{
 			USpotLightComponent* Component = Cast<USpotLightComponent>(LightComponents[ComponentIndex]);
@@ -530,7 +532,8 @@ void AFlareSpacecraft::Destroyed()
 	}
 
 	// Stop lights
-	TArray<UActorComponent*> LightComponents = GetComponentsByClass(USpotLightComponent::StaticClass());
+	TArray<UActorComponent*> LightComponents;
+	GetComponents(USpotLightComponent::StaticClass(), LightComponents);
 	for (int32 ComponentIndex = 0; ComponentIndex < LightComponents.Num(); ComponentIndex++)
 	{
 		USpotLightComponent* Component = Cast<USpotLightComponent>(LightComponents[ComponentIndex]);
@@ -543,7 +546,8 @@ void AFlareSpacecraft::Destroyed()
 	Super::Destroyed();
 
 	// Clear bombs
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	TArray<UActorComponent*> Components;
+	GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareWeapon* Weapon = Cast<UFlareWeapon>(Components[ComponentIndex]);
@@ -675,7 +679,8 @@ void AFlareSpacecraft::ClearInvalidTarget(PilotHelper::PilotTarget InvalidTarget
 
 	GetPilot()->ClearInvalidTarget(InvalidTarget);
 
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	TArray<UActorComponent*> Components;
+	GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
@@ -949,7 +954,8 @@ void AFlareSpacecraft::Load(UFlareSimulatedSpacecraft* ParentSpacecraft)
 	UpdateDynamicComponents();
 
 	// Initialize components
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	TArray<UActorComponent*> Components;
+	GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
@@ -1051,7 +1057,8 @@ void AFlareSpacecraft::Save()
 	}
 
 	// Save all components datas
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	TArray<UActorComponent*> Components;
+	GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
@@ -1178,7 +1185,8 @@ void AFlareSpacecraft::ApplyAsteroidData()
 {
 	if (GetData().AsteroidData.Identifier != NAME_None)
 	{
-		TArray<UActorComponent*> Components = GetComponentsByClass(UActorComponent::StaticClass());
+		TArray<UActorComponent*> Components;
+		GetComponents(UActorComponent::StaticClass(), Components);
 		for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 		{
 			UActorComponent* Component = Components[ComponentIndex];
@@ -1244,7 +1252,8 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 	}
 	
 	// Apply construction template to all dynamic components
-	TArray<UActorComponent*> DynamicComponents = GetComponentsByClass(UChildActorComponent::StaticClass());
+	TArray<UActorComponent*> DynamicComponents;
+	GetComponents(UChildActorComponent::StaticClass(),DynamicComponents);
 	for (int32 ComponentIndex = 0; ComponentIndex < DynamicComponents.Num(); ComponentIndex++)
 	{
 		UChildActorComponent* Component = Cast<UChildActorComponent>(DynamicComponents[ComponentIndex]);
@@ -1263,7 +1272,8 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 			// Setup children
 			if (Component->GetChildActor())
 			{
-				TArray<UActorComponent*> SubDynamicComponents = Component->GetChildActor()->GetComponentsByClass(UChildActorComponent::StaticClass());
+				TArray<UActorComponent*> SubDynamicComponents;
+				Component->GetChildActor()->GetComponents(UChildActorComponent::StaticClass(), SubDynamicComponents);
 				for (int32 SubComponentIndex = 0; SubComponentIndex < SubDynamicComponents.Num(); SubComponentIndex++)
 				{
 					UChildActorComponent* SubDynamicComponent = Cast<UChildActorComponent>(SubDynamicComponents[SubComponentIndex]);
@@ -1284,7 +1294,7 @@ void AFlareSpacecraft::UpdateDynamicComponents()
 					}
 				}
 
-				SubDynamicComponents = Component->GetChildActor()->GetComponentsByClass(UStaticMeshComponent::StaticClass());
+				Component->GetChildActor()->GetComponents(UStaticMeshComponent::StaticClass(), SubDynamicComponents);
 				for (int32 SubComponentIndex = 0; SubComponentIndex < SubDynamicComponents.Num(); SubComponentIndex++)
 				{
 					UStaticMeshComponent* SubDynamicComponent = Cast<UStaticMeshComponent>(SubDynamicComponents[SubComponentIndex]);
@@ -1308,7 +1318,8 @@ UFlareInternalComponent* AFlareSpacecraft::GetInternalComponentAtLocation(FVecto
 	float MinDistance = 100000; // 1km
 	UFlareInternalComponent* ClosestComponent = NULL;
 
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareInternalComponent::StaticClass());
+	TArray<UActorComponent*> Components;
+	GetComponents(UFlareInternalComponent::StaticClass(), Components);
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareInternalComponent* InternalComponent = Cast<UFlareInternalComponent>(Components[ComponentIndex]);
@@ -1363,7 +1374,8 @@ void AFlareSpacecraft::UpdateCustomization()
 	}
 
 	// Customize lights
-	TArray<UActorComponent*> LightComponents = GetComponentsByClass(USpotLightComponent::StaticClass());
+	TArray<UActorComponent*> LightComponents;
+	GetComponents(USpotLightComponent::StaticClass(), LightComponents);
 	for (int32 ComponentIndex = 0; ComponentIndex < LightComponents.Num(); ComponentIndex++)
 	{
 		USpotLightComponent* Component = Cast<USpotLightComponent>(LightComponents[ComponentIndex]);
@@ -1376,7 +1388,8 @@ void AFlareSpacecraft::UpdateCustomization()
 	}
 
 	// Customize decal materials
-	TArray<UActorComponent*> DecalComponents = GetComponentsByClass(UDecalComponent::StaticClass());
+	TArray<UActorComponent*> DecalComponents;
+	GetComponents(UDecalComponent::StaticClass(), DecalComponents);
 	for (int32 ComponentIndex = 0; ComponentIndex < DecalComponents.Num(); ComponentIndex++)
 	{
 		UDecalComponent* Component = Cast<UDecalComponent>(DecalComponents[ComponentIndex]);
@@ -1459,7 +1472,8 @@ void AFlareSpacecraft::DrawShipName(UCanvas* TargetCanvas, int32 Width, int32 He
 
 void AFlareSpacecraft::OnRepaired()
 {
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	TArray<UActorComponent*> Components;
+	GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
@@ -1470,7 +1484,8 @@ void AFlareSpacecraft::OnRepaired()
 void AFlareSpacecraft::OnRefilled()
 {
 	// Reload and repair
-	TArray<UActorComponent*> Components = GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	TArray<UActorComponent*> Components;
+	GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UFlareSpacecraftComponent* Component = Cast<UFlareSpacecraftComponent>(Components[ComponentIndex]);
@@ -2194,7 +2209,8 @@ float AFlareSpacecraft::GetTimeToStop() const
 		FVector CurrentVelocityAxis = CurrentVelocity.GetUnsafeNormal();
 
 		// TODO Cache
-		TArray<UActorComponent*> Engines = GetComponentsByClass(UFlareEngine::StaticClass());
+		TArray<UActorComponent*> Engines;
+		GetComponents(UFlareEngine::StaticClass(), Engines);
 
 		FVector Acceleration = GetNavigationSystem()->GetTotalMaxThrustInAxis(Engines, CurrentVelocityAxis, false) / GetSpacecraftMass();
 		float AccelerationInAngleAxis =  FMath::Abs(FVector::DotProduct(Acceleration, CurrentVelocityAxis));

@@ -52,7 +52,7 @@ bool UFlareSaveGameSystem::SaveGame(const FString SaveName, UFlareSaveGame* Save
 			uint8* CompressedDataRaw = new uint8[StrLength];
 			int32 CompressedSize = StrLength;
 
-			const bool bResult = FCompression::CompressMemory((ECompressionFlags)(COMPRESS_GZIP), CompressedDataRaw, CompressedSize, TCHAR_TO_UTF8(*FileContents), StrLength);
+			const bool bResult = FCompression::CompressMemory(NAME_Gzip, CompressedDataRaw, CompressedSize, TCHAR_TO_UTF8(*FileContents), StrLength);
 			if (bResult)
 			{
 				ret = FFileHelper::SaveArrayToFile(TArrayView<const uint8>(CompressedDataRaw, CompressedSize), *GetSaveGamePath(SaveName, true));
@@ -110,7 +110,7 @@ UFlareSaveGame* UFlareSaveGameSystem::LoadGame(const FString SaveName)
 
 		Data.SetNum(UncompressedSize + 1);
 
-		if(!FCompression::UncompressMemory((ECompressionFlags)(COMPRESS_ZLIB), Data.GetData(), UncompressedSize, DataCompressed.GetData(), DataCompressed.Num(), false, 31))
+		if(!FCompression::UncompressMemory(NAME_Gzip, Data.GetData(), UncompressedSize, DataCompressed.GetData(), DataCompressed.Num(), ECompressionFlags::COMPRESS_NoFlags, 31))
 		{
 			FLOGV("Fail to uncompress save '%s' with compressed size %d and uncompressed size %d", Filename, DataCompressed.Num(), UncompressedSize);
 			return false;

@@ -30,7 +30,8 @@ void AFlarePlanetarium::BeginPlay()
 	Super::BeginPlay();
 	FLOG("AFlarePlanetarium::BeginPlay");
 
-	TArray<UActorComponent*> Components = GetComponentsByClass(UStaticMeshComponent::StaticClass());
+	TArray<UActorComponent*> Components;
+	GetComponents(UStaticMeshComponent::StaticClass(), Components);
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UStaticMeshComponent* PlanetCandidate = Cast<UStaticMeshComponent>(Components[ComponentIndex]);
@@ -99,7 +100,8 @@ void AFlarePlanetarium::Tick(float DeltaSeconds)
 
 			if (Light == NULL)
 			{
-				TArray<UActorComponent*> Components = GetComponentsByClass(UDirectionalLightComponent::StaticClass());
+				TArray<UActorComponent*> Components;
+				GetComponents(UDirectionalLightComponent::StaticClass(), Components);
 				for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 				{
 					UDirectionalLightComponent* LightCandidate = Cast<UDirectionalLightComponent>(Components[ComponentIndex]);
@@ -426,7 +428,8 @@ void AFlarePlanetarium::PrepareCelestialBody(FFlareCelestialBody* Body, FPrecise
 
 	// Find the celestial body component
 	UStaticMeshComponent* BodyComponent = NULL;
-	TArray<UActorComponent*> Components = GetComponentsByClass(UStaticMeshComponent::StaticClass());
+	TArray<UActorComponent*> Components;
+	GetComponents(UStaticMeshComponent::StaticClass(), Components);
 	for (int32 ComponentIndex = 0; ComponentIndex < Components.Num(); ComponentIndex++)
 	{
 		UStaticMeshComponent* ComponentCandidate = Cast<UStaticMeshComponent>(Components[ComponentIndex]);

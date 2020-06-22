@@ -221,7 +221,7 @@ void UFlareSpacecraftDamageSystem::TickSystem(float DeltaSeconds)
 void UFlareSpacecraftDamageSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft, FFlareSpacecraftSave* OwnerData)
 {
 	Spacecraft = OwnerSpacecraft;
-	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	Spacecraft->GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
 	Description = Spacecraft->GetParent()->GetDescription();
 	Data = OwnerData;
 	Parent = Spacecraft->GetParent()->GetDamageSystem();
@@ -230,7 +230,7 @@ void UFlareSpacecraftDamageSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft,
 void UFlareSpacecraftDamageSystem::Start()
 {
 	// Reload components
-	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	Spacecraft->GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
 	Parent->TickSystem();
 
 	// Init alive status

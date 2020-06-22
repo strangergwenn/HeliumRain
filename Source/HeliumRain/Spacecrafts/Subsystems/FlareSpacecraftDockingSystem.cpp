@@ -39,7 +39,7 @@ void UFlareSpacecraftDockingSystem::TickSystem(float DeltaSeconds)
 void UFlareSpacecraftDockingSystem::Initialize(AFlareSpacecraft* OwnerSpacecraft, FFlareSpacecraftSave* OwnerData)
 {
 	Spacecraft = OwnerSpacecraft;
-	Components = Spacecraft->GetComponentsByClass(UFlareSpacecraftComponent::StaticClass());
+	Spacecraft->GetComponents(UFlareSpacecraftComponent::StaticClass(), Components);
 	Description = Spacecraft->GetParent()->GetDescription();
 	Data = OwnerData;
 
