@@ -110,7 +110,7 @@ UFlareSaveGame* UFlareSaveGameSystem::LoadGame(const FString SaveName)
 
 		Data.SetNum(UncompressedSize + 1);
 
-		if(!FCompression::UncompressMemory(NAME_Gzip, Data.GetData(), UncompressedSize, DataCompressed.GetData(), DataCompressed.Num(), ECompressionFlags::COMPRESS_NoFlags, 31))
+		if(!FCompression::UncompressMemory(NAME_Zlib, Data.GetData(), UncompressedSize, DataCompressed.GetData(), DataCompressed.Num(), ECompressionFlags::COMPRESS_NoFlags, 31))
 		{
 			FLOGV("Fail to uncompress save '%s' with compressed size %d and uncompressed size %d", Filename, DataCompressed.Num(), UncompressedSize);
 			return false;
