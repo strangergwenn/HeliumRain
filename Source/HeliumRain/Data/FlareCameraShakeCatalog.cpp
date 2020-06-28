@@ -1,5 +1,5 @@
 
-#include "FlareCameraShakeCatalog.h"
+#include "HeliumRain/Data/FlareCameraShakeCatalog.h"
 #include "../Flare.h"
 
 

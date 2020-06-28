@@ -1,5 +1,5 @@
 
-#include "FlareNotifier.h"
+#include "HeliumRain/UI/Components/FlareNotifier.h"
 #include "../../Flare.h"
 
 #include "../../Game/FlareGame.h"
@@ -7,10 +7,10 @@
 #include "../../Player/FlarePlayerController.h"
 #include "../../Quests/FlareQuest.h"
 
-#include "FlareButton.h"
-#include "FlareObjectiveInfo.h"
+#include "HeliumRain/UI/Components/FlareButton.h"
+#include "HeliumRain/UI/Components/FlareObjectiveInfo.h"
 
-#include "SBackgroundBlur.h"
+#include <Widgets/Layout/SBackgroundBlur.h>
 
 #define LOCTEXT_NAMESPACE "FlareNotifier"
 

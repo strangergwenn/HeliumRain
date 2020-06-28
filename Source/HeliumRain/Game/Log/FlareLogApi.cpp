@@ -1,7 +1,7 @@
 
-#include "FlareLogApi.h"
+#include "HeliumRain/Game/Log/FlareLogApi.h"
 #include "../../Flare.h"
-#include "FlareLogWriter.h"
+#include "HeliumRain/Game/Log/FlareLogWriter.h"
 
 #include "../FlareCompany.h"
 #include "../../Spacecrafts/FlareBomb.h"

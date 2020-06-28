@@ -1,7 +1,7 @@
 
-#include "FlareResourceCatalog.h"
+#include "HeliumRain/Data/FlareResourceCatalog.h"
 #include "../Flare.h"
-#include "AssetRegistryModule.h"
+#include <AssetRegistryModule.h>
 
 
 /*----------------------------------------------------

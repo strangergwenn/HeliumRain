@@ -1,12 +1,12 @@
 
-#include "FlarePlayerController.h"
+#include "HeliumRain/Player/FlarePlayerController.h"
 #include "../Flare.h"
 
-#include "FlareHUD.h"
-#include "FlareMenuPawn.h"
-#include "FlareSoundManager.h"
-#include "FlareMenuManager.h"
-#include "FlareCockpitManager.h"
+#include "HeliumRain/Player/FlareHUD.h"
+#include "HeliumRain/Player/FlareMenuPawn.h"
+#include "HeliumRain/Player/FlareSoundManager.h"
+#include "HeliumRain/Player/FlareMenuManager.h"
+#include "HeliumRain/Player/FlareCockpitManager.h"
 
 #include "../UI/Menus/FlareOrbitalMenu.h"
 #include "../UI/Menus/FlareSectorMenu.h"
@@ -28,20 +28,20 @@
 #include "../Spacecrafts/FlarePilotHelper.h"
 #include "../Spacecrafts/FlareTurretPilot.h"
 
-#include "GameFramework/InputSettings.h"
+#include <GameFramework/InputSettings.h>
 
-#include "Engine/PostProcessVolume.h"
-#include "Engine/Canvas.h"
-#include "Engine.h"
-#include "EngineUtils.h"
+#include <Engine/PostProcessVolume.h>
+#include <Engine/Canvas.h>
+#include <Engine.h>
+#include <EngineUtils.h>
 
-#include "OnlineSubsystem.h"
-#include "OnlineStats.h"
-#include "OnlineIdentityInterface.h"
-#include "OnlineAchievementsInterface.h"
+#include <OnlineSubsystem.h>
+#include <OnlineStats.h>
+#include <Interfaces/OnlineIdentityInterface.h>
+#include <Interfaces/OnlineAchievementsInterface.h>
 
-#include "HighResScreenshot.h"
-#include "SceneViewport.h"
+#include <HighResScreenshot.h>
+#include <Slate/SceneViewport.h>
 
 DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick ControlGroups"), STAT_FlarePlayerTick_ControlGroups, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlarePlayerTick Battle"), STAT_FlarePlayerTick_Battle, STATGROUP_Flare);

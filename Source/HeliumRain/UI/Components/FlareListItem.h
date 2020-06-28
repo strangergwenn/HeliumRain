@@ -4,7 +4,7 @@
 #include "../Components/FlareButton.h"
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 
-#include "Widgets/Views/STableRow.h"
+#include <Widgets/Views/STableRow.h>
 
 
 /** Interface storage structure */

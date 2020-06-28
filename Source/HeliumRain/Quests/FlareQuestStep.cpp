@@ -1,10 +1,10 @@
 
-#include "FlareQuestStep.h"
-#include "Flare.h"
+#include "HeliumRain/Quests/FlareQuestStep.h"
+#include "HeliumRain/Flare.h"
 
-#include "FlareQuest.h"
-#include "FlareQuestCondition.h"
-#include "FlareQuestAction.h"
+#include "HeliumRain/Quests/FlareQuest.h"
+#include "HeliumRain/Quests/FlareQuestCondition.h"
+#include "HeliumRain/Quests/FlareQuestAction.h"
 
 #include "../Player/FlarePlayerController.h"
 

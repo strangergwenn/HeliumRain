@@ -1,5 +1,5 @@
 
-#include "FlareSimulatedSpacecraftDamageSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 #include "../../Flare.h"
 
 #include "../FlareSimulatedSpacecraft.h"
@@ -15,7 +15,7 @@
 #include "../../Game/FlareGameTools.h"
 #include "../../Game/FlareScenarioTools.h"
 
-#include "FlareSimulatedSpacecraftWeaponsSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
 
 
 DECLARE_CYCLE_STAT(TEXT("FlareSimulatedDamageSystem UpdateSubsystemHealth"), STAT_FlareSimulatedDamageSystem_UpdateSubsystemHealth, STATGROUP_Flare);

@@ -1,14 +1,14 @@
 
-#include "FlareWorldHelper.h"
+#include "HeliumRain/Game/FlareWorldHelper.h"
 #include "../Flare.h"
 
 #include "../Data/FlareResourceCatalog.h"
 
-#include "FlareGame.h"
-#include "FlareWorld.h"
-#include "FlareSectorHelper.h"
-#include "FlareSimulatedSector.h"
-#include "FlareScenarioTools.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlareWorld.h"
+#include "HeliumRain/Game/FlareSectorHelper.h"
+#include "HeliumRain/Game/FlareSimulatedSector.h"
+#include "HeliumRain/Game/FlareScenarioTools.h"
 
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 

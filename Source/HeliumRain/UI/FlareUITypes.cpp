@@ -1,5 +1,5 @@
 
-#include "FlareUITypes.h"
+#include "HeliumRain/UI/FlareUITypes.h"
 #include "../Flare.h"
 
 #define LOCTEXT_NAMESPACE "FlareUITypes"

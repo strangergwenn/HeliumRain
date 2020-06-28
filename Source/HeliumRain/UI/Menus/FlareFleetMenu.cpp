@@ -1,5 +1,5 @@
 
-#include "FlareFleetMenu.h"
+#include "HeliumRain/UI/Menus/FlareFleetMenu.h"
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareCompany.h"
@@ -8,7 +8,7 @@
 #include "../../Player/FlarePlayerController.h"
 #include "../Components/FlareRoundButton.h"
 
-#include "SComplexGradient.h"
+#include <Widgets/Colors/SComplexGradient.h>
 
 
 #define LOCTEXT_NAMESPACE "FlareFleetMenu"

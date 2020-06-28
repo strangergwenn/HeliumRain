@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Object.h"
+#include <UObject/Object.h>
 #include "../FlareGameTypes.h"
 #include "../FlareWorldHelper.h"
-#include "FlareAITradeHelper.h"
+#include "HeliumRain/Game/AI/FlareAITradeHelper.h"
 #include "FlareCompanyAI.generated.h"
 
 

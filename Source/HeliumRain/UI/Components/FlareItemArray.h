@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
-#include "Widgets/Layout/SGridPanel.h"
+#include <Widgets/Layout/SGridPanel.h>
 
 DECLARE_DELEGATE_OneParam(FFlareItemPicked, int32)
 DECLARE_DELEGATE_OneParam(FFlareColorPicked, FLinearColor)

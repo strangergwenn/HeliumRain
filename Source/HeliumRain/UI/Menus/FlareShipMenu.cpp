@@ -1,5 +1,5 @@
 
-#include "FlareShipMenu.h"
+#include "HeliumRain/UI/Menus/FlareShipMenu.h"
 
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"

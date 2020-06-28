@@ -2,7 +2,7 @@
 
 #include "../FlareSpacecraftTypes.h"
 #include "../FlareSimulatedSpacecraft.h"
-#include "FlareSimulatedSpacecraftDamageSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 #include "FlareSpacecraftDamageSystem.generated.h"
 
 

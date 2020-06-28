@@ -4,7 +4,7 @@
 #include "../Game/FlareSaveGame.h"
 #include "../Game/FlareGameTypes.h"
 #include "../UI/FlareUITypes.h"
-#include "Engine/CanvasRenderTarget2D.h"
+#include <Engine/CanvasRenderTarget2D.h>
 #include "FlarePlayerController.generated.h"
 
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "FlareSpacecraftTypes.h"
-#include "Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
-#include "Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftTypes.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 #include "FlareSpacecraftStateManager.generated.h"
 
 

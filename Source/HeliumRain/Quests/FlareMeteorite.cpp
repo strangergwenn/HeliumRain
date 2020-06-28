@@ -1,12 +1,12 @@
 
-#include "FlareMeteorite.h"
+#include "HeliumRain/Quests/FlareMeteorite.h"
 #include "../Flare.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareGameTools.h"
 #include "../Data/FlareMeteoriteCatalog.h"
 #include "../Player/FlarePlayerController.h"
 
-#include "Components/StaticMeshComponent.h"
+#include <Components/StaticMeshComponent.h>
 
 #define LOCTEXT_NAMESPACE "FlareMeteorite"
 

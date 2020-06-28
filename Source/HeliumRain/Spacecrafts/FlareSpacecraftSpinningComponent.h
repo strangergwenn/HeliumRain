@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlareSpacecraftComponent.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftComponent.h"
 #include "FlareSpacecraftSpinningComponent.generated.h"
 
 

@@ -1,11 +1,11 @@
 
-#include "FlareCompany.h"
-#include "Flare.h"
-#include "FlareGame.h"
-#include "FlareGameTools.h"
-#include "FlareSector.h"
-#include "FlareGameUserSettings.h"
-#include "FlareScenarioTools.h"
+#include "HeliumRain/Game/FlareCompany.h"
+#include "HeliumRain/Flare.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlareGameTools.h"
+#include "HeliumRain/Game/FlareSector.h"
+#include "HeliumRain/Game/FlareGameUserSettings.h"
+#include "HeliumRain/Game/FlareScenarioTools.h"
 
 #include "../Economy/FlareCargoBay.h"
 #include "../Economy/FlareFactory.h"
@@ -18,8 +18,8 @@
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
-#include "AI/FlareCompanyAI.h"
-#include "AI/FlareAIBehavior.h"
+#include "HeliumRain/Game/AI/FlareCompanyAI.h"
+#include "HeliumRain/Game/AI/FlareAIBehavior.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareCompany"

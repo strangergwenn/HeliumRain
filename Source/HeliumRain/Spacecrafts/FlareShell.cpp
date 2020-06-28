@@ -1,8 +1,8 @@
 
-#include "FlareShell.h"
+#include "HeliumRain/Spacecrafts/FlareShell.h"
 #include "../Flare.h"
 
-#include "FlareSpacecraft.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraft.h"
 
 #include "../Game/FlareGame.h"
 #include "../Game/FlareGameTypes.h"
@@ -10,9 +10,9 @@
 
 #include "../Player/FlarePlayerController.h"
 
-#include "Components/DecalComponent.h"
-#include "Components/StaticMeshComponent.h"
-#include "Engine.h"
+#include <Components/DecalComponent.h>
+#include <Components/StaticMeshComponent.h>
+#include <Engine.h>
 
 
 /*----------------------------------------------------

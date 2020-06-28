@@ -1,7 +1,7 @@
 
-#include "FlareSpacecraftPawn.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftPawn.h"
 #include "../Flare.h"
-#include "FlareRCS.h"
+#include "HeliumRain/Spacecrafts/FlareRCS.h"
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareGame.h"
 

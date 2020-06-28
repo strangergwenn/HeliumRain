@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include "Object.h"
-#include "FlareGameTypes.h"
-#include "FlareTravel.h"
-#include "Planetarium/FlareSimulatedPlanetarium.h"
+#include <UObject/Object.h>
+#include "HeliumRain/Game/FlareGameTypes.h"
+#include "HeliumRain/Game/FlareTravel.h"
+#include "HeliumRain/Game/Planetarium/FlareSimulatedPlanetarium.h"
 #include "FlareWorld.generated.h"
 
 

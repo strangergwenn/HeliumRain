@@ -1,5 +1,5 @@
 
-#include "FlareGameOverMenu.h"
+#include "HeliumRain/UI/Menus/FlareGameOverMenu.h"
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSaveGame.h"
@@ -8,10 +8,10 @@
 #include "../../Player/FlarePlayerController.h"
 
 #include "../Components/FlareButton.h"
-#include "SBackgroundBlur.h"
+#include <Widgets/Layout/SBackgroundBlur.h>
 
-#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
-#include "Runtime/Engine/Classes/Engine/RendererSettings.h"
+#include <Engine/UserInterfaceSettings.h>
+#include <Engine/RendererSettings.h>
 
 
 #define LOCTEXT_NAMESPACE "FlareGameOverMenu"

@@ -1,17 +1,17 @@
 
-#include "FlarePilotHelper.h"
+#include "HeliumRain/Spacecrafts/FlarePilotHelper.h"
 #include "../Flare.h"
 #include "../Game/FlareCompany.h"
 #include "../Game/FlareSector.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlareCollider.h"
-#include "FlareRCS.h"
-#include "FlareOrbitalEngine.h"
-#include "FlareWeapon.h"
-#include "FlareShipPilot.h"
+#include "HeliumRain/Spacecrafts/FlareRCS.h"
+#include "HeliumRain/Spacecrafts/FlareOrbitalEngine.h"
+#include "HeliumRain/Spacecrafts/FlareWeapon.h"
+#include "HeliumRain/Spacecrafts/FlareShipPilot.h"
 #include "../Quests/FlareMeteorite.h"
 
-#include "Components/StaticMeshComponent.h"
+#include <Components/StaticMeshComponent.h>
 
 
 DECLARE_CYCLE_STAT(TEXT("PilotHelper CheckFriendlyFire"), STAT_PilotHelper_CheckFriendlyFire, STATGROUP_Flare);

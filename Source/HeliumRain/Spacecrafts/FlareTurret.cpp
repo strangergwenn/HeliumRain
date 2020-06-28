@@ -1,9 +1,9 @@
 
-#include "FlareTurret.h"
+#include "HeliumRain/Spacecrafts/FlareTurret.h"
 #include "../Flare.h"
-#include "FlareSpacecraft.h"
-#include "FlareShell.h"
-#include "FlareSpacecraftSubComponent.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraft.h"
+#include "HeliumRain/Spacecrafts/FlareShell.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftSubComponent.h"
 
 DECLARE_CYCLE_STAT(TEXT("FlareTurret Tick"), STAT_FlareTurret_Tick, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareTurret Update"), STAT_FlareTurret_Update, STATGROUP_Flare);

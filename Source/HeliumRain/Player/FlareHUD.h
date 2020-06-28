@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GameFramework/HUD.h"
-#include "FlareMenuManager.h"
+#include <GameFramework/HUD.h>
+#include "HeliumRain/Player/FlareMenuManager.h"
 #include "../Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 #include "FlareHUD.generated.h"
 

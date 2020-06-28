@@ -1,16 +1,16 @@
 
 
-#include "FlareTravel.h"
+#include "HeliumRain/Game/FlareTravel.h"
 #include "../Flare.h"
 
 #include "../Data/FlareResourceCatalog.h"
 
 #include "../Economy/FlareCargoBay.h"
 
-#include "FlareWorld.h"
-#include "FlareGame.h"
-#include "FlareGameTools.h"
-#include "FlareSectorHelper.h"
+#include "HeliumRain/Game/FlareWorld.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlareGameTools.h"
+#include "HeliumRain/Game/FlareSectorHelper.h"
 
 #include "../Player/FlarePlayerController.h"
 

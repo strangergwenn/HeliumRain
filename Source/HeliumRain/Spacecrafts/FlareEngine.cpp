@@ -1,8 +1,8 @@
 
-#include "FlareEngine.h"
+#include "HeliumRain/Spacecrafts/FlareEngine.h"
 #include "../Flare.h"
-#include "FlareSpacecraft.h"
-#include "FlareOrbitalEngine.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraft.h"
+#include "HeliumRain/Spacecrafts/FlareOrbitalEngine.h"
 
 
 /*----------------------------------------------------

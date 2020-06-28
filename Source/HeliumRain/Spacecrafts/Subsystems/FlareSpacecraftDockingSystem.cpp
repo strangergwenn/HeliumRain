@@ -1,5 +1,5 @@
 
-#include "FlareSpacecraftDockingSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftDockingSystem.h"
 #include "../../Flare.h"
 
 #include "../FlareStationDock.h"

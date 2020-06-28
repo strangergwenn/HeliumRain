@@ -1,5 +1,5 @@
 
-#include "FlareConfirmationBox.h"
+#include "HeliumRain/UI/Components/FlareConfirmationBox.h"
 #include "../../Flare.h"
 #include "../../Game/FlareGameTools.h"
 #include "../../Player/FlarePlayerController.h"

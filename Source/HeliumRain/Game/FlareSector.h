@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Object.h"
+#include <UObject/Object.h>
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareBomb.h"
-#include "FlareAsteroid.h"
+#include "HeliumRain/Game/FlareAsteroid.h"
 #include "../Quests/FlareMeteorite.h"
-#include "FlareSimulatedSector.h"
+#include "HeliumRain/Game/FlareSimulatedSector.h"
 #include "FlareSector.generated.h"
 
 class UFlareSimulatedSector;

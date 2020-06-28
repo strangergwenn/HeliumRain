@@ -1,5 +1,5 @@
 
-#include "FlareLeaderboardMenu.h"
+#include "HeliumRain/UI/Menus/FlareLeaderboardMenu.h"
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"
 #include "../../Player/FlareMenuManager.h"

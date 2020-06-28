@@ -1,5 +1,5 @@
 
-#include "FlareMainOverlay.h"
+#include "HeliumRain/UI/Components/FlareMainOverlay.h"
 #include "../../Flare.h"
 
 #include "../../Game/FlareGame.h"
@@ -12,12 +12,12 @@
 #include "../../Spacecrafts/FlareSpacecraft.h"
 
 #include "../FlareUITypes.h"
-#include "FlareButton.h"
+#include "HeliumRain/UI/Components/FlareButton.h"
 
-#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
-#include "Runtime/Engine/Classes/Engine/RendererSettings.h"
-#include "SBackgroundBlur.h"
-#include "Engine.h"
+#include <Engine/UserInterfaceSettings.h>
+#include <Engine/RendererSettings.h>
+#include <Widgets/Layout/SBackgroundBlur.h>
+#include <Engine.h>
 
 #define LOCTEXT_NAMESPACE "FlareMainOverlay"
 

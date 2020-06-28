@@ -1,11 +1,11 @@
 
-#include "FlareSector.h"
+#include "HeliumRain/Game/FlareSector.h"
 #include "../Flare.h"
 
-#include "FlareGame.h"
-#include "FlarePlanetarium.h"
-#include "FlareSimulatedSector.h"
-#include "FlareCollider.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlarePlanetarium.h"
+#include "HeliumRain/Game/FlareSimulatedSector.h"
+#include "HeliumRain/Game/FlareCollider.h"
 
 #include "../Player/FlarePlayerController.h"
 

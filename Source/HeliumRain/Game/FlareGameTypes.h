@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../Flare.h"
-#include "FlareFleet.h"
-#include "FlareTradeRoute.h"
+#include "HeliumRain/Game/FlareFleet.h"
+#include "HeliumRain/Game/FlareTradeRoute.h"
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareGameTypes.generated.h"
 

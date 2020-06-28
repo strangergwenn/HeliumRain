@@ -1,23 +1,23 @@
 
-#include "FlareHistoryQuest.h"
-#include "Flare.h"
+#include "HeliumRain/Quests/QuestCatalog/FlareHistoryQuest.h"
+#include "HeliumRain/Flare.h"
 
-#include "Data/FlareResourceCatalog.h"
-#include "Data/FlareSpacecraftCatalog.h"
+#include "HeliumRain/Data/FlareResourceCatalog.h"
+#include "HeliumRain/Data/FlareSpacecraftCatalog.h"
 
-#include "Economy/FlareCargoBay.h"
+#include "HeliumRain/Economy/FlareCargoBay.h"
 
-#include "Game/FlareGame.h"
-#include "Game/FlareGameTools.h"
-#include "Game/FlareScenarioTools.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlareGameTools.h"
+#include "HeliumRain/Game/FlareScenarioTools.h"
 
-#include "Player/FlarePlayerController.h"
+#include "HeliumRain/Player/FlarePlayerController.h"
 
 #include "../FlareQuestCondition.h"
 #include "../FlareQuestStep.h"
 #include "../FlareQuestAction.h"
 
-#include "FlareTutorialQuest.h"
+#include "HeliumRain/Quests/QuestCatalog/FlareTutorialQuest.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareHistotyQuest"

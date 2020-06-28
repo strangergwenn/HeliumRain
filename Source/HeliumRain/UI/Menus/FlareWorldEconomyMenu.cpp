@@ -1,5 +1,5 @@
 
-#include "FlareWorldEconomyMenu.h"
+#include "HeliumRain/UI/Menus/FlareWorldEconomyMenu.h"
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareGameTools.h"

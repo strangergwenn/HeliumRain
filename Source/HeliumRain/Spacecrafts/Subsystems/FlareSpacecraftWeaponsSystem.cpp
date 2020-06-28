@@ -1,5 +1,5 @@
 
-#include "FlareSpacecraftWeaponsSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftWeaponsSystem.h"
 #include "../../Flare.h"
 
 #include "../FlareTurret.h"

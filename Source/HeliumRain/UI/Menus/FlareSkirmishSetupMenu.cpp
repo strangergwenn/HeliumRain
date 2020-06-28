@@ -1,5 +1,5 @@
 
-#include "FlareSkirmishSetupMenu.h"
+#include "HeliumRain/UI/Menus/FlareSkirmishSetupMenu.h"
 #include "../../Flare.h"
 
 #include "../../Data/FlareCompanyCatalog.h"

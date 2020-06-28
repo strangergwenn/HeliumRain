@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlareWeapon.h"
+#include "HeliumRain/Spacecrafts/FlareWeapon.h"
 #include "../Flare.h"
 #include "FlareBomb.generated.h"
 

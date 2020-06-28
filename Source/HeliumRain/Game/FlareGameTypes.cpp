@@ -1,5 +1,5 @@
 
-#include "FlareGameTypes.h"
+#include "HeliumRain/Game/FlareGameTypes.h"
 #include "../UI/FlareUITypes.h"
 #include "../Flare.h"
 #include "../Spacecrafts/FlareSpacecraft.h"

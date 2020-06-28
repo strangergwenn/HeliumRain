@@ -1,5 +1,5 @@
 
-#include "FlareBomb.h"
+#include "HeliumRain/Spacecrafts/FlareBomb.h"
 #include "../Flare.h"
 
 #include "../Game/FlareAsteroid.h"
@@ -9,13 +9,13 @@
 
 #include "../Player/FlarePlayerController.h"
 
-#include "FlareWeapon.h"
-#include "FlareBombComponent.h"
-#include "FlareSpacecraft.h"
-#include "FlareShell.h"
+#include "HeliumRain/Spacecrafts/FlareWeapon.h"
+#include "HeliumRain/Spacecrafts/FlareBombComponent.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraft.h"
+#include "HeliumRain/Spacecrafts/FlareShell.h"
 
-#include "Components/DecalComponent.h"
-#include "Components/StaticMeshComponent.h"
+#include <Components/DecalComponent.h>
+#include <Components/StaticMeshComponent.h>
 
 #define LOCTEXT_NAMESPACE "FlareBomb"
 

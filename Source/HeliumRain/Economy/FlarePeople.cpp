@@ -1,5 +1,5 @@
 
-#include "FlarePeople.h"
+#include "HeliumRain/Economy/FlarePeople.h"
 #include "../Flare.h"
 
 #include "../Data/FlareResourceCatalog.h"
@@ -10,7 +10,7 @@
 
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 
-#include "FlareCargoBay.h"
+#include "HeliumRain/Economy/FlareCargoBay.h"
 
 
 #define LOCTEXT_NAMESPACE "FlarePeopleInfo"

@@ -1,5 +1,5 @@
 
-#include "FlareSkirmishScoreMenu.h"
+#include "HeliumRain/UI/Menus/FlareSkirmishScoreMenu.h"
 #include "../../Flare.h"
 
 #include "../Components/FlareButton.h"

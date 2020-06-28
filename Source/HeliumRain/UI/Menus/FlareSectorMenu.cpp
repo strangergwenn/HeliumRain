@@ -1,5 +1,5 @@
 
-#include "FlareSectorMenu.h"
+#include "HeliumRain/UI/Menus/FlareSectorMenu.h"
 #include "../../Flare.h"
 
 #include "../../Game/FlareGame.h"

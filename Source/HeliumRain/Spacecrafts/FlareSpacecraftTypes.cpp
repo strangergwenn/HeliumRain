@@ -1,5 +1,5 @@
 
-#include "FlareSpacecraftTypes.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftTypes.h"
 #include "../Flare.h"
 #include "../Data/FlareFactoryCatalogEntry.h"
 

@@ -1,6 +1,6 @@
 
-#include "FlareQuestGenerator.h"
-#include "Flare.h"
+#include "HeliumRain/Quests/FlareQuestGenerator.h"
+#include "HeliumRain/Flare.h"
 
 #include "../Data/FlareResourceCatalog.h"
 
@@ -13,12 +13,12 @@
 
 #include "../Player/FlarePlayerController.h"
 
-#include "FlareQuestManager.h"
-#include "FlareQuestCondition.h"
-#include "FlareQuest.h"
-#include "FlareQuestStep.h"
-#include "FlareQuestAction.h"
-#include "QuestCatalog/FlareTutorialQuest.h"
+#include "HeliumRain/Quests/FlareQuestManager.h"
+#include "HeliumRain/Quests/FlareQuestCondition.h"
+#include "HeliumRain/Quests/FlareQuest.h"
+#include "HeliumRain/Quests/FlareQuestStep.h"
+#include "HeliumRain/Quests/FlareQuestAction.h"
+#include "HeliumRain/Quests/QuestCatalog/FlareTutorialQuest.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestGenerator"
 

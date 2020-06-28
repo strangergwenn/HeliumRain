@@ -1,12 +1,12 @@
 
-#include "FlareAsteroidComponent.h"
+#include "HeliumRain/Game/FlareAsteroidComponent.h"
 #include "../Flare.h"
 
-#include "FlareGame.h"
-#include "FlarePlanetarium.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlarePlanetarium.h"
 #include "../Player/FlarePlayerController.h"
 
-#include "StaticMeshResources.h"
+#include <StaticMeshResources.h>
 
 
 /*----------------------------------------------------

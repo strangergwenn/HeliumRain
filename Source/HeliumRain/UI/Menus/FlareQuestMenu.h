@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "Widgets/SCompoundWidget.h"
-#include "Widgets/Layout/SBorder.h"
-#include "Widgets/SBoxPanel.h"
-#include "Widgets/Text/STextBlock.h"
+#include <Widgets/SCompoundWidget.h>
+#include <Widgets/Layout/SBorder.h>
+#include <Widgets/SBoxPanel.h>
+#include <Widgets/Text/STextBlock.h>
 
 
 class UFlareQuest;

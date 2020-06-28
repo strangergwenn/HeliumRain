@@ -1,11 +1,11 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "Widgets/SCompoundWidget.h"
-#include "Fonts/SlateFontInfo.h"
-#include "Widgets/Text/STextBlock.h"
-#include "Widgets/Layout/SBorder.h"
-#include "Widgets/Input/SButton.h"
+#include <Widgets/SCompoundWidget.h>
+#include <Fonts/SlateFontInfo.h>
+#include <Widgets/Text/STextBlock.h>
+#include <Widgets/Layout/SBorder.h>
+#include <Widgets/Input/SButton.h>
 
 
 DECLARE_DELEGATE(FFlareButtonClicked)

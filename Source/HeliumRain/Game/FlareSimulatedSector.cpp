@@ -1,11 +1,11 @@
 
-#include "FlareSimulatedSector.h"
+#include "HeliumRain/Game/FlareSimulatedSector.h"
 #include "../Flare.h"
-#include "FlareWorld.h"
-#include "FlareFleet.h"
-#include "FlareGame.h"
-#include "FlareGameTools.h"
-#include "FlareGameUserSettings.h"
+#include "HeliumRain/Game/FlareWorld.h"
+#include "HeliumRain/Game/FlareFleet.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlareGameTools.h"
+#include "HeliumRain/Game/FlareGameUserSettings.h"
 #include <random>
 
 #include "../Data/FlareResourceCatalog.h"
@@ -19,9 +19,9 @@
 
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../Quests/FlareQuestGenerator.h"
-#include "FlareSectorHelper.h"
+#include "HeliumRain/Game/FlareSectorHelper.h"
 
-#include "Engine.h"
+#include <Engine.h>
 #include <ctime>
 
 

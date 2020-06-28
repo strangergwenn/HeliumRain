@@ -1,8 +1,8 @@
 
-#include "FlareCargoBay.h"
+#include "HeliumRain/Economy/FlareCargoBay.h"
 #include "../Flare.h"
 
-#include "FlareFactory.h"
+#include "HeliumRain/Economy/FlareFactory.h"
 
 #include "../Data/FlareResourceCatalog.h"
 

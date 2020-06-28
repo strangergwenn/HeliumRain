@@ -2,7 +2,7 @@
 
 #include "../Flare.h"
 #include "../Game/FlareGameTypes.h"
-#include "Engine/DataAsset.h"
+#include <Engine/DataAsset.h>
 #include "FlareScannableCatalogEntry.generated.h"
 
 

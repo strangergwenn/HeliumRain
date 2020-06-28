@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlareKeyBind.h"
+#include "HeliumRain/UI/Components/FlareKeyBind.h"
 #include "../../Flare.h"
 #include "../Style/FlareStyleSet.h"
 

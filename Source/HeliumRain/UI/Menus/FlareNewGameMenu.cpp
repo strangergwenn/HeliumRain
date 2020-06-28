@@ -1,5 +1,5 @@
 
-#include "FlareNewGameMenu.h"
+#include "HeliumRain/UI/Menus/FlareNewGameMenu.h"
 #include "../../Flare.h"
 
 #include "../../Data/FlareCompanyCatalog.h"
@@ -14,8 +14,8 @@
 #include "../../Player/FlarePlayerController.h"
 
 #include "../FlareUITypes.h"
-#include "STextComboBox.h"
-#include "GameFramework/PlayerState.h"
+#include <Widgets/Input/STextComboBox.h>
+#include <GameFramework/PlayerState.h>
 
 
 #define LOCTEXT_NAMESPACE "FlareNewGameMenu"

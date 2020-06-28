@@ -1,5 +1,5 @@
 
-#include "FlareSpacecraftNavigationSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftNavigationSystem.h"
 #include "../../Flare.h"
 
 #include "../FlareSpacecraft.h"
@@ -9,7 +9,7 @@
 #include "../FlareOrbitalEngine.h"
 #include "../FlarePilotHelper.h"
 
-#include "PhysicsEngine/PhysicsConstraintComponent.h"
+#include <PhysicsEngine/PhysicsConstraintComponent.h>
 
 DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem Tick"), STAT_NavigationSystem_Tick, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareNavigationSystem Manual"), STAT_NavigationSystem_Manual, STATGROUP_Flare);

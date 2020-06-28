@@ -6,7 +6,7 @@
 #include "DeviceSDL.h"
 
 #include <SlateBasics.h>
-#include <Text.h>
+#include <Internationalization/Text.h>
 
 #define LOCTEXT_NAMESPACE "JoystickPlugin"
 

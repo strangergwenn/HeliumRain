@@ -1,18 +1,18 @@
 
-#include "FlareWeapon.h"
+#include "HeliumRain/Spacecrafts/FlareWeapon.h"
 #include "../Flare.h"
 
-#include "FlareSpacecraftTypes.h"
-#include "FlareSpacecraft.h"
-#include "FlareShell.h"
-#include "FlareBomb.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftTypes.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraft.h"
+#include "HeliumRain/Spacecrafts/FlareShell.h"
+#include "HeliumRain/Spacecrafts/FlareBomb.h"
 
 #include "../Game/FlareGame.h"
 #include "../Game/FlareSkirmishManager.h"
 
 #include "../Player/FlarePlayerController.h"
 
-#include "Engine/StaticMeshSocket.h"
+#include <Engine/StaticMeshSocket.h>
 
 DECLARE_CYCLE_STAT(TEXT("FlareWeapon Firing"), STAT_Weapon_Firing, STATGROUP_Flare);
 DECLARE_CYCLE_STAT(TEXT("FlareWeapon FireGun"), STAT_Weapon_FireGun, STATGROUP_Flare);

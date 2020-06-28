@@ -1,5 +1,5 @@
 
-#include "FlareCompanyFlag.h"
+#include "HeliumRain/UI/Components/FlareCompanyFlag.h"
 #include "../../Flare.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Game/FlareCompany.h"

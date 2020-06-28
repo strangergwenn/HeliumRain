@@ -1,8 +1,8 @@
 #pragma once
 
-#include "FlareSpacecraftComponent.h"
-#include "FlareWeapon.h"
-#include "FlareTurretPilot.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftComponent.h"
+#include "HeliumRain/Spacecrafts/FlareWeapon.h"
+#include "HeliumRain/Spacecrafts/FlareTurretPilot.h"
 #include "FlareTurret.generated.h"
 
 class UFlareSpacecraftSubComponent;

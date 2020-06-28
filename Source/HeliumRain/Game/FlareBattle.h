@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Object.h"
-#include "FlareSimulatedSector.h"
+#include <UObject/Object.h>
+#include "HeliumRain/Game/FlareSimulatedSector.h"
 #include "FlareBattle.generated.h"
 
 class UFlareSpacecraftComponentsCatalog;

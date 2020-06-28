@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlareWeapon.h"
+#include "HeliumRain/Spacecrafts/FlareWeapon.h"
 #include "FlareShell.generated.h"
 
 UCLASS(Blueprintable, ClassGroup = (Flare, Ship), meta = (BlueprintSpawnableComponent))

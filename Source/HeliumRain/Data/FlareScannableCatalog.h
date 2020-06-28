@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlareScannableCatalogEntry.h"
+#include "HeliumRain/Data/FlareScannableCatalogEntry.h"
 #include "FlareScannableCatalog.generated.h"
 
 

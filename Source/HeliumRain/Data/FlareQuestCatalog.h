@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlareQuestCatalogEntry.h"
+#include "HeliumRain/Data/FlareQuestCatalogEntry.h"
 #include "FlareQuestCatalog.generated.h"
 
 

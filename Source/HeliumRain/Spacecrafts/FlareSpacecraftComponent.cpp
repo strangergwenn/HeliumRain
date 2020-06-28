@@ -1,9 +1,9 @@
 
-#include "FlareSpacecraftComponent.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftComponent.h"
 #include "../Flare.h"
 
-#include "FlareSpacecraft.h"
-#include "FlareInternalComponent.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraft.h"
+#include "HeliumRain/Spacecrafts/FlareInternalComponent.h"
 
 #include "../Data/FlareCustomizationCatalog.h"
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
@@ -13,10 +13,10 @@
 #include "../Player/FlareMenuPawn.h"
 #include "../Player/FlarePlayerController.h"
 
-#include "FlareOrbitalEngine.h"
+#include "HeliumRain/Spacecrafts/FlareOrbitalEngine.h"
 
-#include "StaticMeshResources.h"
-#include "PhysicsEngine/BodySetup.h"
+#include <StaticMeshResources.h>
+#include <PhysicsEngine/BodySetup.h>
 
 
 /*----------------------------------------------------

@@ -1,5 +1,5 @@
 
-#include "FlareMeteoriteCatalog.h"
+#include "HeliumRain/Data/FlareMeteoriteCatalog.h"
 #include "../Flare.h"
 
 

@@ -1,5 +1,5 @@
 
-#include "FlareWorld.h"
+#include "HeliumRain/Game/FlareWorld.h"
 #include "../Flare.h"
 
 #include "../Data/FlareSpacecraftCatalog.h"
@@ -7,14 +7,14 @@
 
 #include "../Economy/FlareFactory.h"
 
-#include "FlareGame.h"
-#include "FlareGameTools.h"
-#include "FlareScenarioTools.h"
-#include "FlareSector.h"
-#include "FlareTravel.h"
-#include "FlareFleet.h"
-#include "FlareBattle.h"
-#include "AI/FlareAITradeHelper.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlareGameTools.h"
+#include "HeliumRain/Game/FlareScenarioTools.h"
+#include "HeliumRain/Game/FlareSector.h"
+#include "HeliumRain/Game/FlareTravel.h"
+#include "HeliumRain/Game/FlareFleet.h"
+#include "HeliumRain/Game/FlareBattle.h"
+#include "HeliumRain/Game/AI/FlareAITradeHelper.h"
 
 #include "../Quests/FlareQuest.h"
 #include "../Quests/FlareQuestCondition.h"

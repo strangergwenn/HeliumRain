@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
-#include "SlateMaterialBrush.h"
+#include <SlateMaterialBrush.h>
 
 
 class AFlareMenuManager;

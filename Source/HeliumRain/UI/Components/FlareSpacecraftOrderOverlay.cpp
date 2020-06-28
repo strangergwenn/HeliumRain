@@ -1,8 +1,8 @@
 
-#include "FlareSpacecraftOrderOverlay.h"
+#include "HeliumRain/UI/Components/FlareSpacecraftOrderOverlay.h"
 #include "../../Flare.h"
 
-#include "FlareFactoryInfo.h"
+#include "HeliumRain/UI/Components/FlareFactoryInfo.h"
 #include "../Menus/FlareShipMenu.h"
 
 #include "../../Player/FlareMenuManager.h"
@@ -12,7 +12,7 @@
 #include "../../Game/FlareGameTools.h"
 #include "../../Game/FlareSkirmishManager.h"
 
-#include "SBackgroundBlur.h"
+#include <Widgets/Layout/SBackgroundBlur.h>
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftOrderOverlay"
 

@@ -1,8 +1,8 @@
 
-#include "FlareSpacecraftSpinningComponent.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftSpinningComponent.h"
 #include "../Flare.h"
-#include "FlareSpacecraft.h"
-#include "Subsystems/FlareSpacecraftDamageSystem.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraft.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftDamageSystem.h"
 #include "../Game/FlareGame.h"
 #include "../Game/FlarePlanetarium.h"
 

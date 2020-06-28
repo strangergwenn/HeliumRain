@@ -1,7 +1,7 @@
 
-#include "FlareQuestCondition.h"
-#include "Flare.h"
-#include "FlareQuest.h"
+#include "HeliumRain/Quests/FlareQuestCondition.h"
+#include "HeliumRain/Flare.h"
+#include "HeliumRain/Quests/FlareQuest.h"
 
 #include "../Data/FlareSpacecraftCatalog.h"
 

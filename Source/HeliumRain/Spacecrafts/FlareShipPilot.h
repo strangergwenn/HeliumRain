@@ -1,8 +1,8 @@
 #pragma once
 
-#include "FlareSpacecraftTypes.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftTypes.h"
 #include "../Game/FlareGameTypes.h"
-#include "FlarePilotHelper.h"
+#include "HeliumRain/Spacecrafts/FlarePilotHelper.h"
 #include "FlareShipPilot.generated.h"
 
 class UFlareCompany;

@@ -1,11 +1,11 @@
 
-#include "FlareTooltip.h"
+#include "HeliumRain/UI/Components/FlareTooltip.h"
 #include "../../Flare.h"
 #include "../../Player/FlareHUD.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
-#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
-#include "SBackgroundBlur.h"
+#include <Engine/UserInterfaceSettings.h>
+#include <Widgets/Layout/SBackgroundBlur.h>
 
 #define LOCTEXT_NAMESPACE "FlareTooltip"
 

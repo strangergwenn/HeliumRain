@@ -1,11 +1,11 @@
 
 
-#include "FlareSkirmishManager.h"
+#include "HeliumRain/Game/FlareSkirmishManager.h"
 #include "../Flare.h"
 
-#include "FlareWorld.h"
-#include "FlareGame.h"
-#include "FlareGameTools.h"
+#include "HeliumRain/Game/FlareWorld.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlareGameTools.h"
 
 #include "../Data/FlareCustomizationCatalog.h"
 

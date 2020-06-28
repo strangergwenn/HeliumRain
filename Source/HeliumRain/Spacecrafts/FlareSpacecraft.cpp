@@ -1,16 +1,16 @@
 
-#include "FlareSpacecraft.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraft.h"
 #include "../Flare.h"
 
-#include "FlareOrbitalEngine.h"
-#include "FlareRCS.h"
-#include "FlareWeapon.h"
-#include "FlareTurret.h"
-#include "FlareShipPilot.h"
-#include "FlarePilotHelper.h"
-#include "FlareInternalComponent.h"
+#include "HeliumRain/Spacecrafts/FlareOrbitalEngine.h"
+#include "HeliumRain/Spacecrafts/FlareRCS.h"
+#include "HeliumRain/Spacecrafts/FlareWeapon.h"
+#include "HeliumRain/Spacecrafts/FlareTurret.h"
+#include "HeliumRain/Spacecrafts/FlareShipPilot.h"
+#include "HeliumRain/Spacecrafts/FlarePilotHelper.h"
+#include "HeliumRain/Spacecrafts/FlareInternalComponent.h"
 
-#include "Particles/ParticleSystemComponent.h"
+#include <Particles/ParticleSystemComponent.h>
 
 #include "../Data/FlareSpacecraftCatalog.h"
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
@@ -28,12 +28,12 @@
 
 #include "../UI/Menus/FlareShipMenu.h"
 
-#include "Components/DecalComponent.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Engine/CanvasRenderTarget2D.h"
-#include "Engine/Canvas.h"
-#include "EngineUtils.h"
-#include "Engine.h"
+#include <Components/DecalComponent.h>
+#include <Kismet/KismetMathLibrary.h>
+#include <Engine/CanvasRenderTarget2D.h>
+#include <Engine/Canvas.h>
+#include <EngineUtils.h>
+#include <Engine.h>
 
 
 DECLARE_CYCLE_STAT(TEXT("FlareSpacecraft Systems"), STAT_FlareSpacecraft_Systems, STATGROUP_Flare);

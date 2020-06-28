@@ -2,12 +2,12 @@
 
 
 #include "../Spacecrafts/FlareSpacecraft.h"
-#include "FlareGameTypes.h"
-#include "FlareCompany.h"
-#include "FlareSector.h"
-#include "Log/FlareLogApi.h"
+#include "HeliumRain/Game/FlareGameTypes.h"
+#include "HeliumRain/Game/FlareCompany.h"
+#include "HeliumRain/Game/FlareSector.h"
+#include "HeliumRain/Game/Log/FlareLogApi.h"
 
-#include "GameFramework/GameMode.h"
+#include <GameFramework/GameMode.h>
 #include "FlareGame.generated.h"
 
 #define DEBUG_AI_TRADING_STATS 0

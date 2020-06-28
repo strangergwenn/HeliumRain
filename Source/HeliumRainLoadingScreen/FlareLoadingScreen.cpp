@@ -1,10 +1,10 @@
 
-#include "FlareLoadingScreen.h"
+#include "HeliumRainLoadingScreen/FlareLoadingScreen.h"
 
-#include "SlateBasics.h"
-#include "SlateExtras.h"
-#include "MoviePlayer.h"
-#include "SThrobber.h"
+#include <SlateBasics.h>
+#include <SlateExtras.h>
+#include <MoviePlayer.h>
+#include <Widgets/Images/SThrobber.h>
 
 #define LOCTEXT_NAMESPACE "FlareLoadingScreen"
 

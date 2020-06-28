@@ -1,9 +1,9 @@
 #pragma once
 
-#include "FlareCompany.h"
-#include "FlareWorld.h"
+#include "HeliumRain/Game/FlareCompany.h"
+#include "HeliumRain/Game/FlareWorld.h"
 #include "../Quests/FlareQuestManager.h"
-#include "GameFramework/SaveGame.h"
+#include <GameFramework/SaveGame.h>
 #include "FlareSaveGame.generated.h"
 
 

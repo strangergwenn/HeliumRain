@@ -1,5 +1,5 @@
 
-#include "FlareScenarioTools.h"
+#include "HeliumRain/Game/FlareScenarioTools.h"
 #include "../Flare.h"
 
 #include "../Data/FlareResourceCatalog.h"

@@ -1,5 +1,5 @@
 
-#include "FlareSectorHelper.h"
+#include "HeliumRain/Game/FlareSectorHelper.h"
 #include "../Flare.h"
 
 #include "../Data/FlareResourceCatalog.h"
@@ -8,10 +8,10 @@
 #include "../Economy/FlareFactory.h"
 #include "../Economy/FlareCargoBay.h"
 
-#include "FlareCompany.h"
-#include "FlareGame.h"
-#include "FlareWorld.h"
-#include "FlareScenarioTools.h"
+#include "HeliumRain/Game/FlareCompany.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlareWorld.h"
+#include "HeliumRain/Game/FlareScenarioTools.h"
 
 #include "../Player/FlarePlayerController.h"
 

@@ -1,11 +1,11 @@
 
-#include "FlareGameUserSettings.h"
+#include "HeliumRain/Game/FlareGameUserSettings.h"
 #include "../Flare.h"
-#include "FlareGame.h"
+#include "HeliumRain/Game/FlareGame.h"
 #include "../Player/FlarePlayerController.h"
 
-#include "EngineUtils.h"
-#include "Engine.h"
+#include <EngineUtils.h>
+#include <Engine.h>
 
 
 /*----------------------------------------------------

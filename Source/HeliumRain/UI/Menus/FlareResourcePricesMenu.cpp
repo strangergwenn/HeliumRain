@@ -1,7 +1,7 @@
 
-#include "FlareResourcePricesMenu.h"
+#include "HeliumRain/UI/Menus/FlareResourcePricesMenu.h"
 #include "../../Flare.h"
-#include "FlareWorldEconomyMenu.h"
+#include "HeliumRain/UI/Menus/FlareWorldEconomyMenu.h"
 #include "../../Game/FlareGame.h"
 #include "../../Game/FlareSectorHelper.h"
 #include "../../Economy/FlareResource.h"

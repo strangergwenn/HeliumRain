@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
-#include "FlareResource.h"
+#include "HeliumRain/Economy/FlareResource.h"
 #include "FlareCargoBay.generated.h"
 
 

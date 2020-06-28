@@ -1,4 +1,4 @@
-#include "FlareAITradeHelper.h"
+#include "HeliumRain/Game/AI/FlareAITradeHelper.h"
 
 #include "../FlareGame.h"
 #include "../FlareCompany.h"
@@ -16,7 +16,7 @@
 #include "../../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "../../Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 
-#include "FlareAIBehavior.h"
+#include "HeliumRain/Game/AI/FlareAIBehavior.h"
 #include <functional>
 
 

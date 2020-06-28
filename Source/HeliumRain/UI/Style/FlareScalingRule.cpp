@@ -1,5 +1,5 @@
 
-#include "FlareScalingRule.h"
+#include "HeliumRain/UI/Style/FlareScalingRule.h"
 
 float UFlareScalingRule::GetDPIScaleBasedOnSize(FIntPoint Size) const
 {

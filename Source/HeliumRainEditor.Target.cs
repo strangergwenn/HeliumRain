@@ -8,6 +8,7 @@ public class HeliumRainEditorTarget : TargetRules
 	public HeliumRainEditorTarget(TargetInfo Target) : base(Target)
     {
 		Type = TargetType.Editor;
+		DefaultBuildSettings = BuildSettingsVersion.V2;
         ExtraModuleNames.Add("HeliumRain");
         ExtraModuleNames.Add("HeliumRainLoadingScreen");
     }

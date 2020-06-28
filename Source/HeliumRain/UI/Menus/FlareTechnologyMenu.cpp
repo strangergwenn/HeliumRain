@@ -1,5 +1,5 @@
 
-#include "FlareTechnologyMenu.h"
+#include "HeliumRain/UI/Menus/FlareTechnologyMenu.h"
 #include "../../Flare.h"
 
 #include "../Components/FlareTechnologyInfo.h"

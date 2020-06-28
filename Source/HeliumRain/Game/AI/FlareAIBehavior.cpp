@@ -1,5 +1,5 @@
 
-#include "FlareAIBehavior.h"
+#include "HeliumRain/Game/AI/FlareAIBehavior.h"
 #include "../../Flare.h"
 
 #include "../../Data/FlareResourceCatalog.h"

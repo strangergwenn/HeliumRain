@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Object.h"
+#include <UObject/Object.h>
 #include "../Data/FlareResourceCatalogEntry.h"
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
 #include "FlareFleet.generated.h"

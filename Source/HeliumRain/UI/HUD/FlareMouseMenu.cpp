@@ -1,5 +1,5 @@
 
-#include "FlareMouseMenu.h"
+#include "HeliumRain/UI/HUD/FlareMouseMenu.h"
 #include "../../Flare.h"
 
 #include "../../Player/FlareMenuManager.h"
@@ -7,9 +7,9 @@
 
 #include "../Components/FlareRoundButton.h"
 
-#include "SBackgroundBlur.h"
-#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
-#include "Runtime/Engine/Classes/Engine/RendererSettings.h"
+#include <Widgets/Layout/SBackgroundBlur.h>
+#include <Engine/UserInterfaceSettings.h>
+#include <Engine/RendererSettings.h>
 
 
 #define LOCTEXT_NAMESPACE "FlareMouseMenu"

@@ -1,8 +1,8 @@
 
-#include "FlareSaveReaderV1.h"
+#include "HeliumRain/Game/Save/FlareSaveReaderV1.h"
 #include "../../Flare.h"
 
-#include "FlareSaveWriter.h"
+#include "HeliumRain/Game/Save/FlareSaveWriter.h"
 
 #include "../FlareSaveGame.h"
 #include "../FlareGameTools.h"
