@@ -1,8 +1,8 @@
 
-#include "FlareSaveWriter.h"
+#include "HeliumRain/Game/Save/FlareSaveWriter.h"
 #include "../../Flare.h"
 #include "../FlareSaveGame.h"
-#include "Game/FlareGameTools.h"
+#include "HeliumRain/Game/FlareGameTools.h"
 
 /*----------------------------------------------------
 	Constructor

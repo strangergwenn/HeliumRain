@@ -1,5 +1,5 @@
 
-#include "FlareAsteroidCatalog.h"
+#include "HeliumRain/Data/FlareAsteroidCatalog.h"
 #include "../Flare.h"
 
 

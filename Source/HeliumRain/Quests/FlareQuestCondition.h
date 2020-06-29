@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlareQuestManager.h"
+#include "HeliumRain/Quests/FlareQuestManager.h"
 #include "FlareQuestCondition.generated.h"
 
 class UFlareQuest;

@@ -1,14 +1,14 @@
 
-#include "FlareNotification.h"
+#include "HeliumRain/UI/Components/FlareNotification.h"
 #include "../../Flare.h"
 
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
-#include "FlareNotifier.h"
-#include "FlareButton.h"
+#include "HeliumRain/UI/Components/FlareNotifier.h"
+#include "HeliumRain/UI/Components/FlareButton.h"
 
-#include "SBackgroundBlur.h"
+#include <Widgets/Layout/SBackgroundBlur.h>
 
 
 #define LOCTEXT_NAMESPACE "FlareNotification"

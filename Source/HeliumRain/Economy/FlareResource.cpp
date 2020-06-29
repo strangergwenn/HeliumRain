@@ -1,5 +1,5 @@
 
-#include "FlareResource.h"
+#include "HeliumRain/Economy/FlareResource.h"
 #include "../Flare.h"
 
 /*----------------------------------------------------

@@ -1,5 +1,5 @@
 
-#include "FlareItemArray.h"
+#include "HeliumRain/UI/Components/FlareItemArray.h"
 #include "../../Flare.h"
 #include "../Style/FlareStyleSet.h"
 

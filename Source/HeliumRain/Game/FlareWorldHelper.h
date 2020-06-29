@@ -1,6 +1,6 @@
 #pragma once
 #include "../Economy/FlareResource.h"
-#include "FlareWorld.h"
+#include "HeliumRain/Game/FlareWorld.h"
 
 struct WorldHelper
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlareSimulatedSector.h"
+#include "HeliumRain/Game/FlareSimulatedSector.h"
 #include "FlareScenarioTools.generated.h"
 
 class UFlareWorld;

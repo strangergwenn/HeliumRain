@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/DPICustomScalingRule.h"
+#include <Engine/DPICustomScalingRule.h>
 #include "FlareScalingRule.generated.h"
 
 

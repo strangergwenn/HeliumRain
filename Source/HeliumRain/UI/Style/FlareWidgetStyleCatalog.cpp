@@ -1,5 +1,5 @@
 
-#include "FlareWidgetStyleCatalog.h"
+#include "HeliumRain/UI/Style/FlareWidgetStyleCatalog.h"
 #include "../../Flare.h"
 
 const FName FFlareStyleCatalog::TypeName(TEXT("FFlareStyleCatalog"));

@@ -2,7 +2,7 @@
 
 #include "../Flare.h"
 #include "../Economy/FlareFactory.h"
-#include "Engine/DataAsset.h"
+#include <Engine/DataAsset.h>
 #include "FlareFactoryCatalogEntry.generated.h"
 
 

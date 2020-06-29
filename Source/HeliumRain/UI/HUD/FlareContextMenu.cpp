@@ -1,12 +1,12 @@
 
-#include "FlareContextMenu.h"
+#include "HeliumRain/UI/HUD/FlareContextMenu.h"
 #include "../../Flare.h"
 #include "../../Player/FlareHUD.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Spacecrafts/FlareSpacecraft.h"
 
-#include "Runtime/Engine/Classes/Engine/UserInterfaceSettings.h"
-#include "Runtime/Engine/Classes/Engine/RendererSettings.h"
+#include <Engine/UserInterfaceSettings.h>
+#include <Engine/RendererSettings.h>
 
 #define LOCTEXT_NAMESPACE "FlareContextMenu"
 

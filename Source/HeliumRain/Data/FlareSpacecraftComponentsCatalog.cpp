@@ -1,8 +1,8 @@
 
-#include "FlareSpacecraftComponentsCatalog.h"
+#include "HeliumRain/Data/FlareSpacecraftComponentsCatalog.h"
 #include "../Flare.h"
 #include "../Player/FlarePlayerController.h"
-#include "AssetRegistryModule.h"
+#include <AssetRegistryModule.h>
 
 
 /*----------------------------------------------------

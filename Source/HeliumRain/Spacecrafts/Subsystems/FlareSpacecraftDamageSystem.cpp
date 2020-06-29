@@ -1,5 +1,5 @@
 
-#include "FlareSpacecraftDamageSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftDamageSystem.h"
 #include "../../Flare.h"
 
 #include "../FlareSpacecraft.h"
@@ -16,7 +16,7 @@
 #include "../FlareOrbitalEngine.h"
 #include "../FlareShell.h"
 
-#include "Engine/StaticMeshActor.h"
+#include <Engine/StaticMeshActor.h>
 
 DECLARE_CYCLE_STAT(TEXT("FlareDamageSystem Tick"), STAT_FlareDamageSystem_Tick, STATGROUP_Flare);
 

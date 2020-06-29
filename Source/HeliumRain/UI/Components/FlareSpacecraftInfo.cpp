@@ -1,5 +1,5 @@
 
-#include "FlareSpacecraftInfo.h"
+#include "HeliumRain/UI/Components/FlareSpacecraftInfo.h"
 #include "../../Flare.h"
 
 #include "../../Data/FlareSpacecraftCatalog.h"
@@ -15,7 +15,7 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
-#include "FlareCargoInfo.h"
+#include "HeliumRain/UI/Components/FlareCargoInfo.h"
 
 #define LOCTEXT_NAMESPACE "FlareSpacecraftInfo"
 

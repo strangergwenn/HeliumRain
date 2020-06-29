@@ -3,9 +3,9 @@
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
 #include "../Components/FlareColorPanel.h"
-#include "SlateMaterialBrush.h"
+#include <SlateMaterialBrush.h>
 #include "../Components/FlareKeyBind.h"
-#include "GameFramework/PlayerInput.h"
+#include <GameFramework/PlayerInput.h>
 
 class AFlareGame;
 class AFlareMenuManager;

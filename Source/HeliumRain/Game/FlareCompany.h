@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include "Object.h"
-#include "FlareFleet.h"
-#include "FlareGameTypes.h"
-#include "FlareSimulatedSector.h"
-#include "AI/FlareCompanyAI.h"
-#include "AI/FlareTacticManager.h"
+#include <UObject/Object.h>
+#include "HeliumRain/Game/FlareFleet.h"
+#include "HeliumRain/Game/FlareGameTypes.h"
+#include "HeliumRain/Game/FlareSimulatedSector.h"
+#include "HeliumRain/Game/AI/FlareCompanyAI.h"
+#include "HeliumRain/Game/AI/FlareTacticManager.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"
 #include "FlareCompany.generated.h"
 

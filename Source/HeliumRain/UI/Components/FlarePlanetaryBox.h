@@ -2,7 +2,7 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "SlateStructs.h"
+#include <Types/SlateStructs.h>
 
 
 class SFlarePlanetaryBox : public SPanel

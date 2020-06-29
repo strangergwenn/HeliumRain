@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlareWorldHelper.h"
+#include "HeliumRain/Game/FlareWorldHelper.h"
 #include "../Economy/FlareResource.h"
 #include "../Game/FlareTradeRoute.h"
 #include "../Spacecrafts/FlareSimulatedSpacecraft.h"

@@ -4,8 +4,8 @@
 #include "../Components/FlareItemArray.h"
 #include "../Style/FlareStyleSet.h"
 
-#include "Runtime/Slate/Public/Widgets/Colors/SColorWheel.h"
-#include "SSimpleGradient.h"
+#include <Widgets/Colors/SColorWheel.h>
+#include <Widgets/Colors/SSimpleGradient.h>
 
 
 DECLARE_DELEGATE_OneParam(FFlareItemPicked, int32)

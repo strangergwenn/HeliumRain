@@ -2,7 +2,7 @@
 
 #include "../Flare.h"
 #include "../UI/FlareUITypes.h"
-#include "GameFramework/HUD.h"
+#include <GameFramework/HUD.h>
 #include "FlareMenuManager.generated.h"
 
 

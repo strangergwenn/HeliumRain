@@ -1,5 +1,5 @@
 
-#include "FlareTechnologyCatalogEntry.h"
+#include "HeliumRain/Data/FlareTechnologyCatalogEntry.h"
 #include "../Flare.h"
 
 

@@ -1,8 +1,8 @@
 
-#include "FlareCompanyAI.h"
+#include "HeliumRain/Game/AI/FlareCompanyAI.h"
 #include "../../Flare.h"
-#include "FlareAIBehavior.h"
-#include "FlareAITradeHelper.h"
+#include "HeliumRain/Game/AI/FlareAIBehavior.h"
+#include "HeliumRain/Game/AI/FlareAITradeHelper.h"
 
 #include "../FlareGame.h"
 #include "../FlareGameTools.h"

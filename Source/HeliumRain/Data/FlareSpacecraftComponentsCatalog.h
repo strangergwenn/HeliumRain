@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FlareSpacecraftComponentsCatalogEntry.h"
+#include "HeliumRain/Data/FlareSpacecraftComponentsCatalogEntry.h"
 #include "FlareSpacecraftComponentsCatalog.generated.h"
 
 

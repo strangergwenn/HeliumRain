@@ -1,5 +1,5 @@
 
-#include "FlareSettingsMenu.h"
+#include "HeliumRain/UI/Menus/FlareSettingsMenu.h"
 
 #include "../../Flare.h"
 #include "../../Game/FlareGameUserSettings.h"
@@ -13,10 +13,10 @@
 
 #include "../Components/FlareTabView.h"
 
-#include "STextComboBox.h"
-#include "Internationalization/Culture.h"
-#include "GameFramework/InputSettings.h"
-#include "Engine.h"
+#include <Widgets/Input/STextComboBox.h>
+#include <Internationalization/Culture.h>
+#include <GameFramework/InputSettings.h>
+#include <Engine.h>
 
 
 #define LOCTEXT_NAMESPACE "FlareSettingsMenu"

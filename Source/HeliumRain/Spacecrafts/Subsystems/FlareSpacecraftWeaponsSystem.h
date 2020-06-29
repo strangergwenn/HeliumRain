@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 #include "../FlarePilotHelper.h"
-#include "FlareSpacecraftWeaponsSystemInterface.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftWeaponsSystemInterface.h"
 #include "FlareSpacecraftWeaponsSystem.generated.h"
 
 class AFlareSpacecraft;

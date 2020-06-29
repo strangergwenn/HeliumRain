@@ -1,8 +1,8 @@
 
-#include "FlareShipPilot.h"
+#include "HeliumRain/Spacecrafts/FlareShipPilot.h"
 #include "../Flare.h"
 
-#include "FlareSpacecraft.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraft.h"
 
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
 

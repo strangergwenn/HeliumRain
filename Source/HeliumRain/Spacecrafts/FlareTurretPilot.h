@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Game/FlareGameTypes.h"
-#include "FlarePilotHelper.h"
+#include "HeliumRain/Spacecrafts/FlarePilotHelper.h"
 #include "FlareTurretPilot.generated.h"
 
 class UFlareTurret;

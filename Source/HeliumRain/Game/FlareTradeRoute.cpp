@@ -1,5 +1,5 @@
 
-#include "FlareTradeRoute.h"
+#include "HeliumRain/Game/FlareTradeRoute.h"
 #include "../Flare.h"
 
 #include "../Data/FlareResourceCatalog.h"
@@ -10,11 +10,11 @@
 
 #include "../Quests/FlareQuestManager.h"
 
-#include "FlareCompany.h"
-#include "FlareSimulatedSector.h"
-#include "FlareFleet.h"
-#include "FlareGame.h"
-#include "FlareSectorHelper.h"
+#include "HeliumRain/Game/FlareCompany.h"
+#include "HeliumRain/Game/FlareSimulatedSector.h"
+#include "HeliumRain/Game/FlareFleet.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlareSectorHelper.h"
 
 #define LOCTEXT_NAMESPACE "FlareTradeRouteInfos"
 

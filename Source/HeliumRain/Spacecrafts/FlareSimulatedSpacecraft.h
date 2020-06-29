@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Object.h"
+#include <UObject/Object.h>
 #include "../Game/FlareSimulatedSector.h"
 #include "../Economy/FlareCargoBay.h"
 #include "../Economy/FlareResource.h"
-#include "Subsystems/FlareSpacecraftDockingSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftDockingSystem.h"
 #include "FlareSimulatedSpacecraft.generated.h"
 
 

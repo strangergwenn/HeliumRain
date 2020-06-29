@@ -1,5 +1,5 @@
 
-#include "FlareColorPanel.h"
+#include "HeliumRain/UI/Components/FlareColorPanel.h"
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"
 #include "../../Player/FlareMenuPawn.h"

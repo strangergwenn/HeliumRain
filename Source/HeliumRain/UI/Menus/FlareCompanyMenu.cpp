@@ -1,5 +1,5 @@
 
-#include "FlareCompanyMenu.h"
+#include "HeliumRain/UI/Menus/FlareCompanyMenu.h"
 #include "../../Flare.h"
 
 #include "../Components/FlarePartInfo.h"
@@ -17,7 +17,7 @@
 #include "../../Player/FlareMenuPawn.h"
 #include "../../Player/FlarePlayerController.h"
 
-#include "SBackgroundBlur.h"
+#include <Widgets/Layout/SBackgroundBlur.h>
 
 
 #define LOCTEXT_NAMESPACE "FlareCompanyMenu"

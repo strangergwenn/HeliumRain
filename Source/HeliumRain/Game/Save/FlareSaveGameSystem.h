@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Object.h"
+#include <UObject/Object.h>
 #include "FlareSaveGameSystem.generated.h"
 
 class UFlareSaveGame;

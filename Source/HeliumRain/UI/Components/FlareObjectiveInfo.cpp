@@ -1,5 +1,5 @@
 
-#include "FlareObjectiveInfo.h"
+#include "HeliumRain/UI/Components/FlareObjectiveInfo.h"
 #include "../../Flare.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../../Quests/FlareQuestStep.h"

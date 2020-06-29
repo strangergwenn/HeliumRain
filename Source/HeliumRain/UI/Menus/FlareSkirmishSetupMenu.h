@@ -6,7 +6,7 @@
 #include "../Components/FlareDropList.h"
 #include "../Components/FlareListItem.h"
 
-#include "SBackgroundBlur.h"
+#include <Widgets/Layout/SBackgroundBlur.h>
 
 
 struct FFlareCompanyDescription;

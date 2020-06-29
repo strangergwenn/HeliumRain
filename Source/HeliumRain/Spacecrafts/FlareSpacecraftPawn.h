@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Game/FlareCompany.h"
-#include "FlareSpacecraftComponent.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftComponent.h"
 #include "FlareSpacecraftPawn.generated.h"
 
 

@@ -1,5 +1,5 @@
 
-#include "FlareTabView.h"
+#include "HeliumRain/UI/Components/FlareTabView.h"
 #include "../../Flare.h"
 #include "../Style/FlareStyleSet.h"
 

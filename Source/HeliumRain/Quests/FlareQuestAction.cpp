@@ -1,6 +1,6 @@
 
-#include "FlareQuestAction.h"
-#include "Flare.h"
+#include "HeliumRain/Quests/FlareQuestAction.h"
+#include "HeliumRain/Flare.h"
 
 #include "../Game/FlareGame.h"
 #include "../Game/FlareCompany.h"
@@ -11,7 +11,7 @@
 
 #include "../Player/FlarePlayerController.h"
 
-#include "FlareQuest.h"
+#include "HeliumRain/Quests/FlareQuest.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareQuestAction"

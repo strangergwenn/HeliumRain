@@ -1,7 +1,7 @@
 #pragma once
 
-#include "FlareSpacecraftTypes.h"
-#include "FlareTurretPilot.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftTypes.h"
+#include "HeliumRain/Spacecrafts/FlareTurretPilot.h"
 #include "FlareSpacecraftComponent.generated.h"
 
 class AFlareSpacecraftPawn;

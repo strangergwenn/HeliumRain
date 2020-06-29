@@ -1,9 +1,9 @@
 
-#include "FlareCockpitManager.h"
+#include "HeliumRain/Player/FlareCockpitManager.h"
 #include "../Flare.h"
 
-#include "FlareHUD.h"
-#include "FlarePlayerController.h"
+#include "HeliumRain/Player/FlareHUD.h"
+#include "HeliumRain/Player/FlarePlayerController.h"
 
 #include "../Game/FlareGame.h"
 #include "../Quests/FlareQuestManager.h"
@@ -12,7 +12,7 @@
 #include "../Spacecrafts/FlareSpacecraftComponent.h"
 #include "../Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 
-#include "Engine/CanvasRenderTarget2D.h"
+#include <Engine/CanvasRenderTarget2D.h>
 
 #define LOCTEXT_NAMESPACE "FlareCockpitManager"
 

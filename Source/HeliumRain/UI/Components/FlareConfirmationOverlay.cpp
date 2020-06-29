@@ -1,9 +1,9 @@
 
-#include "FlareConfirmationOverlay.h"
+#include "HeliumRain/UI/Components/FlareConfirmationOverlay.h"
 #include "../../Flare.h"
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
-#include "SBackgroundBlur.h"
+#include <Widgets/Layout/SBackgroundBlur.h>
 
 #define LOCTEXT_NAMESPACE "FlareConfirmationOverlay"
 

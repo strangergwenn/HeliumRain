@@ -2,7 +2,7 @@
 
 #include "../../Flare.h"
 #include "../../Game/FlareGameTypes.h"
-#include "FlareButton.h"
+#include "HeliumRain/UI/Components/FlareButton.h"
 
 
 class SFlareTechnologyInfo : public SCompoundWidget

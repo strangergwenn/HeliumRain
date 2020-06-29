@@ -3,7 +3,7 @@
 #include <Engine.h>
 
 #if WITH_EDITOR
-	#include "InputSettingsCustomization.h"
+#include "InputSettingsCustomization.h"
 #endif
 
 IMPLEMENT_MODULE(FJoystickPlugin, JoystickPlugin)

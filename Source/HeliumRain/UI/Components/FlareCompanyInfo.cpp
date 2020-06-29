@@ -1,12 +1,12 @@
 
-#include "FlareCompanyInfo.h"
+#include "HeliumRain/UI/Components/FlareCompanyInfo.h"
 #include "../../Flare.h"
 #include "../../Game/FlareCompany.h"
 #include "../../Game/FlareGameTools.h"
 #include "../../Game/AI/FlareAIBehavior.h"
 #include "../../Player/FlarePlayerController.h"
 #include "../FlareUITypes.h"
-#include "FlareButton.h"
+#include "HeliumRain/UI/Components/FlareButton.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareCompanyInfo"

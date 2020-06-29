@@ -2,7 +2,7 @@
 
 #include "../Flare.h"
 #include "../Quests/FlareQuest.h"
-#include "Engine/DataAsset.h"
+#include <Engine/DataAsset.h>
 #include "FlareQuestCatalogEntry.generated.h"
 
 /** Quest action type */

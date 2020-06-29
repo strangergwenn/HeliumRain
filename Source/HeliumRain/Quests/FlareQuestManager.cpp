@@ -1,14 +1,14 @@
 
-#include "FlareQuestManager.h"
-#include "Flare.h"
+#include "HeliumRain/Quests/FlareQuestManager.h"
+#include "HeliumRain/Flare.h"
 #include "../Game/FlareGame.h"
 #include "../Data/FlareQuestCatalog.h"
 #include "../Data/FlareQuestCatalogEntry.h"
 #include "../Player/FlarePlayerController.h"
-#include "FlareQuestGenerator.h"
-#include "FlareCatalogQuest.h"
-#include "QuestCatalog/FlareTutorialQuest.h"
-#include "QuestCatalog/FlareHistoryQuest.h"
+#include "HeliumRain/Quests/FlareQuestGenerator.h"
+#include "HeliumRain/Quests/FlareCatalogQuest.h"
+#include "HeliumRain/Quests/QuestCatalog/FlareTutorialQuest.h"
+#include "HeliumRain/Quests/QuestCatalog/FlareHistoryQuest.h"
 
 #define LOCTEXT_NAMESPACE "FlareQuestManager"
 

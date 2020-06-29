@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Game/FlareGameTypes.h"
-#include "FlareQuest.h"
-#include "FlareQuestManager.h"
+#include "HeliumRain/Game/FlareGameTypes.h"
+#include "HeliumRain/Quests/FlareQuest.h"
+#include "HeliumRain/Quests/FlareQuestManager.h"
 #include "FlareQuestGenerator.generated.h"
 
 

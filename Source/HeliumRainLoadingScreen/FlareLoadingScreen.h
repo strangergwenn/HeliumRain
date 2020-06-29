@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ModuleInterface.h"
+#include <Modules/ModuleInterface.h>
 
 
 class IFlareLoadingScreenModule : public IModuleInterface

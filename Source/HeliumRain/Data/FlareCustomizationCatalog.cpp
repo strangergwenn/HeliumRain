@@ -1,5 +1,5 @@
 
-#include "FlareCustomizationCatalog.h"
+#include "HeliumRain/Data/FlareCustomizationCatalog.h"
 #include "../Flare.h"
 #include "../Game/FlareGameTools.h"
 

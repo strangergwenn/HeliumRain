@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "SlateBasics.h"
+#include <SlateBasics.h>
 
 class SFlareKeyBind;
 

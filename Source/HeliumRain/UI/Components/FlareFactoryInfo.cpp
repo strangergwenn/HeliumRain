@@ -1,5 +1,5 @@
 
-#include "FlareFactoryInfo.h"
+#include "HeliumRain/UI/Components/FlareFactoryInfo.h"
 #include "../../Flare.h"
 #include "../../Game/FlareGame.h"
 #include "../../Player/FlareMenuManager.h"
@@ -8,7 +8,7 @@
 #include "../../Economy/FlareCargoBay.h"
 #include "../../Data/FlareSpacecraftCatalog.h"
 #include "../FlareUITypes.h"
-#include "FlareButton.h"
+#include "HeliumRain/UI/Components/FlareButton.h"
 
 #define LOCTEXT_NAMESPACE "FlareFactoryInfo"
 

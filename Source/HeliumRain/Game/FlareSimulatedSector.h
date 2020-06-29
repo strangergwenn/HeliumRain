@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "Object.h"
-#include "FlareAsteroid.h"
+#include <UObject/Object.h>
+#include "HeliumRain/Game/FlareAsteroid.h"
 #include "../Data/FlareAsteroidCatalog.h"
 #include "../Spacecrafts/FlareBomb.h"
 #include "../Economy/FlarePeople.h"

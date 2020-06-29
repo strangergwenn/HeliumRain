@@ -1,6 +1,6 @@
-#include "FlareTutorialQuest.h"
+#include "HeliumRain/Quests/QuestCatalog/FlareTutorialQuest.h"
 
-#include "Flare.h"
+#include "HeliumRain/Flare.h"
 #include "../../Game/FlareGame.h"
 #include "../FlareQuestCondition.h"
 #include "../FlareQuestAction.h"

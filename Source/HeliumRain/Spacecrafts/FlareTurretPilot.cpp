@@ -1,12 +1,12 @@
 
-#include "FlareTurretPilot.h"
+#include "HeliumRain/Spacecrafts/FlareTurretPilot.h"
 #include "../Flare.h"
 
-#include "FlarePilotHelper.h"
-#include "FlareTurret.h"
-#include "FlareRCS.h"
-#include "FlareSpacecraft.h"
-#include "FlareSpacecraftComponent.h"
+#include "HeliumRain/Spacecrafts/FlarePilotHelper.h"
+#include "HeliumRain/Spacecrafts/FlareTurret.h"
+#include "HeliumRain/Spacecrafts/FlareRCS.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraft.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftComponent.h"
 
 #include "../Player/FlarePlayerController.h"
 #include "../Game/FlareGame.h"

@@ -1,5 +1,5 @@
 
-#include "FlareScannable.h"
+#include "HeliumRain/Game/FlareScannable.h"
 #include "../Flare.h"
 
 #include "../Player/FlarePlayerController.h"

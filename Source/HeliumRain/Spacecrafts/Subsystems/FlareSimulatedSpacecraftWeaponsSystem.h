@@ -2,7 +2,7 @@
 
 #include "../FlareSpacecraftTypes.h"
 #include "../FlareSimulatedSpacecraft.h"
-#include "FlareSpacecraftWeaponsSystemInterface.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftWeaponsSystemInterface.h"
 #include "FlareSimulatedSpacecraftWeaponsSystem.generated.h"
 
 /** Structure holding all data for a weapon group */

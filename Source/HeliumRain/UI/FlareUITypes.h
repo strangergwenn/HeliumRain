@@ -2,8 +2,8 @@
 
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
 
-#include "SlateBasics.h"
-#include "SlateGameResources.h"
+#include <SlateBasics.h>
+#include <Slate/SlateGameResources.h>
 #include "../UI/Style/FlareStyleSet.h"
 
 #include "FlareUITypes.generated.h"

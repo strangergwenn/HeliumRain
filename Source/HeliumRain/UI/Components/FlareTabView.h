@@ -3,9 +3,9 @@
 #include "../../Flare.h"
 #include "../Components/FlareButton.h"
 
-#include "Widgets/SCompoundWidget.h"
-#include "Widgets/Layout/SWidgetSwitcher.h"
-#include "Widgets/SBoxPanel.h"
+#include <Widgets/SCompoundWidget.h>
+#include <Widgets/Layout/SWidgetSwitcher.h>
+#include <Widgets/SBoxPanel.h>
 
 
 class SFlareTabView : public SCompoundWidget

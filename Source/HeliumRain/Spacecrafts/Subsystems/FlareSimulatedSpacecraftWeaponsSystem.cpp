@@ -1,5 +1,5 @@
 
-#include "FlareSimulatedSpacecraftWeaponsSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSimulatedSpacecraftWeaponsSystem.h"
 #include "../../Flare.h"
 
 #include "../../Data/FlareSpacecraftComponentsCatalog.h"
@@ -10,7 +10,7 @@
 #include "../FlareSpacecraftComponent.h"
 #include "../FlareSimulatedSpacecraft.h"
 
-#include "FlareSimulatedSpacecraftDamageSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSimulatedSpacecraftDamageSystem.h"
 
 
 #define LOCTEXT_NAMESPACE "FlareSimulatedSpacecraftWeaponsSystem"

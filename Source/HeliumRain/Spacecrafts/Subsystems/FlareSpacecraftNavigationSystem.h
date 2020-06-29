@@ -1,6 +1,6 @@
 #pragma once
-#include "FlareSpacecraftDockingSystem.h"
-#include "FlareSpacecraftDockingSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftDockingSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftDockingSystem.h"
 #include "FlareSpacecraftNavigationSystem.generated.h"
 
 class AFlareSpacecraft;

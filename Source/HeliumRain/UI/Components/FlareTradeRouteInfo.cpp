@@ -1,5 +1,5 @@
 
-#include "FlareTradeRouteInfo.h"
+#include "HeliumRain/UI/Components/FlareTradeRouteInfo.h"
 #include "../../Flare.h"
 #include "../../Game/FlareGameTools.h"
 #include "../../Game/FlareCompany.h"

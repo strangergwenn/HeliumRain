@@ -1,15 +1,15 @@
 #pragma once
 
-#include "FlareSpacecraftPawn.h"
-#include "FlareWeapon.h"
-#include "FlareSpacecraftComponent.h"
-#include "FlareSpacecraftSpinningComponent.h"
-#include "Subsystems/FlareSpacecraftDamageSystem.h"
-#include "Subsystems/FlareSpacecraftNavigationSystem.h"
-#include "Subsystems/FlareSpacecraftDockingSystem.h"
-#include "Subsystems/FlareSpacecraftWeaponsSystem.h"
-#include "FlareSpacecraftStateManager.h"
-#include "FlarePilotHelper.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftPawn.h"
+#include "HeliumRain/Spacecrafts/FlareWeapon.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftComponent.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftSpinningComponent.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftDamageSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftNavigationSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftDockingSystem.h"
+#include "HeliumRain/Spacecrafts/Subsystems/FlareSpacecraftWeaponsSystem.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftStateManager.h"
+#include "HeliumRain/Spacecrafts/FlarePilotHelper.h"
 #include "FlareSpacecraft.generated.h"
 
 class UFlareShipPilot;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../Flare.h"
-#include "FlareButton.h"
+#include "HeliumRain/UI/Components/FlareButton.h"
 
 
 class SFlareRoundButton : public SCompoundWidget

@@ -1,5 +1,5 @@
 
-#include "FlareSimulatedPlanetarium.h"
+#include "HeliumRain/Game/Planetarium/FlareSimulatedPlanetarium.h"
 #include "../../Flare.h"
 #include "../FlareGame.h"
 

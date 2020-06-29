@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Object.h"
+#include <UObject/Object.h>
 #include "../FlareGameTypes.h"
 
 #define DEBUG_NEW_AI_TRADING 0

@@ -1,5 +1,5 @@
 
-#include "FlareHUD.h"
+#include "HeliumRain/Player/FlareHUD.h"
 #include "../Flare.h"
 
 #include "../Economy/FlareCargoBay.h"
@@ -22,9 +22,9 @@
 #include "../UI/HUD/FlareHUDMenu.h"
 #include "../UI/HUD/FlareContextMenu.h"
 
-#include "Engine/PostProcessVolume.h"
-#include "Engine/CanvasRenderTarget2D.h"
-#include "Engine/Canvas.h"
+#include <Engine/PostProcessVolume.h>
+#include <Engine/CanvasRenderTarget2D.h>
+#include <Engine/Canvas.h>
 #include "Engine/Engine.h"
 
 

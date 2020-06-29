@@ -1,5 +1,5 @@
 
-#include "FlareBombComponent.h"
+#include "HeliumRain/Spacecrafts/FlareBombComponent.h"
 #include "../Flare.h"
 
 /*----------------------------------------------------

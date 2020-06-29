@@ -1,5 +1,5 @@
 
-#include "FlareSpacecraftStateManager.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraftStateManager.h"
 #include "../Flare.h"
 
 #include "../Game/FlareGameUserSettings.h"
@@ -7,12 +7,12 @@
 #include "../Player/FlarePlayerController.h"
 #include "../Player/FlareMenuManager.h"
 #include "../Player/FlareHUD.h"
-#include "FlareShipPilot.h"
-#include "FlarePilotHelper.h"
-#include "FlareSpacecraft.h"
-#include "FlareShipPilot.h"
+#include "HeliumRain/Spacecrafts/FlareShipPilot.h"
+#include "HeliumRain/Spacecrafts/FlarePilotHelper.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraft.h"
+#include "HeliumRain/Spacecrafts/FlareShipPilot.h"
 
-#include "Engine.h"
+#include <Engine.h>
 
 
 DECLARE_CYCLE_STAT(TEXT("FlareStateManager Tick"), STAT_FlareStateManager_Tick, STATGROUP_Flare);

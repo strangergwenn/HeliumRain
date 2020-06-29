@@ -1,12 +1,12 @@
 
-#include "FlarePlanetarium.h"
+#include "HeliumRain/Game/FlarePlanetarium.h"
 #include "../Flare.h"
-#include "FlareGame.h"
+#include "HeliumRain/Game/FlareGame.h"
 #include "../Player/FlarePlayerController.h"
 
-#include "EngineUtils.h"
-#include "Engine.h"
-#include "Materials/MaterialInstanceConstant.h"
+#include <EngineUtils.h>
+#include <Engine.h>
+#include <Materials/MaterialInstanceConstant.h>
 
 
 //#define PLANETARIUM_DEBUG

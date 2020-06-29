@@ -1,15 +1,15 @@
 
-#include "Flare.h"
-#include "UI/Style/FlareStyleSet.h"
-#include "Game/FlareGame.h"
-#include "Game/Save/FlareSaveGameSystem.h"
+#include "HeliumRain/Flare.h"
+#include "HeliumRain/UI/Style/FlareStyleSet.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/Save/FlareSaveGameSystem.h"
 
-#include "Runtime/Online/HTTP/Public/Http.h"
-#include "Runtime/Online/HTTP/Public/HttpManager.h"
-#include "HAL/PlatformStackWalk.h"
-#include "HAL/PlatformProcess.h"
-#include "HAL/PlatformTime.h"
-#include "Engine.h"
+#include <Http.h>
+#include <HttpManager.h>
+#include <HAL/PlatformStackWalk.h>
+#include <HAL/PlatformProcess.h>
+#include <HAL/PlatformTime.h>
+#include <Engine.h>
 
 
 IMPLEMENT_PRIMARY_GAME_MODULE(FFlareModule, HeliumRain, "HeliumRain");

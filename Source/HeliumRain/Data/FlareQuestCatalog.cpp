@@ -1,7 +1,7 @@
 
-#include "FlareQuestCatalog.h"
+#include "HeliumRain/Data/FlareQuestCatalog.h"
 #include "../Flare.h"
-#include "AssetRegistryModule.h"
+#include <AssetRegistryModule.h>
 
 
 /*----------------------------------------------------

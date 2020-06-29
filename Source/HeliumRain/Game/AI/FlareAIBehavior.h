@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Object.h"
+#include <UObject/Object.h>
 #include "../FlareGameTypes.h"
 #include "FlareAIBehavior.generated.h"
 

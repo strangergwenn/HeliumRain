@@ -1,5 +1,5 @@
 
-#include "FlarePlanetaryBox.h"
+#include "HeliumRain/UI/Components/FlarePlanetaryBox.h"
 #include "../../Flare.h"
 #include "../Style/FlareStyleSet.h"
 

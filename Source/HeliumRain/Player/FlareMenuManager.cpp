@@ -1,5 +1,5 @@
 
-#include "FlareMenuManager.h"
+#include "HeliumRain/Player/FlareMenuManager.h"
 #include "../Flare.h"
 
 #include "../UI/Components/FlareTooltip.h"
@@ -34,14 +34,14 @@
 #include "../Game/FlareGameTools.h"
 #include "../Game/FlareSkirmishManager.h"
 
-#include "FlareHUD.h"
-#include "FlareMenuPawn.h"
-#include "FlarePlayerController.h"
+#include "HeliumRain/Player/FlareHUD.h"
+#include "HeliumRain/Player/FlareMenuPawn.h"
+#include "HeliumRain/Player/FlarePlayerController.h"
 
 #include "../HeliumRainLoadingScreen/FlareLoadingScreen.h"
 
-#include "GameFramework/InputSettings.h"
-#include "Engine.h"
+#include <GameFramework/InputSettings.h>
+#include <Engine.h>
 
 
 #define LOCTEXT_NAMESPACE "FlareMenuManager"

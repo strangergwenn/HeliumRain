@@ -1,5 +1,5 @@
 
-#include "FlareSubsystemStatus.h"
+#include "HeliumRain/UI/HUD/FlareSubsystemStatus.h"
 #include "../../Flare.h"
 #include "../Components/FlareRoundButton.h"
 #include "../../Spacecrafts/FlareWeapon.h"

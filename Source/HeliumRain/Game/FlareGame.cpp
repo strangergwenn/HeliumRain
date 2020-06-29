@@ -1,17 +1,17 @@
 
-#include "FlareGame.h"
+#include "HeliumRain/Game/FlareGame.h"
 #include "../Flare.h"
 
-#include "FlareSaveGame.h"
-#include "FlareWorld.h"
-#include "FlareAsteroid.h"
-#include "FlareDebrisField.h"
-#include "FlarePlanetarium.h"
-#include "FlareGameTools.h"
-#include "FlareScenarioTools.h"
-#include "FlareSkirmishManager.h"
+#include "HeliumRain/Game/FlareSaveGame.h"
+#include "HeliumRain/Game/FlareWorld.h"
+#include "HeliumRain/Game/FlareAsteroid.h"
+#include "HeliumRain/Game/FlareDebrisField.h"
+#include "HeliumRain/Game/FlarePlanetarium.h"
+#include "HeliumRain/Game/FlareGameTools.h"
+#include "HeliumRain/Game/FlareScenarioTools.h"
+#include "HeliumRain/Game/FlareSkirmishManager.h"
 
-#include "Save/FlareSaveGameSystem.h"
+#include "HeliumRain/Game/Save/FlareSaveGameSystem.h"
 
 #include "../Data/FlareSpacecraftCatalog.h"
 #include "../Data/FlareSpacecraftComponentsCatalog.h"
@@ -39,11 +39,11 @@
 
 #include "../Quests/FlareQuestManager.h"
 
-#include "AssetRegistryModule.h"
-#include "Log/FlareLogWriter.h"
+#include <AssetRegistryModule.h>
+#include "HeliumRain/Game/Log/FlareLogWriter.h"
 
-#include "Engine/PostProcessVolume.h"
-#include "Engine.h"
+#include <Engine/PostProcessVolume.h>
+#include <Engine.h>
 
 #define LOCTEXT_NAMESPACE "FlareGame"
 

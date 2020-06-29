@@ -1,7 +1,7 @@
 
-#include "FlareRCS.h"
+#include "HeliumRain/Spacecrafts/FlareRCS.h"
 #include "../Flare.h"
-#include "FlareSpacecraft.h"
+#include "HeliumRain/Spacecrafts/FlareSpacecraft.h"
 
 
 /*----------------------------------------------------

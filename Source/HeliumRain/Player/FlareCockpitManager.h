@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GameFramework/Actor.h"
-#include "Components/PointLightComponent.h"
+#include <GameFramework/Actor.h>
+#include <Components/PointLightComponent.h>
 #include "FlareCockpitManager.generated.h"
 
 class AFlareSpacecraft;

@@ -1,8 +1,8 @@
 
-#include "FlareMenuPawn.h"
+#include "HeliumRain/Player/FlareMenuPawn.h"
 #include "../Flare.h"
-#include "FlarePlayerController.h"
-#include "FlareHUD.h"
+#include "HeliumRain/Player/FlarePlayerController.h"
+#include "HeliumRain/Player/FlareHUD.h"
 #include "../Game/FlareGameUserSettings.h"
 
 

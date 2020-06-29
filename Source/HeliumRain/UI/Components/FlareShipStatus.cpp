@@ -1,5 +1,5 @@
 
-#include "FlareShipStatus.h"
+#include "HeliumRain/UI/Components/FlareShipStatus.h"
 #include "../../Flare.h"
 
 #include "../../Data/FlareSpacecraftComponentsCatalog.h"

@@ -1,6 +1,6 @@
 
-#include "FlareQuest.h"
-#include "Flare.h"
+#include "HeliumRain/Quests/FlareQuest.h"
+#include "HeliumRain/Flare.h"
 
 #include "../Game/FlareGame.h"
 #include "../Game/FlareGameTools.h"
@@ -8,11 +8,11 @@
 #include "../Player/FlareMenuManager.h"
 #include "../Player/FlarePlayerController.h"
 
-#include "FlareQuestStep.h"
-#include "FlareQuestCondition.h"
-#include "FlareQuestAction.h"
+#include "HeliumRain/Quests/FlareQuestStep.h"
+#include "HeliumRain/Quests/FlareQuestCondition.h"
+#include "HeliumRain/Quests/FlareQuestAction.h"
 
-#include "GameFramework/InputSettings.h"
+#include <GameFramework/InputSettings.h>
 
 #define LOCTEXT_NAMESPACE "FlareQuest"
 

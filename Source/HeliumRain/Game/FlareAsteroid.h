@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Spacecrafts/FlareSpacecraftTypes.h"
-#include "FlareAsteroidComponent.h"
+#include "HeliumRain/Game/FlareAsteroidComponent.h"
 #include "FlareAsteroid.generated.h"
 
 

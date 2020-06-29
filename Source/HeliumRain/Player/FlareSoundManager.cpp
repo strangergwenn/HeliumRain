@@ -1,14 +1,14 @@
 
-#include "FlareSoundManager.h"
+#include "HeliumRain/Player/FlareSoundManager.h"
 #include "../Flare.h"
 
-#include "FlareMenuManager.h"
-#include "FlarePlayerController.h"
+#include "HeliumRain/Player/FlareMenuManager.h"
+#include "HeliumRain/Player/FlarePlayerController.h"
 
 #include "../Spacecrafts/FlareSpacecraft.h"
 #include "../Spacecrafts/FlareOrbitalEngine.h"
 
-#include "AudioDevice.h"
+#include <AudioDevice.h>
 
 
 #define LOCTEXT_NAMESPACE "UFlareSoundManager"

@@ -1,11 +1,11 @@
 
-#include "FlareDebrisField.h"
+#include "HeliumRain/Game/FlareDebrisField.h"
 #include "../Flare.h"
-#include "FlareGame.h"
-#include "FlareSimulatedSector.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlareSimulatedSector.h"
 
-#include "Engine/StaticMeshActor.h"
-#include "StaticMeshResources.h"
+#include <Engine/StaticMeshActor.h>
+#include <StaticMeshResources.h>
 
 #define LOCTEXT_NAMESPACE "FlareDebrisField"
 

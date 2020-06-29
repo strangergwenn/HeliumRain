@@ -1,11 +1,11 @@
 
-#include "FlareFleet.h"
+#include "HeliumRain/Game/FlareFleet.h"
 #include "../Flare.h"
 
-#include "FlareCompany.h"
-#include "FlareGame.h"
-#include "FlareGameTools.h"
-#include "FlareSimulatedSector.h"
+#include "HeliumRain/Game/FlareCompany.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlareGameTools.h"
+#include "HeliumRain/Game/FlareSimulatedSector.h"
 
 #include "../Economy/FlareCargoBay.h"
 

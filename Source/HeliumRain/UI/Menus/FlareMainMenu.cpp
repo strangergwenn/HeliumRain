@@ -1,5 +1,5 @@
 
-#include "FlareMainMenu.h"
+#include "HeliumRain/UI/Menus/FlareMainMenu.h"
 #include "../../Flare.h"
 
 #include "../../Game/FlareGame.h"
@@ -10,9 +10,9 @@
 #include "../../Player/FlareMenuManager.h"
 #include "../../Player/FlarePlayerController.h"
 
-#include "Runtime/Projects/Public/Interfaces/IPluginManager.h"
+#include <Interfaces/IPluginManager.h>
 
-#include "SBackgroundBlur.h"
+#include <Widgets/Layout/SBackgroundBlur.h>
 
 
 #define LOCTEXT_NAMESPACE "FlareMainMenu"

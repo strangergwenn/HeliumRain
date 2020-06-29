@@ -1,5 +1,5 @@
 
-#include "FlareTacticManager.h"
+#include "HeliumRain/Game/AI/FlareTacticManager.h"
 #include "../../Flare.h"
 #include "../FlareCompany.h"
 #include "../FlareGame.h"

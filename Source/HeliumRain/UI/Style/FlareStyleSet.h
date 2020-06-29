@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SlateBasics.h"
-#include "SlateGameResources.h"
-#include "FlareWidgetStyleCatalog.h"
+#include <SlateBasics.h>
+#include <Slate/SlateGameResources.h>
+#include "HeliumRain/UI/Style/FlareWidgetStyleCatalog.h"
 
 
 class FFlareStyleSet

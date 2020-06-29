@@ -1,11 +1,11 @@
 
-#include "FlareGameTools.h"
+#include "HeliumRain/Game/FlareGameTools.h"
 #include "../Flare.h"
 
-#include "FlareGame.h"
-#include "FlareCompany.h"
-#include "FlarePlanetarium.h"
-#include "FlareSectorHelper.h"
+#include "HeliumRain/Game/FlareGame.h"
+#include "HeliumRain/Game/FlareCompany.h"
+#include "HeliumRain/Game/FlarePlanetarium.h"
+#include "HeliumRain/Game/FlareSectorHelper.h"
 
 #include "../Data/FlareFactoryCatalogEntry.h"
 #include "../Data/FlareResourceCatalog.h"
@@ -17,9 +17,9 @@
 #include "../Player/FlareMenuManager.h"
 #include "../Player/FlarePlayerController.h"
 
-#include "Quests/FlareQuest.h"
-#include "Quests/FlareQuestStep.h"
-#include "Quests/FlareQuestManager.h"
+#include "HeliumRain/Quests/FlareQuest.h"
+#include "HeliumRain/Quests/FlareQuestStep.h"
+#include "HeliumRain/Quests/FlareQuestManager.h"
 
 #define LOCTEXT_NAMESPACE "FlareGameTools"
 

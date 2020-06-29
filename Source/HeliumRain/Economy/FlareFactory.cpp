@@ -1,5 +1,5 @@
 
-#include "FlareFactory.h"
+#include "HeliumRain/Economy/FlareFactory.h"
 #include "../Flare.h"
 
 #include "../Data/FlareResourceCatalog.h"
